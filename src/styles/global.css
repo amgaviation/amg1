@@ -1,0 +1,48 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important;
+  scroll-behavior: smooth;
+  background: #050b14;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+iframe {
+  max-width: 100% !important;
+  border: none !important;
+}
+
+[data-mesh-id] {
+  overflow-x: hidden !important;
+}
+
+section {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.nopaddingsection.section {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.autoheight-htmlcomponent.html-component {
+  height: auto !important;
+  min-height: 100% !important;
+  overflow: visible !important;
+}
