@@ -1,0 +1,262 @@
+// backend/crewProfiles.jsw
+// AMG Portal Phase 3: crew profile functions.
+
+import wixData from 'wix-data';
+import { currentMember } from 'wix-members-backend';
+
+const PORTAL_USERS = 'PortalUsers';
+const CREW_PROFILES = 'CrewProfiles';
+const AUDIT_LOGS = 'PortalAuditLogs';
+
+function clean(value) {
+  return String(value || '').trim();
+}
+
+function email(value) {
+  return clean(value).toLowerCase();
+}
+
+function numberValue(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function boolValue(value) {
+  return value === true || value === 'TRUE' || value === 'true' || value === 'Yes' || value === 'yes';
+}
+
+function getMemberEmail(member) {
+  const direct = member?.loginEmail || member?.email;
+  const contactEmail = member?.contactDetails?.emails?.[0]?.email || member?.contactDetails?.emails?.[0] || member?.profile?.email;
+  return email(direct || contactEmail || '');
+}
+
+function getMemberName(member) {
+  const first = member?.contactDetails?.firstName || '';
+  const last = member?.contactDetails?.lastName || '';
+  const full = `${first} ${last}`.trim();
+  return full || member?.profile?.nickname || member?.profile?.slug || getMemberEmail(member) || 'Crew Member';
+}
+
+function publicPortalUser(user) {
+  if (!user) return null;
+  return {
+    _id: user._id,
+    fullName: user.fullName || '',
+    loginEmail: user.loginEmail || '',
+    phone: user.phone || '',
+    memberId: user.memberId || '',
+    role: user.role || '',
+    approvalStatus: user.approvalStatus || '',
+    isActive: user.isActive !== false
+  };
+}
+
+function publicCrewProfile(profile) {
+  if (!profile) return null;
+  return {
+    _id: profile._id,
+    title: profile.title || '',
+    portalUserId: profile.portalUserId || '',
+    memberId: profile.memberId || '',
+    loginEmail: profile.loginEmail || '',
+    fullName: profile.fullName || '',
+    phone: profile.phone || '',
+    crewStatus: profile.crewStatus || '',
+    profileCompletionStatus: profile.profileCompletionStatus || '',
+    credentialStatus: profile.credentialStatus || '',
+    baseAirport: profile.baseAirport || '',
+    nearestMajorAirport: profile.nearestMajorAirport || '',
+    homeCity: profile.homeCity || '',
+    homeState: profile.homeState || '',
+    certificatesRatings: profile.certificatesRatings || '',
+    typeRatings: profile.typeRatings || '',
+    aircraftExperience: profile.aircraftExperience || '',
+    totalTime: profile.totalTime || 0,
+    picTime: profile.picTime || 0,
+    multiTime: profile.multiTime || 0,
+    turbineTime: profile.turbineTime || 0,
+    jetTime: profile.jetTime || 0,
+    helicopterTime: profile.helicopterTime || 0,
+    medicalClass: profile.medicalClass || '',
+    medicalExpiration: profile.medicalExpiration || null,
+    passportStatus: profile.passportStatus || '',
+    passportExpiration: profile.passportExpiration || null,
+    availabilityNotice: profile.availabilityNotice || '',
+    availableForFerry: profile.availableForFerry === true,
+    availableForContract: profile.availableForContract === true,
+    availableForMaintenanceFlights: profile.availableForMaintenanceFlights === true,
+    availableForInternational: profile.availableForInternational === true,
+    preferredAircraft: profile.preferredAircraft || '',
+    dayRate: profile.dayRate || 0,
+    overnightRate: profile.overnightRate || 0,
+    travelPolicy: profile.travelPolicy || '',
+    crewNotes: profile.crewNotes || '',
+    lastProfileUpdate: profile.lastProfileUpdate || null,
+    isActive: profile.isActive !== false,
+    createdSource: profile.createdSource || ''
+  };
+}
+
+async function logAction(action, actorEmail, actorMemberId, targetCollection, targetItemId, details) {
+  try {
+    await wixData.insert(AUDIT_LOGS, {
+      action: clean(action),
+      actorEmail: email(actorEmail),
+      actorMemberId: clean(actorMemberId),
+      targetCollection: clean(targetCollection),
+      targetItemId: clean(targetItemId),
+      details: typeof details === 'string' ? details : JSON.stringify(details || {}),
+      createdAt: new Date()
+    }, { suppressAuth: true });
+  } catch (err) {
+    console.warn('Crew profile audit log skipped:', err);
+  }
+}
+
+async function getContext() {
+  let member;
+  try {
+    member = await currentMember.getMember({ fieldsets: ['FULL'] });
+  } catch (err) {
+    member = null;
+  }
+
+  if (!member) throw new Error('Not logged in.');
+
+  const loginEmail = getMemberEmail(member);
+  if (!loginEmail) throw new Error('Member email unavailable.');
+
+  const result = await wixData.query(PORTAL_USERS)
+    .eq('loginEmail', loginEmail)
+    .limit(1)
+    .find({ suppressAuth: true });
+
+  const portalUser = result.items[0];
+  if (!portalUser) throw new Error('Portal user record not found.');
+  if (portalUser.isActive === false) throw new Error('Portal user inactive.');
+  if (portalUser.approvalStatus !== 'approved') throw new Error('Portal user is not approved.');
+
+  return { member, loginEmail, memberId: member._id || '', portalUser };
+}
+
+async function findCrewProfile(loginEmail) {
+  const result = await wixData.query(CREW_PROFILES)
+    .eq('loginEmail', email(loginEmail))
+    .limit(1)
+    .find({ suppressAuth: true });
+
+  return result.items[0] || null;
+}
+
+async function createCrewProfileFromContext(context) {
+  const item = {
+    title: context.portalUser.fullName || getMemberName(context.member),
+    portalUserId: context.portalUser._id,
+    memberId: context.memberId,
+    loginEmail: context.loginEmail,
+    fullName: context.portalUser.fullName || getMemberName(context.member),
+    phone: context.portalUser.phone || '',
+    crewStatus: context.portalUser.role === 'crew_pilot' ? 'approved' : 'admin_review',
+    profileCompletionStatus: 'incomplete',
+    credentialStatus: 'not_submitted',
+    baseAirport: context.portalUser.homeAirport || '',
+    nearestMajorAirport: '',
+    homeCity: '',
+    homeState: '',
+    certificatesRatings: '',
+    typeRatings: '',
+    aircraftExperience: '',
+    totalTime: 0,
+    picTime: 0,
+    multiTime: 0,
+    turbineTime: 0,
+    jetTime: 0,
+    helicopterTime: 0,
+    medicalClass: '',
+    passportStatus: '',
+    availabilityNotice: '',
+    availableForFerry: true,
+    availableForContract: true,
+    availableForMaintenanceFlights: true,
+    availableForInternational: false,
+    preferredAircraft: '',
+    dayRate: 0,
+    overnightRate: 0,
+    travelPolicy: 'Pass-through travel unless otherwise agreed.',
+    crewNotes: '',
+    lastProfileUpdate: new Date(),
+    isActive: true,
+    createdSource: 'auto_crew_dashboard'
+  };
+
+  const saved = await wixData.insert(CREW_PROFILES, item, { suppressAuth: true });
+  await logAction('crew_profile_auto_created', context.loginEmail, context.memberId, CREW_PROFILES, saved._id, { role: context.portalUser.role });
+  return saved;
+}
+
+export async function getMyCrewDashboard() {
+  const context = await getContext();
+
+  const allowed = context.portalUser.role === 'crew_pilot' || context.portalUser.role === 'amg_admin';
+  if (!allowed) throw new Error('Crew dashboard is only available to approved crew or AMG admin.');
+
+  let profile = await findCrewProfile(context.loginEmail);
+  if (!profile) profile = await createCrewProfileFromContext(context);
+
+  await logAction('crew_dashboard_loaded', context.loginEmail, context.memberId, CREW_PROFILES, profile._id, {});
+
+  return {
+    portalUser: publicPortalUser(context.portalUser),
+    crewProfile: publicCrewProfile(profile)
+  };
+}
+
+export async function saveMyCrewProfile(update = {}) {
+  const context = await getContext();
+  const allowed = context.portalUser.role === 'crew_pilot' || context.portalUser.role === 'amg_admin';
+  if (!allowed) throw new Error('Crew profile updates are only available to approved crew or AMG admin.');
+
+  let profile = await findCrewProfile(context.loginEmail);
+  if (!profile) profile = await createCrewProfileFromContext(context);
+
+  profile.title = clean(update.fullName) || profile.title || context.portalUser.fullName || context.loginEmail;
+  profile.portalUserId = profile.portalUserId || context.portalUser._id;
+  profile.memberId = profile.memberId || context.memberId;
+  profile.loginEmail = context.loginEmail;
+  profile.fullName = clean(update.fullName) || profile.fullName || context.portalUser.fullName || '';
+  profile.phone = clean(update.phone);
+  profile.baseAirport = clean(update.baseAirport).toUpperCase();
+  profile.nearestMajorAirport = clean(update.nearestMajorAirport).toUpperCase();
+  profile.homeCity = clean(update.homeCity);
+  profile.homeState = clean(update.homeState).toUpperCase();
+  profile.certificatesRatings = clean(update.certificatesRatings);
+  profile.typeRatings = clean(update.typeRatings);
+  profile.aircraftExperience = clean(update.aircraftExperience);
+  profile.totalTime = numberValue(update.totalTime);
+  profile.picTime = numberValue(update.picTime);
+  profile.multiTime = numberValue(update.multiTime);
+  profile.turbineTime = numberValue(update.turbineTime);
+  profile.jetTime = numberValue(update.jetTime);
+  profile.helicopterTime = numberValue(update.helicopterTime);
+  profile.medicalClass = clean(update.medicalClass);
+  profile.passportStatus = clean(update.passportStatus);
+  profile.availabilityNotice = clean(update.availabilityNotice);
+  profile.availableForFerry = boolValue(update.availableForFerry);
+  profile.availableForContract = boolValue(update.availableForContract);
+  profile.availableForMaintenanceFlights = boolValue(update.availableForMaintenanceFlights);
+  profile.availableForInternational = boolValue(update.availableForInternational);
+  profile.preferredAircraft = clean(update.preferredAircraft);
+  profile.dayRate = numberValue(update.dayRate);
+  profile.overnightRate = numberValue(update.overnightRate);
+  profile.travelPolicy = clean(update.travelPolicy);
+  profile.crewNotes = clean(update.crewNotes);
+  profile.profileCompletionStatus = clean(update.profileCompletionStatus) || profile.profileCompletionStatus || 'incomplete';
+  profile.lastProfileUpdate = new Date();
+  profile.isActive = true;
+
+  const saved = await wixData.update(CREW_PROFILES, profile, { suppressAuth: true });
+  await logAction('crew_profile_saved', context.loginEmail, context.memberId, CREW_PROFILES, saved._id, {});
+
+  return publicCrewProfile(saved);
+}
