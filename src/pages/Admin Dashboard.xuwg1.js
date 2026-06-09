@@ -12,6 +12,7 @@ import {
 } from 'backend/portalAuth.jsw';
 
 let selectedUser = null;
+let loadedUsers = [];
 
 $w.onReady(async function () {
   setupHandlers();
@@ -34,20 +35,22 @@ function setupHandlers() {
   const approveUserButton = el('approveUserButton');
   const denyUserButton = el('denyUserButton');
 
-  if (refreshButton) refreshButton.onClick(loadUsers);
-  if (statusFilter) statusFilter.onChange(loadUsers);
+  if (refreshButton && typeof refreshButton.onClick === 'function') refreshButton.onClick(loadUsers);
+  if (statusFilter && typeof statusFilter.onChange === 'function') statusFilter.onChange(loadUsers);
 
-  if (usersTable) {
+  if (usersTable && typeof usersTable.onRowSelect === 'function') {
     usersTable.onRowSelect((event) => {
       selectedUser = event.rowData;
       fillEditor(selectedUser);
       setMessage('Selected user loaded.');
     });
+  } else {
+    setMessage('usersTable is not a Wix Table element. Add a real Table element and set its ID to usersTable.');
   }
 
-  if (saveUserButton) saveUserButton.onClick(saveUser);
-  if (approveUserButton) approveUserButton.onClick(() => updateStatus('approved', true));
-  if (denyUserButton) denyUserButton.onClick(() => updateStatus('denied', false));
+  if (saveUserButton && typeof saveUserButton.onClick === 'function') saveUserButton.onClick(saveUser);
+  if (approveUserButton && typeof approveUserButton.onClick === 'function') approveUserButton.onClick(() => updateStatus('approved', true));
+  if (denyUserButton && typeof denyUserButton.onClick === 'function') denyUserButton.onClick(() => updateStatus('denied', false));
 }
 
 async function loadUsers() {
@@ -63,11 +66,13 @@ async function loadUsers() {
       adminListPortalUsers(statusFilter)
     ]);
 
+    loadedUsers = users;
+
     const countsText = el('countsText');
     if (countsText) countsText.text = formatCounts(counts);
 
     const usersTable = el('usersTable');
-    if (usersTable) {
+    if (usersTable && 'columns' in usersTable && 'rows' in usersTable) {
       usersTable.columns = [
         { id: 'fullName', dataPath: 'fullName', label: 'Name', type: 'string' },
         { id: 'loginEmail', dataPath: 'loginEmail', label: 'Email', type: 'string' },
@@ -77,14 +82,23 @@ async function loadUsers() {
         { id: 'lastLoginText', dataPath: 'lastLoginText', label: 'Last Login', type: 'string' }
       ];
 
-      usersTable.rows = users.map((user) => ({
+      usersTable.rows = users.map((user, index) => ({
         ...user,
+        rowNumber: index + 1,
         activeText: user.isActive === false ? 'No' : 'Yes',
         lastLoginText: user.lastLogin ? new Date(user.lastLogin).toLocaleString() : ''
       }));
+    } else {
+      setMessage('Loaded users, but usersTable is not a Wix Table element. Replace it with a real Table element.');
     }
 
     setMessage(`Loaded ${users.length} user records.`);
+
+    if (users.length === 1) {
+      selectedUser = users[0];
+      fillEditor(selectedUser);
+      setMessage('Loaded 1 user and selected it automatically.');
+    }
   } catch (err) {
     console.error('Admin dashboard load failed:', err);
     setMessage(`Admin dashboard error: ${err.message || err}`);
@@ -138,8 +152,12 @@ function readEditor() {
 
 async function saveUser() {
   if (!selectedUser || !selectedUser._id) {
-    setMessage('Select a user from the table first.');
-    return;
+    if (loadedUsers.length === 1) {
+      selectedUser = loadedUsers[0];
+    } else {
+      setMessage('Select a user from the table first.');
+      return;
+    }
   }
 
   try {
@@ -157,8 +175,12 @@ async function saveUser() {
 
 async function updateStatus(status, active) {
   if (!selectedUser || !selectedUser._id) {
-    setMessage('Select a user from the table first.');
-    return;
+    if (loadedUsers.length === 1) {
+      selectedUser = loadedUsers[0];
+    } else {
+      setMessage('Select a user from the table first.');
+      return;
+    }
   }
 
   try {
