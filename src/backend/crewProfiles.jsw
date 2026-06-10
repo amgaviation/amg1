@@ -140,6 +140,14 @@ async function getContext() {
   return { member, loginEmail, memberId: member._id || '', portalUser };
 }
 
+async function requireAdmin() {
+  const context = await getContext();
+  if (context.portalUser.role !== 'amg_admin') {
+    throw new Error('AMG admin access required.');
+  }
+  return context;
+}
+
 async function findCrewProfile(loginEmail) {
   const result = await wixData.query(CREW_PROFILES)
     .eq('loginEmail', email(loginEmail))
@@ -258,5 +266,70 @@ export async function saveMyCrewProfile(update = {}) {
   const saved = await wixData.update(CREW_PROFILES, profile, { suppressAuth: true });
   await logAction('crew_profile_saved', context.loginEmail, context.memberId, CREW_PROFILES, saved._id, {});
 
+  return publicCrewProfile(saved);
+}
+
+export async function adminListCrewProfiles(statusFilter = '') {
+  const context = await requireAdmin();
+  let query = wixData.query(CREW_PROFILES).descending('lastProfileUpdate');
+  const status = clean(statusFilter);
+
+  if (status && status !== 'all') {
+    query = query.eq('crewStatus', status);
+  }
+
+  const result = await query.limit(1000).find({ suppressAuth: true });
+  await logAction('admin_list_crew_profiles', context.loginEmail, context.memberId, CREW_PROFILES, '', { status });
+  return result.items.map(publicCrewProfile);
+}
+
+export async function adminGetCrewProfileCounts() {
+  await requireAdmin();
+  const result = await wixData.query(CREW_PROFILES).limit(1000).find({ suppressAuth: true });
+  const profiles = result.items || [];
+
+  return {
+    total: profiles.length,
+    approved: profiles.filter((item) => item.crewStatus === 'approved').length,
+    pendingReview: profiles.filter((item) => item.crewStatus === 'pending_review').length,
+    adminReview: profiles.filter((item) => item.crewStatus === 'admin_review').length,
+    inactive: profiles.filter((item) => item.isActive === false).length,
+    credentialsApproved: profiles.filter((item) => item.credentialStatus === 'approved').length,
+    credentialsPending: profiles.filter((item) => item.credentialStatus === 'pending_review' || item.credentialStatus === 'not_submitted').length,
+    complete: profiles.filter((item) => item.profileCompletionStatus === 'complete').length,
+    incomplete: profiles.filter((item) => item.profileCompletionStatus !== 'complete').length
+  };
+}
+
+export async function adminUpdateCrewProfile(profileId, update = {}) {
+  const context = await requireAdmin();
+  const id = clean(profileId);
+  if (!id) throw new Error('Crew profile ID is required.');
+
+  const existing = await wixData.get(CREW_PROFILES, id, { suppressAuth: true });
+  if (!existing) throw new Error('Crew profile not found.');
+
+  const allowedStatuses = ['pending_review', 'admin_review', 'approved', 'inactive', 'suspended'];
+  const allowedCredentialStatuses = ['not_submitted', 'pending_review', 'approved', 'rejected', 'expired'];
+  const allowedCompletionStatuses = ['incomplete', 'partial', 'complete'];
+
+  const next = {
+    ...existing,
+    title: clean(update.fullName) || existing.title,
+    fullName: clean(update.fullName) || existing.fullName,
+    phone: clean(update.phone) || existing.phone,
+    crewStatus: allowedStatuses.includes(clean(update.crewStatus)) ? clean(update.crewStatus) : existing.crewStatus,
+    profileCompletionStatus: allowedCompletionStatuses.includes(clean(update.profileCompletionStatus)) ? clean(update.profileCompletionStatus) : existing.profileCompletionStatus,
+    credentialStatus: allowedCredentialStatuses.includes(clean(update.credentialStatus)) ? clean(update.credentialStatus) : existing.credentialStatus,
+    baseAirport: clean(update.baseAirport).toUpperCase() || existing.baseAirport,
+    nearestMajorAirport: clean(update.nearestMajorAirport).toUpperCase() || existing.nearestMajorAirport,
+    preferredAircraft: clean(update.preferredAircraft) || existing.preferredAircraft,
+    crewNotes: clean(update.crewNotes) || existing.crewNotes,
+    isActive: typeof update.isActive === 'boolean' ? update.isActive : existing.isActive,
+    lastProfileUpdate: new Date()
+  };
+
+  const saved = await wixData.update(CREW_PROFILES, next, { suppressAuth: true });
+  await logAction('admin_update_crew_profile', context.loginEmail, context.memberId, CREW_PROFILES, saved._id, update);
   return publicCrewProfile(saved);
 }
