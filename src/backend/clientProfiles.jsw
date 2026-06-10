@@ -1,0 +1,303 @@
+// backend/clientProfiles.jsw
+// AMG Portal Phase 4: client / owner profile functions.
+
+import wixData from 'wix-data';
+import { currentMember } from 'wix-members-backend';
+
+const PORTAL_USERS = 'PortalUsers';
+const CLIENT_PROFILES = 'ClientProfiles';
+const AUDIT_LOGS = 'PortalAuditLogs';
+
+function clean(value) {
+  return String(value || '').trim();
+}
+
+function email(value) {
+  return clean(value).toLowerCase();
+}
+
+function boolValue(value) {
+  return value === true || value === 'TRUE' || value === 'true' || value === 'Yes' || value === 'yes';
+}
+
+function getMemberEmail(member) {
+  const direct = member?.loginEmail || member?.email;
+  const contactEmail = member?.contactDetails?.emails?.[0]?.email || member?.contactDetails?.emails?.[0] || member?.profile?.email;
+  return email(direct || contactEmail || '');
+}
+
+function getMemberName(member) {
+  const first = member?.contactDetails?.firstName || '';
+  const last = member?.contactDetails?.lastName || '';
+  const full = `${first} ${last}`.trim();
+  return full || member?.profile?.nickname || member?.profile?.slug || getMemberEmail(member) || 'Client';
+}
+
+function publicPortalUser(user) {
+  if (!user) return null;
+  return {
+    _id: user._id,
+    fullName: user.fullName || '',
+    loginEmail: user.loginEmail || '',
+    phone: user.phone || '',
+    memberId: user.memberId || '',
+    role: user.role || '',
+    approvalStatus: user.approvalStatus || '',
+    isActive: user.isActive !== false
+  };
+}
+
+function publicClientProfile(profile) {
+  if (!profile) return null;
+  return {
+    _id: profile._id,
+    title: profile.title || '',
+    portalUserId: profile.portalUserId || '',
+    memberId: profile.memberId || '',
+    loginEmail: profile.loginEmail || '',
+    fullName: profile.fullName || '',
+    phone: profile.phone || '',
+    clientStatus: profile.clientStatus || '',
+    approvalStatus: profile.approvalStatus || '',
+    companyName: profile.companyName || '',
+    clientType: profile.clientType || '',
+    homeAirport: profile.homeAirport || '',
+    preferredAirport: profile.preferredAirport || '',
+    aircraftOwned: profile.aircraftOwned || '',
+    tailNumbers: profile.tailNumbers || '',
+    billingPreference: profile.billingPreference || '',
+    billingContactName: profile.billingContactName || '',
+    billingEmail: profile.billingEmail || '',
+    billingPhone: profile.billingPhone || '',
+    authorizedRequesters: profile.authorizedRequesters || '',
+    ownerNotes: profile.ownerNotes || '',
+    servicePreferences: profile.servicePreferences || '',
+    subscriptionStatus: profile.subscriptionStatus || '',
+    preferredPlan: profile.preferredPlan || '',
+    defaultAircraftCategory: profile.defaultAircraftCategory || '',
+    lastProfileUpdate: profile.lastProfileUpdate || null,
+    isActive: profile.isActive !== false,
+    createdSource: profile.createdSource || ''
+  };
+}
+
+async function logAction(action, actorEmail, actorMemberId, targetCollection, targetItemId, details) {
+  try {
+    await wixData.insert(AUDIT_LOGS, {
+      action: clean(action),
+      actorEmail: email(actorEmail),
+      actorMemberId: clean(actorMemberId),
+      targetCollection: clean(targetCollection),
+      targetItemId: clean(targetItemId),
+      details: typeof details === 'string' ? details : JSON.stringify(details || {}),
+      createdAt: new Date()
+    }, { suppressAuth: true });
+  } catch (err) {
+    console.warn('Client profile audit log skipped:', err);
+  }
+}
+
+async function getContext() {
+  let member;
+  try {
+    member = await currentMember.getMember({ fieldsets: ['FULL'] });
+  } catch (err) {
+    member = null;
+  }
+
+  if (!member) throw new Error('Not logged in.');
+
+  const loginEmail = getMemberEmail(member);
+  if (!loginEmail) throw new Error('Member email unavailable.');
+
+  const result = await wixData.query(PORTAL_USERS)
+    .eq('loginEmail', loginEmail)
+    .limit(1)
+    .find({ suppressAuth: true });
+
+  const portalUser = result.items[0];
+  if (!portalUser) throw new Error('Portal user record not found.');
+  if (portalUser.isActive === false) throw new Error('Portal user inactive.');
+  if (portalUser.approvalStatus !== 'approved') throw new Error('Portal user is not approved.');
+
+  return { member, loginEmail, memberId: member._id || '', portalUser };
+}
+
+async function requireAdmin() {
+  const context = await getContext();
+  if (context.portalUser.role !== 'amg_admin') throw new Error('AMG admin access required.');
+  return context;
+}
+
+async function findClientProfile(loginEmail) {
+  const result = await wixData.query(CLIENT_PROFILES)
+    .eq('loginEmail', email(loginEmail))
+    .limit(1)
+    .find({ suppressAuth: true });
+
+  return result.items[0] || null;
+}
+
+async function createClientProfileFromContext(context) {
+  const fullName = context.portalUser.fullName || getMemberName(context.member);
+  const item = {
+    title: fullName,
+    portalUserId: context.portalUser._id,
+    memberId: context.memberId,
+    loginEmail: context.loginEmail,
+    fullName,
+    phone: context.portalUser.phone || '',
+    clientStatus: context.portalUser.role === 'client_owner' ? 'approved' : 'admin_review',
+    approvalStatus: 'approved',
+    companyName: context.portalUser.companyName || '',
+    clientType: 'owner',
+    homeAirport: context.portalUser.homeAirport || '',
+    preferredAirport: context.portalUser.homeAirport || '',
+    aircraftOwned: '',
+    tailNumbers: '',
+    billingPreference: 'invoice',
+    billingContactName: fullName,
+    billingEmail: context.loginEmail,
+    billingPhone: context.portalUser.phone || '',
+    authorizedRequesters: fullName,
+    ownerNotes: '',
+    servicePreferences: '',
+    subscriptionStatus: 'none',
+    preferredPlan: 'none',
+    defaultAircraftCategory: '',
+    lastProfileUpdate: new Date(),
+    isActive: true,
+    createdSource: 'auto_client_dashboard'
+  };
+
+  const saved = await wixData.insert(CLIENT_PROFILES, item, { suppressAuth: true });
+  await logAction('client_profile_auto_created', context.loginEmail, context.memberId, CLIENT_PROFILES, saved._id, { role: context.portalUser.role });
+  return saved;
+}
+
+export async function getMyClientDashboard() {
+  const context = await getContext();
+  const allowed = context.portalUser.role === 'client_owner' || context.portalUser.role === 'amg_admin';
+  if (!allowed) throw new Error('Client dashboard is only available to approved clients or AMG admin.');
+
+  let profile = await findClientProfile(context.loginEmail);
+  if (!profile) profile = await createClientProfileFromContext(context);
+
+  await logAction('client_dashboard_loaded', context.loginEmail, context.memberId, CLIENT_PROFILES, profile._id, {});
+
+  return {
+    portalUser: publicPortalUser(context.portalUser),
+    clientProfile: publicClientProfile(profile)
+  };
+}
+
+export async function saveMyClientProfile(update = {}) {
+  const context = await getContext();
+  const allowed = context.portalUser.role === 'client_owner' || context.portalUser.role === 'amg_admin';
+  if (!allowed) throw new Error('Client profile updates are only available to approved clients or AMG admin.');
+
+  let profile = await findClientProfile(context.loginEmail);
+  if (!profile) profile = await createClientProfileFromContext(context);
+
+  profile.title = clean(update.fullName) || profile.title || context.portalUser.fullName || context.loginEmail;
+  profile.portalUserId = profile.portalUserId || context.portalUser._id;
+  profile.memberId = profile.memberId || context.memberId;
+  profile.loginEmail = context.loginEmail;
+  profile.fullName = clean(update.fullName) || profile.fullName || context.portalUser.fullName || '';
+  profile.phone = clean(update.phone);
+  profile.companyName = clean(update.companyName);
+  profile.clientType = clean(update.clientType) || profile.clientType || 'owner';
+  profile.homeAirport = clean(update.homeAirport).toUpperCase();
+  profile.preferredAirport = clean(update.preferredAirport).toUpperCase();
+  profile.aircraftOwned = clean(update.aircraftOwned);
+  profile.tailNumbers = clean(update.tailNumbers).toUpperCase();
+  profile.billingPreference = clean(update.billingPreference) || 'invoice';
+  profile.billingContactName = clean(update.billingContactName);
+  profile.billingEmail = email(update.billingEmail);
+  profile.billingPhone = clean(update.billingPhone);
+  profile.authorizedRequesters = clean(update.authorizedRequesters);
+  profile.servicePreferences = clean(update.servicePreferences);
+  profile.ownerNotes = clean(update.ownerNotes);
+  profile.defaultAircraftCategory = clean(update.defaultAircraftCategory);
+  profile.lastProfileUpdate = new Date();
+  profile.isActive = true;
+
+  const saved = await wixData.update(CLIENT_PROFILES, profile, { suppressAuth: true });
+  await logAction('client_profile_saved', context.loginEmail, context.memberId, CLIENT_PROFILES, saved._id, {});
+  return publicClientProfile(saved);
+}
+
+export async function adminListClientProfiles(statusFilter = '') {
+  const context = await requireAdmin();
+  let query = wixData.query(CLIENT_PROFILES).descending('lastProfileUpdate');
+  const status = clean(statusFilter);
+
+  if (status && status !== 'all') {
+    query = query.eq('clientStatus', status);
+  }
+
+  const result = await query.limit(1000).find({ suppressAuth: true });
+  await logAction('admin_list_client_profiles', context.loginEmail, context.memberId, CLIENT_PROFILES, '', { status });
+  return result.items.map(publicClientProfile);
+}
+
+export async function adminGetClientProfileCounts() {
+  await requireAdmin();
+  const result = await wixData.query(CLIENT_PROFILES).limit(1000).find({ suppressAuth: true });
+  const profiles = result.items || [];
+
+  return {
+    total: profiles.length,
+    approved: profiles.filter((item) => item.clientStatus === 'approved').length,
+    pendingReview: profiles.filter((item) => item.clientStatus === 'pending_review').length,
+    adminReview: profiles.filter((item) => item.clientStatus === 'admin_review').length,
+    inactive: profiles.filter((item) => item.isActive === false || item.clientStatus === 'inactive').length,
+    suspended: profiles.filter((item) => item.clientStatus === 'suspended').length,
+    subscriptionActive: profiles.filter((item) => item.subscriptionStatus === 'active').length,
+    subscriptionNone: profiles.filter((item) => !item.subscriptionStatus || item.subscriptionStatus === 'none').length
+  };
+}
+
+export async function adminUpdateClientProfile(profileId, update = {}) {
+  const context = await requireAdmin();
+  const id = clean(profileId);
+  if (!id) throw new Error('Client profile ID is required.');
+
+  const existing = await wixData.get(CLIENT_PROFILES, id, { suppressAuth: true });
+  if (!existing) throw new Error('Client profile not found.');
+
+  const allowedStatuses = ['pending_review', 'admin_review', 'approved', 'inactive', 'suspended'];
+  const allowedApprovalStatuses = ['pending', 'approved', 'denied', 'suspended'];
+  const allowedSubscriptionStatuses = ['none', 'quoted', 'active', 'paused', 'cancelled'];
+
+  const next = {
+    ...existing,
+    title: clean(update.fullName) || existing.title,
+    fullName: clean(update.fullName) || existing.fullName,
+    phone: clean(update.phone) || existing.phone,
+    companyName: clean(update.companyName) || existing.companyName,
+    clientStatus: allowedStatuses.includes(clean(update.clientStatus)) ? clean(update.clientStatus) : existing.clientStatus,
+    approvalStatus: allowedApprovalStatuses.includes(clean(update.approvalStatus)) ? clean(update.approvalStatus) : existing.approvalStatus,
+    clientType: clean(update.clientType) || existing.clientType,
+    homeAirport: clean(update.homeAirport).toUpperCase() || existing.homeAirport,
+    preferredAirport: clean(update.preferredAirport).toUpperCase() || existing.preferredAirport,
+    aircraftOwned: clean(update.aircraftOwned) || existing.aircraftOwned,
+    tailNumbers: clean(update.tailNumbers).toUpperCase() || existing.tailNumbers,
+    billingPreference: clean(update.billingPreference) || existing.billingPreference,
+    billingContactName: clean(update.billingContactName) || existing.billingContactName,
+    billingEmail: email(update.billingEmail) || existing.billingEmail,
+    billingPhone: clean(update.billingPhone) || existing.billingPhone,
+    authorizedRequesters: clean(update.authorizedRequesters) || existing.authorizedRequesters,
+    servicePreferences: clean(update.servicePreferences) || existing.servicePreferences,
+    ownerNotes: clean(update.ownerNotes) || existing.ownerNotes,
+    subscriptionStatus: allowedSubscriptionStatuses.includes(clean(update.subscriptionStatus)) ? clean(update.subscriptionStatus) : existing.subscriptionStatus,
+    preferredPlan: clean(update.preferredPlan) || existing.preferredPlan,
+    defaultAircraftCategory: clean(update.defaultAircraftCategory) || existing.defaultAircraftCategory,
+    isActive: typeof update.isActive === 'boolean' ? update.isActive : existing.isActive,
+    lastProfileUpdate: new Date()
+  };
+
+  const saved = await wixData.update(CLIENT_PROFILES, next, { suppressAuth: true });
+  await logAction('admin_update_client_profile', context.loginEmail, context.memberId, CLIENT_PROFILES, saved._id, update);
+  return publicClientProfile(saved);
+}
