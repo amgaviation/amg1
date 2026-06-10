@@ -6,6 +6,9 @@
 // editCrewNearestAirport, editCrewPreferredAircraft, editCrewStatus,
 // editCredentialStatus, editProfileCompletionStatus, editCrewActive,
 // editCrewNotes, saveCrewButton, approveCrewButton, suspendCrewButton
+// Optional count-card value IDs:
+// crewCountTotal, crewCountApproved, crewCountPendingReview,
+// crewCountCredentialsPending, crewCountIncomplete, crewCountInactive
 
 import {
   adminListCrewProfiles,
@@ -72,6 +75,7 @@ async function loadCrewProfiles() {
 
     const countsText = el('adminCrewCountsText');
     if (countsText) countsText.text = formatCounts(counts);
+    setCountCards(counts);
 
     const table = el('crewProfilesTable');
     if (table && 'columns' in table && 'rows' in table) {
@@ -122,6 +126,15 @@ function formatCounts(counts) {
     `Complete: ${counts.complete}`,
     `Incomplete: ${counts.incomplete}`
   ].join(' | ');
+}
+
+function setCountCards(counts) {
+  setText('crewCountTotal', String(counts.total ?? 0));
+  setText('crewCountApproved', String(counts.approved ?? 0));
+  setText('crewCountPendingReview', String(counts.pendingReview ?? 0));
+  setText('crewCountCredentialsPending', String(counts.credentialsPending ?? 0));
+  setText('crewCountIncomplete', String(counts.incomplete ?? 0));
+  setText('crewCountInactive', String(counts.inactive ?? 0));
 }
 
 function fillEditor(profile) {
@@ -224,6 +237,11 @@ function getValue(id) {
 function setValue(id, value) {
   const item = el(id);
   if (item) item.value = value;
+}
+
+function setText(id, value) {
+  const item = el(id);
+  if (item) item.text = value;
 }
 
 function getChecked(id) {
