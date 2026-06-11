@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { motionDuration, motionEase } from "@/lib/motion";
-import { CinematicVideoFrame } from "@/components/site/media/media-placeholder";
+import { CinematicVideoFrame } from "@/public/videos/amg-jet-flying.mp4";
 
 export function HomeHero() {
   return (
