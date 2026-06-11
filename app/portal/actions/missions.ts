@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/supabase/database.types";
 import { logAuditEvent, notifyAdmins, notifyUser } from "@/lib/portal/audit";
 import { MISSION_TYPE_LABEL } from "@/lib/portal/constants";
 import { actor, bool, isoOrNull, num, str } from "./_helpers";
@@ -113,7 +114,7 @@ export async function updateMissionStatus(formData: FormData) {
   const internalNote = str(formData, "internal_notes");
   if (!missionId || !status) redirect("/portal/admin/mission-control?error=missing");
 
-  const patch: Record<string, unknown> = { status };
+  const patch: Database["public"]["Tables"]["missions"]["Update"] = { status };
   if (internalNote) patch.internal_notes = internalNote;
 
   const { data: mission } = await db

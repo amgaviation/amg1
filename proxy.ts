@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -27,14 +27,12 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Allow through if Supabase session exists
   if (user) return supabaseResponse;
 
-  // Fall back to cookie-based session (used until full Supabase auth is active)
+  // Temporary bridge while all users migrate to Supabase Auth.
   const cookieSession = request.cookies.get("amg_portal_session");
   if (cookieSession?.value) return supabaseResponse;
 
-  // No session at all — redirect to login
   if (request.nextUrl.pathname.startsWith("/portal")) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
