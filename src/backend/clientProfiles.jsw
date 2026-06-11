@@ -1,3 +1,219 @@
+/**
+ * clientProfiles.jsw — AMG Aviation Group
+ * Client/operator profile management backend.
+ * All function signatures are immutable per handoff spec.
+ *
+ * CMS Collection: ClientProfiles
+ * Fields: loginEmail, displayName, company, title, phone, city, state,
+ *         flightPurpose, annualFlightHours, preferredAircraft, membershipTier,
+ *         billingContact, billingEmail, notes, approvalStatus, adminNotes,
+ *         createdDate, updatedDate
+ */
+
+import { currentMember } from 'wix-members-backend';
+import wixData from 'wix-data';
+
+const COLLECTION = 'ClientProfiles';
+
+// ─── Internal helpers ────────────────────────────────────────
+
+async function _getCurrentMemberEmail() {
+  try {
+    const member = await currentMember.getMember();
+    return member?.loginEmail || null;
+  } catch {
+    return null;
+  }
+}
+
+async function _lookupProfile(email) {
+  const res = await wixData.query(COLLECTION)
+    .eq('loginEmail', email)
+    .limit(1)
+    .find({ suppressAuth: true });
+  return res.items[0] || null;
+}
+
+async function _requireAdmin() {
+  const email = await _getCurrentMemberEmail();
+  if (!email) throw new Error('NOT_AUTHENTICATED');
+  const adminRes = await wixData.query('PortalUsers')
+    .eq('loginEmail', email)
+    .eq('role', 'amg_admin')
+    .eq('approvalStatus', 'approved')
+    .limit(1)
+    .find({ suppressAuth: true });
+  if (!adminRes.items.length) throw new Error('FORBIDDEN');
+  return adminRes.items[0];
+}
+
+// ─── Client-facing API ───────────────────────────────────────
+
+/**
+ * Returns the client dashboard data for the currently logged-in client.
+ * @returns {Promise<{profile: Object|null, portalUser: Object|null}>}
+ */
+export async function getMyClientDashboard() {
+  try {
+    const email = await _getCurrentMemberEmail();
+    if (!email) throw new Error('NOT_AUTHENTICATED');
+
+    const [profileRes, userRes] = await Promise.all([
+      wixData.query(COLLECTION).eq('loginEmail', email).limit(1).find({ suppressAuth: true }),
+      wixData.query('PortalUsers').eq('loginEmail', email).limit(1).find({ suppressAuth: true }),
+    ]);
+
+    const portalUser = userRes.items[0] || null;
+    if (!portalUser || portalUser.approvalStatus !== 'approved') {
+      throw new Error('FORBIDDEN');
+    }
+
+    return {
+      profile: profileRes.items[0] || null,
+      portalUser: {
+        displayName: portalUser.displayName,
+        role: portalUser.role,
+        approvalStatus: portalUser.approvalStatus,
+        lastLogin: portalUser.lastLogin,
+      }
+    };
+  } catch (e) {
+    console.error('getMyClientDashboard error:', e);
+    throw e;
+  }
+}
+
+/**
+ * Create or update the client profile for the currently logged-in member.
+ * Prevents duplicate profiles — upserts on loginEmail.
+ * @param {Object} update — profile fields to save
+ * @returns {Promise<Object>}
+ */
+export async function saveMyClientProfile(update) {
+  try {
+    const email = await _getCurrentMemberEmail();
+    if (!email) throw new Error('NOT_AUTHENTICATED');
+
+    // Verify the caller is an approved client/partner
+    const userRes = await wixData.query('PortalUsers')
+      .eq('loginEmail', email)
+      .limit(1)
+      .find({ suppressAuth: true });
+    const portalUser = userRes.items[0];
+    const clientRoles = ['client_owner', 'maintenance_partner', 'broker_partner'];
+    if (!portalUser || !clientRoles.includes(portalUser.role) || portalUser.approvalStatus !== 'approved') {
+      throw new Error('FORBIDDEN');
+    }
+
+    // Whitelist fields clients can self-update
+    const editable = [
+      'displayName', 'company', 'title', 'phone', 'city', 'state',
+      'flightPurpose', 'annualFlightHours', 'preferredAircraft', 'membershipTier',
+      'billingContact', 'billingEmail', 'notes'
+    ];
+    const sanitised = { loginEmail: email };
+    for (const key of editable) {
+      if (update[key] !== undefined) sanitised[key] = update[key];
+    }
+    sanitised.updatedDate = new Date();
+
+    const existing = await _lookupProfile(email);
+    if (existing) {
+      return await wixData.update(COLLECTION, { ...existing, ...sanitised }, { suppressAuth: true });
+    } else {
+      sanitised.createdDate = new Date();
+      sanitised.approvalStatus = 'pending';
+      return await wixData.insert(COLLECTION, sanitised, { suppressAuth: true });
+    }
+  } catch (e) {
+    console.error('saveMyClientProfile error:', e);
+    throw e;
+  }
+}
+
+// ─── Admin API ───────────────────────────────────────────────
+
+/**
+ * Admin: list client profiles with optional status filter.
+ * @param {string} statusFilter — 'all' | 'pending' | 'approved' | 'denied'
+ * @returns {Promise<{items: Array, total: number}>}
+ */
+export async function adminListClientProfiles(statusFilter) {
+  await _requireAdmin();
+  try {
+    let q = wixData.query(COLLECTION).ascending('displayName');
+    if (statusFilter && statusFilter !== 'all') {
+      q = q.eq('approvalStatus', statusFilter);
+    }
+    const res = await q.limit(200).find({ suppressAuth: true });
+    return { items: res.items, total: res.totalCount };
+  } catch (e) {
+    console.error('adminListClientProfiles error:', e);
+    throw new Error('QUERY_FAILED');
+  }
+}
+
+/**
+ * Admin: count client profiles by approval status.
+ * @returns {Promise<{pending: number, approved: number, denied: number, total: number}>}
+ */
+export async function adminGetClientProfileCounts() {
+  await _requireAdmin();
+  try {
+    const [pending, approved, denied, total] = await Promise.all([
+      wixData.query(COLLECTION).eq('approvalStatus', 'pending').count({ suppressAuth: true }),
+      wixData.query(COLLECTION).eq('approvalStatus', 'approved').count({ suppressAuth: true }),
+      wixData.query(COLLECTION).eq('approvalStatus', 'denied').count({ suppressAuth: true }),
+      wixData.query(COLLECTION).count({ suppressAuth: true }),
+    ]);
+    return { pending, approved, denied, total };
+  } catch (e) {
+    console.error('adminGetClientProfileCounts error:', e);
+    throw new Error('QUERY_FAILED');
+  }
+}
+
+/**
+ * Admin: update any field on a client profile, including adminNotes and approvalStatus.
+ * @param {string} profileId — _id of the ClientProfiles record
+ * @param {Object} update — fields to merge
+ * @returns {Promise<Object>}
+ */
+export async function adminUpdateClientProfile(profileId, update) {
+  const admin = await _requireAdmin();
+  try {
+    const allowed = [
+      'displayName', 'company', 'title', 'phone', 'city', 'state',
+      'flightPurpose', 'annualFlightHours', 'preferredAircraft', 'membershipTier',
+      'billingContact', 'billingEmail', 'notes', 'approvalStatus', 'adminNotes'
+    ];
+    const sanitised = {};
+    for (const key of allowed) {
+      if (update[key] !== undefined) sanitised[key] = update[key];
+    }
+    sanitised.updatedDate = new Date();
+
+    const existing = await wixData.get(COLLECTION, profileId, { suppressAuth: true });
+    if (!existing) throw new Error('NOT_FOUND');
+
+    const result = await wixData.update(COLLECTION, { ...existing, ...sanitised }, { suppressAuth: true });
+
+    // Audit log
+    try {
+      await wixData.insert('PortalAuditLogs', {
+        action: 'adminUpdateClientProfile',
+        targetId: profileId,
+        changes: JSON.stringify(sanitised),
+        performedBy: admin.loginEmail,
+        timestamp: new Date()
+      }, { suppressAuth: true });
+    } catch {}
+
+    return result;
+  } catch (e) {
+    console.error('adminUpdateClientProfile error:', e);
+    throw e;
+  }
 // backend/clientProfiles.jsw
 // AMG Portal Phase 4: client / owner profile functions.
 

@@ -1,3 +1,196 @@
+/**
+ * portalAuth.jsw — AMG Aviation Group
+ * Portal authentication and user management backend.
+ * All function signatures are immutable per handoff spec.
+ *
+ * CMS Collection: PortalUsers
+ * Fields: loginEmail, role, approvalStatus, displayName, phone,
+ *         company, createdDate, lastLogin, notes
+ *
+ * Roles: amg_admin | crew_pilot | client_owner | maintenance_partner | broker_partner
+ * Approval states: pending | approved | denied | suspended
+ */
+
+import { currentMember } from 'wix-members-backend';
+import wixData from 'wix-data';
+import { getSecret } from 'wix-secrets-backend';
+
+const COLLECTION = 'PortalUsers';
+
+// ─── Internal helpers ────────────────────────────────────────
+
+async function _getCurrentMemberEmail() {
+  try {
+    const member = await currentMember.getMember();
+    return member?.loginEmail || null;
+  } catch {
+    return null;
+  }
+}
+
+async function _lookupPortalUser(email) {
+  if (!email) return null;
+  const res = await wixData.query(COLLECTION)
+    .eq('loginEmail', email)
+    .limit(1)
+    .find({ suppressAuth: true });
+  return res.items[0] || null;
+}
+
+async function _requireAdmin() {
+  const email = await _getCurrentMemberEmail();
+  if (!email) throw new Error('NOT_AUTHENTICATED');
+  const user = await _lookupPortalUser(email);
+  if (!user || user.role !== 'amg_admin' || user.approvalStatus !== 'approved') {
+    throw new Error('FORBIDDEN');
+  }
+  return user;
+}
+
+async function _writeAuditLog(action, targetId, changes, performedByEmail) {
+  try {
+    await wixData.insert('PortalAuditLogs', {
+      action,
+      targetId,
+      changes: JSON.stringify(changes),
+      performedBy: performedByEmail,
+      timestamp: new Date()
+    }, { suppressAuth: true });
+  } catch (e) {
+    console.error('Audit log write failed:', e);
+  }
+}
+
+// ─── Public API ──────────────────────────────────────────────
+
+/**
+ * Returns the portal route slug for the current member.
+ * Used by Portal Router page to redirect without exposing logic client-side.
+ * @returns {Promise<{route: string, role: string|null, status: string|null}>}
+ */
+export async function getPortalRoute() {
+  try {
+    const email = await _getCurrentMemberEmail();
+    if (!email) return { route: '/login', role: null, status: null };
+
+    const user = await _lookupPortalUser(email);
+    if (!user) return { route: '/login', role: null, status: null };
+
+    const { role, approvalStatus } = user;
+
+    if (approvalStatus === 'pending')   return { route: '/pending-approval',  role, status: 'pending'   };
+    if (approvalStatus === 'denied')    return { route: '/access-denied',     role, status: 'denied'    };
+    if (approvalStatus === 'suspended') return { route: '/access-denied',     role, status: 'suspended' };
+    if (approvalStatus !== 'approved')  return { route: '/access-denied',     role, status: approvalStatus };
+
+    const routeMap = {
+      'amg_admin':           '/admin-dashboard',
+      'crew_pilot':          '/crew-dashboard',
+      'client_owner':        '/client-dashboard',
+      'maintenance_partner': '/client-dashboard',
+      'broker_partner':      '/client-dashboard',
+    };
+
+    const route = routeMap[role] || '/access-denied';
+
+    // Update last login timestamp
+    await wixData.update(COLLECTION, { ...user, lastLogin: new Date() }, { suppressAuth: true });
+
+    return { route, role, status: 'approved' };
+  } catch (e) {
+    console.error('getPortalRoute error:', e);
+    return { route: '/login', role: null, status: null };
+  }
+}
+
+/**
+ * Returns the PortalUsers record for the currently logged-in member.
+ * @returns {Promise<Object|null>}
+ */
+export async function getMyPortalUser() {
+  try {
+    const email = await _getCurrentMemberEmail();
+    if (!email) return null;
+    const user = await _lookupPortalUser(email);
+    if (!user) return null;
+    // Strip internal fields before returning to client
+    const { _id, loginEmail, role, approvalStatus, displayName, phone, company, createdDate, lastLogin } = user;
+    return { _id, loginEmail, role, approvalStatus, displayName, phone, company, createdDate, lastLogin };
+  } catch (e) {
+    console.error('getMyPortalUser error:', e);
+    return null;
+  }
+}
+
+/**
+ * Admin: list portal users filtered by approval status.
+ * @param {string} statusFilter — 'all' | 'pending' | 'approved' | 'denied' | 'suspended'
+ * @returns {Promise<{items: Array, total: number}>}
+ */
+export async function adminListPortalUsers(statusFilter) {
+  await _requireAdmin();
+  try {
+    let q = wixData.query(COLLECTION).ascending('createdDate');
+    if (statusFilter && statusFilter !== 'all') {
+      q = q.eq('approvalStatus', statusFilter);
+    }
+    const res = await q.limit(200).find({ suppressAuth: true });
+    return { items: res.items, total: res.totalCount };
+  } catch (e) {
+    console.error('adminListPortalUsers error:', e);
+    throw new Error('QUERY_FAILED');
+  }
+}
+
+/**
+ * Admin: update a portal user record (role, approvalStatus, notes, etc.).
+ * Writes an audit log entry.
+ * @param {string} userId — _id of the PortalUsers record
+ * @param {Object} update — fields to merge
+ * @returns {Promise<Object>}
+ */
+export async function adminUpdatePortalUser(userId, update) {
+  const admin = await _requireAdmin();
+  try {
+    // Whitelist updateable fields
+    const allowed = ['role', 'approvalStatus', 'notes', 'displayName', 'phone', 'company'];
+    const sanitised = {};
+    for (const key of allowed) {
+      if (update[key] !== undefined) sanitised[key] = update[key];
+    }
+    if (!Object.keys(sanitised).length) throw new Error('NO_VALID_FIELDS');
+
+    const existing = await wixData.get(COLLECTION, userId, { suppressAuth: true });
+    if (!existing) throw new Error('NOT_FOUND');
+
+    const updated = await wixData.update(COLLECTION, { ...existing, ...sanitised }, { suppressAuth: true });
+    await _writeAuditLog('adminUpdatePortalUser', userId, sanitised, admin.loginEmail);
+    return updated;
+  } catch (e) {
+    console.error('adminUpdatePortalUser error:', e);
+    throw e;
+  }
+}
+
+/**
+ * Admin: return counts for the admin dashboard KPI tiles.
+ * @returns {Promise<{pending: number, approved: number, denied: number, suspended: number, total: number}>}
+ */
+export async function adminGetPortalCounts() {
+  await _requireAdmin();
+  try {
+    const [pending, approved, denied, suspended, total] = await Promise.all([
+      wixData.query(COLLECTION).eq('approvalStatus', 'pending').count({ suppressAuth: true }),
+      wixData.query(COLLECTION).eq('approvalStatus', 'approved').count({ suppressAuth: true }),
+      wixData.query(COLLECTION).eq('approvalStatus', 'denied').count({ suppressAuth: true }),
+      wixData.query(COLLECTION).eq('approvalStatus', 'suspended').count({ suppressAuth: true }),
+      wixData.query(COLLECTION).count({ suppressAuth: true }),
+    ]);
+    return { pending, approved, denied, suspended, total };
+  } catch (e) {
+    console.error('adminGetPortalCounts error:', e);
+    throw new Error('QUERY_FAILED');
+  }
 // backend/portalAuth.jsw
 // AMG Aviation Group Portal - Phase 1
 
