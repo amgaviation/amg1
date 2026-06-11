@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { logAuditEvent } from "@/lib/audit";
 import {
   addPortalEvent,
   clearPortalSession,
@@ -240,4 +242,255 @@ export async function switchPortalRole(role: PortalRole) {
 
   await createPortalSession({ email: session.email, role });
   redirect(getPortalRole(role).href);
+}
+
+// ─── Supabase Auth Actions ────────────────────────────────────────────────────
+
+export async function signInWithPassword(formData: FormData) {
+  const email = readString(formData, "email").toLowerCase();
+  const password = readString(formData, "password");
+
+  if (!email || !password) {
+    redirect("/login?error=missing-credentials");
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error || !data.user) {
+    redirect("/login?error=invalid-credentials");
+  }
+
+  // Fetch role from profiles
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", data.user.id)
+    .single();
+
+  const role: PortalRole = isPortalRole(profile?.role) ? (profile.role as PortalRole) : "client";
+
+  await logAuditEvent({
+    actorId: data.user.id,
+    actorEmail: email,
+    actorRole: role,
+    action: "Signed in via Supabase",
+    detail: `Entered ${getPortalRole(role).title}`,
+  });
+
+  redirect(getPortalRole(role).href);
+}
+
+export async function signOut() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    await logAuditEvent({
+      actorId: user.id,
+      actorEmail: user.email,
+      action: "Signed out",
+    });
+  }
+
+  await supabase.auth.signOut();
+  await clearPortalSession();
+  redirect("/login");
+}
+
+// ─── DB-backed Support Requests ───────────────────────────────────────────────
+
+export async function createSupportRequestDB(formData: FormData) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const aircraft = readString(formData, "aircraft");
+  const route = readString(formData, "route");
+  const service = readString(formData, "service");
+  const passengers = readString(formData, "passengers");
+  const notes = readString(formData, "notes");
+
+  if (!aircraft || !route || !service) {
+    redirect("/portal?error=missing-request-fields");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const role: PortalRole = isPortalRole(profile?.role) ? (profile.role as PortalRole) : "client";
+
+  const { data: inserted, error } = await supabase
+    .from("support_requests")
+    .insert({
+      aircraft_tail: aircraft,
+      route,
+      service,
+      passengers,
+      notes,
+      requested_by: user.id,
+      requested_by_email: user.email,
+    })
+    .select("ref")
+    .single();
+
+  if (error || !inserted) {
+    redirect(`${getPortalRole(role).href}?error=request-failed`);
+  }
+
+  await logAuditEvent({
+    actorId: user.id,
+    actorEmail: user.email,
+    actorRole: role,
+    action: "Created support request",
+    detail: `${inserted.ref} for ${aircraft}`,
+    entityType: "support_request",
+  });
+
+  revalidatePath("/portal");
+  revalidatePath("/portal/client");
+  revalidatePath("/portal/admin");
+  redirect(`${getPortalRole(role).href}?created=${inserted.ref}`);
+}
+
+export async function advanceSupportRequestDB(formData: FormData) {
+  const supabase = await createServiceClient();
+  const anonClient = await createClient();
+  const {
+    data: { user },
+  } = await anonClient.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const id = readString(formData, "id");
+  const stage = readString(formData, "stage");
+  const nextAction = readString(formData, "nextAction");
+
+  const { data: profile } = await anonClient
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const role: PortalRole = isPortalRole(profile?.role) ? (profile.role as PortalRole) : "client";
+
+  if (role !== "admin") {
+    redirect(getPortalRole(role).href);
+  }
+
+  const { error } = await supabase
+    .from("support_requests")
+    .update({
+      stage: stage || undefined,
+      next_action: nextAction || undefined,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (!error) {
+    await logAuditEvent({
+      actorId: user.id,
+      actorEmail: user.email,
+      actorRole: role,
+      action: "Advanced support request stage",
+      detail: `${id} moved to ${stage || "next stage"}`,
+      entityType: "support_request",
+      entityId: id,
+    });
+  }
+
+  revalidatePath("/portal/admin");
+  redirect("/portal/admin");
+}
+
+// ─── DB-backed Access Requests ────────────────────────────────────────────────
+
+export async function submitAccessRequestDB(formData: FormData) {
+  const roleValue = readString(formData, "role");
+  const name = readString(formData, "name");
+  const email = readString(formData, "email").toLowerCase();
+  const organization = readString(formData, "organization");
+  const reason = readString(formData, "reason");
+
+  if (!isPortalRole(roleValue) || !name || !email || !organization || !reason) {
+    redirect("/login?access=missing");
+  }
+
+  const supabase = await createServiceClient();
+  const { error } = await supabase.from("access_requests").insert({
+    name,
+    email,
+    organization,
+    role: roleValue,
+    reason,
+  });
+
+  if (error) {
+    redirect("/login?access=error");
+  }
+
+  revalidatePath("/portal/admin");
+  redirect("/login?access=requested");
+}
+
+export async function reviewAccessRequestDB(formData: FormData) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.role !== "admin") {
+    redirect("/portal/admin");
+  }
+
+  const id = readString(formData, "id");
+  const decision = readString(formData, "decision");
+  const status = decision === "approved" ? "approved" : "rejected";
+
+  const serviceClient = await createServiceClient();
+  const { error } = await serviceClient
+    .from("access_requests")
+    .update({
+      status,
+      reviewed_by: user.id,
+      reviewed_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (!error) {
+    await logAuditEvent({
+      actorId: user.id,
+      actorEmail: user.email,
+      actorRole: "admin",
+      action: `${status === "approved" ? "Approved" : "Rejected"} access request`,
+      detail: id,
+      entityType: "access_request",
+      entityId: id,
+    });
+  }
+
+  revalidatePath("/portal/admin");
+  redirect("/portal/admin");
 }
