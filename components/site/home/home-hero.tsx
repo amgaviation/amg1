@@ -4,7 +4,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { motionDuration, motionEase } from "@/lib/motion";
-import { CinematicVideoFrame } from "@/public/videos/amg-jet-flying.mp4";
 
 export function HomeHero() {
   return (
@@ -22,11 +21,6 @@ export function HomeHero() {
         >
           <source src="/media/amg-jet-flying.mp4" type="video/mp4" />
         </video>
-        <CinematicVideoFrame
-          assetId="AMG-HOME-HERO-VIDEO-001"
-          priority
-          className="h-full min-h-screen w-full"
-        />
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-background/35" />
       </div>
