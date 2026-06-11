@@ -1,13 +1,9 @@
-import type { Metadata } from "next";
-import { PortalSystemOverview } from "@/components/portal/portal-workspace";
-import { requirePortalSession } from "@/lib/portal-session";
+import { redirect } from "next/navigation";
+import { getSessionUser } from "@/lib/portal/session";
+import { ROLE_HOME } from "@/lib/portal/constants";
 
-export const metadata: Metadata = {
-  title: "AMG Connect Portal System",
-  description: "Role-based AMG Connect operational portal system for owners, crew, AMG admins, and aviation partners.",
-};
-
-export default async function PortalPage() {
-  await requirePortalSession();
-  return <PortalSystemOverview />;
+export default async function PortalRootPage() {
+  const user = await getSessionUser();
+  if (!user) redirect("/login");
+  redirect(ROLE_HOME[user.role]);
 }
