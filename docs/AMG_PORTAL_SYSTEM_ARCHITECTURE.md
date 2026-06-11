@@ -180,7 +180,17 @@ Required controls:
 The current repository implements Phase 1 with:
 
 - `lib/portal-data.ts` for role configuration, mock operational records, workflows, modules, and permission matrix.
+- `lib/portal-session.ts` for the current functional session bridge, role checks, demo request storage, queue acknowledgements, and activity events.
+- `app/portal/actions.ts` for server-side login/logout, support request creation, admin request advancement, and queue acknowledgement.
 - `components/portal/portal-workspace.tsx` for shared role workspace UI and system overview.
 - `/portal`, `/portal/client`, `/portal/crew`, `/portal/admin`, and `/portal/partner` routes.
 
-These files are intentionally structured so mocked data can later be replaced with server-side database queries without redesigning the UI.
+The first functional pass uses secure HTTP-only cookies as a temporary demo persistence layer so the portal can be exercised before production database credentials are connected. This layer is intentionally isolated behind server actions and helper functions so it can be replaced with Postgres/Supabase calls without redesigning the UI.
+
+Production replacement points:
+
+- Replace `getPortalSession`, `createPortalSession`, and `clearPortalSession` with the selected auth provider.
+- Replace `getSubmittedSupportRequests` and `saveSubmittedSupportRequests` with database reads/writes to `support_requests`.
+- Replace `getPortalEvents` and `addPortalEvent` with append-only writes to `audit_events`.
+- Replace `getAcknowledgedQueueIds` and `saveAcknowledgedQueueId` with user task state records.
+- Keep the existing server actions as the authorization and mutation boundary.

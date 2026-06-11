@@ -4,12 +4,19 @@ import {
   ArrowRight,
   CheckCircle2,
   Database,
+  History,
   FileText,
   LockKeyhole,
   MessageSquareText,
   RadioTower,
   ShieldCheck,
 } from "lucide-react";
+import {
+  acknowledgeQueueItem,
+  advanceSupportRequest,
+  createSupportRequest,
+  logoutFromPortal,
+} from "@/app/portal/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,8 +34,17 @@ import {
   portalRoles,
   systemModules,
   type PortalQueueItem,
+  type PortalRecord,
   type PortalRole,
 } from "@/lib/portal-data";
+import {
+  getAcknowledgedQueueIds,
+  getPortalEvents,
+  getPortalSession,
+  getSubmittedSupportRequests,
+  requestToQueueItem,
+  type PortalEvent,
+} from "@/lib/portal-session";
 import { cn } from "@/lib/utils";
 
 function priorityTone(priority: PortalQueueItem["priority"]) {
@@ -37,9 +53,153 @@ function priorityTone(priority: PortalQueueItem["priority"]) {
   return "border-border bg-secondary text-secondary-foreground";
 }
 
-export function PortalWorkspace({ role }: { role: PortalRole }) {
+function formatEventDate(value: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
+function getVisibleRequests({
+  role,
+  email,
+  requests,
+}: {
+  role: PortalRole;
+  email: string;
+  requests: Awaited<ReturnType<typeof getSubmittedSupportRequests>>;
+}) {
+  if (role === "admin") return requests;
+  if (role === "client") return requests.filter((request) => request.requestedBy === email);
+  return requests.slice(0, 4);
+}
+
+function SupportRequestForm({ role }: { role: PortalRole }) {
+  if (role !== "client" && role !== "admin") return null;
+
+  return (
+    <section className="mx-auto max-w-7xl px-6 pb-8 lg:px-10">
+      <form action={createSupportRequest} className="rounded-lg border border-border bg-card p-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="eyebrow text-[0.64rem] text-accent">Request Intake</p>
+            <h2 className="mt-2 font-display text-2xl font-bold uppercase">Create support request</h2>
+          </div>
+          <Button className="rounded-full" type="submit">
+            Submit request
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <div className="mt-5 grid gap-4 lg:grid-cols-4">
+          <label className="grid gap-2">
+            <span className="eyebrow text-[0.62rem] text-muted-foreground">Aircraft</span>
+            <input
+              name="aircraft"
+              required
+              placeholder="N721AG"
+              className="h-11 rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-accent"
+            />
+          </label>
+          <label className="grid gap-2">
+            <span className="eyebrow text-[0.62rem] text-muted-foreground">Route</span>
+            <input
+              name="route"
+              required
+              placeholder="TEB to PBI"
+              className="h-11 rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-accent"
+            />
+          </label>
+          <label className="grid gap-2">
+            <span className="eyebrow text-[0.62rem] text-muted-foreground">Support type</span>
+            <select
+              name="service"
+              required
+              className="h-11 rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-accent"
+              defaultValue=""
+            >
+              <option value="" disabled>
+                Select support
+              </option>
+              <option>Flight operations coordination</option>
+              <option>Contract pilot support</option>
+              <option>Ferry and repositioning</option>
+              <option>Maintenance flight support</option>
+              <option>Aircraft management support</option>
+            </select>
+          </label>
+          <label className="grid gap-2">
+            <span className="eyebrow text-[0.62rem] text-muted-foreground">Passengers</span>
+            <input
+              name="passengers"
+              placeholder="4 passengers"
+              className="h-11 rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-accent"
+            />
+          </label>
+        </div>
+
+        <label className="mt-4 grid gap-2">
+          <span className="eyebrow text-[0.62rem] text-muted-foreground">Operational notes</span>
+          <textarea
+            name="notes"
+            placeholder="Timing, crew need, handling, owner preferences, or document notes"
+            className="min-h-24 rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-accent"
+          />
+        </label>
+      </form>
+    </section>
+  );
+}
+
+function EventLog({ events }: { events: PortalEvent[] }) {
+  return (
+    <section className="mx-auto max-w-7xl px-6 pb-12 lg:px-10">
+      <div className="rounded-lg border border-border bg-card p-5">
+        <div className="mb-5 flex items-center gap-3">
+          <History className="h-5 w-5 text-accent" />
+          <h2 className="font-display text-2xl font-bold uppercase">Portal activity</h2>
+        </div>
+        <div className="grid gap-3">
+          {(events.length ? events : []).map((event) => (
+            <article key={event.id} className="grid gap-3 rounded-lg border border-border bg-background/50 p-4 sm:grid-cols-[9rem_1fr_0.8fr]">
+              <p className="font-mono text-xs text-muted-foreground">{formatEventDate(event.at)}</p>
+              <div>
+                <p className="text-sm font-semibold">{event.action}</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">{event.detail}</p>
+              </div>
+              <p className="text-xs text-muted-foreground sm:text-right">{event.actor}</p>
+            </article>
+          ))}
+          {!events.length ? (
+            <p className="rounded-lg border border-border bg-background/50 p-4 text-sm text-muted-foreground">
+              Portal events will appear here as users submit requests, acknowledge work, and advance records.
+            </p>
+          ) : null}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export async function PortalWorkspace({ role }: { role: PortalRole }) {
   const config = getPortalRole(role);
   const Icon = config.icon;
+  const [session, submittedRequests, events, acknowledgedIds] = await Promise.all([
+    getPortalSession(),
+    getSubmittedSupportRequests(),
+    getPortalEvents(),
+    getAcknowledgedQueueIds(),
+  ]);
+  const visibleRequests = getVisibleRequests({
+    role,
+    email: session?.email ?? "",
+    requests: submittedRequests,
+  });
+  const generatedQueue = visibleRequests.map(requestToQueueItem);
+  const queue = [...generatedQueue, ...config.queue].filter((item) => !acknowledgedIds.includes(item.id));
+  const records: PortalRecord[] = [...visibleRequests, ...config.records];
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -55,19 +215,26 @@ export function PortalWorkspace({ role }: { role: PortalRole }) {
               <LockKeyhole className="h-4 w-4" />
               AMG Connect Access
             </Link>
-            <nav aria-label="Portal roles" className="flex flex-wrap gap-2">
-              {portalNav.map((item) => (
-                <Button
-                  key={item.id}
-                  asChild
-                  variant={item.id === role ? "default" : "outline"}
-                  size="sm"
-                  className="rounded-full"
-                >
-                  <Link href={item.href}>{item.title}</Link>
+            <div className="flex flex-wrap items-center gap-2">
+              <nav aria-label="Portal roles" className="flex flex-wrap gap-2">
+                {portalNav.map((item) => (
+                  <Button
+                    key={item.id}
+                    asChild
+                    variant={item.id === role ? "default" : "outline"}
+                    size="sm"
+                    className="rounded-full"
+                  >
+                    <Link href={item.href}>{item.title}</Link>
+                  </Button>
+                ))}
+              </nav>
+              <form action={logoutFromPortal}>
+                <Button variant="ghost" size="sm" className="rounded-full" type="submit">
+                  Logout
                 </Button>
-              ))}
-            </nav>
+              </form>
+            </div>
           </header>
 
           <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
@@ -83,6 +250,11 @@ export function PortalWorkspace({ role }: { role: PortalRole }) {
                 {config.summary}
               </p>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">{config.access}</p>
+              {session ? (
+                <p className="mt-5 inline-flex rounded-full border border-border bg-card/70 px-4 py-2 text-xs text-muted-foreground">
+                  Signed in as {session.name} / {session.email}
+                </p>
+              ) : null}
             </div>
 
             <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border">
@@ -98,6 +270,8 @@ export function PortalWorkspace({ role }: { role: PortalRole }) {
         </div>
       </section>
 
+      <SupportRequestForm role={role} />
+
       <section className="mx-auto grid max-w-7xl gap-6 px-6 py-8 lg:grid-cols-[0.72fr_1.28fr] lg:px-10">
         <div className="rounded-lg border border-border bg-card p-5">
           <div className="flex items-center justify-between gap-4">
@@ -109,7 +283,7 @@ export function PortalWorkspace({ role }: { role: PortalRole }) {
           </div>
 
           <div className="mt-5 space-y-3">
-            {config.queue.map((item) => (
+            {queue.map((item) => (
               <article key={item.id} className="rounded-lg border border-border bg-background/50 p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -125,8 +299,20 @@ export function PortalWorkspace({ role }: { role: PortalRole }) {
                   <span className="text-right">{item.due}</span>
                 </div>
                 <p className="mt-2 text-xs text-accent">{item.status}</p>
+                <form action={acknowledgeQueueItem} className="mt-4">
+                  <input type="hidden" name="queueId" value={item.id} />
+                  <input type="hidden" name="action" value="Acknowledged queue item" />
+                  <Button variant="outline" size="sm" className="rounded-full" type="submit">
+                    Acknowledge
+                  </Button>
+                </form>
               </article>
             ))}
+            {!queue.length ? (
+              <p className="rounded-lg border border-border bg-background/50 p-4 text-sm text-muted-foreground">
+                No priority work is waiting for this role.
+              </p>
+            ) : null}
           </div>
         </div>
 
@@ -155,7 +341,7 @@ export function PortalWorkspace({ role }: { role: PortalRole }) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {config.records.map((record) => (
+                {records.map((record) => (
                   <TableRow key={record.ref}>
                     <TableCell className="font-mono text-xs text-accent">{record.ref}</TableCell>
                     <TableCell>{record.aircraft}</TableCell>
@@ -164,7 +350,21 @@ export function PortalWorkspace({ role }: { role: PortalRole }) {
                       <Badge variant="outline">{record.stage}</Badge>
                     </TableCell>
                     <TableCell>{record.nextAction}</TableCell>
-                    <TableCell>{record.assigned}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <span>{record.assigned}</span>
+                        {role === "admin" && visibleRequests.some((request) => request.ref === record.ref) ? (
+                          <form action={advanceSupportRequest}>
+                            <input type="hidden" name="ref" value={record.ref} />
+                            <input type="hidden" name="stage" value="Owner approval" />
+                            <input type="hidden" name="nextAction" value="Owner decision required" />
+                            <Button type="submit" variant="ghost" size="xs">
+                              Advance
+                            </Button>
+                          </form>
+                        ) : null}
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -239,11 +439,15 @@ export function PortalWorkspace({ role }: { role: PortalRole }) {
           </div>
         </div>
       </section>
+
+      <EventLog events={events} />
     </main>
   );
 }
 
-export function PortalSystemOverview() {
+export async function PortalSystemOverview() {
+  const session = await getPortalSession();
+
   return (
     <main className="min-h-screen bg-background text-foreground">
       <section className="relative overflow-hidden border-b border-border px-6 py-8 lg:px-10">
@@ -256,7 +460,7 @@ export function PortalSystemOverview() {
           <header className="flex items-center justify-between gap-4">
             <Link href="/login" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-accent">
               <LockKeyhole className="h-4 w-4" />
-              Login
+              {session ? `${session.name} / ${getPortalRole(session.role).title}` : "Login"}
             </Link>
             <Link href="/" className="eyebrow text-[0.68rem] text-accent">
               AMG Aviation
