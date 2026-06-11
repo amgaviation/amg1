@@ -260,3 +260,72 @@ export async function updateInvoiceStatus(formData: FormData) {
   revalidatePath("/portal/client/billing");
   redirect(`/portal/admin/invoices/${invoiceId}?success=status`);
 }
+
+export async function addExpenseToInvoice(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const expenseId = str(formData, "expense_id");
+  const invoiceId = str(formData, "invoice_id");
+  if (!expenseId || !invoiceId) redirect("/portal/admin/expenses?error=missing");
+
+  const { data: existing } = await db
+    .from("invoice_line_items")
+    .select("id")
+    .eq("expense_id", expenseId)
+    .maybeSingle();
+  if (existing) redirect("/portal/admin/expenses?error=already_billed");
+
+  const { data: expense } = await db
+    .from("expenses")
+    .select("id, amount, approved_amount, category, notes, merchant, mission_id, status, billable_to_client")
+    .eq("id", expenseId)
+    .maybeSingle();
+  if (!expense || !["approved", "partially_approved"].includes(expense.status) || !expense.billable_to_client) {
+    redirect("/portal/admin/expenses?error=not_billable");
+  }
+
+  const amount = expense.approved_amount ?? expense.amount;
+  const { data: line, error } = await db
+    .from("invoice_line_items")
+    .insert({
+      invoice_id: invoiceId,
+      expense_id: expense.id,
+      category: expense.category,
+      description: [expense.merchant, expense.notes].filter(Boolean).join(" - ") || "Approved crew expense",
+      quantity: 1,
+      unit_price: amount,
+      amount,
+      sort_order: 100,
+    })
+    .select("id")
+    .single();
+  if (error || !line) redirect("/portal/admin/expenses?error=save");
+
+  const { data: invoice } = await db
+    .from("invoices")
+    .select("subtotal, total, amount_paid")
+    .eq("id", invoiceId)
+    .maybeSingle();
+  const subtotal = Number(invoice?.subtotal ?? 0) + amount;
+  const total = Number(invoice?.total ?? 0) + amount;
+  const amountPaid = Number(invoice?.amount_paid ?? 0);
+  await db
+    .from("invoices")
+    .update({ subtotal, total, amount_due: Math.max(total - amountPaid, 0) })
+    .eq("id", invoiceId);
+  await db
+    .from("expenses")
+    .update({ status: "added_to_invoice", invoice_line_item_id: line.id })
+    .eq("id", expenseId);
+
+  await logAuditEvent({
+    actor: admin,
+    action: "expense_added_to_invoice",
+    detail: `Added expense ${expenseId} to invoice ${invoiceId}`,
+    entityType: "expense",
+    entityId: expenseId,
+  });
+  revalidatePath("/portal/admin/expenses");
+  revalidatePath(`/portal/admin/invoices/${invoiceId}`);
+  redirect(`/portal/admin/invoices/${invoiceId}?success=expense`);
+}

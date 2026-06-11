@@ -227,32 +227,48 @@ export type Database = {
       expenses: {
         Row: {
           amount: number
+          approved_amount: number | null
+          billable_to_client: boolean
           category: string
           created_at: string
           crew_id: string
           expense_date: string
           id: string
+          invoice_line_item_id: string | null
+          merchant: string | null
           mission_id: string | null
           notes: string | null
+          quote_line_item_id: string | null
           receipt_path: string | null
+          reimbursable: boolean
           review_notes: string | null
           reviewed_by: string | null
           status: string
+          tax_amount: number | null
+          currency: string
           updated_at: string
         }
         Insert: {
           amount: number
+          approved_amount?: number | null
+          billable_to_client?: boolean
           category: string
           created_at?: string
           crew_id: string
           expense_date?: string
           id?: string
+          invoice_line_item_id?: string | null
+          merchant?: string | null
           mission_id?: string | null
           notes?: string | null
+          quote_line_item_id?: string | null
           receipt_path?: string | null
+          reimbursable?: boolean
           review_notes?: string | null
           reviewed_by?: string | null
           status?: string
+          tax_amount?: number | null
+          currency?: string
           updated_at?: string
         }
         Update: Partial<Database["public"]["Tables"]["expenses"]["Insert"]>

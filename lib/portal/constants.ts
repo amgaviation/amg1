@@ -250,10 +250,15 @@ export const QUOTE_CATEGORIES = [
 ];
 
 export const EXPENSE_STATUS: Choice[] = [
+  { value: "draft", label: "Draft", tone: "neutral" },
   { value: "submitted", label: "Submitted", tone: "info" },
   { value: "under_review", label: "Under Review", tone: "warn" },
   { value: "approved", label: "Approved", tone: "success" },
+  { value: "partially_approved", label: "Partially Approved", tone: "warn" },
   { value: "rejected", label: "Rejected", tone: "danger" },
+  { value: "added_to_quote", label: "Added To Quote", tone: "accent" },
+  { value: "added_to_invoice", label: "Added To Invoice", tone: "accent" },
+  { value: "reimbursed", label: "Reimbursed", tone: "success" },
   { value: "paid", label: "Paid", tone: "accent" },
 ];
 export const EXPENSE_STATUS_LABEL = buildLabelMap(EXPENSE_STATUS);

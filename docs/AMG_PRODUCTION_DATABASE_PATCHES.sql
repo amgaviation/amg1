@@ -138,3 +138,21 @@ on public.invoice_line_items (invoice_id, sort_order);
 
 create index if not exists payments_invoice_idx
 on public.payments (invoice_id, paid_at desc);
+
+-- 5) Crew expense production fields and billing linkage
+alter table public.expenses
+  add column if not exists merchant text,
+  add column if not exists currency text not null default 'USD',
+  add column if not exists tax_amount numeric,
+  add column if not exists approved_amount numeric,
+  add column if not exists reimbursable boolean not null default true,
+  add column if not exists billable_to_client boolean not null default false,
+  add column if not exists invoice_line_item_id uuid,
+  add column if not exists quote_line_item_id uuid;
+
+create unique index if not exists invoice_line_items_expense_unique
+on public.invoice_line_items (expense_id)
+where expense_id is not null;
+
+create index if not exists expenses_status_billable_idx
+on public.expenses (status, billable_to_client, created_at desc);

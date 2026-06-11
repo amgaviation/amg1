@@ -405,6 +405,9 @@ export async function reviewExpense(formData: FormData) {
     .from("expenses")
     .update({
       status,
+      approved_amount: num(formData, "approved_amount"),
+      billable_to_client: formData.get("billable_to_client") === "true",
+      reimbursable: formData.get("reimbursable") !== "false",
       review_notes: str(formData, "review_notes") || null,
       reviewed_by: admin.id,
     })
