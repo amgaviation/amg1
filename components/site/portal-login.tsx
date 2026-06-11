@@ -1,13 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowRight, ShieldCheck } from "lucide-react";
+import { loginToPortal } from "@/app/portal/actions";
 import { PORTAL_ROLES } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
 export function PortalLogin() {
-  const router = useRouter();
   const [role, setRole] = useState<(typeof PORTAL_ROLES)[number]["id"]>("client");
 
   const selected = PORTAL_ROLES.find((item) => item.id === role) ?? PORTAL_ROLES[0];
@@ -67,16 +66,15 @@ export function PortalLogin() {
 
           <form
             className="mt-8 rounded-xl border border-border bg-card p-6"
-            onSubmit={(event) => {
-              event.preventDefault();
-              router.push(selected.href);
-            }}
+            action={loginToPortal}
           >
+            <input type="hidden" name="role" value={role} />
             <label className="eyebrow text-[0.7rem] text-muted-foreground" htmlFor="email">
               Email
             </label>
             <input
               id="email"
+              name="email"
               type="email"
               required
               placeholder="name@company.com"
@@ -87,6 +85,7 @@ export function PortalLogin() {
             </label>
             <input
               id="password"
+              name="password"
               type="password"
               required
               placeholder="Password"
