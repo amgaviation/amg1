@@ -556,9 +556,14 @@ export type Database = {
           full_name: string | null
           home_base: string | null
           id: string
+          invitation_channel: string | null
+          invitation_sent_at: string | null
+          invitation_status: string | null
+          invited_by: string | null
           is_active: boolean
           last_login_at: string | null
           organization_id: string | null
+          permissions: string[] | null
           phone: string | null
           role: string
           status: string
@@ -571,9 +576,14 @@ export type Database = {
           full_name?: string | null
           home_base?: string | null
           id: string
+          invitation_channel?: string | null
+          invitation_sent_at?: string | null
+          invitation_status?: string | null
+          invited_by?: string | null
           is_active?: boolean
           last_login_at?: string | null
           organization_id?: string | null
+          permissions?: string[] | null
           phone?: string | null
           role?: string
           status?: string

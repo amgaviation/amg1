@@ -5,8 +5,23 @@ import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
-import { isPortalRole } from "@/lib/portal/constants";
+import { isPortalRole, PORTAL_PERMISSIONS } from "@/lib/portal/constants";
 import { actor, num, str } from "./_helpers";
+
+function normalizeEmail(formData: FormData, key: string): string {
+  return str(formData, key).toLowerCase();
+}
+
+function normalizePhone(value: string): string | null {
+  if (!value) return null;
+  const compact = value.replace(/[\s().-]/g, "");
+  return compact.startsWith("+") ? compact : `+${compact}`;
+}
+
+function selectedPermissions(formData: FormData): string[] {
+  const selected = formData.getAll("permissions").map((value) => String(value));
+  return selected.filter((permission) => PORTAL_PERMISSIONS.includes(permission));
+}
 
 // ─── User approvals & role management ───────────────────────────────
 export async function approveUser(formData: FormData) {
@@ -76,6 +91,113 @@ export async function setUserRole(formData: FormData) {
   });
   revalidatePath("/portal/admin/user-approvals");
   redirect("/portal/admin/user-approvals?success=role");
+}
+
+export async function createPortalUser(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const email = normalizeEmail(formData, "email");
+  const fullName = str(formData, "full_name");
+  const role = str(formData, "role");
+  const status = str(formData, "status") || "pending";
+  const phone = normalizePhone(str(formData, "phone"));
+  const invitationChannel = str(formData, "invitation_channel") || "email";
+  const backTo = "/portal/admin/users";
+
+  if (!email || !fullName || !isPortalRole(role)) redirect(`${backTo}?error=missing`);
+  if (phone && !/^\+[1-9]\d{7,14}$/.test(phone)) redirect(`${backTo}?error=phone`);
+
+  const { data: duplicate } = await db
+    .from("profiles")
+    .select("id")
+    .ilike("email", email)
+    .maybeSingle();
+  if (duplicate) redirect(`${backTo}?error=duplicate`);
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
+  const redirectTo = appUrl
+    ? `${appUrl.startsWith("http") ? appUrl : `https://${appUrl}`}/login`
+    : undefined;
+
+  const { data: invite, error: inviteError } = await db.auth.admin.inviteUserByEmail(
+    email,
+    {
+      data: { full_name: fullName, role },
+      redirectTo,
+    }
+  );
+  if (inviteError || !invite.user) redirect(`${backTo}?error=invite`);
+
+  const { error: profileError } = await db.from("profiles").upsert({
+    id: invite.user.id,
+    email,
+    full_name: fullName,
+    role,
+    status,
+    is_active: status === "approved",
+    company_name: str(formData, "company_name") || null,
+    phone,
+    home_base: str(formData, "home_base").toUpperCase() || null,
+    invitation_status: "sent",
+    invitation_channel: invitationChannel,
+    invitation_sent_at: new Date().toISOString(),
+    invited_by: admin.id,
+    permissions: role === "admin" ? PORTAL_PERMISSIONS : selectedPermissions(formData),
+  });
+  if (profileError) redirect(`${backTo}?error=profile`);
+
+  await logAuditEvent({
+    actor: admin,
+    action: "user_invited",
+    detail: `Invited ${email} as ${role} via ${invitationChannel}`,
+    entityType: "profile",
+    entityId: invite.user.id,
+  });
+  revalidatePath("/portal/admin/users");
+  revalidatePath("/portal/admin/user-approvals");
+  redirect(`${backTo}?success=invited`);
+}
+
+export async function resendPortalInvitation(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const userId = str(formData, "user_id");
+  const backTo = "/portal/admin/users";
+  const { data: profile } = await db
+    .from("profiles")
+    .select("id, email, full_name, role")
+    .eq("id", userId)
+    .maybeSingle();
+  if (!profile?.email) redirect(`${backTo}?error=missing`);
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
+  const redirectTo = appUrl
+    ? `${appUrl.startsWith("http") ? appUrl : `https://${appUrl}`}/login`
+    : undefined;
+  const { error } = await db.auth.admin.inviteUserByEmail(profile.email, {
+    data: { full_name: profile.full_name, role: profile.role },
+    redirectTo,
+  });
+  if (error) redirect(`${backTo}?error=invite`);
+
+  await db
+    .from("profiles")
+    .update({
+      invitation_status: "resent",
+      invitation_channel: "email",
+      invitation_sent_at: new Date().toISOString(),
+      invited_by: admin.id,
+    })
+    .eq("id", userId);
+  await logAuditEvent({
+    actor: admin,
+    action: "invitation_resent",
+    detail: `Resent invitation to ${profile.email}`,
+    entityType: "profile",
+    entityId: userId,
+  });
+  revalidatePath("/portal/admin/users");
+  redirect(`${backTo}?success=resent`);
 }
 
 // ─── Crew & partner assignment ──────────────────────────────────────

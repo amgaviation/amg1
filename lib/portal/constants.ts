@@ -76,6 +76,7 @@ export const PORTAL_NAV: Record<PortalRole, NavItem[]> = {
     { label: "Crew", href: "/portal/admin/crew", icon: "users" },
     { label: "Clients", href: "/portal/admin/clients", icon: "building" },
     { label: "Partners", href: "/portal/admin/partners", icon: "handshake" },
+    { label: "Users", href: "/portal/admin/users", icon: "userCheck" },
     { label: "Quotes", href: "/portal/admin/quotes", icon: "receipt" },
     { label: "Documents", href: "/portal/admin/documents", icon: "fileText" },
     { label: "Expenses", href: "/portal/admin/expenses", icon: "wallet" },
@@ -317,6 +318,21 @@ export const REQUESTABLE_ROLES: { value: PortalRole; label: string }[] = [
   { value: "client", label: "Client / Owner Representative" },
   { value: "crew", label: "Crew / Pilot" },
   { value: "partner", label: "Partner / Vendor" },
+];
+
+export const PORTAL_PERMISSIONS = [
+  "users.manage",
+  "aircraft.manage",
+  "missions.manage",
+  "crew.assign",
+  "quotes.manage",
+  "invoices.manage",
+  "expenses.approve",
+  "documents.review",
+  "partners.manage",
+  "notifications.manage",
+  "settings.manage",
+  "audit.view",
 ];
 
 export function labelFor(map: Record<string, string>, value: string | null | undefined): string {

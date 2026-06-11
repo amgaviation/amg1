@@ -27,3 +27,21 @@ alter table public.aircraft validate constraint aircraft_status_check;
 -- Fast selectors for client aircraft lists and trip-request aircraft dropdowns.
 create index if not exists aircraft_client_status_tail_idx
 on public.aircraft (client_id, status, tail_number);
+
+-- 2) Admin-created user invitations and permission hints
+alter table public.profiles
+  add column if not exists invitation_status text,
+  add column if not exists invitation_channel text,
+  add column if not exists invitation_sent_at timestamptz,
+  add column if not exists invited_by uuid,
+  add column if not exists permissions text[];
+
+alter table public.profiles
+  add constraint profiles_invitation_status_check
+  check (invitation_status is null or invitation_status in ('draft', 'sent', 'resent', 'accepted', 'expired', 'failed'))
+  not valid;
+
+alter table public.profiles validate constraint profiles_invitation_status_check;
+
+create index if not exists profiles_role_status_email_idx
+on public.profiles (role, status, lower(email));
