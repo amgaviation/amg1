@@ -7,8 +7,8 @@ import { motionDuration, motionEase } from "@/lib/motion";
 
 export function HomeHero() {
   return (
-    <section className="relative flex min-h-screen items-center overflow-hidden">
-      <div className="absolute inset-0 -z-10">
+    <section className="relative isolate flex min-h-screen items-center overflow-hidden">
+      <div className="absolute inset-0 z-0">
         <video
           autoPlay
           muted
@@ -25,7 +25,7 @@ export function HomeHero() {
         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-background/35" />
       </div>
 
-      <div className="mx-auto w-full max-w-7xl px-6 pt-14 lg:px-10">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pt-14 lg:px-10">
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
