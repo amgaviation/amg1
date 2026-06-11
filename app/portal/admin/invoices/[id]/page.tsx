@@ -1,0 +1,106 @@
+import { notFound } from "next/navigation";
+import Link from "next/link";
+import { requireRole } from "@/lib/portal/session";
+import { PortalShell } from "@/components/portal/shell/portal-shell";
+import { DataTable } from "@/components/portal/ui/data-table";
+import { DetailRow, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
+import { StatusBadge } from "@/components/portal/ui/status-badge";
+import { SubmitButton } from "@/components/portal/ui/submit-button";
+import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
+import { recordInvoicePayment, updateInvoiceStatus } from "@/app/portal/actions/invoices";
+import { getInvoiceDetail } from "@/lib/portal/queries";
+import { INVOICE_STATUS, INVOICE_STATUS_LABEL, INVOICE_STATUS_TONE, toneFor } from "@/lib/portal/constants";
+import { formatDate, formatDateTime, formatMoney } from "@/lib/portal/format";
+
+export const metadata = { title: "Invoice Detail - Admin Portal" };
+
+export default async function AdminInvoiceDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ success?: string; error?: string }>;
+}) {
+  const user = await requireRole("admin");
+  const { id } = await params;
+  const flash = await searchParams;
+  const invoice = await getInvoiceDetail(id);
+  if (!invoice) notFound();
+
+  return (
+    <PortalShell role="admin" user={user}>
+      {flash.success ? <Notice tone="success">Invoice updated.</Notice> : null}
+      {flash.error === "duplicate" ? <Notice tone="danger">This quote already has an active invoice.</Notice> : null}
+      <PageHeader eyebrow="Invoice" title={invoice.invoice_number} actions={<Link href="/portal/admin/invoices" className="text-xs text-muted-foreground hover:text-accent">Back to invoices</Link>} />
+
+      <div className="grid gap-6 xl:grid-cols-[1fr_24rem]">
+        <div className="space-y-6">
+          <SectionCard title="Invoice Summary" icon="wallet">
+            <dl>
+              <DetailRow label="Status"><StatusBadge label={INVOICE_STATUS_LABEL[invoice.status] ?? invoice.status} tone={toneFor(INVOICE_STATUS_TONE, invoice.status)} /></DetailRow>
+              <DetailRow label="Client">{invoice.client?.company_name ?? invoice.client?.full_name ?? invoice.client?.email ?? "-"}</DetailRow>
+              <DetailRow label="Mission">{invoice.mission?.ref ?? "-"}</DetailRow>
+              <DetailRow label="Quote">{invoice.quote?.ref ?? "-"}</DetailRow>
+              <DetailRow label="Issued">{formatDateTime(invoice.issued_at)}</DetailRow>
+              <DetailRow label="Due">{formatDate(invoice.due_date)}</DetailRow>
+              <DetailRow label="Total">{formatMoney(invoice.total)}</DetailRow>
+              <DetailRow label="Paid">{formatMoney(invoice.amount_paid)}</DetailRow>
+              <DetailRow label="Amount Due">{formatMoney(invoice.amount_due)}</DetailRow>
+              <DetailRow label="Terms">{invoice.terms ?? "-"}</DetailRow>
+            </dl>
+          </SectionCard>
+
+          <SectionCard title="Line Items" icon="receipt">
+            <DataTable
+              rows={invoice.items}
+              getKey={(row) => row.id}
+              emptyLabel="No line items."
+              columns={[
+                { header: "Category", cell: (row) => row.category },
+                { header: "Description", cell: (row) => row.description ?? "-" },
+                { header: "Qty", cell: (row) => row.quantity, align: "right" },
+                { header: "Unit", cell: (row) => formatMoney(row.unit_price), align: "right" },
+                { header: "Amount", cell: (row) => formatMoney(row.amount), align: "right" },
+              ]}
+            />
+          </SectionCard>
+
+          <SectionCard title="Payments" icon="wallet">
+            <DataTable
+              rows={invoice.payments}
+              getKey={(row) => row.id}
+              emptyLabel="No payments recorded."
+              columns={[
+                { header: "Date", cell: (row) => formatDateTime(row.paid_at) },
+                { header: "Method", cell: (row) => row.payment_method ?? "-" },
+                { header: "Amount", cell: (row) => formatMoney(row.amount), align: "right" },
+                { header: "Notes", cell: (row) => row.notes ?? "-" },
+              ]}
+            />
+          </SectionCard>
+        </div>
+
+        <div className="space-y-6">
+          <SectionCard title="Update Status" icon="settings">
+            <form action={updateInvoiceStatus} className="space-y-4">
+              <input type="hidden" name="invoice_id" value={invoice.id} />
+              <SelectField label="Status" name="status" defaultValue={invoice.status} options={INVOICE_STATUS.map((status) => ({ value: status.value, label: status.label }))} />
+              <TextAreaField label="Internal Notes" name="internal_notes" defaultValue={invoice.internal_notes ?? ""} />
+              <SubmitButton className="rounded-full" pendingText="Saving...">Save Status</SubmitButton>
+            </form>
+          </SectionCard>
+
+          <SectionCard title="Record Payment" icon="wallet">
+            <form action={recordInvoicePayment} className="space-y-4">
+              <input type="hidden" name="invoice_id" value={invoice.id} />
+              <TextField label="Amount" name="amount" type="number" min="0" step="0.01" required />
+              <TextField label="Payment Method" name="payment_method" placeholder="ACH, wire, check..." />
+              <TextAreaField label="Notes" name="notes" />
+              <SubmitButton className="rounded-full" pendingText="Recording...">Record Payment</SubmitButton>
+            </form>
+          </SectionCard>
+        </div>
+      </div>
+    </PortalShell>
+  );
+}

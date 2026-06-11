@@ -14,7 +14,7 @@ export const COMPANY = {
 export const STATS = [
   { label: "Operational desk", value: 24, suffix: "/7" },
   { label: "Support paths", value: 6, suffix: "" },
-  { label: "Portal roles", value: 3, suffix: "" },
+  { label: "Portal roles", value: 4, suffix: "" },
   { label: "Review factors", value: 9, suffix: "+" },
 ] as const;
 
@@ -351,6 +351,14 @@ export const PORTAL_ROLES = [
     image: "/images/jet-sky.png",
     actions: ["Access review", "User permissions", "Support records", "Operational settings"],
   },
+  {
+    id: "partner",
+    title: "Partner Portal",
+    href: "/portal/partner",
+    access: "Approved aviation service partners and vendors",
+    image: "/images/jet-sky.png",
+    actions: ["Vendor tasks", "Quote requests", "Service confirmations", "Partner documents"],
+  },
 ] as const;
 
 export const CONTACT_CARDS = [
@@ -411,8 +419,10 @@ export const FOOTER_COLS = [
   {
     heading: "Portal",
     links: [
+      { label: "Portal System", href: "/portal" },
       { label: "Client Portal", href: "/portal/client" },
       { label: "Crew Portal", href: "/portal/crew" },
+      { label: "Partner Portal", href: "/portal/partner" },
       { label: "Admin Login", href: "/login" },
     ],
   },

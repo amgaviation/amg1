@@ -1,0 +1,79 @@
+[
+  {
+    "id": "AMG-HOME-HERO-VIDEO-001",
+    "page": "home",
+    "section": "hero",
+    "type": "video",
+    "status": "placeholder",
+    "aspectRatio": "16:9",
+    "desktopDimensions": "3840x2160",
+    "mobileDimensions": "1440x1920",
+    "fallbackAsset": "/images/hero-jet.png"
+  },
+  {
+    "id": "AMG-HOME-CAPABILITY-FERRY-IMAGE-001",
+    "page": "home",
+    "section": "core-capabilities",
+    "type": "image",
+    "status": "placeholder",
+    "aspectRatio": "4:3",
+    "desktopDimensions": "1800x1350",
+    "mobileDimensions": "1200x1500",
+    "fallbackAsset": "/images/operations.png"
+  },
+  {
+    "id": "AMG-HOME-OPS-COORDINATION-VIDEO-001",
+    "page": "home",
+    "section": "operational-approach",
+    "type": "video",
+    "status": "placeholder",
+    "aspectRatio": "21:9",
+    "desktopDimensions": "2560x1080",
+    "mobileDimensions": "1400x1800",
+    "fallbackAsset": "/images/jet-sky.png"
+  },
+  {
+    "id": "AMG-ABOUT-HERO-IMAGE-001",
+    "page": "about",
+    "section": "hero",
+    "type": "image",
+    "status": "placeholder",
+    "aspectRatio": "16:9",
+    "desktopDimensions": "2400x1350",
+    "mobileDimensions": "1200x1500",
+    "fallbackAsset": "/images/jet-interior.png"
+  },
+  {
+    "id": "AMG-AIRCRAFT-LIGHT-JET-IMAGE-001",
+    "page": "aircraft",
+    "section": "light-jet",
+    "type": "image",
+    "status": "placeholder",
+    "aspectRatio": "4:3",
+    "desktopDimensions": "1800x1350",
+    "mobileDimensions": "1200x1500",
+    "fallbackAsset": "/images/light-jet.png"
+  },
+  {
+    "id": "AMG-PILOT-NETWORK-HERO-VIDEO-001",
+    "page": "pilot-network",
+    "section": "hero",
+    "type": "video",
+    "status": "placeholder",
+    "aspectRatio": "16:9",
+    "desktopDimensions": "2560x1440",
+    "mobileDimensions": "1440x1920",
+    "fallbackAsset": "/images/operations.png"
+  },
+  {
+    "id": "AMG-CONTACT-OPERATIONS-IMAGE-001",
+    "page": "contact",
+    "section": "operations-request",
+    "type": "image",
+    "status": "placeholder",
+    "aspectRatio": "3:2",
+    "desktopDimensions": "1800x1200",
+    "mobileDimensions": "1200x1500",
+    "fallbackAsset": "/images/jet-sky.png"
+  }
+]
