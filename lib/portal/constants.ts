@@ -55,6 +55,7 @@ export const PORTAL_NAV: Record<PortalRole, NavItem[]> = {
     { label: "Aircraft", href: "/portal/client/aircraft", icon: "planeTakeoff" },
     { label: "Documents", href: "/portal/client/documents", icon: "fileText" },
     { label: "Quotes", href: "/portal/client/quotes", icon: "receipt" },
+    { label: "Billing", href: "/portal/client/billing", icon: "wallet" },
     { label: "Messages", href: "/portal/client/messages", icon: "messageSquare" },
     { label: "Settings", href: "/portal/client/settings", icon: "settings" },
   ],
@@ -76,7 +77,9 @@ export const PORTAL_NAV: Record<PortalRole, NavItem[]> = {
     { label: "Crew", href: "/portal/admin/crew", icon: "users" },
     { label: "Clients", href: "/portal/admin/clients", icon: "building" },
     { label: "Partners", href: "/portal/admin/partners", icon: "handshake" },
+    { label: "Users", href: "/portal/admin/users", icon: "userCheck" },
     { label: "Quotes", href: "/portal/admin/quotes", icon: "receipt" },
+    { label: "Invoices", href: "/portal/admin/invoices", icon: "wallet" },
     { label: "Documents", href: "/portal/admin/documents", icon: "fileText" },
     { label: "Expenses", href: "/portal/admin/expenses", icon: "wallet" },
     { label: "User Approvals", href: "/portal/admin/user-approvals", icon: "userCheck" },
@@ -247,10 +250,15 @@ export const QUOTE_CATEGORIES = [
 ];
 
 export const EXPENSE_STATUS: Choice[] = [
+  { value: "draft", label: "Draft", tone: "neutral" },
   { value: "submitted", label: "Submitted", tone: "info" },
   { value: "under_review", label: "Under Review", tone: "warn" },
   { value: "approved", label: "Approved", tone: "success" },
+  { value: "partially_approved", label: "Partially Approved", tone: "warn" },
   { value: "rejected", label: "Rejected", tone: "danger" },
+  { value: "added_to_quote", label: "Added To Quote", tone: "accent" },
+  { value: "added_to_invoice", label: "Added To Invoice", tone: "accent" },
+  { value: "reimbursed", label: "Reimbursed", tone: "success" },
   { value: "paid", label: "Paid", tone: "accent" },
 ];
 export const EXPENSE_STATUS_LABEL = buildLabelMap(EXPENSE_STATUS);
@@ -267,6 +275,20 @@ export const EXPENSE_CATEGORIES: Choice[] = [
   { value: "other", label: "Other" },
 ];
 export const EXPENSE_CATEGORY_LABEL = buildLabelMap(EXPENSE_CATEGORIES);
+
+export const INVOICE_STATUS: Choice[] = [
+  { value: "draft", label: "Draft", tone: "neutral" },
+  { value: "sent", label: "Sent", tone: "info" },
+  { value: "viewed", label: "Viewed", tone: "accent" },
+  { value: "partially_paid", label: "Partially Paid", tone: "warn" },
+  { value: "paid", label: "Paid", tone: "success" },
+  { value: "overdue", label: "Overdue", tone: "danger" },
+  { value: "void", label: "Void", tone: "neutral" },
+  { value: "written_off", label: "Written Off", tone: "neutral" },
+  { value: "refunded", label: "Refunded", tone: "neutral" },
+];
+export const INVOICE_STATUS_LABEL = buildLabelMap(INVOICE_STATUS);
+export const INVOICE_STATUS_TONE = buildToneMap(INVOICE_STATUS);
 
 // ─── Documents ──────────────────────────────────────────────────────
 export const DOCUMENT_STATUS: Choice[] = [
@@ -317,6 +339,21 @@ export const REQUESTABLE_ROLES: { value: PortalRole; label: string }[] = [
   { value: "client", label: "Client / Owner Representative" },
   { value: "crew", label: "Crew / Pilot" },
   { value: "partner", label: "Partner / Vendor" },
+];
+
+export const PORTAL_PERMISSIONS = [
+  "users.manage",
+  "aircraft.manage",
+  "missions.manage",
+  "crew.assign",
+  "quotes.manage",
+  "invoices.manage",
+  "expenses.approve",
+  "documents.review",
+  "partners.manage",
+  "notifications.manage",
+  "settings.manage",
+  "audit.view",
 ];
 
 export function labelFor(map: Record<string, string>, value: string | null | undefined): string {

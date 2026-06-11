@@ -3,9 +3,25 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/supabase/database.types";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
-import { isPortalRole } from "@/lib/portal/constants";
+import { isPortalRole, PORTAL_PERMISSIONS } from "@/lib/portal/constants";
 import { actor, num, str } from "./_helpers";
+
+function normalizeEmail(formData: FormData, key: string): string {
+  return str(formData, key).toLowerCase();
+}
+
+function normalizePhone(value: string): string | null {
+  if (!value) return null;
+  const compact = value.replace(/[\s().-]/g, "");
+  return compact.startsWith("+") ? compact : `+${compact}`;
+}
+
+function selectedPermissions(formData: FormData): string[] {
+  const selected = formData.getAll("permissions").map((value) => String(value));
+  return selected.filter((permission) => PORTAL_PERMISSIONS.includes(permission));
+}
 
 // ─── User approvals & role management ───────────────────────────────
 export async function approveUser(formData: FormData) {
@@ -75,6 +91,113 @@ export async function setUserRole(formData: FormData) {
   });
   revalidatePath("/portal/admin/user-approvals");
   redirect("/portal/admin/user-approvals?success=role");
+}
+
+export async function createPortalUser(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const email = normalizeEmail(formData, "email");
+  const fullName = str(formData, "full_name");
+  const role = str(formData, "role");
+  const status = str(formData, "status") || "pending";
+  const phone = normalizePhone(str(formData, "phone"));
+  const invitationChannel = str(formData, "invitation_channel") || "email";
+  const backTo = "/portal/admin/users";
+
+  if (!email || !fullName || !isPortalRole(role)) redirect(`${backTo}?error=missing`);
+  if (phone && !/^\+[1-9]\d{7,14}$/.test(phone)) redirect(`${backTo}?error=phone`);
+
+  const { data: duplicate } = await db
+    .from("profiles")
+    .select("id")
+    .ilike("email", email)
+    .maybeSingle();
+  if (duplicate) redirect(`${backTo}?error=duplicate`);
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
+  const redirectTo = appUrl
+    ? `${appUrl.startsWith("http") ? appUrl : `https://${appUrl}`}/login`
+    : undefined;
+
+  const { data: invite, error: inviteError } = await db.auth.admin.inviteUserByEmail(
+    email,
+    {
+      data: { full_name: fullName, role },
+      redirectTo,
+    }
+  );
+  if (inviteError || !invite.user) redirect(`${backTo}?error=invite`);
+
+  const { error: profileError } = await db.from("profiles").upsert({
+    id: invite.user.id,
+    email,
+    full_name: fullName,
+    role,
+    status,
+    is_active: status === "approved",
+    company_name: str(formData, "company_name") || null,
+    phone,
+    home_base: str(formData, "home_base").toUpperCase() || null,
+    invitation_status: "sent",
+    invitation_channel: invitationChannel,
+    invitation_sent_at: new Date().toISOString(),
+    invited_by: admin.id,
+    permissions: role === "admin" ? PORTAL_PERMISSIONS : selectedPermissions(formData),
+  });
+  if (profileError) redirect(`${backTo}?error=profile`);
+
+  await logAuditEvent({
+    actor: admin,
+    action: "user_invited",
+    detail: `Invited ${email} as ${role} via ${invitationChannel}`,
+    entityType: "profile",
+    entityId: invite.user.id,
+  });
+  revalidatePath("/portal/admin/users");
+  revalidatePath("/portal/admin/user-approvals");
+  redirect(`${backTo}?success=invited`);
+}
+
+export async function resendPortalInvitation(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const userId = str(formData, "user_id");
+  const backTo = "/portal/admin/users";
+  const { data: profile } = await db
+    .from("profiles")
+    .select("id, email, full_name, role")
+    .eq("id", userId)
+    .maybeSingle();
+  if (!profile?.email) redirect(`${backTo}?error=missing`);
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
+  const redirectTo = appUrl
+    ? `${appUrl.startsWith("http") ? appUrl : `https://${appUrl}`}/login`
+    : undefined;
+  const { error } = await db.auth.admin.inviteUserByEmail(profile.email, {
+    data: { full_name: profile.full_name, role: profile.role },
+    redirectTo,
+  });
+  if (error) redirect(`${backTo}?error=invite`);
+
+  await db
+    .from("profiles")
+    .update({
+      invitation_status: "resent",
+      invitation_channel: "email",
+      invitation_sent_at: new Date().toISOString(),
+      invited_by: admin.id,
+    })
+    .eq("id", userId);
+  await logAuditEvent({
+    actor: admin,
+    action: "invitation_resent",
+    detail: `Resent invitation to ${profile.email}`,
+    entityType: "profile",
+    entityId: userId,
+  });
+  revalidatePath("/portal/admin/users");
+  redirect(`${backTo}?success=resent`);
 }
 
 // ─── Crew & partner assignment ──────────────────────────────────────
@@ -171,9 +294,31 @@ export async function saveAircraft(formData: FormData) {
   const admin = await actor(["admin"]);
   const db = await createServiceClient();
   const id = str(formData, "aircraft_id");
-  const payload = {
-    client_id: str(formData, "client_id") || null,
-    tail_number: str(formData, "tail_number").toUpperCase(),
+  const backTo = str(formData, "back_to") || "/portal/admin/aircraft";
+  const tailNumber = str(formData, "tail_number").toUpperCase().replace(/\s+/g, "");
+  const clientId = str(formData, "client_id") || null;
+  if (!tailNumber) redirect(`${backTo}?error=missing`);
+
+  if (clientId) {
+    const { data: client } = await db
+      .from("profiles")
+      .select("id, role")
+      .eq("id", clientId)
+      .maybeSingle();
+    if (!client || client.role !== "client") redirect(`${backTo}?error=client`);
+  }
+
+  const { data: matches } = await db
+    .from("aircraft")
+    .select("id")
+    .ilike("tail_number", tailNumber)
+    .limit(2);
+  const existing = (matches ?? []).find((row) => row.id !== id);
+  if (existing && existing.id !== id) redirect(`${backTo}?error=duplicate`);
+
+  const payload: Database["public"]["Tables"]["aircraft"]["Insert"] = {
+    client_id: clientId,
+    tail_number: tailNumber,
     make: str(formData, "make") || null,
     model: str(formData, "model") || null,
     serial_number: str(formData, "serial_number") || null,
@@ -183,24 +328,41 @@ export async function saveAircraft(formData: FormData) {
     passenger_capacity: num(formData, "passenger_capacity"),
     required_crew: num(formData, "required_crew") ?? 2,
     maintenance_status: str(formData, "maintenance_status") || "in_service",
+    status: str(formData, "status") || "active",
     notes: str(formData, "notes") || null,
   };
-  if (!payload.tail_number) redirect("/portal/admin/aircraft?error=missing");
 
+  let savedId = id;
   if (id) {
-    await db.from("aircraft").update(payload).eq("id", id);
+    const { data, error } = await db.from("aircraft").update(payload).eq("id", id).select("id").single();
+    if (error || !data) redirect(`${backTo}?error=save`);
+    savedId = data.id;
   } else {
-    await db.from("aircraft").insert(payload);
+    const { data, error } = await db.from("aircraft").insert(payload).select("id").single();
+    if (error || !data) redirect(`${backTo}?error=save`);
+    savedId = data.id;
   }
   await logAuditEvent({
     actor: admin,
     action: id ? "aircraft_updated" : "aircraft_created",
     detail: `${id ? "Updated" : "Created"} ${payload.tail_number}`,
     entityType: "aircraft",
-    entityId: id || null,
+    entityId: savedId || null,
   });
   revalidatePath("/portal/admin/aircraft");
-  redirect("/portal/admin/aircraft?success=aircraft");
+  revalidatePath("/portal/client/aircraft");
+  revalidatePath("/portal/client/trips/new");
+  if (clientId) {
+    await notifyUser({
+      userId: clientId,
+      title: id ? "Aircraft updated" : "Aircraft added",
+      body: `${tailNumber} is now linked to your AMG portal account.`,
+      type: "aircraft",
+      entityType: "aircraft",
+      entityId: savedId || null,
+    });
+  }
+  redirect(`${backTo}?success=aircraft`);
 }
 
 // ─── Document review ────────────────────────────────────────────────
@@ -243,6 +405,9 @@ export async function reviewExpense(formData: FormData) {
     .from("expenses")
     .update({
       status,
+      approved_amount: num(formData, "approved_amount"),
+      billable_to_client: formData.get("billable_to_client") === "true",
+      reimbursable: formData.get("reimbursable") !== "false",
       review_notes: str(formData, "review_notes") || null,
       reviewed_by: admin.id,
     })

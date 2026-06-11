@@ -14,6 +14,9 @@ export type Mission = Tables<"missions">;
 export type Aircraft = Tables<"aircraft">;
 export type Quote = Tables<"quotes">;
 export type QuoteLineItem = Tables<"quote_line_items">;
+export type Invoice = Tables<"invoices">;
+export type InvoiceLineItem = Tables<"invoice_line_items">;
+export type Payment = Tables<"payments">;
 export type Expense = Tables<"expenses">;
 export type DocumentRow = Tables<"documents">;
 export type Profile = Tables<"profiles">;
@@ -47,13 +50,18 @@ export type MissionDetail = Mission & {
 };
 
 // ─── Aircraft ───────────────────────────────────────────────────────
-export async function listAircraftForClient(clientId: string): Promise<Aircraft[]> {
+export async function listAircraftForClient(
+  clientId: string,
+  options: { includeInactive?: boolean } = {}
+): Promise<Aircraft[]> {
   const db = await createServiceClient();
-  const { data } = await db
+  let q = db
     .from("aircraft")
     .select("*")
     .eq("client_id", clientId)
     .order("tail_number");
+  if (!options.includeInactive) q = q.eq("status", "active");
+  const { data } = await q;
   return data ?? [];
 }
 
@@ -214,6 +222,69 @@ export async function getQuoteDetail(
     .eq("quote_id", id)
     .order("sort_order");
   return { ...quote, items: items ?? [] };
+}
+
+// Billing
+export async function listAllInvoices(): Promise<
+  (Invoice & {
+    client: MiniProfile | null;
+    mission: { ref: string } | null;
+    quote: { ref: string } | null;
+  })[]
+> {
+  const db = await createServiceClient();
+  const { data } = await db
+    .from("invoices")
+    .select("*, client:client_id(full_name,email,company_name), mission:mission_id(ref), quote:quote_id(ref)")
+    .order("created_at", { ascending: false })
+    .returns<
+      (Invoice & {
+        client: MiniProfile | null;
+        mission: { ref: string } | null;
+        quote: { ref: string } | null;
+      })[]
+    >();
+  return data ?? [];
+}
+
+export async function listInvoicesForClient(clientId: string): Promise<
+  (Invoice & { mission: { ref: string } | null; quote: { ref: string } | null })[]
+> {
+  const db = await createServiceClient();
+  const { data } = await db
+    .from("invoices")
+    .select("*, mission:mission_id(ref), quote:quote_id(ref)")
+    .eq("client_id", clientId)
+    .order("created_at", { ascending: false })
+    .returns<(Invoice & { mission: { ref: string } | null; quote: { ref: string } | null })[]>();
+  return data ?? [];
+}
+
+export async function getInvoiceDetail(
+  id: string
+): Promise<
+  | (Invoice & {
+      client: MiniProfile | null;
+      mission: Mission | null;
+      quote: Quote | null;
+      items: InvoiceLineItem[];
+      payments: Payment[];
+    })
+  | null
+> {
+  const db = await createServiceClient();
+  const { data: invoice } = await db
+    .from("invoices")
+    .select("*, client:client_id(full_name,email,company_name), mission:mission_id(*), quote:quote_id(*)")
+    .eq("id", id)
+    .maybeSingle()
+    .returns<(Invoice & { client: MiniProfile | null; mission: Mission | null; quote: Quote | null }) | null>();
+  if (!invoice) return null;
+  const [items, payments] = await Promise.all([
+    db.from("invoice_line_items").select("*").eq("invoice_id", id).order("sort_order"),
+    db.from("payments").select("*").eq("invoice_id", id).order("paid_at", { ascending: false }),
+  ]);
+  return { ...invoice, items: items.data ?? [], payments: payments.data ?? [] };
 }
 
 // ─── Expenses ───────────────────────────────────────────────────────

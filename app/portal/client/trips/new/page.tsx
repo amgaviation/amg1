@@ -24,6 +24,8 @@ export default async function NewTripPage({
         <Notice tone="danger">Please fill in all required fields (departure and arrival airports).</Notice>
       ) : params.error === "failed" ? (
         <Notice tone="danger">Could not submit request. Please try again.</Notice>
+      ) : params.error === "aircraft" ? (
+        <Notice tone="danger">That aircraft is unavailable for new requests. Please choose another aircraft or contact AMG Operations.</Notice>
       ) : null}
 
       <PageHeader

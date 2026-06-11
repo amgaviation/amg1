@@ -227,35 +227,139 @@ export type Database = {
       expenses: {
         Row: {
           amount: number
+          approved_amount: number | null
+          billable_to_client: boolean
           category: string
           created_at: string
           crew_id: string
           expense_date: string
           id: string
+          invoice_line_item_id: string | null
+          merchant: string | null
           mission_id: string | null
           notes: string | null
+          quote_line_item_id: string | null
           receipt_path: string | null
+          reimbursable: boolean
           review_notes: string | null
           reviewed_by: string | null
           status: string
+          tax_amount: number | null
+          currency: string
           updated_at: string
         }
         Insert: {
           amount: number
+          approved_amount?: number | null
+          billable_to_client?: boolean
           category: string
           created_at?: string
           crew_id: string
           expense_date?: string
           id?: string
+          invoice_line_item_id?: string | null
+          merchant?: string | null
           mission_id?: string | null
           notes?: string | null
+          quote_line_item_id?: string | null
           receipt_path?: string | null
+          reimbursable?: boolean
           review_notes?: string | null
           reviewed_by?: string | null
           status?: string
+          tax_amount?: number | null
+          currency?: string
           updated_at?: string
         }
         Update: Partial<Database["public"]["Tables"]["expenses"]["Insert"]>
+        Relationships: []
+      }
+      invoice_line_items: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          description: string | null
+          expense_id: string | null
+          id: string
+          invoice_id: string
+          quantity: number
+          sort_order: number
+          unit: string | null
+          unit_price: number
+        }
+        Insert: {
+          amount?: number
+          category: string
+          created_at?: string
+          description?: string | null
+          expense_id?: string | null
+          id?: string
+          invoice_id: string
+          quantity?: number
+          sort_order?: number
+          unit?: string | null
+          unit_price?: number
+        }
+        Update: Partial<Database["public"]["Tables"]["invoice_line_items"]["Insert"]>
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          aircraft_id: string | null
+          amount_due: number
+          amount_paid: number
+          client_id: string | null
+          client_notes: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          discount: number
+          due_date: string | null
+          id: string
+          internal_notes: string | null
+          invoice_number: string
+          issued_at: string | null
+          mission_id: string | null
+          paid_at: string | null
+          quote_id: string | null
+          sent_at: string | null
+          status: string
+          subtotal: number
+          tax: number
+          terms: string | null
+          total: number
+          updated_at: string
+          viewed_at: string | null
+        }
+        Insert: {
+          aircraft_id?: string | null
+          amount_due?: number
+          amount_paid?: number
+          client_id?: string | null
+          client_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          discount?: number
+          due_date?: string | null
+          id?: string
+          internal_notes?: string | null
+          invoice_number?: string
+          issued_at?: string | null
+          mission_id?: string | null
+          paid_at?: string | null
+          quote_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subtotal?: number
+          tax?: number
+          terms?: string | null
+          total?: number
+          updated_at?: string
+          viewed_at?: string | null
+        }
+        Update: Partial<Database["public"]["Tables"]["invoices"]["Insert"]>
         Relationships: []
       }
       message_threads: {
@@ -478,6 +582,72 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["notifications"]["Insert"]>
         Relationships: []
       }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          invoice_id: string
+          notes: string | null
+          paid_at: string
+          payment_method: string | null
+          provider: string | null
+          provider_payment_id: string | null
+          recorded_by: string | null
+          status: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          invoice_id: string
+          notes?: string | null
+          paid_at?: string
+          payment_method?: string | null
+          provider?: string | null
+          provider_payment_id?: string | null
+          recorded_by?: string | null
+          status?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["payments"]["Insert"]>
+        Relationships: []
+      }
+      notification_deliveries: {
+        Row: {
+          attempted_at: string | null
+          channel: string
+          created_at: string
+          error_message: string | null
+          event_type: string | null
+          id: string
+          notification_id: string | null
+          provider: string | null
+          provider_message_id: string | null
+          recipient: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          attempted_at?: string | null
+          channel: string
+          created_at?: string
+          error_message?: string | null
+          event_type?: string | null
+          id?: string
+          notification_id?: string | null
+          provider?: string | null
+          provider_message_id?: string | null
+          recipient: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: Partial<Database["public"]["Tables"]["notification_deliveries"]["Insert"]>
+        Relationships: []
+      }
       organizations: {
         Row: {
           created_at: string
@@ -556,9 +726,14 @@ export type Database = {
           full_name: string | null
           home_base: string | null
           id: string
+          invitation_channel: string | null
+          invitation_sent_at: string | null
+          invitation_status: string | null
+          invited_by: string | null
           is_active: boolean
           last_login_at: string | null
           organization_id: string | null
+          permissions: string[] | null
           phone: string | null
           role: string
           status: string
@@ -571,9 +746,14 @@ export type Database = {
           full_name?: string | null
           home_base?: string | null
           id: string
+          invitation_channel?: string | null
+          invitation_sent_at?: string | null
+          invitation_status?: string | null
+          invited_by?: string | null
           is_active?: boolean
           last_login_at?: string | null
           organization_id?: string | null
+          permissions?: string[] | null
           phone?: string | null
           role?: string
           status?: string
