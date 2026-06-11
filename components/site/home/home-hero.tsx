@@ -9,12 +9,18 @@ export function HomeHero() {
   return (
     <section className="relative flex min-h-screen items-center overflow-hidden">
       <div className="absolute inset-0 -z-10">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/images/hero-jet.png"
-          alt="Private jet on the tarmac at dusk"
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster="/images/hero-jet.png"
           className="h-full w-full object-cover opacity-90"
-        />
+          aria-hidden="true"
+        >
+          <source src="/media/amg-jet-flying.mp4" type="video/mp4" />
+        </video>
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-background/35" />
       </div>
