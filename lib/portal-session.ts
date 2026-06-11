@@ -13,6 +13,7 @@ const SESSION_COOKIE = "amg_portal_session";
 const REQUESTS_COOKIE = "amg_portal_requests";
 const EVENTS_COOKIE = "amg_portal_events";
 const ACKS_COOKIE = "amg_portal_acknowledgements";
+const ACCESS_REQUESTS_COOKIE = "amg_portal_access_requests";
 
 export type PortalSession = {
   email: string;
@@ -35,6 +36,19 @@ export type PortalEvent = {
   role: PortalRole;
   action: string;
   detail: string;
+};
+
+export type PortalAccessRequest = {
+  id: string;
+  name: string;
+  email: string;
+  organization: string;
+  role: PortalRole;
+  reason: string;
+  status: "pending" | "approved" | "rejected";
+  requestedAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
 };
 
 type CookieOptions = {
@@ -162,6 +176,16 @@ export async function addPortalEvent({
 export async function getAcknowledgedQueueIds() {
   const jar = await cookies();
   return safeParse<string[]>(jar.get(ACKS_COOKIE)?.value, []);
+}
+
+export async function getPortalAccessRequests() {
+  const jar = await cookies();
+  return safeParse<PortalAccessRequest[]>(jar.get(ACCESS_REQUESTS_COOKIE)?.value, []);
+}
+
+export async function savePortalAccessRequests(requests: PortalAccessRequest[]) {
+  const jar = await cookies();
+  jar.set(ACCESS_REQUESTS_COOKIE, JSON.stringify(requests.slice(0, 30)), cookieOptions(60 * 60 * 24 * 30));
 }
 
 export async function saveAcknowledgedQueueId(queueId: string) {

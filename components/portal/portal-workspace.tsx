@@ -16,6 +16,7 @@ import {
   advanceSupportRequest,
   createSupportRequest,
   logoutFromPortal,
+  reviewPortalAccessRequest,
 } from "@/app/portal/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,10 +40,12 @@ import {
 } from "@/lib/portal-data";
 import {
   getAcknowledgedQueueIds,
+  getPortalAccessRequests,
   getPortalEvents,
   getPortalSession,
   getSubmittedSupportRequests,
   requestToQueueItem,
+  type PortalAccessRequest,
   type PortalEvent,
 } from "@/lib/portal-session";
 import { cn } from "@/lib/utils";
@@ -183,14 +186,76 @@ function EventLog({ events }: { events: PortalEvent[] }) {
   );
 }
 
+function AccessRequestsPanel({ requests }: { requests: PortalAccessRequest[] }) {
+  const pending = requests.filter((request) => request.status === "pending");
+
+  return (
+    <section className="mx-auto max-w-7xl px-6 pb-8 lg:px-10">
+      <div className="rounded-lg border border-border bg-card p-5">
+        <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="eyebrow text-[0.64rem] text-accent">Access Control</p>
+            <h2 className="mt-2 font-display text-2xl font-bold uppercase">Pending access requests</h2>
+          </div>
+          <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
+            {pending.length} pending
+          </span>
+        </div>
+
+        <div className="grid gap-3">
+          {pending.map((request) => (
+            <article key={request.id} className="grid gap-4 rounded-lg border border-border bg-background/50 p-4 lg:grid-cols-[1.1fr_0.8fr_0.8fr_auto] lg:items-center">
+              <div>
+                <p className="font-mono text-xs text-accent">{request.id}</p>
+                <h3 className="mt-1 text-sm font-semibold text-foreground">{request.name}</h3>
+                <p className="mt-1 text-xs text-muted-foreground">{request.email}</p>
+              </div>
+              <div>
+                <p className="text-sm text-foreground">{request.organization}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{formatEventDate(request.requestedAt)}</p>
+              </div>
+              <div>
+                <Badge variant="outline">{getPortalRole(request.role).title}</Badge>
+                <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">{request.reason}</p>
+              </div>
+              <div className="flex gap-2 lg:justify-end">
+                <form action={reviewPortalAccessRequest}>
+                  <input type="hidden" name="id" value={request.id} />
+                  <input type="hidden" name="decision" value="approved" />
+                  <Button size="sm" className="rounded-full" type="submit">
+                    Approve
+                  </Button>
+                </form>
+                <form action={reviewPortalAccessRequest}>
+                  <input type="hidden" name="id" value={request.id} />
+                  <input type="hidden" name="decision" value="rejected" />
+                  <Button size="sm" variant="outline" className="rounded-full" type="submit">
+                    Reject
+                  </Button>
+                </form>
+              </div>
+            </article>
+          ))}
+          {!pending.length ? (
+            <p className="rounded-lg border border-border bg-background/50 p-4 text-sm text-muted-foreground">
+              No access requests are waiting for admin review.
+            </p>
+          ) : null}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export async function PortalWorkspace({ role }: { role: PortalRole }) {
   const config = getPortalRole(role);
   const Icon = config.icon;
-  const [session, submittedRequests, events, acknowledgedIds] = await Promise.all([
+  const [session, submittedRequests, events, acknowledgedIds, accessRequests] = await Promise.all([
     getPortalSession(),
     getSubmittedSupportRequests(),
     getPortalEvents(),
     getAcknowledgedQueueIds(),
+    getPortalAccessRequests(),
   ]);
   const visibleRequests = getVisibleRequests({
     role,
@@ -271,6 +336,7 @@ export async function PortalWorkspace({ role }: { role: PortalRole }) {
       </section>
 
       <SupportRequestForm role={role} />
+      {role === "admin" ? <AccessRequestsPanel requests={accessRequests} /> : null}
 
       <section className="mx-auto grid max-w-7xl gap-6 px-6 py-8 lg:grid-cols-[0.72fr_1.28fr] lg:px-10">
         <div className="rounded-lg border border-border bg-card p-5">
