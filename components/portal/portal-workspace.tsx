@@ -280,25 +280,59 @@ export async function PortalWorkspace({ role }: { role: PortalRole }) {
               <LockKeyhole className="h-4 w-4" />
               AMG Connect Access
             </Link>
-            <div className="flex flex-wrap items-center gap-2">
-              <nav aria-label="Portal roles" className="flex flex-wrap gap-2">
-                {portalNav.map((item) => (
-                  <Button
-                    key={item.id}
-                    asChild
-                    variant={item.id === role ? "default" : "outline"}
-                    size="sm"
-                    className="rounded-full"
-                  >
-                    <Link href={item.href}>{item.title}</Link>
+            <div className="flex flex-col items-start gap-2 lg:items-end">
+              <div className="flex flex-wrap items-center gap-2">
+                <nav aria-label="Portal roles" className="flex flex-wrap gap-2">
+                  {portalNav.map((item) => (
+                    <Button
+                      key={item.id}
+                      asChild
+                      variant={item.id === role ? "default" : "outline"}
+                      size="sm"
+                      className="rounded-full"
+                    >
+                      <Link href={item.href}>{item.title}</Link>
+                    </Button>
+                  ))}
+                </nav>
+                <form action={logoutFromPortal}>
+                  <Button variant="ghost" size="sm" className="rounded-full" type="submit">
+                    Logout
                   </Button>
-                ))}
+                </form>
+              </div>
+              {/* Sub-page navigation per role */}
+              <nav aria-label="Portal sub-pages" className="flex flex-wrap gap-1.5">
+                {role === "client" && (
+                  <>
+                    <Link href="/portal/passengers" className="text-xs text-muted-foreground hover:text-accent border border-border rounded-full px-3 py-1 transition-colors">Passengers</Link>
+                    <Link href="/portal/documents" className="text-xs text-muted-foreground hover:text-accent border border-border rounded-full px-3 py-1 transition-colors">Documents</Link>
+                    <Link href="/portal/messages" className="text-xs text-muted-foreground hover:text-accent border border-border rounded-full px-3 py-1 transition-colors">Messages</Link>
+                  </>
+                )}
+                {role === "crew" && (
+                  <>
+                    <Link href="/portal/crew-profile" className="text-xs text-muted-foreground hover:text-accent border border-border rounded-full px-3 py-1 transition-colors">Profile &amp; Credentials</Link>
+                    <Link href="/portal/documents" className="text-xs text-muted-foreground hover:text-accent border border-border rounded-full px-3 py-1 transition-colors">Documents</Link>
+                    <Link href="/portal/messages" className="text-xs text-muted-foreground hover:text-accent border border-border rounded-full px-3 py-1 transition-colors">Messages</Link>
+                  </>
+                )}
+                {role === "admin" && (
+                  <>
+                    <Link href="/portal/admin/users" className="text-xs text-muted-foreground hover:text-accent border border-border rounded-full px-3 py-1 transition-colors">Users &amp; Requests</Link>
+                    <Link href="/portal/admin/audit" className="text-xs text-muted-foreground hover:text-accent border border-border rounded-full px-3 py-1 transition-colors">Audit Log</Link>
+                    <Link href="/portal/documents" className="text-xs text-muted-foreground hover:text-accent border border-border rounded-full px-3 py-1 transition-colors">Documents</Link>
+                    <Link href="/portal/messages" className="text-xs text-muted-foreground hover:text-accent border border-border rounded-full px-3 py-1 transition-colors">Messages</Link>
+                  </>
+                )}
+                {role === "partner" && (
+                  <>
+                    <Link href="/portal/vendor-tasks" className="text-xs text-muted-foreground hover:text-accent border border-border rounded-full px-3 py-1 transition-colors">Vendor Tasks</Link>
+                    <Link href="/portal/documents" className="text-xs text-muted-foreground hover:text-accent border border-border rounded-full px-3 py-1 transition-colors">Documents</Link>
+                    <Link href="/portal/messages" className="text-xs text-muted-foreground hover:text-accent border border-border rounded-full px-3 py-1 transition-colors">Messages</Link>
+                  </>
+                )}
               </nav>
-              <form action={logoutFromPortal}>
-                <Button variant="ghost" size="sm" className="rounded-full" type="submit">
-                  Logout
-                </Button>
-              </form>
             </div>
           </header>
 

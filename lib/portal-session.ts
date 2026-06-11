@@ -8,6 +8,7 @@ import {
   type PortalRecord,
   type PortalRole,
 } from "@/lib/portal-data";
+import { createClient } from "@/lib/supabase/server";
 
 const SESSION_COOKIE = "amg_portal_session";
 const REQUESTS_COOKIE = "amg_portal_requests";
@@ -125,6 +126,45 @@ export async function clearPortalSession() {
 }
 
 export async function requirePortalSession(allowedRoles?: PortalRole[]) {
+  // Try Supabase auth first
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user) {
+      // Fetch role from profiles table (RLS enforces access)
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("email, full_name, role")
+        .eq("id", user.id)
+        .single();
+
+      if (profile && isPortalRole(profile.role)) {
+        const supabaseSession: PortalSession = {
+          email: profile.email ?? user.email ?? "",
+          name: profile.full_name ?? toDisplayName(profile.email ?? user.email ?? ""),
+          role: profile.role as PortalRole,
+          signedInAt: user.created_at ?? new Date().toISOString(),
+        };
+
+        if (
+          allowedRoles?.length &&
+          !allowedRoles.includes(supabaseSession.role) &&
+          supabaseSession.role !== "admin"
+        ) {
+          redirect(getPortalRole(supabaseSession.role).href);
+        }
+
+        return supabaseSession;
+      }
+    }
+  } catch {
+    // Fall through to cookie-based session
+  }
+
+  // Fallback: cookie-based session (backward compat during transition)
   const session = await getPortalSession();
 
   if (!session) {
