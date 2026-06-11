@@ -1,5 +1,6 @@
 import { Reveal } from "./reveal";
 import { cn } from "@/lib/utils";
+import { scaleRevealVariants } from "@/lib/motion";
 
 export function PageHero({
   eyebrow,
@@ -17,7 +18,7 @@ export function PageHero({
   return (
     <section
       className={cn(
-        "relative flex min-h-[60vh] items-end overflow-hidden border-b border-border pb-16 pt-32",
+        "relative flex min-h-[72svh] items-end overflow-hidden border-b border-border pb-16 pt-36 lg:pb-24",
         className
       )}
     >
@@ -27,13 +28,13 @@ export function PageHero({
           <img
             src={image || "/placeholder.svg"}
             alt=""
-            className="h-full w-full object-cover opacity-30"
+            className="h-full w-full scale-105 object-cover opacity-45"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/78 to-background/40" />
         </div>
       )}
       <div className="mx-auto w-full max-w-7xl px-6 lg:px-10">
-        <Reveal>
+        <Reveal variants={scaleRevealVariants}>
           <p className="eyebrow mb-5 text-accent">{eyebrow}</p>
           <h1 className="display-heading max-w-4xl text-balance text-5xl text-foreground sm:text-6xl lg:text-7xl">
             {title}

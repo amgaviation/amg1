@@ -1,166 +1,229 @@
 export const COMPANY = {
   name: "AMG Aviation Group",
   shortName: "AMG",
-  tagline: "Private aviation management, crew coordination, and owner support.",
+  tagline: "Aircraft operations support for owners, crews, and flight departments.",
   email: "information@amgaviationgroup.com",
   phone: "",
   location: "United States based. Worldwide coordination.",
   disclaimer:
-    "AMG Aviation Group provides private aviation management and coordination support for Part 91 operations. AMG is not an air carrier and this website does not constitute an offer of charter air transportation.",
+    "AMG Aviation Group provides aircraft operations support, coordination, and crew sourcing assistance for Part 91 aviation environments. AMG is not an air carrier, does not advertise charter service, and does not act as the legal operator of any aircraft unless separately documented in writing.",
+  requestDisclaimer:
+    "Submitting a Support Request does not constitute mission acceptance, crew confirmation, aircraft availability, a binding quote, or a contract. All services remain subject to operational review, crew availability, aircraft availability, aircraft status, maintenance status, insurance requirements, weather, airport restrictions, owner/operator approval, and final acceptance.",
 } as const;
 
 export const STATS = [
-  { label: "Operational focus", value: 24, suffix: "/7" },
-  { label: "Aircraft categories", value: 4, suffix: "" },
+  { label: "Operational desk", value: 24, suffix: "/7" },
+  { label: "Support paths", value: 6, suffix: "" },
   { label: "Portal roles", value: 3, suffix: "" },
-  { label: "Mission support", value: 365, suffix: "" },
+  { label: "Review factors", value: 9, suffix: "+" },
 ] as const;
 
 export const SERVICES = [
   {
-    id: "mission-control",
-    title: "Mission Control",
+    id: "aircraft-management-support",
+    title: "Aircraft Management Support",
     summary:
-      "Trip requests, crew review, itinerary changes, passenger details, and operational notes managed in one organized workflow.",
+      "Owner-focused oversight for scheduling, crew coordination, records, maintenance communication, and recurring operational needs.",
+    useCase:
+      "Useful when an owner or flight department needs a structured support layer around aircraft readiness, communication, and recurring operating tasks.",
     points: [
-      "Owner trip request intake",
-      "Crew approval for edits and cancellations",
-      "Airport, FBO, catering, and ground detail tracking",
-      "Mobile-first mission updates",
+      "Scheduling and owner communication",
+      "Crew coordination and assignment readiness",
+      "Aircraft record and document organization",
+      "Maintenance communication support",
     ],
   },
   {
-    id: "crew-operations",
-    title: "Crew Operations",
+    id: "contract-pilot-support",
+    title: "Contract Pilot Support",
     summary:
-      "A dedicated crew portal gives pilots and operations staff the authority to manage schedules, assignments, manifests, and approvals.",
+      "Qualified pilot sourcing and mission assignment aligned with aircraft type, crew requirements, timing, and operational scope.",
+    useCase:
+      "Useful when a mission, repositioning event, or temporary coverage need requires credential-reviewed pilot support.",
     points: [
-      "Pilot and external user permissions",
-      "Trip pool and assignment boards",
-      "Availability and document tracking",
-      "Weather and TFR-ready dispatch view",
+      "Crew profile and credential review",
+      "Aircraft qualification matching",
+      "Availability and suitability checks",
+      "Owner/operator and insurance requirement coordination",
     ],
   },
   {
-    id: "aircraft-management",
-    title: "Aircraft Management",
+    id: "ferry-repositioning",
+    title: "Ferry & Repositioning",
     summary:
-      "A clean operational record for aircraft profiles, readiness, maintenance notes, documents, and owner-facing visibility.",
+      "Crew and operational coordination for maintenance positioning, aircraft delivery, acquisition support, and approved aircraft movements.",
+    useCase:
+      "Useful when an aircraft needs to move for maintenance, pre-buy activity, delivery, storage, or owner-approved repositioning.",
     points: [
-      "Aircraft profiles and status",
-      "Maintenance and document oversight",
-      "Fleet readiness notes",
-      "Owner and crew-specific access",
+      "Crew sourcing for approved aircraft movements",
+      "Route, timing, and airport limitation review",
+      "Travel and lodging coordination",
+      "Documentation and communication support",
     ],
   },
   {
-    id: "client-experience",
-    title: "Client Experience",
+    id: "maintenance-flight-support",
+    title: "Maintenance Flight Support",
     summary:
-      "A refined private portal for clients to request trips, manage passenger profiles, view mission status, and message AMG.",
+      "Structured support for aircraft movements associated with inspections, maintenance events, acceptance flights, and return-to-service activity.",
+    useCase:
+      "Useful when a maintenance event requires coordination among owner, facility, crew, documentation, and aircraft status inputs.",
     points: [
-      "Client dashboard and request flow",
-      "Passenger profile management",
-      "Messages and documents",
-      "Discreet, private support channel",
+      "Facility communication support",
+      "Maintenance-positioning coordination",
+      "Acceptance and return-to-service support context",
+      "Required document tracking where applicable",
     ],
+  },
+  {
+    id: "flight-operations-coordination",
+    title: "Flight Operations Coordination",
+    summary:
+      "Mission intake, scheduling, crew logistics, travel, lodging, documentation, and operational communication.",
+    useCase:
+      "Useful when a flight department or owner needs a central coordination point for an approved Part 91 support requirement.",
+    points: [
+      "Support request intake",
+      "Route and timing coordination",
+      "Crew logistics and vendor communication",
+      "Operational status updates",
+    ],
+  },
+  {
+    id: "fleet-support-programs",
+    title: "Fleet Support Programs",
+    summary:
+      "Recurring support models for owners and flight departments managing multiple aircraft, frequent missions, or variable crew requirements.",
+    useCase:
+      "Useful when aircraft activity is frequent enough to require defined scope, recurring communication, and support visibility.",
+    points: [
+      "Baseline coordination support",
+      "Recurring service allowance",
+      "Mission-variable cost visibility",
+      "Monthly or annual support plan structure",
+    ],
+  },
+] as const;
+
+export const HOW_AMG_WORKS = [
+  {
+    step: "01",
+    title: "Request",
+    body: "Provide the aircraft, route, timing, crew requirements, and requested support scope.",
+  },
+  {
+    step: "02",
+    title: "Review",
+    body: "AMG reviews availability, qualifications, logistics, operating limitations, and mission conditions.",
+  },
+  {
+    step: "03",
+    title: "Coordinate",
+    body: "Approved crew, travel, lodging, documentation, vendors, and communication are coordinated as required.",
+  },
+  {
+    step: "04",
+    title: "Support",
+    body: "The mission proceeds under the applicable operating authority, approvals, and responsibilities of the aircraft owner or operator.",
   },
 ] as const;
 
 export const CAPABILITIES = [
   {
-    title: "Crew Authority",
-    body: "Pilots and approved crew can manage the operation with role defaults and per-person permission overrides.",
+    title: "Defined Scope",
+    body: "Each request is reviewed around aircraft status, support type, crew need, timing, route, and responsible owner/operator authority.",
   },
   {
-    title: "Client Control",
-    body: "Owners can request, edit, and cancel trips while crew are notified and can approve operational changes.",
+    title: "Crew Readiness",
+    body: "Pilot support is evaluated against credentials, aircraft qualifications, availability, insurance requirements, and assignment suitability.",
   },
   {
-    title: "Admin Visibility",
-    body: "AMG administrators can review access requests, manage users, aircraft, documents, settings, and mission data.",
+    title: "Owner Communication",
+    body: "AMG keeps owners and approved representatives informed without implying automatic acceptance or aircraft availability.",
   },
   {
-    title: "Mobile First",
-    body: "Every public and portal surface is designed for fast, no-zoom use from a phone as well as desktop.",
+    title: "Operational Accountability",
+    body: "Support activity is organized through clear review, coordination, documentation, and communication checkpoints.",
   },
 ] as const;
 
-export const FLEET = [
+export const AIRCRAFT_CATEGORIES = [
   {
-    id: "light",
-    name: "Light Jet",
-    category: "Light Jet",
-    image: "/images/light-jet.png",
-    range: "1,800 nm",
-    pax: "6-7 seats",
-    speed: "440 kts",
-    endurance: "3-4 hrs",
-    altitude: "41,000 ft",
-    baggage: "40-60 ft3",
-    description:
-      "Efficient short-haul lift for owner missions, day trips, repositioning, and smaller-market airport access.",
-  },
-  {
-    id: "mid",
-    name: "Midsize Jet",
-    category: "Mid Jet",
-    image: "/images/mid-jet.png",
-    range: "3,000 nm",
-    pax: "8-9 seats",
-    speed: "460 kts",
-    endurance: "5-6 hrs",
-    altitude: "45,000 ft",
-    baggage: "70-90 ft3",
-    description:
-      "A balanced cabin and range profile for regional business travel, family missions, and coast-to-coast planning.",
-  },
-  {
-    id: "heavy",
-    name: "Heavy Jet",
-    category: "Heavy Jet",
-    image: "/images/heavy-jet.png",
-    range: "6,000 nm",
-    pax: "12-16 seats",
-    speed: "488 kts",
-    endurance: "10-12 hrs",
-    altitude: "51,000 ft",
-    baggage: "150+ ft3",
-    description:
-      "Long-range capability with stand-up cabin comfort for international, multi-passenger, and complex itineraries.",
+    id: "piston",
+    name: "Piston",
+    category: "Piston",
+    image: "/images/turboprop.png",
+    support: "Owner support, repositioning, document organization, and qualified crew review where applicable.",
+    factors: ["Airport limitations", "Aircraft status", "Pilot qualification", "Owner approval"],
   },
   {
     id: "turboprop",
     name: "Turboprop",
     category: "Turboprop",
     image: "/images/turboprop.png",
-    range: "1,500 nm",
-    pax: "6-8 seats",
-    speed: "310 kts",
-    endurance: "4-5 hrs",
-    altitude: "30,000 ft",
-    baggage: "50-70 ft3",
-    description:
-      "Practical access to shorter runways and remote airports with strong operating efficiency.",
+    support: "Regional support, maintenance positioning, crew sourcing, and operating-condition review.",
+    factors: ["Route profile", "Maintenance status", "Crew availability", "Weather"],
+  },
+  {
+    id: "single-engine-jet",
+    name: "Single-Engine Jet",
+    category: "Single-Engine Jet",
+    image: "/images/light-jet.png",
+    support: "Aircraft-specific support for owner missions, ferry movement, and crew qualification review.",
+    factors: ["Aircraft type", "Insurance requirements", "Airport restrictions", "Pilot currency"],
+  },
+  {
+    id: "light-jet",
+    name: "Light Jet",
+    category: "Light Jet",
+    image: "/images/light-jet.png",
+    support: "Short-haul support, repositioning coordination, owner communication, and assignment readiness.",
+    factors: ["Crew pairing", "Timing", "Aircraft readiness", "Operating limitations"],
+  },
+  {
+    id: "midsize-jet",
+    name: "Midsize Jet",
+    category: "Midsize Jet",
+    image: "/images/mid-jet.png",
+    support: "Crew sourcing, support request review, and coordination for domestic or regional operating needs.",
+    factors: ["Crew requirement", "Aircraft status", "Route complexity", "Owner/operator approval"],
+  },
+  {
+    id: "super-midsize-jet",
+    name: "Super-Midsize Jet",
+    category: "Super-Midsize Jet",
+    image: "/images/heavy-jet.png",
+    support: "Expanded crew, travel, documentation, and logistics support for more complex movements.",
+    factors: ["Mission complexity", "Crew availability", "International considerations", "Vendor coordination"],
+  },
+  {
+    id: "large-cabin-jet",
+    name: "Large-Cabin Jet",
+    category: "Large-Cabin Jet",
+    image: "/images/heavy-jet.png",
+    support: "Longer-range support coordination where crew, aircraft status, facilities, and approvals require tighter control.",
+    factors: ["Operating authority", "Insurance", "Airport restrictions", "Final acceptance"],
   },
 ] as const;
 
+export const FLEET = AIRCRAFT_CATEGORIES;
+
 export const VALUES = [
   {
-    title: "Discretion",
-    body: "Aircraft, passenger, and mission details stay private and are only surfaced to the roles that need them.",
-  },
-  {
-    title: "Precision",
-    body: "Every request moves through a clear operational path from submission to crew review to scheduled mission.",
-  },
-  {
-    title: "Authority",
-    body: "Crew have the tools and permissions to keep the operation safe, current, and accountable.",
-  },
-  {
     title: "Clarity",
-    body: "Clients see what matters. Crew see what they need. Admins see the whole operation.",
+    body: "Responsibilities, support scope, and acceptance conditions are kept visible before work proceeds.",
+  },
+  {
+    title: "Responsiveness",
+    body: "Owners, crews, and vendors need quick coordination without vague promises or buried assumptions.",
+  },
+  {
+    title: "Suitability",
+    body: "Crew, aircraft, route, timing, and operating conditions are reviewed before a support request is accepted.",
+  },
+  {
+    title: "Discretion",
+    body: "Aircraft, owner, passenger, and operational details stay limited to approved roles and support needs.",
   },
 ] as const;
 
@@ -168,96 +231,96 @@ export const TEAM = [
   {
     name: "AMG Operations",
     title: "Mission Coordination",
-    bio: "The central team responsible for trip review, scheduling, aircraft readiness, owner communication, and crew coordination.",
+    bio: "The central support desk for request review, scheduling, aircraft readiness communication, owner updates, and crew coordination.",
     initials: "AO",
   },
   {
-    name: "Flight Crew",
-    title: "Operational Authority",
-    bio: "Approved pilots and crew manage assignments, manifests, mission details, and operational approvals.",
-    initials: "FC",
+    name: "Crew Network",
+    title: "Assignment Readiness",
+    bio: "Credential-reviewed pilots and aviation professionals considered for assignment suitability, aircraft qualification, and availability.",
+    initials: "CN",
   },
   {
     name: "Client Services",
-    title: "Owner Support",
-    bio: "A private support channel for passenger profiles, trip preferences, documents, and owner-facing updates.",
+    title: "Owner Communication",
+    bio: "The owner-facing support channel for aircraft needs, support requests, passenger context, documents, and operational updates.",
     initials: "CS",
   },
   {
     name: "Admin Desk",
     title: "Access & Records",
-    bio: "Administrators oversee account approvals, permissions, documents, aircraft data, and portal settings.",
+    bio: "The administrative layer for access requests, permissions, documents, aircraft data, and support record organization.",
     initials: "AD",
   },
 ] as const;
 
 export const PILOT_REQUIREMENTS = [
-  "Verified identity and AMG-approved account access",
-  "Pilot, maintenance, manager, or external support role assignment",
-  "Permission defaults that can be overridden per person",
-  "Current documents and qualifications where applicable",
-  "Agreement to AMG operational communication standards",
+  "Crew profile and identity review",
+  "Aircraft qualifications and recent experience",
+  "Availability and assignment suitability",
+  "Current documents and credentials where applicable",
+  "Owner/operator, insurance, and mission-specific approval",
 ] as const;
 
 export const PILOT_BENEFITS = [
   {
-    title: "Full Mission Context",
-    body: "See trip details, assignment status, aircraft data, passenger notes, and operational updates in one place.",
+    title: "Credential Review",
+    body: "Profiles are organized around qualifications, aircraft experience, documents, and support suitability.",
   },
   {
-    title: "Approval Workflow",
-    body: "Review owner edits, cancellations, access requests, and crew assignments without digging through messages.",
+    title: "Assignment Context",
+    body: "AMG reviews each potential assignment around aircraft, route, timing, crew need, and operating requirements.",
   },
   {
-    title: "Mobile Dispatch",
-    body: "Use a phone-friendly crew interface built for quick checks, fast updates, and no pinching to zoom.",
+    title: "Operational Communication",
+    body: "Approved users receive clear support context without turning the network into a casual job board.",
   },
   {
-    title: "Role Permissions",
-    body: "Separate pilot, maintenance, aircraft manager, and external user access without rebuilding the system.",
+    title: "No Automatic Engagement",
+    body: "Profile submission and approval do not guarantee assignment, compensation, or future engagement.",
   },
 ] as const;
 
 export const PLANS = [
   {
-    id: "owner",
-    name: "Owner Access",
-    monthly: "Client portal",
-    description: "For aircraft owners and approved client representatives.",
+    id: "baseline",
+    name: "Baseline Support",
+    monthly: "Coordination foundation",
+    description: "For owners who need a defined communication and coordination layer around recurring aircraft needs.",
     features: [
-      "Request new trips",
-      "Edit and cancel owner missions",
-      "Manage passenger profiles",
-      "View mission status",
-      "Message AMG Operations",
+      "Baseline coordination",
+      "Support request review",
+      "Owner communication",
+      "Document visibility",
+      "Mission-variable costs reviewed separately",
     ],
     highlighted: false,
   },
   {
-    id: "crew",
-    name: "Crew Operations",
-    monthly: "Operational portal",
-    description: "For pilots and crew with operational authority.",
+    id: "active",
+    name: "Active Support",
+    monthly: "Monthly support plan",
+    description: "For aircraft with more frequent crew, scheduling, ferry, or maintenance-positioning support needs.",
     features: [
-      "Manage assigned trips",
-      "Approve owner changes",
-      "Review manifests",
-      "Track availability and documents",
-      "Manage aircraft and crew data by permission",
+      "Expanded service allowance",
+      "Crew sourcing coordination",
+      "Travel and lodging coordination support",
+      "Priority support review",
+      "Selected variable items tracked separately",
     ],
     highlighted: true,
   },
   {
-    id: "admin",
-    name: "Admin Control",
-    monthly: "AMG command center",
-    description: "For AMG staff managing the whole system.",
+    id: "fleet",
+    name: "Fleet Support",
+    monthly: "Annual support plan",
+    description: "For owners or flight departments managing multiple aircraft, recurring activity, or variable crew needs.",
     features: [
-      "Approve access requests",
-      "Manage users and permissions",
-      "Monitor trip pool and assignments",
-      "Manage settings and documents",
-      "Audit client and crew activity",
+      "Fleet-level support credit",
+      "Recurring support cadence",
+      "Multi-aircraft coordination visibility",
+      "Role-based portal access",
+      "Scope reviewed before acceptance",
     ],
     highlighted: false,
   },
@@ -270,15 +333,15 @@ export const PORTAL_ROLES = [
     href: "/portal/client",
     access: "Aircraft owners and approved representatives",
     image: "/images/jet-interior.png",
-    actions: ["Request trip", "Manage passengers", "View missions", "Message AMG"],
+    actions: ["Support requests", "Passenger context", "Aircraft documents", "AMG messages"],
   },
   {
     id: "crew",
     title: "Crew Portal",
     href: "/portal/crew",
-    access: "Pilots, maintenance, aircraft managers, and external crew users",
+    access: "Pilots, maintenance, aircraft managers, and external support users",
     image: "/images/operations.png",
-    actions: ["Approve changes", "Manage assignments", "Review manifests", "Track documents"],
+    actions: ["Assignment review", "Manifest context", "Aircraft readiness", "Document tracking"],
   },
   {
     id: "admin",
@@ -286,7 +349,26 @@ export const PORTAL_ROLES = [
     href: "/portal/admin",
     access: "AMG operations and administrators",
     image: "/images/jet-sky.png",
-    actions: ["Approve access", "Manage users", "Configure permissions", "Monitor operations"],
+    actions: ["Access review", "User permissions", "Support records", "Operational settings"],
+  },
+] as const;
+
+export const CONTACT_CARDS = [
+  {
+    title: "Operations Support",
+    body: "Aircraft management support, flight operations coordination, ferry and repositioning assistance, or maintenance flight support.",
+  },
+  {
+    title: "Pilot Network",
+    body: "Credential submission, crew profile questions, aircraft qualification updates, or assignment suitability inquiries.",
+  },
+  {
+    title: "Client / Owner Support",
+    body: "Owner communication, support request status, aircraft profile details, passenger context, or portal access.",
+  },
+  {
+    title: "General Inquiries",
+    body: "Questions about AMG Aviation Group, support scope, administrative notices, or next steps.",
   },
 ] as const;
 
@@ -299,7 +381,6 @@ export const DESTINATIONS = [
   "London",
   "Paris",
   "Geneva",
-  "Dubai",
   "Toronto",
   "Mexico City",
   "Sao Paulo",
@@ -307,6 +388,44 @@ export const DESTINATIONS = [
   "Tokyo",
   "Singapore",
   "Cape Town",
+  "San Juan",
+] as const;
+
+export const FOOTER_COLS = [
+  {
+    heading: "Company",
+    links: [
+      { label: "About AMG", href: "/about" },
+      { label: "Our Team", href: "/team" },
+      { label: "Contact", href: "/contact" },
+      { label: "Pilot Network", href: "/pilot-network" },
+    ],
+  },
+  {
+    heading: "Capabilities",
+    links: SERVICES.map((service) => ({
+      label: service.title,
+      href: "/services",
+    })),
+  },
+  {
+    heading: "Portal",
+    links: [
+      { label: "Client Portal", href: "/portal/client" },
+      { label: "Crew Portal", href: "/portal/crew" },
+      { label: "Admin Login", href: "/login" },
+    ],
+  },
+  {
+    heading: "Administrative",
+    links: [
+      { label: "Privacy Policy", href: "/privacy-policy" },
+      { label: "Terms & Conditions", href: "/terms" },
+      { label: "Operational Disclaimer", href: "/operational-disclaimer" },
+      { label: "Mission Acceptance Policy", href: "/mission-acceptance" },
+      { label: "Credential Submission Notice", href: "/credential-submission" },
+    ],
+  },
 ] as const;
 
 export const NAV_LINKS = [

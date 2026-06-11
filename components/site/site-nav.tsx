@@ -30,13 +30,13 @@ export function SiteNav() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-300",
+        "fixed inset-x-0 top-0 z-50 transition-all duration-300 motion-reduce:transition-none",
         scrolled
-          ? "border-b border-border bg-background/80 backdrop-blur-xl"
+          ? "border-b border-border bg-background/82 shadow-[0_12px_40px_rgba(0,0,0,0.18)] backdrop-blur-[18px]"
           : "border-b border-transparent bg-transparent"
       )}
     >
-      <nav className="mx-auto flex h-18 max-w-7xl items-center gap-6 px-6 py-4 lg:px-10">
+      <nav className={cn("mx-auto flex max-w-7xl items-center gap-6 px-6 transition-all duration-300 lg:px-10", scrolled ? "h-16 py-3" : "h-20 py-5")}>
         <Link href="/" className="group flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/logo-white.png" alt="AMG Aviation Group" className="h-8 w-auto" />
@@ -73,7 +73,7 @@ export function SiteNav() {
           </Link>
           <Link
             href="/contact"
-            className="hidden items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground transition-all hover:bg-primary/90 md:inline-flex"
+            className="hidden items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground transition-all hover:-translate-y-0.5 hover:bg-primary/90 md:inline-flex"
           >
             Request Support
           </Link>
@@ -93,12 +93,12 @@ export function SiteNav() {
         {open && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
+            animate={{ opacity: 1, height: "100svh" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="overflow-hidden border-t border-border bg-background/95 backdrop-blur-xl lg:hidden"
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden border-t border-border bg-background/96 backdrop-blur-xl lg:hidden"
           >
-            <ul className="flex flex-col gap-1 px-6 py-6">
+            <ul className="flex h-full flex-col justify-center gap-2 px-6 py-10">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link

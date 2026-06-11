@@ -2,20 +2,23 @@
 
 import { motion, type Variants } from "framer-motion";
 import type { ReactNode } from "react";
-
-const variants: Variants = {
-  hidden: { opacity: 0, y: 28 },
-  visible: { opacity: 1, y: 0 },
-};
+import {
+  motionDuration,
+  motionEase,
+  motionStagger,
+  revealVariants,
+} from "@/lib/motion";
 
 export function Reveal({
   children,
   delay = 0,
   className,
+  variants = revealVariants,
 }: {
   children: ReactNode;
   delay?: number;
   className?: string;
+  variants?: Variants;
 }) {
   return (
     <motion.div
@@ -23,7 +26,7 @@ export function Reveal({
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay }}
+      transition={{ duration: motionDuration.slow, ease: motionEase, delay }}
       className={className}
     >
       {children}
@@ -45,7 +48,7 @@ export function RevealGroup({
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-80px" }}
-      transition={{ staggerChildren: stagger }}
+      transition={{ staggerChildren: stagger ?? motionStagger.standard }}
       className={className}
     >
       {children}
@@ -62,8 +65,8 @@ export function RevealItem({
 }) {
   return (
     <motion.div
-      variants={variants}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      variants={revealVariants}
+      transition={{ duration: motionDuration.slow, ease: motionEase }}
       className={className}
     >
       {children}

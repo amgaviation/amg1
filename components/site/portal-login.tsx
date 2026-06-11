@@ -23,10 +23,11 @@ export function PortalLogin() {
         <div className="relative max-w-3xl">
           <p className="eyebrow mb-5 text-accent">AMG Connect</p>
           <h1 className="display-heading text-balance text-6xl text-foreground sm:text-7xl lg:text-8xl">
-            Login for every side of the mission
+            Role-based access for aircraft support
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-            Clients, crew, and AMG admins enter through one secure access point and land in the portal built for their role.
+            Clients, crew, and AMG admins enter through one access point and land
+            in the operational workspace built for their role.
           </p>
         </div>
       </section>
@@ -96,7 +97,7 @@ export function PortalLogin() {
               <ArrowRight className="h-4 w-4" />
             </button>
             <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground">
-              Need access? Submit a request and AMG Operations will review your role.
+              Need access? Submit a Support Request and AMG Operations will review your role.
             </p>
           </form>
         </div>

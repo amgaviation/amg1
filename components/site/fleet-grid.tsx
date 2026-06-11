@@ -5,7 +5,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FLEET } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
-const CATEGORIES = ["All", "Light Jet", "Mid Jet", "Heavy Jet", "Turboprop"];
+const CATEGORIES = [
+  "All",
+  "Piston",
+  "Turboprop",
+  "Single-Engine Jet",
+  "Light Jet",
+  "Midsize Jet",
+  "Super-Midsize Jet",
+  "Large-Cabin Jet",
+];
 
 export function FleetGrid() {
   const [filter, setFilter] = useState("All");
@@ -63,34 +72,18 @@ export function FleetGrid() {
                   {aircraft.name}
                 </h3>
                 <p className="mt-3 leading-relaxed text-muted-foreground">
-                  {aircraft.description}
+                  {aircraft.support}
                 </p>
-                <dl className="mt-6 grid grid-cols-3 gap-4 border-t border-border pt-6">
-                  <div>
-                    <dt className="eyebrow text-[0.6rem] text-muted-foreground">
-                      Range
-                    </dt>
-                    <dd className="mt-1 font-display text-lg font-bold text-foreground">
-                      {aircraft.range}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="eyebrow text-[0.6rem] text-muted-foreground">
-                      Capacity
-                    </dt>
-                    <dd className="mt-1 font-display text-lg font-bold text-foreground">
-                      {aircraft.pax}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="eyebrow text-[0.6rem] text-muted-foreground">
-                      Cruise
-                    </dt>
-                    <dd className="mt-1 font-display text-lg font-bold text-foreground">
-                      {aircraft.speed}
-                    </dd>
-                  </div>
-                </dl>
+                <div className="mt-6 grid grid-cols-2 gap-2 border-t border-border pt-6">
+                  {aircraft.factors.map((factor) => (
+                    <span
+                      key={factor}
+                      className="rounded-full border border-border px-3 py-2 text-xs text-foreground/75"
+                    >
+                      {factor}
+                    </span>
+                  ))}
+                </div>
               </div>
             </motion.article>
           ))}

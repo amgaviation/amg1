@@ -126,6 +126,9 @@
   * {
     border-color: var(--border);
   }
+  html {
+    scroll-padding-top: 96px;
+  }
   body {
     background-color: var(--background);
     color: var(--foreground);
@@ -157,6 +160,20 @@
     letter-spacing: 0.22em;
     font-size: 0.8125rem;
   }
+  .cinematic-section {
+    min-height: min(920px, 100svh);
+    display: flex;
+    align-items: center;
+  }
+  .hover-lift {
+    transition:
+      transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .hover-lift:hover {
+    transform: translateY(-5px);
+  }
 }
 
 /* Custom scrollbar for the premium feel */
@@ -177,4 +194,15 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
 }
