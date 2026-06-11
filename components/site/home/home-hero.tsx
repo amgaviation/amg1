@@ -4,16 +4,16 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { motionDuration, motionEase } from "@/lib/motion";
+import { CinematicVideoFrame } from "@/components/site/media/media-placeholder";
 
 export function HomeHero() {
   return (
     <section className="relative flex min-h-screen items-center overflow-hidden">
       <div className="absolute inset-0 -z-10">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/images/hero-jet.png"
-          alt="Private jet on the tarmac at dusk"
-          className="h-full w-full object-cover opacity-90"
+        <CinematicVideoFrame
+          assetId="AMG-HOME-HERO-VIDEO-001"
+          priority
+          className="h-full min-h-screen w-full"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-background/35" />
