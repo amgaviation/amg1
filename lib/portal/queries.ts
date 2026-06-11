@@ -47,13 +47,18 @@ export type MissionDetail = Mission & {
 };
 
 // ─── Aircraft ───────────────────────────────────────────────────────
-export async function listAircraftForClient(clientId: string): Promise<Aircraft[]> {
+export async function listAircraftForClient(
+  clientId: string,
+  options: { includeInactive?: boolean } = {}
+): Promise<Aircraft[]> {
   const db = await createServiceClient();
-  const { data } = await db
+  let q = db
     .from("aircraft")
     .select("*")
     .eq("client_id", clientId)
     .order("tail_number");
+  if (!options.includeInactive) q = q.eq("status", "active");
+  const { data } = await q;
   return data ?? [];
 }
 

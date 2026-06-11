@@ -26,11 +26,16 @@ export async function createMission(formData: FormData) {
   if (aircraftId) {
     const { data: ac } = await db
       .from("aircraft")
-      .select("tail_number, client_id")
+      .select("tail_number, client_id, status")
       .eq("id", aircraftId)
       .maybeSingle();
+    if (!ac || ac.status !== "active") {
+      redirect("/portal/client/trips/new?error=aircraft");
+    }
     tail = ac?.tail_number ?? null;
     if (user.role === "admin" && ac?.client_id) clientId = ac.client_id;
+  } else {
+    tail = str(formData, "tail_number").toUpperCase().replace(/\s+/g, "") || null;
   }
 
   const passengerCount = num(formData, "passenger_count") ?? 0;

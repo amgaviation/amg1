@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/supabase/database.types";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
 import { isPortalRole } from "@/lib/portal/constants";
 import { actor, num, str } from "./_helpers";
@@ -171,9 +172,31 @@ export async function saveAircraft(formData: FormData) {
   const admin = await actor(["admin"]);
   const db = await createServiceClient();
   const id = str(formData, "aircraft_id");
-  const payload = {
-    client_id: str(formData, "client_id") || null,
-    tail_number: str(formData, "tail_number").toUpperCase(),
+  const backTo = str(formData, "back_to") || "/portal/admin/aircraft";
+  const tailNumber = str(formData, "tail_number").toUpperCase().replace(/\s+/g, "");
+  const clientId = str(formData, "client_id") || null;
+  if (!tailNumber) redirect(`${backTo}?error=missing`);
+
+  if (clientId) {
+    const { data: client } = await db
+      .from("profiles")
+      .select("id, role")
+      .eq("id", clientId)
+      .maybeSingle();
+    if (!client || client.role !== "client") redirect(`${backTo}?error=client`);
+  }
+
+  const { data: matches } = await db
+    .from("aircraft")
+    .select("id")
+    .ilike("tail_number", tailNumber)
+    .limit(2);
+  const existing = (matches ?? []).find((row) => row.id !== id);
+  if (existing && existing.id !== id) redirect(`${backTo}?error=duplicate`);
+
+  const payload: Database["public"]["Tables"]["aircraft"]["Insert"] = {
+    client_id: clientId,
+    tail_number: tailNumber,
     make: str(formData, "make") || null,
     model: str(formData, "model") || null,
     serial_number: str(formData, "serial_number") || null,
@@ -183,24 +206,41 @@ export async function saveAircraft(formData: FormData) {
     passenger_capacity: num(formData, "passenger_capacity"),
     required_crew: num(formData, "required_crew") ?? 2,
     maintenance_status: str(formData, "maintenance_status") || "in_service",
+    status: str(formData, "status") || "active",
     notes: str(formData, "notes") || null,
   };
-  if (!payload.tail_number) redirect("/portal/admin/aircraft?error=missing");
 
+  let savedId = id;
   if (id) {
-    await db.from("aircraft").update(payload).eq("id", id);
+    const { data, error } = await db.from("aircraft").update(payload).eq("id", id).select("id").single();
+    if (error || !data) redirect(`${backTo}?error=save`);
+    savedId = data.id;
   } else {
-    await db.from("aircraft").insert(payload);
+    const { data, error } = await db.from("aircraft").insert(payload).select("id").single();
+    if (error || !data) redirect(`${backTo}?error=save`);
+    savedId = data.id;
   }
   await logAuditEvent({
     actor: admin,
     action: id ? "aircraft_updated" : "aircraft_created",
     detail: `${id ? "Updated" : "Created"} ${payload.tail_number}`,
     entityType: "aircraft",
-    entityId: id || null,
+    entityId: savedId || null,
   });
   revalidatePath("/portal/admin/aircraft");
-  redirect("/portal/admin/aircraft?success=aircraft");
+  revalidatePath("/portal/client/aircraft");
+  revalidatePath("/portal/client/trips/new");
+  if (clientId) {
+    await notifyUser({
+      userId: clientId,
+      title: id ? "Aircraft updated" : "Aircraft added",
+      body: `${tailNumber} is now linked to your AMG portal account.`,
+      type: "aircraft",
+      entityType: "aircraft",
+      entityId: savedId || null,
+    });
+  }
+  redirect(`${backTo}?success=aircraft`);
 }
 
 // ─── Document review ────────────────────────────────────────────────
