@@ -45,3 +45,26 @@ alter table public.profiles validate constraint profiles_invitation_status_check
 
 create index if not exists profiles_role_status_email_idx
 on public.profiles (role, status, lower(email));
+
+-- 3) Notification delivery queue
+create table if not exists public.notification_deliveries (
+  id uuid primary key default gen_random_uuid(),
+  notification_id uuid,
+  user_id uuid,
+  channel text not null check (channel in ('in_app', 'email', 'sms')),
+  recipient text not null,
+  event_type text,
+  provider text,
+  provider_message_id text,
+  status text not null default 'queued' check (status in ('queued', 'processing', 'sent', 'delivered', 'failed', 'cancelled', 'suppressed')),
+  error_message text,
+  attempted_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists notification_deliveries_user_status_idx
+on public.notification_deliveries (user_id, status, created_at desc);
+
+create index if not exists notification_deliveries_provider_message_idx
+on public.notification_deliveries (provider, provider_message_id);

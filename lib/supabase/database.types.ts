@@ -478,6 +478,40 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["notifications"]["Insert"]>
         Relationships: []
       }
+      notification_deliveries: {
+        Row: {
+          attempted_at: string | null
+          channel: string
+          created_at: string
+          error_message: string | null
+          event_type: string | null
+          id: string
+          notification_id: string | null
+          provider: string | null
+          provider_message_id: string | null
+          recipient: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          attempted_at?: string | null
+          channel: string
+          created_at?: string
+          error_message?: string | null
+          event_type?: string | null
+          id?: string
+          notification_id?: string | null
+          provider?: string | null
+          provider_message_id?: string | null
+          recipient: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: Partial<Database["public"]["Tables"]["notification_deliveries"]["Insert"]>
+        Relationships: []
+      }
       organizations: {
         Row: {
           created_at: string
