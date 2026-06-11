@@ -26,8 +26,8 @@ export function PortalLogin() {
             Role-based access for aircraft support
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-            Clients, crew, and AMG admins enter through one access point and land
-            in the operational workspace built for their role.
+            Owners, crew, AMG admins, and approved aviation partners enter through
+            one access point and land in the workspace built for their role.
           </p>
         </div>
       </section>
@@ -97,7 +97,7 @@ export function PortalLogin() {
               <ArrowRight className="h-4 w-4" />
             </button>
             <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground">
-              Need access? Submit a Support Request and AMG Operations will review your role.
+              Need access? AMG Operations reviews every portal role before activation.
             </p>
           </form>
         </div>
