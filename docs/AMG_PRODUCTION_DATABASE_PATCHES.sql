@@ -68,3 +68,73 @@ on public.notification_deliveries (user_id, status, created_at desc);
 
 create index if not exists notification_deliveries_provider_message_idx
 on public.notification_deliveries (provider, provider_message_id);
+
+-- 4) Billing backbone: invoices, line items, and payment status tracking
+create table if not exists public.invoices (
+  id uuid primary key default gen_random_uuid(),
+  invoice_number text not null unique default ('INV-' || upper(substr(gen_random_uuid()::text, 1, 8))),
+  quote_id uuid,
+  mission_id uuid,
+  aircraft_id uuid,
+  client_id uuid,
+  status text not null default 'draft' check (status in ('draft', 'sent', 'viewed', 'partially_paid', 'paid', 'overdue', 'void', 'written_off', 'refunded')),
+  currency text not null default 'USD',
+  subtotal numeric not null default 0,
+  discount numeric not null default 0,
+  tax numeric not null default 0,
+  total numeric not null default 0,
+  amount_paid numeric not null default 0,
+  amount_due numeric not null default 0,
+  issued_at timestamptz,
+  sent_at timestamptz,
+  viewed_at timestamptz,
+  due_date date,
+  paid_at timestamptz,
+  terms text,
+  client_notes text,
+  internal_notes text,
+  created_by uuid,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.invoice_line_items (
+  id uuid primary key default gen_random_uuid(),
+  invoice_id uuid not null references public.invoices(id) on delete cascade,
+  expense_id uuid,
+  category text not null,
+  description text,
+  quantity numeric not null default 1,
+  unit text,
+  unit_price numeric not null default 0,
+  amount numeric not null default 0,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.payments (
+  id uuid primary key default gen_random_uuid(),
+  invoice_id uuid not null references public.invoices(id) on delete cascade,
+  amount numeric not null,
+  currency text not null default 'USD',
+  status text not null default 'recorded' check (status in ('recorded', 'pending', 'succeeded', 'failed', 'refunded')),
+  payment_method text,
+  provider text,
+  provider_payment_id text,
+  notes text,
+  paid_at timestamptz not null default now(),
+  recorded_by uuid,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists invoices_client_status_due_idx
+on public.invoices (client_id, status, due_date);
+
+create index if not exists invoices_mission_idx
+on public.invoices (mission_id);
+
+create index if not exists invoice_line_items_invoice_idx
+on public.invoice_line_items (invoice_id, sort_order);
+
+create index if not exists payments_invoice_idx
+on public.payments (invoice_id, paid_at desc);

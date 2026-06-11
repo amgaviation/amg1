@@ -258,6 +258,94 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["expenses"]["Insert"]>
         Relationships: []
       }
+      invoice_line_items: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          description: string | null
+          expense_id: string | null
+          id: string
+          invoice_id: string
+          quantity: number
+          sort_order: number
+          unit: string | null
+          unit_price: number
+        }
+        Insert: {
+          amount?: number
+          category: string
+          created_at?: string
+          description?: string | null
+          expense_id?: string | null
+          id?: string
+          invoice_id: string
+          quantity?: number
+          sort_order?: number
+          unit?: string | null
+          unit_price?: number
+        }
+        Update: Partial<Database["public"]["Tables"]["invoice_line_items"]["Insert"]>
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          aircraft_id: string | null
+          amount_due: number
+          amount_paid: number
+          client_id: string | null
+          client_notes: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          discount: number
+          due_date: string | null
+          id: string
+          internal_notes: string | null
+          invoice_number: string
+          issued_at: string | null
+          mission_id: string | null
+          paid_at: string | null
+          quote_id: string | null
+          sent_at: string | null
+          status: string
+          subtotal: number
+          tax: number
+          terms: string | null
+          total: number
+          updated_at: string
+          viewed_at: string | null
+        }
+        Insert: {
+          aircraft_id?: string | null
+          amount_due?: number
+          amount_paid?: number
+          client_id?: string | null
+          client_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          discount?: number
+          due_date?: string | null
+          id?: string
+          internal_notes?: string | null
+          invoice_number?: string
+          issued_at?: string | null
+          mission_id?: string | null
+          paid_at?: string | null
+          quote_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subtotal?: number
+          tax?: number
+          terms?: string | null
+          total?: number
+          updated_at?: string
+          viewed_at?: string | null
+        }
+        Update: Partial<Database["public"]["Tables"]["invoices"]["Insert"]>
+        Relationships: []
+      }
       message_threads: {
         Row: {
           created_at: string
@@ -476,6 +564,38 @@ export type Database = {
           user_id?: string | null
         }
         Update: Partial<Database["public"]["Tables"]["notifications"]["Insert"]>
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          invoice_id: string
+          notes: string | null
+          paid_at: string
+          payment_method: string | null
+          provider: string | null
+          provider_payment_id: string | null
+          recorded_by: string | null
+          status: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          invoice_id: string
+          notes?: string | null
+          paid_at?: string
+          payment_method?: string | null
+          provider?: string | null
+          provider_payment_id?: string | null
+          recorded_by?: string | null
+          status?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["payments"]["Insert"]>
         Relationships: []
       }
       notification_deliveries: {
