@@ -191,4 +191,234 @@ export async function adminGetPortalCounts() {
     console.error('adminGetPortalCounts error:', e);
     throw new Error('QUERY_FAILED');
   }
+// backend/portalAuth.jsw
+// AMG Aviation Group Portal - Phase 1
+
+import wixData from 'wix-data';
+import { currentMember } from 'wix-members-backend';
+
+const USERS = 'PortalUsers';
+const LOGS = 'PortalAuditLogs';
+
+const LOGIN_ROUTE = '/login';
+const PENDING_ROUTE = '/pending-approval';
+const ACCESS_DENIED_ROUTE = '/access-denied';
+
+const ROLE_ROUTES = {
+  amg_admin: '/admin-dashboard',
+  crew_pilot: '/crew-dashboard',
+  client_owner: '/client-dashboard',
+  maintenance_partner: '/partner-dashboard',
+  broker_partner: '/partner-dashboard'
+};
+
+const ALLOWED_ROLES = Object.keys(ROLE_ROUTES);
+const ALLOWED_STATUSES = ['pending', 'approved', 'denied', 'suspended'];
+
+function normalizeEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
+function safeString(value, fallback = '') {
+  const out = String(value || '').trim();
+  return out || fallback;
+}
+
+function getMemberEmail(member) {
+  const direct = member?.loginEmail || member?.email;
+  const contactEmail = member?.contactDetails?.emails?.[0]?.email || member?.contactDetails?.emails?.[0] || member?.profile?.email;
+  return normalizeEmail(direct || contactEmail || '');
+}
+
+function getMemberName(member) {
+  const first = member?.contactDetails?.firstName || '';
+  const last = member?.contactDetails?.lastName || '';
+  const full = `${first} ${last}`.trim();
+  return full || member?.profile?.nickname || member?.profile?.slug || getMemberEmail(member) || 'Portal User';
+}
+
+function publicUser(user) {
+  if (!user) return null;
+  return {
+    _id: user._id,
+    fullName: user.fullName || '',
+    loginEmail: user.loginEmail || '',
+    phone: user.phone || '',
+    memberId: user.memberId || '',
+    role: user.role || '',
+    approvalStatus: user.approvalStatus || '',
+    companyName: user.companyName || '',
+    homeAirport: user.homeAirport || '',
+    portalNotes: user.portalNotes || '',
+    isActive: user.isActive !== false,
+    createdSource: user.createdSource || '',
+    lastLogin: user.lastLogin || null
+  };
+}
+
+function routeForUser(user) {
+  const active = user?.isActive !== false;
+  const status = safeString(user?.approvalStatus, 'pending');
+  const role = safeString(user?.role, 'crew_pilot');
+
+  if (!active) return { loggedIn: true, route: ACCESS_DENIED_ROUTE, reason: 'inactive_user', portalUser: publicUser(user) };
+  if (status === 'pending') return { loggedIn: true, route: PENDING_ROUTE, reason: 'pending_approval', portalUser: publicUser(user) };
+  if (status === 'denied' || status === 'suspended') return { loggedIn: true, route: ACCESS_DENIED_ROUTE, reason: status, portalUser: publicUser(user) };
+  if (status !== 'approved') return { loggedIn: true, route: PENDING_ROUTE, reason: 'unknown_status', portalUser: publicUser(user) };
+
+  const route = ROLE_ROUTES[role] || ACCESS_DENIED_ROUTE;
+  return { loggedIn: true, route, reason: ROLE_ROUTES[role] ? 'approved' : 'unknown_role', portalUser: publicUser(user) };
+}
+
+async function logAction(action, actorEmail, actorMemberId, targetCollection, targetItemId, details) {
+  try {
+    await wixData.insert(LOGS, {
+      action: safeString(action),
+      actorEmail: normalizeEmail(actorEmail),
+      actorMemberId: safeString(actorMemberId),
+      targetCollection: safeString(targetCollection),
+      targetItemId: safeString(targetItemId),
+      details: typeof details === 'string' ? details : JSON.stringify(details || {}),
+      createdAt: new Date()
+    }, { suppressAuth: true });
+  } catch (err) {
+    console.warn('Portal audit log failed:', err);
+  }
+}
+
+async function getCurrentWixMember() {
+  try {
+    return await currentMember.getMember({ fieldsets: ['FULL'] });
+  } catch (err) {
+    return null;
+  }
+}
+
+async function findPortalUserByEmail(email) {
+  const normalized = normalizeEmail(email);
+  if (!normalized) return null;
+  const result = await wixData.query(USERS).eq('loginEmail', normalized).limit(1).find({ suppressAuth: true });
+  return result.items[0] || null;
+}
+
+async function findPortalUserForCurrentMember() {
+  const member = await getCurrentWixMember();
+  if (!member) return { member: null, email: '', user: null };
+  const email = getMemberEmail(member);
+  const user = await findPortalUserByEmail(email);
+  return { member, email, user };
+}
+
+export async function getPortalRoute() {
+  const member = await getCurrentWixMember();
+  if (!member) return { loggedIn: false, route: LOGIN_ROUTE, reason: 'not_logged_in', portalUser: null };
+
+  const email = getMemberEmail(member);
+  const memberId = member?._id || '';
+  if (!email) return { loggedIn: false, route: LOGIN_ROUTE, reason: 'member_has_no_email', portalUser: null };
+
+  let user = await findPortalUserByEmail(email);
+  if (!user) {
+    user = await wixData.insert(USERS, {
+      fullName: getMemberName(member),
+      loginEmail: email,
+      phone: '',
+      memberId,
+      role: 'crew_pilot',
+      approvalStatus: 'pending',
+      companyName: '',
+      homeAirport: '',
+      portalNotes: 'Auto-created after first member login. Admin review required.',
+      lastLogin: new Date(),
+      isActive: true,
+      createdSource: 'auto_member_login'
+    }, { suppressAuth: true });
+    await logAction('portal_user_auto_created', email, memberId, USERS, user._id, { role: user.role, approvalStatus: user.approvalStatus });
+    return routeForUser(user);
+  }
+
+  if (!user.memberId && memberId) user.memberId = memberId;
+  if (user.isActive === undefined || user.isActive === null) user.isActive = true;
+  user.lastLogin = new Date();
+  user = await wixData.update(USERS, user, { suppressAuth: true });
+
+  await logAction('portal_route_checked', email, memberId, USERS, user._id, { role: user.role, approvalStatus: user.approvalStatus, route: routeForUser(user).route });
+  return routeForUser(user);
+}
+
+export async function getMyPortalUser() {
+  const { member, email, user } = await findPortalUserForCurrentMember();
+  if (!member) return { loggedIn: false, portalUser: null };
+  return { loggedIn: true, portalUser: publicUser(user), routeInfo: user ? routeForUser(user) : null, email };
+}
+
+async function requireAdmin() {
+  const { member, email, user } = await findPortalUserForCurrentMember();
+  if (!member || !email || !user) throw new Error('Admin access denied: not logged in or no portal user record.');
+
+  const isAdmin = user.isActive !== false && user.approvalStatus === 'approved' && user.role === 'amg_admin';
+  if (!isAdmin) {
+    await logAction('admin_access_denied', email, member._id, USERS, user._id, { role: user.role, approvalStatus: user.approvalStatus });
+    throw new Error('Admin access denied.');
+  }
+  return { member, email, user };
+}
+
+export async function adminListPortalUsers(statusFilter = '') {
+  const admin = await requireAdmin();
+  let query = wixData.query(USERS).ascending('loginEmail');
+  const status = safeString(statusFilter);
+  if (status && ALLOWED_STATUSES.includes(status)) query = query.eq('approvalStatus', status);
+  const result = await query.limit(1000).find({ suppressAuth: true });
+  await logAction('admin_list_portal_users', admin.email, admin.member._id, USERS, '', { statusFilter: status || 'all', count: result.items.length });
+  return result.items.map(publicUser);
+}
+
+export async function adminUpdatePortalUser(userId, update) {
+  const admin = await requireAdmin();
+  const id = safeString(userId);
+  if (!id) throw new Error('Missing userId.');
+
+  const existing = await wixData.get(USERS, id, { suppressAuth: true });
+  if (!existing) throw new Error('Portal user not found.');
+
+  const next = { ...existing };
+  if (update.role !== undefined) {
+    const role = safeString(update.role);
+    if (!ALLOWED_ROLES.includes(role)) throw new Error('Invalid role.');
+    next.role = role;
+  }
+  if (update.approvalStatus !== undefined) {
+    const status = safeString(update.approvalStatus);
+    if (!ALLOWED_STATUSES.includes(status)) throw new Error('Invalid approval status.');
+    next.approvalStatus = status;
+  }
+  if (update.isActive !== undefined) next.isActive = Boolean(update.isActive);
+  if (update.portalNotes !== undefined) next.portalNotes = safeString(update.portalNotes);
+  if (update.companyName !== undefined) next.companyName = safeString(update.companyName);
+  if (update.homeAirport !== undefined) next.homeAirport = safeString(update.homeAirport);
+  if (update.phone !== undefined) next.phone = safeString(update.phone);
+
+  const saved = await wixData.update(USERS, next, { suppressAuth: true });
+  await logAction('admin_update_portal_user', admin.email, admin.member._id, USERS, saved._id, { role: saved.role, approvalStatus: saved.approvalStatus, isActive: saved.isActive });
+  return publicUser(saved);
+}
+
+export async function adminGetPortalCounts() {
+  const admin = await requireAdmin();
+  const all = await wixData.query(USERS).limit(1000).find({ suppressAuth: true });
+  const counts = { total: all.items.length, pending: 0, approved: 0, denied: 0, suspended: 0, inactive: 0, admins: 0, crew: 0, clients: 0, partners: 0 };
+
+  all.items.forEach((user) => {
+    const status = user.approvalStatus || 'pending';
+    if (counts[status] !== undefined) counts[status] += 1;
+    if (user.isActive === false) counts.inactive += 1;
+    if (user.role === 'amg_admin') counts.admins += 1;
+    if (user.role === 'crew_pilot') counts.crew += 1;
+    if (user.role === 'client_owner') counts.clients += 1;
+    if (user.role === 'maintenance_partner' || user.role === 'broker_partner') counts.partners += 1;
+  });
+
+  await logAction('admin_get_portal_counts', admin.email, admin.member._id, USERS, '', counts);
+  return counts;
 }

@@ -11,6 +11,7 @@
  *   crew_pilot + approved      → /crew-dashboard
  *   client/partner + approved  → /client-dashboard
  */
+// Page code for /portal-router
 
 import wixLocation from 'wix-location';
 import { getPortalRoute } from 'backend/portalAuth.jsw';
@@ -32,3 +33,17 @@ function showSpinner(on) {
   try { $w('#routerSpinner')[on ? 'show' : 'hide'](); } catch {}
   try { $w('#routerText').text = 'Verifying access…'; } catch {}
 }
+  try {
+    const result = await getPortalRoute();
+
+    if (!result || !result.route) {
+      wixLocation.to('/access-denied');
+      return;
+    }
+
+    wixLocation.to(result.route);
+  } catch (err) {
+    console.error('Portal router failed:', err);
+    wixLocation.to('/access-denied');
+  }
+});
