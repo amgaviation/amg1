@@ -5,64 +5,71 @@
 
 /*
   AMG Aviation Group — Design System
-  Premium dark aviation aesthetic: deep ink navy, royal blue + gold accents.
+  Official brand palette (per Branding Guide):
+    AMG Midnight Navy #050B14 (background)
+    AMG Deep Blue     #07111F (cards / sections)
+    AMG Accent Blue   #3B82F6 (buttons, highlights, active)
+    AMG Sky Blue      #38BDF8 (secondary highlights — replaces gold)
+    AMG Slate Gray    #9CA3AF (muted text)
+    AMG Light Gray    #C0C7D1 (labels)
+    AMG White         #FFFFFF (typography)
   Display: Barlow Condensed. Body: Inter.
 */
 
 :root {
-  --radius: 0.5rem;
+  --radius: 0.625rem;
 
   /* Core palette */
-  --background: oklch(0.16 0.02 250);
-  --foreground: oklch(0.97 0.005 250);
+  --background: oklch(0.13 0.018 256); /* #050B14 */
+  --foreground: oklch(0.99 0 0); /* #FFFFFF */
 
-  --card: oklch(0.2 0.025 250);
-  --card-foreground: oklch(0.97 0.005 250);
+  --card: oklch(0.17 0.022 256); /* #07111F */
+  --card-foreground: oklch(0.99 0 0);
 
-  --popover: oklch(0.18 0.025 250);
-  --popover-foreground: oklch(0.97 0.005 250);
+  --popover: oklch(0.16 0.022 256);
+  --popover-foreground: oklch(0.99 0 0);
 
-  /* Royal blue brand primary */
-  --primary: oklch(0.58 0.2 262);
-  --primary-foreground: oklch(0.98 0.005 250);
+  /* AMG Accent Blue #3B82F6 */
+  --primary: oklch(0.62 0.19 258);
+  --primary-foreground: oklch(0.99 0 0);
 
-  --secondary: oklch(0.26 0.03 250);
-  --secondary-foreground: oklch(0.97 0.005 250);
+  --secondary: oklch(0.24 0.025 256);
+  --secondary-foreground: oklch(0.99 0 0);
 
-  --muted: oklch(0.26 0.03 250);
-  --muted-foreground: oklch(0.72 0.03 250);
+  --muted: oklch(0.24 0.025 256);
+  --muted-foreground: oklch(0.72 0.018 256); /* #9CA3AF slate gray */
 
-  /* Gold accent */
-  --accent: oklch(0.78 0.13 85);
-  --accent-foreground: oklch(0.18 0.02 250);
+  /* Sky Blue accent (replaces gold) #38BDF8 */
+  --accent: oklch(0.78 0.12 233);
+  --accent-foreground: oklch(0.13 0.018 256);
 
-  --destructive: oklch(0.62 0.2 25);
-  --destructive-foreground: oklch(0.98 0.005 250);
+  --destructive: oklch(0.58 0.21 27); /* #DC2626 alerts only */
+  --destructive-foreground: oklch(0.99 0 0);
 
-  --border: oklch(0.3 0.025 250 / 35%);
-  --input: oklch(0.3 0.025 250 / 50%);
-  --ring: oklch(0.58 0.2 262);
+  --border: oklch(0.32 0.02 256 / 35%);
+  --input: oklch(0.32 0.02 256 / 50%);
+  --ring: oklch(0.62 0.19 258);
 
   /* Brand raw tokens */
-  --amg-ink: oklch(0.16 0.02 250);
-  --amg-navy: oklch(0.2 0.03 255);
-  --amg-blue: oklch(0.58 0.2 262);
-  --amg-gold: oklch(0.78 0.13 85);
+  --amg-ink: oklch(0.13 0.018 256);
+  --amg-navy: oklch(0.17 0.022 256);
+  --amg-blue: oklch(0.62 0.19 258);
+  --amg-sky: oklch(0.78 0.12 233);
 
-  --chart-1: oklch(0.58 0.2 262);
-  --chart-2: oklch(0.78 0.13 85);
-  --chart-3: oklch(0.7 0.14 200);
-  --chart-4: oklch(0.65 0.18 145);
-  --chart-5: oklch(0.62 0.2 25);
+  --chart-1: oklch(0.62 0.19 258);
+  --chart-2: oklch(0.78 0.12 233);
+  --chart-3: oklch(0.7 0.14 220);
+  --chart-4: oklch(0.55 0.16 270);
+  --chart-5: oklch(0.84 0.07 240);
 
-  --sidebar: oklch(0.18 0.025 252);
-  --sidebar-foreground: oklch(0.92 0.01 250);
-  --sidebar-primary: oklch(0.58 0.2 262);
-  --sidebar-primary-foreground: oklch(0.98 0.005 250);
-  --sidebar-accent: oklch(0.26 0.03 250);
-  --sidebar-accent-foreground: oklch(0.97 0.005 250);
-  --sidebar-border: oklch(0.3 0.025 250 / 35%);
-  --sidebar-ring: oklch(0.58 0.2 262);
+  --sidebar: oklch(0.15 0.02 256);
+  --sidebar-foreground: oklch(0.92 0.008 256);
+  --sidebar-primary: oklch(0.62 0.19 258);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.24 0.025 256);
+  --sidebar-accent-foreground: oklch(0.99 0 0);
+  --sidebar-border: oklch(0.32 0.02 256 / 35%);
+  --sidebar-ring: oklch(0.62 0.19 258);
 
   --font-sans: "Inter", system-ui, sans-serif;
   --font-display: "Barlow Condensed", system-ui, sans-serif;
