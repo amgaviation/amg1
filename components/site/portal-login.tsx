@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ArrowRight, ShieldCheck } from "lucide-react";
-import { loginToPortal } from "@/app/portal/actions";
+import { loginToPortal, submitPortalAccessRequest } from "@/app/portal/actions";
 import { PORTAL_ROLES } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
@@ -98,6 +98,62 @@ export function PortalLogin() {
             <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground">
               Need access? AMG Operations reviews every portal role before activation.
             </p>
+          </form>
+
+          <form action={submitPortalAccessRequest} className="mt-5 rounded-xl border border-border bg-card/70 p-6">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <div>
+                <p className="eyebrow text-[0.68rem] text-accent">Request Access</p>
+                <p className="mt-2 text-sm text-muted-foreground">Send AMG Operations a role activation request.</p>
+              </div>
+              <span className="rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs text-accent">
+                Admin review
+              </span>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <input
+                name="name"
+                required
+                placeholder="Full name"
+                className="h-11 rounded-lg border border-input bg-background px-4 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-accent"
+              />
+              <input
+                name="email"
+                type="email"
+                required
+                placeholder="name@company.com"
+                className="h-11 rounded-lg border border-input bg-background px-4 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-accent"
+              />
+              <input
+                name="organization"
+                required
+                placeholder="Owner, crew, or partner organization"
+                className="h-11 rounded-lg border border-input bg-background px-4 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-accent"
+              />
+              <select
+                name="role"
+                required
+                defaultValue="client"
+                className="h-11 rounded-lg border border-input bg-background px-4 text-sm text-foreground outline-none focus:border-accent"
+              >
+                {PORTAL_ROLES.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <textarea
+              name="reason"
+              required
+              placeholder="Aircraft, assignment, vendor task, or support context"
+              className="mt-3 min-h-20 w-full rounded-lg border border-input bg-background px-4 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-accent"
+            />
+            <button className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border border-border px-6 py-3 font-display text-xs font-semibold uppercase tracking-widest text-foreground transition-colors hover:border-accent hover:text-accent">
+              Submit Access Request
+              <ArrowRight className="h-4 w-4" />
+            </button>
           </form>
         </div>
       </section>

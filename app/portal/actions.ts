@@ -7,10 +7,13 @@ import {
   clearPortalSession,
   createPortalSession,
   getPortalSession,
+  getPortalAccessRequests,
   getSubmittedSupportRequests,
   isPortalRole,
   saveAcknowledgedQueueId,
+  savePortalAccessRequests,
   saveSubmittedSupportRequests,
+  type PortalAccessRequest,
   type SubmittedSupportRequest,
 } from "@/lib/portal-session";
 import { getPortalRole, type PortalRole } from "@/lib/portal-data";
@@ -38,6 +41,88 @@ export async function loginToPortal(formData: FormData) {
 export async function logoutFromPortal() {
   await clearPortalSession();
   redirect("/login");
+}
+
+export async function submitPortalAccessRequest(formData: FormData) {
+  const roleValue = readString(formData, "role");
+  const name = readString(formData, "name");
+  const email = readString(formData, "email").toLowerCase();
+  const organization = readString(formData, "organization");
+  const reason = readString(formData, "reason");
+
+  if (!isPortalRole(roleValue) || !name || !email || !organization || !reason) {
+    redirect("/login?access=missing");
+  }
+
+  const requests = await getPortalAccessRequests();
+  const existing = requests.find((request) => request.email === email && request.status === "pending");
+
+  if (!existing) {
+    const accessRequest: PortalAccessRequest = {
+      id: `ACC-${Math.floor(200 + Math.random() * 800)}`,
+      name,
+      email,
+      organization,
+      role: roleValue,
+      reason,
+      status: "pending",
+      requestedAt: new Date().toISOString(),
+    };
+
+    await savePortalAccessRequests([accessRequest, ...requests]);
+    await addPortalEvent({
+      actor: email,
+      role: roleValue,
+      action: "Requested portal access",
+      detail: `${name} requested ${getPortalRole(roleValue).title}`,
+    });
+  }
+
+  revalidatePath("/login");
+  revalidatePath("/portal/admin");
+  redirect("/login?access=requested");
+}
+
+export async function reviewPortalAccessRequest(formData: FormData) {
+  const session = await getPortalSession();
+
+  if (!session) {
+    redirect("/login");
+  }
+
+  if (session.role !== "admin") {
+    redirect(getPortalRole(session.role).href);
+  }
+
+  const id = readString(formData, "id");
+  const decision = readString(formData, "decision");
+  const status: PortalAccessRequest["status"] = decision === "approved" ? "approved" : "rejected";
+  const requests = await getPortalAccessRequests();
+  const updated = requests.map((request) =>
+    request.id === id
+      ? {
+          ...request,
+          status,
+          reviewedAt: new Date().toISOString(),
+          reviewedBy: session.email,
+        }
+      : request
+  );
+  const reviewed = updated.find((request) => request.id === id);
+
+  await savePortalAccessRequests(updated);
+
+  if (reviewed) {
+    await addPortalEvent({
+      actor: session.email,
+      role: session.role,
+      action: `${status === "approved" ? "Approved" : "Rejected"} access request`,
+      detail: `${reviewed.email} / ${getPortalRole(reviewed.role).title}`,
+    });
+  }
+
+  revalidatePath("/portal/admin");
+  redirect("/portal/admin");
 }
 
 export async function createSupportRequest(formData: FormData) {
