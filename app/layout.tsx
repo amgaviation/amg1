@@ -17,25 +17,26 @@ const barlow = Barlow_Condensed({
 
 export const metadata: Metadata = {
   title: {
-    default: "AMG Aviation Group — Private Aviation Management",
+    default: "AMG Aviation Group — Aircraft Operations Support",
     template: "%s | AMG Aviation Group",
   },
   description:
-    "Personalized aviation management and mission coordination. AMG Aviation Group delivers bespoke private flight operations, fleet oversight, and an elite pilot network under FAR Part 91.",
+    "Aircraft operations support, crew coordination, ferry and repositioning assistance, maintenance flight support, and owner communication for Part 91 aviation environments.",
   keywords: [
-    "private aviation",
-    "aviation management",
+    "aircraft operations support",
+    "aircraft management support",
     "Part 91 operations",
-    "private jet",
-    "fleet management",
+    "contract pilot support",
+    "ferry repositioning",
+    "maintenance flight support",
     "pilot network",
     "AMG Aviation Group",
   ],
   authors: [{ name: "AMG Aviation Group" }],
   openGraph: {
-    title: "AMG Aviation Group — Private Aviation Management",
+    title: "AMG Aviation Group — Aircraft Operations Support",
     description:
-      "Personalized aviation management and mission coordination under FAR Part 91.",
+      "Aircraft operations support and coordination for Part 91 aviation environments.",
     type: "website",
   },
 };

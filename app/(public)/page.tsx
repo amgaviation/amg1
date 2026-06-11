@@ -1,20 +1,18 @@
 import { HomeHero } from "@/components/site/home/home-hero";
-import { StatsSection } from "@/components/site/home/stats-section";
 import { ServicesOverview } from "@/components/site/home/services-overview";
 import { AboutTeaser } from "@/components/site/home/about-teaser";
 import { FleetTeaser } from "@/components/site/home/fleet-teaser";
 import { CtaSection } from "@/components/site/cta-section";
-import { DestinationsSection } from "@/components/site/destinations-section";
+import { ProcessTimeline } from "@/components/site/process-timeline";
 
 export default function HomePage() {
   return (
     <>
       <HomeHero />
-      <StatsSection />
       <ServicesOverview />
-      <AboutTeaser />
       <FleetTeaser />
-      <DestinationsSection />
+      <ProcessTimeline />
+      <AboutTeaser />
       <CtaSection />
     </>
   );

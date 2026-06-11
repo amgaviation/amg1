@@ -6,17 +6,18 @@ import { cn } from "@/lib/utils";
 import { PLANS } from "@/lib/content";
 
 export const metadata: Metadata = {
-  title: "Plans",
-  description: "AMG Connect portal access levels for clients, crew, and administrators.",
+  title: "AMG Aviation Group — Support Plans",
+  description:
+    "AMG Aviation Group support plan structure for baseline coordination, service allowance, mission-variable costs, support credits, and monthly or annual support planning.",
 };
 
 export default function PlansPage() {
   return (
     <>
       <PageHero
-        eyebrow="Access Model"
-        title="One aviation system. Three focused portals."
-        description="The public website leads into role-based portal access for clients, crew, and AMG administrators."
+        eyebrow="Support Plans"
+        title="Simple structure before variable mission costs"
+        description="AMG support plans define baseline coordination, selected service level, support allowance, and review process. Crew, travel, lodging, and other mission-variable costs remain selected or reviewed separately."
         image="/images/jet-interior.png"
       />
       <section className="py-28">
@@ -25,8 +26,8 @@ export default function PlansPage() {
             <article
               key={plan.id}
               className={cn(
-                "rounded-xl border bg-card p-8",
-                plan.highlighted ? "border-accent shadow-[0_0_60px_rgba(56,189,248,0.16)]" : "border-border"
+                "hover-lift rounded-xl border bg-card p-8",
+                plan.highlighted ? "border-accent" : "border-border"
               )}
             >
               <p className="eyebrow text-accent">{plan.monthly}</p>
@@ -40,8 +41,8 @@ export default function PlansPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/login" className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground">
-                Login
+              <Link href="/contact" className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground">
+                Start Support Request
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </article>

@@ -9,17 +9,17 @@ export default function ClientPortalPage() {
       role="Client"
       eyebrow="Client Portal"
       title="Owner mission control"
-      description="Request trips, manage passengers, view mission status, access documents, and message AMG Operations from a private client workspace."
+      description="Submit support requests, manage passenger context, view support status, access documents, and message AMG Operations from a private client workspace."
       image="/images/jet-interior.png"
       metrics={[
-        { label: "Upcoming missions", value: "03" },
+        { label: "Upcoming support", value: "03" },
         { label: "Pending review", value: "01" },
         { label: "Passengers", value: "12" },
         { label: "Documents", value: "08" },
       ]}
       panels={[
-        { title: "New Trip Request", body: "Submit departure, arrival, passenger, catering, and timing details for crew review.", icon: "plane" },
-        { title: "Mission Status", body: "Track submitted, in-review, scheduled, completed, and cancelled missions.", icon: "calendar" },
+        { title: "Support Request", body: "Submit aircraft, route, passenger context, support type, crew need, and timing details for review.", icon: "plane" },
+        { title: "Support Status", body: "Track submitted, in-review, scheduled, completed, and cancelled support items.", icon: "calendar" },
         { title: "Passenger Profiles", body: "Maintain passenger data and preferences for faster future requests.", icon: "users" },
         { title: "Documents", body: "Access owner-facing records, aircraft documents, and shared files.", icon: "file" },
         { title: "Crew Review", body: "Owner edits and cancellations notify crew for operational approval where needed.", icon: "check" },

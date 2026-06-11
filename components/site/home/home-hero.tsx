@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
-import { COMPANY } from "@/lib/content";
+import { motionDuration, motionEase } from "@/lib/motion";
 
 export function HomeHero() {
   return (
@@ -26,16 +26,16 @@ export function HomeHero() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="eyebrow mb-6 text-accent"
         >
-          Private Aviation Management — FAR Part 91
+          Aircraft Operations Support
         </motion.p>
 
         <h1 className="display-heading max-w-5xl text-balance text-6xl text-foreground sm:text-7xl lg:text-8xl">
-          {"Your mission,".split(" ").map((word, i) => (
+          {"Mission Ready.".split(" ").map((word, i) => (
             <motion.span
               key={i}
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.2 + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.85, delay: 0.2 + i * 0.1, ease: motionEase }}
               className="mr-4 inline-block"
             >
               {word}{" "}
@@ -44,41 +44,42 @@ export function HomeHero() {
           <motion.span
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.85, delay: 0.42, ease: motionEase }}
             className="inline-block text-accent"
           >
-            perfected.
+            Owner Focused.
           </motion.span>
         </h1>
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
+          transition={{ duration: motionDuration.medium, delay: 0.6 }}
           className="mt-8 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground"
         >
-          {COMPANY.tagline} We manage every detail of private flight so you can
-          focus on the destination.
+          AMG Aviation Group coordinates the people, planning, and operational
+          support required to keep aircraft moving, owners informed, and
+          missions properly supported.
         </motion.p>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.75 }}
+          transition={{ duration: motionDuration.medium, delay: 0.75 }}
           className="mt-10 flex flex-wrap items-center gap-4"
         >
           <Link
             href="/contact"
-            className="group inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 font-display text-sm font-semibold uppercase tracking-widest text-primary-foreground transition-all hover:bg-primary/90"
+            className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-8 py-4 font-display text-sm font-semibold uppercase tracking-widest text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90"
           >
             Request Support
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
           <Link
             href="/services"
-            className="group inline-flex items-center gap-2 rounded-full border border-border px-8 py-4 font-display text-sm font-semibold uppercase tracking-widest text-foreground transition-colors hover:border-accent hover:text-accent"
+            className="group inline-flex min-h-12 items-center gap-2 rounded-full border border-border px-8 py-4 font-display text-sm font-semibold uppercase tracking-widest text-foreground transition-colors hover:border-accent hover:text-accent"
           >
-            Explore Services
+            Explore Capabilities
             <ArrowUpRight className="h-4 w-4" />
           </Link>
         </motion.div>

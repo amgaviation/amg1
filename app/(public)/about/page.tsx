@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
-import { PageHero } from "@/components/site/page-hero";
-import { SectionHeading } from "@/components/site/section-heading";
-import { Reveal, RevealGroup, RevealItem } from "@/components/site/reveal";
 import { CtaSection } from "@/components/site/cta-section";
-import { VALUES, CAPABILITIES } from "@/lib/content";
+import { PageHero } from "@/components/site/page-hero";
+import { ProcessTimeline } from "@/components/site/process-timeline";
+import { Reveal, RevealGroup, RevealItem } from "@/components/site/reveal";
+import { SectionHeading } from "@/components/site/section-heading";
+import { CAPABILITIES, VALUES } from "@/lib/content";
 
 export const metadata: Metadata = {
-  title: "About",
+  title: "AMG Aviation Group — Aircraft Operations Support",
   description:
-    "AMG Aviation Group delivers personalized aviation management and mission coordination under FAR Part 91, built on discretion, precision, and integrity.",
+    "AMG Aviation Group provides aircraft-specific support, mission coordination, crew sourcing, and owner communication for Part 91 aviation environments.",
 };
 
 export default function AboutPage() {
@@ -16,48 +17,46 @@ export default function AboutPage() {
     <>
       <PageHero
         eyebrow="About AMG"
-        title={<>Personalized aviation, perfected over time</>}
-        description="We are a private aviation management group dedicated to giving owners and operators a single, trusted partner for every aspect of flight."
+        title="Built around aircraft, owners, and operational accountability."
+        description="AMG Aviation Group provides aircraft-specific support, mission coordination, crew sourcing, and owner communication for Part 91 aviation environments where clarity and responsiveness matter."
         image="/images/operations.png"
       />
 
-      {/* Mission */}
       <section className="py-28">
         <div className="mx-auto grid max-w-7xl items-start gap-14 px-6 lg:grid-cols-2 lg:px-10">
           <Reveal>
-            <p className="eyebrow mb-5 text-accent">Our Mission</p>
-            <h2 className="display-heading text-balance text-4xl text-foreground sm:text-5xl">
-              Service that earns its place in the cockpit
+            <p className="eyebrow mb-5 text-accent">What AMG Does</p>
+            <h2 className="display-heading text-balance text-5xl text-foreground sm:text-6xl">
+              A structured support company for aircraft needs
             </h2>
           </Reveal>
           <Reveal delay={0.15}>
             <p className="text-pretty text-lg leading-relaxed text-muted-foreground">
-              AMG Aviation Group was founded on a simple belief: private aviation
-              should be effortless for the people who depend on it. For more than
-              fifteen years we have managed aircraft, coordinated missions, and
-              advised owners with an uncompromising standard of care.
+              AMG supports owners, flight departments, crews, maintenance events,
+              and mission-specific operational needs. The work is practical:
+              collect the request, review the aircraft and crew context, coordinate
+              the required support, and keep approved stakeholders informed.
             </p>
-            <p className="mt-4 leading-relaxed text-muted-foreground">
-              Operating exclusively under FAR Part 91, we provide management and
-              coordination services — never charter — with safety, discretion,
-              and transparency at the center of everything we do.
+            <p className="mt-5 leading-relaxed text-muted-foreground">
+              AMG does not present a request as accepted until the support scope,
+              aircraft status, crew availability, owner/operator approval, and
+              operational conditions have been reviewed.
             </p>
           </Reveal>
         </div>
       </section>
 
-      {/* Values */}
       <section className="border-y border-border bg-card/30 py-28">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <SectionHeading
-            eyebrow="What We Stand For"
-            title="Our values"
-            description="The principles that guide every mission and every relationship."
+            eyebrow="How AMG Supports Owners"
+            title="Clear support paths, not vague promises"
+            description="The AMG model is designed to keep aircraft owners informed while respecting crew authority, aircraft status, operating limitations, and final acceptance requirements."
           />
           <RevealGroup className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {VALUES.map((value) => (
               <RevealItem key={value.title}>
-                <div className="h-full rounded-xl border border-border bg-card p-8">
+                <div className="hover-lift h-full rounded-xl border border-border bg-card p-8 hover:border-accent/60">
                   <h3 className="font-display text-xl font-bold uppercase tracking-wide text-accent">
                     {value.title}
                   </h3>
@@ -71,12 +70,13 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Capabilities */}
+      <ProcessTimeline />
+
       <section className="py-28">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <SectionHeading
-            eyebrow="How We Operate"
-            title="Built for accountability"
+            eyebrow="Accountability and Scope"
+            title="Support remains subject to review"
           />
           <RevealGroup className="mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-border bg-border md:grid-cols-2">
             {CAPABILITIES.map((cap) => (
@@ -95,15 +95,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <CtaSection
-        eyebrow="Meet The Team"
-        title="The people behind AMG"
-        description="Our leadership brings decades of combined experience across operations, safety, and client service."
-        primaryLabel="Meet Our Team"
-        primaryHref="/team"
-        secondaryLabel="Contact Us"
-        secondaryHref="/contact"
-      />
+      <CtaSection />
     </>
   );
 }
