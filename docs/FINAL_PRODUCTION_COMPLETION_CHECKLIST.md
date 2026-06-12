@@ -16,6 +16,8 @@ Branch: `feat/final-production-completion`
 - Added `.env.example`.
 - Added `scripts/audit-media-uniqueness.ts` and `npm run media:audit`.
 - Added Admin-only `/portal/admin/system-health` with database, provider, media, notification, aircraft, expense, and deployment checks.
+- Added `sitemap.xml` and `robots.txt` App Router metadata routes.
+- Added redirect aliases for `/booking-request`, client invoices/notifications, crew assignments/documents/notifications/profile, partner quotes/milestones/notifications, and admin missions/communications/notifications.
 
 ## Validation status
 
