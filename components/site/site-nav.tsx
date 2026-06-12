@@ -7,6 +7,20 @@ import { ArrowUpRight, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_LINKS } from "@/lib/content";
 
+function normalizePath(path: string) {
+  const normalized = path.split(/[?#]/)[0].replace(/\/+$/, "");
+  return normalized || "/";
+}
+
+function isActivePath(pathname: string, href: string) {
+  const currentPath = normalizePath(pathname);
+  const targetPath = normalizePath(href);
+
+  return targetPath === "/"
+    ? currentPath === "/"
+    : currentPath === targetPath || currentPath.startsWith(`${targetPath}/`);
+}
+
 export function SiteNav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -79,16 +93,17 @@ export function SiteNav() {
 
         <ul className="ml-auto hidden items-center gap-8 lg:flex">
           {NAV_LINKS.map((link) => {
-            const active = pathname === link.href;
+            const active = isActivePath(pathname, link.href);
             return (
               <li key={link.href}>
                 <Link
                   href={link.href}
                   prefetch={false}
+                  aria-current={active ? "page" : undefined}
                   className={cn(
-                    "eyebrow text-xs transition-colors",
+                    "eyebrow relative text-xs transition-colors",
                     active
-                      ? "text-accent"
+                      ? "text-accent after:absolute after:inset-x-0 after:-bottom-2 after:h-px after:bg-accent"
                       : "text-foreground/70 hover:text-foreground"
                   )}
                 >
@@ -103,7 +118,13 @@ export function SiteNav() {
           <Link
             href="/login"
             prefetch={false}
-            className="hidden min-h-11 items-center gap-1.5 rounded-full border border-border px-5 py-2.5 font-display text-xs font-semibold uppercase tracking-widest text-foreground transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:inline-flex"
+            aria-current={isActivePath(pathname, "/login") ? "page" : undefined}
+            className={cn(
+              "hidden min-h-11 items-center gap-1.5 rounded-full border px-5 py-2.5 font-display text-xs font-semibold uppercase tracking-widest transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:inline-flex",
+              isActivePath(pathname, "/login")
+                ? "border-accent bg-accent/10 text-accent"
+                : "border-border text-foreground hover:border-accent hover:text-accent"
+            )}
           >
             Member Login
             <ArrowUpRight className="h-3.5 w-3.5" />
@@ -111,7 +132,12 @@ export function SiteNav() {
           <Link
             href="/contact"
             prefetch={false}
-            className="hidden min-h-11 items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent md:inline-flex"
+            aria-current={isActivePath(pathname, "/contact") ? "page" : undefined}
+            className={cn(
+              "hidden min-h-11 items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent md:inline-flex",
+              isActivePath(pathname, "/contact") &&
+                "ring-2 ring-accent ring-offset-2 ring-offset-background"
+            )}
           >
             Request Support
           </Link>
@@ -137,29 +163,50 @@ export function SiteNav() {
           className="fixed inset-x-0 top-[var(--public-header-height)] max-h-[calc(100svh-var(--public-header-height))] overflow-y-auto border-t border-border bg-background/98 px-6 py-8 backdrop-blur-xl lg:hidden"
         >
           <ul className="flex flex-col gap-2">
-            {NAV_LINKS.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  prefetch={false}
-                  className="block min-h-12 py-3 font-display text-lg font-semibold uppercase tracking-wide text-foreground/80 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const active = isActivePath(pathname, link.href);
+
+              return (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    prefetch={false}
+                    aria-current={active ? "page" : undefined}
+                    className={cn(
+                      "block min-h-12 rounded-lg px-4 py-3 font-display text-lg font-semibold uppercase tracking-wide transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent",
+                      active
+                        ? "bg-accent/10 text-accent"
+                        : "text-foreground/80 hover:bg-secondary/50 hover:text-accent"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              );
+            })}
             <li className="mt-4 flex flex-col gap-3 border-t border-border pt-5">
               <Link
                 href="/login"
                 prefetch={false}
-                className="inline-flex min-h-12 items-center justify-center gap-1.5 rounded-full border border-border px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+                aria-current={isActivePath(pathname, "/login") ? "page" : undefined}
+                className={cn(
+                  "inline-flex min-h-12 items-center justify-center gap-1.5 rounded-full border px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent",
+                  isActivePath(pathname, "/login")
+                    ? "border-accent bg-accent/10 text-accent"
+                    : "border-border text-foreground"
+                )}
               >
                 Member Login
               </Link>
               <Link
                 href="/contact"
                 prefetch={false}
-                className="inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+                aria-current={isActivePath(pathname, "/contact") ? "page" : undefined}
+                className={cn(
+                  "inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent",
+                  isActivePath(pathname, "/contact") &&
+                    "ring-2 ring-accent ring-offset-2 ring-offset-background"
+                )}
               >
                 Request Support
               </Link>
