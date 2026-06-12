@@ -26,7 +26,7 @@ export function AircraftSectionNav({ items }: { items: NavItem[] }) {
   }, [items]);
 
   return (
-    <nav aria-label="Aircraft categories" className="sticky top-20 z-30 border-y border-border bg-background/95 backdrop-blur">
+    <nav aria-label="Aircraft categories" className="sticky top-[var(--public-header-height)] z-30 border-y border-border bg-background/95 backdrop-blur">
       <div className="mx-auto max-w-7xl overflow-x-auto px-6 lg:px-10">
         <div className="flex min-w-max gap-2 py-4">
           {items.map((item) => (

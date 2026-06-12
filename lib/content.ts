@@ -12,10 +12,10 @@ export const COMPANY = {
 } as const;
 
 export const STATS = [
-  { label: "Operational desk", value: 24, suffix: "/7" },
-  { label: "Support paths", value: 6, suffix: "" },
-  { label: "Portal roles", value: 4, suffix: "" },
-  { label: "Review factors", value: 9, suffix: "+" },
+  { label: "Support Categories", value: 6, suffix: "" },
+  { label: "Aircraft Classes", value: 8, suffix: "" },
+  { label: "Standard Portal Entry", value: 1, suffix: "" },
+  { label: "Acceptance Review", value: 100, suffix: "%" },
 ] as const;
 
 export const SERVICES = [
@@ -417,13 +417,12 @@ export const FOOTER_COLS = [
     })),
   },
   {
-    heading: "Portal",
+    heading: "Access",
     links: [
-      { label: "Portal System", href: "/portal" },
-      { label: "Client Portal", href: "/portal/client" },
-      { label: "Crew Portal", href: "/portal/crew" },
-      { label: "Partner Portal", href: "/portal/partner" },
-      { label: "Admin Login", href: "/login" },
+      { label: "Member Login", href: "/login" },
+      { label: "Request Support", href: "/contact" },
+      { label: "Pilot Network", href: "/pilot-network" },
+      { label: "Subscription Programs", href: "/plans" },
     ],
   },
   {
@@ -442,8 +441,7 @@ export const NAV_LINKS = [
   { label: "About", href: "/about" },
   { label: "Services", href: "/services" },
   { label: "Aircraft", href: "/aircraft" },
-  { label: "Pilot Network", href: "/pilot-network" },
   { label: "Plans", href: "/plans" },
-  { label: "Team", href: "/team" },
+  { label: "Pilot Network", href: "/pilot-network" },
   { label: "Contact", href: "/contact" },
 ] as const;
