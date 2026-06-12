@@ -4,6 +4,8 @@ import { createServiceClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 
 type DeliveryInsert = Database["public"]["Tables"]["notification_deliveries"]["Insert"];
+type DeliveryChannel = "email" | "sms";
+type DeliveryStatus = "sent" | "suppressed" | "failed";
 
 type QueueDeliveryInput = {
   userId: string;
@@ -11,20 +13,50 @@ type QueueDeliveryInput = {
   title: string;
   body?: string | null;
   eventType?: string | null;
-  channels?: ("email" | "sms")[];
+  channels?: DeliveryChannel[];
+  replyTo?: string | null;
 };
 
-function configured(channel: "email" | "sms") {
-  if (channel === "email") return Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM_ADDRESS);
-  return Boolean(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_PHONE_NUMBER);
+type DeliveryResult = {
+  status: DeliveryStatus;
+  providerMessageId?: string;
+  error?: string;
+};
+
+function configured(channel: DeliveryChannel) {
+  if (channel === "email") {
+    return Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM_ADDRESS);
+  }
+
+  return Boolean(
+    process.env.TWILIO_ACCOUNT_SID &&
+      process.env.TWILIO_AUTH_TOKEN &&
+      process.env.TWILIO_PHONE_NUMBER,
+  );
 }
 
-function defaultChannels(eventType?: string | null): ("email" | "sms")[] {
-  const urgent = eventType ? /urgent|aog|assignment|quote|invoice|expense|credential/i.test(eventType) : false;
+function defaultChannels(eventType?: string | null): DeliveryChannel[] {
+  const urgent = eventType
+    ? /urgent|aog|assignment|quote|invoice|expense|credential/i.test(eventType)
+    : false;
+
   return urgent ? ["email", "sms"] : ["email"];
 }
 
-export async function queueNotificationDeliveries(input: QueueDeliveryInput): Promise<void> {
+function emailText(title: string, body?: string | null) {
+  return body ? `${title}\n\n${body}` : title;
+}
+
+/**
+ * Create delivery records and deliver them immediately.
+ *
+ * The previous implementation only inserted rows with status "queued" and
+ * never had a worker that processed those rows. This implementation keeps the
+ * audit trail while making email/SMS delivery occur during the server action.
+ */
+export async function queueNotificationDeliveries(
+  input: QueueDeliveryInput,
+): Promise<void> {
   try {
     const db = await createServiceClient();
     const { data: profile } = await db
@@ -32,28 +64,90 @@ export async function queueNotificationDeliveries(input: QueueDeliveryInput): Pr
       .select("email, phone")
       .eq("id", input.userId)
       .maybeSingle();
+
     if (!profile) return;
 
     const channels = input.channels ?? defaultChannels(input.eventType);
-    const rows: DeliveryInsert[] = [];
+
     for (const channel of channels) {
       const recipient = channel === "email" ? profile.email : profile.phone;
       if (!recipient) continue;
+
       const isConfigured = configured(channel);
-      rows.push({
+      const initialStatus = isConfigured ? "processing" : "suppressed";
+      const initialError = isConfigured
+        ? null
+        : `${channel} provider is not configured`;
+
+      const row: DeliveryInsert = {
         notification_id: input.notificationId ?? null,
         user_id: input.userId,
         channel,
         recipient,
         event_type: input.eventType ?? null,
         provider: channel === "email" ? "resend" : "twilio",
-        status: isConfigured ? "queued" : "suppressed",
-        error_message: isConfigured ? null : `${channel} provider is not configured`,
-      });
+        status: initialStatus,
+        error_message: initialError,
+        attempted_at: isConfigured ? new Date().toISOString() : null,
+      };
+
+      const { data: delivery, error: insertError } = await db
+        .from("notification_deliveries")
+        .insert(row)
+        .select("id")
+        .single();
+
+      if (insertError || !delivery) {
+        console.error(
+          "[notify] failed to create delivery record",
+          input.eventType,
+          insertError,
+        );
+        continue;
+      }
+
+      if (!isConfigured) continue;
+
+      let result: DeliveryResult;
+      try {
+        result =
+          channel === "email"
+            ? await sendEmail({
+                to: recipient,
+                subject: input.title,
+                text: emailText(input.title, input.body),
+                replyTo: input.replyTo ?? undefined,
+              })
+            : await sendSms({
+                to: recipient,
+                body: input.body
+                  ? `${input.title}: ${input.body}`
+                  : input.title,
+              });
+      } catch (error) {
+        result = {
+          status: "failed",
+          error: error instanceof Error ? error.message : "Unknown delivery error",
+        };
+      }
+
+      await db
+        .from("notification_deliveries")
+        .update({
+          status: result.status,
+          provider_message_id: result.providerMessageId ?? null,
+          error_message: result.error ?? null,
+          attempted_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", delivery.id);
     }
-    if (rows.length) await db.from("notification_deliveries").insert(rows);
   } catch (error) {
-    console.error("[notify] failed to queue external delivery", input.eventType, error);
+    console.error(
+      "[notify] failed to deliver external notification",
+      input.eventType,
+      error,
+    );
   }
 }
 
@@ -61,10 +155,12 @@ export async function sendEmail(params: {
   to: string;
   subject: string;
   text: string;
-}): Promise<{ status: "sent" | "suppressed" | "failed"; providerMessageId?: string; error?: string }> {
+  replyTo?: string;
+}): Promise<DeliveryResult> {
   if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM_ADDRESS) {
     return { status: "suppressed", error: "Resend is not configured" };
   }
+
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -73,36 +169,63 @@ export async function sendEmail(params: {
     },
     body: JSON.stringify({
       from: process.env.EMAIL_FROM_ADDRESS,
-      reply_to: process.env.EMAIL_REPLY_TO || undefined,
+      reply_to: params.replyTo || process.env.EMAIL_REPLY_TO || undefined,
       to: params.to,
       subject: params.subject,
       text: params.text,
     }),
   });
+
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) return { status: "failed", error: payload?.message ?? "Resend request failed" };
+
+  if (!response.ok) {
+    return {
+      status: "failed",
+      error: payload?.message ?? "Resend request failed",
+    };
+  }
+
   return { status: "sent", providerMessageId: payload?.id };
 }
 
 export async function sendSms(params: {
   to: string;
   body: string;
-}): Promise<{ status: "sent" | "suppressed" | "failed"; providerMessageId?: string; error?: string }> {
+}): Promise<DeliveryResult> {
   const sid = process.env.TWILIO_ACCOUNT_SID;
   const token = process.env.TWILIO_AUTH_TOKEN;
   const from = process.env.TWILIO_PHONE_NUMBER;
-  if (!sid || !token || !from) return { status: "suppressed", error: "Twilio is not configured" };
 
-  const body = new URLSearchParams({ To: params.to, From: from, Body: params.body });
-  const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${Buffer.from(`${sid}:${token}`).toString("base64")}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body,
+  if (!sid || !token || !from) {
+    return { status: "suppressed", error: "Twilio is not configured" };
+  }
+
+  const body = new URLSearchParams({
+    To: params.to,
+    From: from,
+    Body: params.body,
   });
+
+  const response = await fetch(
+    `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${sid}:${token}`).toString("base64")}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body,
+    },
+  );
+
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) return { status: "failed", error: payload?.message ?? "Twilio request failed" };
+
+  if (!response.ok) {
+    return {
+      status: "failed",
+      error: payload?.message ?? "Twilio request failed",
+    };
+  }
+
   return { status: "sent", providerMessageId: payload?.sid };
 }
