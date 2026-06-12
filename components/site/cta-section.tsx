@@ -21,15 +21,7 @@ export function CtaSection({
 }) {
   return (
     <section className="relative isolate overflow-hidden border-t border-border py-28 lg:py-36">
-      <div className="absolute inset-0 z-0">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/images/site/citation-x.webp"
-          alt=""
-          className="h-full w-full object-cover opacity-35"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/55" />
-      </div>
+      <div className="absolute inset-0 z-0 bg-[linear-gradient(135deg,rgba(59,130,246,0.12),rgba(5,11,20,0.98)_42%,rgba(56,189,248,0.08))]" />
       <div className="relative z-10 mx-auto max-w-3xl px-6 text-center lg:px-10">
         <Reveal>
           <p className="eyebrow mb-5 text-accent">{eyebrow}</p>
@@ -42,7 +34,7 @@ export function CtaSection({
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <Link
               href={primaryHref}
-              className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-8 py-4 font-display text-sm font-semibold uppercase tracking-widest text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90"
+              className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-8 py-4 font-display text-sm font-semibold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-primary/90"
             >
               {primaryLabel}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

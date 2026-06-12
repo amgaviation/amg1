@@ -10,8 +10,8 @@ export function AboutTeaser() {
           <div className="relative overflow-hidden rounded-xl border border-border">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/site/citation-x.webp"
-              alt="AMG-supported business jet in flight above the cloud deck"
+              src="/images/site/cirrus.webp"
+              alt="Single-engine aircraft representing owner-operated aircraft support"
               className="h-full w-full object-cover opacity-85"
             />
           </div>

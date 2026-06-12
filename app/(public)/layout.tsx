@@ -1,6 +1,5 @@
 import { SiteNav } from "@/components/site/site-nav";
 import { SiteFooter } from "@/components/site/site-footer";
-import { SmoothScrollProvider } from "@/components/site/smooth-scroll-provider";
 
 export default function PublicLayout({
   children,
@@ -8,12 +7,15 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SmoothScrollProvider>
-      <div className="flex min-h-screen flex-col bg-background">
-        <SiteNav />
-        <main className="flex-1">{children}</main>
-        <SiteFooter />
-      </div>
-    </SmoothScrollProvider>
+    <div className="public-site flex min-h-screen flex-col bg-background">
+      <a href="#main-content" className="skip-link">
+        Skip to content
+      </a>
+      <SiteNav />
+      <main id="main-content" className="flex-1">
+        {children}
+      </main>
+      <SiteFooter />
+    </div>
   );
 }

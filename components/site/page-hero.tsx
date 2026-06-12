@@ -1,6 +1,5 @@
 import { Reveal } from "./reveal";
 import { cn } from "@/lib/utils";
-import { scaleRevealVariants } from "@/lib/motion";
 
 export function PageHero({
   eyebrow,
@@ -34,7 +33,7 @@ export function PageHero({
         </div>
       )}
       <div className="relative z-10 mx-auto w-full max-w-7xl px-6 lg:px-10">
-        <Reveal variants={scaleRevealVariants}>
+        <Reveal>
           <p className="eyebrow mb-5 text-accent">{eyebrow}</p>
           <h1 className="display-heading max-w-4xl text-balance text-5xl text-foreground sm:text-6xl lg:text-7xl">
             {title}

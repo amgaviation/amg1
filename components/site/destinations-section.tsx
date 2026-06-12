@@ -4,11 +4,7 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/site/reveal";
 export function DestinationsSection() {
   return (
     <section className="relative overflow-hidden border-y border-border py-28">
-      <div className="absolute inset-0 -z-10">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/jet-sky.png" alt="" className="h-full w-full object-cover opacity-20" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/85 to-background" />
-      </div>
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(135deg,rgba(59,130,246,0.1),rgba(5,11,20,0.95)_48%,rgba(56,189,248,0.08))]" />
       <div className="mx-auto grid max-w-7xl gap-14 px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-10">
         <Reveal>
           <p className="eyebrow mb-5 text-accent">Global Ready</p>

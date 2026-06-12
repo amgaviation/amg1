@@ -22,14 +22,12 @@ export function AircraftCategoryShowcase() {
             <RevealItem key={aircraft.id}>
               <article className="hover-lift group overflow-hidden rounded-xl border border-border bg-card hover:border-accent/50">
                 <div className="grid md:grid-cols-[0.45fr_0.55fr]">
-                  <div className="relative min-h-64 overflow-hidden">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={aircraft.image}
-                      alt={`${aircraft.name} support category`}
-                      className="h-full w-full object-cover opacity-75 transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-card to-transparent" />
+                  <div className="relative min-h-64 overflow-hidden bg-[linear-gradient(135deg,rgba(59,130,246,0.16),rgba(7,17,31,0.98)_48%,rgba(56,189,248,0.1))] p-6">
+                    <div className="absolute inset-x-6 top-6 h-px bg-accent/30" />
+                    <div className="absolute bottom-6 right-6 h-24 w-24 rounded-full border border-accent/20" />
+                    <p className="font-display text-5xl font-extrabold uppercase leading-none text-accent/25">
+                      {aircraft.category}
+                    </p>
                   </div>
                   <div className="p-7">
                     <p className="eyebrow text-[0.65rem] text-accent">{aircraft.category}</p>

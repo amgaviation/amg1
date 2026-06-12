@@ -19,7 +19,7 @@ export default function AboutPage() {
         eyebrow="About AMG"
         title="Built around aircraft, owners, and operational accountability."
         description="AMG Aviation Group provides aircraft-specific support, mission coordination, crew sourcing, and owner communication for Part 91 aviation environments where clarity and responsiveness matter."
-        image="/images/site/citation-x.webp"
+        image="/images/operations.png"
       />
 
       <section className="py-28">

@@ -18,7 +18,7 @@ export default function PilotNetworkPage() {
         eyebrow="Pilot Network"
         title="Professional, credential-focused, assignment-ready"
         description="AMG reviews crew profiles, aircraft qualifications, availability, owner/operator requirements, insurance considerations, and mission-specific suitability before any assignment is considered."
-        image="/images/site/diamond-me.jpg"
+        image="/images/mid-jet.png"
       />
       <section className="py-28">
         <div className="mx-auto grid max-w-7xl gap-14 px-6 lg:grid-cols-2 lg:px-10">
@@ -79,8 +79,8 @@ export default function PilotNetworkPage() {
         eyebrow="Pilot Profile"
         title="Submit Pilot Profile"
         primaryLabel="Join Pilot Network"
-        primaryHref="/contact?service=contract-pilot-support"
-        secondaryLabel="Crew Portal"
+        primaryHref="/contact?category=contract-pilot-support"
+        secondaryLabel="Member Login"
         secondaryHref="/login"
       />
     </>

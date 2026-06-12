@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_LINKS } from "@/lib/content";
@@ -12,6 +11,8 @@ export function SiteNav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -24,22 +25,56 @@ export function SiteNav() {
     setOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    if (!open) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const focusable = menuRef.current?.querySelectorAll<HTMLAnchorElement>("a[href]");
+    focusable?.[0]?.focus();
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        menuButtonRef.current?.focus();
+        return;
+      }
+
+      if (event.key !== "Tab" || !focusable?.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
   return (
-    <motion.header
-      initial={{ y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+    <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-300 motion-reduce:transition-none",
+        "fixed inset-x-0 top-0 z-50 h-[var(--public-header-height)] border-b transition-colors duration-200 motion-reduce:transition-none",
         scrolled
-          ? "border-b border-border bg-background/82 shadow-[0_12px_40px_rgba(0,0,0,0.18)] backdrop-blur-[18px]"
-          : "border-b border-transparent bg-transparent"
+          ? "border-border bg-background/90 shadow-[0_12px_40px_rgba(0,0,0,0.18)] backdrop-blur-[18px]"
+          : "border-transparent bg-background/35 backdrop-blur-sm"
       )}
     >
-      <nav className={cn("mx-auto flex max-w-7xl items-center gap-6 px-6 transition-all duration-300 lg:px-10", scrolled ? "h-16 py-3" : "h-20 py-5")}>
-        <Link href="/" className="group flex items-center gap-3">
+      <nav className="mx-auto flex h-full max-w-7xl items-center gap-6 px-6 lg:px-10">
+        <Link href="/" prefetch={false} className="group flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/logo-white.png" alt="AMG Aviation Group" className="h-8 w-auto" />
+          <img src="/images/logo-white.png" alt="AMG Aviation Group" width="1088" height="221" className="h-8 w-auto" />
         </Link>
 
         <ul className="ml-auto hidden items-center gap-8 lg:flex">
@@ -49,6 +84,7 @@ export function SiteNav() {
               <li key={link.href}>
                 <Link
                   href={link.href}
+                  prefetch={false}
                   className={cn(
                     "eyebrow text-xs transition-colors",
                     active
@@ -66,67 +102,71 @@ export function SiteNav() {
         <div className="ml-auto flex items-center gap-3 lg:ml-0">
           <Link
             href="/login"
-            className="hidden items-center gap-1.5 rounded-full border border-border px-5 py-2.5 font-display text-xs font-semibold uppercase tracking-widest text-foreground transition-colors hover:border-accent hover:text-accent sm:inline-flex"
+            prefetch={false}
+            className="hidden min-h-11 items-center gap-1.5 rounded-full border border-border px-5 py-2.5 font-display text-xs font-semibold uppercase tracking-widest text-foreground transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:inline-flex"
           >
             Member Login
             <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
           <Link
             href="/contact"
-            className="hidden items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground transition-all hover:-translate-y-0.5 hover:bg-primary/90 md:inline-flex"
+            prefetch={false}
+            className="hidden min-h-11 items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent md:inline-flex"
           >
             Request Support
           </Link>
 
           <button
+            ref={menuButtonRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground lg:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent lg:hidden"
             aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            aria-controls="public-mobile-menu"
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </nav>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "100svh" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden border-t border-border bg-background/96 backdrop-blur-xl lg:hidden"
-          >
-            <ul className="flex h-full flex-col justify-center gap-2 px-6 py-10">
-              {NAV_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="block py-3 font-display text-lg font-semibold uppercase tracking-wide text-foreground/80 hover:text-accent"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-              <li className="mt-4 flex flex-col gap-3">
+      {open ? (
+        <div
+          id="public-mobile-menu"
+          ref={menuRef}
+          className="fixed inset-x-0 top-[var(--public-header-height)] max-h-[calc(100svh-var(--public-header-height))] overflow-y-auto border-t border-border bg-background/98 px-6 py-8 backdrop-blur-xl lg:hidden"
+        >
+          <ul className="flex flex-col gap-2">
+            {NAV_LINKS.map((link) => (
+              <li key={link.href}>
                 <Link
-                  href="/login"
-                  className="inline-flex items-center justify-center gap-1.5 rounded-full border border-border px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest text-foreground"
+                  href={link.href}
+                  prefetch={false}
+                  className="block min-h-12 py-3 font-display text-lg font-semibold uppercase tracking-wide text-foreground/80 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
                 >
-                  Member Login
-                </Link>
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground"
-                >
-                  Request Support
+                  {link.label}
                 </Link>
               </li>
-            </ul>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.header>
+            ))}
+            <li className="mt-4 flex flex-col gap-3 border-t border-border pt-5">
+              <Link
+                href="/login"
+                prefetch={false}
+                className="inline-flex min-h-12 items-center justify-center gap-1.5 rounded-full border border-border px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+              >
+                Member Login
+              </Link>
+              <Link
+                href="/contact"
+                prefetch={false}
+                className="inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+              >
+                Request Support
+              </Link>
+            </li>
+          </ul>
+        </div>
+      ) : null}
+    </header>
   );
 }

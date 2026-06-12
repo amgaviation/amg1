@@ -1,19 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { FLEET } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES = [
   "All",
-  "Piston",
+  "Single-Engine Piston",
+  "Multi-Engine Piston",
   "Turboprop",
-  "Single-Engine Jet",
+  "Single-Engine Jet / VLJ",
   "Light Jet",
   "Midsize Jet",
   "Super-Midsize Jet",
-  "Large-Cabin Jet",
+  "Large-Cabin / Heavy Jet",
+  "Helicopter",
 ];
 
 export function FleetGrid() {
@@ -45,49 +46,41 @@ export function FleetGrid() {
       </div>
 
       <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
-        <AnimatePresence mode="popLayout">
-          {filtered.map((aircraft) => (
-            <motion.article
-              key={aircraft.id}
-              layout
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="overflow-hidden rounded-xl border border-border bg-card"
-            >
-              <div className="relative aspect-[16/10] overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={aircraft.image || "/placeholder.svg"}
-                  alt={aircraft.name}
-                  className="h-full w-full object-cover"
-                />
-                <span className="absolute left-4 top-4 rounded-full border border-border bg-background/70 px-3 py-1 font-display text-[0.65rem] font-semibold uppercase tracking-widest text-accent backdrop-blur">
-                  {aircraft.category}
-                </span>
+        {filtered.map((aircraft) => (
+          <article
+            key={aircraft.id}
+            className="overflow-hidden rounded-xl border border-border bg-card"
+          >
+            <div className="relative aspect-[16/10] overflow-hidden bg-[linear-gradient(135deg,rgba(59,130,246,0.16),rgba(7,17,31,0.98)_48%,rgba(56,189,248,0.1))] p-6">
+              <div className="absolute inset-x-6 top-6 h-px bg-accent/30" />
+              <div className="absolute bottom-6 right-6 h-24 w-24 rounded-full border border-accent/20" />
+              <p className="font-display text-5xl font-extrabold uppercase leading-none text-accent/25">
+                {aircraft.name}
+              </p>
+              <span className="absolute left-4 top-4 rounded-full border border-border bg-background/70 px-3 py-1 font-display text-[0.65rem] font-semibold uppercase tracking-widest text-accent backdrop-blur">
+                {aircraft.category}
+              </span>
+            </div>
+            <div className="p-8">
+              <h3 className="font-display text-2xl font-bold uppercase tracking-wide text-foreground">
+                {aircraft.name}
+              </h3>
+              <p className="mt-3 leading-relaxed text-muted-foreground">
+                {aircraft.support}
+              </p>
+              <div className="mt-6 grid grid-cols-2 gap-2 border-t border-border pt-6">
+                {aircraft.factors.map((factor) => (
+                  <span
+                    key={factor}
+                    className="rounded-full border border-border px-3 py-2 text-xs text-foreground/75"
+                  >
+                    {factor}
+                  </span>
+                ))}
               </div>
-              <div className="p-8">
-                <h3 className="font-display text-2xl font-bold uppercase tracking-wide text-foreground">
-                  {aircraft.name}
-                </h3>
-                <p className="mt-3 leading-relaxed text-muted-foreground">
-                  {aircraft.support}
-                </p>
-                <div className="mt-6 grid grid-cols-2 gap-2 border-t border-border pt-6">
-                  {aircraft.factors.map((factor) => (
-                    <span
-                      key={factor}
-                      className="rounded-full border border-border px-3 py-2 text-xs text-foreground/75"
-                    >
-                      {factor}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </motion.article>
-          ))}
-        </AnimatePresence>
+            </div>
+          </article>
+        ))}
       </div>
     </div>
   );
