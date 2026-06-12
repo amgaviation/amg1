@@ -17,11 +17,19 @@ export default function ContactPage() {
         eyebrow="Contact AMG"
         title="Start a Support Request"
         description="Use this page to request aircraft management support, crew coordination, ferry or repositioning assistance, maintenance flight support, or general operational support."
-        image="/images/jet-sky.png"
+        image="/images/site/map-operations.jpg"
       />
       <section className="py-28">
         <div className="mx-auto grid max-w-7xl gap-10 px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-10">
           <aside>
+            <div className="mb-6 overflow-hidden rounded-xl border border-border bg-card">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/site/tbm.jpg"
+                alt="Turboprop aircraft representing regional support requests and positioning needs"
+                className="h-full w-full object-cover"
+              />
+            </div>
             <RevealGroup className="grid gap-4">
               {CONTACT_CARDS.map((card) => (
                 <RevealItem key={card.title}>

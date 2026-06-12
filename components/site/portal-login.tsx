@@ -49,8 +49,8 @@ export function PortalLogin({
       <section className="relative hidden items-end overflow-hidden p-10 lg:flex">
         <div className="absolute inset-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/operations.png" alt="" className="h-full w-full object-cover opacity-40" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/20" />
+          <img src="/images/site/map-operations.jpg" alt="" className="h-full w-full object-cover opacity-45" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/65 to-background/20" />
         </div>
         <div className="relative max-w-xl">
           <Link href="/" className="eyebrow mb-6 inline-block text-accent">

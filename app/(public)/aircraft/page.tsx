@@ -18,7 +18,7 @@ export default function AircraftPage() {
         eyebrow="Aircraft"
         title="Support across aircraft categories"
         description="AMG reviews each aircraft support request according to crew requirements, aircraft status, route, mission complexity, airport limitations, operating conditions, and owner/operator approval."
-        image="/images/heavy-jet.png"
+        image="/images/site/citation-x.webp"
       />
 
       <AircraftCategoryShowcase />

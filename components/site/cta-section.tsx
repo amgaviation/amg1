@@ -24,7 +24,7 @@ export function CtaSection({
       <div className="absolute inset-0 -z-10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/images/jet-sky.png"
+          src="/images/site/citation-x.webp"
           alt=""
           className="h-full w-full object-cover opacity-35"
         />

@@ -18,7 +18,7 @@ export default function PilotNetworkPage() {
         eyebrow="Pilot Network"
         title="Professional, credential-focused, assignment-ready"
         description="AMG reviews crew profiles, aircraft qualifications, availability, owner/operator requirements, insurance considerations, and mission-specific suitability before any assignment is considered."
-        image="/images/operations.png"
+        image="/images/site/diamond-me.jpg"
       />
       <section className="py-28">
         <div className="mx-auto grid max-w-7xl gap-14 px-6 lg:grid-cols-2 lg:px-10">
@@ -33,14 +33,24 @@ export default function PilotNetworkPage() {
               requirements.
             </p>
           </Reveal>
-          <ul className="grid gap-4">
-            {PILOT_REQUIREMENTS.map((item) => (
-              <li key={item} className="flex gap-3 rounded-xl border border-border bg-card p-5">
-                <Check className="mt-1 h-5 w-5 shrink-0 text-accent" />
-                <span className="text-foreground/85">{item}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="grid gap-4">
+            <div className="overflow-hidden rounded-xl border border-border bg-card">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/site/bell-505.jpg"
+                alt="Pilot network coverage spanning rotorcraft and fixed-wing operations"
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <ul className="grid gap-4">
+              {PILOT_REQUIREMENTS.map((item) => (
+                <li key={item} className="flex gap-3 rounded-xl border border-border bg-card p-5">
+                  <Check className="mt-1 h-5 w-5 shrink-0 text-accent" />
+                  <span className="text-foreground/85">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
       <section className="border-y border-border bg-card/30 py-28">

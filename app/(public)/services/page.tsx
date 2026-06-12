@@ -19,7 +19,7 @@ export default function ServicesPage() {
         eyebrow="Capabilities"
         title="Aircraft support mapped by operational need"
         description="AMG reviews each support request by scope, aircraft status, crew requirements, route, timing, operating conditions, and final approval requirements."
-        image="/images/jet-sky.png"
+        image="/images/site/tbm.jpg"
       />
 
       <section className="py-28">
@@ -63,6 +63,34 @@ export default function ServicesPage() {
               </RevealItem>
             ))}
           </RevealGroup>
+        </div>
+      </section>
+
+      <section className="border-t border-border py-28">
+        <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-10">
+          <Reveal className="flex items-center">
+            <div>
+              <p className="eyebrow mb-5 text-accent">Mission Types</p>
+              <h2 className="display-heading text-balance text-4xl text-foreground sm:text-5xl">
+                Different aircraft, different support rhythm
+              </h2>
+              <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
+                Ferry work, owner support, maintenance positioning, and contract pilot coverage
+                each bring their own tempo. The visuals across this site now mirror that real mix
+                of aircraft and operating contexts.
+              </p>
+            </div>
+          </Reveal>
+          <Reveal delay={0.15}>
+            <div className="overflow-hidden rounded-xl border border-border bg-card">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/site/diamond-me.jpg"
+                alt="Twin-engine aircraft in flight representing mission-specific support requirements"
+                className="h-full w-full object-cover"
+              />
+            </div>
+          </Reveal>
         </div>
       </section>
 
