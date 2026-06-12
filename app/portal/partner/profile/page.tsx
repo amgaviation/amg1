@@ -1,4 +1,5 @@
 import { requireRole } from "@/lib/portal/session";
+import { AccountSecurityForm } from "@/components/portal/account-security-form";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
@@ -12,15 +13,30 @@ export const metadata = { title: "Company Profile - Partner Portal" };
 export default async function PartnerProfilePage({
   searchParams,
 }: {
-  searchParams: Promise<{ success?: string }>;
+  searchParams: Promise<{ success?: string; accountSuccess?: string; accountError?: string }>;
 }) {
   const user = await requireRole("partner");
   const params = await searchParams;
   const profile = await getPartnerProfile(user.id);
+  const accountErrorMessage =
+    params.accountError === "missing-email"
+      ? "Enter an email address."
+      : params.accountError === "same-email"
+        ? "Use a different email address."
+        : params.accountError === "weakpassword"
+          ? "Password must be at least 8 characters."
+          : params.accountError === "mismatch"
+            ? "The password confirmation does not match."
+            : params.accountError
+              ? "The account change could not be completed."
+              : null;
 
   return (
     <PortalShell role="partner" user={user}>
       {params.success ? <Notice tone="success">Partner profile saved.</Notice> : null}
+      {params.accountSuccess === "email" ? <Notice tone="success">Email change saved. Check your inbox if confirmation is required.</Notice> : null}
+      {params.accountSuccess === "password" ? <Notice tone="success">Password updated for this portal account.</Notice> : null}
+      {accountErrorMessage ? <Notice tone="danger">{accountErrorMessage}</Notice> : null}
       <PageHeader eyebrow="Service Partner" title="Company Profile" description="Define the service capabilities AMG Operations can assign to your company." />
       <SectionCard title="Service Profile" icon="building">
         <form action={savePartnerProfile} className="grid gap-4 lg:grid-cols-3">
@@ -42,6 +58,7 @@ export default async function PartnerProfilePage({
           </div>
         </form>
       </SectionCard>
+      <AccountSecurityForm email={user.email} backTo="/portal/partner/profile" />
     </PortalShell>
   );
 }

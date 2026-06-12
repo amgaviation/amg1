@@ -1,4 +1,5 @@
 import { requireRole } from "@/lib/portal/session";
+import { AccountSecurityForm } from "@/components/portal/account-security-form";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, Notice } from "@/components/portal/ui/primitives";
 import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
@@ -12,15 +13,30 @@ export const metadata = { title: "Settings - Crew Portal" };
 export default async function CrewSettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ success?: string }>;
+  searchParams: Promise<{ success?: string; accountSuccess?: string; accountError?: string }>;
 }) {
   const user = await requireRole("crew");
   const params = await searchParams;
   const profile = await getCrewProfile(user.id);
+  const accountErrorMessage =
+    params.accountError === "missing-email"
+      ? "Enter an email address."
+      : params.accountError === "same-email"
+        ? "Use a different email address."
+        : params.accountError === "weakpassword"
+          ? "Password must be at least 8 characters."
+          : params.accountError === "mismatch"
+            ? "The password confirmation does not match."
+            : params.accountError
+              ? "The account change could not be completed."
+              : null;
 
   return (
     <PortalShell role="crew" user={user}>
       {params.success ? <Notice tone="success">Crew profile saved.</Notice> : null}
+      {params.accountSuccess === "email" ? <Notice tone="success">Email change saved. Check your inbox if confirmation is required.</Notice> : null}
+      {params.accountSuccess === "password" ? <Notice tone="success">Password updated for this portal account.</Notice> : null}
+      {accountErrorMessage ? <Notice tone="danger">{accountErrorMessage}</Notice> : null}
       <PageHeader eyebrow="Flight Crew" title="Profile & Settings" description="Maintain the qualification and preference data AMG uses for assignments." />
       <SectionCard title="Crew Profile" icon="settings">
         <form action={saveCrewProfile} className="grid gap-4 lg:grid-cols-3">
@@ -48,6 +64,7 @@ export default async function CrewSettingsPage({
           </div>
         </form>
       </SectionCard>
+      <AccountSecurityForm email={user.email} backTo="/portal/crew/settings" />
     </PortalShell>
   );
 }

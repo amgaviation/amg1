@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/portal/session";
 import { ROLE_HOME, isPortalRole, type PortalRole } from "@/lib/portal/constants";
 import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
 
@@ -161,4 +162,62 @@ export async function updatePassword(formData: FormData) {
   if (error) redirect("/reset-password?error=failed");
   await supabase.auth.signOut();
   redirect("/login?success=password-reset");
+}
+
+export async function updatePortalEmail(formData: FormData) {
+  const user = await requireUser();
+  const nextEmail = field(formData, "email").toLowerCase();
+  const backTo = field(formData, "back_to") || ROLE_HOME[user.role];
+
+  if (!nextEmail) redirect(`${backTo}?accountError=missing-email`);
+  if (nextEmail === user.email.toLowerCase()) redirect(`${backTo}?accountError=same-email`);
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
+  const origin = appUrl
+    ? appUrl.startsWith("http")
+      ? appUrl
+      : `https://${appUrl}`
+    : "";
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({
+    email: nextEmail,
+  });
+
+  if (error) redirect(`${backTo}?accountError=email-failed`);
+
+  await logAuditEvent({
+    actor: { id: user.id, email: user.email, role: user.role },
+    action: "user_email_change_requested",
+    detail: `Requested email change to ${nextEmail}${origin ? ` via ${origin}` : ""}`,
+    entityType: "profile",
+    entityId: user.id,
+  });
+
+  redirect(`${backTo}?accountSuccess=email`);
+}
+
+export async function updatePortalPassword(formData: FormData) {
+  const user = await requireUser();
+  const password = field(formData, "password");
+  const confirm = field(formData, "confirm_password");
+  const backTo = field(formData, "back_to") || ROLE_HOME[user.role];
+
+  if (!password || password.length < 8) redirect(`${backTo}?accountError=weakpassword`);
+  if (password !== confirm) redirect(`${backTo}?accountError=mismatch`);
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (error) redirect(`${backTo}?accountError=password-failed`);
+
+  await logAuditEvent({
+    actor: { id: user.id, email: user.email, role: user.role },
+    action: "user_password_changed",
+    detail: "Updated portal password from settings",
+    entityType: "profile",
+    entityId: user.id,
+  });
+
+  redirect(`${backTo}?accountSuccess=password`);
 }
