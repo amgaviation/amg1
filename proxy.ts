@@ -29,10 +29,6 @@ export async function proxy(request: NextRequest) {
 
   if (user) return supabaseResponse;
 
-  // Temporary bridge while all users migrate to Supabase Auth.
-  const cookieSession = request.cookies.get("amg_portal_session");
-  if (cookieSession?.value) return supabaseResponse;
-
   if (request.nextUrl.pathname.startsWith("/portal")) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";

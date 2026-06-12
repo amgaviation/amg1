@@ -31,9 +31,9 @@ export function isoOrNull(fd: FormData, key: string): string | null {
 export async function actor(roles?: PortalRole[]): Promise<SessionUser> {
   const user = await getSessionUser();
   if (!user) redirect("/login");
-  if (user.status !== "approved") redirect("/login?error=pending");
+  if (user.status !== "approved") redirect(user.status === "suspended" ? "/access-denied" : "/pending-approval");
   if (roles && user.role !== "admin" && !roles.includes(user.role)) {
-    redirect("/portal");
+    redirect("/access-denied");
   }
   return user;
 }

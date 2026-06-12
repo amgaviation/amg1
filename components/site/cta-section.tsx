@@ -7,7 +7,7 @@ export function CtaSection({
   title = "Tell us what the aircraft needs next.",
   description = "Submit a Support Request for aircraft management assistance, contract pilot support, ferry coordination, maintenance repositioning, or another mission-specific requirement.",
   primaryLabel = "Request Support",
-  primaryHref = "/contact",
+  primaryHref = "/contact?service=aircraft_support",
   secondaryLabel = "View Plans",
   secondaryHref = "/plans",
 }: {
@@ -20,17 +20,17 @@ export function CtaSection({
   secondaryHref?: string;
 }) {
   return (
-    <section className="relative overflow-hidden border-t border-border py-28 lg:py-36">
-      <div className="absolute inset-0 -z-10">
+    <section className="relative isolate overflow-hidden border-t border-border py-28 lg:py-36">
+      <div className="absolute inset-0 z-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/images/jet-sky.png"
+          src="/images/site/citation-x.webp"
           alt=""
           className="h-full w-full object-cover opacity-35"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/55" />
       </div>
-      <div className="mx-auto max-w-3xl px-6 text-center lg:px-10">
+      <div className="relative z-10 mx-auto max-w-3xl px-6 text-center lg:px-10">
         <Reveal>
           <p className="eyebrow mb-5 text-accent">{eyebrow}</p>
           <h2 className="display-heading text-balance text-4xl text-foreground sm:text-5xl lg:text-6xl">

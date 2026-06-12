@@ -19,7 +19,7 @@ export default function AboutPage() {
         eyebrow="About AMG"
         title="Built around aircraft, owners, and operational accountability."
         description="AMG Aviation Group provides aircraft-specific support, mission coordination, crew sourcing, and owner communication for Part 91 aviation environments where clarity and responsiveness matter."
-        image="/images/operations.png"
+        image="/images/site/citation-x.webp"
       />
 
       <section className="py-28">
@@ -42,6 +42,33 @@ export default function AboutPage() {
               aircraft status, crew availability, owner/operator approval, and
               operational conditions have been reviewed.
             </p>
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="border-b border-border pb-28">
+        <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-10">
+          <Reveal>
+            <div className="overflow-hidden rounded-xl border border-border bg-card">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/site/map-operations.jpg"
+                alt="Operational route map supporting aircraft positioning and mission planning"
+                className="h-full w-full object-cover"
+              />
+            </div>
+          </Reveal>
+          <Reveal delay={0.15} className="flex items-center">
+            <div>
+              <p className="eyebrow mb-5 text-accent">Operational Visibility</p>
+              <h2 className="display-heading text-balance text-4xl text-foreground sm:text-5xl">
+                Owners need a clear picture of what is moving where
+              </h2>
+              <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
+                AMG&apos;s role is to keep mission movement, aircraft status, crew planning,
+                and support timing legible to the people responsible for the operation.
+              </p>
+            </div>
           </Reveal>
         </div>
       </section>

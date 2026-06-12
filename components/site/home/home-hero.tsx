@@ -19,7 +19,7 @@ export function HomeHero() {
           className="h-full w-full object-cover opacity-90"
           aria-hidden="true"
         >
-          <source src="/media/amg-jet-flying.mp4" type="video/mp4" />
+          <source src="/videos/amg-jet-flying.mp4" type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-background/35" />
@@ -75,7 +75,7 @@ export function HomeHero() {
           className="mt-10 flex flex-wrap items-center gap-4"
         >
           <Link
-            href="/contact"
+            href="/contact?service=aircraft_support"
             className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-8 py-4 font-display text-sm font-semibold uppercase tracking-widest text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90"
           >
             Request Support

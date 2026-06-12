@@ -1,14 +1,36 @@
 import { requireRole } from "@/lib/portal/session";
+import { AccountSecurityForm } from "@/components/portal/account-security-form";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
-import { DetailRow, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
+import { DetailRow, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { RoleBadge } from "@/components/portal/ui/status-badge";
 
 export const metadata = { title: "Settings - Admin Portal" };
 
-export default async function AdminSettingsPage() {
+export default async function AdminSettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ accountSuccess?: string; accountError?: string }>;
+}) {
   const user = await requireRole("admin");
+  const params = await searchParams;
+  const accountErrorMessage =
+    params.accountError === "missing-email"
+      ? "Enter an email address."
+      : params.accountError === "same-email"
+        ? "Use a different email address."
+        : params.accountError === "weakpassword"
+          ? "Password must be at least 8 characters."
+          : params.accountError === "mismatch"
+            ? "The password confirmation does not match."
+            : params.accountError
+              ? "The account change could not be completed."
+              : null;
+
   return (
     <PortalShell role="admin" user={user}>
+      {params.accountSuccess === "email" ? <Notice tone="success">Email change saved. Check your inbox if confirmation is required.</Notice> : null}
+      {params.accountSuccess === "password" ? <Notice tone="success">Password updated for this portal account.</Notice> : null}
+      {accountErrorMessage ? <Notice tone="danger">{accountErrorMessage}</Notice> : null}
       <PageHeader eyebrow="AMG Operations" title="Settings" description="Current administrator account and production readiness checks." />
       <SectionCard title="Account" icon="settings">
         <dl>
@@ -24,6 +46,7 @@ export default async function AdminSettingsPage() {
           <p>Before production launch, confirm Supabase storage buckets exist for documents and crew-credentials, then set the required Supabase environment variables in Vercel.</p>
         </div>
       </SectionCard>
+      <AccountSecurityForm email={user.email} backTo="/portal/admin/settings" />
     </PortalShell>
   );
 }

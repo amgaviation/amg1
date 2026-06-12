@@ -18,7 +18,7 @@ export default function PlansPage() {
         eyebrow="Support Plans"
         title="Simple structure before variable mission costs"
         description="AMG support plans define baseline coordination, selected service level, support allowance, and review process. Crew, travel, lodging, and other mission-variable costs remain selected or reviewed separately."
-        image="/images/jet-interior.png"
+        image="/images/site/citation-x.webp"
       />
       <section className="py-28">
         <div className="mx-auto grid max-w-7xl gap-6 px-6 lg:grid-cols-3 lg:px-10">
@@ -41,7 +41,7 @@ export default function PlansPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/contact" className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground">
+              <Link href={`/contact?plan=${plan.id}`} className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground">
                 Start Support Request
                 <ArrowRight className="h-4 w-4" />
               </Link>

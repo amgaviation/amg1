@@ -1,0 +1,32 @@
+import type { MetadataRoute } from "next";
+
+const publicRoutes = [
+  "",
+  "/about",
+  "/services",
+  "/aircraft",
+  "/pilot-network",
+  "/plans",
+  "/team",
+  "/contact",
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/pending-approval",
+  "/access-denied",
+  "/privacy-policy",
+  "/terms",
+  "/operational-disclaimer",
+  "/mission-acceptance",
+  "/credential-submission",
+];
+
+export default function sitemap(): MetadataRoute.Sitemap {
+  const base = process.env.NEXT_PUBLIC_APP_URL || "https://amgaviationgroup.com";
+  return publicRoutes.map((route) => ({
+    url: `${base}${route}`,
+    lastModified: new Date(),
+    changeFrequency: route === "" ? "weekly" : "monthly",
+    priority: route === "" ? 1 : 0.7,
+  }));
+}
