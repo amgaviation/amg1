@@ -54,7 +54,7 @@ export default function ServicesPage() {
                     ))}
                   </ul>
                   <Link
-                    href="/contact"
+                    href={`/contact?service=${service.id}`}
                     className="mt-8 font-display text-xs font-semibold uppercase tracking-widest text-accent"
                   >
                     Request support
@@ -102,7 +102,7 @@ export default function ServicesPage() {
         </p>
       </Reveal>
 
-      <CtaSection />
+      <CtaSection primaryHref="/contact?service=aircraft_support" />
     </>
   );
 }

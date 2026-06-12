@@ -50,8 +50,8 @@ export async function getSessionUser(): Promise<SessionUser | null> {
 export async function requireUser(): Promise<SessionUser> {
   const user = await getSessionUser();
   if (!user) redirect("/login");
-  if (user.status === "suspended") redirect("/login?error=suspended");
-  if (user.status === "pending") redirect("/login?error=pending");
+  if (user.status === "suspended") redirect("/access-denied");
+  if (user.status === "pending") redirect("/pending-approval");
   return user;
 }
 
@@ -65,7 +65,7 @@ export async function requireRole(
   const user = await requireUser();
   const roles = Array.isArray(allowed) ? allowed : [allowed];
   if (user.role !== "admin" && !roles.includes(user.role)) {
-    redirect(ROLE_HOME[user.role]);
+    redirect("/access-denied");
   }
   return user;
 }

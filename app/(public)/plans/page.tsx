@@ -41,7 +41,7 @@ export default function PlansPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/contact" className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground">
+              <Link href={`/contact?plan=${plan.id}`} className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground">
                 Start Support Request
                 <ArrowRight className="h-4 w-4" />
               </Link>

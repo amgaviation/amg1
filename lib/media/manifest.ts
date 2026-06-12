@@ -58,7 +58,7 @@ export const MEDIA_ASSETS = [
     colorDirection: "Navy, mineral gray, white, AMG blue accents only.",
     negativePrompt: "No mechanics in unsafe positions, no airline branding, no copied Jesko imagery, no orange/gold/red palette.",
     altText: "Aircraft prepared for maintenance repositioning support.",
-    fallbackAsset: "/images/operations.png",
+    fallbackAsset: "/images/site/diamond-me.jpg",
     sourcePath: "",
     objectPosition: "center center"
   },
@@ -79,7 +79,7 @@ export const MEDIA_ASSETS = [
     colorDirection: "AMG Navy, AMG Blue, Jet Gray, Light Gray, minimal Sky Blue.",
     negativePrompt: "No fake emergency states, no illegible cockpit UI, no stock-photo handshake, no neon cyberpunk.",
     altText: "Aviation operations coordination materials and route planning display.",
-    fallbackAsset: "/images/jet-sky.png",
+    fallbackAsset: "/images/site/map-operations.jpg",
     sourcePath: "",
     objectPosition: "center center"
   },
@@ -138,7 +138,7 @@ export const MEDIA_ASSETS = [
     colorDirection: "Navy, light gray, AMG blue, sparing sky blue.",
     negativePrompt: "No cockpit hands flying, no unsafe behavior, no false airline branding, no distorted instruments.",
     altText: "Pilot readiness materials prepared for aircraft support assignment review.",
-    fallbackAsset: "/images/operations.png",
+    fallbackAsset: "/images/site/bell-505.jpg",
     sourcePath: "",
     objectPosition: "center center"
   },
@@ -157,7 +157,7 @@ export const MEDIA_ASSETS = [
     colorDirection: "White, light gray, navy, AMG blue.",
     negativePrompt: "No fake emergency, no cluttered call-center scene, no red or gold accents.",
     altText: "Aircraft operations support request desk.",
-    fallbackAsset: "/images/jet-sky.png",
+    fallbackAsset: "/images/site/tbm.jpg",
     sourcePath: "",
     objectPosition: "center center"
   }

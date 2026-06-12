@@ -79,7 +79,7 @@ export default function PilotNetworkPage() {
         eyebrow="Pilot Profile"
         title="Submit Pilot Profile"
         primaryLabel="Join Pilot Network"
-        primaryHref="/contact"
+        primaryHref="/contact?service=contract-pilot-support"
         secondaryLabel="Crew Portal"
         secondaryHref="/login"
       />

@@ -75,7 +75,7 @@ export function HomeHero() {
           className="mt-10 flex flex-wrap items-center gap-4"
         >
           <Link
-            href="/contact"
+            href="/contact?service=aircraft_support"
             className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-8 py-4 font-display text-sm font-semibold uppercase tracking-widest text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90"
           >
             Request Support

@@ -7,7 +7,7 @@ export function CtaSection({
   title = "Tell us what the aircraft needs next.",
   description = "Submit a Support Request for aircraft management assistance, contract pilot support, ferry coordination, maintenance repositioning, or another mission-specific requirement.",
   primaryLabel = "Request Support",
-  primaryHref = "/contact",
+  primaryHref = "/contact?service=aircraft_support",
   secondaryLabel = "View Plans",
   secondaryHref = "/plans",
 }: {

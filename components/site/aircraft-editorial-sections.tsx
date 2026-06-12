@@ -59,7 +59,7 @@ export function AircraftEditorialSections() {
                     </div>
                   </dl>
                   <div className="mt-8">
-                    <Link href="/contact" className="inline-flex items-center gap-2 font-display text-xs font-semibold uppercase tracking-widest text-accent">
+                    <Link href={`/contact?aircraft=${aircraft.id}`} className="inline-flex items-center gap-2 font-display text-xs font-semibold uppercase tracking-widest text-accent">
                       Request support for this category
                       <ArrowRight className="h-4 w-4" />
                     </Link>

@@ -32,11 +32,11 @@ export async function signIn(formData: FormData) {
   }
   if (profile.status === "pending") {
     await supabase.auth.signOut();
-    redirect("/login?error=pending");
+    redirect("/pending-approval");
   }
   if (profile.status === "suspended") {
     await supabase.auth.signOut();
-    redirect("/login?error=suspended");
+    redirect("/access-denied");
   }
 
   const role: PortalRole = isPortalRole(profile.role) ? profile.role : "client";
@@ -128,4 +128,37 @@ export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/login");
+}
+
+export async function requestPasswordReset(formData: FormData) {
+  const email = field(formData, "email").toLowerCase();
+  if (!email) redirect("/forgot-password?error=missing");
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
+  const origin = appUrl
+    ? appUrl.startsWith("http")
+      ? appUrl
+      : `https://${appUrl}`
+    : "";
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: origin ? `${origin}/auth/callback?next=/reset-password` : undefined,
+  });
+
+  if (error) redirect("/forgot-password?error=failed");
+  redirect("/forgot-password?success=sent");
+}
+
+export async function updatePassword(formData: FormData) {
+  const password = field(formData, "password");
+  const confirm = field(formData, "confirm_password");
+  if (!password || password.length < 8) redirect("/reset-password?error=weakpassword");
+  if (password !== confirm) redirect("/reset-password?error=mismatch");
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) redirect("/reset-password?error=failed");
+  await supabase.auth.signOut();
+  redirect("/login?success=password-reset");
 }
