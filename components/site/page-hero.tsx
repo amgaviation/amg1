@@ -18,12 +18,12 @@ export function PageHero({
   return (
     <section
       className={cn(
-        "relative flex min-h-[72svh] items-end overflow-hidden border-b border-border pb-16 pt-36 lg:pb-24",
+        "relative isolate flex min-h-[72svh] items-end overflow-hidden border-b border-border pb-16 pt-36 lg:pb-24",
         className
       )}
     >
       {image && (
-        <div className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 z-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={image || "/placeholder.svg"}
@@ -33,7 +33,7 @@ export function PageHero({
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/78 to-background/40" />
         </div>
       )}
-      <div className="mx-auto w-full max-w-7xl px-6 lg:px-10">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 lg:px-10">
         <Reveal variants={scaleRevealVariants}>
           <p className="eyebrow mb-5 text-accent">{eyebrow}</p>
           <h1 className="display-heading max-w-4xl text-balance text-5xl text-foreground sm:text-6xl lg:text-7xl">

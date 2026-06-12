@@ -20,8 +20,8 @@ export function CtaSection({
   secondaryHref?: string;
 }) {
   return (
-    <section className="relative overflow-hidden border-t border-border py-28 lg:py-36">
-      <div className="absolute inset-0 -z-10">
+    <section className="relative isolate overflow-hidden border-t border-border py-28 lg:py-36">
+      <div className="absolute inset-0 z-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/site/citation-x.webp"
@@ -30,7 +30,7 @@ export function CtaSection({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/55" />
       </div>
-      <div className="mx-auto max-w-3xl px-6 text-center lg:px-10">
+      <div className="relative z-10 mx-auto max-w-3xl px-6 text-center lg:px-10">
         <Reveal>
           <p className="eyebrow mb-5 text-accent">{eyebrow}</p>
           <h2 className="display-heading text-balance text-4xl text-foreground sm:text-5xl lg:text-6xl">

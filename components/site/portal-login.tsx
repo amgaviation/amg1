@@ -4,17 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, ShieldCheck, LogIn, UserPlus } from "lucide-react";
 import { signIn, signUp } from "@/app/portal/actions/auth";
-import { REQUESTABLE_ROLES } from "@/lib/portal/constants";
 import { cn } from "@/lib/utils";
-
-const DEMO_ACCOUNTS = [
-  { role: "Admin", email: "admin@amg.demo", desc: "Operations command center" },
-  { role: "Client", email: "client@amg.demo", desc: "Owner / aircraft representative" },
-  { role: "Crew", email: "crew@amg.demo", desc: "Pilot & contract crew" },
-  { role: "Partner", email: "partner@amg.demo", desc: "FBO / vendor services" },
-];
-
-const DEMO_PASSWORD = "AmgDemo2025!";
 
 const ERROR_MESSAGES: Record<string, string> = {
   missing: "Enter your email and password.",
@@ -33,16 +23,10 @@ export function PortalLogin({
   mode?: "signin" | "request";
   error?: string;
   success?: string;
-}) {
+  }) {
   const [mode, setMode] = useState<"signin" | "request">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  function fillDemo(demoEmail: string) {
-    setMode("signin");
-    setEmail(demoEmail);
-    setPassword(DEMO_PASSWORD);
-  }
 
   return (
     <div className="grid min-h-screen grid-cols-1 bg-background lg:grid-cols-[1.05fr_0.95fr]">
@@ -148,14 +132,8 @@ export function PortalLogin({
                 <input name="full_name" required placeholder="Full name" className="h-11 rounded-lg border border-input bg-background px-4 text-sm outline-none focus:border-accent" />
                 <input name="email" type="email" required placeholder="name@company.com" className="h-11 rounded-lg border border-input bg-background px-4 text-sm outline-none focus:border-accent" />
                 <input name="password" type="password" required minLength={8} placeholder="Create a password (8+ characters)" className="h-11 rounded-lg border border-input bg-background px-4 text-sm outline-none focus:border-accent" />
-                <div className="grid grid-cols-2 gap-3">
-                  <select name="role" required defaultValue="client" className="h-11 rounded-lg border border-input bg-background px-4 text-sm outline-none focus:border-accent">
-                    {REQUESTABLE_ROLES.map((r) => (
-                      <option key={r.value} value={r.value}>{r.label}</option>
-                    ))}
-                  </select>
-                  <input name="company_name" placeholder="Organization" className="h-11 rounded-lg border border-input bg-background px-4 text-sm outline-none focus:border-accent" />
-                </div>
+                <input type="hidden" name="role" value="client" />
+                <input name="company_name" placeholder="Organization" className="h-11 rounded-lg border border-input bg-background px-4 text-sm outline-none focus:border-accent" />
                 <input name="phone" placeholder="Phone (optional)" className="h-11 rounded-lg border border-input bg-background px-4 text-sm outline-none focus:border-accent" />
               </div>
               <button className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-4 font-display text-sm font-semibold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-primary/90">
@@ -167,29 +145,6 @@ export function PortalLogin({
               </p>
             </form>
           )}
-
-          <div className="mt-6 rounded-xl border border-dashed border-border bg-card/50 p-5">
-            <p className="eyebrow text-[0.62rem] text-accent">Demo accounts</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Click to fill — password <span className="font-mono text-foreground">{DEMO_PASSWORD}</span>
-            </p>
-            <div className="mt-3 grid gap-2">
-              {DEMO_ACCOUNTS.map((acct) => (
-                <button
-                  key={acct.email}
-                  type="button"
-                  onClick={() => fillDemo(acct.email)}
-                  className="flex items-center justify-between rounded-lg border border-border bg-background/60 px-3 py-2 text-left transition-colors hover:border-accent"
-                >
-                  <span>
-                    <span className="text-sm font-semibold text-foreground">{acct.role}</span>
-                    <span className="ml-2 font-mono text-xs text-muted-foreground">{acct.email}</span>
-                  </span>
-                  <span className="text-[0.7rem] text-muted-foreground">{acct.desc}</span>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
     </div>
