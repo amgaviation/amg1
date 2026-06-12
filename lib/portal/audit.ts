@@ -34,8 +34,8 @@ export async function logAuditEvent(input: AuditInput): Promise<void> {
 }
 
 /**
- * Create an in-app notification for a user. Email/SMS delivery is a
- * documented follow-on (see lib/notify.ts).
+ * Create an in-app notification and immediately attempt configured external
+ * delivery. Delivery failures are recorded but do not block the form action.
  */
 export async function notifyUser(params: {
   userId: string;
@@ -44,36 +44,47 @@ export async function notifyUser(params: {
   type?: string;
   entityType?: string;
   entityId?: string | null;
+  replyTo?: string;
 }): Promise<void> {
   try {
     const supabase = await createServiceClient();
-    const { data } = await supabase.from("notifications").insert({
-      user_id: params.userId,
-      title: params.title,
-      body: params.body ?? null,
-      notification_type: params.type ?? null,
-      entity_type: params.entityType ?? null,
-      entity_id: params.entityId ?? null,
-    }).select("id").single();
+    const { data } = await supabase
+      .from("notifications")
+      .insert({
+        user_id: params.userId,
+        title: params.title,
+        body: params.body ?? null,
+        notification_type: params.type ?? null,
+        entity_type: params.entityType ?? null,
+        entity_id: params.entityId ?? null,
+      })
+      .select("id")
+      .single();
+
     await queueNotificationDeliveries({
       userId: params.userId,
       notificationId: data?.id ?? null,
       title: params.title,
       body: params.body ?? null,
       eventType: params.type ?? null,
+      replyTo: params.replyTo ?? null,
     });
   } catch (error) {
     console.error("[notify] failed to create notification", params.title, error);
   }
 }
 
-/** Notify every approved admin (e.g. new request submitted). */
+/**
+ * Notify every approved administrator. Each admin receives an in-app
+ * notification and an email at the address stored in public.profiles.email.
+ */
 export async function notifyAdmins(params: {
   title: string;
   body?: string;
   type?: string;
   entityType?: string;
   entityId?: string | null;
+  replyTo?: string;
 }): Promise<void> {
   try {
     const supabase = await createServiceClient();
@@ -82,17 +93,20 @@ export async function notifyAdmins(params: {
       .select("id")
       .eq("role", "admin")
       .eq("status", "approved");
+
     if (!admins?.length) return;
-    await supabase.from("notifications").insert(
-      admins.map((a) => ({
-        user_id: a.id,
+
+    for (const admin of admins) {
+      await notifyUser({
+        userId: admin.id,
         title: params.title,
-        body: params.body ?? null,
-        notification_type: params.type ?? null,
-        entity_type: params.entityType ?? null,
-        entity_id: params.entityId ?? null,
-      }))
-    );
+        body: params.body,
+        type: params.type,
+        entityType: params.entityType,
+        entityId: params.entityId,
+        replyTo: params.replyTo,
+      });
+    }
   } catch (error) {
     console.error("[notify] failed to notify admins", params.title, error);
   }
