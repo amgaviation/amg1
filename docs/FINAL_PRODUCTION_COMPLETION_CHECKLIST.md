@@ -15,6 +15,7 @@ Branch: `feat/final-production-completion`
 - Connected pending/suspended/cross-role portal guards to explicit status pages.
 - Added `.env.example`.
 - Added `scripts/audit-media-uniqueness.ts` and `npm run media:audit`.
+- Added Admin-only `/portal/admin/system-health` with database, provider, media, notification, aircraft, expense, and deployment checks.
 
 ## Validation status
 
