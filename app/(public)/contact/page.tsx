@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { Mail, Send } from "lucide-react";
+import { Mail } from "lucide-react";
 import { PageHero } from "@/components/site/page-hero";
 import { RevealGroup, RevealItem } from "@/components/site/reveal";
-import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { COMPANY, CONTACT_CARDS } from "@/lib/content";
-import { submitPublicSupportRequest } from "./actions";
+import { PublicSupportForm } from "@/components/site/public-support-form";
 
 export const metadata: Metadata = {
   title: "AMG Aviation Group — Support Request",
@@ -15,10 +14,10 @@ export const metadata: Metadata = {
 export default async function ContactPage({
   searchParams,
 }: {
-  searchParams: Promise<{ service?: string; aircraft?: string; plan?: string; success?: string; error?: string; duplicate?: string }>;
+  searchParams: Promise<{ category?: string; service?: string; aircraft?: string; plan?: string; success?: string; error?: string; duplicate?: string }>;
 }) {
   const params = await searchParams;
-  const supportType = params.service || params.aircraft || params.plan || "";
+  const supportType = params.category || params.service || params.aircraft || params.plan || "";
   return (
     <>
       <PageHero
@@ -56,39 +55,12 @@ export default async function ContactPage({
               </RevealItem>
             </RevealGroup>
           </aside>
-          <form action={submitPublicSupportRequest} className="rounded-xl border border-border bg-card p-6 lg:p-8">
-            {params.success ? (
-              <div className="mb-5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm leading-relaxed text-emerald-200">
-                Support request {params.success} was submitted. AMG Operations will review it before any acceptance or coordination is confirmed.
-                {params.duplicate ? " We found a matching recent request and returned the existing reference." : ""}
-              </div>
-            ) : null}
-            {params.error ? (
-              <div className="mb-5 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm leading-relaxed text-red-200">
-                {params.error === "missing"
-                  ? "Please include your name, email, route, and support type."
-                  : "The request could not be submitted. Please try again or email AMG Operations directly."}
-              </div>
-            ) : null}
-            <div className="grid gap-5 md:grid-cols-2">
-              <input name="requester_name" required className="h-12 rounded-lg border border-input bg-background px-4 text-base outline-none focus:border-accent" placeholder="Requester name" />
-              <input name="email" required className="h-12 rounded-lg border border-input bg-background px-4 text-base outline-none focus:border-accent" placeholder="Email" type="email" />
-              <input name="aircraft" defaultValue={params.aircraft ?? ""} className="h-12 rounded-lg border border-input bg-background px-4 text-base outline-none focus:border-accent" placeholder="Aircraft / type" />
-              <input name="tail_number" className="h-12 rounded-lg border border-input bg-background px-4 text-base outline-none focus:border-accent" placeholder="Tail number if applicable" />
-              <input name="organization" className="h-12 rounded-lg border border-input bg-background px-4 text-base outline-none focus:border-accent" placeholder="Owner / operator" />
-              <input name="route" required className="h-12 rounded-lg border border-input bg-background px-4 text-base outline-none focus:border-accent" placeholder="Route / airports" />
-              <input name="timing" className="h-12 rounded-lg border border-input bg-background px-4 text-base outline-none focus:border-accent" placeholder="Timing" />
-              <input name="support_type" required defaultValue={supportType} className="h-12 rounded-lg border border-input bg-background px-4 text-base outline-none focus:border-accent" placeholder="Support type" />
-              <input name="crew_need" className="h-12 rounded-lg border border-input bg-background px-4 text-base outline-none focus:border-accent" placeholder="Crew need" />
-              <input name="passenger_context" className="h-12 rounded-lg border border-input bg-background px-4 text-base outline-none focus:border-accent" placeholder="Passenger or non-passenger context" />
-            </div>
-            <textarea name="notes" className="mt-5 min-h-40 w-full rounded-lg border border-input bg-background p-4 text-base outline-none focus:border-accent" placeholder="Special instructions, maintenance/ferry/management purpose, required documents, or other support details." />
-            <p className="mt-5 text-xs leading-relaxed text-muted-foreground">{COMPANY.requestDisclaimer}</p>
-            <SubmitButton pendingText="Submitting..." className="mt-6 min-h-12 rounded-full px-8 py-4 font-display text-sm font-semibold uppercase tracking-widest">
-              Start Support Request
-              <Send className="h-4 w-4" />
-            </SubmitButton>
-          </form>
+          <PublicSupportForm
+            initialCategory={supportType}
+            success={params.success}
+            error={params.error}
+            duplicate={params.duplicate}
+          />
         </div>
       </section>
     </>

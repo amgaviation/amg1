@@ -17,37 +17,163 @@ function routePart(route: string, index: number): string {
   return parts[index] || "TBD";
 }
 
-export async function submitPublicSupportRequest(formData: FormData) {
-  const requesterName = value(formData, "requester_name");
-  const email = value(formData, "email").toLowerCase();
-  const organization = value(formData, "organization");
-  const aircraft = value(formData, "aircraft");
-  const tailNumber = value(formData, "tail_number").toUpperCase().replace(/\s+/g, "");
-  const route = value(formData, "route");
-  const timing = value(formData, "timing");
-  const supportType = value(formData, "support_type") || "aircraft_support";
-  const crewNeed = value(formData, "crew_need");
-  const passengerContext = value(formData, "passenger_context");
-  const notes = value(formData, "notes");
+const allowedCategories = new Set([
+  "aircraft-management-support",
+  "contract-pilot-support",
+  "ferry-and-repositioning",
+  "maintenance-flight-support",
+  "flight-operations-coordination",
+  "fleet-support-program",
+  "subscription-program-inquiry",
+  "other-support",
+]);
 
-  if (!requesterName || !email || !route || !supportType) {
-    redirect(`/contact?error=missing&service=${encodeURIComponent(supportType)}`);
+const detailFields = [
+  "ownership_entity",
+  "current_crew_arrangement",
+  "existing_management_arrangement",
+  "maintenance_tracking_system",
+  "scheduling_expectations",
+  "records_status",
+  "accounting_support_requirements",
+  "desired_management_scope",
+  "anticipated_start_date",
+  "number_of_aircraft",
+  "current_operational_concerns",
+  "crew_seat",
+  "type_rating_requirements",
+  "insurance_minimums",
+  "requested_dates",
+  "origin",
+  "destination",
+  "estimated_duty_period",
+  "number_of_legs",
+  "domestic_or_international",
+  "passport_requirement",
+  "currency_requirements",
+  "crew_positioning_expectations",
+  "lodging_requirements",
+  "known_operator_requirements",
+  "special_mission_notes",
+  "current_aircraft_location",
+  "desired_movement_date",
+  "airworthiness_status",
+  "maintenance_status",
+  "ferry_permit_status",
+  "owner_operator_authorization_status",
+  "maintenance_facility_contact",
+  "aircraft_records_availability",
+  "international_customs_requirements",
+  "required_crew_qualifications",
+  "known_squawks_or_limitations",
+  "special_equipment_requirements",
+  "maintenance_facility",
+  "facility_contact",
+  "inspection_or_maintenance_event",
+  "aircraft_release_status",
+  "return_to_service_status",
+  "functional_check_flight_requirement",
+  "acceptance_flight_requirement",
+  "proposed_flight_profile",
+  "responsible_operator",
+  "required_pilot_qualifications",
+  "maintenance_documentation_status",
+  "desired_completion_date",
+  "known_discrepancies",
+  "mission_dates",
+  "origin_destination",
+  "number_of_passengers",
+  "crew_requirements",
+  "aircraft_status",
+  "fbo_requirements",
+  "ground_transportation",
+  "lodging",
+  "international_requirements",
+  "permit_requirements",
+  "catering",
+  "special_timing_or_access_restrictions",
+  "primary_decision_maker",
+  "aircraft_types",
+  "bases",
+  "current_staffing",
+  "expected_monthly_activity",
+  "maintenance_activity",
+  "desired_support_functions",
+  "reporting_needs",
+  "dedicated_contact_requirement",
+  "after_hours_requirement",
+  "aircraft_category",
+  "single_or_two_pilot",
+  "preferred_billing",
+  "expected_client_flight_duty_days",
+  "expected_mx_movements",
+  "domestic_or_international_activity",
+  "expected_overnight_frequency",
+  "travel_lodging_preference",
+  "desired_tier",
+  "expected_start_date",
+  "questions_or_special_requirements",
+  "aircraft_information",
+  "detailed_support_description",
+  "relevant_contacts",
+  "documents_available",
+] as const;
+
+function labelize(key: string) {
+  return key.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+export async function submitPublicSupportRequest(formData: FormData) {
+  const firstName = value(formData, "first_name");
+  const lastName = value(formData, "last_name");
+  const requesterName = `${firstName} ${lastName}`.trim();
+  const email = value(formData, "email").toLowerCase();
+  const phone = value(formData, "phone");
+  const organization = value(formData, "company");
+  const aircraftMake = value(formData, "aircraft_make");
+  const aircraftModel = value(formData, "aircraft_model");
+  const aircraft = [aircraftMake, aircraftModel].filter(Boolean).join(" ");
+  const aircraftBase = value(formData, "aircraft_base");
+  const tailNumber = value(formData, "tail_number").toUpperCase().replace(/\s+/g, "");
+  const timing = value(formData, "requested_timing");
+  const supportType = value(formData, "requested_service_category") || "aircraft-management-support";
+  const notes = value(formData, "operational_summary");
+  const acknowledgment = value(formData, "acknowledgment");
+  const honeypot = value(formData, "website");
+
+  if (honeypot) {
+    redirect("/contact?success=received");
+  }
+
+  if (!requesterName || !email || !phone || !timing || !supportType || !notes || acknowledgment !== "accepted" || !allowedCategories.has(supportType)) {
+    redirect(`/contact?error=missing&category=${encodeURIComponent(supportType)}`);
   }
 
   const db = await createServiceClient();
-  const departure = routePart(route, 0);
-  const arrival = routePart(route, 1);
+  const route = value(formData, "origin_destination") || [value(formData, "origin"), value(formData, "destination")].filter(Boolean).join(" to ");
+  const departure = route ? routePart(route, 0) : routePart(aircraftBase, 0);
+  const arrival = route ? routePart(route, 1) : "TBD";
+  const categoryDetails = detailFields
+    .map((key) => {
+      const fieldValue = value(formData, key);
+      return fieldValue ? `${labelize(key)}: ${fieldValue}` : null;
+    })
+    .filter(Boolean)
+    .join("\n");
   const clientNotes = [
     `Public website support request`,
     `Requester: ${requesterName}`,
     `Email: ${email}`,
+    `Phone: ${phone}`,
+    `Preferred contact: ${value(formData, "preferred_contact_method") || "Not specified"}`,
+    `Requested category: ${supportType}`,
     organization ? `Organization: ${organization}` : null,
     aircraft ? `Aircraft: ${aircraft}` : null,
     tailNumber ? `Tail: ${tailNumber}` : null,
+    aircraftBase ? `Aircraft base: ${aircraftBase}` : null,
     timing ? `Timing: ${timing}` : null,
-    crewNeed ? `Crew need: ${crewNeed}` : null,
-    passengerContext ? `Passenger context: ${passengerContext}` : null,
     notes ? `Notes: ${notes}` : null,
+    categoryDetails ? `Category details:\n${categoryDetails}` : null,
   ]
     .filter(Boolean)
     .join("\n");
@@ -64,7 +190,7 @@ export async function submitPublicSupportRequest(formData: FormData) {
     .maybeSingle();
 
   if (existing) {
-    redirect(`/contact?success=${encodeURIComponent(existing.ref)}&duplicate=1`);
+    redirect(`/contact?success=${encodeURIComponent(existing.ref)}&duplicate=1&category=${encodeURIComponent(supportType)}`);
   }
 
   const { data: mission, error } = await db
@@ -85,16 +211,16 @@ export async function submitPublicSupportRequest(formData: FormData) {
       ground_transport: false,
       catering: false,
       is_international: false,
-      baggage_estimate: passengerContext || null,
+      baggage_estimate: value(formData, "number_of_passengers") || null,
       client_notes: clientNotes,
       additional_notes: notes || null,
-      special_handling: crewNeed || null,
+      special_handling: categoryDetails || null,
     })
     .select("id, ref")
     .single();
 
   if (error || !mission) {
-    redirect(`/contact?error=failed&service=${encodeURIComponent(supportType)}`);
+    redirect(`/contact?error=failed&category=${encodeURIComponent(supportType)}`);
   }
 
   await db.from("audit_events").insert({
@@ -114,5 +240,5 @@ export async function submitPublicSupportRequest(formData: FormData) {
     entityId: mission.id,
   });
 
-  redirect(`/contact?success=${encodeURIComponent(mission.ref)}`);
+  redirect(`/contact?success=${encodeURIComponent(mission.ref)}&category=${encodeURIComponent(supportType)}`);
 }
