@@ -5,6 +5,7 @@ build
 .DS_Store
 *.pem
 .env*.local
+.portal-credentials.local.json
 .vercel
 next-env.d.ts
 *.tsbuildinfo
