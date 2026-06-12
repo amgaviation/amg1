@@ -11,7 +11,7 @@ export function HomeHero() {
           loop
           playsInline
           preload="metadata"
-          poster="/images/hero-jet.png"
+          poster="/images/hero-jet-poster.jpg"
           className="h-full w-full object-cover opacity-90"
           aria-hidden="true"
         >
@@ -42,6 +42,7 @@ export function HomeHero() {
         <div className="mt-10 flex flex-wrap items-center gap-4">
           <Link
             href="/contact?service=aircraft_support"
+            prefetch={false}
             className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-8 py-4 font-display text-sm font-semibold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Request Support
@@ -49,6 +50,7 @@ export function HomeHero() {
           </Link>
           <Link
             href="/services"
+            prefetch={false}
             className="group inline-flex min-h-12 items-center gap-2 rounded-full border border-border px-8 py-4 font-display text-sm font-semibold uppercase tracking-widest text-foreground transition-colors hover:border-accent hover:text-accent"
           >
             Explore Capabilities

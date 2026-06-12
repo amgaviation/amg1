@@ -20,7 +20,7 @@ export function ProcessTimeline() {
           {HOW_AMG_WORKS.map((item) => (
             <RevealItem key={item.step}>
               <article className="grid gap-6 bg-card p-7 md:grid-cols-[110px_1fr] lg:p-10">
-                <p className="font-display text-6xl font-extrabold leading-none text-accent/45">
+                <p className="font-display text-6xl font-extrabold leading-none text-accent/70">
                   {item.step}
                 </p>
                 <div>

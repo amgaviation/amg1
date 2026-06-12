@@ -16,7 +16,7 @@ export default function TeamPage() {
         eyebrow="AMG Team"
         title="The people and roles behind every mission"
         description="AMG Connect is designed around the real operation: clients, crew, admin staff, and the mission coordination desk."
-        image="/images/site/map-operations.jpg"
+        image="/images/heavy-jet.png"
       />
       <section className="py-28">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">

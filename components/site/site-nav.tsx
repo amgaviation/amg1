@@ -72,9 +72,9 @@ export function SiteNav() {
       )}
     >
       <nav className="mx-auto flex h-full max-w-7xl items-center gap-6 px-6 lg:px-10">
-        <Link href="/" className="group flex items-center gap-3">
+        <Link href="/" prefetch={false} className="group flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/logo-white.png" alt="AMG Aviation Group" className="h-8 w-auto" />
+          <img src="/images/logo-white.png" alt="AMG Aviation Group" width="1088" height="221" className="h-8 w-auto" />
         </Link>
 
         <ul className="ml-auto hidden items-center gap-8 lg:flex">
@@ -84,6 +84,7 @@ export function SiteNav() {
               <li key={link.href}>
                 <Link
                   href={link.href}
+                  prefetch={false}
                   className={cn(
                     "eyebrow text-xs transition-colors",
                     active
@@ -101,6 +102,7 @@ export function SiteNav() {
         <div className="ml-auto flex items-center gap-3 lg:ml-0">
           <Link
             href="/login"
+            prefetch={false}
             className="hidden min-h-11 items-center gap-1.5 rounded-full border border-border px-5 py-2.5 font-display text-xs font-semibold uppercase tracking-widest text-foreground transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:inline-flex"
           >
             Member Login
@@ -108,6 +110,7 @@ export function SiteNav() {
           </Link>
           <Link
             href="/contact"
+            prefetch={false}
             className="hidden min-h-11 items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent md:inline-flex"
           >
             Request Support
@@ -138,6 +141,7 @@ export function SiteNav() {
               <li key={link.href}>
                 <Link
                   href={link.href}
+                  prefetch={false}
                   className="block min-h-12 py-3 font-display text-lg font-semibold uppercase tracking-wide text-foreground/80 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
                 >
                   {link.label}
@@ -147,12 +151,14 @@ export function SiteNav() {
             <li className="mt-4 flex flex-col gap-3 border-t border-border pt-5">
               <Link
                 href="/login"
+                prefetch={false}
                 className="inline-flex min-h-12 items-center justify-center gap-1.5 rounded-full border border-border px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
               >
                 Member Login
               </Link>
               <Link
                 href="/contact"
+                prefetch={false}
                 className="inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
               >
                 Request Support

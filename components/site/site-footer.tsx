@@ -9,7 +9,7 @@ export function SiteFooter() {
         <RevealGroup className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1.35fr_0.9fr_1.35fr]">
           <RevealItem className="max-w-sm">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/logo-white.png" alt="AMG Aviation Group" className="h-10 w-auto" />
+            <img src="/images/logo-white.png" alt="AMG Aviation Group" width="1088" height="221" className="h-10 w-auto" />
             <p className="mt-4 leading-relaxed text-muted-foreground">
               {COMPANY.tagline}
             </p>
@@ -23,9 +23,9 @@ export function SiteFooter() {
 
           {FOOTER_COLS.map((col) => (
             <RevealItem key={col.heading}>
-              <h4 className="eyebrow mb-5 text-[0.7rem] text-accent">
+              <h2 className="eyebrow mb-5 text-[0.7rem] text-accent">
                 {col.heading}
-              </h4>
+              </h2>
               <ul className="flex flex-col gap-3">
                 {col.links.map((link) => (
                   <li key={link.label}>
@@ -43,7 +43,7 @@ export function SiteFooter() {
         </RevealGroup>
 
         <Reveal className="mt-12 rounded-lg border border-border p-4">
-          <p className="text-xs leading-relaxed text-muted-foreground/70">
+          <p className="text-xs leading-relaxed text-muted-foreground">
             {COMPANY.requestDisclaimer}
           </p>
         </Reveal>

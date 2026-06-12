@@ -405,7 +405,6 @@ export const PORTAL_ROLES = [
     title: "Client Portal",
     href: "/portal/client",
     access: "Aircraft owners and approved representatives",
-    image: "/images/site/citation-x.webp",
     actions: ["Support requests", "Passenger context", "Aircraft documents", "AMG messages"],
   },
   {
@@ -413,7 +412,6 @@ export const PORTAL_ROLES = [
     title: "Crew Portal",
     href: "/portal/crew",
     access: "Pilots, maintenance, aircraft managers, and external support users",
-    image: "/images/site/map-operations.jpg",
     actions: ["Assignment review", "Manifest context", "Aircraft readiness", "Document tracking"],
   },
   {
@@ -421,7 +419,6 @@ export const PORTAL_ROLES = [
     title: "Admin Portal",
     href: "/portal/admin",
     access: "AMG operations and administrators",
-    image: "/images/site/tbm.jpg",
     actions: ["Access review", "User permissions", "Support records", "Operational settings"],
   },
   {
@@ -429,7 +426,6 @@ export const PORTAL_ROLES = [
     title: "Partner Portal",
     href: "/portal/partner",
     access: "Approved aviation service partners and vendors",
-    image: "/images/jet-sky.png",
     actions: ["Vendor tasks", "Quote requests", "Service confirmations", "Partner documents"],
   },
 ] as const;

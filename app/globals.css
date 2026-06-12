@@ -216,6 +216,10 @@ html {
   transform: translateY(0);
 }
 
+.public-site {
+  --primary: oklch(0.48 0.18 258);
+}
+
 @media (max-width: 767px) {
   :root {
     --public-header-height: 68px;

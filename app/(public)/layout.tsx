@@ -7,7 +7,7 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="public-site flex min-h-screen flex-col bg-background">
       <a href="#main-content" className="skip-link">
         Skip to content
       </a>
