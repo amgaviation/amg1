@@ -233,11 +233,15 @@ export async function submitPublicSupportRequest(formData: FormData) {
   });
 
   await notifyAdmins({
-    title: "New public support request",
-    body: `${requesterName} submitted ${mission.ref} (${departure}-${arrival}).`,
+    title: `New public support request: ${mission.ref}`,
+    body: [
+      `${requesterName} submitted ${mission.ref} (${departure}-${arrival}).`,
+      clientNotes,
+    ].join("\n\n"),
     type: "public_support_request",
     entityType: "mission",
     entityId: mission.id,
+    replyTo: email,
   });
 
   redirect(`/contact?success=${encodeURIComponent(mission.ref)}&category=${encodeURIComponent(supportType)}`);
