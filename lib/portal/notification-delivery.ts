@@ -13,6 +13,7 @@ type QueueDeliveryInput = {
   notificationId?: string | null;
   title: string;
   body?: string | null;
+  html?: string | null;
   eventType?: string | null;
   channels?: DeliveryChannel[];
   replyTo?: string | null;
@@ -46,6 +47,17 @@ function defaultChannels(eventType?: string | null): DeliveryChannel[] {
 
 function emailText(title: string, body?: string | null) {
   return body ? `${title}\n\n${body}` : title;
+}
+
+function defaultEmailHtml(input: QueueDeliveryInput) {
+  return portalNotificationEmail({
+    title: input.title,
+    body: input.body,
+    eventType: input.eventType,
+    portalUrl: process.env.NEXT_PUBLIC_APP_URL
+      ? `${process.env.NEXT_PUBLIC_APP_URL}/portal`
+      : undefined,
+  });
 }
 
 /**
@@ -117,14 +129,7 @@ export async function queueNotificationDeliveries(
                 to: recipient,
                 subject: input.title,
                 text: emailText(input.title, input.body),
-                html: portalNotificationEmail({
-                  title: input.title,
-                  body: input.body,
-                  eventType: input.eventType,
-                  portalUrl: process.env.NEXT_PUBLIC_APP_URL
-                    ? `${process.env.NEXT_PUBLIC_APP_URL}/portal`
-                    : undefined,
-                }),
+                html: input.html ?? defaultEmailHtml(input),
                 replyTo: input.replyTo ?? undefined,
               })
             : await sendSms({
