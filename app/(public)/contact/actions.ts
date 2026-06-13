@@ -22,6 +22,15 @@ function routePart(route: string, index: number): string {
   return parts[index] || "TBD";
 }
 
+function formDataToRecord(formData: FormData) {
+  const output: Record<string, string> = {};
+  for (const [key, raw] of formData.entries()) {
+    if (key === "website") continue;
+    if (typeof raw === "string") output[key] = raw.trim();
+  }
+  return output;
+}
+
 const allowedCategories = new Set([
   "aircraft-management-support",
   "contract-pilot-support",
@@ -145,6 +154,7 @@ export async function submitPublicSupportRequest(formData: FormData) {
   const requesterName = `${firstName} ${lastName}`.trim();
   const email = value(formData, "email").toLowerCase();
   const phone = value(formData, "phone");
+  const preferredContact = value(formData, "preferred_contact_method") || "Not specified";
   const organization = value(formData, "company");
   const aircraftMake = value(formData, "aircraft_make");
   const aircraftModel = value(formData, "aircraft_model");
@@ -170,27 +180,31 @@ export async function submitPublicSupportRequest(formData: FormData) {
   const route = value(formData, "origin_destination") || [value(formData, "origin"), value(formData, "destination")].filter(Boolean).join(" to ");
   const departure = route ? routePart(route, 0) : routePart(aircraftBase, 0);
   const arrival = route ? routePart(route, 1) : "TBD";
-  const categoryDetails = detailFields
+  const categoryDetailPairs = detailFields
     .map((key) => {
       const fieldValue = value(formData, key);
-      return fieldValue ? `${labelize(key)}: ${fieldValue}` : null;
+      return fieldValue ? [key, fieldValue] as const : null;
     })
-    .filter(Boolean)
+    .filter((item): item is readonly [string, string] => Boolean(item));
+  const categoryDetailsRecord = Object.fromEntries(categoryDetailPairs);
+  const categoryDetails = categoryDetailPairs
+    .map(([key, fieldValue]) => `${labelize(key)}: ${fieldValue}`)
     .join("\n");
+
+  const { data: existingProfile } = await db
+    .from("profiles")
+    .select("id")
+    .ilike("email", email)
+    .maybeSingle();
+
   const clientNotes = [
-    `Public website support request`,
+    "Public website support request",
     `Requester: ${requesterName}`,
     `Email: ${email}`,
     `Phone: ${phone}`,
-    `Preferred contact: ${value(formData, "preferred_contact_method") || "Not specified"}`,
+    `Preferred contact: ${preferredContact}`,
     `Requested category: ${supportType}`,
     organization ? `Organization: ${organization}` : null,
-    aircraft ? `Aircraft: ${aircraft}` : null,
-    tailNumber ? `Tail: ${tailNumber}` : null,
-    aircraftBase ? `Aircraft base: ${aircraftBase}` : null,
-    timing ? `Timing: ${timing}` : null,
-    notes ? `Notes: ${notes}` : null,
-    categoryDetails ? `Category details:\n${categoryDetails}` : null,
   ]
     .filter(Boolean)
     .join("\n");
@@ -213,7 +227,7 @@ export async function submitPublicSupportRequest(formData: FormData) {
   const { data: mission, error } = await db
     .from("missions")
     .insert({
-      client_id: null,
+      client_id: existingProfile?.id ?? null,
       created_by: null,
       aircraft_id: null,
       tail_number: tailNumber || null,
@@ -247,6 +261,42 @@ export async function submitPublicSupportRequest(formData: FormData) {
     redirect(`/contact?error=failed&category=${encodeURIComponent(supportType)}`);
   }
 
+  const { error: publicRequestError } = await (db as any)
+    .from("public_support_requests")
+    .insert({
+      mission_id: mission.id,
+      client_id: existingProfile?.id ?? null,
+      first_name: firstName || null,
+      last_name: lastName || null,
+      requester_name: requesterName,
+      email,
+      phone: phone || null,
+      preferred_contact_method: preferredContact,
+      company_name: organization || null,
+      requested_service_category: supportType,
+      aircraft_make: aircraftMake || null,
+      aircraft_model: aircraftModel || null,
+      aircraft_display: aircraft || null,
+      tail_number: tailNumber || null,
+      aircraft_base: aircraftBase || null,
+      requested_timing: timing || null,
+      route: route || null,
+      departure_airport: departure || null,
+      arrival_airport: arrival || null,
+      operational_summary: notes || null,
+      category_details: categoryDetailsRecord,
+      raw_form: formDataToRecord(formData),
+      portal_account_status: existingProfile?.id ? "existing_account" : "not_created",
+      portal_account_user_id: existingProfile?.id ?? null,
+    });
+
+  if (publicRequestError) {
+    console.error("Public support request structured insert failed", {
+      ref: mission.ref,
+      error: publicRequestError,
+    });
+  }
+
   await db.from("audit_events").insert({
     actor_email: email,
     actor_role: "public",
@@ -261,13 +311,14 @@ export async function submitPublicSupportRequest(formData: FormData) {
     body: [
       `${requesterName} submitted ${mission.ref} (${departure}-${arrival}).`,
       clientNotes,
-    ].join("\n\n"),
+      categoryDetails ? `Category details:\n${categoryDetails}` : null,
+    ].filter(Boolean).join("\n\n"),
     html: publicSupportRequestAdminEmail({
       reference: mission.ref,
       requesterName,
       email,
       phone,
-      preferredContact: value(formData, "preferred_contact_method") || "Not specified",
+      preferredContact,
       requestedCategory: supportType,
       organization,
       aircraft,
