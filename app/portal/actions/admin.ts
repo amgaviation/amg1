@@ -24,6 +24,10 @@ function selectedPermissions(formData: FormData): string[] {
   return selected.filter((permission) => PORTAL_PERMISSIONS.includes(permission));
 }
 
+function allStrings(formData: FormData, key: string): string[] {
+  return formData.getAll(key).map((value) => String(value).trim());
+}
+
 // ─── User approvals & role management ───────────────────────────────
 export async function approveUser(formData: FormData) {
   const admin = await actor(["admin"]);
@@ -31,11 +35,10 @@ export async function approveUser(formData: FormData) {
   const userId = str(formData, "user_id");
 
   await db.from("profiles").update({ status: "approved", is_active: true }).eq("id", userId);
-  // Ensure the auth user can sign in even if email confirmation is enabled.
   try {
     await db.auth.admin.updateUserById(userId, { email_confirm: true });
   } catch {
-    // non-fatal — confirmation may already be handled
+    // non-fatal
   }
 
   await logAuditEvent({
@@ -59,7 +62,7 @@ export async function setUserStatus(formData: FormData) {
   const admin = await actor(["admin"]);
   const db = await createServiceClient();
   const userId = str(formData, "user_id");
-  const status = str(formData, "status"); // approved | suspended | pending
+  const status = str(formData, "status");
   await db
     .from("profiles")
     .update({ status, is_active: status === "approved" })
@@ -206,22 +209,25 @@ export async function assignCrew(formData: FormData) {
   const admin = await actor(["admin"]);
   const db = await createServiceClient();
   const missionId = str(formData, "mission_id");
-  const crewId = str(formData, "crew_id");
-  const role = str(formData, "crew_role") || "pic";
-  if (!missionId || !crewId) redirect(`/portal/admin/trips/${missionId}?error=missing`);
+  const crewIds = allStrings(formData, "crew_id[]").filter(Boolean);
+  const roles = allStrings(formData, "crew_role[]");
+  const notes = allStrings(formData, "duty_notes[]");
+
+  if (!missionId) redirect(`/portal/admin/trips/${missionId}?error=missing`);
+
+  const assignments = crewIds.map((crewId, index) => ({
+    mission_id: missionId,
+    crew_id: crewId,
+    crew_role: roles[index] || "pic",
+    status: "offered",
+    duty_notes: notes[index] || null,
+  }));
+
+  if (!assignments.length) redirect(`/portal/admin/trips/${missionId}?error=missing`);
 
   await db
     .from("mission_crew_assignments")
-    .upsert(
-      {
-        mission_id: missionId,
-        crew_id: crewId,
-        crew_role: role,
-        status: "offered",
-        duty_notes: str(formData, "duty_notes") || null,
-      },
-      { onConflict: "mission_id,crew_id" }
-    );
+    .upsert(assignments, { onConflict: "mission_id,crew_id" });
 
   const { data: mission } = await db
     .from("missions")
@@ -232,27 +238,31 @@ export async function assignCrew(formData: FormData) {
   await logAuditEvent({
     actor: admin,
     action: "crew_assigned",
-    detail: `Offered crew on ${mission?.ref ?? missionId}`,
+    detail: `Offered ${assignments.length} crew assignment(s) on ${mission?.ref ?? missionId}`,
     entityType: "mission",
     entityId: missionId,
   });
-  await notifyUser({
-    userId: crewId,
-    title: "New mission offer",
-    body: `You have been offered ${mission?.ref ?? "a mission"}.`,
-    type: "crew_offer",
-    entityType: "mission",
-    entityId: missionId,
-  });
+
+  for (const assignment of assignments) {
+    await notifyUser({
+      userId: assignment.crew_id,
+      title: "New mission offer",
+      body: `You have been offered ${mission?.ref ?? "a mission"}.`,
+      type: "crew_offer",
+      entityType: "mission",
+      entityId: missionId,
+    });
+  }
+
   await notifyMissionContactByEmail({
     missionId,
     title: "Crew assignment is in progress",
     eventLabel: "Crew Assignment",
     intro:
-      "AMG Operations has started the crew assignment process for your request. The assigned crew member has been offered the mission and AMG will continue coordinating availability and operational readiness.",
+      "AMG Operations has started the crew assignment process for your request. Crew members have been offered the mission and AMG will continue coordinating availability and operational readiness.",
     details: [
-      { label: "Crew Assignment Status", value: "Offer sent" },
-      { label: "Crew Role", value: role.toUpperCase() },
+      { label: "Crew Offers Sent", value: assignments.length },
+      { label: "Crew Roles", value: assignments.map((item) => item.crew_role.toUpperCase()).join(", ") },
     ],
   });
   revalidatePath(`/portal/admin/trips/${missionId}`);
@@ -393,7 +403,7 @@ export async function reviewDocument(formData: FormData) {
   const admin = await actor(["admin"]);
   const db = await createServiceClient();
   const docId = str(formData, "document_id");
-  const decision = str(formData, "decision"); // approved | rejected
+  const decision = str(formData, "decision");
   await db
     .from("documents")
     .update({
@@ -402,7 +412,6 @@ export async function reviewDocument(formData: FormData) {
       reviewed_by: admin.id,
     })
     .eq("id", docId);
-  // Mirror onto any linked credential
   await db
     .from("crew_credentials")
     .update({ status: decision === "approved" ? "approved" : "rejected", reviewed_by: admin.id })
@@ -423,7 +432,7 @@ export async function reviewExpense(formData: FormData) {
   const admin = await actor(["admin"]);
   const db = await createServiceClient();
   const expenseId = str(formData, "expense_id");
-  const status = str(formData, "status"); // approved | rejected | paid
+  const status = str(formData, "status");
   const { data: expense } = await db
     .from("expenses")
     .update({
