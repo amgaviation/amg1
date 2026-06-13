@@ -61,6 +61,19 @@ export type PortalNotificationEmailInput = {
   portalUrl?: string | null;
 };
 
+const brand = {
+  midnight: "#050B14",
+  deepBlue: "#07111F",
+  accentBlue: "#3B82F6",
+  skyBlue: "#38BDF8",
+  slateGray: "#9CA3AF",
+  lightGray: "#C0C7D1",
+  white: "#FFFFFF",
+  cardBorder: "#1E2A3C",
+  softBlue: "#EFF6FF",
+  offWhite: "#F8FAFC",
+};
+
 function escapeHtml(value?: string | number | null) {
   return String(value ?? "")
     .replace(/&/g, "&amp;")
@@ -74,14 +87,23 @@ function formatMultiline(value?: string | null) {
   return escapeHtml(value).replace(/\n/g, "<br />");
 }
 
+function absoluteAppUrl() {
+  return process.env.NEXT_PUBLIC_APP_URL?.replace(/\/+$/, "") || null;
+}
+
+function logoUrl() {
+  const appUrl = absoluteAppUrl();
+  return appUrl ? `${appUrl}/images/logo-white.png` : null;
+}
+
 function row(label: string, value?: string | number | null) {
   if (value === undefined || value === null || value === "") return "";
   return `
     <tr>
-      <td style="padding: 10px 0; color: #7a746a; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; vertical-align: top; width: 170px;">
+      <td style="padding: 11px 0; color: ${brand.slateGray}; font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.11em; vertical-align: top; width: 176px; border-bottom: 1px solid #E5E7EB;">
         ${escapeHtml(label)}
       </td>
-      <td style="padding: 10px 0; color: #1e1c18; font-size: 14px; line-height: 1.5; vertical-align: top;">
+      <td style="padding: 11px 0; color: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.55; vertical-align: top; border-bottom: 1px solid #E5E7EB;">
         ${formatMultiline(String(value))}
       </td>
     </tr>
@@ -90,6 +112,7 @@ function row(label: string, value?: string | number | null) {
 
 export function amgEmailLayout(input: BaseEmailTemplateInput) {
   const previewText = input.previewText || input.title;
+  const logo = logoUrl();
 
   const sectionsHtml = (input.sections ?? [])
     .map((section) => {
@@ -98,24 +121,24 @@ export function amgEmailLayout(input: BaseEmailTemplateInput) {
         .join("");
 
       const bodyHtml = section.body
-        ? `<p style="margin: 0; color: #2d2a24; font-size: 14px; line-height: 1.65;">${formatMultiline(section.body)}</p>`
+        ? `<p style="margin: 0; color: #1F2937; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.7;">${formatMultiline(section.body)}</p>`
         : "";
 
       return `
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top: 22px; border-top: 1px solid #e8e2d7;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top: 24px; border: 1px solid #E5E7EB; border-radius: 14px; overflow: hidden; background: #FFFFFF;">
           ${
             section.title
               ? `<tr>
-                  <td colspan="2" style="padding-top: 18px; padding-bottom: 6px;">
-                    <h2 style="margin: 0; color: #1e1c18; font-size: 13px; line-height: 1.4; text-transform: uppercase; letter-spacing: 0.12em;">
+                  <td colspan="2" style="padding: 15px 18px; background: ${brand.offWhite}; border-bottom: 1px solid #E5E7EB;">
+                    <h2 style="margin: 0; color: ${brand.deepBlue}; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.4; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em;">
                       ${escapeHtml(section.title)}
                     </h2>
                   </td>
                 </tr>`
               : ""
           }
-          ${bodyHtml ? `<tr><td colspan="2" style="padding-top: 10px;">${bodyHtml}</td></tr>` : ""}
-          ${rowsHtml ?? ""}
+          ${bodyHtml ? `<tr><td colspan="2" style="padding: 18px;">${bodyHtml}</td></tr>` : ""}
+          ${rowsHtml ? `<tr><td colspan="2" style="padding: 0 18px 6px;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0">${rowsHtml}</table></td></tr>` : ""}
         </table>
       `;
     })
@@ -125,8 +148,8 @@ export function amgEmailLayout(input: BaseEmailTemplateInput) {
     ? `
       <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top: 28px;">
         <tr>
-          <td style="border-radius: 999px; background: #1e1c18;">
-            <a href="${escapeHtml(input.cta.href)}" style="display: inline-block; padding: 13px 20px; color: #ffffff; font-size: 13px; font-weight: 600; text-decoration: none; letter-spacing: 0.04em;">
+          <td style="border-radius: 999px; background: ${brand.accentBlue};">
+            <a href="${escapeHtml(input.cta.href)}" style="display: inline-block; padding: 13px 22px; color: ${brand.white}; font-family: Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 800; text-decoration: none; letter-spacing: 0.04em;">
               ${escapeHtml(input.cta.label)}
             </a>
           </td>
@@ -134,6 +157,10 @@ export function amgEmailLayout(input: BaseEmailTemplateInput) {
       </table>
     `
     : "";
+
+  const logoHtml = logo
+    ? `<img src="${escapeHtml(logo)}" width="190" alt="AMG Aviation Group" style="display: block; width: 190px; max-width: 78%; height: auto; border: 0; outline: none; text-decoration: none;" />`
+    : `<div style="color: ${brand.white}; font-family: Arial, Helvetica, sans-serif; font-size: 20px; line-height: 1.2; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase;">AMG Aviation Group</div>`;
 
   return `<!doctype html>
 <html lang="en">
@@ -143,28 +170,29 @@ export function amgEmailLayout(input: BaseEmailTemplateInput) {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${escapeHtml(input.title)}</title>
   </head>
-  <body style="margin: 0; padding: 0; background: #f5f1ea;">
+  <body style="margin: 0; padding: 0; background: ${brand.midnight};">
     <div style="display: none; overflow: hidden; line-height: 1px; opacity: 0; max-height: 0; max-width: 0;">
       ${escapeHtml(previewText)}
     </div>
 
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: #f5f1ea; padding: 32px 12px;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: ${brand.midnight}; padding: 34px 12px;">
       <tr>
         <td align="center">
-          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 680px; background: #ffffff; border: 1px solid #e6ded2; border-radius: 20px; overflow: hidden;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 700px; background: ${brand.white}; border: 1px solid ${brand.cardBorder}; border-radius: 22px; overflow: hidden; box-shadow: 0 18px 55px rgba(0,0,0,0.28);">
             <tr>
-              <td style="padding: 26px 30px; background: #171614;">
-                <div style="color: #d6c3a1; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;">
-                  AMG Aviation Group
-                </div>
-                <div style="margin-top: 8px; color: #ffffff; font-size: 22px; line-height: 1.25; font-weight: 600;">
+              <td style="padding: 28px 32px 30px; background: ${brand.deepBlue}; border-bottom: 4px solid ${brand.accentBlue};">
+                ${logoHtml}
+                <div style="margin-top: 22px; color: ${brand.skyBlue}; font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase;">
                   ${escapeHtml(input.eyebrow || "Operational Notification")}
+                </div>
+                <div style="margin-top: 8px; color: ${brand.white}; font-family: Arial, Helvetica, sans-serif; font-size: 24px; line-height: 1.25; font-weight: 800;">
+                  ${escapeHtml(input.title)}
                 </div>
               </td>
             </tr>
 
             <tr>
-              <td style="padding: 32px 30px 34px;">
+              <td style="padding: 32px 32px 36px; background: ${brand.white};">
                 ${
                   input.status || input.reference
                     ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 22px;">
@@ -172,14 +200,14 @@ export function amgEmailLayout(input: BaseEmailTemplateInput) {
                           <td>
                             ${
                               input.reference
-                                ? `<span style="display: inline-block; margin-right: 8px; padding: 7px 10px; border-radius: 999px; background: #f3eadb; color: #4f4028; font-size: 12px; font-weight: 600;">
+                                ? `<span style="display: inline-block; margin-right: 8px; margin-bottom: 8px; padding: 8px 11px; border-radius: 999px; background: ${brand.softBlue}; color: ${brand.accentBlue}; font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 800;">
                                     Ref ${escapeHtml(input.reference)}
                                   </span>`
                                 : ""
                             }
                             ${
                               input.status
-                                ? `<span style="display: inline-block; padding: 7px 10px; border-radius: 999px; background: #f7f4ef; color: #5f5a51; font-size: 12px; font-weight: 600;">
+                                ? `<span style="display: inline-block; margin-bottom: 8px; padding: 8px 11px; border-radius: 999px; background: ${brand.deepBlue}; color: ${brand.white}; font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 800;">
                                     ${escapeHtml(input.status)}
                                   </span>`
                                 : ""
@@ -190,13 +218,13 @@ export function amgEmailLayout(input: BaseEmailTemplateInput) {
                     : ""
                 }
 
-                <h1 style="margin: 0; color: #1e1c18; font-size: 24px; line-height: 1.25; font-weight: 650;">
+                <h1 style="margin: 0; color: ${brand.midnight}; font-family: Arial, Helvetica, sans-serif; font-size: 24px; line-height: 1.26; font-weight: 800;">
                   ${escapeHtml(input.title)}
                 </h1>
 
                 ${
                   input.intro
-                    ? `<p style="margin: 14px 0 0; color: #5f5a51; font-size: 15px; line-height: 1.65;">
+                    ? `<p style="margin: 14px 0 0; color: #374151; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 1.7;">
                         ${formatMultiline(input.intro)}
                       </p>`
                     : ""
@@ -207,7 +235,7 @@ export function amgEmailLayout(input: BaseEmailTemplateInput) {
 
                 ${
                   input.footerNote
-                    ? `<p style="margin: 28px 0 0; padding-top: 18px; border-top: 1px solid #eee7dc; color: #7a746a; font-size: 12px; line-height: 1.6;">
+                    ? `<p style="margin: 28px 0 0; padding-top: 18px; border-top: 1px solid #E5E7EB; color: #4B5563; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.65;">
                         ${formatMultiline(input.footerNote)}
                       </p>`
                     : ""
@@ -216,19 +244,21 @@ export function amgEmailLayout(input: BaseEmailTemplateInput) {
             </tr>
 
             <tr>
-              <td style="padding: 22px 30px; background: #fbf8f3; border-top: 1px solid #e8e2d7;">
-                <p style="margin: 0; color: #7a746a; font-size: 12px; line-height: 1.6;">
-                  AMG Aviation Group LLC<br />
+              <td style="padding: 24px 32px; background: ${brand.deepBlue}; border-top: 1px solid ${brand.cardBorder};">
+                <p style="margin: 0; color: ${brand.white}; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.65; font-weight: 700;">
+                  AMG Aviation Group LLC
+                </p>
+                <p style="margin: 6px 0 0; color: ${brand.lightGray}; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.65;">
                   Operational support, crew coordination, aircraft movement, and flight department support.
                 </p>
-                <p style="margin: 12px 0 0; color: #9a9285; font-size: 11px; line-height: 1.6;">
+                <p style="margin: 12px 0 0; color: ${brand.slateGray}; font-family: Arial, Helvetica, sans-serif; font-size: 11px; line-height: 1.65;">
                   This message may contain operationally sensitive information. If you received it in error, delete it and notify AMG Aviation Group.
                 </p>
               </td>
             </tr>
           </table>
 
-          <p style="margin: 18px 0 0; color: #9a9285; font-size: 11px;">
+          <p style="margin: 18px 0 0; color: ${brand.slateGray}; font-family: Arial, Helvetica, sans-serif; font-size: 11px;">
             © ${new Date().getFullYear()} AMG Aviation Group LLC
           </p>
         </td>
@@ -307,6 +337,11 @@ export function publicSupportRequestClientConfirmationEmail(input: ClientConfirm
           { label: "Requested Timing", value: input.timing || "Not specified" },
           { label: "Reference", value: input.reference },
         ],
+      },
+      {
+        title: "Next Steps",
+        body:
+          "AMG Operations will review the aircraft, requested timing, service category, and support scope submitted. If additional information is needed, AMG will contact you using your preferred contact method. Availability, scope, and any operational next actions will be confirmed before any mission, crew assignment, aircraft movement, or operational support is accepted.",
       },
     ],
     cta: input.portalUrl
