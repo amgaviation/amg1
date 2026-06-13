@@ -32,6 +32,10 @@ Branch: `feat/billing-workflow-refinement`
   - Preview PDF
   - Send / Resend PDF
   - locked paid/void/written-off invoices from resend actions
+- Added invoice revision draft creation for unpaid/non-locked invoices:
+  - clones invoice and line items into a new draft
+  - links with `revised_from_invoice_id`
+  - marks the prior invoice as void/superseded
 - Direct invoice status update to `paid` is blocked; payment recording is required.
 - Payment recording supports:
   - amount
@@ -100,9 +104,7 @@ This migration adds:
 ## Incomplete / Still Risky
 
 - Quote revision workflow now creates a draft clone, but still needs richer version history UI and client-facing revision threading.
-- Full invoice revision/credit/refund workflow is not implemented yet.
-  - Schema placeholders exist.
-  - Paid/void/written-off edits are guarded in payment/status flow, but full credit memo UI is pending.
+- Invoice revisions exist for unpaid/non-locked invoices; paid invoice credit/refund workflows are still pending.
 - Invoice draft edit page exists for draft/ready-to-send invoices; sent/paid invoice adjustment and credit memo flows are still pending.
 - Quote PDF layout controls are stored but only partially reflected in the PDF renderer.
 - Invoice PDF layout controls are stored/copied from quote but only partially reflected in the PDF renderer.
@@ -114,8 +116,8 @@ This migration adds:
 
 ## Next Steps
 
-1. Add invoice revision/adjustment placeholder action and UI.
-2. Add Billing Settings sample quote/invoice/receipt PDF previews.
-3. Add quote template management and prefill support.
-4. Expand PDF renderer to honor all presentation flags.
+1. Add Billing Settings sample quote/invoice/receipt PDF previews.
+2. Add quote template management and prefill support.
+3. Expand PDF renderer to honor all presentation flags.
+4. Add paid-invoice credit/refund workflows.
 5. Add payment/receipt detail views if AMG needs deeper ledger drill-down.

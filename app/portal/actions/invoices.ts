@@ -248,6 +248,86 @@ export async function updateInvoiceDraft(formData: FormData) {
   redirect(`/portal/admin/invoices/${invoiceId}?success=updated`);
 }
 
+export async function createInvoiceRevision(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const billingDb = db as any;
+  const invoiceId = str(formData, "invoice_id");
+  if (!invoiceId) redirect("/portal/admin/invoices?error=missing");
+
+  const { data: invoice } = await billingDb.from("invoices").select("*").eq("id", invoiceId).maybeSingle();
+  if (!invoice) redirect("/portal/admin/invoices?error=missing");
+  if (["paid", "void", "written_off"].includes(invoice.status)) {
+    redirect(`/portal/admin/invoices/${invoiceId}?error=locked`);
+  }
+
+  const { data: items } = await billingDb
+    .from("invoice_line_items")
+    .select("*")
+    .eq("invoice_id", invoiceId)
+    .order("sort_order");
+  const invoiceNumber = await nextBillingDocumentNumber("invoice");
+  const {
+    id: _id,
+    invoice_number: _invoiceNumber,
+    status: _status,
+    created_at: _createdAt,
+    updated_at: _updatedAt,
+    sent_at: _sentAt,
+    paid_at: _paidAt,
+    superseded_by_invoice_id: _supersededByInvoiceId,
+    pdf_document_id: _pdfDocumentId,
+    amount_paid: _amountPaid,
+    ...copyable
+  } = invoice;
+
+  const { data: revision, error } = await billingDb
+    .from("invoices")
+    .insert({
+      ...copyable,
+      invoice_number: invoiceNumber,
+      status: "draft",
+      created_by: admin.id,
+      revised_from_invoice_id: invoice.id,
+      superseded_by_invoice_id: null,
+      revision_reason: str(formData, "revision_reason") || "Revision created from admin portal",
+      version_number: Number(invoice.version_number ?? 1) + 1,
+      sent_at: null,
+      paid_at: null,
+      pdf_document_id: null,
+      amount_paid: 0,
+      amount_due: invoice.total ?? 0,
+    })
+    .select("id, invoice_number")
+    .single();
+  if (error || !revision) redirect(`/portal/admin/invoices/${invoiceId}?error=revision`);
+
+  if (items?.length) {
+    await billingDb.from("invoice_line_items").insert(
+      items.map(({ id, invoice_id, created_at, ...item }: any) => ({
+        ...item,
+        invoice_id: revision.id,
+      })),
+    );
+  }
+
+  await billingDb
+    .from("invoices")
+    .update({ superseded_by_invoice_id: revision.id, status: "void" })
+    .eq("id", invoiceId);
+  await logAuditEvent({
+    actor: admin,
+    action: "invoice_revision_created",
+    detail: `Created ${revision.invoice_number} from ${invoice.invoice_number}`,
+    entityType: "invoice",
+    entityId: revision.id,
+  });
+  revalidatePath(`/portal/admin/invoices/${invoiceId}`);
+  revalidatePath(`/portal/admin/invoices/${revision.id}`);
+  revalidatePath("/portal/admin/invoices");
+  redirect(`/portal/admin/invoices/${revision.id}/edit?success=revision`);
+}
+
 export async function previewInvoicePdf(formData: FormData) {
   const admin = await actor(["admin"]);
   const invoiceId = str(formData, "invoice_id");

@@ -7,7 +7,7 @@ import { DetailRow, Notice, PageHeader, SectionCard, Timeline } from "@/componen
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
-import { previewInvoicePdf, recordInvoicePayment, sendInvoicePdf, updateInvoiceStatus } from "@/app/portal/actions/invoices";
+import { createInvoiceRevision, previewInvoicePdf, recordInvoicePayment, sendInvoicePdf, updateInvoiceStatus } from "@/app/portal/actions/invoices";
 import { getInvoiceDetail } from "@/lib/portal/queries";
 import { INVOICE_STATUS, INVOICE_STATUS_LABEL, INVOICE_STATUS_TONE, PAYMENT_METHODS, toneFor } from "@/lib/portal/constants";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/portal/format";
@@ -32,6 +32,7 @@ export default async function AdminInvoiceDetailPage({
   );
   const editableInvoice = ["draft", "ready_to_send"].includes(invoice.status);
   const lockedInvoice = ["paid", "void", "written_off"].includes(invoice.status);
+  const canRevise = !editableInvoice && !lockedInvoice;
   const activityItems = [
     ...invoice.documents.map((document) => ({
       at: document.created_at,
@@ -72,6 +73,7 @@ export default async function AdminInvoiceDetailPage({
       {flash.error === "duplicate" ? <Notice tone="danger">This quote already has an active invoice.</Notice> : null}
       {flash.error === "payment-required" ? <Notice tone="danger">Record a payment to mark this invoice paid.</Notice> : null}
       {flash.error === "locked" ? <Notice tone="danger">This invoice is locked because it is paid, void, or written off.</Notice> : null}
+      {flash.error === "revision" ? <Notice tone="danger">An invoice revision could not be created.</Notice> : null}
       <PageHeader
         eyebrow="Invoice"
         title={invoice.invoice_number}
@@ -176,6 +178,13 @@ export default async function AdminInvoiceDetailPage({
                 <form action={sendInvoicePdf}>
                   <input type="hidden" name="invoice_id" value={invoice.id} />
                   <SubmitButton className="w-full rounded-full" pendingText="Sending...">Send / Resend PDF</SubmitButton>
+                </form>
+              ) : null}
+              {canRevise ? (
+                <form action={createInvoiceRevision} className="space-y-3 rounded-md border border-border p-3">
+                  <input type="hidden" name="invoice_id" value={invoice.id} />
+                  <TextAreaField label="Revision Reason" name="revision_reason" placeholder="Updated services, corrected vendor cost, changed tax, or adjusted billing details..." />
+                  <SubmitButton className="w-full rounded-full" pendingText="Creating...">Create Revision Draft</SubmitButton>
                 </form>
               ) : null}
             </div>
