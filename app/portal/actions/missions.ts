@@ -213,6 +213,15 @@ export async function cancelMission(formData: FormData) {
     entityType: "mission",
     entityId: missionId,
   });
+  if (user.role === "admin") {
+    await notifyMissionContactByEmail({
+      missionId,
+      title: "Mission status updated",
+      eventLabel: "Cancelled",
+      intro: `${mission.ref} has been marked cancelled by AMG Operations. If this does not match your understanding, contact AMG Aviation Group directly.`,
+      details: [{ label: "New Status", value: "Cancelled" }],
+    });
+  }
 
   revalidatePath("/portal/client/trips");
   revalidatePath("/portal/admin/mission-control");
