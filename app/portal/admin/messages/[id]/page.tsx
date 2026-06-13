@@ -5,15 +5,19 @@ import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { postMessage } from "@/app/portal/actions/messages";
-import { getThreadWithMessages } from "@/lib/portal/queries";
 import { formatDateTime, initials } from "@/lib/portal/format";
+import {
+  getThreadWithMessagesForDisplay,
+  messageSenderInitialsSource,
+  messageSenderName,
+} from "@/lib/portal/message-display";
 
 export const metadata = { title: "Message Thread - Admin Portal" };
 
 export default async function AdminMessageThreadPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireRole("admin");
   const { id } = await params;
-  const result = await getThreadWithMessages(id);
+  const result = await getThreadWithMessagesForDisplay(id);
   if (!result) notFound();
 
   const { thread, messages } = result;
@@ -34,15 +38,15 @@ export default async function AdminMessageThreadPage({ params }: { params: Promi
         <div className="space-y-4">
           {messages.map((message) => {
             const isMe = message.sender_id === user.id;
-            const senderName = message.sender?.full_name ?? message.sender?.email ?? message.sender_email;
+            const senderLabel = messageSenderName(message, user.id, user.role);
             return (
               <div key={message.id} className={`flex gap-3 ${isMe ? "flex-row-reverse" : ""}`}>
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-secondary text-xs font-bold">
-                  {initials(senderName)}
+                  {initials(messageSenderInitialsSource(message))}
                 </div>
                 <div className={`max-w-[75%] rounded-xl border px-4 py-3 ${isMe ? "border-accent/30 bg-accent/10" : "border-border bg-card"}`}>
                   <p className="mb-1 text-xs font-semibold text-muted-foreground">
-                    {isMe ? "You" : senderName}
+                    {senderLabel}
                   </p>
                   <p className="whitespace-pre-wrap text-sm leading-6">{message.body}</p>
                   <p className="mt-1 text-[0.65rem] text-muted-foreground">{formatDateTime(message.created_at)}</p>
