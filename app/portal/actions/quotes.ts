@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent, notifyAdmins, notifyUser } from "@/lib/portal/audit";
+import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
 import { actor, str } from "./_helpers";
 
 export async function createQuote(formData: FormData) {
@@ -73,6 +74,20 @@ export async function createQuote(formData: FormData) {
       type: "quote_sent",
       entityType: "quote",
       entityId: quote?.id ?? null,
+    });
+  }
+  if (quote) {
+    await notifyMissionContactByEmail({
+      missionId,
+      title: "Quote ready for review",
+      eventLabel: "Quote Sent",
+      subject: `AMG Aviation Group quote ${quote.ref} is ready`,
+      intro:
+        "AMG Aviation Group has prepared a quote for your request. Please review the quote details and contact AMG Operations with any questions or required changes.",
+      details: [
+        { label: "Quote Reference", value: quote.ref },
+        { label: "Quote Total", value: `$${total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
+      ],
     });
   }
   revalidatePath(`/portal/admin/trips/${missionId}`);
