@@ -1,18 +1,23 @@
 import { requireRole } from "@/lib/portal/session";
+import { updateBillingContact } from "@/app/portal/actions/profiles";
 import { AccountSecurityForm } from "@/components/portal/account-security-form";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
+import { TextField } from "@/components/portal/ui/fields";
 import { PageHeader, SectionCard, DetailRow, Notice } from "@/components/portal/ui/primitives";
 import { RoleBadge } from "@/components/portal/ui/status-badge";
+import { SubmitButton } from "@/components/portal/ui/submit-button";
+import { getProfile } from "@/lib/portal/queries";
 
 export const metadata = { title: "Settings — Client Portal" };
 
 export default async function ClientSettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ success?: string; accountSuccess?: string; accountError?: string }>;
+  searchParams: Promise<{ success?: string; error?: string; accountSuccess?: string; accountError?: string }>;
 }) {
   const user = await requireRole("client");
   const params = await searchParams;
+  const profile = await getProfile(user.id);
   const accountErrorMessage =
     params.accountError === "missing-email"
       ? "Enter an email address."
@@ -28,7 +33,9 @@ export default async function ClientSettingsPage({
 
   return (
     <PortalShell role="client" user={user}>
-      {params.success ? <Notice tone="success">Profile updated.</Notice> : null}
+      {params.success && params.success !== "billing-contact" ? <Notice tone="success">Profile updated.</Notice> : null}
+      {params.success === "billing-contact" ? <Notice tone="success">Billing contact updated.</Notice> : null}
+      {params.error === "billing-contact" ? <Notice tone="danger">Billing contact could not be saved.</Notice> : null}
       {params.accountSuccess === "email" ? <Notice tone="success">Email change saved. Check your inbox if confirmation is required.</Notice> : null}
       {params.accountSuccess === "password" ? <Notice tone="success">Password updated for this portal account.</Notice> : null}
       {accountErrorMessage ? <Notice tone="danger">{accountErrorMessage}</Notice> : null}
@@ -48,6 +55,20 @@ export default async function ClientSettingsPage({
           To update your account details, contact AMG Operations at{" "}
           <a href="mailto:ops@amgaviation.com" className="text-accent hover:underline">ops@amgaviation.com</a>.
         </p>
+      </SectionCard>
+
+      <SectionCard title="Billing Contact" icon="wallet">
+        <form action={updateBillingContact} className="grid gap-4 md:grid-cols-2">
+          <input type="hidden" name="profile_id" value={user.id} />
+          <input type="hidden" name="back_to" value="/portal/client/settings" />
+          <TextField label="Billing Contact Name" name="billing_contact_name" defaultValue={(profile as any)?.billing_contact_name ?? ""} />
+          <TextField label="Billing Contact Email" name="billing_contact_email" type="email" defaultValue={(profile as any)?.billing_contact_email ?? ""} />
+          <TextField label="Billing Contact Phone" name="billing_contact_phone" defaultValue={(profile as any)?.billing_contact_phone ?? ""} />
+          <TextField label="Billing CC Emails" name="billing_cc_emails" defaultValue={((profile as any)?.billing_cc_emails ?? []).join(", ")} />
+          <div className="md:col-span-2">
+            <SubmitButton className="rounded-full" pendingText="Saving...">Save Billing Contact</SubmitButton>
+          </div>
+        </form>
       </SectionCard>
       <AccountSecurityForm email={user.email} backTo="/portal/client/settings" />
     </PortalShell>

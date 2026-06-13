@@ -513,6 +513,12 @@ export async function listClients(): Promise<Profile[]> {
   return data ?? [];
 }
 
+export async function getProfile(id: string): Promise<Profile | null> {
+  const db = await createServiceClient();
+  const { data } = await db.from("profiles").select("*").eq("id", id).maybeSingle();
+  return data ?? null;
+}
+
 export async function listPendingUsers(): Promise<Profile[]> {
   const db = await createServiceClient();
   const { data } = await db

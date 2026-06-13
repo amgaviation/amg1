@@ -48,6 +48,10 @@ Branch: `feat/billing-workflow-refinement`
 - Extended email sending to support CC recipients.
 - Extended billing email recipient selection to use recipient override, billing contact email, manual email, then client email.
 - Extended PDF data builders to suppress client-hidden line items and use billing/manual recipient context.
+- Added billing contact management:
+  - client settings form for billing contact name/email/phone and CC emails
+  - admin client directory inline billing delivery editor
+  - shared billing contact update action with audit logging
 
 ## Migrations Added
 
@@ -98,7 +102,7 @@ This migration adds:
 - Invoice PDF layout controls are stored/copied from quote but only partially reflected in the PDF renderer.
 - Sample PDF preview buttons in Billing Settings are still pending.
 - Quote templates data model exists, but template management/prefill UI is pending.
-- Billing contacts are supported in delivery lookup, but profile/client UI for editing billing contact fields is pending.
+- Billing contacts are supported in delivery lookup and can be edited from client settings or the admin client directory.
 - Receipt resend action from receipt ledger is still pending.
 - Activity timeline is represented by document/payment ledgers and audit events, but no unified timeline component has been added to quote/invoice detail pages yet.
 
@@ -109,5 +113,4 @@ This migration adds:
 3. Add Billing Settings sample quote/invoice/receipt PDF previews.
 4. Add quote template management and prefill support.
 5. Expand PDF renderer to honor all presentation flags.
-6. Add billing contact fields to client/admin profile forms.
-7. Add unified activity timeline on quote/invoice/payment detail pages.
+6. Add unified activity timeline on quote/invoice/payment detail pages.
