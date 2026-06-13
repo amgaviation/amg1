@@ -7,7 +7,7 @@ export function ProcessTimeline() {
       <div className="absolute inset-y-0 left-0 hidden w-[42vw] opacity-25 lg:block" data-parallax="0.06" aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/images/site/map-operations.jpg" alt="" className="h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/72 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
       </div>
       <div className="mx-auto grid max-w-7xl gap-16 px-6 lg:grid-cols-[0.72fr_1.28fr] lg:px-10">
         <Reveal className="lg:sticky lg:top-28 lg:self-start" data-scroll-animate>
@@ -21,11 +21,17 @@ export function ProcessTimeline() {
           </p>
         </Reveal>
 
-        <RevealGroup className="grid gap-4" data-scroll-animate>
+        <RevealGroup className="relative grid gap-5" data-process-track>
+          <div
+            className="section-progress-rail absolute left-[2.15rem] top-8 hidden h-[calc(100%-4rem)] w-px bg-white/10 md:block"
+            aria-hidden="true"
+          >
+            <span className="section-progress-line" data-progress-rail />
+          </div>
           {HOW_AMG_WORKS.map((item) => (
             <RevealItem key={item.step}>
-              <article className="glass-panel grid gap-6 rounded-lg p-7 md:grid-cols-[110px_1fr] lg:p-10">
-                <p className="font-display text-6xl font-extrabold leading-none text-accent/70">
+              <article className="process-card glass-panel grid gap-6 rounded-lg p-7 md:grid-cols-[110px_1fr] lg:p-10" data-process-step>
+                <p className="relative z-10 font-display text-6xl font-extrabold leading-none text-accent/70" data-step-marker>
                   {item.step}
                 </p>
                 <div>

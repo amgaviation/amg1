@@ -23,6 +23,7 @@ export function InteractionLayer() {
     let currentX = targetX;
     let currentY = targetY;
     let lastScroll = window.scrollY;
+    let playbackReset: number | undefined;
 
     const updateScrollVars = (next: number, velocity: number) => {
       document.documentElement.style.setProperty("--scroll-depth", String(next));
@@ -41,6 +42,16 @@ export function InteractionLayer() {
 
       lenis.on("scroll", ({ scroll, velocity }: { scroll: number; velocity: number }) => {
         updateScrollVars(scroll, velocity * 24);
+        const nextRate = Math.max(0.86, Math.min(1.18, 1 + Math.abs(velocity) * 0.018));
+        document.querySelectorAll<HTMLVideoElement>("[data-scroll-video]").forEach((video) => {
+          video.playbackRate = nextRate;
+        });
+        if (playbackReset) window.clearTimeout(playbackReset);
+        playbackReset = window.setTimeout(() => {
+          document.querySelectorAll<HTMLVideoElement>("[data-scroll-video]").forEach((video) => {
+            video.playbackRate = 1;
+          });
+        }, 160);
         ScrollTrigger.update();
       });
 
@@ -62,6 +73,68 @@ export function InteractionLayer() {
               },
             }
           );
+        });
+
+        gsap.utils.toArray<HTMLElement>("[data-stagger-container]").forEach((container) => {
+          const items = gsap.utils.toArray<HTMLElement>("[data-stagger-item]", container);
+          if (!items.length) return;
+
+          gsap.fromTo(
+            items,
+            { autoAlpha: 0, y: 42, scale: 0.985 },
+            {
+              autoAlpha: 1,
+              y: 0,
+              scale: 1,
+              duration: 0.9,
+              ease: "power3.out",
+              stagger: 0.09,
+              scrollTrigger: {
+                trigger: container,
+                start: "top 84%",
+                toggleActions: "play none none reverse",
+              },
+            }
+          );
+        });
+
+        gsap.utils.toArray<HTMLElement>("[data-progress-rail]").forEach((line) => {
+          gsap.fromTo(
+            line,
+            { scaleY: 0, transformOrigin: "top center" },
+            {
+              scaleY: 1,
+              ease: "none",
+              scrollTrigger: {
+                trigger: line.closest("[data-process-track]") ?? line,
+                start: "top 72%",
+                end: "bottom 54%",
+                scrub: true,
+              },
+            }
+          );
+        });
+
+        gsap.utils.toArray<HTMLElement>("[data-process-step]").forEach((element, index) => {
+          const marker = element.querySelector<HTMLElement>("[data-step-marker]");
+          const timeline = gsap.timeline({
+            scrollTrigger: {
+              trigger: element,
+              start: "top 82%",
+              end: "top 42%",
+              scrub: true,
+            },
+          });
+
+          timeline.fromTo(
+            element,
+            { autoAlpha: 0.42, y: index % 2 === 0 ? 42 : 58, scale: 0.965 },
+            { autoAlpha: 1, y: 0, scale: 1, duration: 1, ease: "power3.out" }
+          );
+
+          if (marker) {
+            timeline.fromTo(marker, { scale: 0.78 }, { scale: 1, duration: 0.8, ease: "power3.out" }, 0);
+          }
         });
 
         gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((element) => {
@@ -116,6 +189,7 @@ export function InteractionLayer() {
 
     if (!finePointer || reduceMotion) {
       return () => {
+        if (playbackReset) window.clearTimeout(playbackReset);
         lenis?.destroy();
         animationContext?.revert();
         window.cancelAnimationFrame(raf);
@@ -146,6 +220,7 @@ export function InteractionLayer() {
 
     return () => {
       document.documentElement.classList.remove("amg-cursor-active");
+      if (playbackReset) window.clearTimeout(playbackReset);
       lenis?.destroy();
       animationContext?.revert();
       window.cancelAnimationFrame(raf);

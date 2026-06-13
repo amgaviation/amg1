@@ -6,7 +6,7 @@ import { CapabilityCard } from "@/components/site/capability-card";
 
 export function ServicesOverview() {
   return (
-    <section className="cinematic-section cinematic-band py-28">
+    <section id="capabilities" className="cinematic-section cinematic-band py-28">
       <div className="absolute right-0 top-16 hidden w-[42rem] opacity-20 lg:block" data-parallax="0.08" aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/images/operations.png" alt="" className="w-full object-contain" />
@@ -18,15 +18,16 @@ export function ServicesOverview() {
           description="AMG coordinates defined support paths around aircraft status, crew requirements, timing, route complexity, and owner/operator approval."
         />
 
-        <RevealGroup className="mt-16 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3" data-scroll-animate>
+        <RevealGroup className="mt-16 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3" data-stagger-container>
           {SERVICES.map((service) => (
-            <CapabilityCard
-              key={service.id}
-              title={service.title}
-              summary={service.summary}
-              useCase={service.useCase}
-              href="/services"
-            />
+            <div key={service.id} data-stagger-item>
+              <CapabilityCard
+                title={service.title}
+                summary={service.summary}
+                useCase={service.useCase}
+                href="/services"
+              />
+            </div>
           ))}
         </RevealGroup>
 
