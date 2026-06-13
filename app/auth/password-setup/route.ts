@@ -1,23 +1,45 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+const PASSWORD_SETUP_COOKIE = "amg_password_setup_user";
+
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const error = url.searchParams.get("error") || url.searchParams.get("error_code");
+  const supabase = await createClient();
 
-  if (error) {
+  // A password setup link must never reuse an existing admin/client browser
+  // session. Clear any active portal session before exchanging the recovery
+  // code so the form updates the account tied to the emailed link.
+  await supabase.auth.signOut();
+
+  if (error || !code) {
     return NextResponse.redirect(new URL("/forgot-password?error=failed", url.origin));
   }
 
-  if (code) {
-    const supabase = await createClient();
-    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+  const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (exchangeError) {
-      return NextResponse.redirect(new URL("/forgot-password?error=failed", url.origin));
-    }
+  if (exchangeError) {
+    return NextResponse.redirect(new URL("/forgot-password?error=failed", url.origin));
   }
 
-  return NextResponse.redirect(new URL("/reset-password", url.origin));
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.redirect(new URL("/forgot-password?error=failed", url.origin));
+  }
+
+  const response = NextResponse.redirect(new URL("/reset-password?mode=setup", url.origin));
+  response.cookies.set(PASSWORD_SETUP_COOKIE, user.id, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 15 * 60,
+    path: "/",
+  });
+
+  return response;
 }
