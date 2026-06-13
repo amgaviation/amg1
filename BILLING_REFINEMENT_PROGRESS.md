@@ -57,6 +57,7 @@ Branch: `feat/billing-workflow-refinement`
   - generated/sent PDFs
   - payments
   - receipt PDFs
+- Added receipt resend action from `/portal/admin/receipts`.
 
 ## Migrations Added
 
@@ -108,14 +109,13 @@ This migration adds:
 - Sample PDF preview buttons in Billing Settings are still pending.
 - Quote templates data model exists, but template management/prefill UI is pending.
 - Billing contacts are supported in delivery lookup and can be edited from client settings or the admin client directory.
-- Receipt resend action from receipt ledger is still pending.
+- Receipt resend action exists from the receipt ledger.
 - Activity timeline exists on quote and invoice detail pages; broader payment/receipt detail timelines are still pending.
 
 ## Next Steps
 
 1. Add invoice revision/adjustment placeholder action and UI.
-2. Add receipt resend action from the receipt ledger.
-3. Add Billing Settings sample quote/invoice/receipt PDF previews.
-4. Add quote template management and prefill support.
-5. Expand PDF renderer to honor all presentation flags.
-6. Add payment/receipt detail views if AMG needs deeper ledger drill-down.
+2. Add Billing Settings sample quote/invoice/receipt PDF previews.
+3. Add quote template management and prefill support.
+4. Expand PDF renderer to honor all presentation flags.
+5. Add payment/receipt detail views if AMG needs deeper ledger drill-down.
