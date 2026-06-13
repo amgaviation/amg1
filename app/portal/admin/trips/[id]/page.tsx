@@ -68,7 +68,7 @@ export default async function AdminTripDetailPage({
                 <DetailRow label="Preferred Contact">{publicRequest.preferred_contact_method ?? "-"}</DetailRow>
                 <DetailRow label="Company">{publicRequest.company_name ?? "-"}</DetailRow>
                 <DetailRow label="Requested Category">{publicRequest.requested_service_category}</DetailRow>
-                <DetailRow label="Aircraft">{publicRequest.aircraft_display ?? [publicRequest.aircraft_make, publicRequest.aircraft_model].filter(Boolean).join(" ") || "-"}</DetailRow>
+                <DetailRow label="Aircraft">{publicRequest.aircraft_display ?? ([publicRequest.aircraft_make, publicRequest.aircraft_model].filter(Boolean).join(" ") || "-")}</DetailRow>
                 <DetailRow label="Tail Number">{publicRequest.tail_number ?? "-"}</DetailRow>
                 <DetailRow label="Aircraft Base">{publicRequest.aircraft_base ?? "-"}</DetailRow>
                 <DetailRow label="Requested Timing">{publicRequest.requested_timing ?? "-"}</DetailRow>
