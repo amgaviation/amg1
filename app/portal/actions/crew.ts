@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
+import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
 import { actor, bool, num, str } from "./_helpers";
 
 function arr(formData: FormData, key: string): string[] {
@@ -54,6 +55,16 @@ export async function respondToAssignment(formData: FormData) {
       entityType: "mission",
       entityId: assignment.mission_id,
     });
+    if (status === "accepted") {
+      await notifyMissionContactByEmail({
+        missionId: assignment.mission_id,
+        title: "Crew assignment confirmed",
+        eventLabel: "Crew Accepted",
+        intro:
+          "The assigned crew member has accepted the mission. AMG Operations will continue coordinating the remaining operational details and will contact you if additional information is required.",
+        details: [{ label: "Crew Response", value: "Accepted" }],
+      });
+    }
   }
 
   revalidatePath("/portal/crew/missions");
