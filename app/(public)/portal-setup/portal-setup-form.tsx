@@ -17,10 +17,11 @@ export function PortalSetupForm() {
   const [err, setErr] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
 
-  const supabase = useMemo(
-    () => createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!),
-    [],
-  );
+  const supabase = useMemo(() => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    return url && key ? createBrowserClient(url, key) : null;
+  }, []);
 
   useEffect(() => {
     async function bootstrap() {
@@ -31,6 +32,11 @@ export function PortalSetupForm() {
       const code = query.get("code");
 
       try {
+        if (!supabase) {
+          setErr("failed");
+          return;
+        }
+
         await supabase.auth.signOut({ scope: "local" });
 
         if (accessToken && refreshToken) {
@@ -62,6 +68,12 @@ export function PortalSetupForm() {
   async function submit(formData: FormData) {
     setBusy(true);
     setErr(null);
+    if (!supabase) {
+      setErr("failed");
+      setBusy(false);
+      return;
+    }
+
     const first = String(formData.get("secret_one") ?? "");
     const second = String(formData.get("secret_two") ?? "");
 
@@ -79,6 +91,13 @@ export function PortalSetupForm() {
     const payload = { ["password"]: first } as { password: string };
     const { error } = await supabase.auth.updateUser(payload);
     if (error) {
+      setErr("failed");
+      setBusy(false);
+      return;
+    }
+
+    const done = await fetch("/api/portal-setup/complete", { method: "POST", credentials: "include" });
+    if (!done.ok) {
       setErr("failed");
       setBusy(false);
       return;

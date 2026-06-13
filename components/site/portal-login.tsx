@@ -13,6 +13,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   suspended: "This account has been suspended. Contact AMG Operations.",
   signup: "We couldn't create that account. The email may already be in use.",
   weakpassword: "Password must be at least 8 characters.",
+  account_exists:
+    "An AMG portal account already exists for that email. Sign in, use Forgot Password, or contact AMG if you used the wrong email.",
 };
 
 export function PortalLogin({
@@ -88,6 +90,36 @@ export function PortalLogin({
           {success === "requested" ? (
             <div className="mb-4 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
               Access request submitted. AMG Operations will review and approve your account.
+            </div>
+          ) : null}
+          {success === "password-reset" ? (
+            <div className="mb-4 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+              Password created. Sign in with your AMG portal email and new login key.
+            </div>
+          ) : null}
+          {error === "account_exists" ? (
+            <div className="mb-4 grid gap-3 rounded-lg border border-border bg-card/70 px-4 py-4">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                <button
+                  type="button"
+                  onClick={() => setMode("signin")}
+                  className="inline-flex min-h-10 items-center justify-center rounded-full bg-primary px-4 text-xs font-semibold uppercase tracking-widest text-primary-foreground"
+                >
+                  Sign in
+                </button>
+                <Link
+                  href="/forgot-password"
+                  className="inline-flex min-h-10 items-center justify-center rounded-full border border-border px-4 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-accent hover:text-accent"
+                >
+                  Forgot password
+                </Link>
+                <Link
+                  href="/contact?category=other-support"
+                  className="inline-flex min-h-10 items-center justify-center rounded-full border border-border px-4 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-accent hover:text-accent"
+                >
+                  Wrong email
+                </Link>
+              </div>
             </div>
           ) : null}
 

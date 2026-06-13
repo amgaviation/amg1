@@ -180,12 +180,10 @@ export async function submitPublicSupportRequest(formData: FormData) {
   const route = value(formData, "origin_destination") || [value(formData, "origin"), value(formData, "destination")].filter(Boolean).join(" to ");
   const departure = route ? routePart(route, 0) : routePart(aircraftBase, 0);
   const arrival = route ? routePart(route, 1) : "TBD";
-  const categoryDetailPairs = detailFields
-    .map((key) => {
-      const fieldValue = value(formData, key);
-      return fieldValue ? [key, fieldValue] as const : null;
-    })
-    .filter((item): item is readonly [string, string] => Boolean(item));
+  const categoryDetailPairs = detailFields.flatMap((key) => {
+    const fieldValue = value(formData, key);
+    return fieldValue ? [[key, fieldValue] as const] : [];
+  });
   const categoryDetailsRecord = Object.fromEntries(categoryDetailPairs);
   const categoryDetails = categoryDetailPairs
     .map(([key, fieldValue]) => `${labelize(key)}: ${fieldValue}`)

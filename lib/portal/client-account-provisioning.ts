@@ -13,15 +13,12 @@ type PublicSupportRequest = {
   phone: string | null;
   company_name: string | null;
   portal_account_status: string | null;
+  portal_account_user_id: string | null;
+  portal_invitation_sent_at: string | null;
 };
 
 const EMAIL_RE = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i;
-
-function origin() {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
-  if (!appUrl) return "";
-  return appUrl.startsWith("http") ? appUrl.replace(/\/+$/, "") : `https://${appUrl.replace(/\/+$/, "")}`;
-}
+const PORTAL_SETUP_REDIRECT = "https://amgaviationgroup.com/portal-setup";
 
 function extractFromNotes(notes?: string | null) {
   if (!notes) return null;
@@ -37,20 +34,39 @@ async function findPublicRequest(missionId: string): Promise<PublicSupportReques
   const db = await createServiceClient();
   const { data } = await (db as any)
     .from("public_support_requests")
-    .select("id, mission_id, client_id, requester_name, email, phone, company_name, portal_account_status")
+    .select("id, mission_id, client_id, requester_name, email, phone, company_name, portal_account_status, portal_account_user_id, portal_invitation_sent_at")
     .eq("mission_id", missionId)
     .maybeSingle();
   return data ?? null;
 }
 
+async function findAuthUserIdByEmail(email: string) {
+  const db = await createServiceClient();
+  let page = 1;
+  const perPage = 1000;
+
+  while (page <= 10) {
+    const { data, error } = await db.auth.admin.listUsers({ page, perPage });
+    if (error) {
+      console.error("[client-provisioning] auth user lookup failed", { email, error });
+      return null;
+    }
+
+    const match = data.users.find((user) => user.email?.toLowerCase() === email);
+    if (match) return match.id;
+    if (data.users.length < perPage) return null;
+    page += 1;
+  }
+
+  return null;
+}
+
 async function makeRecoveryLink(email: string) {
   const db = await createServiceClient();
-  const base = origin();
-  const redirectTo = base ? `${base}/portal-setup` : undefined;
   const { data, error } = await db.auth.admin.generateLink({
     type: "recovery",
     email,
-    options: redirectTo ? { redirectTo } : undefined,
+    options: { redirectTo: PORTAL_SETUP_REDIRECT },
   });
 
   if (error) {
@@ -65,20 +81,12 @@ async function sendPortalSetupEmail(params: {
   email: string;
   name: string;
   missionRef: string;
-  setupLink: string | null;
+  setupLink: string;
 }) {
-  const base = origin();
-  const fallbackLogin = base ? `${base}/login` : undefined;
-  const link = params.setupLink || fallbackLogin;
-
   const text = [
     `Hello ${params.name},`,
     `AMG Aviation Group has moved your request ${params.missionRef} into review and created a client portal profile for this email address.`,
-    params.setupLink
-      ? `Use this secure link to create your password and access the portal: ${params.setupLink}`
-      : fallbackLogin
-        ? `Go to ${fallbackLogin} and use the forgot password option to create your password.`
-        : `Use the AMG portal login page and select forgot password to create your password.`,
+    `Use this secure link to create your password and access the portal: ${params.setupLink}`,
     `AMG will continue to confirm scope, availability, pricing, crew assignment, aircraft movement, and operational acceptance separately.`,
   ]
     .filter(Boolean)
@@ -99,9 +107,8 @@ async function sendPortalSetupEmail(params: {
       sections: [
         {
           title: "Login Instructions",
-          body: params.setupLink
-            ? "Use the secure setup link below to create your password. After your password is created, you can sign in to the AMG portal with the same email address used on your support request."
-            : "Use the AMG portal login page and choose forgot password to create your password for this email address.",
+          body:
+            "Use the secure setup link below to create your password. After your password is created, you can sign in to the AMG portal with the same email address used on your support request.",
         },
         {
           title: "Next Steps",
@@ -109,12 +116,10 @@ async function sendPortalSetupEmail(params: {
             "AMG Operations will continue reviewing your request and will contact you if additional details or approvals are needed. Portal access does not constitute mission acceptance, aircraft movement authorization, or a binding service commitment.",
         },
       ],
-      cta: link
-        ? {
-            label: params.setupLink ? "Create Portal Password" : "Open Portal Login",
-            href: link,
-          }
-        : undefined,
+      cta: {
+        label: "Create Portal Password",
+        href: params.setupLink,
+      },
       footerNote:
         "For urgent updates or corrections, reply to this email or contact AMG Aviation Group at information@amgaviationgroup.com.",
     }),
@@ -154,12 +159,35 @@ export async function ensureClientAccountForMission(missionId: string, actorId?:
 
     const { data: existingProfile } = await db
       .from("profiles")
-      .select("id, email, full_name, role, status")
+      .select("id, email, full_name, role, status, is_active, company_name, phone")
       .ilike("email", email)
       .maybeSingle();
 
     let profileId = existingProfile?.id ?? null;
     let createdNewProfile = false;
+
+    if (!profileId) {
+      const existingAuthUserId = await findAuthUserIdByEmail(email);
+      if (existingAuthUserId) {
+        profileId = existingAuthUserId;
+
+        await db.from("profiles").upsert({
+          id: profileId,
+          email,
+          full_name: requesterName,
+          role: "client",
+          status: "approved",
+          is_active: true,
+          company_name: companyName,
+          phone,
+          invitation_status: "existing_account_linked",
+          invitation_channel: null,
+          invitation_sent_at: null,
+          invited_by: actorId ?? null,
+          updated_at: new Date().toISOString(),
+        });
+      }
+    }
 
     if (!profileId) {
       const { data: created, error: createError } = await db.auth.admin.createUser({
@@ -180,20 +208,37 @@ export async function ensureClientAccountForMission(missionId: string, actorId?:
       createdNewProfile = true;
     }
 
-    await db.from("profiles").upsert({
-      id: profileId,
-      email,
-      full_name: existingProfile?.full_name || requesterName,
-      role: existingProfile?.role || "client",
-      status: existingProfile?.status === "suspended" ? "suspended" : "approved",
-      is_active: existingProfile?.status !== "suspended",
-      company_name: companyName,
-      phone,
-      invitation_status: createdNewProfile ? "portal_setup_sent" : "existing_account_linked",
-      invitation_channel: "email",
-      invitation_sent_at: new Date().toISOString(),
-      invited_by: actorId ?? null,
-    });
+    const setupAlreadySent =
+      Boolean(structured?.portal_invitation_sent_at) ||
+      ["portal_setup_sent", "password_created"].includes(structured?.portal_account_status ?? "");
+
+    if (createdNewProfile) {
+      await db.from("profiles").upsert({
+        id: profileId,
+        email,
+        full_name: requesterName,
+        role: "client",
+        status: "approved",
+        is_active: true,
+        company_name: companyName,
+        phone,
+        invitation_status: setupAlreadySent ? "portal_setup_sent" : "portal_setup_pending",
+        invitation_channel: "email",
+        invitation_sent_at: setupAlreadySent ? structured?.portal_invitation_sent_at ?? new Date().toISOString() : null,
+        invited_by: actorId ?? null,
+        updated_at: new Date().toISOString(),
+      });
+    } else if (existingProfile) {
+      await db
+        .from("profiles")
+        .update({
+          company_name: existingProfile.company_name || companyName,
+          phone: existingProfile.phone || phone,
+          invitation_status: "existing_account_linked",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", profileId);
+    }
 
     await db.from("missions").update({ client_id: profileId }).eq("id", missionId);
 
@@ -202,15 +247,74 @@ export async function ensureClientAccountForMission(missionId: string, actorId?:
         .from("public_support_requests")
         .update({
           client_id: profileId,
-          portal_account_status: createdNewProfile ? "created" : "existing_account_linked",
+          portal_account_status: createdNewProfile
+            ? setupAlreadySent
+              ? structured.portal_account_status ?? "portal_setup_sent"
+              : "created"
+            : "existing_account_linked",
           portal_account_user_id: profileId,
-          portal_invitation_sent_at: new Date().toISOString(),
+          portal_invitation_sent_at: structured.portal_invitation_sent_at,
           updated_at: new Date().toISOString(),
         })
         .eq("id", structured.id);
     }
 
+    const shouldSendSetupEmail =
+      !setupAlreadySent &&
+      (createdNewProfile ||
+        Boolean(
+          existingProfile &&
+            structured?.portal_account_user_id === existingProfile.id &&
+            ["created", "portal_setup_failed"].includes(structured?.portal_account_status ?? ""),
+        ));
+
+    if (!shouldSendSetupEmail) {
+      return;
+    }
+
     const setupLink = await makeRecoveryLink(email);
+    if (!setupLink) {
+      await db
+        .from("profiles")
+        .update({
+          invitation_status: "portal_setup_failed",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", profileId);
+      if (structured) {
+        await (db as any)
+          .from("public_support_requests")
+          .update({
+            portal_account_status: "portal_setup_failed",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", structured.id);
+      }
+      return;
+    }
+
+    const sentAt = new Date().toISOString();
+    await db
+      .from("profiles")
+      .update({
+        invitation_status: "portal_setup_sent",
+        invitation_channel: "email",
+        invitation_sent_at: sentAt,
+        invited_by: actorId ?? null,
+        updated_at: sentAt,
+      })
+      .eq("id", profileId);
+    if (structured) {
+      await (db as any)
+        .from("public_support_requests")
+        .update({
+          portal_account_status: "portal_setup_sent",
+          portal_invitation_sent_at: sentAt,
+          updated_at: sentAt,
+        })
+        .eq("id", structured.id);
+    }
+
     await sendPortalSetupEmail({
       email,
       name: requesterName,
