@@ -51,8 +51,27 @@ function clientName(client: any) {
   return client?.company_name ?? client?.full_name ?? client?.email ?? null;
 }
 
+function billingName(record: any) {
+  return (
+    record?.billing_contact_company ??
+    record?.manual_client_company ??
+    record?.manual_client_name ??
+    clientName(record?.client)
+  );
+}
+
+function billingEmail(record: any) {
+  return (
+    record?.recipient_email ??
+    record?.manual_client_email ??
+    record?.client?.billing_contact_email ??
+    record?.client?.email ??
+    null
+  );
+}
+
 function lineItems(items: any[] = []) {
-  return items.map((item) => ({
+  return items.filter((item) => item.client_visible !== false).map((item) => ({
     category: item.category,
     description: item.description,
     quantity: dollars(item.quantity) || 1,
@@ -129,7 +148,7 @@ export async function buildQuotePdfInput(quoteId: string): Promise<BillingPdfInp
   const settings = await getBillingSettings();
   const { data: quote, error } = await db
     .from("quotes")
-    .select("*, client:client_id(full_name,email,company_name), mission:mission_id(id,ref)")
+    .select("*, client:client_id(full_name,email,company_name,billing_contact_email), mission:mission_id(id,ref)")
     .eq("id", quoteId)
     .maybeSingle();
   if (error || !quote) throw new Error(error?.message ?? "Quote not found");
@@ -147,8 +166,8 @@ export async function buildQuotePdfInput(quoteId: string): Promise<BillingPdfInp
     issuedAt: quote.sent_at ?? quote.created_at,
     dueDate: quote.expires_at,
     missionRef: quote.mission?.ref ?? null,
-    clientName: clientName(quote.client),
-    clientEmail: quote.client?.email ?? null,
+    clientName: billingName(quote),
+    clientEmail: billingEmail(quote),
     settings,
     lineItems: lineItems(items),
     subtotal: dollars(quote.subtotal),
@@ -200,7 +219,7 @@ export async function buildInvoicePdfInput(invoiceId: string): Promise<BillingPd
   const { data: invoice, error } = await db
     .from("invoices")
     .select(
-      "*, client:client_id(full_name,email,company_name), mission:mission_id(id,ref), quote:quote_id(ref,quote_number)",
+      "*, client:client_id(full_name,email,company_name,billing_contact_email), mission:mission_id(id,ref), quote:quote_id(ref,quote_number)",
     )
     .eq("id", invoiceId)
     .maybeSingle();
@@ -220,8 +239,8 @@ export async function buildInvoicePdfInput(invoiceId: string): Promise<BillingPd
     dueDate: invoice.due_date,
     missionRef: invoice.mission?.ref ?? null,
     quoteRef: invoice.quote?.quote_number ?? invoice.quote?.ref ?? null,
-    clientName: clientName(invoice.client),
-    clientEmail: invoice.client?.email ?? null,
+    clientName: billingName(invoice),
+    clientEmail: billingEmail(invoice),
     settings,
     lineItems: lineItems(items),
     subtotal: dollars(invoice.subtotal),
@@ -276,7 +295,7 @@ export async function buildReceiptPdfInput(paymentId: string): Promise<BillingPd
   const { data: payment, error } = await db
     .from("payments")
     .select(
-      "*, invoice:invoice_id(*, client:client_id(full_name,email,company_name), mission:mission_id(id,ref), quote:quote_id(ref,quote_number))",
+      "*, invoice:invoice_id(*, client:client_id(full_name,email,company_name,billing_contact_email), mission:mission_id(id,ref), quote:quote_id(ref,quote_number))",
     )
     .eq("id", paymentId)
     .maybeSingle();
@@ -296,8 +315,8 @@ export async function buildReceiptPdfInput(paymentId: string): Promise<BillingPd
     missionRef: payment.invoice.mission?.ref ?? null,
     quoteRef: payment.invoice.quote?.quote_number ?? payment.invoice.quote?.ref ?? null,
     invoiceRef: payment.invoice.invoice_number,
-    clientName: clientName(payment.invoice.client),
-    clientEmail: payment.invoice.client?.email ?? null,
+    clientName: billingName(payment.invoice),
+    clientEmail: billingEmail(payment.invoice),
     settings,
     lineItems: lineItems(items),
     subtotal: dollars(payment.invoice.subtotal),
@@ -414,6 +433,22 @@ export async function createInvoiceDraftFromQuote(input: {
       payment_instructions: quote.payment_instructions ?? combinedPaymentInstructions(settings),
       deposit_required: Boolean(quote.deposit_required),
       deposit_amount: depositAmount,
+      recipient_email: quote.recipient_email ?? quote.manual_client_email ?? null,
+      cc_emails: quote.cc_emails ?? [],
+      billing_contact_name: quote.billing_contact_name ?? quote.manual_client_name ?? null,
+      billing_contact_company: quote.billing_contact_company ?? quote.manual_client_company ?? null,
+      billing_contact_phone: quote.billing_contact_phone ?? quote.manual_client_phone ?? null,
+      pdf_template: quote.pdf_template ?? "standard",
+      opening_note: quote.opening_note ?? null,
+      closing_note: quote.closing_note ?? null,
+      footer_note: quote.footer_note ?? null,
+      show_aircraft_block: quote.show_aircraft_block ?? true,
+      show_mission_block: quote.show_mission_block ?? true,
+      show_route_block: quote.show_route_block ?? true,
+      show_deposit_block: quote.show_deposit_block ?? true,
+      show_tax_line: quote.show_tax_line ?? false,
+      group_line_items_by_category: quote.group_line_items_by_category ?? false,
+      show_line_item_details: quote.show_line_item_details ?? true,
       created_by: input.actorId,
     })
     .select("id")

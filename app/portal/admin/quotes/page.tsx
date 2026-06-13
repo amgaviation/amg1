@@ -15,19 +15,36 @@ export default async function AdminQuotesPage() {
   const quotes = await listAllQuotes();
   return (
     <PortalShell role="admin" user={user}>
-      <PageHeader eyebrow="AMG Operations" title="Quotes" description="Client quotes issued from mission detail workspaces and their approval state." />
+      <PageHeader
+        eyebrow="AMG Operations"
+        title="Quotes"
+        description="Build, send, revise, and convert AMG aviation support quotes."
+        actions={<Link href="/portal/admin/quotes/new" className="text-xs text-accent hover:underline">New Quote</Link>}
+      />
       <SectionCard title="Quote Register" icon="receipt">
         <DataTable
           rows={quotes}
           getKey={(row) => row.id}
           emptyLabel="No quotes created."
           columns={[
-            { header: "Quote", cell: (row) => <span className="font-mono text-xs text-accent">{row.ref}</span> },
+            { header: "Quote", cell: (row) => <Link href={`/portal/admin/quotes/${row.id}`} className="font-mono text-xs text-accent hover:underline">{row.ref}</Link> },
             { header: "Mission", cell: (row) => row.mission?.ref ? <Link href={`/portal/admin/trips/${row.mission_id}`} className="hover:text-accent">{row.mission.ref}</Link> : "-" },
             { header: "Client", cell: (row) => row.client?.company_name ?? row.client?.full_name ?? row.client?.email ?? "-" },
             { header: "Total", cell: (row) => formatMoney(row.total), align: "right" },
+            { header: "Deposit", cell: (row) => formatMoney((row as any).deposit_amount ?? 0), align: "right" },
             { header: "Status", cell: (row) => <StatusBadge label={QUOTE_STATUS_LABEL[row.status] ?? row.status} tone={toneFor(QUOTE_STATUS_TONE, row.status)} /> },
             { header: "Created", cell: (row) => formatDateTime(row.created_at) },
+            {
+              header: "Actions",
+              cell: (row) => (
+                <div className="flex gap-3 text-xs">
+                  <Link href={`/portal/admin/quotes/${row.id}`} className="text-accent hover:underline">Open</Link>
+                  {["draft", "internal_review"].includes(row.status) ? (
+                    <Link href={`/portal/admin/quotes/${row.id}/edit`} className="text-accent hover:underline">Edit</Link>
+                  ) : null}
+                </div>
+              ),
+            },
           ]}
         />
       </SectionCard>

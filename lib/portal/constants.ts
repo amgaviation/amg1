@@ -81,6 +81,8 @@ export const PORTAL_NAV: Record<PortalRole, NavItem[]> = {
     { label: "Messages", href: "/portal/admin/messages", icon: "messageSquare" },
     { label: "Quotes", href: "/portal/admin/quotes", icon: "receipt" },
     { label: "Invoices", href: "/portal/admin/invoices", icon: "wallet" },
+    { label: "Payments", href: "/portal/admin/payments", icon: "wallet" },
+    { label: "Receipts", href: "/portal/admin/receipts", icon: "receipt" },
     { label: "Documents", href: "/portal/admin/documents", icon: "fileText" },
     { label: "Expenses", href: "/portal/admin/expenses", icon: "wallet" },
     { label: "User Approvals", href: "/portal/admin/user-approvals", icon: "userCheck" },
@@ -228,27 +230,60 @@ export const PARTNER_TYPES = [
 // ─── Quotes + expenses ──────────────────────────────────────────────
 export const QUOTE_STATUS: Choice[] = [
   { value: "draft", label: "Draft", tone: "neutral" },
+  { value: "internal_review", label: "Internal Review", tone: "warn" },
   { value: "sent", label: "Sent", tone: "info" },
+  { value: "viewed", label: "Viewed", tone: "accent" },
   { value: "approved", label: "Approved", tone: "success" },
   { value: "rejected", label: "Rejected", tone: "danger" },
+  { value: "revision_requested", label: "Revision Requested", tone: "warn" },
+  { value: "expired", label: "Expired", tone: "danger" },
+  { value: "converted", label: "Converted", tone: "success" },
+  { value: "void", label: "Void", tone: "neutral" },
   { value: "cancelled", label: "Cancelled", tone: "neutral" },
 ];
 export const QUOTE_STATUS_LABEL = buildLabelMap(QUOTE_STATUS);
 export const QUOTE_STATUS_TONE = buildToneMap(QUOTE_STATUS);
 
 export const QUOTE_CATEGORIES = [
-  "Crew day rate",
-  "Airline repositioning",
-  "Hotel",
-  "Rental car",
-  "Ground transportation",
-  "FBO handling",
-  "Maintenance support",
-  "Ferry support",
-  "Admin coordination",
-  "After-hours support",
-  "Fuel",
+  "Crew Services",
+  "Crew Travel & Lodging",
+  "Aircraft Ferry / Repositioning",
+  "Maintenance Support",
+  "Owner / Client Coordination",
+  "Vendor / FBO / Third-Party Costs",
+  "After-Hours / Priority Support",
+  "Administrative / Subscription / Program Fees",
+  "Pass-Through Expenses",
   "Other",
+];
+
+export const BILLING_COST_TYPES = [
+  "Fixed Fee",
+  "Estimated Allowance",
+  "Pass-Through Actual",
+  "Pass-Through + Markup",
+  "Included / No Charge",
+  "TBD",
+];
+
+export const PAYMENT_METHODS = [
+  { value: "wire", label: "Wire" },
+  { value: "zelle", label: "Zelle" },
+  { value: "card", label: "Card" },
+  { value: "ach", label: "ACH" },
+  { value: "check", label: "Check" },
+  { value: "cash", label: "Cash" },
+  { value: "other", label: "Other" },
+  { value: "manual", label: "Manual" },
+];
+
+export const PDF_TEMPLATES = [
+  { value: "standard", label: "Standard" },
+  { value: "detailed_operations", label: "Detailed Operations" },
+  { value: "summary_only", label: "Summary Only" },
+  { value: "deposit_request", label: "Deposit Request" },
+  { value: "final_invoice", label: "Final Invoice" },
+  { value: "paid_receipt", label: "Paid Receipt" },
 ];
 
 export const EXPENSE_STATUS: Choice[] = [
@@ -280,6 +315,7 @@ export const EXPENSE_CATEGORY_LABEL = buildLabelMap(EXPENSE_CATEGORIES);
 
 export const INVOICE_STATUS: Choice[] = [
   { value: "draft", label: "Draft", tone: "neutral" },
+  { value: "ready_to_send", label: "Ready to Send", tone: "warn" },
   { value: "sent", label: "Sent", tone: "info" },
   { value: "viewed", label: "Viewed", tone: "accent" },
   { value: "partially_paid", label: "Partially Paid", tone: "warn" },

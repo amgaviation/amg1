@@ -55,7 +55,10 @@ export default async function AdminInvoicesPage({
             />
             <TextField label="Due Date" name="due_date" type="date" />
             <TextAreaField label="Terms" name="terms" defaultValue="Due on receipt unless otherwise agreed in writing." />
-            <SubmitButton className="rounded-full" pendingText="Creating...">Create & Send Invoice</SubmitButton>
+            <div className="flex gap-3">
+              <SubmitButton className="rounded-full" name="intent" value="draft" pendingText="Creating...">Create Draft</SubmitButton>
+              <SubmitButton className="rounded-full" name="intent" value="send" pendingText="Sending...">Create & Send</SubmitButton>
+            </div>
           </form>
         </SectionCard>
 
@@ -65,13 +68,18 @@ export default async function AdminInvoicesPage({
             <SelectField label="Status" name="status" defaultValue="draft" options={INVOICE_STATUS.map((status) => ({ value: status.value, label: status.label }))} />
             <SelectField label="Mission" name="mission_id" defaultValue="" options={[{ value: "", label: "No mission" }, ...missions.map((mission) => ({ value: mission.id, label: mission.ref }))]} />
             <SelectField label="Aircraft" name="aircraft_id" defaultValue="" options={[{ value: "", label: "No aircraft" }, ...aircraft.map((item) => ({ value: item.id, label: item.tail_number }))]} />
-            <SelectField label="Line Item Category" name="category" required defaultValue="Operational coordination" options={QUOTE_CATEGORIES.map((item) => ({ value: item, label: item }))} />
-            <TextField label="Unit Price" name="unit_price" type="number" min="0" step="0.01" required />
-            <TextField label="Quantity" name="quantity" type="number" min="0" step="0.01" defaultValue="1" />
             <TextField label="Due Date" name="due_date" type="date" />
-            <div className="sm:col-span-2">
-              <TextAreaField label="Description" name="description" />
-            </div>
+            <TextField label="Discount" name="discount_total" type="number" min="0" step="0.01" />
+            <TextField label="Manual Tax" name="tax_total" type="number" min="0" step="0.01" defaultValue="0" />
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="grid gap-3 rounded-md border border-border p-3 sm:col-span-2 sm:grid-cols-[1.2fr_1.6fr_.7fr_.7fr_.7fr]">
+                <SelectField label="Line Item Category" name="category[]" required={index === 0} defaultValue={index === 0 ? QUOTE_CATEGORIES[0] : ""} options={[{ value: "", label: "No line" }, ...QUOTE_CATEGORIES.map((item) => ({ value: item, label: item }))]} />
+                <TextField label="Description" name="description[]" />
+                <TextField label="Qty" name="quantity[]" type="number" min="0" step="0.01" defaultValue={index === 0 ? "1" : ""} />
+                <TextField label="Unit Price" name="unit_price[]" type="number" min="0" step="0.01" />
+                <TextField label="Unit" name="unit[]" placeholder="day, trip" />
+              </div>
+            ))}
             <div className="sm:col-span-2">
               <TextAreaField label="Client Notes" name="client_notes" />
             </div>

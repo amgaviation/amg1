@@ -5,13 +5,39 @@ import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
 import { combinedPaymentInstructions, getBillingSettings } from "@/lib/portal/billing-config";
-import { createInvoiceDraftFromQuote } from "@/lib/portal/billing-documents";
+import { createInvoiceDraftFromQuote, generateAndStoreInvoicePdf } from "@/lib/portal/billing-documents";
 import { emailInvoicePdf, emailReceiptPdf } from "@/lib/portal/billing-emails";
 import { nextBillingDocumentNumber } from "@/lib/portal/billing-numbering";
-import { actor, num, str } from "./_helpers";
+import { actor, bool, num, str } from "./_helpers";
 
 function money(formData: FormData, key: string): number {
   return num(formData, key) ?? 0;
+}
+
+function invoiceItemsFromForm(formData: FormData) {
+  const categories = formData.getAll("category[]").map((value) => String(value).trim());
+  const descriptions = formData.getAll("description[]").map((value) => String(value).trim());
+  const quantities = formData.getAll("quantity[]").map((value) => Number(value) || 1);
+  const unitPrices = formData.getAll("unit_price[]").map((value) => Number(value) || 0);
+  const units = formData.getAll("unit[]").map((value) => String(value).trim());
+  const costTypes = formData.getAll("cost_type[]").map((value) => String(value).trim());
+  const clientNotes = formData.getAll("client_notes[]").map((value) => String(value).trim());
+  const internalNotes = formData.getAll("internal_notes[]").map((value) => String(value).trim());
+
+  return categories
+    .map((category, index) => ({
+      category,
+      description: descriptions[index] || null,
+      quantity: quantities[index] || 1,
+      unit: units[index] || null,
+      unit_price: unitPrices[index] || 0,
+      amount: (quantities[index] || 1) * (unitPrices[index] || 0),
+      cost_type: costTypes[index] || null,
+      client_notes: clientNotes[index] || null,
+      internal_notes: internalNotes[index] || null,
+      sort_order: index,
+    }))
+    .filter((item) => item.category);
 }
 
 export async function createInvoiceFromQuote(formData: FormData) {
@@ -38,7 +64,7 @@ export async function createInvoiceFromQuote(formData: FormData) {
   const invoiceId = await createInvoiceDraftFromQuote({
     quoteId,
     actorId: admin.id,
-    status: "sent",
+    status: str(formData, "intent") === "send" ? "sent" : "draft",
     dueDate: str(formData, "due_date") || null,
     terms: str(formData, "terms") || null,
   }).catch(() => null);
@@ -49,10 +75,12 @@ export async function createInvoiceFromQuote(formData: FormData) {
     .select("invoice_number")
     .eq("id", invoiceId)
     .maybeSingle();
-  await emailInvoicePdf(invoiceId, admin.id).catch((error) => {
-    console.error("[billing] failed to email invoice PDF", invoiceId, error);
-  });
-  await db.from("quotes").update({ status: "converted" }).eq("id", quote.id);
+  if (str(formData, "intent") === "send") {
+    await emailInvoicePdf(invoiceId, admin.id).catch((error) => {
+      console.error("[billing] failed to email invoice PDF", invoiceId, error);
+    });
+    await db.from("quotes").update({ status: "converted" }).eq("id", quote.id);
+  }
 
   await logAuditEvent({
     actor: admin,
@@ -64,8 +92,11 @@ export async function createInvoiceFromQuote(formData: FormData) {
   if (quote.client_id) {
     await notifyUser({
       userId: quote.client_id,
-      title: "Invoice issued",
-      body: `${invoice?.invoice_number ?? "An invoice"} is available in your billing portal.`,
+      title: str(formData, "intent") === "send" ? "Invoice issued" : "Invoice drafted",
+      body:
+        str(formData, "intent") === "send"
+          ? `${invoice?.invoice_number ?? "An invoice"} is available in your billing portal.`
+          : `${invoice?.invoice_number ?? "An invoice"} has been created for AMG review.`,
       type: "invoice_issued",
       entityType: "invoice",
       entityId: invoiceId,
@@ -81,12 +112,9 @@ export async function createStandaloneInvoice(formData: FormData) {
   const db = await createServiceClient();
   const billingDb = db as any;
   const clientId = str(formData, "client_id");
-  const category = str(formData, "category");
-  const description = str(formData, "description");
-  const quantity = money(formData, "quantity") || 1;
-  const unitPrice = money(formData, "unit_price");
-  if (!clientId || !category) redirect("/portal/admin/invoices?error=missing");
-  const amount = quantity * unitPrice;
+  const items = invoiceItemsFromForm(formData);
+  if (!clientId || !items.length) redirect("/portal/admin/invoices?error=missing");
+  const amount = items.reduce((sum, item) => sum + item.amount, 0);
   const settings = await getBillingSettings();
   const discountTotal = money(formData, "discount_total");
   const taxTotal = money(formData, "tax_total");
@@ -122,15 +150,7 @@ export async function createStandaloneInvoice(formData: FormData) {
     .single();
   if (error || !invoice) redirect("/portal/admin/invoices?error=save");
 
-  await db.from("invoice_line_items").insert({
-    invoice_id: invoice.id,
-    category,
-    description: description || null,
-    quantity,
-    unit_price: unitPrice,
-    amount,
-    sort_order: 0,
-  });
+  await billingDb.from("invoice_line_items").insert(items.map((item) => ({ ...item, invoice_id: invoice.id })));
   await logAuditEvent({
     actor: admin,
     action: "invoice_created",
@@ -156,6 +176,213 @@ export async function createStandaloneInvoice(formData: FormData) {
   redirect(`/portal/admin/invoices/${invoice.id}?success=created`);
 }
 
+export async function updateInvoiceDraft(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const billingDb = db as any;
+  const invoiceId = str(formData, "invoice_id");
+  const items = invoiceItemsFromForm(formData);
+  if (!invoiceId || !items.length) redirect("/portal/admin/invoices?error=missing");
+
+  const { data: invoice } = await db
+    .from("invoices")
+    .select("id, invoice_number, status, amount_paid, quote_id")
+    .eq("id", invoiceId)
+    .maybeSingle();
+  if (!invoice) redirect("/portal/admin/invoices?error=missing");
+  if (!["draft", "ready_to_send"].includes(invoice.status)) {
+    redirect(`/portal/admin/invoices/${invoiceId}?error=locked`);
+  }
+
+  const subtotal = items.reduce((sum, item) => sum + item.amount, 0);
+  const discountTotal = money(formData, "discount_total");
+  const taxTotal = money(formData, "tax_total");
+  const total = Math.max(subtotal - discountTotal + taxTotal, 0);
+  const amountPaid = Number(invoice.amount_paid ?? 0);
+  const amountDue = Math.max(total - amountPaid, 0);
+
+  const { error } = await billingDb
+    .from("invoices")
+    .update({
+      status: str(formData, "status") || invoice.status,
+      due_date: str(formData, "due_date") || null,
+      subtotal,
+      discount: discountTotal,
+      discount_total: discountTotal,
+      tax: taxTotal,
+      tax_total: taxTotal,
+      total,
+      amount_due: amountDue,
+      terms: str(formData, "terms") || null,
+      payment_instructions: str(formData, "payment_instructions") || null,
+      client_notes: str(formData, "client_notes") || null,
+      internal_notes: str(formData, "internal_notes") || null,
+      recipient_email: str(formData, "recipient_email") || null,
+      cc_emails: formData
+        .getAll("cc_emails")
+        .flatMap((value) => String(value).split(","))
+        .map((value) => value.trim())
+        .filter(Boolean),
+      pdf_template: str(formData, "pdf_template") || null,
+      opening_note: str(formData, "opening_note") || null,
+      closing_note: str(formData, "closing_note") || null,
+      footer_note: str(formData, "footer_note") || null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", invoiceId);
+  if (error) redirect(`/portal/admin/invoices/${invoiceId}/edit?error=save`);
+
+  await billingDb.from("invoice_line_items").delete().eq("invoice_id", invoiceId);
+  await billingDb.from("invoice_line_items").insert(items.map((item) => ({ ...item, invoice_id: invoiceId })));
+
+  await logAuditEvent({
+    actor: admin,
+    action: "invoice_draft_updated",
+    detail: `Updated draft ${invoice.invoice_number}`,
+    entityType: "invoice",
+    entityId: invoiceId,
+  });
+  revalidatePath(`/portal/admin/invoices/${invoiceId}`);
+  revalidatePath("/portal/admin/invoices");
+  revalidatePath("/portal/client/billing");
+  redirect(`/portal/admin/invoices/${invoiceId}?success=updated`);
+}
+
+export async function createInvoiceRevision(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const billingDb = db as any;
+  const invoiceId = str(formData, "invoice_id");
+  if (!invoiceId) redirect("/portal/admin/invoices?error=missing");
+
+  const { data: invoice } = await billingDb.from("invoices").select("*").eq("id", invoiceId).maybeSingle();
+  if (!invoice) redirect("/portal/admin/invoices?error=missing");
+  if (["paid", "void", "written_off"].includes(invoice.status)) {
+    redirect(`/portal/admin/invoices/${invoiceId}?error=locked`);
+  }
+
+  const { data: items } = await billingDb
+    .from("invoice_line_items")
+    .select("*")
+    .eq("invoice_id", invoiceId)
+    .order("sort_order");
+  const invoiceNumber = await nextBillingDocumentNumber("invoice");
+  const {
+    id: _id,
+    invoice_number: _invoiceNumber,
+    status: _status,
+    created_at: _createdAt,
+    updated_at: _updatedAt,
+    sent_at: _sentAt,
+    paid_at: _paidAt,
+    superseded_by_invoice_id: _supersededByInvoiceId,
+    pdf_document_id: _pdfDocumentId,
+    amount_paid: _amountPaid,
+    ...copyable
+  } = invoice;
+
+  const { data: revision, error } = await billingDb
+    .from("invoices")
+    .insert({
+      ...copyable,
+      invoice_number: invoiceNumber,
+      status: "draft",
+      created_by: admin.id,
+      revised_from_invoice_id: invoice.id,
+      superseded_by_invoice_id: null,
+      revision_reason: str(formData, "revision_reason") || "Revision created from admin portal",
+      version_number: Number(invoice.version_number ?? 1) + 1,
+      sent_at: null,
+      paid_at: null,
+      pdf_document_id: null,
+      amount_paid: 0,
+      amount_due: invoice.total ?? 0,
+    })
+    .select("id, invoice_number")
+    .single();
+  if (error || !revision) redirect(`/portal/admin/invoices/${invoiceId}?error=revision`);
+
+  if (items?.length) {
+    await billingDb.from("invoice_line_items").insert(
+      items.map(({ id, invoice_id, created_at, ...item }: any) => ({
+        ...item,
+        invoice_id: revision.id,
+      })),
+    );
+  }
+
+  await billingDb
+    .from("invoices")
+    .update({ superseded_by_invoice_id: revision.id, status: "void" })
+    .eq("id", invoiceId);
+  await logAuditEvent({
+    actor: admin,
+    action: "invoice_revision_created",
+    detail: `Created ${revision.invoice_number} from ${invoice.invoice_number}`,
+    entityType: "invoice",
+    entityId: revision.id,
+  });
+  revalidatePath(`/portal/admin/invoices/${invoiceId}`);
+  revalidatePath(`/portal/admin/invoices/${revision.id}`);
+  revalidatePath("/portal/admin/invoices");
+  redirect(`/portal/admin/invoices/${revision.id}/edit?success=revision`);
+}
+
+export async function previewInvoicePdf(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const invoiceId = str(formData, "invoice_id");
+  if (!invoiceId) redirect("/portal/admin/invoices?error=missing");
+  const pdf = await generateAndStoreInvoicePdf(invoiceId, admin.id);
+  redirect(`/api/portal/billing-documents/${pdf.document.id}/download`);
+}
+
+export async function sendInvoicePdf(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const billingDb = db as any;
+  const invoiceId = str(formData, "invoice_id");
+  if (!invoiceId) redirect("/portal/admin/invoices?error=missing");
+
+  const { data: invoice } = await db
+    .from("invoices")
+    .select("id, invoice_number, status, client_id")
+    .eq("id", invoiceId)
+    .maybeSingle();
+  if (!invoice) redirect("/portal/admin/invoices?error=missing");
+  if (["paid", "void", "written_off"].includes(invoice.status)) {
+    redirect(`/portal/admin/invoices/${invoiceId}?error=locked`);
+  }
+
+  await billingDb
+    .from("invoices")
+    .update({ status: "sent", sent_at: new Date().toISOString() })
+    .eq("id", invoiceId);
+  await emailInvoicePdf(invoiceId, admin.id).catch((error) => {
+    console.error("[billing] failed to email invoice PDF", invoiceId, error);
+  });
+  await logAuditEvent({
+    actor: admin,
+    action: "invoice_pdf_sent",
+    detail: `Sent ${invoice.invoice_number}`,
+    entityType: "invoice",
+    entityId: invoiceId,
+  });
+  if (invoice.client_id) {
+    await notifyUser({
+      userId: invoice.client_id,
+      title: "Invoice issued",
+      body: `${invoice.invoice_number} is available in your billing portal.`,
+      type: "invoice_issued",
+      entityType: "invoice",
+      entityId: invoiceId,
+    });
+  }
+  revalidatePath(`/portal/admin/invoices/${invoiceId}`);
+  revalidatePath("/portal/admin/invoices");
+  revalidatePath("/portal/client/billing");
+  redirect(`/portal/admin/invoices/${invoiceId}?success=sent`);
+}
+
 export async function recordInvoicePayment(formData: FormData) {
   const admin = await actor(["admin"]);
   const db = await createServiceClient();
@@ -166,10 +393,13 @@ export async function recordInvoicePayment(formData: FormData) {
 
   const { data: invoice } = await db
     .from("invoices")
-    .select("amount_paid, total, client_id, invoice_number")
+    .select("amount_paid, total, client_id, invoice_number, status")
     .eq("id", invoiceId)
     .maybeSingle();
   if (!invoice) redirect("/portal/admin/invoices?error=missing");
+  if (["paid", "void", "written_off"].includes(invoice.status)) {
+    redirect(`/portal/admin/invoices/${invoiceId}?error=locked`);
+  }
   const amountPaid = (invoice.amount_paid ?? 0) + amount;
   const total = invoice.total ?? 0;
   const status = amountPaid >= total ? "paid" : "partially_paid";
@@ -183,6 +413,8 @@ export async function recordInvoicePayment(formData: FormData) {
     payment_reference: str(formData, "payment_reference") || null,
     receipt_number: receiptNumber,
     notes: str(formData, "notes") || null,
+    internal_notes: str(formData, "internal_notes") || null,
+    receipt_send_suppressed: !bool(formData, "send_receipt"),
     recorded_by: admin.id,
     status: "recorded",
   }).select("id").single();
@@ -203,9 +435,11 @@ export async function recordInvoicePayment(formData: FormData) {
     entityType: "invoice",
     entityId: invoiceId,
   });
-  await emailReceiptPdf(payment.id, admin.id).catch((error) => {
-    console.error("[billing] failed to email receipt PDF", payment.id, error);
-  });
+  if (bool(formData, "send_receipt")) {
+    await emailReceiptPdf(payment.id, admin.id).catch((error) => {
+      console.error("[billing] failed to email receipt PDF", payment.id, error);
+    });
+  }
   if (invoice.client_id) {
     await notifyUser({
       userId: invoice.client_id,
@@ -228,6 +462,7 @@ export async function updateInvoiceStatus(formData: FormData) {
   const invoiceId = str(formData, "invoice_id");
   const status = str(formData, "status");
   if (!invoiceId || !status) redirect("/portal/admin/invoices?error=missing");
+  if (status === "paid") redirect(`/portal/admin/invoices/${invoiceId}?error=payment-required`);
   const { data: invoice } = await billingDb
     .from("invoices")
     .update({

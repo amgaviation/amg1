@@ -117,8 +117,13 @@ export default async function ClientQuoteDetailPage({
                 </form>
                 <form action={respondToQuote}>
                   <input type="hidden" name="quote_id" value={quote.id} />
+                  <input type="hidden" name="decision" value="revision_requested" />
+                  <SubmitButton variant="outline" className="rounded-full" pendingText="Sending…">Request Changes</SubmitButton>
+                </form>
+                <form action={respondToQuote}>
+                  <input type="hidden" name="quote_id" value={quote.id} />
                   <input type="hidden" name="decision" value="rejected" />
-                  <SubmitButton variant="outline" className="rounded-full" pendingText="Rejecting…">Reject Quote</SubmitButton>
+                  <SubmitButton variant="outline" className="rounded-full" pendingText="Rejecting…">Reject</SubmitButton>
                 </form>
               </div>
             </SectionCard>
