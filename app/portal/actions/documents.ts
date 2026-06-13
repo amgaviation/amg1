@@ -15,7 +15,7 @@ const VISIBILITY_BY_ROLE: Record<string, string> = {
 
 export async function uploadDocument(formData: FormData) {
   const user = await actor();
-  const db = await createServiceClient();
+  const db = (await createServiceClient()) as any;
   const file = formData.get("file");
   const name = str(formData, "name");
   const docType = str(formData, "doc_type") || "Other";
@@ -23,6 +23,10 @@ export async function uploadDocument(formData: FormData) {
 
   if (!(file instanceof File) || file.size === 0 || !name) {
     redirect(`${backTo}?error=missing`);
+  }
+  const allowedTypes = new Set(["application/pdf", "image/jpeg", "image/png"]);
+  if (file.size > 50 * 1024 * 1024 || (file.type && !allowedTypes.has(file.type))) {
+    redirect(`${backTo}?error=upload`);
   }
 
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
@@ -36,18 +40,31 @@ export async function uploadDocument(formData: FormData) {
     user.role === "admin"
       ? str(formData, "visibility") || "admin"
       : VISIBILITY_BY_ROLE[user.role] ?? "admin";
+  const targetProfileId = user.role === "admin" ? str(formData, "target_profile_id") : "";
+  const { data: targetProfile } = targetProfileId
+    ? await db.from("profiles").select("id, role").eq("id", targetProfileId).maybeSingle()
+    : { data: null };
+  const inferredScopeType = targetProfile?.role && ["client", "crew", "partner"].includes(targetProfile.role)
+    ? targetProfile.role
+    : null;
+  const inferredVisibility = targetProfile?.role === "client" ? "owner" : targetProfile?.role ?? null;
 
   await db.from("documents").insert({
     name,
+    original_file_name: file.name,
+    storage_bucket: "documents",
     storage_path: path,
+    mime_type: file.type || null,
+    file_size: file.size,
     doc_type: docType,
-    scope_type: str(formData, "scope_type") || (user.role === "client" ? "aircraft" : "crew"),
-    scope_id: str(formData, "scope_id") || null,
+    scope_type: inferredScopeType || str(formData, "scope_type") || (user.role === "client" ? "aircraft" : "crew"),
+    scope_id: targetProfile?.id || str(formData, "scope_id") || null,
     mission_id: str(formData, "mission_id") || null,
-    visibility,
+    visibility: inferredVisibility || visibility,
     uploaded_by: user.id,
     status: "pending_review",
     expiration_date: str(formData, "expiration_date") || null,
+    notes: str(formData, "notes") || null,
   });
 
   await logAuditEvent({

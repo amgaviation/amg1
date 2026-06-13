@@ -10,6 +10,70 @@ import { ensureClientAccountForMission } from "@/lib/portal/client-account-provi
 import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
 import { actor, bool, isoOrNull, num, str } from "./_helpers";
 
+async function logCompletedMissionUsage(db: any, missionId: string, admin: Awaited<ReturnType<typeof actor>>) {
+  const { data: mission } = await db
+    .from("missions")
+    .select("id, ref, client_id, aircraft_id")
+    .eq("id", missionId)
+    .maybeSingle();
+  if (!mission?.client_id) return;
+
+  const { data: existing } = await db
+    .from("subscription_usage_events")
+    .select("id")
+    .eq("mission_id", missionId)
+    .eq("usage_type", "flight_support")
+    .maybeSingle();
+  if (existing) return;
+
+  const { data: subscriptions } = await db
+    .from("client_subscriptions")
+    .select("id, aircraft_id, included_flights")
+    .eq("client_id", mission.client_id)
+    .eq("status", "active")
+    .order("created_at", { ascending: false });
+  const subscription =
+    (subscriptions ?? []).find((item: any) => item.aircraft_id && item.aircraft_id === mission.aircraft_id) ??
+    (subscriptions ?? []).find((item: any) => !item.aircraft_id);
+  if (!subscription) return;
+
+  const { data: usage } = await db
+    .from("subscription_usage_events")
+    .select("quantity")
+    .eq("subscription_id", subscription.id)
+    .eq("usage_type", "flight_support");
+  const usedFlights = (usage ?? []).reduce((sum: number, event: { quantity: number | string | null }) => {
+    return sum + Number(event.quantity ?? 0);
+  }, 0);
+  const includedFlights = Number(subscription.included_flights ?? 0);
+  const coveredQuantity = usedFlights < includedFlights ? 1 : 0;
+  const overageQuantity = Math.max(1 - coveredQuantity, 0);
+
+  await db.from("subscription_usage_events").insert({
+    subscription_id: subscription.id,
+    client_id: mission.client_id,
+    mission_id: missionId,
+    usage_type: "flight_support",
+    quantity: 1,
+    unit: "mission",
+    covered_quantity: coveredQuantity,
+    overage_quantity: overageQuantity,
+    unit_rate: 0,
+    covered_amount: 0,
+    overage_amount: 0,
+    notes: `Auto-created when ${mission.ref ?? "mission"} was marked completed.`,
+    created_by: admin.id,
+  });
+
+  await logAuditEvent({
+    actor: admin,
+    action: "subscription_usage_auto_logged",
+    detail: `Logged subscription usage for ${mission.ref ?? missionId}`,
+    entityType: "mission",
+    entityId: missionId,
+  });
+}
+
 export async function createMission(formData: FormData) {
   const user = await actor(["client", "admin"]);
   const db = await createServiceClient();
@@ -132,6 +196,11 @@ export async function updateMissionStatus(formData: FormData) {
 
   if (status === "under_review") {
     await ensureClientAccountForMission(missionId, user.id);
+  }
+  if (status === "completed") {
+    await logCompletedMissionUsage(db as any, missionId, user);
+    revalidatePath("/portal/admin/subscriptions");
+    revalidatePath("/portal/client/subscriptions");
   }
 
   await logAuditEvent({
