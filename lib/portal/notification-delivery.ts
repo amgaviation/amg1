@@ -25,9 +25,20 @@ type DeliveryResult = {
   error?: string;
 };
 
+function normalizeEnvEmail(value?: string | null) {
+  if (!value) return undefined;
+
+  return value
+    .trim()
+    .replace(/^EMAIL_FROM_ADDRESS=/, "")
+    .replace(/^EMAIL_REPLY_TO=/, "")
+    .replace(/^['"]|['"]$/g, "")
+    .trim();
+}
+
 function configured(channel: DeliveryChannel) {
   if (channel === "email") {
-    return Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM_ADDRESS);
+    return Boolean(process.env.RESEND_API_KEY && normalizeEnvEmail(process.env.EMAIL_FROM_ADDRESS));
   }
 
   return Boolean(
@@ -172,7 +183,10 @@ export async function sendEmail(params: {
   html?: string;
   replyTo?: string;
 }): Promise<DeliveryResult> {
-  if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM_ADDRESS) {
+  const from = normalizeEnvEmail(process.env.EMAIL_FROM_ADDRESS);
+  const replyTo = normalizeEnvEmail(params.replyTo || process.env.EMAIL_REPLY_TO);
+
+  if (!process.env.RESEND_API_KEY || !from) {
     return { status: "suppressed", error: "Resend is not configured" };
   }
 
@@ -183,8 +197,8 @@ export async function sendEmail(params: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: process.env.EMAIL_FROM_ADDRESS,
-      reply_to: params.replyTo || process.env.EMAIL_REPLY_TO || undefined,
+      from,
+      reply_to: replyTo,
       to: params.to,
       subject: params.subject,
       html: params.html,
