@@ -6,6 +6,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { logAuditEvent, notifyAdmins, notifyUser } from "@/lib/portal/audit";
 import { MISSION_TYPE_LABEL } from "@/lib/portal/constants";
+import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
 import { actor, bool, isoOrNull, num, str } from "./_helpers";
 
 export async function createMission(formData: FormData) {
@@ -146,6 +147,14 @@ export async function updateMissionStatus(formData: FormData) {
       entityId: missionId,
     });
   }
+
+  await notifyMissionContactByEmail({
+    missionId,
+    title: "Mission status updated",
+    eventLabel: "Status Update",
+    intro: `${mission?.ref ?? "Your AMG request"} is now ${status.replace(/_/g, " ")}.`,
+    details: [{ label: "New Status", value: status.replace(/_/g, " ") }],
+  });
 
   revalidatePath("/portal/admin/mission-control");
   revalidatePath(`/portal/admin/trips/${missionId}`);
