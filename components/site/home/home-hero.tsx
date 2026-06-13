@@ -5,7 +5,7 @@ import { COMPANY } from "@/lib/content";
 
 export function HomeHero() {
   return (
-    <section className="relative isolate flex min-h-[100svh] items-end overflow-hidden pb-14 pt-32 lg:pb-20">
+    <section id="top" className="relative isolate flex min-h-[100svh] items-end overflow-hidden pb-14 pt-32 lg:pb-20">
       <div className="absolute inset-0 z-0">
         <video
           autoPlay
@@ -88,6 +88,18 @@ export function HomeHero() {
           </Link>
         </div>
       </div>
+
+      <Link
+        href="#capabilities"
+        className="scroll-cue group absolute bottom-6 right-6 z-20 hidden items-center gap-4 rounded-full border border-white/15 bg-white/5 px-4 py-3 text-xs uppercase text-foreground/75 backdrop-blur transition-colors hover:border-accent hover:text-accent md:flex"
+        aria-label="Scroll to AMG capabilities"
+        data-cursor="SCROLL"
+      >
+        <span className="font-display font-semibold tracking-widest">Scroll</span>
+        <span className="scroll-cue-track" aria-hidden="true">
+          <span className="scroll-cue-line" />
+        </span>
+      </Link>
     </section>
   );
 }

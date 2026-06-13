@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, RadioTower, ShieldCheck } from "lucide-react";
 import { Reveal } from "@/components/site/reveal";
 import { MagneticLink } from "@/components/site/magnetic-link";
 
@@ -26,21 +26,25 @@ export function CtaSection({
         <img
           src="/images/jet-sky.png"
           alt=""
-          className="h-full w-full scale-105 object-cover opacity-20"
+          className="h-full w-full scale-105 object-cover opacity-25"
           data-parallax="0.06"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(59,130,246,0.14),rgba(5,11,20,0.97)_42%,rgba(56,189,248,0.08))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(5,11,20,0.98)_0%,rgba(5,11,20,0.9)_44%,rgba(5,11,20,0.52)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_28%,rgba(56,189,248,0.18),transparent_28rem)]" />
       </div>
-      <div className="relative z-10 mx-auto max-w-3xl px-6 text-center lg:px-10">
+      <div className="relative z-10 mx-auto grid max-w-7xl gap-10 px-6 lg:grid-cols-[1fr_26rem] lg:px-10">
         <Reveal data-scroll-animate>
-          <p className="eyebrow mb-5 text-accent">{eyebrow}</p>
-          <h2 className="display-heading text-balance text-4xl text-foreground sm:text-5xl lg:text-6xl">
+          <p className="eyebrow mb-5 inline-flex items-center gap-3 text-accent">
+            <span className="h-px w-12 bg-accent/70" />
+            {eyebrow}
+          </p>
+          <h2 className="display-heading max-w-4xl text-balance text-5xl text-foreground sm:text-6xl lg:text-7xl">
             {title}
           </h2>
-          <p className="mx-auto mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
+          <p className="mt-7 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
             {description}
           </p>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+          <div className="mt-10 flex flex-wrap items-center gap-4">
             <MagneticLink
               href={primaryHref}
               cursorLabel="REQUEST"
@@ -56,6 +60,21 @@ export function CtaSection({
             >
               {secondaryLabel}
             </MagneticLink>
+          </div>
+        </Reveal>
+
+        <Reveal className="glass-panel hidden self-end rounded-lg p-6 lg:block" data-scroll-animate>
+          <div className="flex items-center justify-between border-b border-white/10 pb-5">
+            <p className="eyebrow text-[0.68rem] text-muted-foreground">Request Review</p>
+            <RadioTower className="h-5 w-5 text-accent" />
+          </div>
+          <div className="mt-6 grid gap-4">
+            {["Aircraft status", "Crew requirements", "Owner/operator approval"].map((item) => (
+              <div key={item} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.035] p-3">
+                <ShieldCheck className="h-4 w-4 shrink-0 text-accent" />
+                <span className="text-sm text-foreground/80">{item}</span>
+              </div>
+            ))}
           </div>
         </Reveal>
       </div>

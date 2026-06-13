@@ -1,6 +1,7 @@
 import { SiteNav } from "@/components/site/site-nav";
 import { SiteFooter } from "@/components/site/site-footer";
 import { InteractionLayer } from "@/components/site/interaction-layer";
+import { PublicPageTransition } from "@/components/site/page-transition";
 
 export default function PublicLayout({
   children,
@@ -14,9 +15,9 @@ export default function PublicLayout({
         Skip to content
       </a>
       <SiteNav />
-      <main id="main-content" className="flex-1">
+      <PublicPageTransition>
         {children}
-      </main>
+      </PublicPageTransition>
       <SiteFooter />
     </div>
   );

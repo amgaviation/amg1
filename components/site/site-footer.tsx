@@ -1,29 +1,40 @@
 import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import { COMPANY, FOOTER_COLS } from "@/lib/content";
 import { Reveal, RevealGroup, RevealItem } from "@/components/site/reveal";
 
 export function SiteFooter() {
   return (
-    <footer className="cinematic-band border-t border-white/10 bg-card/40">
-      <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
-        <RevealGroup className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1.35fr_0.9fr_1.35fr]" data-scroll-animate>
-          <RevealItem className="max-w-sm">
+    <footer className="cinematic-band relative border-t border-white/10 bg-card/40">
+      <div className="absolute inset-0 -z-10 opacity-15" aria-hidden="true">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/images/jet-interior.png" alt="" className="h-full w-full object-cover" data-parallax="0.03" />
+      </div>
+      <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10 lg:py-20">
+        <Reveal className="grid gap-8 border-b border-white/10 pb-10 lg:grid-cols-[1fr_auto]" data-scroll-animate>
+          <div className="max-w-3xl">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/logo-white.png" alt="AMG Aviation Group" width="1088" height="221" className="h-10 w-auto" />
-            <p className="mt-4 leading-relaxed text-muted-foreground">
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
               {COMPANY.tagline}
             </p>
+          </div>
+          <div className="flex flex-col items-start gap-3 lg:items-end">
             <a
               href={`mailto:${COMPANY.email}`}
-              className="mt-6 inline-block text-sm text-accent hover:text-accent/80"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 font-display text-xs font-semibold uppercase text-accent transition-colors hover:border-accent hover:text-foreground"
               data-cursor="EMAIL"
             >
               {COMPANY.email}
+              <ArrowUpRight className="h-3.5 w-3.5" />
             </a>
-          </RevealItem>
+            <span className="text-xs uppercase text-muted-foreground">{COMPANY.location}</span>
+          </div>
+        </Reveal>
 
+        <RevealGroup className="mt-12 grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4" data-stagger-container>
           {FOOTER_COLS.map((col) => (
-            <RevealItem key={col.heading}>
+            <RevealItem key={col.heading} data-stagger-item>
               <h2 className="eyebrow mb-5 text-[0.7rem] text-accent">
                 {col.heading}
               </h2>
@@ -32,10 +43,11 @@ export function SiteFooter() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      className="group inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                       data-cursor="OPEN"
                     >
                       {link.label}
+                      <ArrowUpRight className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
                     </Link>
                   </li>
                 ))}

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, Gauge, Plane } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const aircraftClasses = [
@@ -112,9 +112,12 @@ export function SubscriptionPrograms() {
     <div className="cinematic-band mx-auto max-w-7xl px-6 py-24 lg:px-10" data-scroll-animate>
       <div className="grid gap-8 lg:grid-cols-[0.82fr_1.18fr]">
         <aside className="lg:sticky lg:top-[calc(var(--public-header-height)+2rem)] lg:self-start">
-          <div className="glass-panel rounded-lg p-6">
-            <p className="eyebrow text-accent">Program Builder</p>
-            <h2 className="mt-4 font-display text-4xl font-extrabold uppercase leading-none text-foreground">
+          <div className="glass-panel portal-entry-card rounded-lg p-6">
+            <div className="flex items-center justify-between gap-5 border-b border-white/10 pb-5">
+              <p className="eyebrow text-accent">Program Builder</p>
+              <Gauge className="h-5 w-5 text-accent" />
+            </div>
+            <h2 className="mt-6 display-heading text-4xl text-foreground sm:text-5xl">
               Select Aircraft and Billing
             </h2>
             <div className="mt-6 grid gap-5">
@@ -159,12 +162,18 @@ export function SubscriptionPrograms() {
             <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
               Pricing is based on aircraft class, crew requirements, selected allowances, and operating scope. Two-pilot requirements affect proposal pricing.
             </p>
+            <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.035] p-4">
+              <p className="text-xs uppercase text-muted-foreground">Current selection</p>
+              <p className="mt-2 font-display text-2xl font-bold uppercase leading-none text-foreground">
+                {aircraftClass}
+              </p>
+            </div>
           </div>
         </aside>
 
         <div>
           {customOnly ? (
-            <section className="glass-panel rounded-lg border-accent/40 p-8">
+            <section className="glass-panel portal-card rounded-lg border-accent/40 p-8">
               <p className="eyebrow text-accent">Custom Proposal Only</p>
               <h3 className="mt-4 font-display text-4xl font-extrabold uppercase leading-none text-foreground">
                 {aircraftClass}
@@ -178,18 +187,22 @@ export function SubscriptionPrograms() {
               </Link>
             </section>
           ) : (
-            <div className="grid gap-5 xl:grid-cols-3">
+            <div className="grid gap-5 xl:grid-cols-3" data-stagger-container>
               {tiers.map((tier) => {
                 const item = allowanceCopy[tier];
                 return (
                   <article
                     key={tier}
+                    data-stagger-item
                     className={cn(
-                      "glass-panel rounded-lg border p-6",
+                      "portal-card glass-panel rounded-lg border p-6",
                       tier === "Priority" ? "border-accent" : "border-white/10"
                     )}
                   >
-                    <p className="eyebrow text-[0.68rem] text-accent">{aircraftClass}</p>
+                    <div className="flex items-start justify-between gap-4">
+                      <p className="eyebrow text-[0.68rem] text-accent">{aircraftClass}</p>
+                      <Plane className="h-5 w-5 text-accent" />
+                    </div>
                     <h3 className="mt-4 font-display text-4xl font-extrabold uppercase leading-none text-foreground">
                       {tier}
                     </h3>
@@ -234,8 +247,8 @@ export function SubscriptionPrograms() {
         </div>
       </div>
 
-      <section className="mt-16 grid gap-5 lg:grid-cols-3">
-        <div className="glass-panel rounded-lg p-6">
+      <section className="mt-16 grid gap-5 lg:grid-cols-3" data-stagger-container>
+        <div className="glass-panel rounded-lg p-6" data-stagger-item>
           <h3 className="font-display text-2xl font-bold uppercase tracking-wide text-foreground">Included Events</h3>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
             One included Client Flight means one crew duty day. Multiple legs during the same duty day remain one event. Trips exceeding 12 hours or involving overnight activity may consume additional duty days.
@@ -244,7 +257,7 @@ export function SubscriptionPrograms() {
             One included MX Flight means one maintenance-related aircraft movement. Base to MRO is one movement; MRO to base is one movement; a round trip is two movements.
           </p>
         </div>
-        <div className="glass-panel rounded-lg p-6">
+        <div className="glass-panel rounded-lg p-6" data-stagger-item>
           <h3 className="font-display text-2xl font-bold uppercase tracking-wide text-foreground">Credits and Annual Billing</h3>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
             Unused eligible credits remain available while the subscription is active and in good standing. Credits expire upon cancellation, termination, non-renewal, or default; they have no cash value and cannot be refunded or transferred.
@@ -253,7 +266,7 @@ export function SubscriptionPrograms() {
             Annual subscriptions receive a 10% reduction on eligible AMG administrative and coordination fees only, not crew compensation, travel, lodging, pass-through expenses, vendor charges, airport costs, or aircraft expenses.
           </p>
         </div>
-        <div className="glass-panel rounded-lg p-6">
+        <div className="glass-panel rounded-lg p-6" data-stagger-item>
           <h3 className="font-display text-2xl font-bold uppercase tracking-wide text-foreground">Major Exclusions</h3>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
             Owner/operator expenses include fuel, oil, insurance, maintenance invoices, parts, mechanic labor, aircraft subscriptions, and databases. Pass-through items include landing, ramp, parking, hangar, handling, deicing, catering, cleaning, customs, immigration, handlers, and overflight permits.
