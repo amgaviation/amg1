@@ -237,6 +237,94 @@ export async function updateQuoteDraft(formData: FormData) {
   redirect(`/portal/admin/quotes/${quoteId}?success=saved`);
 }
 
+export async function createQuoteRevision(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const billingDb = db as any;
+  const quoteId = str(formData, "quote_id");
+  if (!quoteId) redirect("/portal/admin/quotes?error=missing");
+
+  const { data: quote } = await billingDb.from("quotes").select("*").eq("id", quoteId).maybeSingle();
+  if (!quote) redirect("/portal/admin/quotes?error=missing");
+  if (quote.status === "void") redirect(`/portal/admin/quotes/${quoteId}?error=locked`);
+
+  const { data: items } = await billingDb
+    .from("quote_line_items")
+    .select("*")
+    .eq("quote_id", quoteId)
+    .order("sort_order");
+  const quoteNumber = await nextBillingDocumentNumber("quote");
+  const {
+    id: _id,
+    ref: _ref,
+    quote_number: _quoteNumber,
+    status: _status,
+    created_at: _createdAt,
+    updated_at: _updatedAt,
+    sent_at: _sentAt,
+    viewed_at: _viewedAt,
+    approved_by: _approvedBy,
+    approved_at: _approvedAt,
+    rejected_by: _rejectedBy,
+    rejected_at: _rejectedAt,
+    converted_invoice_id: _convertedInvoiceId,
+    superseded_by_quote_id: _supersededByQuoteId,
+    pdf_document_id: _pdfDocumentId,
+    ...copyable
+  } = quote;
+
+  const { data: revision, error } = await billingDb
+    .from("quotes")
+    .insert({
+      ...copyable,
+      ref: quoteNumber,
+      quote_number: quoteNumber,
+      status: "draft",
+      created_by: admin.id,
+      revised_from_quote_id: quote.id,
+      superseded_by_quote_id: null,
+      revision_reason: str(formData, "revision_reason") || "Revision created from admin portal",
+      version_number: Number(quote.version_number ?? 1) + 1,
+      sent_at: null,
+      viewed_at: null,
+      approved_by: null,
+      approved_at: null,
+      rejected_by: null,
+      rejected_at: null,
+      converted_invoice_id: null,
+      pdf_document_id: null,
+    })
+    .select("id, ref")
+    .single();
+  if (error || !revision) redirect(`/portal/admin/quotes/${quoteId}?error=revision`);
+
+  if (items?.length) {
+    await billingDb.from("quote_line_items").insert(
+      items.map(({ id, quote_id, created_at, ...item }: any) => ({
+        ...item,
+        quote_id: revision.id,
+      })),
+    );
+  }
+
+  await billingDb
+    .from("quotes")
+    .update({ superseded_by_quote_id: revision.id, status: quote.status === "converted" ? "converted" : "void" })
+    .eq("id", quoteId);
+
+  await logAuditEvent({
+    actor: admin,
+    action: "quote_revision_created",
+    detail: `Created ${revision.ref} from ${quote.ref}`,
+    entityType: "quote",
+    entityId: revision.id,
+  });
+  revalidatePath(`/portal/admin/quotes/${quoteId}`);
+  revalidatePath(`/portal/admin/quotes/${revision.id}`);
+  revalidatePath("/portal/admin/quotes");
+  redirect(`/portal/admin/quotes/${revision.id}/edit?success=revision`);
+}
+
 export async function previewQuotePdf(formData: FormData) {
   const admin = await actor(["admin"]);
   const quoteId = str(formData, "quote_id");

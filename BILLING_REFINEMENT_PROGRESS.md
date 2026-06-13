@@ -15,9 +15,19 @@ Branch: `feat/billing-workflow-refinement`
 - Added quote PDF preview action that generates/stores a PDF and downloads it.
 - Added quote send/resend action.
 - Added client quote “Request Changes” action.
+- Added admin quote revision creation:
+  - clones sent/approved/revision-requested quote terms into a new draft
+  - copies quote line items
+  - links the new draft with `revised_from_quote_id`
+  - marks the prior quote as superseded/void for direct editing purposes
 - Quote approval now creates an invoice even for standalone/manual quotes.
 - Quote-to-invoice conversion from admin now defaults to draft/admin review unless explicitly sent.
 - Standalone invoice creation now accepts multiple line items.
+- Added invoice draft editing:
+  - `/portal/admin/invoices/[id]/edit`
+  - draft/ready-to-send lock rules
+  - editable recipient override, CCs, due date, line items, terms, notes, and PDF presentation fields
+  - server-side invoice total recalculation
 - Direct invoice status update to `paid` is blocked; payment recording is required.
 - Payment recording supports:
   - amount
@@ -66,6 +76,7 @@ This migration adds:
 
 - `npm run typecheck`: passed
 - `npm run build`: passed
+- Latest local build after invoice draft editing and quote revision work: passed
 
 ## Vercel Status
 
@@ -74,13 +85,11 @@ This migration adds:
 
 ## Incomplete / Still Risky
 
-- Full quote revision workflow is not implemented yet.
-  - Schema placeholders exist.
-  - Current behavior locks non-draft edits and instructs revision, but does not clone a new revision automatically.
+- Quote revision workflow now creates a draft clone, but still needs richer version history UI and client-facing revision threading.
 - Full invoice revision/credit/refund workflow is not implemented yet.
   - Schema placeholders exist.
   - Paid/void/written-off edits are guarded in payment/status flow, but full credit memo UI is pending.
-- Invoice draft edit page is still pending.
+- Invoice draft edit page exists for draft/ready-to-send invoices; sent/paid invoice adjustment and credit memo flows are still pending.
 - Quote PDF layout controls are stored but only partially reflected in the PDF renderer.
 - Invoice PDF layout controls are stored/copied from quote but only partially reflected in the PDF renderer.
 - Sample PDF preview buttons in Billing Settings are still pending.
@@ -91,12 +100,10 @@ This migration adds:
 
 ## Next Steps
 
-1. Add invoice draft edit page and action with paid/partial/void lock rules.
-2. Add create-revision action for sent quotes.
-3. Add invoice revision/adjustment placeholder action and UI.
-4. Add resend actions that reuse latest locked PDF by default.
-5. Add Billing Settings sample quote/invoice/receipt PDF previews.
-6. Add quote template management and prefill support.
-7. Expand PDF renderer to honor all presentation flags.
-8. Add billing contact fields to client/admin profile forms.
-9. Add unified activity timeline on quote/invoice/payment detail pages.
+1. Add invoice revision/adjustment placeholder action and UI.
+2. Add resend actions that reuse latest locked PDF by default.
+3. Add Billing Settings sample quote/invoice/receipt PDF previews.
+4. Add quote template management and prefill support.
+5. Expand PDF renderer to honor all presentation flags.
+6. Add billing contact fields to client/admin profile forms.
+7. Add unified activity timeline on quote/invoice/payment detail pages.

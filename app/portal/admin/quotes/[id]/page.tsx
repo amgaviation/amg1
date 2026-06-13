@@ -6,7 +6,8 @@ import { DataTable } from "@/components/portal/ui/data-table";
 import { DetailRow, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
-import { convertApprovedQuoteToInvoice, previewQuotePdf, sendQuote } from "@/app/portal/actions/quotes";
+import { TextAreaField } from "@/components/portal/ui/fields";
+import { convertApprovedQuoteToInvoice, createQuoteRevision, previewQuotePdf, sendQuote } from "@/app/portal/actions/quotes";
 import { getQuoteDetail } from "@/lib/portal/queries";
 import { QUOTE_STATUS_LABEL, QUOTE_STATUS_TONE, toneFor } from "@/lib/portal/constants";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/portal/format";
@@ -30,12 +31,14 @@ export default async function AdminQuoteDetailPage({
   const canEdit = ["draft", "internal_review"].includes(quote.status);
   const canSend = !["approved", "converted", "void"].includes(quote.status);
   const canConvert = quote.status === "approved" && !(quote as any).converted_invoice_id;
+  const canRevise = !canEdit && quote.status !== "void";
 
   return (
     <PortalShell role="admin" user={user}>
       {flash.success ? <Notice tone="success">Quote updated.</Notice> : null}
       {flash.error === "locked" ? <Notice tone="danger">This quote is locked. Create a revision before changing sent or approved terms.</Notice> : null}
       {flash.error === "not-approved" ? <Notice tone="danger">Only approved quotes can be converted to invoice.</Notice> : null}
+      {flash.error === "revision" ? <Notice tone="danger">A quote revision could not be created.</Notice> : null}
 
       <PageHeader
         eyebrow="Quote"
@@ -127,7 +130,14 @@ export default async function AdminQuoteDetailPage({
                   <SubmitButton className="w-full rounded-full" pendingText="Creating...">Create Invoice Draft</SubmitButton>
                 </form>
               ) : null}
-              {!canEdit && quote.status !== "void" ? (
+              {canRevise ? (
+                <form action={createQuoteRevision} className="space-y-3 rounded-md border border-border p-3">
+                  <input type="hidden" name="quote_id" value={quote.id} />
+                  <TextAreaField label="Revision Reason" name="revision_reason" placeholder="Client requested aircraft, scope, date, or pricing changes..." />
+                  <SubmitButton className="w-full rounded-full" pendingText="Creating...">Create Revision Draft</SubmitButton>
+                </form>
+              ) : null}
+              {canRevise ? (
                 <p className="text-xs text-muted-foreground">Sent, approved, and converted quotes are locked from direct total edits. Create a revision for changed terms.</p>
               ) : null}
             </div>

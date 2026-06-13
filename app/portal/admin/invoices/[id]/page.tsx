@@ -30,6 +30,8 @@ export default async function AdminInvoiceDetailPage({
   const receiptByPayment = new Map(
     invoice.receiptDocuments.map((document) => [document.payment_id, document]),
   );
+  const editableInvoice = ["draft", "ready_to_send"].includes(invoice.status);
+  const lockedInvoice = ["paid", "void", "written_off"].includes(invoice.status);
 
   return (
     <PortalShell role="admin" user={user}>
@@ -42,6 +44,11 @@ export default async function AdminInvoiceDetailPage({
         title={invoice.invoice_number}
         actions={
           <div className="flex items-center gap-3">
+            {editableInvoice ? (
+              <Link href={`/portal/admin/invoices/${invoice.id}/edit`} className="text-xs text-accent hover:underline">
+                Edit Draft
+              </Link>
+            ) : null}
             {latestInvoiceDocument ? (
               <Link
                 href={`/api/portal/billing-documents/${latestInvoiceDocument.id}/download`}
@@ -118,27 +125,31 @@ export default async function AdminInvoiceDetailPage({
         </div>
 
         <div className="space-y-6">
-          <SectionCard title="Update Status" icon="settings">
-            <form action={updateInvoiceStatus} className="space-y-4">
-              <input type="hidden" name="invoice_id" value={invoice.id} />
-              <SelectField label="Status" name="status" defaultValue={invoice.status} options={INVOICE_STATUS.filter((status) => status.value !== "paid").map((status) => ({ value: status.value, label: status.label }))} />
-              <TextAreaField label="Internal Notes" name="internal_notes" defaultValue={invoice.internal_notes ?? ""} />
-              <SubmitButton className="rounded-full" pendingText="Saving...">Save Status</SubmitButton>
-            </form>
-          </SectionCard>
+          {!lockedInvoice ? (
+            <SectionCard title="Update Status" icon="settings">
+              <form action={updateInvoiceStatus} className="space-y-4">
+                <input type="hidden" name="invoice_id" value={invoice.id} />
+                <SelectField label="Status" name="status" defaultValue={invoice.status} options={INVOICE_STATUS.filter((status) => status.value !== "paid").map((status) => ({ value: status.value, label: status.label }))} />
+                <TextAreaField label="Internal Notes" name="internal_notes" defaultValue={invoice.internal_notes ?? ""} />
+                <SubmitButton className="rounded-full" pendingText="Saving...">Save Status</SubmitButton>
+              </form>
+            </SectionCard>
+          ) : null}
 
-          <SectionCard title="Record Payment" icon="wallet">
-            <form action={recordInvoicePayment} className="space-y-4">
-              <input type="hidden" name="invoice_id" value={invoice.id} />
-              <TextField label="Amount" name="amount" type="number" min="0" step="0.01" defaultValue={String(invoice.amount_due)} required />
-              <SelectField label="Payment Method" name="payment_method" defaultValue="wire" options={PAYMENT_METHODS} />
-              <TextField label="Payment Reference" name="payment_reference" placeholder="Trace, check, wire, or note..." />
-              <TextAreaField label="Notes" name="notes" />
-              <TextAreaField label="Internal Notes" name="internal_notes" />
-              <CheckboxField label="Email receipt now" name="send_receipt" defaultChecked />
-              <SubmitButton className="rounded-full" pendingText="Recording...">Record Payment / Mark Paid</SubmitButton>
-            </form>
-          </SectionCard>
+          {!lockedInvoice ? (
+            <SectionCard title="Record Payment" icon="wallet">
+              <form action={recordInvoicePayment} className="space-y-4">
+                <input type="hidden" name="invoice_id" value={invoice.id} />
+                <TextField label="Amount" name="amount" type="number" min="0" step="0.01" defaultValue={String(invoice.amount_due)} required />
+                <SelectField label="Payment Method" name="payment_method" defaultValue="wire" options={PAYMENT_METHODS} />
+                <TextField label="Payment Reference" name="payment_reference" placeholder="Trace, check, wire, or note..." />
+                <TextAreaField label="Notes" name="notes" />
+                <TextAreaField label="Internal Notes" name="internal_notes" />
+                <CheckboxField label="Email receipt now" name="send_receipt" defaultChecked />
+                <SubmitButton className="rounded-full" pendingText="Recording...">Record Payment / Mark Paid</SubmitButton>
+              </form>
+            </SectionCard>
+          ) : null}
         </div>
       </div>
     </PortalShell>
