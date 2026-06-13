@@ -6,6 +6,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
 import { isPortalRole, PORTAL_PERMISSIONS } from "@/lib/portal/constants";
+import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
 import { actor, num, str } from "./_helpers";
 
 function normalizeEmail(formData: FormData, key: string): string {
@@ -243,6 +244,17 @@ export async function assignCrew(formData: FormData) {
     entityType: "mission",
     entityId: missionId,
   });
+  await notifyMissionContactByEmail({
+    missionId,
+    title: "Crew assignment is in progress",
+    eventLabel: "Crew Assignment",
+    intro:
+      "AMG Operations has started the crew assignment process for your request. The assigned crew member has been offered the mission and AMG will continue coordinating availability and operational readiness.",
+    details: [
+      { label: "Crew Assignment Status", value: "Offer sent" },
+      { label: "Crew Role", value: role.toUpperCase() },
+    ],
+  });
   revalidatePath(`/portal/admin/trips/${missionId}`);
   redirect(`/portal/admin/trips/${missionId}?success=crew`);
 }
@@ -284,6 +296,17 @@ export async function assignPartner(formData: FormData) {
     type: "partner_assigned",
     entityType: "mission",
     entityId: missionId,
+  });
+  await notifyMissionContactByEmail({
+    missionId,
+    title: "Partner support has been assigned",
+    eventLabel: "Partner Assignment",
+    intro:
+      "AMG Operations has assigned a partner resource to support your request. AMG will continue coordinating the scope, timing, and any required follow-up.",
+    details: [
+      { label: "Service Type", value: serviceType },
+      { label: "Location", value: str(formData, "location") || null },
+    ],
   });
   revalidatePath(`/portal/admin/trips/${missionId}`);
   redirect(`/portal/admin/trips/${missionId}?success=partner`);
