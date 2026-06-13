@@ -52,6 +52,11 @@ Branch: `feat/billing-workflow-refinement`
   - client settings form for billing contact name/email/phone and CC emails
   - admin client directory inline billing delivery editor
   - shared billing contact update action with audit logging
+- Added unified activity timelines to admin quote and invoice detail pages using:
+  - audit events
+  - generated/sent PDFs
+  - payments
+  - receipt PDFs
 
 ## Migrations Added
 
@@ -104,7 +109,7 @@ This migration adds:
 - Quote templates data model exists, but template management/prefill UI is pending.
 - Billing contacts are supported in delivery lookup and can be edited from client settings or the admin client directory.
 - Receipt resend action from receipt ledger is still pending.
-- Activity timeline is represented by document/payment ledgers and audit events, but no unified timeline component has been added to quote/invoice detail pages yet.
+- Activity timeline exists on quote and invoice detail pages; broader payment/receipt detail timelines are still pending.
 
 ## Next Steps
 
@@ -113,4 +118,4 @@ This migration adds:
 3. Add Billing Settings sample quote/invoice/receipt PDF previews.
 4. Add quote template management and prefill support.
 5. Expand PDF renderer to honor all presentation flags.
-6. Add unified activity timeline on quote/invoice/payment detail pages.
+6. Add payment/receipt detail views if AMG needs deeper ledger drill-down.

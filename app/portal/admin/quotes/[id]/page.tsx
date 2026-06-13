@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/portal/session";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
-import { DetailRow, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
+import { DetailRow, Notice, PageHeader, SectionCard, Timeline } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { TextAreaField } from "@/components/portal/ui/fields";
@@ -32,6 +32,27 @@ export default async function AdminQuoteDetailPage({
   const canSend = !["approved", "converted", "void"].includes(quote.status);
   const canConvert = quote.status === "approved" && !(quote as any).converted_invoice_id;
   const canRevise = !canEdit && quote.status !== "void";
+  const activityItems = [
+    ...quote.documents.map((document) => ({
+      at: document.created_at,
+      title: `${document.document_number} generated`,
+      body: document.emailed_at
+        ? `Sent to ${document.emailed_to?.join(", ") || "recipient"}`
+        : "PDF generated and stored.",
+    })),
+    ...quote.auditEvents.map((event) => ({
+      at: event.created_at,
+      title: event.action.replace(/_/g, " "),
+      body: event.detail ?? event.actor_email ?? undefined,
+    })),
+  ]
+    .sort((a, b) => new Date(b.at ?? 0).getTime() - new Date(a.at ?? 0).getTime())
+    .slice(0, 12)
+    .map((item) => ({
+      title: item.title,
+      meta: formatDateTime(item.at),
+      body: item.body,
+    }));
 
   return (
     <PortalShell role="admin" user={user}>
@@ -88,6 +109,14 @@ export default async function AdminQuoteDetailPage({
                 },
               ]}
             />
+          </SectionCard>
+
+          <SectionCard title="Activity Timeline" icon="history">
+            {activityItems.length ? (
+              <Timeline items={activityItems} />
+            ) : (
+              <p className="text-sm text-muted-foreground">No quote activity recorded yet.</p>
+            )}
           </SectionCard>
         </div>
 
