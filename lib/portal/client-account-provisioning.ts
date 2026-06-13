@@ -46,7 +46,7 @@ async function findPublicRequest(missionId: string): Promise<PublicSupportReques
 async function makeRecoveryLink(email: string) {
   const db = await createServiceClient();
   const base = origin();
-  const redirectTo = base ? `${base}/auth/callback?next=/reset-password` : undefined;
+  const redirectTo = base ? `${base}/auth/password-setup` : undefined;
   const { data, error } = await db.auth.admin.generateLink({
     type: "recovery",
     email,
