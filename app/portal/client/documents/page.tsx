@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, EmptyState, Notice } from "@/components/portal/ui/primitives";
@@ -61,7 +62,7 @@ export default async function ClientDocumentsPage({
         ) : (
           <div className="space-y-3">
             {docs.map((doc) => (
-              <div key={doc.id} className="grid gap-3 rounded-lg border border-border bg-background/50 p-4 sm:grid-cols-[1fr_auto_auto]">
+              <div key={doc.id} className="grid gap-3 rounded-lg border border-border bg-background/50 p-4 sm:grid-cols-[1fr_auto_auto_auto]">
                 <div>
                   <p className="text-sm font-semibold">{doc.name}</p>
                   <p className="mt-0.5 text-xs text-muted-foreground">{doc.doc_type} · Uploaded {formatDate(doc.created_at)}</p>
@@ -70,6 +71,7 @@ export default async function ClientDocumentsPage({
                   ) : null}
                 </div>
                 <StatusBadge label={DOCUMENT_STATUS_LABEL[doc.status] ?? doc.status} tone={toneFor(DOCUMENT_STATUS_TONE, doc.status)} />
+                <Link href={`/api/portal/documents/${doc.id}/download`} className="text-sm text-accent hover:underline">Download</Link>
                 {doc.review_notes ? (
                   <p className="text-xs text-amber-300">{doc.review_notes}</p>
                 ) : null}

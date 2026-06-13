@@ -56,6 +56,7 @@ export const PORTAL_NAV: Record<PortalRole, NavItem[]> = {
     { label: "Documents", href: "/portal/client/documents", icon: "fileText" },
     { label: "Quotes", href: "/portal/client/quotes", icon: "receipt" },
     { label: "Billing", href: "/portal/client/billing", icon: "wallet" },
+    { label: "Subscriptions", href: "/portal/client/subscriptions", icon: "clipboard" },
     { label: "Messages", href: "/portal/client/messages", icon: "messageSquare" },
     { label: "Settings", href: "/portal/client/settings", icon: "settings" },
   ],
@@ -83,12 +84,14 @@ export const PORTAL_NAV: Record<PortalRole, NavItem[]> = {
     { label: "Invoices", href: "/portal/admin/invoices", icon: "wallet" },
     { label: "Payments", href: "/portal/admin/payments", icon: "wallet" },
     { label: "Receipts", href: "/portal/admin/receipts", icon: "receipt" },
+    { label: "Subscriptions", href: "/portal/admin/subscriptions", icon: "clipboard" },
     { label: "Documents", href: "/portal/admin/documents", icon: "fileText" },
     { label: "Expenses", href: "/portal/admin/expenses", icon: "wallet" },
     { label: "User Approvals", href: "/portal/admin/user-approvals", icon: "userCheck" },
     { label: "Audit Log", href: "/portal/admin/audit-log", icon: "history" },
     { label: "System Health", href: "/portal/admin/system-health", icon: "shield" },
     { label: "Settings", href: "/portal/admin/settings", icon: "settings" },
+    { label: "Billing Settings", href: "/portal/admin/settings/billing", icon: "settings" },
   ],
   partner: [
     { label: "Dashboard", href: "/portal/partner/dashboard", icon: "gauge" },
@@ -225,6 +228,46 @@ export const PARTNER_TYPES = [
   "Parts Vendor",
   "Pilot Services",
   "Other",
+];
+
+// ─── Subscriptions ─────────────────────────────────────────────────
+export const SUBSCRIPTION_STATUS: Choice[] = [
+  { value: "draft", label: "Draft", tone: "neutral" },
+  { value: "active", label: "Active", tone: "success" },
+  { value: "paused", label: "Paused", tone: "warn" },
+  { value: "past_due", label: "Past Due", tone: "danger" },
+  { value: "cancelled", label: "Cancelled", tone: "neutral" },
+  { value: "expired", label: "Expired", tone: "danger" },
+  { value: "renewal_pending", label: "Renewal Pending", tone: "warn" },
+];
+export const SUBSCRIPTION_STATUS_LABEL = buildLabelMap(SUBSCRIPTION_STATUS);
+export const SUBSCRIPTION_STATUS_TONE = buildToneMap(SUBSCRIPTION_STATUS);
+
+export const SUBSCRIPTION_PLAN_STATUS: Choice[] = [
+  { value: "draft", label: "Draft", tone: "neutral" },
+  { value: "active", label: "Active", tone: "success" },
+  { value: "archived", label: "Archived", tone: "neutral" },
+];
+export const SUBSCRIPTION_PLAN_STATUS_LABEL = buildLabelMap(SUBSCRIPTION_PLAN_STATUS);
+export const SUBSCRIPTION_PLAN_STATUS_TONE = buildToneMap(SUBSCRIPTION_PLAN_STATUS);
+
+export const SUBSCRIPTION_USAGE_TYPES: Choice[] = [
+  { value: "flight_support", label: "Flight Support" },
+  { value: "mx_reposition", label: "MX Reposition" },
+  { value: "crew_day", label: "Crew Day" },
+  { value: "lodging", label: "Lodging" },
+  { value: "travel", label: "Travel" },
+  { value: "admin_support", label: "Admin Support" },
+  { value: "other", label: "Other" },
+];
+export const SUBSCRIPTION_USAGE_TYPE_LABEL = buildLabelMap(SUBSCRIPTION_USAGE_TYPES);
+
+export const SUBSCRIPTION_CREDIT_TYPES: Choice[] = [
+  { value: "rollover", label: "Rollover" },
+  { value: "manual", label: "Manual" },
+  { value: "refund", label: "Refund" },
+  { value: "unused_allowance", label: "Unused Allowance" },
+  { value: "adjustment", label: "Adjustment" },
 ];
 
 // ─── Quotes + expenses ──────────────────────────────────────────────

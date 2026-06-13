@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, EmptyState, Notice } from "@/components/portal/ui/primitives";
@@ -50,7 +51,7 @@ export default async function CrewCredentialsPage({
             {credentials.map((credential) => {
               const days = daysUntil(credential.expiration_date);
               return (
-                <div key={credential.id} className="grid gap-3 rounded-lg border border-border bg-background/50 p-4 sm:grid-cols-[1fr_auto]">
+                <div key={credential.id} className="grid gap-3 rounded-lg border border-border bg-background/50 p-4 sm:grid-cols-[1fr_auto_auto]">
                   <div>
                     <p className="text-sm font-semibold">{credential.credential_type}</p>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -59,6 +60,9 @@ export default async function CrewCredentialsPage({
                     </p>
                   </div>
                   <StatusBadge label={CREDENTIAL_STATUS_LABEL[credential.status] ?? credential.status} tone={toneFor(CREDENTIAL_STATUS_TONE, credential.status)} />
+                  {credential.document_id ? (
+                    <Link href={`/api/portal/documents/${credential.document_id}/download`} className="text-sm text-accent hover:underline">Download</Link>
+                  ) : null}
                 </div>
               );
             })}

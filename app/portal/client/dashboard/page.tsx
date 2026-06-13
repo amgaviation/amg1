@@ -9,6 +9,7 @@ import {
   listMissionsForClient,
   listAircraftForClient,
   listQuotesForClient,
+  listSubscriptionsForClient,
   countUnread,
 } from "@/lib/portal/queries";
 import {
@@ -30,10 +31,11 @@ export default async function ClientDashboardPage({
   const user = await requireRole("client");
   const params = await searchParams;
 
-  const [missions, aircraft, quotes, unread] = await Promise.all([
+  const [missions, aircraft, quotes, subscriptions, unread] = await Promise.all([
     listMissionsForClient(user.id),
     listAircraftForClient(user.id),
     listQuotesForClient(user.id),
+    listSubscriptionsForClient(user.id),
     countUnread(user.id),
   ]);
 
@@ -45,6 +47,7 @@ export default async function ClientDashboardPage({
   ).slice(0, 3);
   const completed = missions.filter((m) => m.status === "completed").slice(0, 3);
   const openQuotes = quotes.filter((q) => q.status === "sent");
+  const activeSubscriptions = subscriptions.filter((subscription) => ["active", "renewal_pending"].includes(subscription.status));
 
   return (
     <PortalShell role="client" user={user} unread={unread}>
@@ -60,7 +63,7 @@ export default async function ClientDashboardPage({
         <p className="text-sm text-muted-foreground">{user.companyName ?? user.email}</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard label="Active missions" value={active.length} href="/portal/client/trips" />
         <StatCard label="Aircraft on file" value={aircraft.length} href="/portal/client/aircraft" />
         <StatCard
@@ -70,6 +73,7 @@ export default async function ClientDashboardPage({
           href="/portal/client/quotes"
           detail={openQuotes.length > 0 ? "Awaiting your review" : undefined}
         />
+        <StatCard label="Subscriptions" value={activeSubscriptions.length} href="/portal/client/subscriptions" tone={activeSubscriptions.length ? "accent" : "default"} />
         <StatCard label="Unread messages" value={unread} tone={unread > 0 ? "warn" : "default"} href="/portal/client/messages" />
       </div>
 
@@ -84,6 +88,7 @@ export default async function ClientDashboardPage({
           { href: "/portal/client/trips/new?type=maintenance_reposition", label: "Maintenance Reposition", icon: <Plane className="h-4 w-4" /> },
           { href: "/portal/client/trips/new?type=crew_reposition", label: "Crew Request", icon: <Plus className="h-4 w-4" /> },
           { href: "/portal/client/documents?upload=1", label: "Upload Document", icon: <FileText className="h-4 w-4" /> },
+          { href: "/portal/client/subscriptions", label: "View Subscription", icon: <FileText className="h-4 w-4" /> },
           { href: "/portal/client/messages?new=1", label: "Contact Operations", icon: <MessageSquare className="h-4 w-4" /> },
         ].map((item) => (
           <Button key={item.href} asChild variant="outline" className="h-auto justify-start gap-3 rounded-lg py-3">
@@ -157,6 +162,29 @@ export default async function ClientDashboardPage({
           )}
         </SectionCard>
       </div>
+
+      {activeSubscriptions.length > 0 ? (
+        <SectionCard title="Subscription Summary" icon="clipboard" actions={<Button asChild size="sm" variant="ghost" className="rounded-full text-xs"><Link href="/portal/client/subscriptions">View all</Link></Button>}>
+          <div className="grid gap-3 lg:grid-cols-2">
+            {activeSubscriptions.slice(0, 2).map((subscription) => (
+              <Link key={subscription.id} href={`/portal/client/subscriptions/${subscription.id}`} className="rounded-lg border border-border bg-background/50 p-4 transition-colors hover:border-accent/60">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold">{subscription.plan?.name ?? "AMG Support Subscription"}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{subscription.tier?.name ?? "Custom"} · {subscription.aircraft?.tail_number ?? "Account-level"}</p>
+                  </div>
+                  <span className="text-xs text-accent">Renews {subscription.renewal_date ?? "TBD"}</span>
+                </div>
+                <div className="mt-4 grid gap-2 text-xs text-muted-foreground sm:grid-cols-3">
+                  <span>{subscription.included_flights} flights</span>
+                  <span>{subscription.included_mx_repositions} MX repos</span>
+                  <span>{subscription.included_admin_hours} admin hrs</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </SectionCard>
+      ) : null}
 
       {openQuotes.length > 0 ? (
         <SectionCard title="Quotes Awaiting Review" icon="receipt" actions={<Button asChild size="sm" variant="ghost" className="rounded-full text-xs"><Link href="/portal/client/quotes">View all</Link></Button>}>

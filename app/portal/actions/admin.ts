@@ -401,7 +401,7 @@ export async function saveAircraft(formData: FormData) {
 // ─── Document review ────────────────────────────────────────────────
 export async function reviewDocument(formData: FormData) {
   const admin = await actor(["admin"]);
-  const db = await createServiceClient();
+  const db = (await createServiceClient()) as any;
   const docId = str(formData, "document_id");
   const decision = str(formData, "decision");
   await db
@@ -409,7 +409,10 @@ export async function reviewDocument(formData: FormData) {
     .update({
       status: decision === "approved" ? "approved" : "rejected",
       review_notes: str(formData, "review_notes") || null,
+      rejection_reason: decision === "rejected" ? str(formData, "review_notes") || null : null,
       reviewed_by: admin.id,
+      reviewed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     })
     .eq("id", docId);
   await db

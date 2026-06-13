@@ -36,6 +36,94 @@ export type Message = Tables<"messages">;
 type MiniProfile = { full_name: string | null; email: string; company_name: string | null };
 type MiniAircraft = { tail_number: string; make: string | null; model: string | null };
 
+export type SubscriptionPlan = {
+  id: string;
+  name: string;
+  aircraft_category: string | null;
+  description: string | null;
+  status: string;
+  billing_cadence_supported: string[];
+  base_admin_fee_monthly: number;
+  base_admin_fee_annual: number;
+  annual_discount_percent: number;
+  default_terms: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type SubscriptionPlanTier = {
+  id: string;
+  plan_id: string;
+  name: string;
+  included_flights: number;
+  included_mx_repositions: number;
+  included_admin_hours: number;
+  crew_day_rate: number | null;
+  lodging_policy: string | null;
+  travel_policy: string | null;
+  priority_level: string | null;
+  monthly_price: number;
+  annual_price: number;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ClientSubscription = {
+  id: string;
+  client_id: string;
+  aircraft_id: string | null;
+  plan_id: string | null;
+  tier_id: string | null;
+  status: string;
+  billing_cadence: string;
+  start_date: string;
+  end_date: string | null;
+  renewal_date: string | null;
+  monthly_price: number;
+  annual_price: number;
+  custom_price: number | null;
+  included_flights: number;
+  included_mx_repositions: number;
+  included_admin_hours: number;
+  credit_balance: number;
+  notes: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type SubscriptionUsageEvent = {
+  id: string;
+  subscription_id: string;
+  client_id: string;
+  mission_id: string | null;
+  usage_type: string;
+  quantity: number;
+  unit: string | null;
+  covered_quantity: number;
+  overage_quantity: number;
+  unit_rate: number;
+  covered_amount: number;
+  overage_amount: number;
+  notes: string | null;
+  created_by: string | null;
+  created_at: string;
+};
+
+export type SubscriptionCredit = {
+  id: string;
+  subscription_id: string;
+  client_id: string;
+  source_type: string;
+  amount: number;
+  description: string | null;
+  expires_at: string | null;
+  applied_to_invoice_id: string | null;
+  created_by: string | null;
+  created_at: string;
+};
+
 export type MissionListItem = Mission & {
   aircraft: MiniAircraft | null;
   client: MiniProfile | null;
@@ -48,6 +136,15 @@ export type MissionDetail = Mission & {
   crew: (CrewAssignment & { crew: MiniProfile | null })[];
   partners: (PartnerAssignment & { partner: MiniProfile | null })[];
   quotes: Quote[];
+};
+
+export type SubscriptionDetail = ClientSubscription & {
+  client: MiniProfile | null;
+  aircraft: MiniAircraft | null;
+  plan: SubscriptionPlan | null;
+  tier: SubscriptionPlanTier | null;
+  usage: (SubscriptionUsageEvent & { mission: { id: string; ref: string } | null })[];
+  credits: SubscriptionCredit[];
 };
 
 // ─── Aircraft ───────────────────────────────────────────────────────
@@ -349,6 +446,84 @@ export async function listAllReceipts(): Promise<
   return documents ?? [];
 }
 
+// ─── Subscriptions ─────────────────────────────────────────────────
+export async function listSubscriptionPlans(): Promise<(SubscriptionPlan & { tiers: SubscriptionPlanTier[] })[]> {
+  const db = (await createServiceClient()) as any;
+  const [plansResult, tiersResult] = await Promise.all([
+    db.from("subscription_plans").select("*").order("name"),
+    db.from("subscription_plan_tiers").select("*").order("sort_order"),
+  ]);
+  const tiersByPlan = new Map<string, SubscriptionPlanTier[]>();
+  for (const tier of tiersResult.data ?? []) {
+    const list = tiersByPlan.get(tier.plan_id) ?? [];
+    list.push(tier);
+    tiersByPlan.set(tier.plan_id, list);
+  }
+  return (plansResult.data ?? []).map((plan: SubscriptionPlan) => ({
+    ...plan,
+    tiers: tiersByPlan.get(plan.id) ?? [],
+  }));
+}
+
+export async function listAllSubscriptions(): Promise<
+  (ClientSubscription & {
+    client: MiniProfile | null;
+    aircraft: MiniAircraft | null;
+    plan: SubscriptionPlan | null;
+    tier: SubscriptionPlanTier | null;
+  })[]
+> {
+  const db = (await createServiceClient()) as any;
+  const { data } = await db
+    .from("client_subscriptions")
+    .select("*, client:client_id(full_name,email,company_name), aircraft:aircraft_id(tail_number,make,model), plan:plan_id(*), tier:tier_id(*)")
+    .order("created_at", { ascending: false });
+  return data ?? [];
+}
+
+export async function listSubscriptionsForClient(clientId: string): Promise<
+  (ClientSubscription & {
+    aircraft: MiniAircraft | null;
+    plan: SubscriptionPlan | null;
+    tier: SubscriptionPlanTier | null;
+  })[]
+> {
+  const db = (await createServiceClient()) as any;
+  const { data } = await db
+    .from("client_subscriptions")
+    .select("*, aircraft:aircraft_id(tail_number,make,model), plan:plan_id(*), tier:tier_id(*)")
+    .eq("client_id", clientId)
+    .order("created_at", { ascending: false });
+  return data ?? [];
+}
+
+export async function getSubscriptionDetail(id: string): Promise<SubscriptionDetail | null> {
+  const db = (await createServiceClient()) as any;
+  const { data: subscription } = await db
+    .from("client_subscriptions")
+    .select("*, client:client_id(full_name,email,company_name), aircraft:aircraft_id(tail_number,make,model), plan:plan_id(*), tier:tier_id(*)")
+    .eq("id", id)
+    .maybeSingle();
+  if (!subscription) return null;
+  const [usage, credits] = await Promise.all([
+    db
+      .from("subscription_usage_events")
+      .select("*, mission:mission_id(id,ref)")
+      .eq("subscription_id", id)
+      .order("created_at", { ascending: false }),
+    db
+      .from("subscription_credits")
+      .select("*")
+      .eq("subscription_id", id)
+      .order("created_at", { ascending: false }),
+  ]);
+  return {
+    ...subscription,
+    usage: usage.data ?? [],
+    credits: credits.data ?? [],
+  };
+}
+
 // ─── Expenses ───────────────────────────────────────────────────────
 export async function listExpensesForCrew(crewId: string): Promise<
   (Expense & { mission: { ref: string } | null })[]
@@ -392,8 +567,10 @@ export async function listDocumentsForUser(params: {
   if (params.role === "admin") return all;
   return all.filter((d) => {
     if (d.visibility === "public") return true;
-    if (d.visibility === "owner") return d.uploaded_by === params.userId || params.role === "client";
-    if (d.visibility === params.role) return true;
+    if (d.uploaded_by === params.userId) return true;
+    if (d.scope_id === params.userId) return true;
+    if (params.role === "client" && d.visibility === "owner") return false;
+    if (d.visibility === params.role) return d.scope_id === params.userId;
     return false;
   });
 }
@@ -657,7 +834,7 @@ export async function listAuditEvents(limit = 100): Promise<AuditEvent[]> {
 export async function getAdminMetrics() {
   const db = await createServiceClient();
 
-  const [missionsActive, missionsSubmitted, pendingUsers, pendingDocs, pendingExpenses, crewCount] =
+  const [missionsActive, missionsSubmitted, pendingUsers, pendingDocs, pendingExpenses, crewCount, activeSubscriptions, subscriptionOverages] =
     await Promise.all([
       db
         .from("missions")
@@ -668,6 +845,8 @@ export async function getAdminMetrics() {
       db.from("documents").select("id", { count: "exact", head: true }).eq("status", "pending_review"),
       db.from("expenses").select("id", { count: "exact", head: true }).eq("status", "submitted"),
       db.from("profiles").select("id", { count: "exact", head: true }).eq("role", "crew"),
+      (db as any).from("client_subscriptions").select("id", { count: "exact", head: true }).eq("status", "active"),
+      (db as any).from("subscription_usage_events").select("id", { count: "exact", head: true }).gt("overage_amount", 0),
     ]);
 
   return {
@@ -677,5 +856,7 @@ export async function getAdminMetrics() {
     pendingDocuments: pendingDocs.count ?? 0,
     pendingExpenses: pendingExpenses.count ?? 0,
     crewCount: crewCount.count ?? 0,
+    activeSubscriptions: activeSubscriptions.count ?? 0,
+    subscriptionOverages: subscriptionOverages.count ?? 0,
   };
 }

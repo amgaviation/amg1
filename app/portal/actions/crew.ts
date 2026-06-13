@@ -152,13 +152,17 @@ export async function removeAvailabilityWindow(formData: FormData) {
 
 export async function addCredential(formData: FormData) {
   const user = await actor(["crew"]);
-  const db = await createServiceClient();
+  const db = (await createServiceClient()) as any;
   const type = str(formData, "credential_type");
   if (!type) redirect("/portal/crew/credentials?error=missing");
 
   let documentId: string | null = null;
   const file = formData.get("file");
   if (file instanceof File && file.size > 0) {
+    const allowedTypes = new Set(["application/pdf", "image/jpeg", "image/png"]);
+    if (file.size > 50 * 1024 * 1024 || (file.type && !allowedTypes.has(file.type))) {
+      redirect("/portal/crew/credentials?error=upload");
+    }
     const path = `${user.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
     const { error: upErr } = await db.storage
       .from("crew-credentials")
@@ -168,7 +172,11 @@ export async function addCredential(formData: FormData) {
         .from("documents")
         .insert({
           name: `${type} — ${user.name}`,
+          original_file_name: file.name,
+          storage_bucket: "crew-credentials",
           storage_path: path,
+          mime_type: file.type || null,
+          file_size: file.size,
           doc_type: type,
           scope_type: "crew",
           scope_id: user.id,
