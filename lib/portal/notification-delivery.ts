@@ -177,14 +177,15 @@ export async function sendEmail(params: {
       Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
       "Content-Type": "application/json",
     },
-     body: JSON.stringify({
-    from: process.env.EMAIL_FROM_ADDRESS,
-    reply_to: params.replyTo || process.env.EMAIL_REPLY_TO || undefined,
-    to: params.to,
-    subject: params.subject,
-    html: params.html,
-    text: params.text,
-  }),
+    body: JSON.stringify({
+      from: process.env.EMAIL_FROM_ADDRESS,
+      reply_to: params.replyTo || process.env.EMAIL_REPLY_TO || undefined,
+      to: params.to,
+      subject: params.subject,
+      html: params.html,
+      text: params.text,
+    }),
+  });
 
   const payload = await response.json().catch(() => ({}));
 
