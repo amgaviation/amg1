@@ -5,8 +5,13 @@ import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { postMessage } from "@/app/portal/actions/messages";
-import { getThreadWithMessages, isThreadMember } from "@/lib/portal/queries";
+import { isThreadMember } from "@/lib/portal/queries";
 import { formatDateTime, initials } from "@/lib/portal/format";
+import {
+  getThreadWithMessagesForDisplay,
+  messageSenderInitialsSource,
+  messageSenderName,
+} from "@/lib/portal/message-display";
 
 export const metadata = { title: "Thread - Partner Portal" };
 
@@ -14,7 +19,7 @@ export default async function PartnerThreadPage({ params }: { params: Promise<{ 
   const user = await requireRole("partner");
   const { id } = await params;
   if (!(await isThreadMember(id, user.id))) notFound();
-  const result = await getThreadWithMessages(id);
+  const result = await getThreadWithMessagesForDisplay(id);
   if (!result) notFound();
 
   return (
@@ -24,11 +29,12 @@ export default async function PartnerThreadPage({ params }: { params: Promise<{ 
         <div className="space-y-4">
           {result.messages.map((message) => {
             const isMe = message.sender_id === user.id;
+            const senderLabel = messageSenderName(message, user.id, user.role);
             return (
               <div key={message.id} className={`flex gap-3 ${isMe ? "flex-row-reverse" : ""}`}>
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-secondary text-xs font-bold">{initials(message.sender?.full_name ?? message.sender_email)}</div>
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-secondary text-xs font-bold">{initials(messageSenderInitialsSource(message))}</div>
                 <div className={`max-w-[75%] rounded-xl border px-4 py-3 ${isMe ? "border-accent/30 bg-accent/10" : "border-border bg-card"}`}>
-                  <p className="mb-1 text-xs font-semibold text-muted-foreground">{isMe ? "You" : message.sender?.full_name ?? "AMG Operations"}</p>
+                  <p className="mb-1 text-xs font-semibold text-muted-foreground">{senderLabel}</p>
                   <p className="text-sm leading-6">{message.body}</p>
                   <p className="mt-1 text-[0.65rem] text-muted-foreground">{formatDateTime(message.created_at)}</p>
                 </div>
