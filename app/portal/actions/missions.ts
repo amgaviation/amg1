@@ -6,6 +6,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { logAuditEvent, notifyAdmins, notifyUser } from "@/lib/portal/audit";
 import { MISSION_TYPE_LABEL } from "@/lib/portal/constants";
+import { ensureClientAccountForMission } from "@/lib/portal/client-account-provisioning";
 import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
 import { actor, bool, isoOrNull, num, str } from "./_helpers";
 
@@ -76,7 +77,6 @@ export async function createMission(formData: FormData) {
     redirect("/portal/client/trips/new?error=failed");
   }
 
-  // Optional passenger names (newline or comma separated)
   const paxRaw = str(formData, "passenger_names");
   if (paxRaw) {
     const names = paxRaw
@@ -129,6 +129,10 @@ export async function updateMissionStatus(formData: FormData) {
     .eq("id", missionId)
     .select("ref, client_id")
     .single();
+
+  if (status === "under_review") {
+    await ensureClientAccountForMission(missionId, user.id);
+  }
 
   await logAuditEvent({
     actor: user,
