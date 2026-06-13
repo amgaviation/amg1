@@ -41,6 +41,7 @@ export async function notifyUser(params: {
   userId: string;
   title: string;
   body?: string;
+  html?: string;
   type?: string;
   entityType?: string;
   entityId?: string | null;
@@ -66,6 +67,7 @@ export async function notifyUser(params: {
       notificationId: data?.id ?? null,
       title: params.title,
       body: params.body ?? null,
+      html: params.html ?? null,
       eventType: params.type ?? null,
       replyTo: params.replyTo ?? null,
     });
@@ -81,6 +83,7 @@ export async function notifyUser(params: {
 export async function notifyAdmins(params: {
   title: string;
   body?: string;
+  html?: string;
   type?: string;
   entityType?: string;
   entityId?: string | null;
@@ -101,6 +104,7 @@ export async function notifyAdmins(params: {
         userId: admin.id,
         title: params.title,
         body: params.body,
+        html: params.html,
         type: params.type,
         entityType: params.entityType,
         entityId: params.entityId,
