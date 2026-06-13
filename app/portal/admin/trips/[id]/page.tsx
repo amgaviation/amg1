@@ -10,6 +10,7 @@ import { assignCrew, assignPartner } from "@/app/portal/actions/admin";
 import { createQuote } from "@/app/portal/actions/quotes";
 import { updateMissionNotes, updateMissionStatus } from "@/app/portal/actions/missions";
 import { getMissionDetail, listAllCrew, listAllPartners } from "@/lib/portal/queries";
+import { getPublicSupportRequestForMission, publicSupportLabel } from "@/lib/portal/public-support-requests";
 import { CREW_ROLE, MISSION_STATUS, MISSION_STATUS_LABEL, MISSION_STATUS_TONE, PARTNER_TYPES, QUOTE_CATEGORIES, toneFor } from "@/lib/portal/constants";
 import { formatDateTime, formatMoney, formatRoute } from "@/lib/portal/format";
 
@@ -25,8 +26,17 @@ export default async function AdminTripDetailPage({
   const user = await requireRole("admin");
   const { id } = await params;
   const flash = await searchParams;
-  const [mission, crew, partners] = await Promise.all([getMissionDetail(id), listAllCrew(), listAllPartners()]);
+  const [mission, crew, partners, publicRequest] = await Promise.all([
+    getMissionDetail(id),
+    listAllCrew(),
+    listAllPartners(),
+    getPublicSupportRequestForMission(id),
+  ]);
   if (!mission) notFound();
+
+  const publicDetails = publicRequest?.category_details
+    ? Object.entries(publicRequest.category_details).filter(([, value]) => Boolean(value))
+    : [];
 
   return (
     <PortalShell role="admin" user={user}>
@@ -38,15 +48,48 @@ export default async function AdminTripDetailPage({
           <SectionCard title="Mission Profile" icon="plane">
             <dl>
               <DetailRow label="Status"><StatusBadge label={MISSION_STATUS_LABEL[mission.status] ?? mission.status} tone={toneFor(MISSION_STATUS_TONE, mission.status)} /></DetailRow>
-              <DetailRow label="Client">{mission.client?.company_name ?? mission.client?.full_name ?? mission.client?.email ?? "-"}</DetailRow>
-              <DetailRow label="Aircraft">{mission.aircraft?.tail_number ?? mission.tail_number ?? "TBD"}</DetailRow>
+              <DetailRow label="Client">{mission.client?.company_name ?? mission.client?.full_name ?? mission.client?.email ?? publicRequest?.email ?? "-"}</DetailRow>
+              <DetailRow label="Aircraft">{mission.aircraft?.tail_number ?? mission.tail_number ?? publicRequest?.tail_number ?? "TBD"}</DetailRow>
+              <DetailRow label="Route">{formatRoute(mission.departure_airport, mission.arrival_airport)}</DetailRow>
               <DetailRow label="Departure">{formatDateTime(mission.requested_departure)}</DetailRow>
               <DetailRow label="Arrival">{formatDateTime(mission.requested_arrival)}</DetailRow>
               <DetailRow label="Passengers">{mission.passenger_count ?? mission.passengers.length}</DetailRow>
-              <DetailRow label="Client Notes">{mission.client_notes ?? mission.additional_notes ?? "-"}</DetailRow>
+              <DetailRow label="Operational Summary">{publicRequest?.operational_summary ?? mission.additional_notes ?? "-"}</DetailRow>
               <DetailRow label="Internal Notes">{mission.internal_notes ?? "-"}</DetailRow>
             </dl>
           </SectionCard>
+
+          {publicRequest ? (
+            <SectionCard title="Public Support Request" icon="clipboard">
+              <dl>
+                <DetailRow label="Requester">{publicRequest.requester_name}</DetailRow>
+                <DetailRow label="Email">{publicRequest.email}</DetailRow>
+                <DetailRow label="Phone">{publicRequest.phone ?? "-"}</DetailRow>
+                <DetailRow label="Preferred Contact">{publicRequest.preferred_contact_method ?? "-"}</DetailRow>
+                <DetailRow label="Company">{publicRequest.company_name ?? "-"}</DetailRow>
+                <DetailRow label="Requested Category">{publicRequest.requested_service_category}</DetailRow>
+                <DetailRow label="Aircraft">{publicRequest.aircraft_display ?? [publicRequest.aircraft_make, publicRequest.aircraft_model].filter(Boolean).join(" ") || "-"}</DetailRow>
+                <DetailRow label="Tail Number">{publicRequest.tail_number ?? "-"}</DetailRow>
+                <DetailRow label="Aircraft Base">{publicRequest.aircraft_base ?? "-"}</DetailRow>
+                <DetailRow label="Requested Timing">{publicRequest.requested_timing ?? "-"}</DetailRow>
+                <DetailRow label="Route Submitted">{publicRequest.route ?? "-"}</DetailRow>
+                <DetailRow label="Portal Account">{publicRequest.portal_account_status ?? "not created"}</DetailRow>
+              </dl>
+              {publicDetails.length ? (
+                <div className="mt-5 grid gap-3">
+                  <p className="eyebrow text-[0.65rem] text-muted-foreground">Category Details</p>
+                  <div className="grid gap-2">
+                    {publicDetails.map(([key, value]) => (
+                      <div key={key} className="rounded-lg border border-border bg-background/50 p-3">
+                        <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-muted-foreground">{publicSupportLabel(key)}</p>
+                        <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </SectionCard>
+          ) : null}
 
           <SectionCard title="Crew Assignments" icon="users">
             {mission.crew.length === 0 ? <EmptyState icon="users" title="No crew assigned" /> : (
@@ -81,12 +124,17 @@ export default async function AdminTripDetailPage({
             </form>
           </SectionCard>
           <SectionCard title="Assign Crew" icon="users">
-            <form action={assignCrew} className="space-y-4">
+            <form action={assignCrew} className="space-y-5">
               <input type="hidden" name="mission_id" value={mission.id} />
-              <SelectField label="Crew Member" name="crew_id" defaultValue="" options={[{ value: "", label: "Select crew..." }, ...crew.map((c) => ({ value: c.id, label: c.full_name ?? c.email }))]} />
-              <SelectField label="Crew Role" name="crew_role" defaultValue="pic" options={CREW_ROLE.map((r) => ({ value: r.value, label: r.label }))} />
-              <TextAreaField label="Duty Notes" name="duty_notes" />
-              <SubmitButton className="rounded-full" pendingText="Assigning...">Offer Assignment</SubmitButton>
+              {[0, 1, 2].map((index) => (
+                <div key={index} className="rounded-lg border border-border bg-background/40 p-3 space-y-3">
+                  <p className="eyebrow text-[0.6rem] text-muted-foreground">Crew Slot {index + 1}</p>
+                  <SelectField label="Crew Member" name="crew_id[]" defaultValue="" options={[{ value: "", label: "Select crew..." }, ...crew.map((c) => ({ value: c.id, label: c.full_name ?? c.email }))]} />
+                  <SelectField label="Crew Role" name="crew_role[]" defaultValue={index === 0 ? "pic" : index === 1 ? "sic" : "relief"} options={CREW_ROLE.map((r) => ({ value: r.value, label: r.label }))} />
+                  <TextAreaField label="Duty Notes" name="duty_notes[]" />
+                </div>
+              ))}
+              <SubmitButton className="rounded-full" pendingText="Assigning...">Offer Crew Assignment(s)</SubmitButton>
             </form>
           </SectionCard>
           <SectionCard title="Assign Partner" icon="handshake">
@@ -100,15 +148,26 @@ export default async function AdminTripDetailPage({
             </form>
           </SectionCard>
           <SectionCard title="Create Quote" icon="receipt">
-            <form action={createQuote} className="space-y-4">
+            <form action={createQuote} className="space-y-5">
               <input type="hidden" name="mission_id" value={mission.id} />
-              <SelectField label="Category" name="category[]" defaultValue="Admin coordination" options={QUOTE_CATEGORIES.map((c) => ({ value: c, label: c }))} />
-              <TextField label="Description" name="description[]" defaultValue={`Operations support for ${mission.ref}`} />
-              <div className="grid grid-cols-2 gap-3">
-                <TextField label="Quantity" name="quantity[]" type="number" step="0.01" defaultValue="1" />
-                <TextField label="Unit Price" name="unit_price[]" type="number" step="0.01" defaultValue="0" />
-              </div>
+              {[0, 1, 2, 3, 4].map((index) => (
+                <div key={index} className="rounded-lg border border-border bg-background/40 p-3 space-y-3">
+                  <p className="eyebrow text-[0.6rem] text-muted-foreground">Quote Line {index + 1}</p>
+                  <SelectField label="Category" name="category[]" defaultValue={index === 0 ? "Admin coordination" : ""} options={[{ value: "", label: "Select category..." }, ...QUOTE_CATEGORIES.map((c) => ({ value: c, label: c }))]} />
+                  <TextField label="Description" name="description[]" defaultValue={index === 0 ? `Operations support for ${mission.ref}` : ""} />
+                  <TextAreaField label="Line Notes" name="line_notes[]" />
+                  <div className="grid grid-cols-2 gap-3">
+                    <TextField label="Quantity" name="quantity[]" type="number" step="0.01" defaultValue={index === 0 ? "1" : ""} />
+                    <TextField label="Unit Price" name="unit_price[]" type="number" step="0.01" defaultValue={index === 0 ? "0" : ""} />
+                  </div>
+                </div>
+              ))}
+              <TextField label="Deposit Amount" name="deposit_amount" type="number" step="0.01" defaultValue="0" />
+              <TextField label="Payment Due Date" name="payment_due_date" type="date" />
+              <TextAreaField label="Payment Terms" name="payment_terms" />
+              <TextAreaField label="Payment Instructions" name="payment_instructions" />
               <TextAreaField label="Client Notes" name="client_notes" />
+              <TextAreaField label="Internal Notes" name="internal_notes" />
               <SubmitButton className="rounded-full" pendingText="Creating...">Send Quote</SubmitButton>
             </form>
           </SectionCard>
