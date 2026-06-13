@@ -4,9 +4,9 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/site/reveal";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border bg-card/40">
+    <footer className="cinematic-band border-t border-white/10 bg-card/40">
       <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
-        <RevealGroup className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1.35fr_0.9fr_1.35fr]">
+        <RevealGroup className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1.35fr_0.9fr_1.35fr]" data-scroll-animate>
           <RevealItem className="max-w-sm">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/logo-white.png" alt="AMG Aviation Group" width="1088" height="221" className="h-10 w-auto" />
@@ -16,6 +16,7 @@ export function SiteFooter() {
             <a
               href={`mailto:${COMPANY.email}`}
               className="mt-6 inline-block text-sm text-accent hover:text-accent/80"
+              data-cursor="EMAIL"
             >
               {COMPANY.email}
             </a>
@@ -32,6 +33,7 @@ export function SiteFooter() {
                     <Link
                       href={link.href}
                       className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      data-cursor="OPEN"
                     >
                       {link.label}
                     </Link>
@@ -42,13 +44,13 @@ export function SiteFooter() {
           ))}
         </RevealGroup>
 
-        <Reveal className="mt-12 rounded-lg border border-border p-4">
+        <Reveal className="glass-panel mt-12 rounded-lg p-4">
           <p className="text-xs leading-relaxed text-muted-foreground">
             {COMPANY.requestDisclaimer}
           </p>
         </Reveal>
 
-        <div className="mt-8 flex flex-col items-start justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
+        <div className="mt-8 flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
           <span>
             &copy; {new Date().getFullYear()} {COMPANY.name}. All rights
             reserved.

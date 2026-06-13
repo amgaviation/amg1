@@ -1,11 +1,23 @@
 import { AIRCRAFT_CATEGORIES } from "@/lib/content";
 import { Reveal, RevealGroup, RevealItem } from "@/components/site/reveal";
 
+const AIRCRAFT_IMAGES: Record<string, string> = {
+  "single-engine-piston": "/images/site/cirrus.webp",
+  "multi-engine-piston": "/images/site/diamond-me.jpg",
+  turboprop: "/images/site/tbm.jpg",
+  "single-engine-jet-vlj": "/images/light-jet.png",
+  "light-jet": "/images/site/citation-x.webp",
+  "midsize-jet": "/images/mid-jet.png",
+  "super-midsize-jet": "/images/heavy-jet.png",
+  "large-cabin-heavy-jet": "/images/hero-jet.png",
+  helicopter: "/images/site/bell-505.jpg",
+};
+
 export function AircraftCategoryShowcase() {
   return (
-    <section className="py-28 lg:py-36">
+    <section className="cinematic-band py-28 lg:py-36">
       <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-10">
-        <Reveal className="lg:sticky lg:top-28 lg:self-start">
+        <Reveal className="lg:sticky lg:top-28 lg:self-start" data-scroll-animate>
           <p className="eyebrow mb-5 text-accent">Aircraft Categories</p>
           <h2 className="display-heading text-balance text-5xl text-foreground sm:text-6xl lg:text-7xl">
             Reviewed by aircraft, not assumptions.
@@ -17,17 +29,19 @@ export function AircraftCategoryShowcase() {
           </p>
         </Reveal>
 
-        <RevealGroup className="grid gap-5">
+        <RevealGroup className="grid gap-5" data-scroll-animate>
           {AIRCRAFT_CATEGORIES.map((aircraft) => (
             <RevealItem key={aircraft.id}>
-              <article className="hover-lift group overflow-hidden rounded-xl border border-border bg-card hover:border-accent/50">
+              <article className="glass-panel hover-lift group overflow-hidden rounded-lg hover:border-accent/50">
                 <div className="grid md:grid-cols-[0.45fr_0.55fr]">
-                  <div className="relative min-h-64 overflow-hidden bg-[linear-gradient(135deg,rgba(59,130,246,0.16),rgba(7,17,31,0.98)_48%,rgba(56,189,248,0.1))] p-6">
-                    <div className="absolute inset-x-6 top-6 h-px bg-accent/30" />
-                    <div className="absolute bottom-6 right-6 h-24 w-24 rounded-full border border-accent/20" />
-                    <p className="font-display text-5xl font-extrabold uppercase leading-none text-accent/25">
-                      {aircraft.category}
-                    </p>
+                  <div className="media-vignette relative min-h-64 overflow-hidden bg-card">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={AIRCRAFT_IMAGES[aircraft.id] ?? "/images/hero-jet.png"}
+                      alt=""
+                      className="h-full min-h-64 w-full scale-105 object-cover opacity-90 transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-x-6 top-6 h-px bg-accent/40" />
                   </div>
                   <div className="p-7">
                     <p className="eyebrow text-[0.65rem] text-accent">{aircraft.category}</p>
@@ -41,7 +55,7 @@ export function AircraftCategoryShowcase() {
                       {aircraft.factors.map((factor) => (
                         <span
                           key={factor}
-                          className="rounded-full border border-border px-3 py-2 text-xs text-foreground/75"
+                          className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs text-foreground/75"
                         >
                           {factor}
                         </span>

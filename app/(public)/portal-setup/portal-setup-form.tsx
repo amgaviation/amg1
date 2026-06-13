@@ -109,18 +109,18 @@ export function PortalSetupForm() {
 
   return (
     <form action={submit} className="mt-6 grid gap-4">
-      {email ? <p className="rounded-lg border border-border bg-background/60 px-4 py-3 text-sm text-muted-foreground">Setting up access for <span className="text-foreground">{email}</span></p> : null}
+      {email ? <p className="rounded-lg border border-white/10 bg-background/60 px-4 py-3 text-sm text-muted-foreground">Setting up access for <span className="text-foreground">{email}</span></p> : null}
       {err ? <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-red-200">{message(err)}</div> : null}
       {!ready && !err ? <p className="text-sm text-muted-foreground">Verifying setup link...</p> : null}
       <label className="grid gap-2 text-sm text-muted-foreground">
         New portal login key
-        <input name="secret_one" type="password" required minLength={8} autoComplete="new-password" disabled={!ready || busy} className="h-12 rounded-lg border border-input bg-background px-4 text-base text-foreground outline-none focus:border-accent disabled:opacity-60" />
+        <input name="secret_one" type="password" required minLength={8} autoComplete="new-password" disabled={!ready || busy} className="support-field h-12 px-4 text-base disabled:opacity-60" data-cursor="TYPE" />
       </label>
       <label className="grid gap-2 text-sm text-muted-foreground">
         Confirm portal login key
-        <input name="secret_two" type="password" required minLength={8} autoComplete="new-password" disabled={!ready || busy} className="h-12 rounded-lg border border-input bg-background px-4 text-base text-foreground outline-none focus:border-accent disabled:opacity-60" />
+        <input name="secret_two" type="password" required minLength={8} autoComplete="new-password" disabled={!ready || busy} className="support-field h-12 px-4 text-base disabled:opacity-60" data-cursor="TYPE" />
       </label>
-      <button type="submit" disabled={!ready || busy} className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-accent px-5 font-display text-xs font-semibold uppercase tracking-widest text-accent-foreground transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-60">
+      <button type="submit" disabled={!ready || busy} className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-accent px-5 font-display text-xs font-semibold uppercase tracking-widest text-accent-foreground transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-60" data-cursor="SUBMIT">
         {busy ? "Saving..." : "Finish Setup"}
         <ArrowRight className="h-4 w-4" />
       </button>

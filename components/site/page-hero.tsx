@@ -17,7 +17,7 @@ export function PageHero({
   return (
     <section
       className={cn(
-        "relative isolate flex min-h-[72svh] items-end overflow-hidden border-b border-border pb-16 pt-36 lg:pb-24",
+        "relative isolate flex min-h-[72svh] items-end overflow-hidden border-b border-white/10 pb-16 pt-36 lg:pb-24",
         className
       )}
     >
@@ -27,13 +27,15 @@ export function PageHero({
           <img
             src={image || "/placeholder.svg"}
             alt=""
-            className="h-full w-full scale-105 object-cover opacity-45"
+            className="h-full w-full scale-105 object-cover opacity-50"
+            data-parallax="0.05"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/78 to-background/40" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_76%_24%,rgba(59,130,246,0.18),transparent_28rem)]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
         </div>
       )}
       <div className="relative z-10 mx-auto w-full max-w-7xl px-6 lg:px-10">
-        <Reveal>
+        <Reveal data-scroll-animate>
           <p className="eyebrow mb-5 text-accent">{eyebrow}</p>
           <h1 className="display-heading max-w-4xl text-balance text-5xl text-foreground sm:text-6xl lg:text-7xl">
             {title}

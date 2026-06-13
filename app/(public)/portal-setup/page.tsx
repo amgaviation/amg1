@@ -8,8 +8,8 @@ export const metadata = {
 
 export default function PortalSetupPage() {
   return (
-    <main className="flex min-h-screen items-center bg-background px-6 py-16">
-      <section className="mx-auto w-full max-w-md rounded-xl border border-border bg-card p-6">
+    <main className="cinematic-band flex min-h-screen items-center bg-background px-6 py-16">
+      <section className="glass-panel mx-auto w-full max-w-md rounded-lg p-6">
         <p className="eyebrow text-accent">AMG Portal</p>
         <h1 className="mt-4 font-display text-4xl font-extrabold uppercase tracking-wide text-foreground">
           Portal Access

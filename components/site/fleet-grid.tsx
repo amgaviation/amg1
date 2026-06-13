@@ -17,6 +17,18 @@ const CATEGORIES = [
   "Helicopter",
 ];
 
+const AIRCRAFT_IMAGES: Record<string, string> = {
+  "single-engine-piston": "/images/site/cirrus.webp",
+  "multi-engine-piston": "/images/site/diamond-me.jpg",
+  turboprop: "/images/site/tbm.jpg",
+  "single-engine-jet-vlj": "/images/light-jet.png",
+  "light-jet": "/images/site/citation-x.webp",
+  "midsize-jet": "/images/mid-jet.png",
+  "super-midsize-jet": "/images/heavy-jet.png",
+  "large-cabin-heavy-jet": "/images/hero-jet.png",
+  helicopter: "/images/site/bell-505.jpg",
+};
+
 export function FleetGrid() {
   const [filter, setFilter] = useState("All");
 
@@ -26,18 +38,19 @@ export function FleetGrid() {
       : FLEET.filter((a) => a.category === filter);
 
   return (
-    <div>
+    <div data-scroll-animate>
       <div className="flex flex-wrap gap-3">
         {CATEGORIES.map((cat) => (
           <button
             key={cat}
             type="button"
             onClick={() => setFilter(cat)}
+            data-cursor="FILTER"
             className={cn(
               "rounded-full border px-5 py-2.5 font-display text-xs font-semibold uppercase tracking-widest transition-colors",
               filter === cat
                 ? "border-accent bg-accent text-accent-foreground"
-                : "border-border text-foreground/70 hover:border-accent hover:text-foreground"
+                : "border-white/15 bg-white/5 text-foreground/70 backdrop-blur hover:border-accent hover:text-foreground"
             )}
           >
             {cat}
@@ -49,15 +62,17 @@ export function FleetGrid() {
         {filtered.map((aircraft) => (
           <article
             key={aircraft.id}
-            className="overflow-hidden rounded-xl border border-border bg-card"
+            className="glass-panel hover-lift overflow-hidden rounded-lg"
           >
-            <div className="relative aspect-[16/10] overflow-hidden bg-[linear-gradient(135deg,rgba(59,130,246,0.16),rgba(7,17,31,0.98)_48%,rgba(56,189,248,0.1))] p-6">
-              <div className="absolute inset-x-6 top-6 h-px bg-accent/30" />
-              <div className="absolute bottom-6 right-6 h-24 w-24 rounded-full border border-accent/20" />
-              <p className="font-display text-5xl font-extrabold uppercase leading-none text-accent/25">
-                {aircraft.name}
-              </p>
-              <span className="absolute left-4 top-4 rounded-full border border-border bg-background/70 px-3 py-1 font-display text-[0.65rem] font-semibold uppercase tracking-widest text-accent backdrop-blur">
+            <div className="media-vignette relative aspect-[16/10] overflow-hidden bg-card">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={AIRCRAFT_IMAGES[aircraft.id] ?? "/images/hero-jet.png"}
+                alt=""
+                className="h-full w-full scale-105 object-cover opacity-80"
+              />
+              <div className="absolute inset-x-6 top-6 h-px bg-accent/40" />
+              <span className="absolute left-4 top-4 rounded-full border border-white/15 bg-background/70 px-3 py-1 font-display text-[0.65rem] font-semibold uppercase tracking-widest text-accent backdrop-blur">
                 {aircraft.category}
               </span>
             </div>
@@ -68,11 +83,11 @@ export function FleetGrid() {
               <p className="mt-3 leading-relaxed text-muted-foreground">
                 {aircraft.support}
               </p>
-              <div className="mt-6 grid grid-cols-2 gap-2 border-t border-border pt-6">
+              <div className="mt-6 grid grid-cols-2 gap-2 border-t border-white/10 pt-6">
                 {aircraft.factors.map((factor) => (
                   <span
                     key={factor}
-                    className="rounded-full border border-border px-3 py-2 text-xs text-foreground/75"
+                    className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs text-foreground/75"
                   >
                     {factor}
                   </span>

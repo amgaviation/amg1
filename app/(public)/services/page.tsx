@@ -22,12 +22,12 @@ export default function ServicesPage() {
         image="/images/site/tbm.jpg"
       />
 
-      <section className="py-28">
+      <section className="cinematic-band py-28">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
-          <RevealGroup className="grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-border bg-border md:grid-cols-2">
+          <RevealGroup className="grid grid-cols-1 gap-4 md:grid-cols-2" data-scroll-animate>
             {SERVICES.map((service, i) => (
               <RevealItem key={service.id}>
-                <article className="hover-lift group flex h-full flex-col justify-between bg-card p-8 hover:bg-secondary/60 lg:p-10">
+                <article className="glass-panel hover-lift group flex h-full flex-col justify-between rounded-lg p-8 lg:p-10">
                   <div>
                     <div className="flex items-start justify-between gap-6">
                       <span className="font-display text-5xl font-extrabold text-accent/40">
@@ -45,7 +45,7 @@ export default function ServicesPage() {
                       {service.useCase}
                     </p>
                   </div>
-                  <ul className="mt-8 flex flex-col gap-3 border-t border-border pt-6">
+                  <ul className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-6">
                     {service.points.map((point) => (
                       <li key={point} className="flex items-start gap-3">
                         <Check className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
@@ -56,6 +56,7 @@ export default function ServicesPage() {
                   <Link
                     href={`/contact?service=${service.id}`}
                     className="mt-8 font-display text-xs font-semibold uppercase tracking-widest text-accent"
+                    data-cursor="REQUEST"
                   >
                     Request support
                   </Link>
@@ -66,9 +67,9 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      <section className="border-t border-border py-28">
+      <section className="border-t border-white/10 py-28">
         <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-10">
-          <Reveal className="flex items-center">
+          <Reveal className="flex items-center" data-scroll-animate>
             <div>
               <p className="eyebrow mb-5 text-accent">Mission Types</p>
               <h2 className="display-heading text-balance text-4xl text-foreground sm:text-5xl">
@@ -76,18 +77,18 @@ export default function ServicesPage() {
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
                 Ferry work, owner support, maintenance positioning, and contract pilot coverage
-                each bring their own tempo. The visuals across this site now mirror that real mix
-                of aircraft and operating contexts.
+                each bring their own tempo. AMG reviews timing, crew readiness, route, aircraft
+                status, and operating approvals before support proceeds.
               </p>
             </div>
           </Reveal>
-          <Reveal delay={0.15}>
-            <div className="overflow-hidden rounded-xl border border-border bg-card">
+          <Reveal delay={0.15} data-scroll-animate>
+            <div className="media-vignette overflow-hidden rounded-lg border border-white/10 bg-card">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/images/site/diamond-me.jpg"
                 alt="Twin-engine aircraft in flight representing mission-specific support requirements"
-                className="h-full w-full object-cover"
+                className="h-full w-full scale-105 object-cover"
               />
             </div>
           </Reveal>

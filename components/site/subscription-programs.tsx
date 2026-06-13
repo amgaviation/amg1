@@ -109,10 +109,10 @@ export function SubscriptionPrograms() {
   const customOnly = tiers.length === 0;
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-24 lg:px-10">
+    <div className="cinematic-band mx-auto max-w-7xl px-6 py-24 lg:px-10" data-scroll-animate>
       <div className="grid gap-8 lg:grid-cols-[0.82fr_1.18fr]">
         <aside className="lg:sticky lg:top-[calc(var(--public-header-height)+2rem)] lg:self-start">
-          <div className="rounded-xl border border-border bg-card p-6">
+          <div className="glass-panel rounded-lg p-6">
             <p className="eyebrow text-accent">Program Builder</p>
             <h2 className="mt-4 font-display text-4xl font-extrabold uppercase leading-none text-foreground">
               Select Aircraft and Billing
@@ -123,7 +123,8 @@ export function SubscriptionPrograms() {
                 <select
                   value={aircraftClass}
                   onChange={(event) => setAircraftClass(event.target.value as (typeof aircraftClasses)[number])}
-                  className="min-h-12 rounded-lg border border-input bg-background px-4 text-base text-foreground outline-none focus:border-accent"
+                  className="support-field px-4 text-base"
+                  data-cursor="TYPE"
                 >
                   {aircraftClasses.map((item) => (
                     <option key={item} value={item}>
@@ -135,12 +136,13 @@ export function SubscriptionPrograms() {
 
               <fieldset className="grid gap-3">
                 <legend className="text-sm font-medium text-foreground">Billing preference</legend>
-                <div className="grid grid-cols-2 gap-2 rounded-full border border-border bg-background p-1">
+                <div className="grid grid-cols-2 gap-2 rounded-full border border-white/10 bg-background/70 p-1">
                   {(["monthly", "annual"] as const).map((item) => (
                     <button
                       key={item}
                       type="button"
                       onClick={() => setBilling(item)}
+                      data-cursor="FILTER"
                       className={cn(
                         "min-h-11 rounded-full px-4 font-display text-xs font-semibold uppercase tracking-widest transition-colors",
                         billing === item
@@ -162,7 +164,7 @@ export function SubscriptionPrograms() {
 
         <div>
           {customOnly ? (
-            <section className="rounded-xl border border-accent/40 bg-card p-8">
+            <section className="glass-panel rounded-lg border-accent/40 p-8">
               <p className="eyebrow text-accent">Custom Proposal Only</p>
               <h3 className="mt-4 font-display text-4xl font-extrabold uppercase leading-none text-foreground">
                 {aircraftClass}
@@ -170,7 +172,7 @@ export function SubscriptionPrograms() {
               <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
                 This aircraft class requires custom review before AMG can define scope, allowances, crew requirements, risk factors, and pricing.
               </p>
-              <Link href="/contact?category=subscription-program-inquiry" className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground">
+              <Link href="/contact?category=subscription-program-inquiry" className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground" data-cursor="REQUEST">
                 Request Tailored Proposal
                 <ArrowRight className="h-4 w-4" />
               </Link>
@@ -183,8 +185,8 @@ export function SubscriptionPrograms() {
                   <article
                     key={tier}
                     className={cn(
-                      "rounded-xl border bg-card p-6",
-                      tier === "Priority" ? "border-accent" : "border-border"
+                      "glass-panel rounded-lg border p-6",
+                      tier === "Priority" ? "border-accent" : "border-white/10"
                     )}
                   >
                     <p className="eyebrow text-[0.68rem] text-accent">{aircraftClass}</p>
@@ -197,7 +199,7 @@ export function SubscriptionPrograms() {
                     <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                       Pricing based on aircraft class, crew requirements, selected allowances, and operating scope.
                     </p>
-                    <div className="mt-6 rounded-lg border border-border bg-background/55 p-4">
+                    <div className="mt-6 rounded-lg border border-white/10 bg-background/50 p-4">
                       <p className="text-xs font-semibold uppercase tracking-widest text-foreground/80">
                         {billing === "monthly" ? "Monthly" : "Annual"} allowance
                       </p>
@@ -211,7 +213,7 @@ export function SubscriptionPrograms() {
                       </ul>
                     </div>
                     <p className="mt-5 text-sm leading-relaxed text-muted-foreground">{item.priority}</p>
-                    <ul className="mt-5 grid gap-2 border-t border-border pt-5 text-sm text-foreground/85">
+                    <ul className="mt-5 grid gap-2 border-t border-white/10 pt-5 text-sm text-foreground/85">
                       {item.benefits.map((benefit) => (
                         <li key={benefit} className="flex gap-2">
                           <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
@@ -220,7 +222,7 @@ export function SubscriptionPrograms() {
                       ))}
                     </ul>
                     <p className="mt-5 text-xs leading-relaxed text-muted-foreground">{item.travel}</p>
-                    <Link href={`/contact?category=subscription-program-inquiry&tier=${tier.toLowerCase()}`} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-border px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest text-foreground hover:border-accent hover:text-accent">
+                    <Link href={`/contact?category=subscription-program-inquiry&tier=${tier.toLowerCase()}`} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest text-foreground hover:border-accent hover:text-accent" data-cursor="REQUEST">
                       Request Proposal
                       <ArrowRight className="h-4 w-4" />
                     </Link>
@@ -233,7 +235,7 @@ export function SubscriptionPrograms() {
       </div>
 
       <section className="mt-16 grid gap-5 lg:grid-cols-3">
-        <div className="rounded-xl border border-border bg-card p-6">
+        <div className="glass-panel rounded-lg p-6">
           <h3 className="font-display text-2xl font-bold uppercase tracking-wide text-foreground">Included Events</h3>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
             One included Client Flight means one crew duty day. Multiple legs during the same duty day remain one event. Trips exceeding 12 hours or involving overnight activity may consume additional duty days.
@@ -242,7 +244,7 @@ export function SubscriptionPrograms() {
             One included MX Flight means one maintenance-related aircraft movement. Base to MRO is one movement; MRO to base is one movement; a round trip is two movements.
           </p>
         </div>
-        <div className="rounded-xl border border-border bg-card p-6">
+        <div className="glass-panel rounded-lg p-6">
           <h3 className="font-display text-2xl font-bold uppercase tracking-wide text-foreground">Credits and Annual Billing</h3>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
             Unused eligible credits remain available while the subscription is active and in good standing. Credits expire upon cancellation, termination, non-renewal, or default; they have no cash value and cannot be refunded or transferred.
@@ -251,7 +253,7 @@ export function SubscriptionPrograms() {
             Annual subscriptions receive a 10% reduction on eligible AMG administrative and coordination fees only, not crew compensation, travel, lodging, pass-through expenses, vendor charges, airport costs, or aircraft expenses.
           </p>
         </div>
-        <div className="rounded-xl border border-border bg-card p-6">
+        <div className="glass-panel rounded-lg p-6">
           <h3 className="font-display text-2xl font-bold uppercase tracking-wide text-foreground">Major Exclusions</h3>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
             Owner/operator expenses include fuel, oil, insurance, maintenance invoices, parts, mechanic labor, aircraft subscriptions, and databases. Pass-through items include landing, ramp, parking, hangar, handling, deicing, catering, cleaning, customs, immigration, handlers, and overflight permits.

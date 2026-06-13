@@ -15,8 +15,8 @@ export default async function ResetPasswordPage({
 }) {
   const params = await searchParams;
   return (
-    <main className="flex min-h-screen items-center bg-background px-6 py-16">
-      <section className="mx-auto w-full max-w-md rounded-xl border border-border bg-card p-6">
+    <main className="cinematic-band flex min-h-screen items-center bg-background px-6 py-16">
+      <section className="glass-panel mx-auto w-full max-w-md rounded-lg p-6">
         <p className="eyebrow text-accent">AMG Portal</p>
         <h1 className="mt-4 font-display text-4xl font-extrabold uppercase tracking-wide text-foreground">
           New password
@@ -36,11 +36,11 @@ export default async function ResetPasswordPage({
         <form action={updatePassword} className="mt-6 grid gap-4">
           <label className="grid gap-2 text-sm text-muted-foreground">
             New password
-            <input name="password" type="password" required minLength={8} autoComplete="new-password" className="h-12 rounded-lg border border-input bg-background px-4 text-base text-foreground outline-none focus:border-accent" />
+            <input name="password" type="password" required minLength={8} autoComplete="new-password" className="support-field h-12 px-4 text-base" data-cursor="TYPE" />
           </label>
           <label className="grid gap-2 text-sm text-muted-foreground">
             Confirm password
-            <input name="confirm_password" type="password" required minLength={8} autoComplete="new-password" className="h-12 rounded-lg border border-input bg-background px-4 text-base text-foreground outline-none focus:border-accent" />
+            <input name="confirm_password" type="password" required minLength={8} autoComplete="new-password" className="support-field h-12 px-4 text-base" data-cursor="TYPE" />
           </label>
           <SubmitButton pendingText="Updating..." className="h-12 rounded-full font-display text-xs font-semibold uppercase tracking-widest">
             Update password
