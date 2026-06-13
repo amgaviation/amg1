@@ -7,7 +7,7 @@ import { DetailRow, Notice, PageHeader, SectionCard } from "@/components/portal/
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
-import { recordInvoicePayment, updateInvoiceStatus } from "@/app/portal/actions/invoices";
+import { previewInvoicePdf, recordInvoicePayment, sendInvoicePdf, updateInvoiceStatus } from "@/app/portal/actions/invoices";
 import { getInvoiceDetail } from "@/lib/portal/queries";
 import { INVOICE_STATUS, INVOICE_STATUS_LABEL, INVOICE_STATUS_TONE, PAYMENT_METHODS, toneFor } from "@/lib/portal/constants";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/portal/format";
@@ -125,6 +125,21 @@ export default async function AdminInvoiceDetailPage({
         </div>
 
         <div className="space-y-6">
+          <SectionCard title="Invoice PDF" icon="fileText">
+            <div className="space-y-3">
+              <form action={previewInvoicePdf}>
+                <input type="hidden" name="invoice_id" value={invoice.id} />
+                <SubmitButton className="w-full rounded-full" pendingText="Generating...">Preview PDF</SubmitButton>
+              </form>
+              {!lockedInvoice ? (
+                <form action={sendInvoicePdf}>
+                  <input type="hidden" name="invoice_id" value={invoice.id} />
+                  <SubmitButton className="w-full rounded-full" pendingText="Sending...">Send / Resend PDF</SubmitButton>
+                </form>
+              ) : null}
+            </div>
+          </SectionCard>
+
           {!lockedInvoice ? (
             <SectionCard title="Update Status" icon="settings">
               <form action={updateInvoiceStatus} className="space-y-4">

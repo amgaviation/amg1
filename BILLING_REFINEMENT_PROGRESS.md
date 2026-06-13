@@ -28,6 +28,10 @@ Branch: `feat/billing-workflow-refinement`
   - draft/ready-to-send lock rules
   - editable recipient override, CCs, due date, line items, terms, notes, and PDF presentation fields
   - server-side invoice total recalculation
+- Added admin invoice PDF actions on invoice detail:
+  - Preview PDF
+  - Send / Resend PDF
+  - locked paid/void/written-off invoices from resend actions
 - Direct invoice status update to `paid` is blocked; payment recording is required.
 - Payment recording supports:
   - amount
@@ -101,7 +105,7 @@ This migration adds:
 ## Next Steps
 
 1. Add invoice revision/adjustment placeholder action and UI.
-2. Add resend actions that reuse latest locked PDF by default.
+2. Add receipt resend action from the receipt ledger.
 3. Add Billing Settings sample quote/invoice/receipt PDF previews.
 4. Add quote template management and prefill support.
 5. Expand PDF renderer to honor all presentation flags.

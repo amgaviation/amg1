@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
 import { combinedPaymentInstructions, getBillingSettings } from "@/lib/portal/billing-config";
-import { createInvoiceDraftFromQuote } from "@/lib/portal/billing-documents";
+import { createInvoiceDraftFromQuote, generateAndStoreInvoicePdf } from "@/lib/portal/billing-documents";
 import { emailInvoicePdf, emailReceiptPdf } from "@/lib/portal/billing-emails";
 import { nextBillingDocumentNumber } from "@/lib/portal/billing-numbering";
 import { actor, bool, num, str } from "./_helpers";
@@ -246,6 +246,61 @@ export async function updateInvoiceDraft(formData: FormData) {
   revalidatePath("/portal/admin/invoices");
   revalidatePath("/portal/client/billing");
   redirect(`/portal/admin/invoices/${invoiceId}?success=updated`);
+}
+
+export async function previewInvoicePdf(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const invoiceId = str(formData, "invoice_id");
+  if (!invoiceId) redirect("/portal/admin/invoices?error=missing");
+  const pdf = await generateAndStoreInvoicePdf(invoiceId, admin.id);
+  redirect(`/api/portal/billing-documents/${pdf.document.id}/download`);
+}
+
+export async function sendInvoicePdf(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const billingDb = db as any;
+  const invoiceId = str(formData, "invoice_id");
+  if (!invoiceId) redirect("/portal/admin/invoices?error=missing");
+
+  const { data: invoice } = await db
+    .from("invoices")
+    .select("id, invoice_number, status, client_id")
+    .eq("id", invoiceId)
+    .maybeSingle();
+  if (!invoice) redirect("/portal/admin/invoices?error=missing");
+  if (["paid", "void", "written_off"].includes(invoice.status)) {
+    redirect(`/portal/admin/invoices/${invoiceId}?error=locked`);
+  }
+
+  await billingDb
+    .from("invoices")
+    .update({ status: "sent", sent_at: new Date().toISOString() })
+    .eq("id", invoiceId);
+  await emailInvoicePdf(invoiceId, admin.id).catch((error) => {
+    console.error("[billing] failed to email invoice PDF", invoiceId, error);
+  });
+  await logAuditEvent({
+    actor: admin,
+    action: "invoice_pdf_sent",
+    detail: `Sent ${invoice.invoice_number}`,
+    entityType: "invoice",
+    entityId: invoiceId,
+  });
+  if (invoice.client_id) {
+    await notifyUser({
+      userId: invoice.client_id,
+      title: "Invoice issued",
+      body: `${invoice.invoice_number} is available in your billing portal.`,
+      type: "invoice_issued",
+      entityType: "invoice",
+      entityId: invoiceId,
+    });
+  }
+  revalidatePath(`/portal/admin/invoices/${invoiceId}`);
+  revalidatePath("/portal/admin/invoices");
+  revalidatePath("/portal/client/billing");
+  redirect(`/portal/admin/invoices/${invoiceId}?success=sent`);
 }
 
 export async function recordInvoicePayment(formData: FormData) {
