@@ -39,7 +39,7 @@ Applied migrations:
 
 - `portal_subscriptions`
 - `portal_document_storage_hardening`
-- `seed_subscription_plan_templates` is committed and ready to apply.
+- `seed_subscription_plan_templates`
 
 Live schema verification passed for:
 
@@ -47,16 +47,21 @@ Live schema verification passed for:
 - `documents.storage_bucket`
 - Private `documents` bucket
 - Private `crew-credentials` bucket
+- Default active subscription plans:
+  - `Owner Support Essentials`
+  - `Managed Mission Support`
+  - `Fleet Operations Partner`
 
 ## Local Verification
 
 - `npm run typecheck` passed.
 - `npm run build` passed.
 - Portal navigation audit checked 44 configured portal links and found 0 missing routes.
+- Vercel preview for commit `4440a24` is `READY`.
 
 ## Remaining Larger-Scope Work
 
 - Finish a full end-to-end browser QA pass against the deployed preview after Vercel finishes building this branch.
-- Apply `seed_subscription_plan_templates` to the Supabase project after this commit is pushed, then verify the admin subscription plan list shows the defaults.
+- Finish a signed-in browser QA pass against the protected Vercel preview.
 - Regenerate Supabase TypeScript types after the new schema is fully settled.
 - If Supabase Data API access is required for these new tables, confirm API exposure settings in the Supabase dashboard because new public tables may not be exposed automatically.
