@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
+import { outboundMessageSenderLabel } from "@/lib/portal/message-display";
 import { actor, str } from "./_helpers";
 
 /** Post a message into an existing thread. */
@@ -38,6 +39,8 @@ export async function postMessage(formData: FormData) {
     .update({ last_message_at: new Date().toISOString() })
     .eq("id", threadId);
 
+  const senderLabel = outboundMessageSenderLabel(user);
+
   // Notify other members
   const { data: members } = await db
     .from("thread_members")
@@ -48,7 +51,7 @@ export async function postMessage(formData: FormData) {
       await notifyUser({
         userId: m.profile_id,
         title: "New message",
-        body: `${user.name}: ${body.slice(0, 80)}`,
+        body: `${senderLabel}: ${body.slice(0, 80)}`,
         type: "message",
         entityType: "thread",
         entityId: threadId,
