@@ -26,6 +26,10 @@ Branch: `portal-redesign-stabilization`
   - Signed download route with explicit role/scope checks.
   - Admin document uploads can target a client, crew member, or partner profile.
 - Added download links to client, partner, admin, and crew credential document lists.
+- Added admin document review filters for status, visibility, owner, role/scope, date range, and document-name search.
+- Added default AMG subscription plan templates for production seeding.
+- Corrected the admin subscription overage stat so it reads logged usage events.
+- Added automatic subscription usage logging when an admin marks a covered mission completed.
 
 ## Supabase Status
 
@@ -35,6 +39,7 @@ Applied migrations:
 
 - `portal_subscriptions`
 - `portal_document_storage_hardening`
+- `seed_subscription_plan_templates` is committed and ready to apply.
 
 Live schema verification passed for:
 
@@ -52,8 +57,6 @@ Live schema verification passed for:
 ## Remaining Larger-Scope Work
 
 - Finish a full end-to-end browser QA pass against the deployed preview after Vercel finishes building this branch.
-- Add seeded subscription plans if AMG wants production-ready defaults visible immediately.
-- Extend subscription usage automation so completed missions can automatically generate usage events where appropriate.
-- Expand document review UX with filters by owner, role, status, and date.
+- Apply `seed_subscription_plan_templates` to the Supabase project after this commit is pushed, then verify the admin subscription plan list shows the defaults.
 - Regenerate Supabase TypeScript types after the new schema is fully settled.
 - If Supabase Data API access is required for these new tables, confirm API exposure settings in the Supabase dashboard because new public tables may not be exposed automatically.

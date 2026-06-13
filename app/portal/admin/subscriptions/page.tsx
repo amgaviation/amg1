@@ -7,7 +7,7 @@ import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fi
 import { EmptyState, Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
-import { listAllSubscriptions, listSubscriptionPlans } from "@/lib/portal/queries";
+import { getSubscriptionOverageTotal, listAllSubscriptions, listSubscriptionPlans } from "@/lib/portal/queries";
 import { SUBSCRIPTION_PLAN_STATUS, SUBSCRIPTION_PLAN_STATUS_LABEL, SUBSCRIPTION_PLAN_STATUS_TONE, SUBSCRIPTION_STATUS_LABEL, SUBSCRIPTION_STATUS_TONE, toneFor } from "@/lib/portal/constants";
 import { formatDate, formatMoney } from "@/lib/portal/format";
 
@@ -20,10 +20,13 @@ export default async function AdminSubscriptionsPage({
 }) {
   const user = await requireRole("admin");
   const params = await searchParams;
-  const [subscriptions, plans] = await Promise.all([listAllSubscriptions(), listSubscriptionPlans()]);
+  const [subscriptions, plans, overageTotal] = await Promise.all([
+    listAllSubscriptions(),
+    listSubscriptionPlans(),
+    getSubscriptionOverageTotal(),
+  ]);
   const activeCount = subscriptions.filter((subscription) => subscription.status === "active").length;
   const renewalCount = subscriptions.filter((subscription) => subscription.status === "renewal_pending").length;
-  const overageTotal = subscriptions.reduce((sum, subscription: any) => sum + Number(subscription.overage_amount ?? 0), 0);
 
   return (
     <PortalShell role="admin" user={user}>

@@ -524,6 +524,17 @@ export async function getSubscriptionDetail(id: string): Promise<SubscriptionDet
   };
 }
 
+export async function getSubscriptionOverageTotal(): Promise<number> {
+  const db = (await createServiceClient()) as any;
+  const { data } = await db
+    .from("subscription_usage_events")
+    .select("overage_amount")
+    .gt("overage_amount", 0);
+  return (data ?? []).reduce((sum: number, event: { overage_amount: number | string | null }) => {
+    return sum + Number(event.overage_amount ?? 0);
+  }, 0);
+}
+
 // ─── Expenses ───────────────────────────────────────────────────────
 export async function listExpensesForCrew(crewId: string): Promise<
   (Expense & { mission: { ref: string } | null })[]
@@ -551,10 +562,29 @@ export async function listAllExpenses(): Promise<
 }
 
 // ─── Documents ──────────────────────────────────────────────────────
-export async function listAllDocuments(): Promise<DocumentRow[]> {
+export type DocumentFilters = {
+  status?: string;
+  visibility?: string;
+  role?: string;
+  ownerId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  search?: string;
+};
+
+export async function listAllDocuments(filters: DocumentFilters = {}): Promise<DocumentRow[]> {
   const db = await createServiceClient();
-  const { data } = await db.from("documents").select("*").order("created_at", { ascending: false });
-  return data ?? [];
+  let q = db.from("documents").select("*").order("created_at", { ascending: false });
+  if (filters.status) q = q.eq("status", filters.status);
+  if (filters.visibility) q = q.eq("visibility", filters.visibility);
+  if (filters.role) q = q.eq("scope_type", filters.role);
+  if (filters.dateFrom) q = q.gte("created_at", `${filters.dateFrom}T00:00:00.000Z`);
+  if (filters.dateTo) q = q.lte("created_at", `${filters.dateTo}T23:59:59.999Z`);
+  if (filters.search) q = q.ilike("name", `%${filters.search}%`);
+  const { data } = await q;
+  const docs = data ?? [];
+  if (!filters.ownerId) return docs;
+  return docs.filter((document) => document.scope_id === filters.ownerId || document.uploaded_by === filters.ownerId);
 }
 
 /** Documents visible to a non-admin role. */

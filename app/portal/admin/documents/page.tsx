@@ -9,7 +9,7 @@ import { FileField, SelectField, TextAreaField, TextField } from "@/components/p
 import { reviewDocument } from "@/app/portal/actions/admin";
 import { uploadDocument } from "@/app/portal/actions/documents";
 import { listAllDocuments, listAllUsers } from "@/lib/portal/queries";
-import { DOCUMENT_STATUS_LABEL, DOCUMENT_STATUS_TONE, DOCUMENT_TYPES, DOCUMENT_VISIBILITY_LABEL, toneFor } from "@/lib/portal/constants";
+import { DOCUMENT_STATUS, DOCUMENT_STATUS_LABEL, DOCUMENT_STATUS_TONE, DOCUMENT_TYPES, DOCUMENT_VISIBILITY, DOCUMENT_VISIBILITY_LABEL, toneFor } from "@/lib/portal/constants";
 import { formatDate } from "@/lib/portal/format";
 
 export const metadata = { title: "Documents - Admin Portal" };
@@ -17,12 +17,38 @@ export const metadata = { title: "Documents - Admin Portal" };
 export default async function AdminDocumentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ success?: string; error?: string }>;
+  searchParams: Promise<{
+    success?: string;
+    error?: string;
+    status?: string;
+    visibility?: string;
+    role?: string;
+    owner?: string;
+    date_from?: string;
+    date_to?: string;
+    search?: string;
+  }>;
 }) {
   const user = await requireRole("admin");
   const params = await searchParams;
-  const [docs, users] = await Promise.all([listAllDocuments(), listAllUsers()]);
+  const filters = {
+    status: params.status || undefined,
+    visibility: params.visibility || undefined,
+    role: params.role || undefined,
+    ownerId: params.owner || undefined,
+    dateFrom: params.date_from || undefined,
+    dateTo: params.date_to || undefined,
+    search: params.search || undefined,
+  };
+  const [docs, users] = await Promise.all([listAllDocuments(filters), listAllUsers()]);
   const targetUsers = users.filter((item) => ["client", "crew", "partner"].includes(item.role));
+  const profileById = new Map(users.map((profile) => [profile.id, profile]));
+  const ownerLabel = (id: string | null) => {
+    if (!id) return "Admin";
+    const profile = profileById.get(id);
+    return profile?.company_name ?? profile?.full_name ?? profile?.email ?? id;
+  };
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
   return (
     <PortalShell role="admin" user={user}>
       {params.success === "uploaded" ? <Notice tone="success">Document uploaded and submitted for review.</Notice> : null}
@@ -50,6 +76,60 @@ export default async function AdminDocumentsPage({
           </div>
         </form>
       </SectionCard>
+
+      <SectionCard title="Review Filters" icon="settings">
+        <form className="grid gap-4 lg:grid-cols-6">
+          <TextField label="Search" name="search" defaultValue={params.search ?? ""} placeholder="Document name" />
+          <SelectField
+            label="Status"
+            name="status"
+            defaultValue={params.status ?? ""}
+            options={[{ value: "", label: "All statuses" }, ...DOCUMENT_STATUS.map((status) => ({ value: status.value, label: status.label }))]}
+          />
+          <SelectField
+            label="Visibility"
+            name="visibility"
+            defaultValue={params.visibility ?? ""}
+            options={[{ value: "", label: "All visibility" }, ...DOCUMENT_VISIBILITY.map((visibility) => ({ value: visibility.value, label: visibility.label }))]}
+          />
+          <SelectField
+            label="Role / Scope"
+            name="role"
+            defaultValue={params.role ?? ""}
+            options={[
+              { value: "", label: "All roles" },
+              { value: "client", label: "Client" },
+              { value: "crew", label: "Crew" },
+              { value: "partner", label: "Partner" },
+              { value: "mission", label: "Mission" },
+              { value: "aircraft", label: "Aircraft" },
+              { value: "profile", label: "Profile" },
+            ]}
+          />
+          <SelectField
+            label="Owner"
+            name="owner"
+            defaultValue={params.owner ?? ""}
+            options={[{ value: "", label: "All owners" }, ...targetUsers.map((profile) => ({ value: profile.id, label: `${profile.role}: ${profile.company_name ?? profile.full_name ?? profile.email}` }))]}
+          />
+          <div className="grid grid-cols-2 gap-3 lg:col-span-2">
+            <TextField label="From" name="date_from" type="date" defaultValue={params.date_from ?? ""} />
+            <TextField label="To" name="date_to" type="date" defaultValue={params.date_to ?? ""} />
+          </div>
+          <div className="flex flex-wrap items-end gap-3 lg:col-span-4">
+            <button type="submit" className="rounded-full bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground">
+              Apply Filters
+            </button>
+            {activeFilterCount ? (
+              <Link href="/portal/admin/documents" className="rounded-full border border-border px-4 py-2 text-xs font-semibold text-foreground hover:border-accent">
+                Clear Filters
+              </Link>
+            ) : null}
+            <p className="text-xs text-muted-foreground">{docs.length} document{docs.length === 1 ? "" : "s"} shown</p>
+          </div>
+        </form>
+      </SectionCard>
+
       <SectionCard title="Document Review Queue" icon="fileText">
         <DataTable
           rows={docs}
@@ -57,7 +137,9 @@ export default async function AdminDocumentsPage({
           emptyLabel="No documents uploaded."
           columns={[
             { header: "Name", cell: (row) => <div><p className="text-sm font-semibold">{row.name}</p><p className="text-xs text-muted-foreground">{row.doc_type}</p></div> },
+            { header: "Owner", cell: (row) => <div><p className="text-sm">{ownerLabel(row.scope_id)}</p><p className="text-xs text-muted-foreground">{row.scope_type}</p></div> },
             { header: "Visibility", cell: (row) => DOCUMENT_VISIBILITY_LABEL[row.visibility] ?? row.visibility },
+            { header: "Uploaded", cell: (row) => formatDate(row.created_at) },
             { header: "Expires", cell: (row) => formatDate(row.expiration_date) },
             { header: "Status", cell: (row) => <StatusBadge label={DOCUMENT_STATUS_LABEL[row.status] ?? row.status} tone={toneFor(DOCUMENT_STATUS_TONE, row.status)} /> },
             { header: "File", cell: (row) => <Link href={`/api/portal/documents/${row.id}/download`} className="text-accent hover:underline">Download</Link> },
