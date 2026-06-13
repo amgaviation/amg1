@@ -78,6 +78,7 @@ export const PORTAL_NAV: Record<PortalRole, NavItem[]> = {
     { label: "Clients", href: "/portal/admin/clients", icon: "building" },
     { label: "Partners", href: "/portal/admin/partners", icon: "handshake" },
     { label: "Users", href: "/portal/admin/users", icon: "userCheck" },
+    { label: "Messages", href: "/portal/admin/messages", icon: "messageSquare" },
     { label: "Quotes", href: "/portal/admin/quotes", icon: "receipt" },
     { label: "Invoices", href: "/portal/admin/invoices", icon: "wallet" },
     { label: "Documents", href: "/portal/admin/documents", icon: "fileText" },
@@ -258,110 +259,4 @@ export const EXPENSE_STATUS: Choice[] = [
   { value: "partially_approved", label: "Partially Approved", tone: "warn" },
   { value: "rejected", label: "Rejected", tone: "danger" },
   { value: "added_to_quote", label: "Added To Quote", tone: "accent" },
-  { value: "added_to_invoice", label: "Added To Invoice", tone: "accent" },
-  { value: "reimbursed", label: "Reimbursed", tone: "success" },
-  { value: "paid", label: "Paid", tone: "accent" },
 ];
-export const EXPENSE_STATUS_LABEL = buildLabelMap(EXPENSE_STATUS);
-export const EXPENSE_STATUS_TONE = buildToneMap(EXPENSE_STATUS);
-
-export const EXPENSE_CATEGORIES: Choice[] = [
-  { value: "airline", label: "Airline" },
-  { value: "hotel", label: "Hotel" },
-  { value: "rental_car", label: "Rental Car" },
-  { value: "rideshare", label: "Rideshare" },
-  { value: "fuel", label: "Fuel" },
-  { value: "meals", label: "Meals" },
-  { value: "parking", label: "Parking" },
-  { value: "other", label: "Other" },
-];
-export const EXPENSE_CATEGORY_LABEL = buildLabelMap(EXPENSE_CATEGORIES);
-
-export const INVOICE_STATUS: Choice[] = [
-  { value: "draft", label: "Draft", tone: "neutral" },
-  { value: "sent", label: "Sent", tone: "info" },
-  { value: "viewed", label: "Viewed", tone: "accent" },
-  { value: "partially_paid", label: "Partially Paid", tone: "warn" },
-  { value: "paid", label: "Paid", tone: "success" },
-  { value: "overdue", label: "Overdue", tone: "danger" },
-  { value: "void", label: "Void", tone: "neutral" },
-  { value: "written_off", label: "Written Off", tone: "neutral" },
-  { value: "refunded", label: "Refunded", tone: "neutral" },
-];
-export const INVOICE_STATUS_LABEL = buildLabelMap(INVOICE_STATUS);
-export const INVOICE_STATUS_TONE = buildToneMap(INVOICE_STATUS);
-
-// ─── Documents ──────────────────────────────────────────────────────
-export const DOCUMENT_STATUS: Choice[] = [
-  { value: "pending_review", label: "Pending Review", tone: "info" },
-  { value: "approved", label: "Approved", tone: "success" },
-  { value: "rejected", label: "Rejected", tone: "danger" },
-  { value: "expiring", label: "Expiring", tone: "warn" },
-  { value: "expired", label: "Expired", tone: "danger" },
-];
-export const DOCUMENT_STATUS_LABEL = buildLabelMap(DOCUMENT_STATUS);
-export const DOCUMENT_STATUS_TONE = buildToneMap(DOCUMENT_STATUS);
-
-export const DOCUMENT_TYPES = [
-  "Registration",
-  "Airworthiness Certificate",
-  "Insurance",
-  "Weight and Balance",
-  "Operating Handbook",
-  "Maintenance Tracking",
-  "MEL",
-  "Letter of Authorization",
-  "International Documents",
-  "Invoice",
-  "Vendor Agreement",
-  "Other",
-];
-
-export const DOCUMENT_VISIBILITY: Choice[] = [
-  { value: "owner", label: "Owner visible" },
-  { value: "crew", label: "Crew visible" },
-  { value: "partner", label: "Partner visible" },
-  { value: "admin", label: "Admin only" },
-  { value: "public", label: "Public" },
-];
-export const DOCUMENT_VISIBILITY_LABEL = buildLabelMap(DOCUMENT_VISIBILITY);
-
-// ─── Profile / account status ───────────────────────────────────────
-export const PROFILE_STATUS: Choice[] = [
-  { value: "pending", label: "Pending", tone: "warn" },
-  { value: "approved", label: "Approved", tone: "success" },
-  { value: "suspended", label: "Suspended", tone: "danger" },
-];
-export const PROFILE_STATUS_LABEL = buildLabelMap(PROFILE_STATUS);
-export const PROFILE_STATUS_TONE = buildToneMap(PROFILE_STATUS);
-
-/** Roles that may be self-selected when requesting access (admin is internal-only). */
-export const REQUESTABLE_ROLES: { value: PortalRole; label: string }[] = [
-  { value: "client", label: "Client / Owner Representative" },
-  { value: "crew", label: "Crew / Pilot" },
-  { value: "partner", label: "Partner / Vendor" },
-];
-
-export const PORTAL_PERMISSIONS = [
-  "users.manage",
-  "aircraft.manage",
-  "missions.manage",
-  "crew.assign",
-  "quotes.manage",
-  "invoices.manage",
-  "expenses.approve",
-  "documents.review",
-  "partners.manage",
-  "notifications.manage",
-  "settings.manage",
-  "audit.view",
-];
-
-export function labelFor(map: Record<string, string>, value: string | null | undefined): string {
-  if (!value) return "—";
-  return map[value] ?? value;
-}
-export function toneFor(map: Record<string, Tone>, value: string | null | undefined): Tone {
-  if (!value) return "neutral";
-  return map[value] ?? "neutral";
-}
