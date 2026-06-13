@@ -79,6 +79,17 @@ export async function signUp(formData: FormData) {
     redirect("/login?mode=request&error=weakpassword");
   }
 
+  const svc = await createServiceClient();
+  const { data: existingProfile } = await svc
+    .from("profiles")
+    .select("id")
+    .ilike("email", email)
+    .maybeSingle();
+
+  if (existingProfile) {
+    redirect(`/login?mode=request&error=account_exists&email=${encodeURIComponent(email)}`);
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -87,11 +98,13 @@ export async function signUp(formData: FormData) {
   });
 
   if (error || !data.user) {
+    if (error?.message && /already|registered|exists/i.test(error.message)) {
+      redirect(`/login?mode=request&error=account_exists&email=${encodeURIComponent(email)}`);
+    }
     redirect("/login?mode=request&error=signup");
   }
 
   try {
-    const svc = await createServiceClient();
     await svc
       .from("profiles")
       .update({
