@@ -1,10 +1,13 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/portal/session";
 import { ROLE_HOME, isPortalRole, type PortalRole } from "@/lib/portal/constants";
 import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
+
+const PASSWORD_SETUP_COOKIE = "amg_password_setup_user";
 
 function field(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -87,8 +90,6 @@ export async function signUp(formData: FormData) {
     redirect("/login?mode=request&error=signup");
   }
 
-  // The handle_new_user trigger creates the base profile; enrich it and
-  // force pending status until an admin approves.
   try {
     const svc = await createServiceClient();
     await svc
@@ -120,7 +121,6 @@ export async function signUp(formData: FormData) {
     entityId: data.user.id,
   });
 
-  // Do not leave them signed in — access requires approval.
   await supabase.auth.signOut();
   redirect("/login?success=requested");
 }
@@ -144,7 +144,7 @@ export async function requestPasswordReset(formData: FormData) {
 
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: origin ? `${origin}/auth/callback?next=/reset-password` : undefined,
+    redirectTo: origin ? `${origin.replace(/\/+$/, "")}/auth/password-setup` : undefined,
   });
 
   if (error) redirect("/forgot-password?error=failed");
@@ -157,9 +157,25 @@ export async function updatePassword(formData: FormData) {
   if (!password || password.length < 8) redirect("/reset-password?error=weakpassword");
   if (password !== confirm) redirect("/reset-password?error=mismatch");
 
+  const cookieStore = await cookies();
+  const expectedUserId = cookieStore.get(PASSWORD_SETUP_COOKIE)?.value;
+  if (!expectedUserId) redirect("/forgot-password?error=failed");
+
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user || user.id !== expectedUserId) {
+    cookieStore.delete(PASSWORD_SETUP_COOKIE);
+    await supabase.auth.signOut();
+    redirect("/forgot-password?error=failed");
+  }
+
   const { error } = await supabase.auth.updateUser({ password });
   if (error) redirect("/reset-password?error=failed");
+
+  cookieStore.delete(PASSWORD_SETUP_COOKIE);
   await supabase.auth.signOut();
   redirect("/login?success=password-reset");
 }
