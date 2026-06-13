@@ -28,6 +28,17 @@ const allowedCategories = new Set([
   "other-support",
 ]);
 
+const missionTypeBySupportCategory: Record<string, string> = {
+  "aircraft-management-support": "aircraft_support",
+  "contract-pilot-support": "aircraft_support",
+  "ferry-and-repositioning": "ferry",
+  "maintenance-flight-support": "maintenance_reposition",
+  "flight-operations-coordination": "aircraft_support",
+  "fleet-support-program": "aircraft_support",
+  "subscription-program-inquiry": "aircraft_support",
+  "other-support": "aircraft_support",
+};
+
 const detailFields = [
   "ownership_entity",
   "current_crew_arrangement",
@@ -149,6 +160,7 @@ export async function submitPublicSupportRequest(formData: FormData) {
     redirect(`/contact?error=missing&category=${encodeURIComponent(supportType)}`);
   }
 
+  const missionType = missionTypeBySupportCategory[supportType] || "aircraft_support";
   const db = await createServiceClient();
   const route = value(formData, "origin_destination") || [value(formData, "origin"), value(formData, "destination")].filter(Boolean).join(" to ");
   const departure = route ? routePart(route, 0) : routePart(aircraftBase, 0);
@@ -200,7 +212,7 @@ export async function submitPublicSupportRequest(formData: FormData) {
       created_by: null,
       aircraft_id: null,
       tail_number: tailNumber || null,
-      mission_type: supportType,
+      mission_type: missionType,
       status: "submitted",
       urgency: "standard",
       departure_airport: departure,
@@ -220,6 +232,13 @@ export async function submitPublicSupportRequest(formData: FormData) {
     .single();
 
   if (error || !mission) {
+    console.error("Public support request mission insert failed", {
+      error,
+      supportType,
+      missionType,
+      departure,
+      arrival,
+    });
     redirect(`/contact?error=failed&category=${encodeURIComponent(supportType)}`);
   }
 
