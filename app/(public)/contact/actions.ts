@@ -3,7 +3,11 @@
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { notifyAdmins } from "@/lib/portal/audit";
-import { publicSupportRequestAdminEmail } from "@/lib/portal/email-templates";
+import { sendEmail } from "@/lib/portal/notification-delivery";
+import {
+  publicSupportRequestAdminEmail,
+  publicSupportRequestClientConfirmationEmail,
+} from "@/lib/portal/email-templates";
 
 function value(formData: FormData, key: string): string {
   return String(formData.get(key) ?? "").trim();
@@ -283,6 +287,43 @@ export async function submitPublicSupportRequest(formData: FormData) {
     entityId: mission.id,
     replyTo: email,
   });
+
+  const confirmationBody = [
+    `Hello ${requesterName},`,
+    `AMG Aviation Group has received your request ${mission.ref}.`,
+    `Requested category: ${supportType}`,
+    timing ? `Requested timing: ${timing}` : null,
+    `Next steps:`,
+    `1. AMG Operations will review the aircraft, timing, scope, and support category submitted.`,
+    `2. If additional operational details are needed, AMG will contact you using your preferred contact method.`,
+    `3. AMG will confirm availability, scope, and any applicable next actions before any mission, crew assignment, aircraft movement, or operational support is accepted.`,
+    `For urgent updates, reply to this email or contact AMG Aviation Group directly at information@amgaviationgroup.com.`,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
+  const confirmationResult = await sendEmail({
+    to: email,
+    subject: `AMG Aviation Group received your request ${mission.ref}`,
+    text: confirmationBody,
+    html: publicSupportRequestClientConfirmationEmail({
+      requesterName,
+      reference: mission.ref,
+      requestedCategory: supportType,
+      timing,
+      portalUrl: process.env.NEXT_PUBLIC_APP_URL || undefined,
+    }),
+    replyTo: process.env.EMAIL_REPLY_TO,
+  });
+
+  if (confirmationResult.status !== "sent") {
+    console.error("Public support request customer confirmation email failed", {
+      ref: mission.ref,
+      recipient: email,
+      status: confirmationResult.status,
+      error: confirmationResult.error,
+    });
+  }
 
   redirect(`/contact?success=${encodeURIComponent(mission.ref)}&category=${encodeURIComponent(supportType)}`);
 }
