@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useFormStatus } from "react-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { Send } from "lucide-react";
 import { submitPublicSupportRequest } from "@/app/(public)/contact/actions";
 import { COMPANY } from "@/lib/content";
@@ -166,7 +167,8 @@ function SubmitRequestButton() {
     <button
       type="submit"
       disabled={pending}
-      className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-8 py-4 font-display text-sm font-semibold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+      className="magnetic-link mt-6 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-8 py-4 font-display text-sm font-semibold uppercase tracking-widest text-primary-foreground shadow-[0_18px_54px_rgba(59,130,246,0.24)] transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+      data-cursor="SUBMIT"
     >
       {pending ? "Submitting..." : "Start Support Request"}
       <Send className="h-4 w-4" />
@@ -177,18 +179,18 @@ function SubmitRequestButton() {
 function Field({ field }: { field: FieldConfig }) {
   const [name, label, type, required] = field;
   const common =
-    "min-h-12 rounded-lg border border-input bg-background px-4 text-base text-foreground outline-none focus:border-accent";
+    "support-field px-4 text-base";
 
   return (
-    <label className="grid gap-2 text-sm font-medium text-foreground">
+    <label className="grid gap-2 text-sm font-medium text-foreground/90">
       <span>
         {label}
         {required ? <span className="text-accent"> *</span> : null}
       </span>
       {type === "textarea" ? (
-        <textarea name={name} required={required} className={`${common} min-h-28 py-3`} />
+        <textarea name={name} required={required} className={`${common} min-h-28 py-3`} data-cursor="TYPE" />
       ) : (
-        <input name={name} type={type} required={required} className={common} />
+        <input name={name} type={type} required={required} className={common} data-cursor="TYPE" />
       )}
     </label>
   );
@@ -218,7 +220,7 @@ export function PublicSupportForm({
   );
 
   return (
-    <form action={submitPublicSupportRequest} className="rounded-xl border border-border bg-card p-6 lg:p-8">
+    <form action={submitPublicSupportRequest} className="support-form glass-panel rounded-lg p-6 lg:p-8" data-scroll-animate>
       {success ? (
         <div role="status" className="mb-5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm leading-relaxed text-emerald-200">
           Support request {success} was submitted. AMG Operations will review it before any acceptance or coordination is confirmed.
@@ -235,29 +237,29 @@ export function PublicSupportForm({
 
       <fieldset className="grid gap-5 md:grid-cols-2">
         <legend className="sr-only">Contact information</legend>
-        <label className="grid gap-2 text-sm font-medium text-foreground">
+        <label className="grid gap-2 text-sm font-medium text-foreground/90">
           First name <span className="sr-only">required</span>
-          <input name="first_name" required autoComplete="given-name" className="min-h-12 rounded-lg border border-input bg-background px-4 text-base text-foreground outline-none focus:border-accent" />
+          <input name="first_name" required autoComplete="given-name" className="support-field px-4 text-base" data-cursor="TYPE" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground">
+        <label className="grid gap-2 text-sm font-medium text-foreground/90">
           Last name <span className="sr-only">required</span>
-          <input name="last_name" required autoComplete="family-name" className="min-h-12 rounded-lg border border-input bg-background px-4 text-base text-foreground outline-none focus:border-accent" />
+          <input name="last_name" required autoComplete="family-name" className="support-field px-4 text-base" data-cursor="TYPE" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground">
+        <label className="grid gap-2 text-sm font-medium text-foreground/90">
           Company or ownership entity
-          <input name="company" autoComplete="organization" className="min-h-12 rounded-lg border border-input bg-background px-4 text-base text-foreground outline-none focus:border-accent" />
+          <input name="company" autoComplete="organization" className="support-field px-4 text-base" data-cursor="TYPE" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground">
+        <label className="grid gap-2 text-sm font-medium text-foreground/90">
           Email <span className="text-accent">*</span>
-          <input name="email" type="email" required autoComplete="email" className="min-h-12 rounded-lg border border-input bg-background px-4 text-base text-foreground outline-none focus:border-accent" />
+          <input name="email" type="email" required autoComplete="email" className="support-field px-4 text-base" data-cursor="TYPE" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground">
+        <label className="grid gap-2 text-sm font-medium text-foreground/90">
           Phone <span className="text-accent">*</span>
-          <input name="phone" type="tel" required autoComplete="tel" className="min-h-12 rounded-lg border border-input bg-background px-4 text-base text-foreground outline-none focus:border-accent" />
+          <input name="phone" type="tel" required autoComplete="tel" className="support-field px-4 text-base" data-cursor="TYPE" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground">
+        <label className="grid gap-2 text-sm font-medium text-foreground/90">
           Preferred contact method
-          <select name="preferred_contact_method" className="min-h-12 rounded-lg border border-input bg-background px-4 text-base text-foreground outline-none focus:border-accent">
+          <select name="preferred_contact_method" className="support-field px-4 text-base" data-cursor="TYPE">
             <option>Email</option>
             <option>Phone</option>
             <option>Either</option>
@@ -265,34 +267,35 @@ export function PublicSupportForm({
         </label>
       </fieldset>
 
-      <fieldset className="mt-8 grid gap-5 md:grid-cols-2">
+      <fieldset className="mt-8 grid gap-5 border-t border-white/10 pt-8 md:grid-cols-2">
         <legend className="mb-1 font-display text-2xl font-bold uppercase tracking-wide text-foreground">
           Aircraft and Timing
         </legend>
-        <label className="grid gap-2 text-sm font-medium text-foreground">
+        <label className="grid gap-2 text-sm font-medium text-foreground/90">
           Aircraft make
-          <input name="aircraft_make" className="min-h-12 rounded-lg border border-input bg-background px-4 text-base text-foreground outline-none focus:border-accent" />
+          <input name="aircraft_make" className="support-field px-4 text-base" data-cursor="TYPE" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground">
+        <label className="grid gap-2 text-sm font-medium text-foreground/90">
           Aircraft model
-          <input name="aircraft_model" className="min-h-12 rounded-lg border border-input bg-background px-4 text-base text-foreground outline-none focus:border-accent" />
+          <input name="aircraft_model" className="support-field px-4 text-base" data-cursor="TYPE" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground">
+        <label className="grid gap-2 text-sm font-medium text-foreground/90">
           Tail number
-          <input name="tail_number" className="min-h-12 rounded-lg border border-input bg-background px-4 text-base uppercase text-foreground outline-none focus:border-accent" />
+          <input name="tail_number" className="support-field px-4 text-base uppercase" data-cursor="TYPE" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground">
+        <label className="grid gap-2 text-sm font-medium text-foreground/90">
           Aircraft base
-          <input name="aircraft_base" className="min-h-12 rounded-lg border border-input bg-background px-4 text-base text-foreground outline-none focus:border-accent" />
+          <input name="aircraft_base" className="support-field px-4 text-base" data-cursor="TYPE" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground md:col-span-2">
+        <label className="grid gap-2 text-sm font-medium text-foreground/90 md:col-span-2">
           Requested service category <span className="text-accent">*</span>
           <select
             name="requested_service_category"
             value={category}
             onChange={(event) => setCategory(event.target.value as CategoryValue)}
             required
-            className="min-h-12 rounded-lg border border-input bg-background px-4 text-base text-foreground outline-none focus:border-accent"
+            className="support-field px-4 text-base"
+            data-cursor="TYPE"
           >
             {categories.map((item) => (
               <option key={item.value} value={item.value}>
@@ -301,25 +304,35 @@ export function PublicSupportForm({
             ))}
           </select>
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground">
+        <label className="grid gap-2 text-sm font-medium text-foreground/90">
           Requested timing <span className="text-accent">*</span>
-          <input name="requested_timing" required className="min-h-12 rounded-lg border border-input bg-background px-4 text-base text-foreground outline-none focus:border-accent" />
+          <input name="requested_timing" required className="support-field px-4 text-base" data-cursor="TYPE" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground md:col-span-2">
+        <label className="grid gap-2 text-sm font-medium text-foreground/90 md:col-span-2">
           Operational summary <span className="text-accent">*</span>
-          <textarea name="operational_summary" required className="min-h-32 rounded-lg border border-input bg-background px-4 py-3 text-base text-foreground outline-none focus:border-accent" />
+          <textarea name="operational_summary" required className="support-field min-h-32 px-4 py-3 text-base" data-cursor="TYPE" />
         </label>
       </fieldset>
 
-      <section aria-live="polite" className="mt-8 rounded-xl border border-border bg-background/40 p-5">
-        <p className="eyebrow text-[0.68rem] text-accent">{activeCategory.label}</p>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{activeCategory.help}</p>
-        <div className="mt-5 grid gap-5 md:grid-cols-2">
-          {activeCategory.fields.map((field) => (
-            <Field key={field[0]} field={field} />
-          ))}
-        </div>
-      </section>
+      <AnimatePresence mode="wait">
+        <motion.section
+          key={activeCategory.value}
+          aria-live="polite"
+          className="mt-8 rounded-lg border border-white/10 bg-background/40 p-5 shadow-inner"
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <p className="eyebrow text-[0.68rem] text-accent">{activeCategory.label}</p>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{activeCategory.help}</p>
+          <div className="mt-5 grid gap-5 md:grid-cols-2">
+            {activeCategory.fields.map((field) => (
+              <Field key={field[0]} field={field} />
+            ))}
+          </div>
+        </motion.section>
+      </AnimatePresence>
 
       <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
       <label className="mt-6 flex items-start gap-3 text-sm leading-relaxed text-muted-foreground">

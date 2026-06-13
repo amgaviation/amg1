@@ -27,7 +27,7 @@ export default function AircraftPage() {
         image="/images/jet-sky.png"
       />
 
-      <section className="border-b border-border bg-card/20 py-8">
+      <section className="border-b border-white/10 bg-card/20 py-8">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -46,8 +46,8 @@ export default function AircraftPage() {
       <AircraftSectionNav items={categories} />
       <AircraftEditorialSections />
 
-      <Reveal className="mx-auto max-w-4xl px-6 pb-24 text-center lg:px-10">
-        <div className="rounded-xl border border-border bg-card p-6">
+      <Reveal className="mx-auto max-w-4xl px-6 pb-24 text-center lg:px-10" data-scroll-animate>
+        <div className="glass-panel rounded-lg p-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {COMPANY.requestDisclaimer}
           </p>

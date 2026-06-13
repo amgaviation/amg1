@@ -4,7 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 const baseInput =
-  "h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-accent";
+  "h-11 w-full rounded-md border border-input bg-background/80 px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-accent focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)]";
 
 export function Field({
   label,
@@ -49,10 +49,10 @@ export function TextAreaField(
   return (
     <Field label={label} hint={hint} required={required}>
       <textarea
-        {...rest}
-        required={required}
-        className={cn(
-          "min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-accent",
+          {...rest}
+          required={required}
+          className={cn(
+          "min-h-24 w-full rounded-md border border-input bg-background/80 px-3 py-2 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-accent focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)]",
           className
         )}
       />
@@ -128,7 +128,7 @@ export function CheckboxField({
   defaultChecked?: boolean;
 }) {
   return (
-    <label className="flex items-center gap-3 rounded-md border border-input bg-background px-3 py-2.5 text-sm">
+    <label className="flex items-center gap-3 rounded-md border border-input bg-background/80 px-3 py-2.5 text-sm">
       <input
         type="checkbox"
         name={name}
@@ -158,7 +158,7 @@ export function FileField({
   return (
     <Field label={label} hint={hint} required={required}>
       <div className="flex items-center gap-3">
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-input bg-secondary/40 px-3 py-2 text-sm hover:border-accent">
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-input bg-white/5 px-3 py-2 text-sm hover:border-accent">
           Choose file
           <input
             type="file"

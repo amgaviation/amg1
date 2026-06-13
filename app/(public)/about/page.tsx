@@ -22,15 +22,15 @@ export default function AboutPage() {
         image="/images/operations.png"
       />
 
-      <section className="py-28">
+      <section className="cinematic-band py-28">
         <div className="mx-auto grid max-w-7xl items-start gap-14 px-6 lg:grid-cols-2 lg:px-10">
-          <Reveal>
+          <Reveal data-scroll-animate>
             <p className="eyebrow mb-5 text-accent">What AMG Does</p>
             <h2 className="display-heading text-balance text-5xl text-foreground sm:text-6xl">
               A structured support company for aircraft needs
             </h2>
           </Reveal>
-          <Reveal delay={0.15}>
+          <Reveal delay={0.15} data-scroll-animate>
             <p className="text-pretty text-lg leading-relaxed text-muted-foreground">
               AMG supports owners, flight departments, crews, maintenance events,
               and mission-specific operational needs. The work is practical:
@@ -46,19 +46,19 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="border-b border-border pb-28">
+      <section className="border-b border-white/10 pb-28">
         <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-10">
-          <Reveal>
-            <div className="overflow-hidden rounded-xl border border-border bg-card">
+          <Reveal data-scroll-animate>
+            <div className="media-vignette overflow-hidden rounded-lg border border-white/10 bg-card">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/images/site/map-operations.jpg"
                 alt="Operational route map supporting aircraft positioning and mission planning"
-                className="h-full w-full object-cover"
+                className="h-full w-full scale-105 object-cover"
               />
             </div>
           </Reveal>
-          <Reveal delay={0.15} className="flex items-center">
+          <Reveal delay={0.15} className="flex items-center" data-scroll-animate>
             <div>
               <p className="eyebrow mb-5 text-accent">Operational Visibility</p>
               <h2 className="display-heading text-balance text-4xl text-foreground sm:text-5xl">
@@ -73,17 +73,17 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="border-y border-border bg-card/30 py-28">
+      <section className="cinematic-band border-y border-white/10 bg-card/30 py-28">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <SectionHeading
             eyebrow="How AMG Supports Owners"
             title="Clear support paths, not vague promises"
             description="The AMG model is designed to keep aircraft owners informed while respecting crew authority, aircraft status, operating limitations, and final acceptance requirements."
           />
-          <RevealGroup className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <RevealGroup className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" data-scroll-animate>
             {VALUES.map((value) => (
               <RevealItem key={value.title}>
-                <div className="hover-lift h-full rounded-xl border border-border bg-card p-8 hover:border-accent/60">
+                <div className="glass-panel hover-lift h-full rounded-lg p-8 hover:border-accent/60">
                   <h3 className="font-display text-xl font-bold uppercase tracking-wide text-accent">
                     {value.title}
                   </h3>
@@ -99,16 +99,16 @@ export default function AboutPage() {
 
       <ProcessTimeline />
 
-      <section className="py-28">
+      <section className="cinematic-band py-28">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <SectionHeading
             eyebrow="Accountability and Scope"
             title="Support remains subject to review"
           />
-          <RevealGroup className="mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-border bg-border md:grid-cols-2">
+          <RevealGroup className="mt-16 grid grid-cols-1 gap-4 md:grid-cols-2" data-scroll-animate>
             {CAPABILITIES.map((cap) => (
               <RevealItem key={cap.title}>
-                <div className="h-full bg-card p-8 lg:p-10">
+                <div className="glass-panel h-full rounded-lg p-8 lg:p-10">
                   <h3 className="font-display text-2xl font-bold uppercase tracking-wide text-foreground">
                     {cap.title}
                   </h3>

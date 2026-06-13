@@ -17,13 +17,13 @@ function Counter({
 
 export function StatsSection() {
   return (
-    <section className="border-y border-border bg-card/30 py-20">
+    <section className="cinematic-band border-y border-white/10 bg-card/30 py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
-        <div className="grid grid-cols-2 gap-y-12 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4" data-scroll-animate>
           {STATS.map((stat) => (
             <div
               key={stat.label}
-              className="text-center"
+              className="glass-panel rounded-lg p-6 text-center"
             >
               <div className="font-display text-5xl font-extrabold text-foreground lg:text-6xl">
                 <Counter target={stat.value} suffix={stat.suffix} />

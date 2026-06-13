@@ -18,12 +18,12 @@ export default function TeamPage() {
         description="AMG Connect is designed around the real operation: clients, crew, admin staff, and the mission coordination desk."
         image="/images/heavy-jet.png"
       />
-      <section className="py-28">
+      <section className="cinematic-band py-28">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
-          <RevealGroup className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <RevealGroup className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4" data-scroll-animate>
             {TEAM.map((member) => (
               <RevealItem key={member.name}>
-                <article className="h-full rounded-xl border border-border bg-card p-8">
+                <article className="glass-panel h-full rounded-lg p-8">
                   <div className="flex h-16 w-16 items-center justify-center rounded-full border border-accent/50 bg-accent/10 font-display text-2xl font-extrabold text-accent">
                     {member.initials}
                   </div>

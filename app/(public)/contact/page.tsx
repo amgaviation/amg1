@@ -26,10 +26,10 @@ export default async function ContactPage({
         description="Use this page to request aircraft management support, crew coordination, ferry or repositioning assistance, maintenance flight support, or general operational support."
         image="/images/light-jet.png"
       />
-      <section className="py-28">
+      <section className="cinematic-band py-28">
         <div className="mx-auto grid max-w-7xl gap-10 px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-10">
           <aside>
-            <div className="mb-6 overflow-hidden rounded-xl border border-border bg-card">
+            <div className="media-vignette mb-6 overflow-hidden rounded-lg border border-white/10 bg-card" data-scroll-animate>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/images/turboprop.png"
@@ -40,17 +40,17 @@ export default async function ContactPage({
             <RevealGroup className="grid gap-4">
               {CONTACT_CARDS.map((card) => (
                 <RevealItem key={card.title}>
-                  <div className="hover-lift rounded-xl border border-border bg-card p-6 hover:border-accent/60">
+                  <div className="glass-panel hover-lift rounded-lg p-6 hover:border-accent/60">
                     <p className="font-display text-2xl font-bold uppercase tracking-wide text-foreground">{card.title}</p>
                     <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{card.body}</p>
                   </div>
                 </RevealItem>
               ))}
               <RevealItem>
-                <div className="rounded-xl border border-border bg-card p-6">
+                <div className="glass-panel rounded-lg p-6">
                   <Mail className="h-6 w-6 text-accent" />
                   <p className="eyebrow mt-5 text-[0.7rem] text-muted-foreground">Email</p>
-                  <a href={`mailto:${COMPANY.email}`} className="mt-2 block text-lg text-foreground hover:text-accent">{COMPANY.email}</a>
+                  <a href={`mailto:${COMPANY.email}`} className="mt-2 block text-lg text-foreground hover:text-accent" data-cursor="EMAIL">{COMPANY.email}</a>
                 </div>
               </RevealItem>
             </RevealGroup>

@@ -38,20 +38,21 @@ export function PortalShell({
   const nav = PORTAL_NAV[role];
 
   return (
-    <div className="min-h-screen bg-background text-foreground lg:grid lg:grid-cols-[16rem_1fr]">
+    <div className="relative min-h-screen overflow-hidden bg-background text-foreground lg:grid lg:grid-cols-[17rem_1fr]">
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_84%_0%,rgba(59,130,246,0.18),transparent_30rem),radial-gradient(circle_at_10%_16%,rgba(56,189,248,0.08),transparent_24rem),linear-gradient(180deg,rgba(5,11,20,1),rgba(3,7,13,1))]" />
       {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-screen flex-col border-r border-border bg-card/40 lg:flex">
+      <aside className="portal-glass sticky top-0 hidden h-screen flex-col border-r lg:flex">
         <SidebarContent role={role} nav={nav} />
       </aside>
 
       {/* Mobile drawer */}
       {open ? (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setOpen(false)} />
-          <aside className="absolute left-0 top-0 flex h-full w-72 flex-col border-r border-border bg-card">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setOpen(false)} />
+          <aside className="portal-glass absolute left-0 top-0 flex h-full w-72 flex-col border-r">
             <button
               onClick={() => setOpen(false)}
-              className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+              className="absolute right-3 top-3 rounded-full border border-white/10 p-2 text-muted-foreground hover:text-foreground"
               aria-label="Close menu"
             >
               <X className="h-5 w-5" />
@@ -63,11 +64,11 @@ export function PortalShell({
 
       <div className="flex min-h-screen flex-col">
         {/* Topbar */}
-        <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-border bg-background/85 px-5 py-3 backdrop-blur lg:px-8">
+        <header className="portal-glass sticky top-0 z-30 flex items-center justify-between gap-4 border-b px-5 py-3 lg:px-8">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setOpen(true)}
-              className="rounded-md border border-border p-2 text-muted-foreground lg:hidden"
+              className="rounded-md border border-white/10 bg-white/5 p-2 text-muted-foreground lg:hidden"
               aria-label="Open menu"
             >
               <Menu className="h-4 w-4" />
@@ -81,7 +82,7 @@ export function PortalShell({
           <div className="flex items-center gap-3">
             <Link
               href={`/portal/${role}/dashboard`}
-              className="relative rounded-md border border-border p-2 text-muted-foreground hover:text-accent"
+              className="relative rounded-md border border-white/10 bg-white/5 p-2 text-muted-foreground hover:text-accent"
               aria-label="Notifications"
             >
               <PortalIcon name="bell" className="h-4 w-4" />
@@ -97,7 +98,7 @@ export function PortalShell({
                 <p className="text-sm font-semibold leading-tight">{user.name}</p>
                 <p className="text-xs text-muted-foreground">{user.companyName ?? user.email}</p>
               </div>
-              <div className="flex h-9 w-9 items-center justify-center rounded-full border border-accent/40 bg-accent/10 text-xs font-bold text-accent">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full border border-accent/40 bg-accent/10 text-xs font-bold text-accent shadow-[0_0_28px_rgba(59,130,246,0.18)]">
                 {initials(user.name)}
               </div>
             </div>
@@ -105,7 +106,7 @@ export function PortalShell({
             <form action={signOut}>
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-xs text-muted-foreground hover:border-accent hover:text-accent"
+                className="inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/5 px-3 py-2 text-xs text-muted-foreground hover:border-accent hover:text-accent"
               >
                 <PortalIcon name="logout" className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Sign out</span>
@@ -134,9 +135,10 @@ function SidebarContent({
   const pathname = usePathname();
   return (
     <>
-      <div className="border-b border-border px-5 py-5">
-        <Link href="/" className="font-display text-xl font-extrabold uppercase tracking-tight">
-          AMG<span className="text-accent">.</span>
+      <div className="border-b border-white/10 px-5 py-5">
+        <Link href="/" className="inline-flex items-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/images/logo-white.png" alt="AMG Aviation Group" width="1088" height="221" className="h-7 w-auto" />
         </Link>
         <p className="mt-1 text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">
           Connect Operations
@@ -157,10 +159,10 @@ function SidebarContent({
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+                "flex items-center gap-3 rounded-lg border px-3 py-2 text-sm transition-colors",
                 active
-                  ? "bg-accent/10 font-semibold text-accent"
-                  : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
+                  ? "border-accent/30 bg-accent/10 font-semibold text-accent shadow-[0_12px_34px_rgba(59,130,246,0.12)]"
+                  : "border-transparent text-muted-foreground hover:border-white/10 hover:bg-white/5 hover:text-foreground"
               )}
             >
               <PortalIcon name={item.icon} className="h-4 w-4 shrink-0" />
@@ -169,7 +171,7 @@ function SidebarContent({
           );
         })}
       </nav>
-      <div className="border-t border-border px-5 py-4 text-[0.62rem] leading-5 text-muted-foreground">
+      <div className="border-t border-white/10 px-5 py-4 text-[0.62rem] leading-5 text-muted-foreground">
         AMG Aviation Group
         <br />
         Part 91 Operational Support

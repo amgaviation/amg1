@@ -20,9 +20,9 @@ export default function PilotNetworkPage() {
         description="AMG reviews crew profiles, aircraft qualifications, availability, owner/operator requirements, insurance considerations, and mission-specific suitability before any assignment is considered."
         image="/images/mid-jet.png"
       />
-      <section className="py-28">
+      <section className="cinematic-band py-28">
         <div className="mx-auto grid max-w-7xl gap-14 px-6 lg:grid-cols-2 lg:px-10">
-          <Reveal>
+          <Reveal data-scroll-animate>
             <p className="eyebrow mb-5 text-accent">Crew Profile Review</p>
             <h2 className="display-heading text-balance text-5xl text-foreground sm:text-6xl">
               Not a casual job board
@@ -33,18 +33,18 @@ export default function PilotNetworkPage() {
               requirements.
             </p>
           </Reveal>
-          <div className="grid gap-4">
-            <div className="overflow-hidden rounded-xl border border-border bg-card">
+          <div className="grid gap-4" data-scroll-animate>
+            <div className="media-vignette overflow-hidden rounded-lg border border-white/10 bg-card">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/images/site/bell-505.jpg"
                 alt="Pilot network coverage spanning rotorcraft and fixed-wing operations"
-                className="h-full w-full object-cover"
+                className="h-full w-full scale-105 object-cover"
               />
             </div>
             <ul className="grid gap-4">
               {PILOT_REQUIREMENTS.map((item) => (
-                <li key={item} className="flex gap-3 rounded-xl border border-border bg-card p-5">
+                <li key={item} className="glass-panel flex gap-3 rounded-lg p-5">
                   <Check className="mt-1 h-5 w-5 shrink-0 text-accent" />
                   <span className="text-foreground/85">{item}</span>
                 </li>
@@ -53,12 +53,12 @@ export default function PilotNetworkPage() {
           </div>
         </div>
       </section>
-      <section className="border-y border-border bg-card/30 py-28">
+      <section className="cinematic-band border-y border-white/10 bg-card/30 py-28">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
-          <RevealGroup className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <RevealGroup className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4" data-scroll-animate>
             {PILOT_BENEFITS.map((item) => (
               <RevealItem key={item.title}>
-                <div className="hover-lift h-full rounded-xl border border-border bg-card p-8 hover:border-accent/60">
+                <div className="glass-panel hover-lift h-full rounded-lg p-8 hover:border-accent/60">
                   <h3 className="font-display text-2xl font-bold uppercase tracking-wide text-accent">{item.title}</h3>
                   <p className="mt-4 leading-relaxed text-muted-foreground">{item.body}</p>
                 </div>
@@ -67,7 +67,7 @@ export default function PilotNetworkPage() {
           </RevealGroup>
         </div>
       </section>
-      <Reveal className="mx-auto max-w-4xl px-6 py-20 text-center lg:px-10">
+      <Reveal className="mx-auto max-w-4xl px-6 py-20 text-center lg:px-10" data-scroll-animate>
         <p className="text-sm leading-relaxed text-muted-foreground">
           Submitting a pilot profile does not guarantee approval, assignment,
           compensation, or engagement. All pilots remain subject to credential

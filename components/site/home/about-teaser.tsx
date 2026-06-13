@@ -4,20 +4,20 @@ import { Reveal } from "@/components/site/reveal";
 
 export function AboutTeaser() {
   return (
-    <section className="cinematic-section border-y border-border bg-card/30 py-28">
+    <section className="cinematic-section cinematic-band border-y border-white/10 py-28">
       <div className="mx-auto grid max-w-7xl items-center gap-14 px-6 lg:grid-cols-2 lg:px-10">
-        <Reveal>
-          <div className="relative overflow-hidden rounded-xl border border-border">
+        <Reveal data-scroll-animate>
+          <div className="media-vignette relative overflow-hidden rounded-lg border border-white/10">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/site/cirrus.webp"
               alt="Single-engine aircraft representing owner-operated aircraft support"
-              className="h-full w-full object-cover opacity-85"
+              className="h-full w-full scale-105 object-cover opacity-90"
             />
           </div>
         </Reveal>
 
-        <Reveal delay={0.15}>
+        <Reveal delay={0.15} data-scroll-animate>
           <p className="eyebrow mb-5 text-accent">Operational Philosophy</p>
           <h2 className="display-heading text-balance text-4xl text-foreground sm:text-5xl">
             Built around review before acceptance

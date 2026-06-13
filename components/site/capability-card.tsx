@@ -17,7 +17,8 @@ export function CapabilityCard({
     <RevealItem>
       <Link
         href={href}
-        className="hover-lift group flex h-full min-h-80 flex-col justify-between border border-border bg-card p-7 hover:border-accent/60 hover:bg-secondary/60"
+        className="glass-panel hover-lift group flex h-full min-h-80 flex-col justify-between rounded-lg p-7 hover:border-accent/60 hover:bg-secondary/60"
+        data-cursor="OPEN"
       >
         <div>
           <div className="flex items-start justify-between gap-4">

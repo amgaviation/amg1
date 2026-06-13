@@ -35,10 +35,11 @@ export function PortalLogin({
       <section className="relative hidden items-end overflow-hidden p-10 lg:flex">
         <div className="absolute inset-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/site/map-operations.jpg" alt="" className="h-full w-full object-cover opacity-45" />
+          <img src="/images/site/map-operations.jpg" alt="" className="h-full w-full scale-105 object-cover opacity-50" data-parallax="0.05" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_20%,rgba(59,130,246,0.2),transparent_26rem)]" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/65 to-background/20" />
         </div>
-        <div className="relative max-w-xl">
+        <div className="relative max-w-xl" data-scroll-animate>
           <Link href="/" className="eyebrow mb-6 inline-block text-accent">
             ← AMG Aviation Group
           </Link>
@@ -52,14 +53,14 @@ export function PortalLogin({
         </div>
       </section>
 
-      <section className="flex items-center px-6 py-12 sm:px-10 lg:px-12">
+      <section className="cinematic-band flex items-center px-6 py-12 sm:px-10 lg:px-12">
         <div className="w-full max-w-md">
           <div className="mb-7 flex items-center gap-3">
             <ShieldCheck className="h-6 w-6 text-accent" />
             <p className="eyebrow text-accent">AMG Connect Access</p>
           </div>
 
-          <div className="mb-6 grid grid-cols-2 gap-1 rounded-full border border-border bg-card p-1">
+          <div className="mb-6 grid grid-cols-2 gap-1 rounded-full border border-white/10 bg-white/5 p-1 backdrop-blur">
             <button
               type="button"
               onClick={() => setMode("signin")}
@@ -98,7 +99,7 @@ export function PortalLogin({
             </div>
           ) : null}
           {error === "account_exists" ? (
-            <div className="mb-4 grid gap-3 rounded-lg border border-border bg-card/70 px-4 py-4">
+            <div className="glass-panel mb-4 grid gap-3 rounded-lg px-4 py-4">
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                 <button
                   type="button"
@@ -109,13 +110,13 @@ export function PortalLogin({
                 </button>
                 <Link
                   href="/forgot-password"
-                  className="inline-flex min-h-10 items-center justify-center rounded-full border border-border px-4 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-accent hover:text-accent"
+                  className="inline-flex min-h-10 items-center justify-center rounded-full border border-white/15 px-4 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-accent hover:text-accent"
                 >
                   Forgot password
                 </Link>
                 <Link
                   href="/contact?category=other-support"
-                  className="inline-flex min-h-10 items-center justify-center rounded-full border border-border px-4 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-accent hover:text-accent"
+                  className="inline-flex min-h-10 items-center justify-center rounded-full border border-white/15 px-4 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-accent hover:text-accent"
                 >
                   Wrong email
                 </Link>
@@ -124,7 +125,7 @@ export function PortalLogin({
           ) : null}
 
           {mode === "signin" ? (
-            <form action={signIn} className="rounded-xl border border-border bg-card p-6">
+            <form action={signIn} className="glass-panel rounded-lg p-6">
               <label className="eyebrow text-[0.7rem] text-muted-foreground" htmlFor="email">
                 Email
               </label>
@@ -137,7 +138,8 @@ export function PortalLogin({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@company.com"
-                className="mt-2 h-12 w-full rounded-lg border border-input bg-background px-4 text-base outline-none focus:border-accent"
+                className="support-field mt-2 h-12 w-full px-4 text-base"
+                data-cursor="TYPE"
               />
               <label className="eyebrow mt-5 block text-[0.7rem] text-muted-foreground" htmlFor="password">
                 Password
@@ -151,24 +153,25 @@ export function PortalLogin({
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
-                className="mt-2 h-12 w-full rounded-lg border border-input bg-background px-4 text-base outline-none focus:border-accent"
+                className="support-field mt-2 h-12 w-full px-4 text-base"
+                data-cursor="TYPE"
               />
-              <button className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-4 font-display text-sm font-semibold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-primary/90">
+              <button className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-4 font-display text-sm font-semibold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-primary/90" data-cursor="ENTER">
                 Sign in
                 <ArrowRight className="h-4 w-4" />
               </button>
             </form>
           ) : (
-            <form action={signUp} className="rounded-xl border border-border bg-card p-6">
+            <form action={signUp} className="glass-panel rounded-lg p-6">
               <div className="grid gap-3">
-                <input name="full_name" required placeholder="Full name" className="h-11 rounded-lg border border-input bg-background px-4 text-sm outline-none focus:border-accent" />
-                <input name="email" type="email" required placeholder="name@company.com" className="h-11 rounded-lg border border-input bg-background px-4 text-sm outline-none focus:border-accent" />
-                <input name="password" type="password" required minLength={8} placeholder="Create a password (8+ characters)" className="h-11 rounded-lg border border-input bg-background px-4 text-sm outline-none focus:border-accent" />
+                <input name="full_name" required placeholder="Full name" className="support-field h-11 px-4 text-sm" data-cursor="TYPE" />
+                <input name="email" type="email" required placeholder="name@company.com" className="support-field h-11 px-4 text-sm" data-cursor="TYPE" />
+                <input name="password" type="password" required minLength={8} placeholder="Create a password (8+ characters)" className="support-field h-11 px-4 text-sm" data-cursor="TYPE" />
                 <input type="hidden" name="role" value="client" />
-                <input name="company_name" placeholder="Organization" className="h-11 rounded-lg border border-input bg-background px-4 text-sm outline-none focus:border-accent" />
-                <input name="phone" placeholder="Phone (optional)" className="h-11 rounded-lg border border-input bg-background px-4 text-sm outline-none focus:border-accent" />
+                <input name="company_name" placeholder="Organization" className="support-field h-11 px-4 text-sm" data-cursor="TYPE" />
+                <input name="phone" placeholder="Phone (optional)" className="support-field h-11 px-4 text-sm" data-cursor="TYPE" />
               </div>
-              <button className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-4 font-display text-sm font-semibold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-primary/90">
+              <button className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-4 font-display text-sm font-semibold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-primary/90" data-cursor="REQUEST">
                 Submit access request
                 <ArrowRight className="h-4 w-4" />
               </button>

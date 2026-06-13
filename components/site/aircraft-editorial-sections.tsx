@@ -4,23 +4,39 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/site/reveal";
 import { cn } from "@/lib/utils";
 import { AIRCRAFT_CATEGORIES } from "@/lib/content";
 
+const AIRCRAFT_IMAGES: Record<string, string> = {
+  "single-engine-piston": "/images/site/cirrus.webp",
+  "multi-engine-piston": "/images/site/diamond-me.jpg",
+  turboprop: "/images/site/tbm.jpg",
+  "single-engine-jet-vlj": "/images/light-jet.png",
+  "light-jet": "/images/site/citation-x.webp",
+  "midsize-jet": "/images/mid-jet.png",
+  "super-midsize-jet": "/images/heavy-jet.png",
+  "large-cabin-heavy-jet": "/images/hero-jet.png",
+  helicopter: "/images/site/bell-505.jpg",
+};
+
 export function AircraftEditorialSections() {
   return (
     <div className="space-y-0">
       {AIRCRAFT_CATEGORIES.map((aircraft, index) => {
         const mediaLeft = index % 2 === 0;
         return (
-          <section key={aircraft.id} id={aircraft.id} className={cn("border-b border-border", index % 2 === 0 ? "bg-card/30" : "bg-background")}>
+          <section key={aircraft.id} id={aircraft.id} className={cn("cinematic-band border-b border-white/10", index % 2 === 0 ? "bg-card/30" : "bg-background")}>
             <div className="mx-auto grid max-w-7xl gap-0 px-6 py-20 lg:grid-cols-2 lg:px-10 lg:py-28">
-              <Reveal className={cn(mediaLeft ? "lg:order-1" : "lg:order-2")}>
-                <div className="relative min-h-80 overflow-hidden rounded-xl border border-border bg-[linear-gradient(135deg,rgba(59,130,246,0.18),rgba(7,17,31,0.96)_42%,rgba(56,189,248,0.12))] p-8">
-                  <div className="absolute inset-x-8 top-10 h-px bg-accent/30" />
-                  <div className="absolute bottom-8 right-8 h-32 w-32 rounded-full border border-accent/20" />
-                  <div className="absolute bottom-16 right-16 h-16 w-16 rounded-full border border-accent/30" />
-                  <p className="font-display text-8xl font-extrabold leading-none text-accent/25">
+              <Reveal className={cn(mediaLeft ? "lg:order-1" : "lg:order-2")} data-scroll-animate>
+                <div className="media-vignette relative min-h-80 overflow-hidden rounded-lg border border-white/10">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={AIRCRAFT_IMAGES[aircraft.id] ?? "/images/hero-jet.png"}
+                    alt=""
+                    className="absolute inset-0 h-full w-full scale-105 object-cover opacity-80"
+                  />
+                  <div className="absolute inset-x-8 top-10 h-px bg-accent/40" />
+                  <p className="relative font-display text-8xl font-extrabold leading-none text-accent/40">
                     {String(index + 1).padStart(2, "0")}
                   </p>
-                  <div className="mt-16 max-w-sm">
+                  <div className="relative mt-16 max-w-sm">
                     <p className="eyebrow text-[0.68rem] text-accent">{aircraft.pricing}</p>
                     <p className="mt-4 font-display text-4xl font-extrabold uppercase leading-none text-foreground">
                       {aircraft.category}
@@ -28,7 +44,7 @@ export function AircraftEditorialSections() {
                   </div>
                 </div>
               </Reveal>
-              <Reveal delay={0.12} className={cn("flex items-center", mediaLeft ? "lg:order-2 lg:pl-10" : "lg:order-1 lg:pr-10")}>
+              <Reveal delay={0.12} className={cn("flex items-center", mediaLeft ? "lg:order-2 lg:pl-10" : "lg:order-1 lg:pr-10")} data-scroll-animate>
                 <div>
                   <p className="eyebrow mb-4 text-accent">
                     {String(index + 1).padStart(2, "0")} / {aircraft.category}
@@ -40,25 +56,25 @@ export function AircraftEditorialSections() {
                     {aircraft.support}
                   </p>
                   <dl className="mt-8 grid gap-4 text-sm text-muted-foreground sm:grid-cols-2">
-                    <div className="border-l border-border pl-4">
+                    <div className="border-l border-white/15 pl-4">
                       <dt className="uppercase tracking-widest text-foreground/80">Examples</dt>
                       <dd className="mt-2">{aircraft.examples}</dd>
                     </div>
-                    <div className="border-l border-border pl-4">
+                    <div className="border-l border-white/15 pl-4">
                       <dt className="uppercase tracking-widest text-foreground/80">Use cases</dt>
                       <dd className="mt-2">{aircraft.useCases}</dd>
                     </div>
-                    <div className="border-l border-border pl-4">
+                    <div className="border-l border-white/15 pl-4">
                       <dt className="uppercase tracking-widest text-foreground/80">Crew</dt>
                       <dd className="mt-2">{aircraft.crew}</dd>
                     </div>
-                    <div className="border-l border-border pl-4">
+                    <div className="border-l border-white/15 pl-4">
                       <dt className="uppercase tracking-widest text-foreground/80">Status</dt>
                       <dd className="mt-2">Support remains subject to review and acceptance.</dd>
                     </div>
                   </dl>
                   <div className="mt-8">
-                    <Link href={`/contact?aircraft=${aircraft.id}`} className="inline-flex items-center gap-2 font-display text-xs font-semibold uppercase tracking-widest text-accent">
+                    <Link href={`/contact?aircraft=${aircraft.id}`} className="inline-flex items-center gap-2 font-display text-xs font-semibold uppercase tracking-widest text-accent" data-cursor="REQUEST">
                       Request support for this category
                       <ArrowRight className="h-4 w-4" />
                     </Link>
