@@ -182,6 +182,11 @@ export async function sendEmail(params: {
   text: string;
   html?: string;
   replyTo?: string;
+  attachments?: {
+    filename: string;
+    content: string;
+    content_type?: string;
+  }[];
 }): Promise<DeliveryResult> {
   const from = normalizeEnvEmail(process.env.EMAIL_FROM_ADDRESS);
   const replyTo = normalizeEnvEmail(params.replyTo || process.env.EMAIL_REPLY_TO);
@@ -203,6 +208,7 @@ export async function sendEmail(params: {
       subject: params.subject,
       html: params.html,
       text: params.text,
+      attachments: params.attachments,
     }),
   });
 

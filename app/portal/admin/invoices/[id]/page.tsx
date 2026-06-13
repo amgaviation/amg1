@@ -26,12 +26,32 @@ export default async function AdminInvoiceDetailPage({
   const flash = await searchParams;
   const invoice = await getInvoiceDetail(id);
   if (!invoice) notFound();
+  const latestInvoiceDocument = invoice.documents[0];
+  const receiptByPayment = new Map(
+    invoice.receiptDocuments.map((document) => [document.payment_id, document]),
+  );
 
   return (
     <PortalShell role="admin" user={user}>
       {flash.success ? <Notice tone="success">Invoice updated.</Notice> : null}
       {flash.error === "duplicate" ? <Notice tone="danger">This quote already has an active invoice.</Notice> : null}
-      <PageHeader eyebrow="Invoice" title={invoice.invoice_number} actions={<Link href="/portal/admin/invoices" className="text-xs text-muted-foreground hover:text-accent">Back to invoices</Link>} />
+      <PageHeader
+        eyebrow="Invoice"
+        title={invoice.invoice_number}
+        actions={
+          <div className="flex items-center gap-3">
+            {latestInvoiceDocument ? (
+              <Link
+                href={`/api/portal/billing-documents/${latestInvoiceDocument.id}/download`}
+                className="text-xs text-accent hover:underline"
+              >
+                Download PDF
+              </Link>
+            ) : null}
+            <Link href="/portal/admin/invoices" className="text-xs text-muted-foreground hover:text-accent">Back to invoices</Link>
+          </div>
+        }
+      />
 
       <div className="grid gap-6 xl:grid-cols-[1fr_24rem]">
         <div className="space-y-6">
@@ -44,9 +64,13 @@ export default async function AdminInvoiceDetailPage({
               <DetailRow label="Issued">{formatDateTime(invoice.issued_at)}</DetailRow>
               <DetailRow label="Due">{formatDate(invoice.due_date)}</DetailRow>
               <DetailRow label="Total">{formatMoney(invoice.total)}</DetailRow>
+              <DetailRow label="Discount">{formatMoney((invoice as any).discount_total ?? invoice.discount)}</DetailRow>
+              <DetailRow label="Tax">{formatMoney((invoice as any).tax_total ?? invoice.tax)}</DetailRow>
+              <DetailRow label="Deposit">{formatMoney((invoice as any).deposit_amount ?? 0)}</DetailRow>
               <DetailRow label="Paid">{formatMoney(invoice.amount_paid)}</DetailRow>
               <DetailRow label="Amount Due">{formatMoney(invoice.amount_due)}</DetailRow>
               <DetailRow label="Terms">{invoice.terms ?? "-"}</DetailRow>
+              <DetailRow label="Payment Instructions">{(invoice as any).payment_instructions ?? "-"}</DetailRow>
             </dl>
           </SectionCard>
 
@@ -73,8 +97,19 @@ export default async function AdminInvoiceDetailPage({
               columns={[
                 { header: "Date", cell: (row) => formatDateTime(row.paid_at) },
                 { header: "Method", cell: (row) => row.payment_method ?? "-" },
+                { header: "Reference", cell: (row) => (row as any).payment_reference ?? "-" },
                 { header: "Amount", cell: (row) => formatMoney(row.amount), align: "right" },
-                { header: "Notes", cell: (row) => row.notes ?? "-" },
+                {
+                  header: "Receipt",
+                  cell: (row) => {
+                    const document = receiptByPayment.get(row.id);
+                    return document ? (
+                      <Link href={`/api/portal/billing-documents/${document.id}/download`} className="text-accent hover:underline">
+                        PDF
+                      </Link>
+                    ) : "-";
+                  },
+                },
               ]}
             />
           </SectionCard>
@@ -95,6 +130,7 @@ export default async function AdminInvoiceDetailPage({
               <input type="hidden" name="invoice_id" value={invoice.id} />
               <TextField label="Amount" name="amount" type="number" min="0" step="0.01" required />
               <TextField label="Payment Method" name="payment_method" placeholder="ACH, wire, check..." />
+              <TextField label="Payment Reference" name="payment_reference" placeholder="Trace, check, wire, or note..." />
               <TextAreaField label="Notes" name="notes" />
               <SubmitButton className="rounded-full" pendingText="Recording...">Record Payment</SubmitButton>
             </form>

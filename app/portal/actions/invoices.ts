@@ -4,6 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
+import { combinedPaymentInstructions, getBillingSettings } from "@/lib/portal/billing-config";
+import { createInvoiceDraftFromQuote } from "@/lib/portal/billing-documents";
+import { emailInvoicePdf, emailReceiptPdf } from "@/lib/portal/billing-emails";
+import { nextBillingDocumentNumber } from "@/lib/portal/billing-numbering";
 import { actor, num, str } from "./_helpers";
 
 function money(formData: FormData, key: string): number {
@@ -18,10 +22,9 @@ export async function createInvoiceFromQuote(formData: FormData) {
 
   const { data: quote } = await db
     .from("quotes")
-    .select("*, mission:mission_id(aircraft_id)")
+    .select("id, ref, client_id")
     .eq("id", quoteId)
-    .maybeSingle()
-    .returns<({ id: string; ref: string; status: string; mission_id: string | null; client_id: string | null; subtotal: number; total: number; client_notes: string | null; mission: { aircraft_id: string | null } | null }) | null>();
+    .maybeSingle();
   if (!quote) redirect("/portal/admin/invoices?error=quote");
 
   const { data: existing } = await db
@@ -32,77 +35,51 @@ export async function createInvoiceFromQuote(formData: FormData) {
     .maybeSingle();
   if (existing) redirect(`/portal/admin/invoices/${existing.id}?error=duplicate`);
 
-  const { data: quoteItems } = await db
-    .from("quote_line_items")
-    .select("*")
-    .eq("quote_id", quoteId)
-    .order("sort_order");
-  const dueDate = str(formData, "due_date") || null;
-  const terms = str(formData, "terms") || "Due on receipt unless otherwise agreed in writing.";
-  const subtotal = quote.total ?? quote.subtotal ?? 0;
+  const invoiceId = await createInvoiceDraftFromQuote({
+    quoteId,
+    actorId: admin.id,
+    status: "sent",
+    dueDate: str(formData, "due_date") || null,
+    terms: str(formData, "terms") || null,
+  }).catch(() => null);
+  if (!invoiceId) redirect("/portal/admin/invoices?error=save");
 
-  const { data: invoice, error } = await db
+  const { data: invoice } = await db
     .from("invoices")
-    .insert({
-      quote_id: quote.id,
-      mission_id: quote.mission_id,
-      aircraft_id: quote.mission?.aircraft_id ?? null,
-      client_id: quote.client_id,
-      status: "sent",
-      subtotal,
-      total: subtotal,
-      amount_due: subtotal,
-      issued_at: new Date().toISOString(),
-      sent_at: new Date().toISOString(),
-      due_date: dueDate,
-      terms,
-      client_notes: quote.client_notes,
-      created_by: admin.id,
-    })
-    .select("id, invoice_number")
-    .single();
-  if (error || !invoice) redirect("/portal/admin/invoices?error=save");
-
-  if (quoteItems?.length) {
-    await db.from("invoice_line_items").insert(
-      quoteItems.map((item) => ({
-        invoice_id: invoice.id,
-        category: item.category,
-        description: item.description,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        amount: item.amount,
-        sort_order: item.sort_order,
-      }))
-    );
-  }
+    .select("invoice_number")
+    .eq("id", invoiceId)
+    .maybeSingle();
+  await emailInvoicePdf(invoiceId, admin.id).catch((error) => {
+    console.error("[billing] failed to email invoice PDF", invoiceId, error);
+  });
   await db.from("quotes").update({ status: "converted" }).eq("id", quote.id);
 
   await logAuditEvent({
     actor: admin,
     action: "invoice_created_from_quote",
-    detail: `Created ${invoice.invoice_number} from ${quote.ref}`,
+    detail: `Created ${invoice?.invoice_number ?? "invoice"} from ${quote.ref}`,
     entityType: "invoice",
-    entityId: invoice.id,
+    entityId: invoiceId,
   });
   if (quote.client_id) {
     await notifyUser({
       userId: quote.client_id,
       title: "Invoice issued",
-      body: `${invoice.invoice_number} is available in your billing portal.`,
+      body: `${invoice?.invoice_number ?? "An invoice"} is available in your billing portal.`,
       type: "invoice_issued",
       entityType: "invoice",
-      entityId: invoice.id,
+      entityId: invoiceId,
     });
   }
   revalidatePath("/portal/admin/invoices");
   revalidatePath("/portal/client/billing");
-  redirect(`/portal/admin/invoices/${invoice.id}?success=created`);
+  redirect(`/portal/admin/invoices/${invoiceId}?success=created`);
 }
 
 export async function createStandaloneInvoice(formData: FormData) {
   const admin = await actor(["admin"]);
   const db = await createServiceClient();
+  const billingDb = db as any;
   const clientId = str(formData, "client_id");
   const category = str(formData, "category");
   const description = str(formData, "description");
@@ -110,24 +87,36 @@ export async function createStandaloneInvoice(formData: FormData) {
   const unitPrice = money(formData, "unit_price");
   if (!clientId || !category) redirect("/portal/admin/invoices?error=missing");
   const amount = quantity * unitPrice;
+  const settings = await getBillingSettings();
+  const discountTotal = money(formData, "discount_total");
+  const taxTotal = money(formData, "tax_total");
+  const total = Math.max(amount - discountTotal + taxTotal, 0);
+  const invoiceNumber = await nextBillingDocumentNumber("invoice");
+  const status = str(formData, "status") || "draft";
 
-  const { data: invoice, error } = await db
+  const { data: invoice, error } = await billingDb
     .from("invoices")
     .insert({
+      invoice_number: invoiceNumber,
       client_id: clientId,
       mission_id: str(formData, "mission_id") || null,
       aircraft_id: str(formData, "aircraft_id") || null,
-      status: str(formData, "status") || "draft",
+      status,
       subtotal: amount,
-      total: amount,
-      amount_due: amount,
+      discount: discountTotal,
+      discount_total: discountTotal,
+      tax: taxTotal,
+      tax_total: taxTotal,
+      total,
+      amount_due: total,
       due_date: str(formData, "due_date") || null,
-      terms: str(formData, "terms") || null,
+      terms: str(formData, "terms") || settings.invoice_terms,
+      payment_instructions: str(formData, "payment_instructions") || combinedPaymentInstructions(settings),
       client_notes: str(formData, "client_notes") || null,
       internal_notes: str(formData, "internal_notes") || null,
       created_by: admin.id,
       issued_at: new Date().toISOString(),
-      sent_at: str(formData, "status") === "sent" ? new Date().toISOString() : null,
+      sent_at: status === "sent" ? new Date().toISOString() : null,
     })
     .select("id, invoice_number")
     .single();
@@ -149,7 +138,10 @@ export async function createStandaloneInvoice(formData: FormData) {
     entityType: "invoice",
     entityId: invoice.id,
   });
-  if (str(formData, "status") === "sent") {
+  if (status === "sent") {
+    await emailInvoicePdf(invoice.id, admin.id).catch((error) => {
+      console.error("[billing] failed to email standalone invoice PDF", invoice.id, error);
+    });
     await notifyUser({
       userId: clientId,
       title: "Invoice issued",
@@ -167,6 +159,7 @@ export async function createStandaloneInvoice(formData: FormData) {
 export async function recordInvoicePayment(formData: FormData) {
   const admin = await actor(["admin"]);
   const db = await createServiceClient();
+  const billingDb = db as any;
   const invoiceId = str(formData, "invoice_id");
   const amount = money(formData, "amount");
   if (!invoiceId || amount <= 0) redirect("/portal/admin/invoices?error=payment");
@@ -182,14 +175,18 @@ export async function recordInvoicePayment(formData: FormData) {
   const status = amountPaid >= total ? "paid" : "partially_paid";
   const paidAt = status === "paid" ? new Date().toISOString() : null;
 
-  await db.from("payments").insert({
+  const receiptNumber = await nextBillingDocumentNumber("receipt");
+  const { data: payment, error: paymentError } = await billingDb.from("payments").insert({
     invoice_id: invoiceId,
     amount,
     payment_method: str(formData, "payment_method") || "manual",
+    payment_reference: str(formData, "payment_reference") || null,
+    receipt_number: receiptNumber,
     notes: str(formData, "notes") || null,
     recorded_by: admin.id,
     status: "recorded",
-  });
+  }).select("id").single();
+  if (paymentError || !payment) redirect(`/portal/admin/invoices/${invoiceId}?error=payment`);
   await db
     .from("invoices")
     .update({
@@ -205,6 +202,9 @@ export async function recordInvoicePayment(formData: FormData) {
     detail: `Recorded payment ${amount} on ${invoice.invoice_number}`,
     entityType: "invoice",
     entityId: invoiceId,
+  });
+  await emailReceiptPdf(payment.id, admin.id).catch((error) => {
+    console.error("[billing] failed to email receipt PDF", payment.id, error);
   });
   if (invoice.client_id) {
     await notifyUser({
@@ -224,10 +224,11 @@ export async function recordInvoicePayment(formData: FormData) {
 export async function updateInvoiceStatus(formData: FormData) {
   const admin = await actor(["admin"]);
   const db = await createServiceClient();
+  const billingDb = db as any;
   const invoiceId = str(formData, "invoice_id");
   const status = str(formData, "status");
   if (!invoiceId || !status) redirect("/portal/admin/invoices?error=missing");
-  const { data: invoice } = await db
+  const { data: invoice } = await billingDb
     .from("invoices")
     .update({
       status,
@@ -235,7 +236,7 @@ export async function updateInvoiceStatus(formData: FormData) {
       internal_notes: str(formData, "internal_notes") || null,
     })
     .eq("id", invoiceId)
-    .select("invoice_number, client_id")
+    .select("invoice_number, client_id, amount_paid, amount_due, total")
     .single();
   if (!invoice) redirect("/portal/admin/invoices?error=save");
   await logAuditEvent({
@@ -246,6 +247,9 @@ export async function updateInvoiceStatus(formData: FormData) {
     entityId: invoiceId,
   });
   if (invoice.client_id && status === "sent") {
+    await emailInvoicePdf(invoiceId, admin.id).catch((error) => {
+      console.error("[billing] failed to email invoice PDF after status update", invoiceId, error);
+    });
     await notifyUser({
       userId: invoice.client_id,
       title: "Invoice issued",
@@ -254,6 +258,38 @@ export async function updateInvoiceStatus(formData: FormData) {
       entityType: "invoice",
       entityId: invoiceId,
     });
+  }
+  if (invoice.client_id && status === "paid" && Number(invoice.amount_due ?? 0) > 0) {
+    const amount = Number(invoice.amount_due ?? 0);
+    const paidTotal = Number(invoice.amount_paid ?? 0) + amount;
+    const receiptNumber = await nextBillingDocumentNumber("receipt");
+    const { data: payment } = await billingDb
+      .from("payments")
+      .insert({
+        invoice_id: invoiceId,
+        amount,
+        payment_method: "manual",
+        payment_reference: "Marked paid in admin portal",
+        receipt_number: receiptNumber,
+        notes: str(formData, "internal_notes") || null,
+        recorded_by: admin.id,
+        status: "recorded",
+      })
+      .select("id")
+      .single();
+    await billingDb
+      .from("invoices")
+      .update({
+        amount_paid: paidTotal,
+        amount_due: 0,
+        paid_at: new Date().toISOString(),
+      })
+      .eq("id", invoiceId);
+    if (payment?.id) {
+      await emailReceiptPdf(payment.id, admin.id).catch((error) => {
+        console.error("[billing] failed to email paid-status receipt PDF", payment.id, error);
+      });
+    }
   }
   revalidatePath(`/portal/admin/invoices/${invoiceId}`);
   revalidatePath("/portal/admin/invoices");

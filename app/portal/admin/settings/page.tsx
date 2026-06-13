@@ -3,6 +3,7 @@ import { AccountSecurityForm } from "@/components/portal/account-security-form";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DetailRow, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { RoleBadge } from "@/components/portal/ui/status-badge";
+import Link from "next/link";
 
 export const metadata = { title: "Settings - Admin Portal" };
 
@@ -44,6 +45,11 @@ export default async function AdminSettingsPage({
         <div className="grid gap-3 text-sm text-muted-foreground">
           <p>Supabase Auth, profile approval, portal role routing, document storage, audit logging, notifications, and server actions are wired in this build.</p>
           <p>Before production launch, confirm Supabase storage buckets exist for documents and crew-credentials, then set the required Supabase environment variables in Vercel.</p>
+          <p>
+            <Link href="/portal/admin/settings/billing" className="text-accent hover:underline">
+              Manage protected billing settings
+            </Link>
+          </p>
         </div>
       </SectionCard>
       <AccountSecurityForm email={user.email} backTo="/portal/admin/settings" />

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createServiceClient } from "@/lib/supabase/server";
+import type { BillingDocumentRow } from "@/lib/portal/billing-documents";
 import type { Tables } from "@/lib/supabase/database.types";
 
 /**
@@ -207,8 +208,9 @@ export async function listAllQuotes(): Promise<
 
 export async function getQuoteDetail(
   id: string
-): Promise<(Quote & { items: QuoteLineItem[]; mission: { ref: string; id: string } | null }) | null> {
+): Promise<(Quote & { items: QuoteLineItem[]; mission: { ref: string; id: string } | null; documents: BillingDocumentRow[] }) | null> {
   const db = await createServiceClient();
+  const billingDb = db as any;
   const { data: quote } = await db
     .from("quotes")
     .select("*, mission:mission_id(id,ref)")
@@ -216,12 +218,11 @@ export async function getQuoteDetail(
     .maybeSingle()
     .returns<(Quote & { mission: { ref: string; id: string } | null }) | null>();
   if (!quote) return null;
-  const { data: items } = await db
-    .from("quote_line_items")
-    .select("*")
-    .eq("quote_id", id)
-    .order("sort_order");
-  return { ...quote, items: items ?? [] };
+  const [items, documents] = await Promise.all([
+    db.from("quote_line_items").select("*").eq("quote_id", id).order("sort_order"),
+    billingDb.from("billing_documents").select("*").eq("quote_id", id).order("created_at", { ascending: false }),
+  ]);
+  return { ...quote, items: items.data ?? [], documents: documents.data ?? [] };
 }
 
 // Billing
@@ -269,10 +270,13 @@ export async function getInvoiceDetail(
       quote: Quote | null;
       items: InvoiceLineItem[];
       payments: Payment[];
+      documents: BillingDocumentRow[];
+      receiptDocuments: BillingDocumentRow[];
     })
   | null
 > {
   const db = await createServiceClient();
+  const billingDb = db as any;
   const { data: invoice } = await db
     .from("invoices")
     .select("*, client:client_id(full_name,email,company_name), mission:mission_id(*), quote:quote_id(*)")
@@ -280,11 +284,19 @@ export async function getInvoiceDetail(
     .maybeSingle()
     .returns<(Invoice & { client: MiniProfile | null; mission: Mission | null; quote: Quote | null }) | null>();
   if (!invoice) return null;
-  const [items, payments] = await Promise.all([
+  const [items, payments, documents, receiptDocuments] = await Promise.all([
     db.from("invoice_line_items").select("*").eq("invoice_id", id).order("sort_order"),
     db.from("payments").select("*").eq("invoice_id", id).order("paid_at", { ascending: false }),
+    billingDb.from("billing_documents").select("*").eq("invoice_id", id).eq("document_type", "invoice").order("created_at", { ascending: false }),
+    billingDb.from("billing_documents").select("*").eq("invoice_id", id).eq("document_type", "receipt").order("created_at", { ascending: false }),
   ]);
-  return { ...invoice, items: items.data ?? [], payments: payments.data ?? [] };
+  return {
+    ...invoice,
+    items: items.data ?? [],
+    payments: payments.data ?? [],
+    documents: documents.data ?? [],
+    receiptDocuments: receiptDocuments.data ?? [],
+  };
 }
 
 // ─── Expenses ───────────────────────────────────────────────────────

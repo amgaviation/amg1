@@ -5,11 +5,16 @@ import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent, notifyAdmins, notifyUser } from "@/lib/portal/audit";
 import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
-import { actor, str } from "./_helpers";
+import { combinedPaymentInstructions, getBillingSettings } from "@/lib/portal/billing-config";
+import { createInvoiceDraftFromQuote } from "@/lib/portal/billing-documents";
+import { emailInvoicePdf, emailQuotePdf } from "@/lib/portal/billing-emails";
+import { nextBillingDocumentNumber } from "@/lib/portal/billing-numbering";
+import { actor, bool, num, str } from "./_helpers";
 
 export async function createQuote(formData: FormData) {
   const admin = await actor(["admin"]);
   const db = await createServiceClient();
+  const billingDb = db as any;
   const missionId = str(formData, "mission_id");
   if (!missionId) redirect("/portal/admin/quotes?error=missing");
 
@@ -36,15 +41,31 @@ export async function createQuote(formData: FormData) {
     .filter((it) => it.category && it.amount >= 0);
 
   const total = items.reduce((sum, it) => sum + it.amount, 0);
+  const settings = await getBillingSettings();
+  const discountTotal = num(formData, "discount_total") ?? 0;
+  const taxTotal = num(formData, "tax_total") ?? 0;
+  const depositAmount = num(formData, "deposit_amount") ?? 0;
+  const grandTotal = Math.max(total - discountTotal + taxTotal, 0);
+  const quoteNumber = await nextBillingDocumentNumber("quote");
+  const sendNow = str(formData, "intent") !== "draft";
 
-  const { data: quote } = await db
+  const { data: quote } = await billingDb
     .from("quotes")
     .insert({
+      ref: quoteNumber,
+      quote_number: quoteNumber,
       mission_id: missionId,
       client_id: mission?.client_id ?? null,
-      status: "sent",
+      status: sendNow ? "sent" : "draft",
       subtotal: total,
-      total,
+      discount_total: discountTotal,
+      tax_total: taxTotal,
+      total: grandTotal,
+      deposit_required: bool(formData, "deposit_required") || depositAmount > 0,
+      deposit_amount: depositAmount,
+      payment_terms: str(formData, "payment_terms") || settings.quote_terms,
+      payment_instructions: str(formData, "payment_instructions") || combinedPaymentInstructions(settings),
+      sent_at: sendNow ? new Date().toISOString() : null,
       client_notes: str(formData, "client_notes") || null,
       internal_notes: str(formData, "internal_notes") || null,
       created_by: admin.id,
@@ -62,11 +83,16 @@ export async function createQuote(formData: FormData) {
   await logAuditEvent({
     actor: admin,
     action: "quote_created",
-    detail: `Created ${quote?.ref ?? "quote"} ($${total}) for ${mission?.ref ?? missionId}`,
+    detail: `Created ${quote?.ref ?? "quote"} ($${grandTotal}) for ${mission?.ref ?? missionId}`,
     entityType: "quote",
     entityId: quote?.id ?? null,
   });
-  if (mission?.client_id) {
+  if (sendNow && quote) {
+    await emailQuotePdf(quote.id, admin.id).catch((error) => {
+      console.error("[billing] failed to email quote PDF", quote.id, error);
+    });
+  }
+  if (mission?.client_id && sendNow) {
     await notifyUser({
       userId: mission.client_id,
       title: "Quote ready",
@@ -76,7 +102,7 @@ export async function createQuote(formData: FormData) {
       entityId: quote?.id ?? null,
     });
   }
-  if (quote) {
+  if (quote && sendNow) {
     await notifyMissionContactByEmail({
       missionId,
       title: "Quote ready for review",
@@ -86,7 +112,7 @@ export async function createQuote(formData: FormData) {
         "AMG Aviation Group has prepared a quote for your request. Please review the quote details and contact AMG Operations with any questions or required changes.",
       details: [
         { label: "Quote Reference", value: quote.ref },
-        { label: "Quote Total", value: `$${total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
+        { label: "Quote Total", value: `$${grandTotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
       ],
     });
   }
@@ -98,6 +124,7 @@ export async function createQuote(formData: FormData) {
 export async function respondToQuote(formData: FormData) {
   const user = await actor(["client", "admin"]);
   const db = await createServiceClient();
+  const billingDb = db as any;
   const quoteId = str(formData, "quote_id");
   const decision = str(formData, "decision"); // approved | rejected
 
@@ -111,16 +138,31 @@ export async function respondToQuote(formData: FormData) {
     redirect("/portal/client/quotes?error=forbidden");
   }
 
-  await db
+  await billingDb
     .from("quotes")
     .update({
       status: decision === "approved" ? "approved" : "rejected",
       approved_by: decision === "approved" ? user.id : null,
+      approved_at: decision === "approved" ? new Date().toISOString() : null,
+      rejected_by: decision === "rejected" ? user.id : null,
+      rejected_at: decision === "rejected" ? new Date().toISOString() : null,
     })
     .eq("id", quoteId);
 
+  let invoiceId: string | null = null;
   if (decision === "approved" && quote.mission_id) {
     await db.from("missions").update({ status: "approved" }).eq("id", quote.mission_id);
+    const settings = await getBillingSettings();
+    invoiceId = await createInvoiceDraftFromQuote({
+      quoteId,
+      actorId: user.id,
+      status: settings.auto_send_invoice_on_quote_approval ? "sent" : "draft",
+    });
+    if (settings.auto_send_invoice_on_quote_approval) {
+      await emailInvoicePdf(invoiceId, user.id).catch((error) => {
+        console.error("[billing] failed to email invoice PDF after quote approval", invoiceId, error);
+      });
+    }
   }
 
   await logAuditEvent({
@@ -132,7 +174,10 @@ export async function respondToQuote(formData: FormData) {
   });
   await notifyAdmins({
     title: `Quote ${decision}`,
-    body: `${user.name} ${decision} ${quote.ref}.`,
+    body:
+      decision === "approved" && invoiceId
+        ? `${user.name} approved ${quote.ref}. Invoice draft created for review.`
+        : `${user.name} ${decision} ${quote.ref}.`,
     type: "quote_response",
     entityType: "quote",
     entityId: quoteId,

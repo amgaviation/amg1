@@ -27,6 +27,7 @@ export default async function ClientQuoteDetailPage({
   if (!quote || (quote.client_id !== user.id && user.role !== "admin")) notFound();
 
   const canRespond = quote.status === "sent";
+  const latestQuoteDocument = quote.documents[0];
 
   return (
     <PortalShell role="client" user={user}>
@@ -36,7 +37,19 @@ export default async function ClientQuoteDetailPage({
       <PageHeader
         eyebrow={quote.ref}
         title="Quote Detail"
-        actions={<StatusBadge label={QUOTE_STATUS_LABEL[quote.status] ?? quote.status} tone={toneFor(QUOTE_STATUS_TONE, quote.status)} />}
+        actions={
+          <div className="flex items-center gap-3">
+            {latestQuoteDocument ? (
+              <Link
+                href={`/api/portal/billing-documents/${latestQuoteDocument.id}/download`}
+                className="text-xs text-accent hover:underline"
+              >
+                Download PDF
+              </Link>
+            ) : null}
+            <StatusBadge label={QUOTE_STATUS_LABEL[quote.status] ?? quote.status} tone={toneFor(QUOTE_STATUS_TONE, quote.status)} />
+          </div>
+        }
       />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
@@ -66,6 +79,18 @@ export default async function ClientQuoteDetailPage({
                   ))}
                 </tbody>
                 <tfoot>
+                  {Number((quote as any).discount_total ?? 0) ? (
+                    <tr className="border-t border-border bg-background/60">
+                      <td colSpan={3} className="px-4 py-3 text-right font-medium">Discount</td>
+                      <td className="px-4 py-3 text-right font-medium">-{formatMoney((quote as any).discount_total ?? 0)}</td>
+                    </tr>
+                  ) : null}
+                  {Number((quote as any).tax_total ?? 0) ? (
+                    <tr className="border-t border-border bg-background/60">
+                      <td colSpan={3} className="px-4 py-3 text-right font-medium">Tax</td>
+                      <td className="px-4 py-3 text-right font-medium">{formatMoney((quote as any).tax_total ?? 0)}</td>
+                    </tr>
+                  ) : null}
                   <tr className="border-t border-border bg-background/60">
                     <td colSpan={3} className="px-4 py-3 text-right font-bold">Total</td>
                     <td className="px-4 py-3 text-right font-bold text-accent">{formatMoney(quote.total)}</td>
@@ -108,6 +133,8 @@ export default async function ClientQuoteDetailPage({
               <DetailRow label="Created">{formatDate(quote.created_at)}</DetailRow>
               {quote.mission ? <DetailRow label="Mission"><Link href={`/portal/client/trips/${quote.mission.id}`} className="font-mono text-accent hover:underline">{quote.mission.ref}</Link></DetailRow> : null}
               <DetailRow label="Total">{formatMoney(quote.total)}</DetailRow>
+              <DetailRow label="Deposit Required">{(quote as any).deposit_required ? formatMoney((quote as any).deposit_amount ?? 0) : "-"}</DetailRow>
+              <DetailRow label="Terms">{(quote as any).payment_terms ?? "-"}</DetailRow>
             </dl>
           </SectionCard>
         </div>
