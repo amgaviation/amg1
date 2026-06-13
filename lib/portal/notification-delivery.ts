@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createServiceClient } from "@/lib/supabase/server";
+import { portalNotificationEmail } from "@/lib/portal/email-templates";
 import type { Database } from "@/lib/supabase/database.types";
 
 type DeliveryInsert = Database["public"]["Tables"]["notification_deliveries"]["Insert"];
@@ -116,6 +117,14 @@ export async function queueNotificationDeliveries(
                 to: recipient,
                 subject: input.title,
                 text: emailText(input.title, input.body),
+                html: portalNotificationEmail({
+                  title: input.title,
+                  body: input.body,
+                  eventType: input.eventType,
+                  portalUrl: process.env.NEXT_PUBLIC_APP_URL
+                    ? `${process.env.NEXT_PUBLIC_APP_URL}/portal`
+                    : undefined,
+                }),
                 replyTo: input.replyTo ?? undefined,
               })
             : await sendSms({
@@ -155,6 +164,7 @@ export async function sendEmail(params: {
   to: string;
   subject: string;
   text: string;
+  html?: string;
   replyTo?: string;
 }): Promise<DeliveryResult> {
   if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM_ADDRESS) {
@@ -167,14 +177,14 @@ export async function sendEmail(params: {
       Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      from: process.env.EMAIL_FROM_ADDRESS,
-      reply_to: params.replyTo || process.env.EMAIL_REPLY_TO || undefined,
-      to: params.to,
-      subject: params.subject,
-      text: params.text,
-    }),
-  });
+     body: JSON.stringify({
+    from: process.env.EMAIL_FROM_ADDRESS,
+    reply_to: params.replyTo || process.env.EMAIL_REPLY_TO || undefined,
+    to: params.to,
+    subject: params.subject,
+    html: params.html,
+    text: params.text,
+  }),
 
   const payload = await response.json().catch(() => ({}));
 
