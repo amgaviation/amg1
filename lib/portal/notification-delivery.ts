@@ -178,6 +178,7 @@ export async function queueNotificationDeliveries(
 
 export async function sendEmail(params: {
   to: string;
+  cc?: string[];
   subject: string;
   text: string;
   html?: string;
@@ -205,6 +206,7 @@ export async function sendEmail(params: {
       from,
       reply_to: replyTo,
       to: params.to,
+      cc: params.cc?.length ? params.cc : undefined,
       subject: params.subject,
       html: params.html,
       text: params.text,

@@ -8,7 +8,7 @@ import { combinedPaymentInstructions, getBillingSettings } from "@/lib/portal/bi
 import { createInvoiceDraftFromQuote } from "@/lib/portal/billing-documents";
 import { emailInvoicePdf, emailReceiptPdf } from "@/lib/portal/billing-emails";
 import { nextBillingDocumentNumber } from "@/lib/portal/billing-numbering";
-import { actor, num, str } from "./_helpers";
+import { actor, bool, num, str } from "./_helpers";
 
 function money(formData: FormData, key: string): number {
   return num(formData, key) ?? 0;
@@ -38,7 +38,7 @@ export async function createInvoiceFromQuote(formData: FormData) {
   const invoiceId = await createInvoiceDraftFromQuote({
     quoteId,
     actorId: admin.id,
-    status: "sent",
+    status: str(formData, "intent") === "send" ? "sent" : "draft",
     dueDate: str(formData, "due_date") || null,
     terms: str(formData, "terms") || null,
   }).catch(() => null);
@@ -49,10 +49,12 @@ export async function createInvoiceFromQuote(formData: FormData) {
     .select("invoice_number")
     .eq("id", invoiceId)
     .maybeSingle();
-  await emailInvoicePdf(invoiceId, admin.id).catch((error) => {
-    console.error("[billing] failed to email invoice PDF", invoiceId, error);
-  });
-  await db.from("quotes").update({ status: "converted" }).eq("id", quote.id);
+  if (str(formData, "intent") === "send") {
+    await emailInvoicePdf(invoiceId, admin.id).catch((error) => {
+      console.error("[billing] failed to email invoice PDF", invoiceId, error);
+    });
+    await db.from("quotes").update({ status: "converted" }).eq("id", quote.id);
+  }
 
   await logAuditEvent({
     actor: admin,
@@ -64,8 +66,11 @@ export async function createInvoiceFromQuote(formData: FormData) {
   if (quote.client_id) {
     await notifyUser({
       userId: quote.client_id,
-      title: "Invoice issued",
-      body: `${invoice?.invoice_number ?? "An invoice"} is available in your billing portal.`,
+      title: str(formData, "intent") === "send" ? "Invoice issued" : "Invoice drafted",
+      body:
+        str(formData, "intent") === "send"
+          ? `${invoice?.invoice_number ?? "An invoice"} is available in your billing portal.`
+          : `${invoice?.invoice_number ?? "An invoice"} has been created for AMG review.`,
       type: "invoice_issued",
       entityType: "invoice",
       entityId: invoiceId,
@@ -81,12 +86,24 @@ export async function createStandaloneInvoice(formData: FormData) {
   const db = await createServiceClient();
   const billingDb = db as any;
   const clientId = str(formData, "client_id");
-  const category = str(formData, "category");
-  const description = str(formData, "description");
-  const quantity = money(formData, "quantity") || 1;
-  const unitPrice = money(formData, "unit_price");
-  if (!clientId || !category) redirect("/portal/admin/invoices?error=missing");
-  const amount = quantity * unitPrice;
+  const categories = formData.getAll("category[]").map((v) => String(v).trim());
+  const descriptions = formData.getAll("description[]").map((v) => String(v).trim());
+  const quantities = formData.getAll("quantity[]").map((v) => Number(v) || 1);
+  const unitPrices = formData.getAll("unit_price[]").map((v) => Number(v) || 0);
+  const units = formData.getAll("unit[]").map((v) => String(v).trim());
+  const items = categories
+    .map((category, i) => ({
+      category,
+      description: descriptions[i] || null,
+      quantity: quantities[i] || 1,
+      unit: units[i] || null,
+      unit_price: unitPrices[i] || 0,
+      amount: (quantities[i] || 1) * (unitPrices[i] || 0),
+      sort_order: i,
+    }))
+    .filter((item) => item.category);
+  if (!clientId || !items.length) redirect("/portal/admin/invoices?error=missing");
+  const amount = items.reduce((sum, item) => sum + item.amount, 0);
   const settings = await getBillingSettings();
   const discountTotal = money(formData, "discount_total");
   const taxTotal = money(formData, "tax_total");
@@ -122,15 +139,7 @@ export async function createStandaloneInvoice(formData: FormData) {
     .single();
   if (error || !invoice) redirect("/portal/admin/invoices?error=save");
 
-  await db.from("invoice_line_items").insert({
-    invoice_id: invoice.id,
-    category,
-    description: description || null,
-    quantity,
-    unit_price: unitPrice,
-    amount,
-    sort_order: 0,
-  });
+  await db.from("invoice_line_items").insert(items.map((item) => ({ ...item, invoice_id: invoice.id })));
   await logAuditEvent({
     actor: admin,
     action: "invoice_created",
@@ -166,10 +175,13 @@ export async function recordInvoicePayment(formData: FormData) {
 
   const { data: invoice } = await db
     .from("invoices")
-    .select("amount_paid, total, client_id, invoice_number")
+    .select("amount_paid, total, client_id, invoice_number, status")
     .eq("id", invoiceId)
     .maybeSingle();
   if (!invoice) redirect("/portal/admin/invoices?error=missing");
+  if (["paid", "void", "written_off"].includes(invoice.status)) {
+    redirect(`/portal/admin/invoices/${invoiceId}?error=locked`);
+  }
   const amountPaid = (invoice.amount_paid ?? 0) + amount;
   const total = invoice.total ?? 0;
   const status = amountPaid >= total ? "paid" : "partially_paid";
@@ -183,6 +195,8 @@ export async function recordInvoicePayment(formData: FormData) {
     payment_reference: str(formData, "payment_reference") || null,
     receipt_number: receiptNumber,
     notes: str(formData, "notes") || null,
+    internal_notes: str(formData, "internal_notes") || null,
+    receipt_send_suppressed: !bool(formData, "send_receipt"),
     recorded_by: admin.id,
     status: "recorded",
   }).select("id").single();
@@ -203,9 +217,11 @@ export async function recordInvoicePayment(formData: FormData) {
     entityType: "invoice",
     entityId: invoiceId,
   });
-  await emailReceiptPdf(payment.id, admin.id).catch((error) => {
-    console.error("[billing] failed to email receipt PDF", payment.id, error);
-  });
+  if (bool(formData, "send_receipt")) {
+    await emailReceiptPdf(payment.id, admin.id).catch((error) => {
+      console.error("[billing] failed to email receipt PDF", payment.id, error);
+    });
+  }
   if (invoice.client_id) {
     await notifyUser({
       userId: invoice.client_id,
@@ -228,6 +244,7 @@ export async function updateInvoiceStatus(formData: FormData) {
   const invoiceId = str(formData, "invoice_id");
   const status = str(formData, "status");
   if (!invoiceId || !status) redirect("/portal/admin/invoices?error=missing");
+  if (status === "paid") redirect(`/portal/admin/invoices/${invoiceId}?error=payment-required`);
   const { data: invoice } = await billingDb
     .from("invoices")
     .update({

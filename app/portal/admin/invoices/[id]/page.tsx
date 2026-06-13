@@ -6,10 +6,10 @@ import { DataTable } from "@/components/portal/ui/data-table";
 import { DetailRow, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
-import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
+import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { recordInvoicePayment, updateInvoiceStatus } from "@/app/portal/actions/invoices";
 import { getInvoiceDetail } from "@/lib/portal/queries";
-import { INVOICE_STATUS, INVOICE_STATUS_LABEL, INVOICE_STATUS_TONE, toneFor } from "@/lib/portal/constants";
+import { INVOICE_STATUS, INVOICE_STATUS_LABEL, INVOICE_STATUS_TONE, PAYMENT_METHODS, toneFor } from "@/lib/portal/constants";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/portal/format";
 
 export const metadata = { title: "Invoice Detail - Admin Portal" };
@@ -35,6 +35,8 @@ export default async function AdminInvoiceDetailPage({
     <PortalShell role="admin" user={user}>
       {flash.success ? <Notice tone="success">Invoice updated.</Notice> : null}
       {flash.error === "duplicate" ? <Notice tone="danger">This quote already has an active invoice.</Notice> : null}
+      {flash.error === "payment-required" ? <Notice tone="danger">Record a payment to mark this invoice paid.</Notice> : null}
+      {flash.error === "locked" ? <Notice tone="danger">This invoice is locked because it is paid, void, or written off.</Notice> : null}
       <PageHeader
         eyebrow="Invoice"
         title={invoice.invoice_number}
@@ -119,7 +121,7 @@ export default async function AdminInvoiceDetailPage({
           <SectionCard title="Update Status" icon="settings">
             <form action={updateInvoiceStatus} className="space-y-4">
               <input type="hidden" name="invoice_id" value={invoice.id} />
-              <SelectField label="Status" name="status" defaultValue={invoice.status} options={INVOICE_STATUS.map((status) => ({ value: status.value, label: status.label }))} />
+              <SelectField label="Status" name="status" defaultValue={invoice.status} options={INVOICE_STATUS.filter((status) => status.value !== "paid").map((status) => ({ value: status.value, label: status.label }))} />
               <TextAreaField label="Internal Notes" name="internal_notes" defaultValue={invoice.internal_notes ?? ""} />
               <SubmitButton className="rounded-full" pendingText="Saving...">Save Status</SubmitButton>
             </form>
@@ -128,11 +130,13 @@ export default async function AdminInvoiceDetailPage({
           <SectionCard title="Record Payment" icon="wallet">
             <form action={recordInvoicePayment} className="space-y-4">
               <input type="hidden" name="invoice_id" value={invoice.id} />
-              <TextField label="Amount" name="amount" type="number" min="0" step="0.01" required />
-              <TextField label="Payment Method" name="payment_method" placeholder="ACH, wire, check..." />
+              <TextField label="Amount" name="amount" type="number" min="0" step="0.01" defaultValue={String(invoice.amount_due)} required />
+              <SelectField label="Payment Method" name="payment_method" defaultValue="wire" options={PAYMENT_METHODS} />
               <TextField label="Payment Reference" name="payment_reference" placeholder="Trace, check, wire, or note..." />
               <TextAreaField label="Notes" name="notes" />
-              <SubmitButton className="rounded-full" pendingText="Recording...">Record Payment</SubmitButton>
+              <TextAreaField label="Internal Notes" name="internal_notes" />
+              <CheckboxField label="Email receipt now" name="send_receipt" defaultChecked />
+              <SubmitButton className="rounded-full" pendingText="Recording...">Record Payment / Mark Paid</SubmitButton>
             </form>
           </SectionCard>
         </div>

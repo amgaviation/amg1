@@ -299,6 +299,44 @@ export async function getInvoiceDetail(
   };
 }
 
+export async function listAllPayments(): Promise<
+  (Payment & {
+    invoice: (Invoice & { client: MiniProfile | null }) | null;
+    receipt_document: BillingDocumentRow | null;
+    recorded_by_profile: MiniProfile | null;
+  })[]
+> {
+  const db = await createServiceClient();
+  const billingDb = db as any;
+  const { data: payments } = await billingDb
+    .from("payments")
+    .select("*, invoice:invoice_id(*, client:client_id(full_name,email,company_name)), recorded_by_profile:recorded_by(full_name,email,company_name)")
+    .order("paid_at", { ascending: false });
+  const ids = (payments ?? []).map((payment: Payment) => payment.id);
+  const { data: documents } = ids.length
+    ? await billingDb.from("billing_documents").select("*").eq("document_type", "receipt").in("payment_id", ids)
+    : { data: [] };
+  const byPayment = new Map((documents ?? []).map((document: BillingDocumentRow) => [document.payment_id, document]));
+  return (payments ?? []).map((payment: any) => ({
+    ...payment,
+    receipt_document: byPayment.get(payment.id) ?? null,
+  }));
+}
+
+export async function listAllReceipts(): Promise<
+  (BillingDocumentRow & {
+    payment: (Payment & { invoice: (Invoice & { client: MiniProfile | null }) | null }) | null;
+  })[]
+> {
+  const db = (await createServiceClient()) as any;
+  const { data: documents } = await db
+    .from("billing_documents")
+    .select("*, payment:payment_id(*, invoice:invoice_id(*, client:client_id(full_name,email,company_name)))")
+    .eq("document_type", "receipt")
+    .order("created_at", { ascending: false });
+  return documents ?? [];
+}
+
 // ─── Expenses ───────────────────────────────────────────────────────
 export async function listExpensesForCrew(crewId: string): Promise<
   (Expense & { mission: { ref: string } | null })[]
