@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { notifyAdmins } from "@/lib/portal/audit";
+import { publicSupportRequestAdminEmail } from "@/lib/portal/email-templates";
 
 function value(formData: FormData, key: string): string {
   return String(formData.get(key) ?? "").trim();
@@ -257,6 +258,26 @@ export async function submitPublicSupportRequest(formData: FormData) {
       `${requesterName} submitted ${mission.ref} (${departure}-${arrival}).`,
       clientNotes,
     ].join("\n\n"),
+    html: publicSupportRequestAdminEmail({
+      reference: mission.ref,
+      requesterName,
+      email,
+      phone,
+      preferredContact: value(formData, "preferred_contact_method") || "Not specified",
+      requestedCategory: supportType,
+      organization,
+      aircraft,
+      tailNumber,
+      aircraftBase,
+      timing,
+      departure,
+      arrival,
+      operationalSummary: notes,
+      categoryDetails,
+      portalUrl: process.env.NEXT_PUBLIC_APP_URL
+        ? `${process.env.NEXT_PUBLIC_APP_URL}/portal/admin`
+        : undefined,
+    }),
     type: "public_support_request",
     entityType: "mission",
     entityId: mission.id,
