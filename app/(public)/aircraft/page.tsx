@@ -24,7 +24,7 @@ export default function AircraftPage() {
         eyebrow="Aircraft"
         title="Support matched to the aircraft."
         description="Crew, ferry, maintenance, and operational coordination across a broad range of owner-operated aircraft."
-        image="/images/jet-sky.png"
+        image="/images/amg-custom/aircraft-support-main.jpg"
       />
 
       <section className="border-b border-white/10 bg-card/20 py-8">
