@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Gauge } from "lucide-react";
 import { COMPANY } from "@/lib/content";
+import { HeroPortalImage } from "@/components/site/home/hero-portal-image";
 
 export function HomeHero() {
   return (
@@ -50,12 +51,7 @@ export function HomeHero() {
           data-scroll-animate
         >
           <div className="media-vignette aspect-[4/3] bg-slate-900">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/hero-jet-poster.jpg"
-              alt="Private aircraft positioned for AMG operational support coordination"
-              className="h-full w-full object-cover"
-            />
+            <HeroPortalImage />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/12 to-transparent" />
           </div>
           <div className="absolute inset-x-5 bottom-5 rounded-lg border border-white/18 bg-slate-950/72 p-5 text-white backdrop-blur">
