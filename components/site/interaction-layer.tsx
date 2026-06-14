@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 const REVEAL_SELECTOR =
   "[data-scroll-animate], [data-stagger-container], [data-process-step]";
@@ -68,20 +69,41 @@ function animateProgressRail(container: HTMLElement) {
   });
 }
 
+function isWithinInitialViewport(element: HTMLElement) {
+  const rect = element.getBoundingClientRect();
+  const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+
+  return rect.top < viewportHeight * 0.92 && rect.bottom > 0;
+}
+
 export function InteractionLayer() {
+  const pathname = usePathname();
+
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const elements = Array.from(document.querySelectorAll<HTMLElement>(REVEAL_SELECTOR));
+    const publicRoot = document.querySelector<HTMLElement>(".public-site");
 
     if (!elements.length) return;
 
     if (reduceMotion || !("IntersectionObserver" in window)) {
+      publicRoot?.removeAttribute("data-reveal-ready");
       elements.forEach((element) => {
         markVisible(element);
         animateStaggerChildren(element);
       });
       return;
     }
+
+    elements.forEach((element) => {
+      if (!isWithinInitialViewport(element)) return;
+
+      animateReveal(element);
+      animateStaggerChildren(element);
+      animateProgressRail(element);
+    });
+
+    publicRoot?.setAttribute("data-reveal-ready", "true");
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -98,12 +120,15 @@ export function InteractionLayer() {
       { rootMargin: "0px 0px -10% 0px", threshold: 0.08 }
     );
 
-    elements.forEach((element) => observer.observe(element));
+    elements.forEach((element) => {
+      if (element.dataset.revealed === "true") return;
+      observer.observe(element);
+    });
 
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [pathname]);
 
   return null;
 }

@@ -114,7 +114,7 @@ export function SubscriptionPrograms() {
       <div className="grid gap-8 lg:grid-cols-[0.82fr_1.18fr]">
         <aside className="lg:sticky lg:top-[calc(var(--public-header-height)+2rem)] lg:self-start">
           <div className="glass-panel portal-entry-card rounded-lg p-6">
-            <div className="flex items-center justify-between gap-5 border-b border-white/10 pb-5">
+            <div className="flex items-center justify-between gap-5 border-b border-slate-200 pb-5">
               <p className="eyebrow text-accent">Program Builder</p>
               <Gauge className="h-5 w-5 text-accent" />
             </div>
@@ -142,7 +142,7 @@ export function SubscriptionPrograms() {
 
               <fieldset className="grid gap-3">
                 <legend className="text-sm font-medium text-foreground">Billing preference</legend>
-                <div className="grid grid-cols-2 gap-2 rounded-full border border-white/10 bg-background/70 p-1">
+                <div className="grid grid-cols-2 gap-2 rounded-full border border-slate-200 bg-white/70 p-1">
                   {(["monthly", "annual"] as const).map((item) => (
                     <button
                       key={item}
@@ -164,7 +164,7 @@ export function SubscriptionPrograms() {
             <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
               Pricing is based on aircraft class, crew requirements, selected allowances, and operating scope. Two-pilot requirements affect proposal pricing.
             </p>
-            <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.035] p-4">
+            <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
               <p className="text-xs uppercase text-muted-foreground">Current selection</p>
               <p className="mt-2 font-display text-2xl font-bold uppercase leading-none text-foreground">
                 {aircraftClass}
@@ -207,7 +207,7 @@ export function SubscriptionPrograms() {
                     data-stagger-item
                     className={cn(
                       "portal-card glass-panel flex h-full min-h-[455px] flex-col rounded-lg border p-6",
-                      tier === "Priority" ? "border-accent" : "border-white/10"
+                      tier === "Priority" ? "border-accent" : "border-slate-200"
                     )}
                   >
                     <div className="flex items-start justify-between gap-4">
@@ -223,7 +223,7 @@ export function SubscriptionPrograms() {
                     <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                       Proposal-based support for selected aircraft class, crew requirements, and operating scope.
                     </p>
-                    <div className="mt-6 rounded-lg border border-white/10 bg-background/50 p-4">
+                    <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
                       <p className="text-xs font-semibold uppercase tracking-widest text-foreground/80">
                         {billing === "monthly" ? "Monthly" : "Annual"} allowance
                       </p>
@@ -243,31 +243,29 @@ export function SubscriptionPrograms() {
                       aria-expanded={isExpanded}
                       aria-controls={detailsId}
                       onClick={() => setExpandedTier((current) => (current === tier ? null : tier))}
-                      className="mt-5 inline-flex min-h-10 items-center justify-between gap-3 rounded-full border border-white/15 px-4 py-2 font-display text-xs font-semibold uppercase tracking-widest text-foreground transition-colors hover:border-accent hover:text-accent"
+                      className="mt-5 inline-flex min-h-11 items-center justify-between gap-3 rounded-full border border-slate-200 px-4 py-2 font-display text-xs font-semibold uppercase tracking-widest text-foreground transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                     >
                       {isExpanded ? "Hide Details" : "View Details"}
                       {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </button>
 
-                    {isExpanded ? (
-                      <div id={detailsId} className="mt-5 border-t border-white/10 pt-5">
-                        <p className="text-xs font-semibold uppercase tracking-widest text-foreground/80">
-                          Included support
-                        </p>
-                        <ul className="mt-3 grid gap-2 text-sm text-foreground/85">
-                          {item.benefits.map((benefit) => (
-                            <li key={benefit} className="flex gap-2">
-                              <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-                              {benefit}
-                            </li>
-                          ))}
-                        </ul>
-                        <p className="mt-5 text-xs leading-relaxed text-muted-foreground">{item.travel}</p>
-                      </div>
-                    ) : null}
+                    <div id={detailsId} hidden={!isExpanded} className="mt-5 border-t border-slate-200 pt-5">
+                      <p className="text-xs font-semibold uppercase tracking-widest text-foreground/80">
+                        Included support
+                      </p>
+                      <ul className="mt-3 grid gap-2 text-sm text-foreground/85">
+                        {item.benefits.map((benefit) => (
+                          <li key={benefit} className="flex gap-2">
+                            <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                            {benefit}
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="mt-5 text-xs leading-relaxed text-muted-foreground">{item.travel}</p>
+                    </div>
 
                     <div className="mt-auto pt-6">
-                      <Link href={`/contact?category=subscription-program-inquiry&tier=${tier.toLowerCase()}`} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-white/15 px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest text-foreground transition-colors hover:border-accent hover:text-accent">
+                      <Link href={`/contact?category=subscription-program-inquiry&plan=${tier.toLowerCase()}&tier=${tier.toLowerCase()}`} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-slate-300 px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest text-foreground transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
                         Request Proposal
                         <ArrowRight className="h-4 w-4" />
                       </Link>
