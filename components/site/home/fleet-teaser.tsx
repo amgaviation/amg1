@@ -14,7 +14,11 @@ export function FleetTeaser() {
   return (
     <section className="relative overflow-hidden py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
-        <SectionHeading eyebrow="Aircraft Support" title="Support is reviewed around the aircraft" description="AMG reviews each request around aircraft category, aircraft status, crew needs, route, and approval requirements." />
+        <SectionHeading
+          eyebrow="Aircraft Support"
+          title="Support is reviewed around the aircraft"
+          description="AMG reviews each request around aircraft category, aircraft status, crew needs, route, and approval requirements."
+        />
         <RevealGroup className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" data-scroll-animate>
           {cards.map(([name, image]) => (
             <RevealItem key={name}>
