@@ -1,19 +1,21 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { Reveal, RevealGroup, RevealItem } from "@/components/site/reveal";
+import { Reveal } from "@/components/site/reveal";
 import { cn } from "@/lib/utils";
 import { AIRCRAFT_CATEGORIES } from "@/lib/content";
 
+const CUSTOM_IMAGE_ROOT = "/images/amg-custom";
+
 const AIRCRAFT_IMAGES: Record<string, string> = {
-  "single-engine-piston": "/images/site/cirrus.webp",
-  "multi-engine-piston": "/images/site/diamond-me.jpg",
-  turboprop: "/images/site/tbm.jpg",
-  "single-engine-jet-vlj": "/images/light-jet.png",
-  "light-jet": "/images/site/citation-x.webp",
-  "midsize-jet": "/images/mid-jet.png",
-  "super-midsize-jet": "/images/heavy-jet.png",
-  "large-cabin-heavy-jet": "/images/hero-jet.png",
-  helicopter: "/images/site/bell-505.jpg",
+  "single-engine-piston": `${CUSTOM_IMAGE_ROOT}/aircraft-support-main.jpg`,
+  "multi-engine-piston": `${CUSTOM_IMAGE_ROOT}/runway.jpg`,
+  turboprop: `${CUSTOM_IMAGE_ROOT}/aircraft-support-main.jpg`,
+  "single-engine-jet-vlj": `${CUSTOM_IMAGE_ROOT}/aircraft-light-jet-vlj.jpeg`,
+  "light-jet": `${CUSTOM_IMAGE_ROOT}/lj.jpg`,
+  "midsize-jet": `${CUSTOM_IMAGE_ROOT}/aircraft-mid-heavy-jet.jpg`,
+  "super-midsize-jet": `${CUSTOM_IMAGE_ROOT}/aircraft-mid-heavy-jet.jpg`,
+  "large-cabin-heavy-jet": `${CUSTOM_IMAGE_ROOT}/hero-aircraft-operations.jpg`,
+  helicopter: `${CUSTOM_IMAGE_ROOT}/runway.jpg`,
 };
 
 export function AircraftEditorialSections() {
@@ -28,7 +30,7 @@ export function AircraftEditorialSections() {
                 <div className="media-vignette relative min-h-80 overflow-hidden rounded-lg border border-white/10">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={AIRCRAFT_IMAGES[aircraft.id] ?? "/images/hero-jet.png"}
+                    src={AIRCRAFT_IMAGES[aircraft.id] ?? `${CUSTOM_IMAGE_ROOT}/hero-aircraft-operations.jpg`}
                     alt=""
                     className="absolute inset-0 h-full w-full scale-105 object-cover opacity-80"
                   />
