@@ -56,6 +56,9 @@ export default function RootLayout({
     <html
       lang="en"
       className={`bg-background ${inter.variable} ${barlow.variable}`}
+      // The inline script below sets data-js on <html> before hydration; this
+      // opts that single element out of hydration attribute diffing.
+      suppressHydrationWarning
     >
       <body
         style={
@@ -65,6 +68,16 @@ export default function RootLayout({
           } as React.CSSProperties
         }
       >
+        {/*
+          Flag that JS is available BEFORE first paint. Scroll-reveal hiding in
+          globals.css is scoped to :root[data-js="ready"], so when JS is absent
+          the content stays fully visible (never hidden before JS runs).
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `document.documentElement.dataset.js="ready"`,
+          }}
+        />
         {children}
       </body>
     </html>

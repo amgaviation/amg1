@@ -466,7 +466,13 @@ html {
   mask-image: linear-gradient(180deg, black, transparent 58%);
 }
 
-[data-scroll-animate] {
+/*
+  Scroll-reveal is progressive enhancement only. The hidden start state is
+  scoped to :root[data-js="ready"] (set by an inline pre-paint script), so when
+  JavaScript is unavailable nothing is ever hidden — content stays visible by
+  default and never depends on JS to appear.
+*/
+:where(:root[data-js="ready"]) [data-scroll-animate] {
   opacity: 0;
   transform: translateY(28px);
   transition:
@@ -475,7 +481,7 @@ html {
   will-change: transform, opacity;
 }
 
-[data-stagger-item] {
+:where(:root[data-js="ready"]) [data-stagger-item] {
   opacity: 0;
   transform: translateY(22px);
   transition:

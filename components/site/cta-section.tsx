@@ -24,9 +24,9 @@ export function CtaSection({
       <div className="absolute inset-0 z-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/images/jet-sky.png"
+          src="/images/runway.jpg"
           alt=""
-          className="h-full w-full scale-105 object-cover opacity-25"
+          className="h-full w-full scale-105 object-cover opacity-30"
         />
         <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(5,11,20,0.98)_0%,rgba(5,11,20,0.9)_44%,rgba(5,11,20,0.52)_100%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_28%,rgba(56,189,248,0.18),transparent_28rem)]" />

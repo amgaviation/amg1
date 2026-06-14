@@ -1,7 +1,6 @@
 import { SiteNav } from "@/components/site/site-nav";
 import { SiteFooter } from "@/components/site/site-footer";
 import { InteractionLayer } from "@/components/site/interaction-layer";
-import { PublicPageTransition } from "@/components/site/page-transition";
 
 export default function PublicLayout({
   children,
@@ -15,9 +14,15 @@ export default function PublicLayout({
         Skip to content
       </a>
       <SiteNav />
-      <PublicPageTransition>
+      {/*
+        Content renders in a plain <main> so it is visible by default even if
+        JavaScript never runs. Do not wrap this in a motion/page-transition
+        component that sets an initial hidden state — that hides content before
+        hydration.
+      */}
+      <main id="main-content" className="flex-1">
         {children}
-      </PublicPageTransition>
+      </main>
       <SiteFooter />
     </div>
   );
