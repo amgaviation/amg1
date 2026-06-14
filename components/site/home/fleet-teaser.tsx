@@ -13,7 +13,7 @@ const teaserImages: Record<string, string> = {
 
 export function FleetTeaser() {
   return (
-    <section className="cinematic-band py-28 lg:py-36">
+    <section className="relative overflow-hidden py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <SectionHeading
           eyebrow="Aircraft Support"
@@ -26,28 +26,27 @@ export function FleetTeaser() {
             <RevealItem key={aircraft.id}>
               <Link
                 href="/aircraft"
-                className="glass-panel hover-lift group block overflow-hidden rounded-lg hover:border-accent/50"
-                data-cursor="OPEN"
+                className="hover-lift group block overflow-hidden rounded-lg border border-slate-200 bg-white shadow-[0_18px_50px_rgba(8,20,36,0.08)] hover:border-primary/50"
               >
-                <div className="media-vignette relative aspect-[4/3] overflow-hidden bg-card">
+                <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={teaserImages[aircraft.id] ?? "/images/hero-jet.png"}
-                    alt=""
-                    className="h-full w-full scale-105 object-cover opacity-80 transition-transform duration-500 group-hover:scale-110"
+                    alt={`${aircraft.name} aircraft support category`}
+                    className="h-full w-full scale-105 object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-x-5 top-5 h-px bg-accent/40" />
                 </div>
                 <div className="p-6">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-display text-xl font-bold uppercase tracking-wide text-foreground">
+                    <h3 className="font-display text-xl font-bold uppercase text-slate-950">
                       {aircraft.name}
                     </h3>
-                    <ArrowUpRight className="h-5 w-5 text-muted-foreground transition-colors group-hover:text-accent" />
+                    <ArrowUpRight className="h-5 w-5 text-slate-400 transition-colors group-hover:text-primary" />
                   </div>
-                  <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                  <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
                     <span>{aircraft.pricing}</span>
-                    <span className="text-accent">&middot;</span>
+                    <span className="text-primary">&middot;</span>
                     <span>Review required</span>
                   </div>
                 </div>

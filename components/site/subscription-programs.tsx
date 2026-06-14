@@ -127,7 +127,6 @@ export function SubscriptionPrograms() {
                   value={aircraftClass}
                   onChange={(event) => setAircraftClass(event.target.value as (typeof aircraftClasses)[number])}
                   className="support-field px-4 text-base"
-                  data-cursor="TYPE"
                 >
                   {aircraftClasses.map((item) => (
                     <option key={item} value={item}>
@@ -145,7 +144,6 @@ export function SubscriptionPrograms() {
                       key={item}
                       type="button"
                       onClick={() => setBilling(item)}
-                      data-cursor="FILTER"
                       className={cn(
                         "min-h-11 rounded-full px-4 font-display text-xs font-semibold uppercase tracking-widest transition-colors",
                         billing === item
@@ -181,7 +179,7 @@ export function SubscriptionPrograms() {
               <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
                 This aircraft class requires custom review before AMG can define scope, allowances, crew requirements, risk factors, and pricing.
               </p>
-              <Link href="/contact?category=subscription-program-inquiry" className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground" data-cursor="REQUEST">
+              <Link href="/contact?category=subscription-program-inquiry" className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground">
                 Request Tailored Proposal
                 <ArrowRight className="h-4 w-4" />
               </Link>
@@ -235,7 +233,7 @@ export function SubscriptionPrograms() {
                       ))}
                     </ul>
                     <p className="mt-5 text-xs leading-relaxed text-muted-foreground">{item.travel}</p>
-                    <Link href={`/contact?category=subscription-program-inquiry&tier=${tier.toLowerCase()}`} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest text-foreground hover:border-accent hover:text-accent" data-cursor="REQUEST">
+                    <Link href={`/contact?category=subscription-program-inquiry&tier=${tier.toLowerCase()}`} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest text-foreground hover:border-accent hover:text-accent">
                       Request Proposal
                       <ArrowRight className="h-4 w-4" />
                     </Link>

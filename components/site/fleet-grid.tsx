@@ -45,7 +45,6 @@ export function FleetGrid() {
             key={cat}
             type="button"
             onClick={() => setFilter(cat)}
-            data-cursor="FILTER"
             className={cn(
               "rounded-full border px-5 py-2.5 font-display text-xs font-semibold uppercase tracking-widest transition-colors",
               filter === cat

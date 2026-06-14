@@ -50,7 +50,7 @@ export default async function ContactPage({
                 <div className="glass-panel rounded-lg p-6">
                   <Mail className="h-6 w-6 text-accent" />
                   <p className="eyebrow mt-5 text-[0.7rem] text-muted-foreground">Email</p>
-                  <a href={`mailto:${COMPANY.email}`} className="mt-2 block text-lg text-foreground hover:text-accent" data-cursor="EMAIL">{COMPANY.email}</a>
+                  <a href={`mailto:${COMPANY.email}`} className="mt-2 block text-lg text-foreground hover:text-accent">{COMPANY.email}</a>
                 </div>
               </RevealItem>
             </RevealGroup>

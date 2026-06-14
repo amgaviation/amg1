@@ -14,7 +14,7 @@ export default function PendingApprovalPage() {
       description="AMG Operations reviews every portal account before activation. You will be notified when access is approved or if more information is required."
       backLabel="Return to login"
     >
-      <Link href="/login" className="inline-flex min-h-12 items-center rounded-full bg-primary px-6 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground" data-cursor="ENTER">
+      <Link href="/login" className="inline-flex min-h-12 items-center rounded-full bg-primary px-6 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground">
         Return to login
       </Link>
     </PortalAccessShell>

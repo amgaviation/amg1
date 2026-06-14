@@ -2,12 +2,12 @@ import { cn } from "@/lib/utils";
 import type { Tone } from "@/lib/portal/constants";
 
 const TONE_CLASSES: Record<Tone, string> = {
-  neutral: "border-border bg-secondary/60 text-secondary-foreground",
-  info: "border-sky-500/30 bg-sky-500/10 text-sky-300",
-  warn: "border-amber-500/30 bg-amber-500/10 text-amber-300",
-  success: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
-  danger: "border-destructive/40 bg-destructive/15 text-red-300",
-  accent: "border-accent/40 bg-accent/10 text-accent",
+  neutral: "border-slate-300 bg-slate-100 text-slate-700",
+  info: "border-sky-500/30 bg-sky-500/10 text-sky-800",
+  warn: "border-amber-500/30 bg-amber-500/10 text-amber-800",
+  success: "border-emerald-500/30 bg-emerald-500/10 text-emerald-800",
+  danger: "border-destructive/40 bg-destructive/10 text-red-800",
+  accent: "border-primary/40 bg-primary/10 text-primary",
 };
 
 export function StatusBadge({

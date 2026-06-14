@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_LINKS } from "@/lib/content";
-import { MagneticLink } from "@/components/site/magnetic-link";
 
 function normalizePath(path: string) {
   const normalized = path.split(/[?#]/)[0].replace(/\/+$/, "");
@@ -82,19 +81,19 @@ export function SiteNav() {
       className={cn(
         "fixed inset-x-0 top-0 z-50 h-[var(--public-header-height)] border-b transition-colors duration-200 motion-reduce:transition-none",
         scrolled
-          ? "border-white/10 bg-background/80 shadow-[0_18px_60px_rgba(0,0,0,0.34)] backdrop-blur-[22px]"
-          : "border-white/5 bg-background/20 backdrop-blur-md"
+          ? "border-slate-200/80 bg-white/88 shadow-[0_18px_50px_rgba(8,20,36,0.09)] backdrop-blur-xl"
+          : "border-white/70 bg-white/62 backdrop-blur-md"
       )}
     >
       <nav className="relative z-50 mx-auto flex h-full max-w-7xl items-center gap-6 px-6 lg:px-10">
-        <Link href="/" prefetch={false} className="group flex items-center gap-3" data-cursor="HOME">
+        <Link href="/" prefetch={false} className="group flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/images/logo-white.png"
+            src="/images/logo-blue.png"
             alt="AMG Aviation Group"
             width="1088"
             height="221"
-            className="h-8 w-auto drop-shadow-[0_10px_30px_rgba(0,0,0,0.45)]"
+            className="h-8 w-auto"
           />
         </Link>
 
@@ -107,12 +106,11 @@ export function SiteNav() {
                   href={link.href}
                   prefetch={false}
                   aria-current={active ? "page" : undefined}
-                  data-cursor="OPEN"
                   className={cn(
                     "eyebrow relative text-xs transition-colors",
                     active
-                      ? "text-accent after:absolute after:inset-x-0 after:-bottom-2 after:h-px after:bg-accent"
-                      : "text-foreground/70 hover:text-foreground"
+                      ? "text-primary after:absolute after:inset-x-0 after:-bottom-2 after:h-px after:bg-primary"
+                      : "text-slate-600 hover:text-slate-950"
                   )}
                 >
                   {link.label}
@@ -123,44 +121,41 @@ export function SiteNav() {
         </ul>
 
         <div className="ml-auto flex items-center gap-3 lg:ml-0">
-          <MagneticLink
+          <Link
             href="/login"
             prefetch={false}
             aria-current={isActivePath(pathname, "/login") ? "page" : undefined}
-            cursorLabel="ENTER"
             className={cn(
-              "magnetic-link hidden min-h-11 items-center gap-1.5 rounded-full border px-5 py-2.5 font-display text-xs font-semibold uppercase tracking-widest transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:inline-flex",
+              "hidden min-h-11 items-center gap-1.5 rounded-full border px-5 py-2.5 font-display text-xs font-semibold uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:inline-flex",
               isActivePath(pathname, "/login")
-                ? "border-accent bg-accent/10 text-accent"
-                : "border-border text-foreground hover:border-accent hover:text-accent"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-slate-300 bg-white/70 text-slate-700 hover:border-primary hover:text-primary"
             )}
           >
             Member Login
             <ArrowUpRight className="h-3.5 w-3.5" />
-          </MagneticLink>
-          <MagneticLink
+          </Link>
+          <Link
             href="/contact"
             prefetch={false}
             aria-current={isActivePath(pathname, "/contact") ? "page" : undefined}
-            cursorLabel="REQUEST"
             className={cn(
-              "magnetic-link hidden min-h-11 items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground shadow-[0_18px_44px_rgba(59,130,246,0.24)] transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent md:inline-flex",
+              "hidden min-h-11 items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 font-display text-xs font-semibold uppercase text-primary-foreground shadow-[0_18px_34px_rgba(59,130,246,0.22)] transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary md:inline-flex",
               isActivePath(pathname, "/contact") &&
                 "ring-2 ring-accent ring-offset-2 ring-offset-background"
             )}
           >
             Request Support
-          </MagneticLink>
+          </Link>
 
           <button
             ref={menuButtonRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-foreground backdrop-blur transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white/80 text-slate-800 backdrop-blur transition-colors hover:border-primary hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="public-mobile-menu"
-            data-cursor={open ? "CLOSE" : "MENU"}
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -171,9 +166,9 @@ export function SiteNav() {
         <div
           id="public-mobile-menu"
           ref={menuRef}
-          className="fixed inset-0 z-40 overflow-y-auto border-t border-white/10 bg-background/96 px-6 pb-10 pt-[calc(var(--public-header-height)+2rem)] backdrop-blur-2xl animate-in fade-in duration-300"
+          className="fixed inset-0 z-40 overflow-y-auto border-t border-slate-200 bg-white/96 px-6 pb-10 pt-[calc(var(--public-header-height)+2rem)] backdrop-blur-2xl animate-in fade-in duration-300"
         >
-          <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_78%_12%,rgba(59,130,246,0.22),transparent_28rem),linear-gradient(180deg,rgba(5,11,20,0.92),rgba(3,7,13,0.98))]" />
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_78%_12%,rgba(59,130,246,0.16),transparent_28rem),linear-gradient(180deg,rgba(255,255,255,0.92),rgba(241,246,252,0.98))]" />
           <ul className="mx-auto flex max-w-7xl flex-col gap-2">
             {NAV_LINKS.map((link) => {
               const active = isActivePath(pathname, link.href);
@@ -184,12 +179,11 @@ export function SiteNav() {
                     href={link.href}
                     prefetch={false}
                     aria-current={active ? "page" : undefined}
-                    data-cursor="OPEN"
                     className={cn(
-                      "group block border-b border-white/10 px-0 py-5 font-display text-5xl font-extrabold uppercase leading-none tracking-wide text-foreground transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:text-6xl lg:text-7xl",
+                      "group block border-b border-slate-200 px-0 py-5 font-display text-5xl font-extrabold uppercase leading-none text-slate-950 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:text-6xl lg:text-7xl",
                       active
-                        ? "text-accent"
-                        : "text-foreground/80 hover:text-accent"
+                        ? "text-primary"
+                        : "text-slate-800 hover:text-primary"
                     )}
                   >
                     <span className="inline-flex items-center gap-4">
@@ -201,33 +195,31 @@ export function SiteNav() {
               );
             })}
             <li className="mt-8 grid gap-3 border-t border-white/10 pt-6 sm:grid-cols-2 lg:max-w-2xl">
-              <MagneticLink
+              <Link
                 href="/login"
                 prefetch={false}
                 aria-current={isActivePath(pathname, "/login") ? "page" : undefined}
-                cursorLabel="ENTER"
                 className={cn(
-                  "magnetic-link inline-flex min-h-12 items-center justify-center gap-1.5 rounded-full border px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent",
+                  "inline-flex min-h-12 items-center justify-center gap-1.5 rounded-full border px-5 py-3 font-display text-xs font-semibold uppercase focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary",
                   isActivePath(pathname, "/login")
-                    ? "border-accent bg-accent/10 text-accent"
-                    : "border-border text-foreground"
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-slate-300 text-slate-800"
                 )}
               >
                 Member Login
-              </MagneticLink>
-              <MagneticLink
+              </Link>
+              <Link
                 href="/contact"
                 prefetch={false}
                 aria-current={isActivePath(pathname, "/contact") ? "page" : undefined}
-                cursorLabel="REQUEST"
                 className={cn(
-                  "magnetic-link inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground shadow-[0_18px_44px_rgba(59,130,246,0.24)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent",
+                  "inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-5 py-3 font-display text-xs font-semibold uppercase text-primary-foreground shadow-[0_18px_34px_rgba(59,130,246,0.22)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary",
                   isActivePath(pathname, "/contact") &&
                     "ring-2 ring-accent ring-offset-2 ring-offset-background"
                 )}
               >
                 Request Support
-              </MagneticLink>
+              </Link>
             </li>
           </ul>
         </div>
