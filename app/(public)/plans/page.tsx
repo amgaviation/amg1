@@ -15,7 +15,7 @@ export default function PlansPage() {
         eyebrow="Subscription Programs"
         title="AMG Subscription Programs"
         description="Select an aircraft class and billing preference to review program allowances. Public pricing is proposal-based until final customer-facing prices are approved."
-        image="/images/jet-interior.png"
+        image="/images/amg-custom/subscription-programs.jpg"
       />
       <SubscriptionPrograms />
     </>
