@@ -1,7 +1,24 @@
 import { SiteNav } from "@/components/site/site-nav";
 import { SiteFooter } from "@/components/site/site-footer";
-import { InteractionLayer } from "@/components/site/interaction-layer";
-import { PublicPageTransition } from "@/components/site/page-transition";
+
+const emergencyVisibilityCss = `
+  .public-site main,
+  .public-site [data-scroll-animate],
+  .public-site [data-stagger-container],
+  .public-site [data-stagger-item],
+  .public-site [data-process-step] {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .public-site [data-scroll-animate],
+  .public-site [data-stagger-item] {
+    transition-property: border-color, background-color, box-shadow, color !important;
+    will-change: auto !important;
+  }
+`;
 
 export default function PublicLayout({
   children,
@@ -10,14 +27,14 @@ export default function PublicLayout({
 }) {
   return (
     <div className="public-site flex min-h-screen flex-col bg-background">
-      <InteractionLayer />
+      <style dangerouslySetInnerHTML={{ __html: emergencyVisibilityCss }} />
       <a href="#main-content" className="skip-link">
         Skip to content
       </a>
       <SiteNav />
-      <PublicPageTransition>
+      <main id="main-content" className="flex-1">
         {children}
-      </PublicPageTransition>
+      </main>
       <SiteFooter />
     </div>
   );
