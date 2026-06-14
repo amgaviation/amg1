@@ -28,16 +28,16 @@ export function DataTable<T>({
 }) {
   if (!rows.length) {
     return (
-      <div className="rounded-lg border border-dashed border-border bg-background/40 px-4 py-8 text-center text-sm text-muted-foreground">
+      <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
         {emptyLabel}
       </div>
     );
   }
   return (
-    <div className="overflow-x-auto rounded-lg border border-border">
+    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
       <Table>
         <TableHeader>
-          <TableRow className="bg-background/60">
+          <TableRow className="bg-slate-50">
             {columns.map((c, i) => (
               <TableHead
                 key={i}

@@ -6,8 +6,8 @@ import { CapabilityCard } from "@/components/site/capability-card";
 
 export function ServicesOverview() {
   return (
-    <section id="capabilities" className="cinematic-section cinematic-band py-28">
-      <div className="absolute right-0 top-16 hidden w-[42rem] opacity-20 lg:block" data-parallax="0.08" aria-hidden="true">
+    <section id="capabilities" className="cinematic-section cinematic-band py-24 lg:py-28">
+      <div className="absolute right-0 top-16 hidden w-[42rem] opacity-20 lg:block" aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/images/operations.png" alt="" className="w-full object-contain" />
       </div>
@@ -34,8 +34,7 @@ export function ServicesOverview() {
         <div className="mt-10 text-center">
           <Link
             href="/services"
-            className="magnetic-link inline-flex min-h-12 items-center rounded-full border border-white/15 bg-white/5 px-8 py-4 font-display text-xs font-semibold uppercase tracking-widest text-foreground backdrop-blur transition-colors hover:border-accent hover:text-accent"
-            data-cursor="OPEN"
+            className="inline-flex min-h-12 items-center rounded-full border border-slate-300 bg-white px-8 py-4 font-display text-xs font-semibold uppercase text-slate-800 shadow-[0_12px_30px_rgba(8,20,36,0.08)] transition-colors hover:border-primary hover:text-primary"
           >
             View Capabilities
           </Link>

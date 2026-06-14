@@ -4,7 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 const baseInput =
-  "h-11 w-full rounded-md border border-input bg-background/80 px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-accent focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)]";
+  "h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.14)]";
 
 export function Field({
   label,
@@ -21,12 +21,12 @@ export function Field({
 }) {
   return (
     <label className={cn("grid gap-2", className)}>
-      <span className="eyebrow text-[0.6rem] text-muted-foreground">
+      <span className="eyebrow text-[0.6rem] text-slate-500">
         {label}
-        {required ? <span className="ml-1 text-accent">*</span> : null}
+        {required ? <span className="ml-1 text-primary">*</span> : null}
       </span>
       {children}
-      {hint ? <span className="text-[0.7rem] text-muted-foreground/80">{hint}</span> : null}
+      {hint ? <span className="text-[0.7rem] text-slate-500">{hint}</span> : null}
     </label>
   );
 }
@@ -52,7 +52,7 @@ export function TextAreaField(
           {...rest}
           required={required}
           className={cn(
-          "min-h-24 w-full rounded-md border border-input bg-background/80 px-3 py-2 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-accent focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)]",
+          "min-h-24 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.14)]",
           className
         )}
       />
@@ -128,15 +128,15 @@ export function CheckboxField({
   defaultChecked?: boolean;
 }) {
   return (
-    <label className="flex items-center gap-3 rounded-md border border-input bg-background/80 px-3 py-2.5 text-sm">
+    <label className="flex items-center gap-3 rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm">
       <input
         type="checkbox"
         name={name}
         defaultChecked={defaultChecked}
         value="true"
-        className="h-4 w-4 accent-[var(--accent)]"
+        className="h-4 w-4 accent-[var(--primary)]"
       />
-      <span className="text-foreground">{label}</span>
+      <span className="text-slate-800">{label}</span>
     </label>
   );
 }
@@ -158,7 +158,7 @@ export function FileField({
   return (
     <Field label={label} hint={hint} required={required}>
       <div className="flex items-center gap-3">
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-input bg-white/5 px-3 py-2 text-sm hover:border-accent">
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm hover:border-primary">
           Choose file
           <input
             type="file"
@@ -169,7 +169,7 @@ export function FileField({
             onChange={(e) => setFileName(e.target.files?.[0]?.name ?? "")}
           />
         </label>
-        <span className="truncate text-xs text-muted-foreground">
+        <span className="truncate text-xs text-slate-500">
           {fileName || "No file selected"}
         </span>
       </div>

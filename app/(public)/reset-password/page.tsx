@@ -34,11 +34,11 @@ export default async function ResetPasswordPage({
       <form action={updatePassword} className="mt-6 grid gap-4">
         <label className="grid gap-2 text-sm text-muted-foreground">
           New password
-          <input name="password" type="password" required minLength={8} autoComplete="new-password" className="support-field h-12 px-4 text-base" data-cursor="TYPE" />
+          <input name="password" type="password" required minLength={8} autoComplete="new-password" className="support-field h-12 px-4 text-base" />
         </label>
         <label className="grid gap-2 text-sm text-muted-foreground">
           Confirm password
-          <input name="confirm_password" type="password" required minLength={8} autoComplete="new-password" className="support-field h-12 px-4 text-base" data-cursor="TYPE" />
+          <input name="confirm_password" type="password" required minLength={8} autoComplete="new-password" className="support-field h-12 px-4 text-base" />
         </label>
         <SubmitButton pendingText="Updating..." className="h-12 rounded-full font-display text-xs font-semibold uppercase tracking-widest">
           Update password

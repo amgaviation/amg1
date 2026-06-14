@@ -56,7 +56,6 @@ export default function ServicesPage() {
                   <Link
                     href={`/contact?service=${service.id}`}
                     className="mt-8 font-display text-xs font-semibold uppercase tracking-widest text-accent"
-                    data-cursor="REQUEST"
                   >
                     Request support
                   </Link>

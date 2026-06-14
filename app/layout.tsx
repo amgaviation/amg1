@@ -42,7 +42,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#06111D",
+  themeColor: "#F6F8FB",
   width: "device-width",
   initialScale: 1,
 };
@@ -55,8 +55,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      data-scroll-behavior="smooth"
-      className={`dark bg-background ${inter.variable} ${barlow.variable}`}
+      className={`bg-background ${inter.variable} ${barlow.variable}`}
     >
       <body
         style={

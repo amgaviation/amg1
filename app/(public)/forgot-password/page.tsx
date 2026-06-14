@@ -33,7 +33,7 @@ export default async function ForgotPasswordPage({
       <form action={requestPasswordReset} className="mt-6 grid gap-4">
         <label className="grid gap-2 text-sm text-muted-foreground">
           Email
-          <input name="email" type="email" required autoComplete="email" className="support-field h-12 px-4 text-base" data-cursor="TYPE" />
+          <input name="email" type="email" required autoComplete="email" className="support-field h-12 px-4 text-base" />
         </label>
         <SubmitButton pendingText="Sending..." className="h-12 rounded-full font-display text-xs font-semibold uppercase tracking-widest">
           Send reset link

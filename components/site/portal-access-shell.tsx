@@ -21,7 +21,7 @@ export function PortalAccessShell({
     <section className="access-cinema cinematic-band relative isolate min-h-[100svh] overflow-hidden px-6 pb-16 pt-[calc(var(--public-header-height)+3rem)] lg:px-10">
       <div className="absolute inset-0 -z-10" aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/site/map-operations.jpg" alt="" className="h-full w-full scale-105 object-cover opacity-35" data-parallax="0.04" />
+        <img src="/images/site/map-operations.jpg" alt="" className="h-full w-full scale-105 object-cover opacity-35" />
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/40" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/55 to-background/40" />
       </div>
@@ -52,7 +52,7 @@ export function PortalAccessShell({
             <ShieldCheck className="hidden h-7 w-7 shrink-0 text-accent sm:block" />
           </div>
           {children}
-          <Link href={backHref} className="mt-7 inline-flex items-center gap-2 text-sm text-accent hover:text-foreground" data-cursor="OPEN">
+          <Link href={backHref} className="mt-7 inline-flex items-center gap-2 text-sm text-accent hover:text-foreground">
             {backLabel}
             <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>

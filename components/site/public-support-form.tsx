@@ -167,8 +167,7 @@ function SubmitRequestButton() {
     <button
       type="submit"
       disabled={pending}
-      className="magnetic-link mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-8 py-4 font-display text-sm font-semibold uppercase tracking-widest text-primary-foreground shadow-[0_18px_54px_rgba(59,130,246,0.24)] transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-      data-cursor="SUBMIT"
+      className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-8 py-4 font-display text-sm font-semibold uppercase text-primary-foreground shadow-[0_18px_38px_rgba(59,130,246,0.22)] transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
     >
       {pending ? "Submitting..." : "Start Support Request"}
       <Send className="h-4 w-4" />
@@ -182,15 +181,15 @@ function Field({ field }: { field: FieldConfig }) {
     "support-field px-4 text-base";
 
   return (
-    <label className="group grid gap-2 text-sm font-medium text-foreground/90">
+    <label className="group grid gap-2 text-sm font-medium text-slate-800">
       <span className="flex items-center justify-between gap-3">
         {label}
-        {required ? <span className="text-accent">*</span> : <span className="text-xs text-muted-foreground">Optional</span>}
+        {required ? <span className="text-primary">*</span> : <span className="text-xs text-slate-500">Optional</span>}
       </span>
       {type === "textarea" ? (
-        <textarea name={name} required={required} className={`${common} min-h-28 py-3`} data-cursor="TYPE" />
+        <textarea name={name} required={required} className={`${common} min-h-28 py-3`} />
       ) : (
-        <input name={name} type={type} required={required} className={common} data-cursor="TYPE" />
+        <input name={name} type={type} required={required} className={common} />
       )}
     </label>
   );
@@ -221,15 +220,15 @@ export function PublicSupportForm({
   const activeCategoryIndex = categories.findIndex((item) => item.value === category);
 
   return (
-    <form action={submitPublicSupportRequest} className="support-form support-command glass-panel rounded-lg p-0" data-scroll-animate>
-      <div className="border-b border-white/10 p-6 lg:p-8">
+    <form action={submitPublicSupportRequest} className="support-form support-command rounded-lg border border-slate-200 bg-white p-0 shadow-[0_24px_70px_rgba(8,20,36,0.1)]" data-scroll-animate>
+      <div className="border-b border-slate-200 p-6 lg:p-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_14rem]">
           <div>
-            <p className="eyebrow text-accent">Support Intake</p>
-            <h2 className="mt-4 display-heading text-balance text-4xl text-foreground sm:text-5xl">
+            <p className="eyebrow text-primary">Support Intake</p>
+            <h2 className="mt-4 display-heading text-balance text-4xl text-slate-950 sm:text-5xl">
               Define the aircraft need
             </h2>
-            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-600">
               The request stays non-binding until AMG reviews aircraft status, crew requirements,
               timing, operating conditions, owner/operator approval, and final acceptance.
             </p>
@@ -240,9 +239,9 @@ export function PublicSupportForm({
               ["02", "Aircraft"],
               ["03", "Scope"],
             ].map(([step, label]) => (
-              <div key={step} className="rounded-lg border border-white/10 bg-white/[0.035] p-3">
-                <p className="font-display text-xl font-extrabold text-accent/80">{step}</p>
-                <p className="mt-1 text-xs uppercase text-muted-foreground">{label}</p>
+              <div key={step} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <p className="font-display text-xl font-extrabold text-primary/80">{step}</p>
+                <p className="mt-1 text-xs uppercase text-slate-500">{label}</p>
               </div>
             ))}
           </div>
@@ -251,23 +250,23 @@ export function PublicSupportForm({
 
       <div className="p-6 lg:p-8">
       {success ? (
-        <div role="status" className="mb-5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm leading-relaxed text-emerald-200">
+        <div role="status" className="mb-5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm leading-relaxed text-emerald-900">
           Support request {success} was submitted. AMG Operations will review it before any acceptance or coordination is confirmed.
           {duplicate ? " We found a matching recent request and returned the existing reference." : ""}
         </div>
       ) : null}
       {error ? (
-        <div role="alert" className="mb-5 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm leading-relaxed text-red-200">
+        <div role="alert" className="mb-5 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm leading-relaxed text-red-900">
           {error === "missing"
             ? "Please complete the required fields and accept the privacy and terms acknowledgment."
             : "The request could not be submitted. Please try again or email AMG Operations directly."}
         </div>
       ) : null}
 
-      <div className="mb-8 rounded-lg border border-white/10 bg-white/[0.03] p-3">
+      <div className="mb-8 rounded-lg border border-slate-200 bg-slate-50 p-3">
         <div className="mb-3 flex items-center justify-between gap-4 px-1">
-          <p className="eyebrow text-[0.68rem] text-accent">Support Path</p>
-          <span className="font-mono text-xs text-muted-foreground">
+          <p className="eyebrow text-[0.68rem] text-primary">Support Path</p>
+          <span className="font-mono text-xs text-slate-500">
             {String(activeCategoryIndex + 1).padStart(2, "0")} / {String(categories.length).padStart(2, "0")}
           </span>
         </div>
@@ -279,48 +278,47 @@ export function PublicSupportForm({
               onClick={() => setCategory(item.value)}
               className={`snap-start whitespace-nowrap rounded-full border px-4 py-2 text-left font-display text-xs font-semibold uppercase transition-colors ${
                 category === item.value
-                  ? "border-accent bg-accent/15 text-accent"
-                  : "border-white/10 bg-white/[0.03] text-muted-foreground hover:border-accent/50 hover:text-foreground"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-slate-200 bg-white text-slate-600 hover:border-primary/50 hover:text-slate-950"
               }`}
               aria-pressed={category === item.value}
-              data-cursor="SELECT"
               data-stagger-item
             >
-              <span className="mr-2 text-foreground/45">{String(index + 1).padStart(2, "0")}</span>
+              <span className="mr-2 text-slate-400">{String(index + 1).padStart(2, "0")}</span>
               {item.label}
             </button>
           ))}
         </div>
       </div>
 
-      <fieldset className="support-form-panel grid gap-5 rounded-lg border border-white/10 bg-background/40 p-5 md:grid-cols-2">
-        <legend className="mb-1 flex items-center gap-2 font-display text-2xl font-bold uppercase tracking-wide text-foreground md:col-span-2">
-          <ClipboardCheck className="h-5 w-5 text-accent" />
+      <fieldset className="support-form-panel grid gap-5 rounded-lg border border-slate-200 bg-slate-50 p-5 md:grid-cols-2">
+        <legend className="mb-1 flex items-center gap-2 font-display text-2xl font-bold uppercase text-slate-950 md:col-span-2">
+          <ClipboardCheck className="h-5 w-5 text-primary" />
           Contact information
         </legend>
-        <label className="grid gap-2 text-sm font-medium text-foreground/90">
-          First name <span className="text-accent">*</span>
-          <input name="first_name" required autoComplete="given-name" className="support-field px-4 text-base" data-cursor="TYPE" />
+        <label className="grid gap-2 text-sm font-medium text-slate-800">
+          First name <span className="text-primary">*</span>
+          <input name="first_name" required autoComplete="given-name" className="support-field px-4 text-base" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground/90">
-          Last name <span className="text-accent">*</span>
-          <input name="last_name" required autoComplete="family-name" className="support-field px-4 text-base" data-cursor="TYPE" />
+        <label className="grid gap-2 text-sm font-medium text-slate-800">
+          Last name <span className="text-primary">*</span>
+          <input name="last_name" required autoComplete="family-name" className="support-field px-4 text-base" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground/90">
+        <label className="grid gap-2 text-sm font-medium text-slate-800">
           Company or ownership entity
-          <input name="company" autoComplete="organization" className="support-field px-4 text-base" data-cursor="TYPE" />
+          <input name="company" autoComplete="organization" className="support-field px-4 text-base" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground/90">
-          Email <span className="text-accent">*</span>
-          <input name="email" type="email" required autoComplete="email" className="support-field px-4 text-base" data-cursor="TYPE" />
+        <label className="grid gap-2 text-sm font-medium text-slate-800">
+          Email <span className="text-primary">*</span>
+          <input name="email" type="email" required autoComplete="email" className="support-field px-4 text-base" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground/90">
-          Phone <span className="text-accent">*</span>
-          <input name="phone" type="tel" required autoComplete="tel" className="support-field px-4 text-base" data-cursor="TYPE" />
+        <label className="grid gap-2 text-sm font-medium text-slate-800">
+          Phone <span className="text-primary">*</span>
+          <input name="phone" type="tel" required autoComplete="tel" className="support-field px-4 text-base" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground/90">
+        <label className="grid gap-2 text-sm font-medium text-slate-800">
           Preferred contact method
-          <select name="preferred_contact_method" className="support-field px-4 text-base" data-cursor="TYPE">
+          <select name="preferred_contact_method" className="support-field px-4 text-base">
             <option>Email</option>
             <option>Phone</option>
             <option>Either</option>
@@ -328,36 +326,35 @@ export function PublicSupportForm({
         </label>
       </fieldset>
 
-      <fieldset className="support-form-panel mt-6 grid gap-5 rounded-lg border border-white/10 bg-background/40 p-5 md:grid-cols-2">
-        <legend className="mb-1 flex items-center gap-2 font-display text-2xl font-bold uppercase tracking-wide text-foreground md:col-span-2">
-          <Plane className="h-5 w-5 text-accent" />
+      <fieldset className="support-form-panel mt-6 grid gap-5 rounded-lg border border-slate-200 bg-slate-50 p-5 md:grid-cols-2">
+        <legend className="mb-1 flex items-center gap-2 font-display text-2xl font-bold uppercase text-slate-950 md:col-span-2">
+          <Plane className="h-5 w-5 text-primary" />
           Aircraft and Timing
         </legend>
-        <label className="grid gap-2 text-sm font-medium text-foreground/90">
+        <label className="grid gap-2 text-sm font-medium text-slate-800">
           Aircraft make
-          <input name="aircraft_make" className="support-field px-4 text-base" data-cursor="TYPE" />
+          <input name="aircraft_make" className="support-field px-4 text-base" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground/90">
+        <label className="grid gap-2 text-sm font-medium text-slate-800">
           Aircraft model
-          <input name="aircraft_model" className="support-field px-4 text-base" data-cursor="TYPE" />
+          <input name="aircraft_model" className="support-field px-4 text-base" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground/90">
+        <label className="grid gap-2 text-sm font-medium text-slate-800">
           Tail number
-          <input name="tail_number" className="support-field px-4 text-base uppercase" data-cursor="TYPE" />
+          <input name="tail_number" className="support-field px-4 text-base uppercase" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground/90">
+        <label className="grid gap-2 text-sm font-medium text-slate-800">
           Aircraft base
-          <input name="aircraft_base" className="support-field px-4 text-base" data-cursor="TYPE" />
+          <input name="aircraft_base" className="support-field px-4 text-base" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground/90 md:col-span-2">
-          Requested service category <span className="text-accent">*</span>
+        <label className="grid gap-2 text-sm font-medium text-slate-800 md:col-span-2">
+          Requested service category <span className="text-primary">*</span>
           <select
             name="requested_service_category"
             value={category}
             onChange={(event) => setCategory(event.target.value as CategoryValue)}
             required
             className="support-field px-4 text-base"
-            data-cursor="TYPE"
           >
             {categories.map((item) => (
               <option key={item.value} value={item.value}>
@@ -366,13 +363,13 @@ export function PublicSupportForm({
             ))}
           </select>
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground/90">
-          Requested timing <span className="text-accent">*</span>
-          <input name="requested_timing" required className="support-field px-4 text-base" data-cursor="TYPE" />
+        <label className="grid gap-2 text-sm font-medium text-slate-800">
+          Requested timing <span className="text-primary">*</span>
+          <input name="requested_timing" required className="support-field px-4 text-base" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-foreground/90 md:col-span-2">
-          Operational summary <span className="text-accent">*</span>
-          <textarea name="operational_summary" required className="support-field min-h-32 px-4 py-3 text-base" data-cursor="TYPE" />
+        <label className="grid gap-2 text-sm font-medium text-slate-800 md:col-span-2">
+          Operational summary <span className="text-primary">*</span>
+          <textarea name="operational_summary" required className="support-field min-h-32 px-4 py-3 text-base" />
         </label>
       </fieldset>
 
@@ -380,18 +377,18 @@ export function PublicSupportForm({
         <motion.section
           key={activeCategory.value}
           aria-live="polite"
-          className="support-form-panel mt-6 rounded-lg border border-white/10 bg-background/40 p-5 shadow-inner"
+          className="support-form-panel mt-6 rounded-lg border border-slate-200 bg-slate-50 p-5 shadow-inner"
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="flex flex-col gap-3 border-b border-white/10 pb-5 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="eyebrow text-[0.68rem] text-accent">{activeCategory.label}</p>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{activeCategory.help}</p>
+              <p className="eyebrow text-[0.68rem] text-primary">{activeCategory.label}</p>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">{activeCategory.help}</p>
             </div>
-            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs uppercase text-accent">
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs uppercase text-primary">
               <CheckCircle2 className="h-3.5 w-3.5" />
               Review required
             </span>
@@ -405,13 +402,13 @@ export function PublicSupportForm({
       </AnimatePresence>
 
       <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
-      <label className="mt-6 flex items-start gap-3 text-sm leading-relaxed text-muted-foreground">
-        <input name="acknowledgment" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--accent)]" />
+      <label className="mt-6 flex items-start gap-3 text-sm leading-relaxed text-slate-600">
+        <input name="acknowledgment" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--primary)]" />
         <span>
           I acknowledge AMG&apos;s privacy, terms, and operational disclaimer language. I understand a submitted request is not mission acceptance, crew confirmation, aircraft availability, or a binding quote.
         </span>
       </label>
-      <p className="mt-5 text-xs leading-relaxed text-muted-foreground">{COMPANY.requestDisclaimer}</p>
+      <p className="mt-5 text-xs leading-relaxed text-slate-500">{COMPANY.requestDisclaimer}</p>
       <SubmitRequestButton />
       </div>
     </form>
