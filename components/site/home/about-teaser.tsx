@@ -34,7 +34,7 @@ export function AboutTeaser() {
           </p>
           <Link
             href="/about"
-            className="group mt-8 inline-flex items-center gap-2 font-display text-sm font-semibold uppercase tracking-widest text-accent"
+            className="group mt-8 inline-flex min-h-11 items-center gap-2 rounded-full border border-slate-300 bg-white px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest text-foreground shadow-[0_12px_30px_rgba(8,20,36,0.08)] transition-colors hover:border-primary hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
           >
             Learn more about AMG
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
