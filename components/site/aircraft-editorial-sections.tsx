@@ -7,15 +7,15 @@ import { AIRCRAFT_CATEGORIES } from "@/lib/content";
 const CUSTOM_IMAGE_ROOT = "/images/amg-custom";
 
 const AIRCRAFT_IMAGES: Record<string, string> = {
-  "single-engine-piston": `${CUSTOM_IMAGE_ROOT}/aircraft-support-main.jpg`,
-  "multi-engine-piston": `${CUSTOM_IMAGE_ROOT}/runway.jpg`,
-  turboprop: `${CUSTOM_IMAGE_ROOT}/aircraft-support-main.jpg`,
-  "single-engine-jet-vlj": `${CUSTOM_IMAGE_ROOT}/aircraft-light-jet-vlj.jpeg`,
-  "light-jet": `${CUSTOM_IMAGE_ROOT}/lj.jpg`,
-  "midsize-jet": `${CUSTOM_IMAGE_ROOT}/aircraft-mid-heavy-jet.jpg`,
-  "super-midsize-jet": `${CUSTOM_IMAGE_ROOT}/aircraft-mid-heavy-jet.jpg`,
-  "large-cabin-heavy-jet": `${CUSTOM_IMAGE_ROOT}/hero-aircraft-operations.jpg`,
-  helicopter: `${CUSTOM_IMAGE_ROOT}/runway.jpg`,
+  "single-engine-piston": `${CUSTOM_IMAGE_ROOT}/aircraft-single-engine-piston.jpg`,
+  "multi-engine-piston": `${CUSTOM_IMAGE_ROOT}/aircraft-multi-engine-piston.jpg`,
+  turboprop: `${CUSTOM_IMAGE_ROOT}/aircraft-turboprop.jpg`,
+  "single-engine-jet-vlj": `${CUSTOM_IMAGE_ROOT}/aircraft-single-engine-jet-vlj.jpg`,
+  "light-jet": `${CUSTOM_IMAGE_ROOT}/aircraft-light-jet.jpg`,
+  "midsize-jet": `${CUSTOM_IMAGE_ROOT}/aircraft-midsize-jet.jpg`,
+  "super-midsize-jet": `${CUSTOM_IMAGE_ROOT}/aircraft-super-midsize-jet.jpg`,
+  "large-cabin-heavy-jet": `${CUSTOM_IMAGE_ROOT}/aircraft-large-cabin-heavy-jet.jpg`,
+  helicopter: `${CUSTOM_IMAGE_ROOT}/aircraft-helicopter.jpg`,
 };
 
 export function AircraftEditorialSections() {
@@ -30,7 +30,7 @@ export function AircraftEditorialSections() {
                 <div className="media-vignette relative min-h-80 overflow-hidden rounded-lg border border-white/10">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={AIRCRAFT_IMAGES[aircraft.id] ?? `${CUSTOM_IMAGE_ROOT}/hero-aircraft-operations.jpg`}
+                    src={AIRCRAFT_IMAGES[aircraft.id] ?? `${CUSTOM_IMAGE_ROOT}/aircraft-support-main.jpg`}
                     alt=""
                     className="absolute inset-0 h-full w-full scale-105 object-cover opacity-80"
                   />
