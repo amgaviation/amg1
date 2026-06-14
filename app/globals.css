@@ -466,7 +466,8 @@ html {
   mask-image: linear-gradient(180deg, black, transparent 58%);
 }
 
-[data-scroll-animate] {
+:where(.public-site[data-reveal-ready="true"] [data-scroll-animate]),
+:where(.public-site[data-reveal-ready="true"] [data-process-step]) {
   opacity: 0;
   transform: translateY(28px);
   transition:
@@ -475,7 +476,7 @@ html {
   will-change: transform, opacity;
 }
 
-[data-stagger-item] {
+:where(.public-site[data-reveal-ready="true"] [data-stagger-item]) {
   opacity: 0;
   transform: translateY(22px);
   transition:
@@ -552,6 +553,7 @@ html {
   }
 
   [data-scroll-animate],
+  [data-process-step],
   [data-stagger-item] {
     opacity: 1 !important;
     transform: none !important;

@@ -44,6 +44,19 @@ export function HomeHero() {
               <ArrowUpRight className="h-4 w-4" />
             </Link>
           </div>
+
+          <ul className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-slate-200/80 pt-7 text-xs uppercase text-slate-500">
+            {[
+              "Part 91 operations support",
+              "Credential-reviewed crew",
+              "Worldwide coordination",
+            ].map((item) => (
+              <li key={item} className="flex items-center gap-2.5 font-display font-semibold">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div

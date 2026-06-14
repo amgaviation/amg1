@@ -22,7 +22,7 @@ export function SiteFooter() {
           <div className="flex flex-col items-start gap-3 lg:items-end">
             <a
               href={`mailto:${COMPANY.email}`}
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 font-display text-xs font-semibold uppercase text-accent transition-colors hover:border-accent hover:text-foreground"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 font-display text-xs font-semibold uppercase text-accent transition-colors hover:border-accent hover:text-foreground"
             >
               {COMPANY.email}
               <ArrowUpRight className="h-3.5 w-3.5" />
@@ -42,7 +42,7 @@ export function SiteFooter() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="group inline-flex items-center gap-2 text-sm text-slate-300 transition-colors hover:text-white"
+                      className="group inline-flex min-h-11 items-center gap-2 py-1 text-sm text-slate-300 transition-colors hover:text-white"
                     >
                       {link.label}
                       <ArrowUpRight className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />

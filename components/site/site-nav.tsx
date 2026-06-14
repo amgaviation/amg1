@@ -86,7 +86,7 @@ export function SiteNav() {
       )}
     >
       <nav className="relative z-50 mx-auto flex h-full max-w-7xl items-center gap-6 px-6 lg:px-10">
-        <Link href="/" prefetch={false} className="group flex items-center gap-3">
+        <Link href="/" prefetch={false} className="group flex min-h-11 items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/logo-blue.png"
