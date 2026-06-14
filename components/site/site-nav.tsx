@@ -107,7 +107,7 @@ export function SiteNav() {
                   prefetch={false}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "eyebrow relative text-xs transition-colors",
+                    "eyebrow relative inline-flex min-h-11 items-center text-xs transition-colors",
                     active
                       ? "text-accent after:absolute after:inset-x-0 after:-bottom-2 after:h-px after:bg-accent"
                       : "text-slate-200 hover:text-white"
@@ -166,7 +166,7 @@ export function SiteNav() {
         <div
           id="public-mobile-menu"
           ref={menuRef}
-          className="fixed inset-0 z-40 overflow-y-auto border-t border-slate-200 bg-white/96 px-6 pb-10 pt-[calc(var(--public-header-height)+2rem)] backdrop-blur-2xl animate-in fade-in duration-300"
+          className="fixed inset-x-0 top-[var(--public-header-height)] z-40 h-[calc(100svh-var(--public-header-height))] overflow-y-auto border-t border-slate-200 bg-white px-6 pb-10 pt-6 backdrop-blur-2xl animate-in fade-in duration-300"
         >
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_78%_12%,rgba(59,130,246,0.16),transparent_28rem),linear-gradient(180deg,rgba(255,255,255,0.92),rgba(241,246,252,0.98))]" />
           <ul className="mx-auto flex max-w-7xl flex-col gap-2">

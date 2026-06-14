@@ -6,29 +6,29 @@ import { cn } from "@/lib/utils";
 
 const featureAssets = [
   {
-    title: "Propulsion Geometry",
-    eyebrow: "Wireframe Turbine",
-    metric: "45 deg",
-    body: "Rotating schematic for engineering, maintenance, and capability cards.",
-    src: "/videos/amg-turbine-wireframe-loop.mp4",
-    poster: "/images/operations.png",
+    title: "Aircraft Movement",
+    eyebrow: "Mission Motion",
+    metric: "24 fps",
+    body: "Loop-ready aviation motion for operational feature cards and premium page moments.",
+    src: "/videos/amg-jet-flying.mp4",
+    poster: "/images/amg-custom/hero-aircraft-operations.jpg",
     icon: Cpu,
   },
   {
-    title: "Thermal Readiness",
-    eyebrow: "Engine State",
+    title: "Runway Readiness",
+    eyebrow: "Aircraft State",
     metric: "24 fps",
-    body: "Loop-ready micro-motion for hover states and technical feature reveals.",
-    src: "/videos/amg-turbine-wireframe-loop.mp4",
-    poster: "/images/heavy-jet.png",
+    body: "Motion treatment for support paths, service cards, and aircraft status stories.",
+    src: "/videos/amg-jet-flying.mp4",
+    poster: "/images/amg-custom/global-cta-runway.jpg",
     icon: Gauge,
   },
   {
-    title: "Vector Analysis",
+    title: "Route Analysis",
     eyebrow: "Flight Logic",
     metric: "4 sec",
-    body: "Aerospace graphic motion tuned for compact cards and dense dashboards.",
-    src: "/videos/amg-turbine-wireframe-loop.mp4",
+    body: "Aerospace motion tuned for compact cards, dense dashboards, and support review contexts.",
+    src: "/videos/amg-jet-flying.mp4",
     poster: "/images/jet-sky.png",
     icon: Zap,
   },
@@ -98,10 +98,10 @@ export function HiggsfieldMotionShowcase() {
   const heroY = -heroProgress * 42;
 
   return (
-    <div className="bg-background text-foreground">
+    <div className="bg-[var(--amg-ink)] text-white">
       <section
         ref={heroSectionRef}
-        className="relative min-h-[130svh] overflow-hidden border-b border-border"
+        className="relative min-h-[130svh] overflow-hidden border-b border-white/10"
       >
         <div className="sticky top-0 min-h-svh overflow-hidden">
           <video
@@ -109,14 +109,14 @@ export function HiggsfieldMotionShowcase() {
             muted
             playsInline
             preload="metadata"
-            poster="/images/hero-jet.png"
+            poster="/images/amg-custom/hero-aircraft-operations.jpg"
             className="absolute inset-0 h-full w-full object-cover opacity-55"
             style={{ transform: `translate3d(0, ${heroY}px, 0) scale(${heroScale})` }}
           >
-            <source src="/videos/amg-hero-stealth-parallax.mp4" type="video/mp4" />
+            <source src="/videos/amg-jet-flying.mp4" type="video/mp4" />
           </video>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_18%,rgba(56,189,248,0.18),transparent_28%),linear-gradient(180deg,rgba(5,11,20,0.45),rgba(5,11,20,0.94))]" />
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-background to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[var(--amg-ink)] to-transparent" />
 
           <div className="relative mx-auto flex min-h-svh max-w-7xl items-end px-6 pb-16 pt-32 lg:px-10">
             <div className="max-w-4xl">
@@ -127,7 +127,7 @@ export function HiggsfieldMotionShowcase() {
               <h1 className="font-display text-6xl font-extrabold uppercase leading-none text-white sm:text-7xl lg:text-8xl">
                 Stealth-grade aviation motion
               </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
                 Scroll-linked aerospace video, glass cockpit telemetry, and propulsion micro-motion for AMG Aviation Group.
               </p>
 
@@ -139,7 +139,7 @@ export function HiggsfieldMotionShowcase() {
                 ].map(([label, value]) => (
                   <div key={label} className="border-r border-white/10 p-4 last:border-r-0">
                     <p className="font-display text-3xl font-extrabold uppercase text-white">{value}</p>
-                    <p className="eyebrow mt-2 text-[0.58rem] text-muted-foreground">{label}</p>
+                    <p className="eyebrow mt-2 text-[0.58rem] text-slate-400">{label}</p>
                   </div>
                 ))}
               </div>
@@ -156,7 +156,7 @@ export function HiggsfieldMotionShowcase() {
               Propulsion intelligence
             </h2>
           </div>
-          <p className="max-w-md text-sm leading-6 text-muted-foreground">
+          <p className="max-w-md text-sm leading-6 text-slate-300">
             Looping turbine motion assets are bound to pointer and keyboard focus states for premium card interactions.
           </p>
         </div>
@@ -167,7 +167,7 @@ export function HiggsfieldMotionShowcase() {
             return (
               <article
                 key={asset.title}
-                className="group overflow-hidden rounded-lg border border-border bg-card"
+                className="group overflow-hidden rounded-lg border border-white/10 bg-white/[0.06]"
                 onMouseEnter={(event) => {
                   const video = event.currentTarget.querySelector("video");
                   if (video) void video.play();
@@ -203,7 +203,7 @@ export function HiggsfieldMotionShowcase() {
                   >
                     <source src={asset.src} type="video/mp4" />
                   </video>
-                  <div className="absolute inset-0 bg-gradient-to-t from-card via-card/30 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--amg-ink)] via-[rgba(5,11,20,0.32)] to-transparent" />
                   <div className="absolute left-4 top-4 rounded-full border border-white/10 bg-black/30 p-3 backdrop-blur-xl">
                     <Icon className="h-5 w-5 text-accent" />
                   </div>
@@ -216,9 +216,9 @@ export function HiggsfieldMotionShowcase() {
                         {asset.title}
                       </h3>
                     </div>
-                    <span className="font-mono text-xs text-muted-foreground">{asset.metric}</span>
+                    <span className="font-mono text-xs text-slate-400">{asset.metric}</span>
                   </div>
-                  <p className="mt-4 text-sm leading-6 text-muted-foreground">{asset.body}</p>
+                  <p className="mt-4 text-sm leading-6 text-slate-300">{asset.body}</p>
                 </div>
               </article>
             );
@@ -232,7 +232,7 @@ export function HiggsfieldMotionShowcase() {
           <h2 className="mt-3 font-display text-4xl font-extrabold uppercase leading-none text-white sm:text-5xl">
             Glass display activation
           </h2>
-          <p className="mt-5 text-sm leading-7 text-muted-foreground">
+          <p className="mt-5 text-sm leading-7 text-slate-300">
             The cockpit sequence uses a click state to transition from standby into active radar and flight telemetry.
           </p>
           <button
@@ -242,7 +242,7 @@ export function HiggsfieldMotionShowcase() {
               "mt-8 inline-flex h-12 w-fit items-center gap-3 rounded-full border px-5 font-display text-xs font-semibold uppercase tracking-widest transition",
               cockpitActive
                 ? "border-accent bg-accent text-accent-foreground"
-                : "border-border bg-card text-foreground hover:border-accent"
+                : "border-white/15 bg-white/[0.06] text-white hover:border-accent"
             )}
           >
             <Power className="h-4 w-4" />
@@ -250,7 +250,7 @@ export function HiggsfieldMotionShowcase() {
           </button>
         </div>
 
-        <div className="relative overflow-hidden rounded-lg border border-border bg-card p-4 shadow-[0_30px_90px_rgba(0,0,0,0.35)]">
+        <div className="relative overflow-hidden rounded-lg border border-white/10 bg-white/[0.06] p-4 shadow-[0_30px_90px_rgba(0,0,0,0.35)]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(56,189,248,0.16),transparent_36%)]" />
           <div className="relative overflow-hidden rounded-md border border-white/10 bg-black">
             <video
@@ -264,7 +264,7 @@ export function HiggsfieldMotionShowcase() {
                 cockpitActive ? "scale-100 opacity-90" : "scale-[1.02] opacity-35"
               )}
             >
-              <source src="/videos/amg-cockpit-telemetry-boot.mp4" type="video/mp4" />
+              <source src="/videos/amg-jet-flying.mp4" type="video/mp4" />
             </video>
             <div className="absolute inset-0">
               <div className="absolute inset-x-6 top-6 flex items-center justify-between text-xs text-accent">
@@ -279,7 +279,7 @@ export function HiggsfieldMotionShowcase() {
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-md border border-white/10 bg-black/35 p-3 backdrop-blur-md">
                     <p className="font-mono text-lg text-white">{value}</p>
-                    <p className="eyebrow mt-1 text-[0.52rem] text-muted-foreground">{label}</p>
+                    <p className="eyebrow mt-1 text-[0.52rem] text-slate-400">{label}</p>
                   </div>
                 ))}
               </div>
@@ -291,7 +291,7 @@ export function HiggsfieldMotionShowcase() {
               />
             </div>
           </div>
-          <div className="relative mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+          <div className="relative mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
             <span className="inline-flex items-center gap-2">
               <Activity className="h-4 w-4 text-accent" />
               Vibe Motion telemetry sequence

@@ -15,14 +15,14 @@ export function SiteFooter() {
           <div className="max-w-3xl">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/logo-white.png" alt="AMG Aviation Group" width="1088" height="221" className="h-10 w-auto" />
-            <p className="mt-5 max-w-xl text-lg leading-relaxed text-slate-300">
+            <p className="mt-5 max-w-2xl text-lg leading-relaxed text-slate-300">
               {COMPANY.tagline}
             </p>
           </div>
           <div className="flex flex-col items-start gap-3 lg:items-end">
             <a
               href={`mailto:${COMPANY.email}`}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 font-display text-xs font-semibold uppercase text-accent transition-colors hover:border-accent hover:text-foreground"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 font-display text-xs font-semibold uppercase text-accent transition-colors hover:border-accent hover:text-white"
             >
               {COMPANY.email}
               <ArrowUpRight className="h-3.5 w-3.5" />

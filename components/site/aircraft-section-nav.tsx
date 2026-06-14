@@ -26,7 +26,7 @@ export function AircraftSectionNav({ items }: { items: NavItem[] }) {
   }, [items]);
 
   return (
-    <nav aria-label="Aircraft categories" className="sticky top-[var(--public-header-height)] z-30 border-y border-border bg-background/95 backdrop-blur">
+    <nav aria-label="Aircraft categories" className="sticky top-[var(--public-header-height)] z-30 border-y border-slate-200 bg-white/95 shadow-[0_12px_30px_rgba(8,20,36,0.06)] backdrop-blur">
       <div className="mx-auto max-w-7xl overflow-x-auto px-6 lg:px-10">
         <div className="flex min-w-max gap-2 py-4">
           {items.map((item) => (
@@ -34,10 +34,10 @@ export function AircraftSectionNav({ items }: { items: NavItem[] }) {
               key={item.id}
               href={`#${item.id}`}
               className={cn(
-                "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-widest transition-colors",
+                "inline-flex min-h-10 items-center rounded-full border px-4 py-2 text-xs font-semibold uppercase transition-colors",
                 active === item.id
                   ? "border-accent bg-accent/10 text-accent"
-                  : "border-border text-muted-foreground hover:border-accent hover:text-accent"
+                  : "border-slate-200 text-slate-600 hover:border-accent hover:text-accent"
               )}
             >
               {item.label}

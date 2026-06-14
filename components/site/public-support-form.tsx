@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, ClipboardCheck, Plane, Send } from "lucide-react";
@@ -175,7 +175,7 @@ function SubmitRequestButton() {
   );
 }
 
-function Field({ field }: { field: FieldConfig }) {
+function Field({ field, defaultValue }: { field: FieldConfig; defaultValue?: string }) {
   const [name, label, type, required] = field;
   const common =
     "support-field px-4 text-base";
@@ -187,9 +187,9 @@ function Field({ field }: { field: FieldConfig }) {
         {required ? <span className="text-primary">*</span> : <span className="text-xs text-slate-500">Optional</span>}
       </span>
       {type === "textarea" ? (
-        <textarea name={name} required={required} className={`${common} min-h-28 py-3`} />
+        <textarea name={name} required={required} defaultValue={defaultValue} className={`${common} min-h-28 py-3`} />
       ) : (
-        <input name={name} type={type} required={required} className={common} />
+        <input name={name} type={type} required={required} defaultValue={defaultValue} className={common} />
       )}
     </label>
   );
@@ -203,11 +203,13 @@ function normalizeCategory(value?: string) {
 
 export function PublicSupportForm({
   initialCategory,
+  initialPlan,
   success,
   error,
   duplicate,
 }: {
   initialCategory?: string;
+  initialPlan?: string;
   success?: string;
   error?: string;
   duplicate?: string;
@@ -218,6 +220,16 @@ export function PublicSupportForm({
     [category]
   );
   const activeCategoryIndex = categories.findIndex((item) => item.value === category);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      document
+        .querySelector<HTMLElement>(`[data-category-chip="${category}"]`)
+        ?.scrollIntoView({ block: "nearest", inline: "center" });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [category]);
 
   return (
     <form action={submitPublicSupportRequest} className="support-form support-command rounded-lg border border-slate-200 bg-white p-0 shadow-[0_24px_70px_rgba(8,20,36,0.1)]" data-scroll-animate>
@@ -276,7 +288,8 @@ export function PublicSupportForm({
               key={item.value}
               type="button"
               onClick={() => setCategory(item.value)}
-              className={`snap-start whitespace-nowrap rounded-full border px-4 py-2 text-left font-display text-xs font-semibold uppercase transition-colors ${
+              data-category-chip={item.value}
+              className={`min-h-11 snap-start whitespace-nowrap rounded-full border px-4 py-2 text-left font-display text-xs font-semibold uppercase transition-colors ${
                 category === item.value
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-slate-200 bg-white text-slate-600 hover:border-primary/50 hover:text-slate-950"
@@ -395,7 +408,11 @@ export function PublicSupportForm({
           </div>
           <div className="mt-5 grid gap-5 md:grid-cols-2">
             {activeCategory.fields.map((field) => (
-              <Field key={field[0]} field={field} />
+              <Field
+                key={field[0]}
+                field={field}
+                defaultValue={field[0] === "desired_tier" ? initialPlan : undefined}
+              />
             ))}
           </div>
         </motion.section>

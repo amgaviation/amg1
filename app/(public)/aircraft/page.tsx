@@ -27,16 +27,16 @@ export default function AircraftPage() {
         image="/images/amg-custom/aircraft-support-main.jpg"
       />
 
-      <section className="border-b border-white/10 bg-card/20 py-8">
+      <section className="border-b border-slate-200 bg-white py-8">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="eyebrow text-accent">Aircraft Support</p>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">
                 Standard aircraft classes, custom-review cases, and one acceptance standard.
               </p>
             </div>
-            <div className="text-xs uppercase tracking-widest text-muted-foreground">
+            <div className="text-xs uppercase text-slate-500">
               {categories.length} categories
             </div>
           </div>
@@ -47,8 +47,8 @@ export default function AircraftPage() {
       <AircraftEditorialSections />
 
       <Reveal className="mx-auto max-w-4xl px-6 pb-24 text-center lg:px-10" data-scroll-animate>
-        <div className="glass-panel rounded-lg p-6">
-          <p className="text-sm leading-relaxed text-muted-foreground">
+        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-[0_18px_50px_rgba(8,20,36,0.07)]">
+          <p className="text-sm leading-relaxed text-slate-600">
             {COMPANY.requestDisclaimer}
           </p>
         </div>

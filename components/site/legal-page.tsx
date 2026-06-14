@@ -23,22 +23,22 @@ export function LegalPage({
             <span className="h-px w-10 bg-accent/70" />
             {eyebrow}
           </p>
-          <h1 className="display-heading text-balance text-5xl text-foreground sm:text-6xl lg:text-7xl">
+          <h1 className="display-heading text-balance text-5xl text-slate-950 sm:text-6xl lg:text-7xl">
             {title}
           </h1>
-          <div className="mt-8 hidden rounded-lg border border-white/10 bg-white/[0.035] p-5 lg:block">
+          <div className="mt-8 hidden rounded-lg border border-slate-200 bg-white p-5 shadow-[0_16px_44px_rgba(8,20,36,0.07)] lg:block">
             <FileText className="h-5 w-5 text-accent" />
-            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-4 text-sm leading-relaxed text-slate-600">
               Administrative language for website use, portal access, and support request review.
             </p>
-            <Link href="/contact" className="mt-5 inline-flex items-center gap-2 font-display text-xs font-semibold uppercase text-accent">
+            <Link href="/contact" className="mt-5 inline-flex min-h-11 items-center gap-2 font-display text-xs font-semibold uppercase text-accent hover:text-primary">
               Contact AMG
               <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </div>
         </aside>
-        <article className="glass-panel rounded-lg p-6 sm:p-8 lg:p-10" data-scroll-animate>
-          <div className="space-y-6 text-base leading-relaxed text-muted-foreground">
+        <article className="rounded-lg border border-slate-200 bg-white p-6 shadow-[0_24px_70px_rgba(8,20,36,0.09)] sm:p-8 lg:p-10" data-scroll-animate>
+          <div className="space-y-6 text-base leading-relaxed text-slate-600">
             {children}
           </div>
         </article>

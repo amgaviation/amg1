@@ -4,10 +4,10 @@ import { Reveal } from "@/components/site/reveal";
 
 export function AboutTeaser() {
   return (
-    <section className="cinematic-section cinematic-band border-y border-white/10 py-28">
+    <section className="cinematic-section cinematic-band border-y border-slate-200 py-28">
       <div className="mx-auto grid max-w-7xl items-center gap-14 px-6 lg:grid-cols-2 lg:px-10">
         <Reveal data-scroll-animate>
-          <div className="media-vignette relative overflow-hidden rounded-lg border border-white/10">
+          <div className="media-vignette relative overflow-hidden rounded-lg border border-slate-200 shadow-[0_24px_70px_rgba(8,20,36,0.12)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/site/cirrus.webp"
