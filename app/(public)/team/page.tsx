@@ -23,13 +23,13 @@ export default function TeamPage() {
           <RevealGroup className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4" data-scroll-animate>
             {TEAM.map((member) => (
               <RevealItem key={member.name}>
-                <article className="glass-panel h-full rounded-lg p-8">
+                <article className="hover-lift h-full rounded-lg border border-slate-200 bg-white p-8 shadow-[0_18px_50px_rgba(8,20,36,0.07)]">
                   <div className="flex h-16 w-16 items-center justify-center rounded-full border border-accent/50 bg-accent/10 font-display text-2xl font-extrabold text-accent">
                     {member.initials}
                   </div>
-                  <h2 className="mt-8 font-display text-2xl font-bold uppercase tracking-wide text-foreground">{member.name}</h2>
+                  <h2 className="mt-8 font-display text-2xl font-bold uppercase tracking-wide text-slate-950">{member.name}</h2>
                   <p className="eyebrow mt-2 text-[0.65rem] text-accent">{member.title}</p>
-                  <p className="mt-5 leading-relaxed text-muted-foreground">{member.bio}</p>
+                  <p className="mt-5 leading-relaxed text-slate-600">{member.bio}</p>
                 </article>
               </RevealItem>
             ))}

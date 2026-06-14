@@ -4,10 +4,10 @@ import { Reveal } from "@/components/site/reveal";
 
 export function AboutTeaser() {
   return (
-    <section className="cinematic-section cinematic-band border-y border-white/10 py-28">
+    <section className="cinematic-section cinematic-band border-y border-slate-200 py-28">
       <div className="mx-auto grid max-w-7xl items-center gap-14 px-6 lg:grid-cols-2 lg:px-10">
         <Reveal data-scroll-animate>
-          <div className="media-vignette relative overflow-hidden rounded-lg border border-white/10">
+          <div className="media-vignette relative overflow-hidden rounded-lg border border-slate-200 shadow-[0_24px_70px_rgba(8,20,36,0.12)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/site/cirrus.webp"
@@ -34,7 +34,7 @@ export function AboutTeaser() {
           </p>
           <Link
             href="/about"
-            className="group mt-8 inline-flex items-center gap-2 font-display text-sm font-semibold uppercase tracking-widest text-accent"
+            className="group mt-8 inline-flex min-h-11 items-center gap-2 rounded-full border border-slate-300 bg-white px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest text-foreground shadow-[0_12px_30px_rgba(8,20,36,0.08)] transition-colors hover:border-primary hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
           >
             Learn more about AMG
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
