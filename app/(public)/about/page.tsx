@@ -4,7 +4,7 @@ import { PageHero } from "@/components/site/page-hero";
 import { ProcessTimeline } from "@/components/site/process-timeline";
 import { Reveal, RevealGroup, RevealItem } from "@/components/site/reveal";
 import { SectionHeading } from "@/components/site/section-heading";
-import { CAPABILITIES, VALUES } from "@/lib/content";
+import { VALUES } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "AMG Aviation Group — Aircraft Operations Support",
@@ -19,7 +19,7 @@ export default function AboutPage() {
         eyebrow="About AMG"
         title="Built around aircraft, owners, and operational accountability."
         description="AMG Aviation Group provides aircraft-specific support, mission coordination, crew sourcing, and owner communication for Part 91 aviation environments where clarity and responsiveness matter."
-        image="/images/amg-custom/hero-aircraft-operations.jpg"
+        image="/images/amg-custom/about-amg-operations.jpg"
       />
 
       <section className="cinematic-band py-28">
