@@ -19,7 +19,7 @@ export default function AboutPage() {
         eyebrow="About AMG"
         title="Built around aircraft, owners, and operational accountability."
         description="AMG Aviation Group provides aircraft-specific support, mission coordination, crew sourcing, and owner communication for Part 91 aviation environments where clarity and responsiveness matter."
-        image="/images/operations.png"
+        image="/images/amg-custom/hero-aircraft-operations.jpg"
       />
 
       <section className="cinematic-band py-28">
@@ -52,8 +52,8 @@ export default function AboutPage() {
             <div className="media-vignette overflow-hidden rounded-lg border border-white/10 bg-card">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/site/map-operations.jpg"
-                alt="Operational route map supporting aircraft positioning and mission planning"
+                src="/images/amg-custom/map-network.jpg"
+                alt="Operational network map supporting aircraft positioning and mission planning"
                 className="h-full w-full scale-105 object-cover"
               />
             </div>
@@ -87,9 +87,7 @@ export default function AboutPage() {
                   <h3 className="font-display text-xl font-bold uppercase tracking-wide text-accent">
                     {value.title}
                   </h3>
-                  <p className="mt-4 leading-relaxed text-muted-foreground">
-                    {value.body}
-                  </p>
+                  <p className="mt-4 leading-relaxed text-muted-foreground">{value.body}</p>
                 </div>
               </RevealItem>
             ))}
@@ -98,30 +96,6 @@ export default function AboutPage() {
       </section>
 
       <ProcessTimeline />
-
-      <section className="cinematic-band py-28">
-        <div className="mx-auto max-w-7xl px-6 lg:px-10">
-          <SectionHeading
-            eyebrow="Accountability and Scope"
-            title="Support remains subject to review"
-          />
-          <RevealGroup className="mt-16 grid grid-cols-1 gap-4 md:grid-cols-2" data-scroll-animate>
-            {CAPABILITIES.map((cap) => (
-              <RevealItem key={cap.title}>
-                <div className="glass-panel h-full rounded-lg p-8 lg:p-10">
-                  <h3 className="font-display text-2xl font-bold uppercase tracking-wide text-foreground">
-                    {cap.title}
-                  </h3>
-                  <p className="mt-4 leading-relaxed text-muted-foreground">
-                    {cap.body}
-                  </p>
-                </div>
-              </RevealItem>
-            ))}
-          </RevealGroup>
-        </div>
-      </section>
-
       <CtaSection />
     </>
   );
