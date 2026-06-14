@@ -24,7 +24,7 @@ export default async function ContactPage({
         eyebrow="Contact AMG"
         title="Start a Support Request"
         description="Use this page to request aircraft management support, crew coordination, ferry or repositioning assistance, maintenance flight support, or general operational support."
-        image="/images/amg-custom/aircraft-support-main.jpg"
+        image="/images/amg-custom/contact-support.jpg"
       />
       <section className="cinematic-band py-28">
         <div className="mx-auto grid max-w-7xl gap-10 px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-10">
@@ -32,8 +32,8 @@ export default async function ContactPage({
             <div className="media-vignette mb-6 overflow-hidden rounded-lg border border-white/10 bg-card" data-scroll-animate>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/amg-custom/aircraft-support-main.jpg"
-                alt="Aircraft positioned for AMG support intake and operations coordination"
+                src="/images/amg-custom/contact-support.jpg"
+                alt="Aircraft support intake and AMG operations coordination"
                 className="h-full w-full object-cover"
               />
             </div>
