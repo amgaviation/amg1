@@ -24,7 +24,7 @@ export function CtaSection({
       <div className="absolute inset-0 z-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/images/amg-custom/runway.jpg"
+          src="/images/amg-custom/global-cta-runway.jpg"
           alt=""
           className="h-full w-full scale-105 object-cover opacity-25"
         />
