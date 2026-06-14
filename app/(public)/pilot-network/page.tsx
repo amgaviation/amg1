@@ -18,7 +18,7 @@ export default function PilotNetworkPage() {
         eyebrow="Pilot Network"
         title="Professional, credential-focused, assignment-ready"
         description="AMG reviews crew profiles, aircraft qualifications, availability, owner/operator requirements, insurance considerations, and mission-specific suitability before any assignment is considered."
-        image="/images/mid-jet.png"
+        image="/images/amg-custom/pilot-network.jpg"
       />
       <section className="cinematic-band py-28">
         <div className="mx-auto grid max-w-7xl gap-14 px-6 lg:grid-cols-2 lg:px-10">
@@ -37,8 +37,8 @@ export default function PilotNetworkPage() {
             <div className="media-vignette overflow-hidden rounded-lg border border-white/10 bg-card">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/site/bell-505.jpg"
-                alt="Pilot network coverage spanning rotorcraft and fixed-wing operations"
+                src="/images/amg-custom/crew-credentials.jpg"
+                alt="Pilot credential review and crew readiness for AMG pilot network support"
                 className="h-full w-full scale-105 object-cover"
               />
             </div>
