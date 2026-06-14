@@ -9,7 +9,7 @@ import { SERVICES } from "@/lib/content";
 const SERVICE_IMAGES: Record<string, string> = {
   "aircraft-management-support": "/images/amg-custom/service-aircraft-management-support.jpg",
   "contract-pilot-support": "/images/amg-custom/service-contract-pilot-support.jpg",
-  "ferry-repositioning": "/images/amg-custom/service-ferry-repositioning.jpg",
+  "ferry-repositioning": "/images/amg-custom/services-hero.jpg",
   "maintenance-flight-support": "/images/amg-custom/service-maintenance-flight-support.jpg",
   "flight-operations-coordination": "/images/amg-custom/service-flight-operations-coordination.jpg",
   "fleet-support-programs": "/images/amg-custom/service-fleet-support-program.jpg",
