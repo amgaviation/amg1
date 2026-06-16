@@ -1,21 +1,23 @@
-import { HomeHero } from "@/components/site/home/home-hero";
-import { ServicesOverview } from "@/components/site/home/services-overview";
-import { AboutTeaser } from "@/components/site/home/about-teaser";
-import { FleetTeaser } from "@/components/site/home/fleet-teaser";
-import { CtaSection } from "@/components/site/cta-section";
-import { ProcessTimeline } from "@/components/site/process-timeline";
-import { PortalEcosystem } from "@/components/site/home/portal-ecosystem";
+import { CommandHero } from "@/components/site/home/command-hero";
+import { BrandStatement } from "@/components/site/home/brand-statement";
+import { OperationalLanes } from "@/components/site/home/operational-lanes";
+import { MissionFlow } from "@/components/site/home/mission-flow";
+import { AircraftGallery } from "@/components/site/home/aircraft-gallery";
+import { ConnectPreview } from "@/components/site/home/connect-preview";
+import { SupportModels } from "@/components/site/home/support-models";
+import { CtaBand } from "@/components/site/oc/shared";
 
 export default function HomePage() {
   return (
     <>
-      <HomeHero />
-      <ServicesOverview />
-      <FleetTeaser />
-      <ProcessTimeline />
-      <AboutTeaser />
-      <PortalEcosystem />
-      <CtaSection />
+      <CommandHero />
+      <BrandStatement />
+      <OperationalLanes />
+      <MissionFlow />
+      <AircraftGallery />
+      <ConnectPreview />
+      <SupportModels />
+      <CtaBand />
     </>
   );
 }

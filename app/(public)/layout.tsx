@@ -1,6 +1,7 @@
 import { SiteNav } from "@/components/site/site-nav";
 import { SiteFooter } from "@/components/site/site-footer";
 import { InteractionLayer } from "@/components/site/interaction-layer";
+import { SmoothScroll } from "@/components/site/smooth-scroll";
 
 const publicVisibilityCss = `
   .public-site main,
@@ -28,8 +29,9 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="public-site flex min-h-screen flex-col bg-background">
+    <div className="public-site amg-oc flex min-h-screen flex-col">
       <InteractionLayer />
+      <SmoothScroll />
       <style dangerouslySetInnerHTML={{ __html: publicVisibilityCss }} />
       <a href="#main-content" className="skip-link">
         Skip to content

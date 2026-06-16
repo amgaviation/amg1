@@ -1,23 +1,38 @@
 import type { Metadata } from "next";
-import { PageHero } from "@/components/site/page-hero";
+import { PageHero, CtaBand } from "@/components/site/oc/shared";
+import { SupportModels } from "@/components/site/home/support-models";
 import { SubscriptionPrograms } from "@/components/site/subscription-programs";
+import { IMG } from "@/lib/site-media";
 
 export const metadata: Metadata = {
-  title: "AMG Subscription Programs",
+  title: "Plans",
   description:
-    "AMG Aviation Group subscription program structure by aircraft class, monthly or annual allowances, proposal-based pricing, credits, travel, lodging, and exclusions.",
+    "AMG support plans — on-demand, recurring owner, and fleet/department support — plus subscription allowances by aircraft class. Pricing is proposal-based.",
 };
 
 export default function PlansPage() {
   return (
     <>
       <PageHero
-        eyebrow="Subscription Programs"
-        title="AMG Subscription Programs"
-        description="Select an aircraft class and billing preference to review program allowances. Public pricing is proposal-based until final customer-facing prices are approved."
-        image="/images/amg-custom/subscription-programs.jpg"
+        eyebrow="Plans"
+        title="Support plans, scoped to the aircraft."
+        lead="Engage AMG for a single mission or as a standing support layer. Detailed allowances are set by aircraft class, crew requirements, and operating scope — pricing is proposal-based."
+        image={IMG.plansSelector}
+        imageAlt="Aircraft class selector for AMG support plans"
+        primary={{ label: "Request Support", href: "/contact" }}
+        secondary={{ label: "AMG Connect", href: "/amg-connect" }}
       />
+
+      <SupportModels />
       <SubscriptionPrograms />
+
+      <CtaBand
+        eyebrow="Plans"
+        title="Not sure which plan fits?"
+        body="Tell us about the aircraft and the activity level. AMG will recommend a support path and a proposal."
+        primaryLabel="Request a Proposal"
+        primaryHref="/contact?category=subscription-program-inquiry"
+      />
     </>
   );
 }

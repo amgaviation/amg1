@@ -1,15 +1,12 @@
 import type { Metadata } from "next";
-import { CtaSection } from "@/components/site/cta-section";
-import { PageHero } from "@/components/site/page-hero";
-import { ProcessTimeline } from "@/components/site/process-timeline";
-import { Reveal, RevealGroup, RevealItem } from "@/components/site/reveal";
-import { SectionHeading } from "@/components/site/section-heading";
-import { VALUES } from "@/lib/content";
+import { PageHero, SectionHeading, CtaBand, Figure } from "@/components/site/oc/shared";
+import { COMPANY, VALUES, TEAM } from "@/lib/content";
+import { IMG } from "@/lib/site-media";
 
 export const metadata: Metadata = {
-  title: "AMG Aviation Group — Aircraft Operations Support",
+  title: "About AMG",
   description:
-    "AMG Aviation Group provides aircraft-specific support, mission coordination, crew sourcing, and owner communication for Part 91 aviation environments.",
+    "AMG Aviation Group provides structured aircraft operations support and coordination for Part 91 environments — not charter, not an air carrier.",
 };
 
 export default function AboutPage() {
@@ -17,86 +14,73 @@ export default function AboutPage() {
     <>
       <PageHero
         eyebrow="About AMG"
-        title="Built around aircraft, owners, and operational accountability."
-        description="AMG Aviation Group provides aircraft-specific support, mission coordination, crew sourcing, and owner communication for Part 91 aviation environments where clarity and responsiveness matter."
-        image="/images/amg-custom/about-amg-operations.jpg"
+        title="Built by operators, for operators."
+        lead="AMG Aviation Group provides structured coordination and support for aircraft owners, flight departments, crews, and approved representatives — with operational control kept where it belongs."
+        image={IMG.aboutOperations}
+        imageAlt="AMG operations environment"
+        primary={{ label: "Request Support", href: "/contact" }}
+        secondary={{ label: "Crew Network", href: "/crew-network" }}
       />
 
-      <section className="cinematic-band py-28">
-        <div className="mx-auto grid max-w-7xl items-start gap-14 px-6 lg:grid-cols-2 lg:px-10">
-          <Reveal data-scroll-animate>
-            <p className="eyebrow mb-5 text-accent">What AMG Does</p>
-            <h2 className="display-heading text-balance text-5xl text-foreground sm:text-6xl">
-              A structured support company for aircraft needs
-            </h2>
-          </Reveal>
-          <Reveal delay={0.15} data-scroll-animate>
-            <p className="text-pretty text-lg leading-relaxed text-muted-foreground">
-              AMG supports owners, flight departments, crews, maintenance events,
-              and mission-specific operational needs. The work is practical:
-              collect the request, review the aircraft and crew context, coordinate
-              the required support, and keep approved stakeholders informed.
+      <section className="oc-section bg-[var(--oc-ivory)]">
+        <div className="oc-shell grid gap-12 lg:grid-cols-[1fr_0.9fr] lg:items-center">
+          <div data-scroll-animate>
+            <SectionHeading
+              eyebrow="What AMG does"
+              title="Coordination with operational discipline."
+              lead="AMG supports aircraft movement, crew coverage, maintenance repositioning, and mission coordination — organized through clear review, documentation, and communication."
+            />
+            <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-[var(--oc-muted)]">
+              {COMPANY.disclaimer}
             </p>
-            <p className="mt-5 leading-relaxed text-muted-foreground">
-              AMG does not present a request as accepted until the support scope,
-              aircraft status, crew availability, owner/operator approval, and
-              operational conditions have been reviewed.
-            </p>
-          </Reveal>
+          </div>
+          <div data-scroll-animate>
+            <Figure
+              src={IMG.runway}
+              alt="Aircraft positioned on a runway at dusk"
+              sizes="(max-width: 1024px) 100vw, 45vw"
+              className="aspect-[4/3] rounded-[1.25rem]"
+            />
+          </div>
         </div>
       </section>
 
-      <section className="border-b border-white/10 pb-28">
-        <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-10">
-          <Reveal data-scroll-animate>
-            <div className="media-vignette overflow-hidden rounded-lg border border-white/10 bg-card">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/amg-custom/map-network.jpg"
-                alt="Operational network map supporting aircraft positioning and mission planning"
-                className="h-full w-full scale-105 object-cover"
-              />
-            </div>
-          </Reveal>
-          <Reveal delay={0.15} className="flex items-center" data-scroll-animate>
-            <div>
-              <p className="eyebrow mb-5 text-accent">Operational Visibility</p>
-              <h2 className="display-heading text-balance text-4xl text-foreground sm:text-5xl">
-                Owners need a clear picture of what is moving where
-              </h2>
-              <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-                AMG&apos;s role is to keep mission movement, aircraft status, crew planning,
-                and support timing legible to the people responsible for the operation.
-              </p>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      <section className="cinematic-band border-y border-white/10 bg-card/30 py-28">
-        <div className="mx-auto max-w-7xl px-6 lg:px-10">
-          <SectionHeading
-            eyebrow="How AMG Supports Owners"
-            title="Clear support paths, not vague promises"
-            description="The AMG model is designed to keep aircraft owners informed while respecting crew authority, aircraft status, operating limitations, and final acceptance requirements."
-          />
-          <RevealGroup className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" data-scroll-animate>
-            {VALUES.map((value) => (
-              <RevealItem key={value.title}>
-                <div className="glass-panel hover-lift h-full rounded-lg p-8 hover:border-accent/60">
-                  <h3 className="font-display text-xl font-bold uppercase tracking-wide text-accent">
-                    {value.title}
-                  </h3>
-                  <p className="mt-4 leading-relaxed text-muted-foreground">{value.body}</p>
-                </div>
-              </RevealItem>
+      <section className="oc-section bg-[var(--oc-ivory-2)]">
+        <div className="oc-shell">
+          <SectionHeading eyebrow="How we operate" title="Four principles that hold every request." />
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
+            {VALUES.map((value, i) => (
+              <article key={value.title} data-stagger-item className="oc-card flex h-full flex-col p-6">
+                <span className="oc-mono text-sm text-[var(--oc-blue)]">{String(i + 1).padStart(2, "0")}</span>
+                <h3 className="oc-display mt-3 text-2xl text-[var(--oc-ink)]">{value.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--oc-muted)]">{value.body}</p>
+              </article>
             ))}
-          </RevealGroup>
+          </div>
         </div>
       </section>
 
-      <ProcessTimeline />
-      <CtaSection />
+      <section className="oc-section bg-[var(--oc-ivory)]">
+        <div className="oc-shell">
+          <SectionHeading
+            eyebrow="The desks"
+            title="One support desk, four points of contact."
+            lead="AMG is organized around the roles that keep a support request moving — coordination, crew, owner communication, and access."
+          />
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
+            {TEAM.map((member) => (
+              <article key={member.name} data-stagger-item className="oc-card flex h-full flex-col p-6">
+                <span className="oc-display text-3xl text-[var(--oc-aluminum-2)]">{member.initials}</span>
+                <h3 className="oc-display mt-4 text-xl text-[var(--oc-ink)]">{member.name}</h3>
+                <p className="oc-kicker mt-1 text-[var(--oc-blue)]">{member.title}</p>
+                <p className="mt-3 text-sm leading-relaxed text-[var(--oc-muted)]">{member.bio}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <CtaBand />
     </>
   );
 }

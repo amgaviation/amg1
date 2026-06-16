@@ -557,3 +557,258 @@ html {
     transform: none !important;
   }
 }
+
+/* ==========================================================================
+   AMG OPERATIONS COMMAND — public-site design system
+   Scoped to .amg-oc so the portal/auth surfaces are untouched.
+   Palette: warm ivory / graphite / AMG navy / aluminum + restrained aviation blue.
+   ========================================================================== */
+.amg-oc {
+  --oc-ivory: #f1ede4;
+  --oc-ivory-2: #e7e1d4;
+  --oc-paper: #faf8f2;
+  --oc-graphite: #16181c;
+  --oc-graphite-2: #20242a;
+  --oc-navy: #0b1a2b;
+  --oc-navy-2: #102740;
+  --oc-aluminum: #b6bdc5;
+  --oc-aluminum-2: #889099;
+  --oc-ink: #14171a;
+  --oc-muted: #565d65;
+  --oc-muted-dark: #9aa6b2;
+  --oc-line: rgba(20, 23, 26, 0.12);
+  --oc-line-strong: rgba(20, 23, 26, 0.22);
+  --oc-line-dark: rgba(255, 255, 255, 0.14);
+  --oc-blue: #2f6bae;
+  --oc-blue-soft: #6f9bcf;
+  --oc-sand: #c0a079;
+  --oc-shadow: 30px 60px -30px rgba(11, 26, 43, 0.35);
+
+  --oc-display: var(--font-editorial), "Times New Roman", serif;
+  --oc-sans: var(--font-inter), "Inter", system-ui, sans-serif;
+
+  background: var(--oc-ivory);
+  color: var(--oc-ink);
+  font-family: var(--oc-sans);
+}
+
+/* neutralize the legacy light-system background + grid overlay on AMG-OC pages */
+.public-site.amg-oc {
+  background: var(--oc-ivory);
+}
+.public-site.amg-oc::before {
+  opacity: 0;
+}
+
+.amg-oc ::selection {
+  background: var(--oc-navy);
+  color: var(--oc-paper);
+}
+
+@layer utilities {
+  /* layout shell */
+  .oc-shell {
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+  @media (min-width: 1024px) {
+    .oc-shell {
+      padding-inline: 2.5rem;
+    }
+  }
+  .oc-section {
+    padding-block: clamp(4.5rem, 9vw, 8.5rem);
+  }
+
+  /* typography */
+  .oc-display {
+    font-family: var(--oc-display);
+    font-weight: 400;
+    line-height: 0.98;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  .oc-eyebrow {
+    font-family: var(--oc-sans);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 0.24em;
+    color: var(--oc-muted);
+  }
+  .oc-eyebrow-light {
+    color: var(--oc-aluminum);
+  }
+  .oc-kicker {
+    font-family: var(--oc-sans);
+    font-weight: 600;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .oc-mono {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    letter-spacing: 0.04em;
+  }
+
+  /* hairlines + rules */
+  .oc-rule {
+    height: 1px;
+    width: 100%;
+    background: var(--oc-line);
+  }
+  .oc-rule-dark {
+    background: var(--oc-line-dark);
+  }
+
+  /* buttons */
+  .oc-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 3rem;
+    padding-inline: 1.6rem;
+    border-radius: 999px;
+    font-family: var(--oc-sans);
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition:
+      transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 0.3s ease,
+      color 0.3s ease,
+      border-color 0.3s ease;
+  }
+  .oc-btn:focus-visible {
+    outline: 2px solid var(--oc-blue);
+    outline-offset: 3px;
+  }
+  .oc-btn-primary {
+    background: var(--oc-navy);
+    color: var(--oc-paper);
+  }
+  .oc-btn-primary:hover {
+    background: var(--oc-navy-2);
+  }
+  .oc-btn-light {
+    background: var(--oc-paper);
+    color: var(--oc-ink);
+  }
+  .oc-btn-light:hover {
+    background: #fff;
+  }
+  .oc-btn-ghost {
+    border: 1px solid var(--oc-line-strong);
+    color: var(--oc-ink);
+  }
+  .oc-btn-ghost:hover {
+    border-color: var(--oc-navy);
+  }
+  .oc-btn-ghost-dark {
+    border: 1px solid var(--oc-line-dark);
+    color: var(--oc-paper);
+  }
+  .oc-btn-ghost-dark:hover {
+    border-color: var(--oc-aluminum);
+    color: #fff;
+  }
+
+  /* surfaces */
+  .oc-card {
+    background: var(--oc-paper);
+    border: 1px solid var(--oc-line);
+    border-radius: 1.25rem;
+  }
+  .oc-card-dark {
+    background: linear-gradient(160deg, var(--oc-graphite-2), var(--oc-graphite));
+    border: 1px solid var(--oc-line-dark);
+    border-radius: 1.25rem;
+  }
+  .oc-panel-navy {
+    background:
+      radial-gradient(120% 120% at 85% 0%, rgba(47, 107, 174, 0.22), transparent 55%),
+      linear-gradient(170deg, var(--oc-navy-2), var(--oc-navy));
+  }
+  .oc-panel-graphite {
+    background: linear-gradient(170deg, var(--oc-graphite-2), var(--oc-graphite));
+  }
+
+  /* media treatment — consistent crops + warm graded overlay */
+  .oc-media {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--oc-graphite);
+  }
+  .oc-media img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+  }
+  .oc-media-grade::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(11, 26, 43, 0) 40%, rgba(11, 26, 43, 0.55) 100%),
+      linear-gradient(0deg, rgba(12, 14, 16, 0.18), rgba(12, 14, 16, 0.18));
+    mix-blend-mode: multiply;
+  }
+  .oc-grain::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.5;
+    background-image:
+      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: radial-gradient(120% 80% at 50% 0%, black, transparent 75%);
+  }
+
+  /* status dot */
+  .oc-dot {
+    height: 0.5rem;
+    width: 0.5rem;
+    border-radius: 999px;
+    background: var(--oc-blue);
+    box-shadow: 0 0 0 4px rgba(47, 107, 174, 0.16);
+  }
+  .oc-dot-live {
+    background: #4f9e6a;
+    box-shadow: 0 0 0 4px rgba(79, 158, 106, 0.18);
+  }
+
+  /* reveal-on-scroll (visible by default; animated as enhancement) */
+  .oc-reveal {
+    opacity: 1;
+  }
+}
+
+/* progressive-enhancement reveal: only hides when JS marks the document ready */
+.amg-oc[data-oc-ready="true"] .oc-reveal:not([data-shown="true"]) {
+  opacity: 0;
+  transform: translate3d(0, 26px, 0);
+}
+.amg-oc .oc-reveal {
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.amg-oc .oc-reveal[data-shown="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .amg-oc[data-oc-ready="true"] .oc-reveal:not([data-shown="true"]) {
+    opacity: 1;
+    transform: none;
+  }
+}
