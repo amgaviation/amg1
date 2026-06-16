@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 const REVEAL_SELECTOR =
   "[data-scroll-animate], [data-stagger-container], [data-process-step]";
@@ -69,19 +70,41 @@ function animateProgressRail(container: HTMLElement) {
 }
 
 export function InteractionLayer() {
+  const pathname = usePathname();
+
   useEffect(() => {
+    const root = document.querySelector<HTMLElement>(".public-site");
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const elements = Array.from(document.querySelectorAll<HTMLElement>(REVEAL_SELECTOR));
 
-    if (!elements.length) return;
+    if (!elements.length) {
+      root?.setAttribute("data-reveal-ready", "true");
+      return;
+    }
 
     if (reduceMotion || !("IntersectionObserver" in window)) {
       elements.forEach((element) => {
         markVisible(element);
         animateStaggerChildren(element);
       });
+      root?.setAttribute("data-reveal-ready", "true");
       return;
     }
+
+    elements.forEach((element) => {
+      element.removeAttribute("data-revealed");
+      element.querySelectorAll<HTMLElement>(STAGGER_SELECTOR).forEach((child) => child.removeAttribute("data-revealed"));
+    });
+
+    elements.forEach((element) => {
+      const rect = element.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.92 && rect.bottom > 0) {
+        markVisible(element);
+        animateStaggerChildren(element);
+      }
+    });
+
+    root?.setAttribute("data-reveal-ready", "true");
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -98,12 +121,14 @@ export function InteractionLayer() {
       { rootMargin: "0px 0px -10% 0px", threshold: 0.08 }
     );
 
-    elements.forEach((element) => observer.observe(element));
+    elements
+      .filter((element) => element.dataset.revealed !== "true")
+      .forEach((element) => observer.observe(element));
 
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [pathname]);
 
   return null;
 }

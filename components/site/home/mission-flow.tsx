@@ -8,11 +8,11 @@ const STEPS = [
     code: "MSN-01",
     title: "Request received",
     state: "Logged",
-    body: "Aircraft, route, timing, crew need, and requested scope are captured in one structured intake.",
+    body: "Aircraft, route, timing, crew need, and support category are captured in one structured intake.",
   },
   {
     code: "MSN-02",
-    title: "Aircraft status reviewed",
+    title: "Aircraft status checked",
     state: "Reviewing",
     body: "Airworthiness, maintenance status, and operating limits are checked before anything is committed.",
   },
@@ -36,9 +36,9 @@ const STEPS = [
   },
   {
     code: "MSN-06",
-    title: "Support proceeds after approval",
+    title: "Support path confirmed",
     state: "On approval",
-    body: "Support proceeds under the owner/operator's authority once the applicable review and approval are complete.",
+    body: "Next steps are confirmed under the owner/operator's authority after the applicable review is complete.",
   },
 ];
 
@@ -58,8 +58,8 @@ export function MissionFlow() {
             From request to support, on one board.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-[var(--oc-aluminum)]">
-            A dispatch view of how a support request moves through AMG — visible, sequenced, and never presented as
-            accepted until the review is complete.
+            A dispatch view of how a support request moves through AMG — visible, sequenced, and clear about who needs
+            the next update.
           </p>
         </div>
 

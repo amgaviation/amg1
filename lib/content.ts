@@ -139,7 +139,7 @@ export const HOW_AMG_WORKS = [
   {
     step: "01",
     title: "Request",
-    body: "Provide the aircraft, route, timing, crew requirements, and requested support scope.",
+    body: "Provide the aircraft, route, timing, crew requirements, and requested support category.",
   },
   {
     step: "02",
@@ -284,7 +284,7 @@ export const FLEET = AIRCRAFT_CATEGORIES;
 export const VALUES = [
   {
     title: "Clarity",
-    body: "Responsibilities, support scope, and acceptance conditions are kept visible before work proceeds.",
+    body: "Responsibilities, support path, and acceptance conditions are kept visible before work proceeds.",
   },
   {
     title: "Responsiveness",
@@ -292,7 +292,7 @@ export const VALUES = [
   },
   {
     title: "Suitability",
-    body: "Crew, aircraft, route, timing, and operating conditions are reviewed before a support request is accepted.",
+    body: "Crew, aircraft, route, timing, and airport constraints are evaluated before a request moves forward.",
   },
   {
     title: "Discretion",
@@ -393,7 +393,7 @@ export const PLANS = [
       "Recurring support cadence",
       "Multi-aircraft coordination visibility",
       "Role-based portal access",
-      "Scope reviewed before acceptance",
+      "Documented service boundaries",
     ],
     highlighted: false,
   },
@@ -445,7 +445,7 @@ export const CONTACT_CARDS = [
   },
   {
     title: "General Inquiries",
-    body: "Questions about AMG Aviation Group, support scope, administrative notices, or next steps.",
+    body: "Questions about AMG Aviation Group, support categories, administrative notices, or next steps.",
   },
 ] as const;
 

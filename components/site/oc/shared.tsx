@@ -188,8 +188,8 @@ export function CtaBand({
           </Link>
         </div>
         <p className="mt-8 max-w-2xl text-xs leading-relaxed text-[var(--oc-aluminum-2)]">
-          Requests remain subject to aircraft status, crew availability, owner/operator approval, operating conditions,
-          and final acceptance.
+          Requests remain subject to aircraft status, crew availability, owner/operator approval, route and airport
+          constraints, weather, and final acceptance.
         </p>
       </div>
     </section>

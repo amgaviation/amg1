@@ -78,7 +78,7 @@ export function SiteNav() {
       )}
     >
       <nav className="oc-shell flex h-full items-center gap-6">
-        <Link href="/" prefetch={false} className="relative z-50 flex items-center" aria-label="AMG Aviation Group — home">
+        <Link href="/" prefetch={false} className="relative z-50 flex min-h-11 items-center" aria-label="AMG Aviation Group — home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/logo-white.png"
@@ -108,7 +108,7 @@ export function SiteNav() {
                   prefetch={false}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "oc-kicker relative py-1 transition-colors",
+                    "oc-kicker relative inline-flex min-h-11 items-center transition-colors",
                     solid ? "text-[var(--oc-ink)]/65 hover:text-[var(--oc-ink)]" : "text-white/75 hover:text-white",
                     active && (solid ? "text-[var(--oc-ink)]" : "text-white"),
                     active && "after:absolute after:inset-x-0 after:-bottom-1.5 after:h-px after:bg-current"
@@ -126,7 +126,7 @@ export function SiteNav() {
             href="/login"
             prefetch={false}
             className={cn(
-              "oc-kicker hidden px-2 py-2 transition-colors sm:inline-flex",
+              "oc-kicker hidden min-h-11 items-center px-2 transition-colors sm:inline-flex",
               solid ? "text-[var(--oc-ink)]/70 hover:text-[var(--oc-ink)]" : "text-white/80 hover:text-white"
             )}
           >
@@ -162,7 +162,7 @@ export function SiteNav() {
         <div
           id="amg-mobile-menu"
           ref={menuRef}
-          className="fixed inset-0 z-40 overflow-y-auto bg-[var(--oc-paper)] px-6 pb-12 pt-[calc(var(--public-header-height)+1.5rem)] xl:hidden"
+          className="fixed inset-x-0 top-[var(--public-header-height)] z-40 h-[calc(100svh-var(--public-header-height))] overflow-y-auto bg-[var(--oc-paper)] px-6 pb-12 pt-6 xl:hidden"
         >
           <ul className="oc-shell flex flex-col">
             {NAV_LINKS.map((link) => {

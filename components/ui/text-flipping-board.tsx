@@ -26,7 +26,7 @@ type AccentColor = {
 };
 
 const CELL_TEXT_STYLE: React.CSSProperties = {
-  fontSize: "clamp(6px, 2vw, 22px)",
+  fontSize: "clamp(0.68rem, 1.8vw, 1.22rem)",
   lineHeight: 1,
 };
 
@@ -66,6 +66,17 @@ const FlapCell = React.memo(function FlapCell({
     if (normalized === tgtRef.current) return;
     tgtRef.current = normalized;
 
+    if (flipDuration <= 0.02) {
+      curRef.current = normalized;
+      accentRef.current = null;
+      setPrev(normalized);
+      setPrevAccent(null);
+      setCurrent(normalized);
+      setAccent(null);
+      setFlipId(0);
+      return;
+    }
+
     if (normalized === " " && curRef.current === " ") return;
 
     const scrambleCount =
@@ -104,7 +115,7 @@ const FlapCell = React.memo(function FlapCell({
       stepTimer.current = null;
       tgtRef.current = null;
     };
-  }, [target, delay, stepMs]);
+  }, [target, delay, stepMs, flipDuration]);
 
   const show = current === " " ? "\u00A0" : current;
   const showPrev = prev === " " ? "\u00A0" : prev;

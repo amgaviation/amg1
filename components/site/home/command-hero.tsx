@@ -45,11 +45,11 @@ export function CommandHero() {
               AMG Operations Command
             </p>
             <h1 className="oc-display mt-6 max-w-4xl text-[clamp(2.7rem,7.2vw,5.6rem)] text-[var(--oc-paper)]">
-              Aircraft support, coordinated with operational control.
+              Aircraft movement, crew coverage, and mission timing on one operating board.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-relaxed text-[var(--oc-aluminum)] sm:text-xl">
-              AMG supports aircraft owners, flight departments, crews, and approved representatives with structured
-              coordination for aircraft movement, crew coverage, maintenance repositioning, and mission-specific support.
+              AMG helps aircraft owners, flight departments, crews, and approved representatives coordinate support
+              around aircraft status, crew readiness, logistics, and clear stakeholder communication.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <Link href="/contact" prefetch={false} className="oc-btn oc-btn-light">
@@ -85,7 +85,7 @@ export function CommandHero() {
               ))}
             </ul>
             <p className="mt-5 text-xs leading-relaxed text-[var(--oc-aluminum-2)]">
-              Indicative review stages. Support proceeds after the applicable review and approval.
+              Indicative status only. A request is not accepted until the applicable review is complete.
             </p>
           </div>
         </div>

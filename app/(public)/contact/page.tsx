@@ -19,6 +19,7 @@ export default async function ContactPage({
     service?: string;
     aircraft?: string;
     plan?: string;
+    tier?: string;
     success?: string;
     error?: string;
     duplicate?: string;
@@ -26,6 +27,7 @@ export default async function ContactPage({
 }) {
   const params = await searchParams;
   const supportType = params.category || params.service || params.aircraft || params.plan || "";
+  const selectedPlan = params.tier || params.plan || "";
 
   return (
     <>
@@ -34,7 +36,7 @@ export default async function ContactPage({
         title="Start with the aircraft."
         lead="Tell us the aircraft, the movement or coverage need, and the timing. AMG will review the support path and respond — no request is presented as accepted until the review is complete."
         image={IMG.contactSupport}
-        imageAlt="AMG operations desk coordinating an aircraft support request"
+        imageAlt="Aircraft cockpit prepared for support review"
       />
 
       <section className="oc-section bg-[var(--oc-ivory)]">
@@ -51,7 +53,7 @@ export default async function ContactPage({
               <p className="oc-kicker mt-4 text-[var(--oc-muted)]">Email</p>
               <a
                 href={`mailto:${COMPANY.email}`}
-                className="mt-1.5 block text-lg text-[var(--oc-ink)] transition-colors hover:text-[var(--oc-blue)]"
+                className="mt-1.5 inline-flex min-h-11 items-center text-lg text-[var(--oc-ink)] transition-colors hover:text-[var(--oc-blue)]"
               >
                 {COMPANY.email}
               </a>
@@ -62,6 +64,7 @@ export default async function ContactPage({
           <div className="min-w-0" data-scroll-animate>
             <PublicSupportForm
               initialCategory={supportType}
+              initialPlan={selectedPlan}
               success={params.success}
               error={params.error}
               duplicate={params.duplicate}

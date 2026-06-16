@@ -39,7 +39,11 @@ export function BrandStatement() {
           </h2>
         </div>
 
-        <div className="dark mx-auto mt-9 max-w-3xl" aria-hidden="true">
+        <div className="dark mx-auto mt-9 max-w-3xl rounded-[1.25rem] border border-[var(--oc-line-dark)] bg-white/[0.035] p-3 shadow-[var(--oc-shadow)] sm:p-4" aria-hidden="true">
+          <div className="mb-3 flex items-center justify-between px-1">
+            <span className="oc-kicker text-[var(--oc-aluminum-2)]">Support focus</span>
+            <span className="oc-mono text-xs text-[var(--oc-aluminum-2)]">{String(index + 1).padStart(2, "0")} / {WORDS.length}</span>
+          </div>
           <TextFlippingBoard
             text={reduce ? RESTING : WORDS[index]}
             duration={reduce ? 0.001 : undefined}
@@ -56,9 +60,6 @@ export function BrandStatement() {
           <p className="text-lg leading-relaxed text-[var(--oc-aluminum)]">
             AMG gives aircraft owners, flight departments, crews, and approved representatives a clearer way to
             coordinate support without losing sight of aircraft status, crew readiness, logistics, and operating limits.
-          </p>
-          <p className="oc-display mt-8 text-2xl text-[var(--oc-paper)] sm:text-3xl">
-            Private aviation support built around <span className="italic text-[var(--oc-blue-soft)]">operational clarity.</span>
           </p>
         </div>
       </div>

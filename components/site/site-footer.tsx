@@ -38,7 +38,7 @@ export function SiteFooter() {
                       <Link
                         href={link.href}
                         prefetch={false}
-                        className="text-sm leading-snug text-[var(--oc-aluminum)] transition-colors hover:text-white"
+                        className="inline-flex min-h-11 items-center text-sm leading-snug text-[var(--oc-aluminum)] transition-colors hover:text-white"
                       >
                         {link.label}
                       </Link>
@@ -54,7 +54,7 @@ export function SiteFooter() {
           <p className="max-w-3xl text-xs leading-relaxed text-[var(--oc-aluminum-2)]">{FOOTER_NOTE}</p>
           <a
             href={`mailto:${COMPANY.email}`}
-            className="oc-mono text-sm text-[var(--oc-aluminum)] transition-colors hover:text-white"
+            className="oc-mono inline-flex min-h-11 items-center text-sm text-[var(--oc-aluminum)] transition-colors hover:text-white"
           >
             {COMPANY.email}
           </a>

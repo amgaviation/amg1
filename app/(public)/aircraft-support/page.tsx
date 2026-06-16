@@ -6,7 +6,7 @@ import { IMG } from "@/lib/site-media";
 export const metadata: Metadata = {
   title: "Aircraft Support",
   description:
-    "Aircraft support matched to class — from piston and turboprop to heavy-cabin jets — scoped around crew, insurance, and operating conditions.",
+    "Aircraft support matched to class — from piston and turboprop to heavy-cabin jets — scoped around crew, insurance, route, and airport constraints.",
 };
 
 const CONSIDERATIONS = [
@@ -19,8 +19,8 @@ const CONSIDERATIONS = [
     body: "Crew is matched to aircraft type, currency, and insurance minimums — single-pilot or two-pilot as the aircraft and mission require.",
   },
   {
-    title: "Operating conditions",
-    body: "Route, runway performance, airport restrictions, and weather all shape how — and when — a movement is flown.",
+    title: "Route environment",
+    body: "Runway performance, airport restrictions, weather, and facility timing all shape how a movement can proceed.",
   },
 ];
 
@@ -30,7 +30,7 @@ export default function AircraftSupportPage() {
       <PageHero
         eyebrow="Aircraft Support"
         title="Support matched to the aircraft."
-        lead="From owner-flown pistons to heavy-cabin jets, AMG scopes support to the aircraft class, the crew requirement, and the conditions of the operation."
+        lead="From owner-flown pistons to heavy-cabin jets, AMG scopes support to the aircraft class, the crew requirement, route, timing, and airport context."
         image={IMG.aircraftSupportMain}
         imageAlt="Business jet prepared for an aircraft support movement"
         primary={{ label: "Request Support", href: "/contact?service=aircraft_support" }}
@@ -40,7 +40,7 @@ export default function AircraftSupportPage() {
       <AircraftGallery
         eyebrow="By Class"
         title="Every class, correctly scoped."
-        lead="Support is never one-size-fits-all. Each aircraft class carries its own crew, logistics, and operating considerations."
+        lead="Support is never one-size-fits-all. Each aircraft class carries its own crew, logistics, route, and airport considerations."
         withSectionCta={false}
       />
 

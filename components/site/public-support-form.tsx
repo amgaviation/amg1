@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CheckCircle2, ClipboardCheck, Plane, Send } from "lucide-react";
 import { submitPublicSupportRequest } from "@/app/(public)/contact/actions";
 import { COMPANY } from "@/lib/content";
@@ -167,7 +167,7 @@ function SubmitRequestButton() {
     <button
       type="submit"
       disabled={pending}
-      className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-8 py-4 font-display text-sm font-semibold uppercase text-primary-foreground shadow-[0_18px_38px_rgba(59,130,246,0.22)] transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+      className="oc-btn oc-btn-primary mt-7 w-full justify-center disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
     >
       {pending ? "Submitting..." : "Start Support Request"}
       <Send className="h-4 w-4" />
@@ -175,21 +175,20 @@ function SubmitRequestButton() {
   );
 }
 
-function Field({ field }: { field: FieldConfig }) {
+function Field({ field, defaultValue }: { field: FieldConfig; defaultValue?: string }) {
   const [name, label, type, required] = field;
-  const common =
-    "support-field px-4 text-base";
+  const common = "support-field px-4 text-base";
 
   return (
-    <label className="group grid gap-2 text-sm font-medium text-slate-800">
+    <label className="group grid gap-2 text-sm font-medium text-[var(--oc-ink)]">
       <span className="flex items-center justify-between gap-3">
         {label}
-        {required ? <span className="text-primary">*</span> : <span className="text-xs text-slate-500">Optional</span>}
+        {required ? <span className="text-[var(--oc-blue)]">*</span> : <span className="text-xs text-[var(--oc-muted)]">Optional</span>}
       </span>
       {type === "textarea" ? (
-        <textarea name={name} required={required} className={`${common} min-h-28 py-3`} />
+        <textarea name={name} required={required} defaultValue={defaultValue} className={`${common} min-h-28 py-3`} />
       ) : (
-        <input name={name} type={type} required={required} className={common} />
+        <input name={name} type={type} required={required} defaultValue={defaultValue} className={common} />
       )}
     </label>
   );
@@ -203,15 +202,18 @@ function normalizeCategory(value?: string) {
 
 export function PublicSupportForm({
   initialCategory,
+  initialPlan,
   success,
   error,
   duplicate,
 }: {
   initialCategory?: string;
+  initialPlan?: string;
   success?: string;
   error?: string;
   duplicate?: string;
 }) {
+  const reduce = useReducedMotion();
   const [category, setCategory] = useState<CategoryValue>(normalizeCategory(initialCategory) as CategoryValue);
   const activeCategory = useMemo(
     () => categories.find((item) => item.value === category) ?? categories[0],
@@ -219,18 +221,28 @@ export function PublicSupportForm({
   );
   const activeCategoryIndex = categories.findIndex((item) => item.value === category);
 
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      document
+        .querySelector<HTMLElement>(`[data-category-chip="${category}"]`)
+        ?.scrollIntoView({ block: "nearest", inline: "center" });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [category]);
+
   return (
-    <form action={submitPublicSupportRequest} className="support-form support-command rounded-lg border border-slate-200 bg-white p-0 shadow-[0_24px_70px_rgba(8,20,36,0.1)]" data-scroll-animate>
-      <div className="border-b border-slate-200 p-6 lg:p-8">
+    <form action={submitPublicSupportRequest} className="support-form support-command oc-card overflow-hidden p-0 shadow-[var(--oc-shadow)]" data-scroll-animate>
+      <div className="border-b border-[var(--oc-line)] p-6 lg:p-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_14rem]">
           <div>
-            <p className="eyebrow text-primary">Support Intake</p>
-            <h2 className="mt-4 display-heading text-balance text-4xl text-slate-950 sm:text-5xl">
+            <p className="oc-kicker text-[var(--oc-blue)]">Support Intake</p>
+            <h2 className="oc-display mt-4 text-4xl text-[var(--oc-ink)] sm:text-5xl">
               Define the aircraft need
             </h2>
-            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-600">
-              The request stays non-binding until AMG reviews aircraft status, crew requirements,
-              timing, operating conditions, owner/operator approval, and final acceptance.
+            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--oc-muted)]">
+              Give AMG the aircraft, timing, crew need, and support category so the operations desk can route the
+              request to the right next step.
             </p>
           </div>
           <div className="grid grid-cols-3 gap-2 lg:grid-cols-1">
@@ -239,9 +251,9 @@ export function PublicSupportForm({
               ["02", "Aircraft"],
               ["03", "Scope"],
             ].map(([step, label]) => (
-              <div key={step} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                <p className="font-display text-xl font-extrabold text-primary/80">{step}</p>
-                <p className="mt-1 text-xs uppercase text-slate-500">{label}</p>
+              <div key={step} className="rounded-lg border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-3">
+                <p className="oc-mono text-lg text-[var(--oc-blue)]">{step}</p>
+                <p className="oc-kicker mt-1 text-[0.58rem] text-[var(--oc-muted)]">{label}</p>
               </div>
             ))}
           </div>
@@ -263,10 +275,10 @@ export function PublicSupportForm({
         </div>
       ) : null}
 
-      <div className="mb-8 rounded-lg border border-slate-200 bg-slate-50 p-3">
+      <div className="mb-8 rounded-lg border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-3">
         <div className="mb-3 flex items-center justify-between gap-4 px-1">
-          <p className="eyebrow text-[0.68rem] text-primary">Support Path</p>
-          <span className="font-mono text-xs text-slate-500">
+          <p className="oc-kicker text-[0.64rem] text-[var(--oc-blue)]">Support Path</p>
+          <span className="oc-mono text-xs text-[var(--oc-muted)]">
             {String(activeCategoryIndex + 1).padStart(2, "0")} / {String(categories.length).padStart(2, "0")}
           </span>
         </div>
@@ -276,47 +288,48 @@ export function PublicSupportForm({
               key={item.value}
               type="button"
               onClick={() => setCategory(item.value)}
-              className={`snap-start whitespace-nowrap rounded-full border px-4 py-2 text-left font-display text-xs font-semibold uppercase transition-colors ${
+              data-category-chip={item.value}
+              className={`min-h-11 snap-start whitespace-nowrap rounded-full border px-4 py-2 text-left text-xs font-semibold uppercase transition-colors ${
                 category === item.value
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-slate-200 bg-white text-slate-600 hover:border-primary/50 hover:text-slate-950"
+                  ? "border-[var(--oc-blue)] bg-[var(--oc-blue)]/10 text-[var(--oc-blue)]"
+                  : "border-[var(--oc-line)] bg-[var(--oc-paper)] text-[var(--oc-muted)] hover:border-[var(--oc-blue)]/50 hover:text-[var(--oc-ink)]"
               }`}
               aria-pressed={category === item.value}
               data-stagger-item
             >
-              <span className="mr-2 text-slate-400">{String(index + 1).padStart(2, "0")}</span>
+              <span className="mr-2 text-[var(--oc-aluminum-2)]">{String(index + 1).padStart(2, "0")}</span>
               {item.label}
             </button>
           ))}
         </div>
       </div>
 
-      <fieldset className="support-form-panel grid gap-5 rounded-lg border border-slate-200 bg-slate-50 p-5 md:grid-cols-2">
-        <legend className="mb-1 flex items-center gap-2 font-display text-2xl font-bold uppercase text-slate-950 md:col-span-2">
-          <ClipboardCheck className="h-5 w-5 text-primary" />
+      <fieldset className="support-form-panel grid gap-5 rounded-lg border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-5 md:grid-cols-2">
+        <legend className="mb-1 flex items-center gap-2 font-display text-2xl font-bold uppercase text-[var(--oc-ink)] md:col-span-2">
+          <ClipboardCheck className="h-5 w-5 text-[var(--oc-blue)]" />
           Contact information
         </legend>
-        <label className="grid gap-2 text-sm font-medium text-slate-800">
-          First name <span className="text-primary">*</span>
+        <label className="grid gap-2 text-sm font-medium text-[var(--oc-ink)]">
+          First name <span className="text-[var(--oc-blue)]">*</span>
           <input name="first_name" required autoComplete="given-name" className="support-field px-4 text-base" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-slate-800">
-          Last name <span className="text-primary">*</span>
+        <label className="grid gap-2 text-sm font-medium text-[var(--oc-ink)]">
+          Last name <span className="text-[var(--oc-blue)]">*</span>
           <input name="last_name" required autoComplete="family-name" className="support-field px-4 text-base" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-slate-800">
+        <label className="grid gap-2 text-sm font-medium text-[var(--oc-ink)]">
           Company or ownership entity
           <input name="company" autoComplete="organization" className="support-field px-4 text-base" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-slate-800">
-          Email <span className="text-primary">*</span>
+        <label className="grid gap-2 text-sm font-medium text-[var(--oc-ink)]">
+          Email <span className="text-[var(--oc-blue)]">*</span>
           <input name="email" type="email" required autoComplete="email" className="support-field px-4 text-base" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-slate-800">
-          Phone <span className="text-primary">*</span>
+        <label className="grid gap-2 text-sm font-medium text-[var(--oc-ink)]">
+          Phone <span className="text-[var(--oc-blue)]">*</span>
           <input name="phone" type="tel" required autoComplete="tel" className="support-field px-4 text-base" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-slate-800">
+        <label className="grid gap-2 text-sm font-medium text-[var(--oc-ink)]">
           Preferred contact method
           <select name="preferred_contact_method" className="support-field px-4 text-base">
             <option>Email</option>
@@ -326,29 +339,29 @@ export function PublicSupportForm({
         </label>
       </fieldset>
 
-      <fieldset className="support-form-panel mt-6 grid gap-5 rounded-lg border border-slate-200 bg-slate-50 p-5 md:grid-cols-2">
-        <legend className="mb-1 flex items-center gap-2 font-display text-2xl font-bold uppercase text-slate-950 md:col-span-2">
-          <Plane className="h-5 w-5 text-primary" />
+      <fieldset className="support-form-panel mt-6 grid gap-5 rounded-lg border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-5 md:grid-cols-2">
+        <legend className="mb-1 flex items-center gap-2 font-display text-2xl font-bold uppercase text-[var(--oc-ink)] md:col-span-2">
+          <Plane className="h-5 w-5 text-[var(--oc-blue)]" />
           Aircraft and Timing
         </legend>
-        <label className="grid gap-2 text-sm font-medium text-slate-800">
+        <label className="grid gap-2 text-sm font-medium text-[var(--oc-ink)]">
           Aircraft make
           <input name="aircraft_make" className="support-field px-4 text-base" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-slate-800">
+        <label className="grid gap-2 text-sm font-medium text-[var(--oc-ink)]">
           Aircraft model
           <input name="aircraft_model" className="support-field px-4 text-base" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-slate-800">
+        <label className="grid gap-2 text-sm font-medium text-[var(--oc-ink)]">
           Tail number
           <input name="tail_number" className="support-field px-4 text-base uppercase" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-slate-800">
+        <label className="grid gap-2 text-sm font-medium text-[var(--oc-ink)]">
           Aircraft base
           <input name="aircraft_base" className="support-field px-4 text-base" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-slate-800 md:col-span-2">
-          Requested service category <span className="text-primary">*</span>
+        <label className="grid gap-2 text-sm font-medium text-[var(--oc-ink)] md:col-span-2">
+          Requested service category <span className="text-[var(--oc-blue)]">*</span>
           <select
             name="requested_service_category"
             value={category}
@@ -363,12 +376,12 @@ export function PublicSupportForm({
             ))}
           </select>
         </label>
-        <label className="grid gap-2 text-sm font-medium text-slate-800">
-          Requested timing <span className="text-primary">*</span>
+        <label className="grid gap-2 text-sm font-medium text-[var(--oc-ink)]">
+          Requested timing <span className="text-[var(--oc-blue)]">*</span>
           <input name="requested_timing" required className="support-field px-4 text-base" />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-slate-800 md:col-span-2">
-          Operational summary <span className="text-primary">*</span>
+        <label className="grid gap-2 text-sm font-medium text-[var(--oc-ink)] md:col-span-2">
+          Operational summary <span className="text-[var(--oc-blue)]">*</span>
           <textarea name="operational_summary" required className="support-field min-h-32 px-4 py-3 text-base" />
         </label>
       </fieldset>
@@ -377,38 +390,42 @@ export function PublicSupportForm({
         <motion.section
           key={activeCategory.value}
           aria-live="polite"
-          className="support-form-panel mt-6 rounded-lg border border-slate-200 bg-slate-50 p-5 shadow-inner"
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
+          className="support-form-panel mt-6 rounded-lg border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-5 shadow-inner"
+          initial={reduce ? false : { opacity: 0, y: 18 }}
+          animate={reduce ? undefined : { opacity: 1, y: 0 }}
+          exit={reduce ? undefined : { opacity: 0, y: -10 }}
           transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex flex-col gap-3 border-b border-[var(--oc-line)] pb-5 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="eyebrow text-[0.68rem] text-primary">{activeCategory.label}</p>
-              <p className="mt-3 text-sm leading-relaxed text-slate-600">{activeCategory.help}</p>
+              <p className="oc-kicker text-[0.64rem] text-[var(--oc-blue)]">{activeCategory.label}</p>
+              <p className="mt-3 text-sm leading-relaxed text-[var(--oc-muted)]">{activeCategory.help}</p>
             </div>
-            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs uppercase text-primary">
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--oc-blue)]/30 bg-[var(--oc-blue)]/10 px-3 py-1 text-xs uppercase text-[var(--oc-blue)]">
               <CheckCircle2 className="h-3.5 w-3.5" />
-              Review required
+              Info required
             </span>
           </div>
           <div className="mt-5 grid gap-5 md:grid-cols-2">
             {activeCategory.fields.map((field) => (
-              <Field key={field[0]} field={field} />
+              <Field
+                key={field[0]}
+                field={field}
+                defaultValue={field[0] === "desired_tier" ? initialPlan : undefined}
+              />
             ))}
           </div>
         </motion.section>
       </AnimatePresence>
 
       <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
-      <label className="mt-6 flex items-start gap-3 text-sm leading-relaxed text-slate-600">
+      <label className="mt-6 flex items-start gap-3 text-sm leading-relaxed text-[var(--oc-muted)]">
         <input name="acknowledgment" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--primary)]" />
         <span>
           I acknowledge AMG&apos;s privacy, terms, and operational disclaimer language. I understand a submitted request is not mission acceptance, crew confirmation, aircraft availability, or a binding quote.
         </span>
       </label>
-      <p className="mt-5 text-xs leading-relaxed text-slate-500">{COMPANY.requestDisclaimer}</p>
+      <p className="mt-5 text-xs leading-relaxed text-[var(--oc-muted)]">{COMPANY.requestDisclaimer}</p>
       <SubmitRequestButton />
       </div>
     </form>

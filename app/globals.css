@@ -466,7 +466,9 @@ html {
   mask-image: linear-gradient(180deg, black, transparent 58%);
 }
 
-[data-scroll-animate] {
+.public-site[data-reveal-ready="true"] [data-scroll-animate],
+.public-site[data-reveal-ready="true"] [data-process-step],
+.public-site[data-reveal-ready="true"] [data-stagger-container] {
   opacity: 0;
   transform: translateY(28px);
   transition:
@@ -475,7 +477,7 @@ html {
   will-change: transform, opacity;
 }
 
-[data-stagger-item] {
+.public-site[data-reveal-ready="true"] [data-stagger-item] {
   opacity: 0;
   transform: translateY(22px);
   transition:
@@ -483,33 +485,33 @@ html {
     transform 460ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-[data-revealed="true"] {
+.public-site [data-revealed="true"] {
   opacity: 1;
   transform: translateY(0);
 }
 
-[data-revealed="true"] [data-stagger-item] {
+.public-site [data-revealed="true"] [data-stagger-item] {
   opacity: 1;
   transform: translateY(0);
 }
 
-[data-revealed="true"] [data-stagger-item]:nth-child(2) {
+.public-site [data-revealed="true"] [data-stagger-item]:nth-child(2) {
   transition-delay: 60ms;
 }
 
-[data-revealed="true"] [data-stagger-item]:nth-child(3) {
+.public-site [data-revealed="true"] [data-stagger-item]:nth-child(3) {
   transition-delay: 120ms;
 }
 
-[data-revealed="true"] [data-stagger-item]:nth-child(4) {
+.public-site [data-revealed="true"] [data-stagger-item]:nth-child(4) {
   transition-delay: 180ms;
 }
 
-[data-revealed="true"] [data-stagger-item]:nth-child(5) {
+.public-site [data-revealed="true"] [data-stagger-item]:nth-child(5) {
   transition-delay: 220ms;
 }
 
-[data-revealed="true"] [data-stagger-item]:nth-child(6) {
+.public-site [data-revealed="true"] [data-stagger-item]:nth-child(6) {
   transition-delay: 260ms;
 }
 
@@ -551,8 +553,10 @@ html {
     animation-iteration-count: 1 !important;
   }
 
-  [data-scroll-animate],
-  [data-stagger-item] {
+  .public-site [data-scroll-animate],
+  .public-site [data-process-step],
+  .public-site [data-stagger-container],
+  .public-site [data-stagger-item] {
     opacity: 1 !important;
     transform: none !important;
   }

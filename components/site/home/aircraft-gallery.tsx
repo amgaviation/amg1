@@ -52,7 +52,7 @@ const CATEGORIES: Category[] = [
 export function AircraftGallery({
   eyebrow = "Aircraft Support",
   title = "Support matched to the aircraft class.",
-  lead = "From owner-flown pistons to heavy-cabin jets, support is scoped to the aircraft, the crew requirement, and the operating conditions.",
+  lead = "From owner-flown pistons to heavy-cabin jets, support is scoped to the aircraft, the crew requirement, route, timing, and airport context.",
   withSectionCta = true,
 }: {
   eyebrow?: string;
@@ -97,7 +97,7 @@ export function AircraftGallery({
                 <Link
                   href="/contact?service=aircraft_support"
                   prefetch={false}
-                  className="oc-kicker mt-auto inline-flex items-center gap-2 pt-2 text-[var(--oc-blue)]"
+                  className="oc-kicker mt-auto inline-flex min-h-11 items-center gap-2 pt-2 text-[var(--oc-blue)]"
                 >
                   Request support
                   <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

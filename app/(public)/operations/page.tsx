@@ -59,7 +59,7 @@ export default function OperationsPage() {
                   <Link
                     href="/contact"
                     prefetch={false}
-                    className="oc-kicker mt-6 inline-flex items-center gap-2 text-[var(--oc-blue)]"
+                    className="oc-kicker mt-6 inline-flex min-h-11 items-center gap-2 text-[var(--oc-blue)]"
                   >
                     Request this support
                     <ArrowUpRight className="h-4 w-4" />

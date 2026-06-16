@@ -110,19 +110,19 @@ export function SubscriptionPrograms() {
   const customOnly = tiers.length === 0;
 
   return (
-    <div className="cinematic-band mx-auto max-w-7xl px-6 py-24 lg:px-10" data-scroll-animate>
+    <div className="oc-shell py-20 lg:py-28" data-scroll-animate>
       <div className="grid gap-8 lg:grid-cols-[0.82fr_1.18fr]">
         <aside className="lg:sticky lg:top-[calc(var(--public-header-height)+2rem)] lg:self-start">
-          <div className="glass-panel portal-entry-card rounded-lg p-6">
-            <div className="flex items-center justify-between gap-5 border-b border-white/10 pb-5">
-              <p className="eyebrow text-accent">Program Builder</p>
-              <Gauge className="h-5 w-5 text-accent" />
+          <div className="oc-card p-6 shadow-[var(--oc-shadow)]">
+            <div className="flex items-center justify-between gap-5 border-b border-[var(--oc-line)] pb-5">
+              <p className="oc-kicker text-[var(--oc-blue)]">Program Builder</p>
+              <Gauge className="h-5 w-5 text-[var(--oc-blue)]" />
             </div>
-            <h2 className="mt-6 display-heading text-4xl text-foreground sm:text-5xl">
+            <h2 className="oc-display mt-6 text-4xl text-[var(--oc-ink)] sm:text-5xl">
               Select Aircraft and Billing
             </h2>
             <div className="mt-6 grid gap-5">
-              <label className="grid gap-2 text-sm font-medium text-foreground">
+              <label className="grid gap-2 text-sm font-medium text-[var(--oc-ink)]">
                 Aircraft class
                 <select
                   value={aircraftClass}
@@ -141,18 +141,18 @@ export function SubscriptionPrograms() {
               </label>
 
               <fieldset className="grid gap-3">
-                <legend className="text-sm font-medium text-foreground">Billing preference</legend>
-                <div className="grid grid-cols-2 gap-2 rounded-full border border-white/10 bg-background/70 p-1">
+                <legend className="text-sm font-medium text-[var(--oc-ink)]">Billing preference</legend>
+                <div className="grid grid-cols-2 gap-2 rounded-full border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-1">
                   {(["monthly", "annual"] as const).map((item) => (
                     <button
                       key={item}
                       type="button"
                       onClick={() => setBilling(item)}
                       className={cn(
-                        "min-h-11 rounded-full px-4 font-display text-xs font-semibold uppercase tracking-widest transition-colors",
+                        "min-h-11 rounded-full px-4 text-xs font-semibold uppercase transition-colors",
                         billing === item
-                          ? "bg-primary text-primary-foreground"
-                          : "text-muted-foreground hover:text-foreground"
+                          ? "bg-[var(--oc-navy)] text-[var(--oc-paper)]"
+                          : "text-[var(--oc-muted)] hover:text-[var(--oc-ink)]"
                       )}
                     >
                       {item}
@@ -161,12 +161,12 @@ export function SubscriptionPrograms() {
                 </div>
               </fieldset>
             </div>
-            <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-6 text-sm leading-relaxed text-[var(--oc-muted)]">
               Pricing is based on aircraft class, crew requirements, selected allowances, and operating scope. Two-pilot requirements affect proposal pricing.
             </p>
-            <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.035] p-4">
-              <p className="text-xs uppercase text-muted-foreground">Current selection</p>
-              <p className="mt-2 font-display text-2xl font-bold uppercase leading-none text-foreground">
+            <div className="mt-6 rounded-lg border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-4">
+              <p className="oc-kicker text-[0.62rem] text-[var(--oc-muted)]">Current selection</p>
+              <p className="oc-display mt-2 text-2xl text-[var(--oc-ink)]">
                 {aircraftClass}
               </p>
             </div>
@@ -175,15 +175,15 @@ export function SubscriptionPrograms() {
 
         <div>
           {customOnly ? (
-            <section className="glass-panel portal-card rounded-lg border-accent/40 p-8">
-              <p className="eyebrow text-accent">Custom Proposal Only</p>
-              <h3 className="mt-4 font-display text-4xl font-extrabold uppercase leading-none text-foreground">
+            <section className="oc-card p-8 shadow-[var(--oc-shadow)]">
+              <p className="oc-kicker text-[var(--oc-blue)]">Custom Proposal Only</p>
+              <h3 className="oc-display mt-4 text-4xl text-[var(--oc-ink)]">
                 {aircraftClass}
               </h3>
-              <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
+              <p className="mt-5 text-lg leading-relaxed text-[var(--oc-muted)]">
                 This aircraft class requires custom review before AMG can define scope, allowances, crew requirements, risk factors, and pricing.
               </p>
-              <Link href="/contact?category=subscription-program-inquiry" className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground">
+              <Link href="/contact?category=subscription-program-inquiry" className="oc-btn oc-btn-primary mt-8">
                 Request Tailored Proposal
                 <ArrowRight className="h-4 w-4" />
               </Link>
@@ -206,68 +206,68 @@ export function SubscriptionPrograms() {
                     key={tier}
                     data-stagger-item
                     className={cn(
-                      "portal-card glass-panel flex h-full min-h-[455px] flex-col rounded-lg border p-6",
-                      tier === "Priority" ? "border-accent" : "border-white/10"
+                      "oc-card flex h-full min-h-[455px] flex-col p-6 transition-colors hover:border-[var(--oc-navy)]",
+                      tier === "Priority" && "border-[var(--oc-blue)] shadow-[var(--oc-shadow)]"
                     )}
                   >
                     <div className="flex items-start justify-between gap-4">
-                      <p className="eyebrow text-[0.68rem] text-accent">{aircraftClass}</p>
-                      <Plane className="h-5 w-5 text-accent" />
+                      <p className="oc-kicker text-[0.62rem] text-[var(--oc-blue)]">{aircraftClass}</p>
+                      <Plane className="h-5 w-5 text-[var(--oc-blue)]" />
                     </div>
-                    <h3 className="mt-4 font-display text-4xl font-extrabold uppercase leading-none text-foreground">
+                    <h3 className="oc-display mt-4 text-4xl text-[var(--oc-ink)]">
                       {tier}
                     </h3>
-                    <p className="mt-4 text-sm font-semibold text-foreground">
+                    <p className="mt-4 text-sm font-semibold text-[var(--oc-ink)]">
                       Request Tailored Proposal
                     </p>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    <p className="mt-2 text-sm leading-relaxed text-[var(--oc-muted)]">
                       Proposal-based support for selected aircraft class, crew requirements, and operating scope.
                     </p>
-                    <div className="mt-6 rounded-lg border border-white/10 bg-background/50 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-widest text-foreground/80">
+                    <div className="mt-6 rounded-lg border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-4">
+                      <p className="oc-kicker text-[0.62rem] text-[var(--oc-ink)]/80">
                         {billing === "monthly" ? "Monthly" : "Annual"} allowance
                       </p>
-                      <ul className="mt-3 grid gap-2 text-sm text-muted-foreground">
+                      <ul className="mt-3 grid gap-2 text-sm text-[var(--oc-muted)]">
                         {item[billing].map((allowance) => (
                           <li key={allowance} className="flex gap-2">
-                            <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                            <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--oc-blue)]" />
                             {allowance}
                           </li>
                         ))}
                       </ul>
                     </div>
-                    <p className="mt-5 text-sm leading-relaxed text-muted-foreground">{item.priority}</p>
+                    <p className="mt-5 text-sm leading-relaxed text-[var(--oc-muted)]">{item.priority}</p>
 
                     <button
                       type="button"
                       aria-expanded={isExpanded}
                       aria-controls={detailsId}
                       onClick={() => setExpandedTier((current) => (current === tier ? null : tier))}
-                      className="mt-5 inline-flex min-h-10 items-center justify-between gap-3 rounded-full border border-white/15 px-4 py-2 font-display text-xs font-semibold uppercase tracking-widest text-foreground transition-colors hover:border-accent hover:text-accent"
+                      className="mt-5 inline-flex min-h-11 items-center justify-between gap-3 rounded-full border border-[var(--oc-line-strong)] px-4 py-2 text-xs font-semibold uppercase text-[var(--oc-ink)] transition-colors hover:border-[var(--oc-blue)] hover:text-[var(--oc-blue)]"
                     >
                       {isExpanded ? "Hide Details" : "View Details"}
                       {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </button>
 
                     {isExpanded ? (
-                      <div id={detailsId} className="mt-5 border-t border-white/10 pt-5">
-                        <p className="text-xs font-semibold uppercase tracking-widest text-foreground/80">
+                      <div id={detailsId} className="mt-5 border-t border-[var(--oc-line)] pt-5">
+                        <p className="oc-kicker text-[0.62rem] text-[var(--oc-ink)]/80">
                           Included support
                         </p>
-                        <ul className="mt-3 grid gap-2 text-sm text-foreground/85">
+                        <ul className="mt-3 grid gap-2 text-sm text-[var(--oc-ink)]/85">
                           {item.benefits.map((benefit) => (
                             <li key={benefit} className="flex gap-2">
-                              <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                              <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--oc-blue)]" />
                               {benefit}
                             </li>
                           ))}
                         </ul>
-                        <p className="mt-5 text-xs leading-relaxed text-muted-foreground">{item.travel}</p>
+                        <p className="mt-5 text-xs leading-relaxed text-[var(--oc-muted)]">{item.travel}</p>
                       </div>
                     ) : null}
 
                     <div className="mt-auto pt-6">
-                      <Link href={`/contact?category=subscription-program-inquiry&tier=${tier.toLowerCase()}`} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-white/15 px-5 py-3 font-display text-xs font-semibold uppercase tracking-widest text-foreground transition-colors hover:border-accent hover:text-accent">
+                      <Link href={`/contact?category=subscription-program-inquiry&plan=${tier.toLowerCase()}&tier=${tier.toLowerCase()}`} className="oc-btn oc-btn-ghost w-full justify-center">
                         Request Proposal
                         <ArrowRight className="h-4 w-4" />
                       </Link>
@@ -281,30 +281,30 @@ export function SubscriptionPrograms() {
       </div>
 
       <section className="mt-16 grid gap-5 lg:grid-cols-3" data-stagger-container>
-        <div className="glass-panel rounded-lg p-6" data-stagger-item>
-          <h3 className="font-display text-2xl font-bold uppercase tracking-wide text-foreground">Included Events</h3>
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        <div className="oc-card p-6" data-stagger-item>
+          <h3 className="oc-display text-2xl text-[var(--oc-ink)]">Included Events</h3>
+          <p className="mt-4 text-sm leading-relaxed text-[var(--oc-muted)]">
             One included Client Flight means one crew duty day. Multiple legs during the same duty day remain one event. Trips exceeding 12 hours or involving overnight activity may consume additional duty days.
           </p>
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-4 text-sm leading-relaxed text-[var(--oc-muted)]">
             One included MX Flight means one maintenance-related aircraft movement. Base to MRO is one movement; MRO to base is one movement; a round trip is two movements.
           </p>
         </div>
-        <div className="glass-panel rounded-lg p-6" data-stagger-item>
-          <h3 className="font-display text-2xl font-bold uppercase tracking-wide text-foreground">Credits and Annual Billing</h3>
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        <div className="oc-card p-6" data-stagger-item>
+          <h3 className="oc-display text-2xl text-[var(--oc-ink)]">Credits and Annual Billing</h3>
+          <p className="mt-4 text-sm leading-relaxed text-[var(--oc-muted)]">
             Unused eligible credits remain available while the subscription is active and in good standing. Credits expire upon cancellation, termination, non-renewal, or default; they have no cash value and cannot be refunded or transferred.
           </p>
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-4 text-sm leading-relaxed text-[var(--oc-muted)]">
             Annual subscriptions receive a 10% reduction on eligible AMG administrative and coordination fees only, not crew compensation, travel, lodging, pass-through expenses, vendor charges, airport costs, or aircraft expenses.
           </p>
         </div>
-        <div className="glass-panel rounded-lg p-6" data-stagger-item>
-          <h3 className="font-display text-2xl font-bold uppercase tracking-wide text-foreground">Major Exclusions</h3>
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        <div className="oc-card p-6" data-stagger-item>
+          <h3 className="oc-display text-2xl text-[var(--oc-ink)]">Major Exclusions</h3>
+          <p className="mt-4 text-sm leading-relaxed text-[var(--oc-muted)]">
             Owner/operator expenses include fuel, oil, insurance, maintenance invoices, parts, mechanic labor, aircraft subscriptions, and databases. Pass-through items include landing, ramp, parking, hangar, handling, deicing, catering, cleaning, customs, immigration, handlers, and overflight permits.
           </p>
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-4 text-sm leading-relaxed text-[var(--oc-muted)]">
             Flight attendants, dedicated dispatch, full management accounting, specialized maintenance representation, AOG support, ferry permits, special permits, and unusual-risk missions require a separate quote.
           </p>
         </div>
