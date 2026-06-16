@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Barlow_Condensed } from "next/font/google";
+import { Inter, Barlow_Condensed, Fraunces } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -13,6 +13,15 @@ const barlow = Barlow_Condensed({
   weight: ["300", "400", "500", "600", "700", "800"],
   variable: "--font-barlow",
   display: "swap",
+});
+
+// Editorial display serif for the AMG Operations Command public site.
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-editorial",
+  display: "swap",
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -55,7 +64,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`bg-background ${inter.variable} ${barlow.variable}`}
+      className={`bg-background ${inter.variable} ${barlow.variable} ${fraunces.variable}`}
     >
       <body
         style={

@@ -2,12 +2,12 @@ import type { MetadataRoute } from "next";
 
 const publicRoutes = [
   "",
-  "/about",
-  "/services",
-  "/aircraft",
-  "/pilot-network",
+  "/operations",
+  "/aircraft-support",
+  "/crew-network",
+  "/amg-connect",
   "/plans",
-  "/team",
+  "/about",
   "/contact",
   "/login",
   "/signup",

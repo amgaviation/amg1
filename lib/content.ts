@@ -139,7 +139,7 @@ export const HOW_AMG_WORKS = [
   {
     step: "01",
     title: "Request",
-    body: "Provide the aircraft, route, timing, crew requirements, and requested support scope.",
+    body: "Provide the aircraft, route, timing, crew requirements, and requested support category.",
   },
   {
     step: "02",
@@ -284,7 +284,7 @@ export const FLEET = AIRCRAFT_CATEGORIES;
 export const VALUES = [
   {
     title: "Clarity",
-    body: "Responsibilities, support scope, and acceptance conditions are kept visible before work proceeds.",
+    body: "Responsibilities, support path, and acceptance conditions are kept visible before work proceeds.",
   },
   {
     title: "Responsiveness",
@@ -292,7 +292,7 @@ export const VALUES = [
   },
   {
     title: "Suitability",
-    body: "Crew, aircraft, route, timing, and operating conditions are reviewed before a support request is accepted.",
+    body: "Crew, aircraft, route, timing, and airport constraints are evaluated before a request moves forward.",
   },
   {
     title: "Discretion",
@@ -393,7 +393,7 @@ export const PLANS = [
       "Recurring support cadence",
       "Multi-aircraft coordination visibility",
       "Role-based portal access",
-      "Scope reviewed before acceptance",
+      "Documented service boundaries",
     ],
     highlighted: false,
   },
@@ -445,7 +445,7 @@ export const CONTACT_CARDS = [
   },
   {
     title: "General Inquiries",
-    body: "Questions about AMG Aviation Group, support scope, administrative notices, or next steps.",
+    body: "Questions about AMG Aviation Group, support categories, administrative notices, or next steps.",
   },
 ] as const;
 
@@ -473,25 +473,28 @@ export const FOOTER_COLS = [
     heading: "Company",
     links: [
       { label: "About AMG", href: "/about" },
-      { label: "Our Team", href: "/team" },
+      { label: "AMG Operations", href: "/operations" },
+      { label: "Crew Network", href: "/crew-network" },
       { label: "Contact", href: "/contact" },
-      { label: "Pilot Network", href: "/pilot-network" },
     ],
   },
   {
     heading: "Capabilities",
-    links: SERVICES.map((service) => ({
-      label: service.title,
-      href: "/services",
-    })),
+    links: [
+      { label: "Aircraft Support", href: "/aircraft-support" },
+      { label: "Aircraft Movement", href: "/operations" },
+      { label: "Crew Coverage", href: "/operations" },
+      { label: "Mission Coordination", href: "/operations" },
+      { label: "Maintenance Repositioning", href: "/operations" },
+    ],
   },
   {
-    heading: "Access",
+    heading: "AMG Connect",
     links: [
       { label: "Member Login", href: "/login" },
-      { label: "Request Support", href: "/contact" },
-      { label: "Pilot Network", href: "/pilot-network" },
-      { label: "Subscription Programs", href: "/plans" },
+      { label: "Request Access", href: "/login?mode=request" },
+      { label: "Portal Preview", href: "/amg-connect" },
+      { label: "Support Plans", href: "/plans" },
     ],
   },
   {
@@ -507,10 +510,12 @@ export const FOOTER_COLS = [
 ] as const;
 
 export const NAV_LINKS = [
-  { label: "About", href: "/about" },
-  { label: "Services", href: "/services" },
-  { label: "Aircraft", href: "/aircraft" },
+  { label: "Home", href: "/" },
+  { label: "Operations", href: "/operations" },
+  { label: "Aircraft Support", href: "/aircraft-support" },
+  { label: "Crew Network", href: "/crew-network" },
+  { label: "AMG Connect", href: "/amg-connect" },
   { label: "Plans", href: "/plans" },
-  { label: "Pilot Network", href: "/pilot-network" },
+  { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ] as const;

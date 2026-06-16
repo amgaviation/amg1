@@ -16,15 +16,44 @@ const excludedFiles = new Set([
   "components/site/higgsfield-motion-showcase.tsx",
   "components/site/media/media-placeholder.tsx",
 ]);
-const sourceRoots = ["app/(public)", "components/site", "lib/content.ts"];
+const sourceRoots = [
+  "app/(public)/page.tsx",
+  "app/(public)/operations/page.tsx",
+  "app/(public)/aircraft-support/page.tsx",
+  "app/(public)/crew-network/page.tsx",
+  "app/(public)/amg-connect/page.tsx",
+  "app/(public)/plans/page.tsx",
+  "app/(public)/about/page.tsx",
+  "app/(public)/contact/page.tsx",
+  "app/(public)/privacy-policy/page.tsx",
+  "app/(public)/terms/page.tsx",
+  "app/(public)/operational-disclaimer/page.tsx",
+  "app/(public)/mission-acceptance/page.tsx",
+  "app/(public)/credential-submission/page.tsx",
+  "components/site/oc/shared.tsx",
+  "components/site/home/command-hero.tsx",
+  "components/site/home/brand-statement.tsx",
+  "components/site/home/operational-lanes.tsx",
+  "components/site/home/mission-flow.tsx",
+  "components/site/home/aircraft-gallery.tsx",
+  "components/site/home/connect-preview.tsx",
+  "components/site/home/support-models.tsx",
+  "components/site/public-support-form.tsx",
+  "components/site/subscription-programs.tsx",
+  "components/site/legal-page.tsx",
+  "components/site/site-nav.tsx",
+  "components/site/site-footer.tsx",
+  "lib/site-media.ts",
+  "lib/content.ts",
+];
 const publicRequiredRoutes = [
   "/",
   "/about",
-  "/services",
-  "/aircraft",
+  "/operations",
+  "/aircraft-support",
+  "/crew-network",
+  "/amg-connect",
   "/plans",
-  "/pilot-network",
-  "/team",
   "/contact",
   "/privacy-policy",
   "/terms",
@@ -62,20 +91,31 @@ const sourceFiles = sourceRoots
 const refs = new Map();
 const missing = [];
 const mediaPattern = /\/(?:images|videos)\/[A-Za-z0-9/_.,@() -]+\.(?:png|jpe?g|webp|avif|mp4|webm)/g;
+const baseTemplatePattern = /\$\{BASE\}\/([^`'"]+\.(?:png|jpe?g|webp|avif|mp4|webm))/g;
+
+function trackRef(ref, file) {
+  if (exemptPaths.has(ref)) return;
+  const diskPath = path.join(root, "public", ref);
+  if (!fs.existsSync(diskPath)) {
+    missing.push(`${ref} referenced by ${file}`);
+    return;
+  }
+  const locations = refs.get(ref) || [];
+  locations.push(file);
+  refs.set(ref, locations);
+}
 
 for (const file of sourceFiles) {
   const body = fs.readFileSync(path.join(root, file), "utf8");
   const matches = body.match(mediaPattern) || [];
-  for (const ref of matches) {
-    if (exemptPaths.has(ref)) continue;
-    const diskPath = path.join(root, "public", ref);
-    if (!fs.existsSync(diskPath)) {
-      missing.push(`${ref} referenced by ${file}`);
-      continue;
+  for (const ref of matches) trackRef(ref, file);
+
+  const baseMatch = body.match(/const\s+BASE\s*=\s*["']([^"']+)["']/);
+  if (baseMatch) {
+    const base = baseMatch[1];
+    for (const match of body.matchAll(baseTemplatePattern)) {
+      trackRef(`${base}/${match[1]}`, file);
     }
-    const locations = refs.get(ref) || [];
-    locations.push(file);
-    refs.set(ref, locations);
   }
 }
 
@@ -83,13 +123,16 @@ const duplicateRefs = [...refs.entries()]
   .filter(([, locations]) => new Set(locations).size > 1)
   .map(([ref, locations]) => `${ref}\n  ${[...new Set(locations)].join("\n  ")}`);
 
-const publicMedia = [];
+const publicMedia = new Set();
 function walkMedia(dir) {
   if (!fs.existsSync(dir)) return;
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) walkMedia(full);
-    if (entry.isFile() && /\.(png|jpe?g|webp|avif)$/i.test(entry.name)) publicMedia.push(full);
+    if (entry.isFile() && /\.(png|jpe?g|webp|avif)$/i.test(entry.name)) {
+      const rel = `/${path.relative(path.join(root, "public"), full)}`;
+      if (refs.has(rel)) publicMedia.add(full);
+    }
   }
 }
 walkMedia(path.join(root, "public/images"));
