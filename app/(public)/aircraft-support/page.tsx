@@ -20,7 +20,7 @@ const CONSIDERATIONS = [
   },
   {
     title: "Operating conditions",
-    body: "Route, runway performance, airport restrictions, weather, and owner/operator approval all factor into the support path.",
+    body: "Route, runway performance, airport restrictions, and weather all shape how — and when — a movement is flown.",
   },
 ];
 

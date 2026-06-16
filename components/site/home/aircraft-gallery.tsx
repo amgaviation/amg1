@@ -17,7 +17,7 @@ const CATEGORIES: Category[] = [
     image: AIRCRAFT_IMAGES["turboprop"],
     alt: "Turboprop aircraft on the ramp",
     support: "Owner support, repositioning, maintenance positioning, and pilot qualification review for piston and turboprop operations.",
-    crew: "Often single-pilot by type; subject to insurance, currency, runway performance, and owner/operator approval.",
+    crew: "Often single-pilot by type; insurance minimums, currency, and runway performance shape each assignment.",
   },
   {
     name: "Single-Engine Jet",

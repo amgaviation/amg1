@@ -42,6 +42,7 @@ export function BrandStatement() {
         <div className="dark mx-auto mt-9 max-w-3xl" aria-hidden="true">
           <TextFlippingBoard
             text={reduce ? RESTING : WORDS[index]}
+            duration={reduce ? 0.001 : undefined}
             className="bg-transparent shadow-none"
           />
         </div>

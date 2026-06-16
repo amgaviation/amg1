@@ -47,7 +47,7 @@ export function SupportModels() {
             <article
               key={m.name}
               data-stagger-item
-              className={`flex h-full flex-col rounded-[1.25rem] p-7 lg:p-8 ${
+              className={`group flex h-full flex-col rounded-[1.25rem] p-7 lg:p-8 ${
                 m.featured
                   ? "oc-panel-navy text-[var(--oc-paper)]"
                   : "oc-card text-[var(--oc-ink)]"
@@ -71,10 +71,12 @@ export function SupportModels() {
               <Link
                 href="/plans"
                 prefetch={false}
-                className={`oc-btn mt-7 justify-center ${m.featured ? "oc-btn-light" : "oc-btn-ghost"}`}
+                className={`oc-kicker mt-auto inline-flex items-center gap-2 pt-7 ${
+                  m.featured ? "text-[var(--oc-blue-soft)]" : "text-[var(--oc-blue)]"
+                }`}
               >
-                View plans
-                <ArrowUpRight className="h-4 w-4" />
+                View plan details
+                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
             </article>
           ))}

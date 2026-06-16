@@ -14,8 +14,8 @@ export function SiteFooter() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/logo-white.png" alt="AMG Aviation Group" width="1088" height="221" className="h-9 w-auto" />
             <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]">
-              Structured coordination for aircraft movement, crew coverage, maintenance repositioning, and
-              mission-specific support — built for owners, flight departments, crews, and approved representatives.
+              Coordination for aircraft movement, crew coverage, maintenance repositioning, and mission-specific
+              support — built for owners, flight departments, crews, and approved representatives.
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <Link href="/contact" prefetch={false} className="oc-btn oc-btn-light">

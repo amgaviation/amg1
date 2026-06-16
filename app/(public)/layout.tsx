@@ -2,6 +2,7 @@ import { SiteNav } from "@/components/site/site-nav";
 import { SiteFooter } from "@/components/site/site-footer";
 import { InteractionLayer } from "@/components/site/interaction-layer";
 import { SmoothScroll } from "@/components/site/smooth-scroll";
+import { MobileActionBar } from "@/components/site/mobile-action-bar";
 
 const publicVisibilityCss = `
   .public-site main,
@@ -41,6 +42,7 @@ export default function PublicLayout({
         {children}
       </main>
       <SiteFooter />
+      <MobileActionBar />
     </div>
   );
 }

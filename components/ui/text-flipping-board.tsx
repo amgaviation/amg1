@@ -25,16 +25,6 @@ type AccentColor = {
   text: string;
 };
 
-const ACCENT_COLORS: AccentColor[] = [
-  { top: "bg-red-600", bottom: "bg-red-700", text: "text-white" },
-  { top: "bg-orange-500", bottom: "bg-orange-600", text: "text-white" },
-  { top: "bg-yellow-400", bottom: "bg-yellow-500", text: "text-neutral-900" },
-  { top: "bg-green-600", bottom: "bg-green-700", text: "text-white" },
-  { top: "bg-blue-600", bottom: "bg-blue-700", text: "text-white" },
-  { top: "bg-violet-600", bottom: "bg-violet-700", text: "text-white" },
-  { top: "bg-white", bottom: "bg-neutral-100", text: "text-neutral-900" },
-];
-
 const CELL_TEXT_STYLE: React.CSSProperties = {
   fontSize: "clamp(6px, 2vw, 22px)",
   lineHeight: 1,
@@ -89,11 +79,8 @@ const FlapCell = React.memo(function FlapCell({
         ? normalized
         : FLAP_CHARS[1 + Math.floor(Math.random() * (FLAP_CHARS.length - 1))];
 
-      const newAccent = isLast
-        ? null
-        : Math.random() < 0.2
-          ? ACCENT_COLORS[Math.floor(Math.random() * ACCENT_COLORS.length)]
-          : null;
+      // AMG: split-flap stays monochrome (graphite/ivory) — no demo color tiles.
+      const newAccent = null;
 
       setPrev(curRef.current);
       setPrevAccent(accentRef.current);

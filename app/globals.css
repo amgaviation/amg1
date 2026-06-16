@@ -686,6 +686,12 @@ html {
     outline: 2px solid var(--oc-blue);
     outline-offset: 3px;
   }
+  .oc-btn:hover {
+    transform: translateY(-1px);
+  }
+  .oc-btn:active {
+    transform: translateY(0);
+  }
   .oc-btn-primary {
     background: var(--oc-navy);
     color: var(--oc-paper);
