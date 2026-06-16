@@ -112,7 +112,7 @@ export function PageHero({
   secondary?: { label: string; href: string };
 }) {
   return (
-    <section className="relative isolate flex min-h-[72svh] items-end overflow-hidden bg-[var(--oc-navy)] pb-16 pt-[calc(var(--public-header-height)+3rem)] lg:min-h-[78svh] lg:pb-24">
+    <section className="relative isolate flex min-h-[64svh] items-end overflow-hidden bg-[var(--oc-navy)] pb-14 pt-[calc(var(--public-header-height)+3rem)] lg:min-h-[72svh] lg:pb-20">
       <div className="absolute inset-0 -z-10">
         <Figure src={image} alt={imageAlt} priority sizes="100vw" position={position} className="h-full w-full" />
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--oc-navy)] via-[var(--oc-navy)]/55 to-[var(--oc-navy)]/30" />

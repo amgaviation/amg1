@@ -146,7 +146,7 @@ export function SiteNav() {
             type="button"
             onClick={() => setOpen((v) => !v)}
             className={cn(
-              "inline-flex h-11 w-11 items-center justify-center rounded-full border transition-colors xl:hidden",
+              "inline-flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full border transition-colors xl:hidden",
               solid ? "border-[var(--oc-line-strong)] text-[var(--oc-ink)]" : "border-white/30 text-white"
             )}
             aria-label={open ? "Close menu" : "Open menu"}

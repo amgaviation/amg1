@@ -22,7 +22,7 @@ export function CommandHero() {
   const y = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 90]);
 
   return (
-    <section ref={ref} id="top" className="relative isolate flex min-h-[100svh] items-end overflow-hidden bg-[var(--oc-navy)]">
+    <section ref={ref} id="top" className="relative isolate flex min-h-[92svh] items-end overflow-hidden bg-[var(--oc-navy)] lg:min-h-[96svh]">
       <motion.div style={{ scale, y }} className="absolute inset-0 -z-10 origin-center will-change-transform">
         <Image
           src={IMG.heroOperations}
