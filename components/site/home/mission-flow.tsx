@@ -5,40 +5,40 @@ import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "fr
 
 const STEPS = [
   {
-    code: "SUP-01",
+    code: "REQ-01",
     title: "Request received",
     state: "Logged",
-    body: "Aircraft, route, timing, crew need, and support category are captured in a structured intake.",
+    body: "AMG logs the aircraft, timing, route or location, contact details, and requested support context in a structured intake.",
   },
   {
-    code: "SUP-02",
-    title: "Aircraft context reviewed",
+    code: "REQ-02",
+    title: "Request review",
     state: "Reviewing",
-    body: "Airworthiness, maintenance status, operating limits, records context, and owner/operator authority are reviewed before commitment.",
+    body: "Aircraft documents, request details, insurance requirements, owner/operator context, and known constraints are reviewed. Additional details are requested when required.",
   },
   {
-    code: "SUP-03",
-    title: "Crew path evaluated",
-    state: "Checking",
-    body: "Crew options are evaluated against aircraft type, documents, insurance minimums, availability, and assignment suitability.",
+    code: "REQ-03",
+    title: "Quote sent to client",
+    state: "Quoted",
+    body: "Once the scope can be defined, AMG sends a quote or proposal outlining the reviewed support path, estimated costs, pass-through items, and acceptance conditions.",
   },
   {
-    code: "SUP-04",
-    title: "Logistics coordinated",
+    code: "REQ-04",
+    title: "Internal coordination",
     state: "Coordinating",
-    body: "Travel, lodging, vendors, facility communication, permits where applicable, and documentation are organized around the support need.",
+    body: "AMG coordinates available contract crew, FBO or airport contacts, ground transportation, lodging, and other support items required for the approved request.",
   },
   {
-    code: "SUP-05",
-    title: "Stakeholders updated",
-    state: "Updating",
-    body: "Owners and approved representatives receive clear status updates as the support path changes.",
+    code: "REQ-05",
+    title: "Support execution",
+    state: "Executing",
+    body: "Approved support proceeds under the responsible owner/operator authority, applicable crew authority, accepted scope, and final operating conditions.",
   },
   {
-    code: "SUP-06",
-    title: "Support proceeds after review",
-    state: "On approval",
-    body: "Next steps proceed under the responsible owner/operator authority only after the applicable review and acceptance are complete.",
+    code: "REQ-06",
+    title: "Post-support coordination",
+    state: "Closing",
+    body: "AMG reconciles final details, organizes crew, vendor, travel, and lodging items, submits invoices or receipts as applicable, and supports closeout communication.",
   },
 ];
 
@@ -53,13 +53,13 @@ export function MissionFlow() {
     <section className="oc-panel-navy oc-section relative overflow-hidden text-[var(--oc-paper)]">
       <div className="oc-shell">
         <div className="max-w-2xl" data-scroll-animate>
-          <p className="oc-eyebrow oc-eyebrow-light">Support Flow</p>
+          <p className="oc-eyebrow oc-eyebrow-light">Request Process</p>
           <h2 className="oc-display mt-4 text-4xl text-[var(--oc-paper)] sm:text-5xl">
-            From intake to support, with review at every handoff.
+            A clear path from intake to closeout.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-[var(--oc-aluminum)]">
-            A command-board view of how a support request moves through AMG — sequenced, visible, and clear about the
-            next decision point.
+            A global view of how support requests move through AMG — reviewed, quoted, coordinated, executed, and closed
+            out with the responsible parties kept informed.
           </p>
         </div>
 
