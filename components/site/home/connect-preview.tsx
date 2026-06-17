@@ -2,9 +2,9 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, FileText, LayoutDashboard, Plane, Receipt, Users } from "lucide-react";
 
 const FEATURES = [
-  "Mission requests",
+  "Support requests",
   "Aircraft profiles",
-  "Crew assignments",
+  "Crew review",
   "Documents",
   "Quotes & invoices",
   "Status updates",
@@ -20,7 +20,7 @@ const NAV = [
 
 const REQUESTS = [
   { ref: "AMG-2287", route: "KTEB → KMIA", state: "Reviewing", tone: "amber" },
-  { ref: "AMG-2284", route: "KVNY → KSDL", state: "Crew matched", tone: "blue" },
+  { ref: "AMG-2284", route: "KVNY → KSDL", state: "Crew review", tone: "blue" },
   { ref: "AMG-2280", route: "KHPN → KPBI", state: "Updated", tone: "green" },
 ];
 
@@ -37,11 +37,11 @@ export function ConnectPreview() {
         <div data-scroll-animate>
           <p className="oc-eyebrow oc-eyebrow-light">AMG Connect</p>
           <h2 className="oc-display mt-4 text-4xl text-[var(--oc-paper)] sm:text-5xl">
-            The operations picture, in one portal.
+            The support picture, in one portal.
           </h2>
           <p className="mt-5 max-w-md text-lg leading-relaxed text-[var(--oc-aluminum)]">
-            AMG Connect gives owners, crews, and administrators a role-based view of requests, aircraft, documents, and
-            status — so everyone works from the same source of truth.
+            AMG Connect gives approved owners, crews, and administrators a role-based view of requests, aircraft,
+            documents, quotes, and status — without replacing operational approval or final acceptance.
           </p>
 
           <ul className="mt-7 flex flex-wrap gap-2" data-stagger-container>
@@ -105,7 +105,7 @@ export function ConnectPreview() {
               {/* main */}
               <div className="p-5">
                 <div className="flex items-center justify-between">
-                  <p className="oc-kicker text-[var(--oc-aluminum)]">Mission requests</p>
+                  <p className="oc-kicker text-[var(--oc-aluminum)]">Support requests</p>
                   <span className="oc-mono text-xs text-[var(--oc-aluminum-2)]">3 open</span>
                 </div>
                 <div className="mt-3 grid gap-2.5">
@@ -129,7 +129,7 @@ export function ConnectPreview() {
                   <div className="rounded-xl border border-[var(--oc-line-dark)] bg-white/[0.03] p-4">
                     <p className="oc-kicker text-[var(--oc-aluminum-2)]">Aircraft profile</p>
                     <p className="mt-2 text-sm text-[var(--oc-paper)]">Midsize · two-crew</p>
-                    <p className="mt-1 text-xs text-[var(--oc-aluminum-2)]">Status — Airworthy</p>
+                    <p className="mt-1 text-xs text-[var(--oc-aluminum-2)]">Status — under review</p>
                   </div>
                   <div className="rounded-xl border border-[var(--oc-line-dark)] bg-white/[0.03] p-4">
                     <p className="oc-kicker text-[var(--oc-aluminum-2)]">Quote / invoice</p>
