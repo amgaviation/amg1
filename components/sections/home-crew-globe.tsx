@@ -22,11 +22,11 @@ export function HomeCrewGlobe() {
         <div data-scroll-animate>
           <p className="oc-eyebrow oc-eyebrow-light">Crew Network</p>
           <h2 className="oc-display mt-5 text-4xl text-white sm:text-5xl lg:text-6xl">
-            A crew network with operational reach.
+            Crew coverage organized by operating region.
           </h2>
           <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]">
-            AMG organizes crew support by operating region, aircraft experience, credential readiness, and support
-            availability — giving owners and flight departments a clearer path when coverage is needed.
+            AMG organizes crew support around base airports, aircraft experience, credential readiness, and assignment
+            suitability so owners and flight departments have a clearer path when crew coverage is needed.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/contact?category=contract-pilot-support" prefetch={false} className="oc-btn oc-btn-light">
