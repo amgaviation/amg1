@@ -28,6 +28,76 @@ function allStrings(formData: FormData, key: string): string[] {
   return formData.getAll(key).map((value) => String(value).trim());
 }
 
+function releasedEmail(originalEmail: string, userId: string) {
+  const timestamp = Date.now();
+  const safeId = userId.replace(/[^a-zA-Z0-9]/g, "").slice(0, 12);
+  const [local, ...domainParts] = originalEmail.split("@");
+  const domain = domainParts.join("@");
+
+  if (!local || !domain) {
+    return `released-${timestamp}-${safeId}@released.amg.invalid`;
+  }
+
+  return `${local}+released-${timestamp}-${safeId}@${domain}`;
+}
+
+function isReleasedEmail(email: string) {
+  return email.includes("+released-") || email.includes("__released__");
+}
+
+async function releaseAuthEmail(
+  db: Awaited<ReturnType<typeof createServiceClient>>,
+  userId: string,
+  archivedEmail: string
+) {
+  const { error } = await db.auth.admin.updateUserById(userId, {
+    email: archivedEmail,
+    email_confirm: true,
+  });
+
+  if (error && !/not found|not.*exist/i.test(error.message)) {
+    return false;
+  }
+
+  return true;
+}
+
+async function preventAdminSelfOrLastAdminAction(
+  db: Awaited<ReturnType<typeof createServiceClient>>,
+  actingAdminId: string,
+  targetUserId: string,
+  backTo: string
+) {
+  if (targetUserId === actingAdminId) {
+    redirect(`${backTo}?error=self`);
+  }
+
+  const { data: target } = await db
+    .from("profiles")
+    .select("id, email, full_name, role, status")
+    .eq("id", targetUserId)
+    .maybeSingle();
+
+  if (!target) {
+    redirect(`${backTo}?error=user`);
+  }
+
+  if (target.role === "admin") {
+    const { count } = await db
+      .from("profiles")
+      .select("id", { count: "exact", head: true })
+      .eq("role", "admin")
+      .eq("status", "approved")
+      .eq("is_active", true);
+
+    if ((count ?? 0) <= 1) {
+      redirect(`${backTo}?error=last-admin`);
+    }
+  }
+
+  return target;
+}
+
 // ─── User approvals & role management ───────────────────────────────
 export async function approveUser(formData: FormData) {
   const admin = await actor(["admin"]);
@@ -35,6 +105,7 @@ export async function approveUser(formData: FormData) {
   const userId = str(formData, "user_id");
 
   await db.from("profiles").update({ status: "approved", is_active: true }).eq("id", userId);
+
   try {
     await db.auth.admin.updateUserById(userId, { email_confirm: true });
   } catch {
@@ -48,12 +119,14 @@ export async function approveUser(formData: FormData) {
     entityType: "profile",
     entityId: userId,
   });
+
   await notifyUser({
     userId,
     title: "Access approved",
     body: "Your AMG Connect portal access has been approved. You can sign in now.",
     type: "access_approved",
   });
+
   revalidatePath("/portal/admin/user-approvals");
   redirect("/portal/admin/user-approvals?success=approved");
 }
@@ -63,10 +136,13 @@ export async function setUserStatus(formData: FormData) {
   const db = await createServiceClient();
   const userId = str(formData, "user_id");
   const status = str(formData, "status");
+  const backTo = str(formData, "back_to") || "/portal/admin/user-approvals";
+
   await db
     .from("profiles")
     .update({ status, is_active: status === "approved" })
     .eq("id", userId);
+
   await logAuditEvent({
     actor: admin,
     action: status === "suspended" ? "user_suspended" : "user_status_changed",
@@ -74,9 +150,11 @@ export async function setUserStatus(formData: FormData) {
     entityType: "profile",
     entityId: userId,
   });
+
   revalidatePath("/portal/admin/user-approvals");
+  revalidatePath("/portal/admin/users");
   revalidatePath("/portal/admin/clients");
-  redirect("/portal/admin/user-approvals?success=status");
+  redirect(`${backTo}?success=status`);
 }
 
 export async function setUserRole(formData: FormData) {
@@ -84,8 +162,11 @@ export async function setUserRole(formData: FormData) {
   const db = await createServiceClient();
   const userId = str(formData, "user_id");
   const role = str(formData, "role");
+
   if (!isPortalRole(role)) redirect("/portal/admin/user-approvals?error=role");
+
   await db.from("profiles").update({ role }).eq("id", userId);
+
   await logAuditEvent({
     actor: admin,
     action: "role_changed",
@@ -93,8 +174,133 @@ export async function setUserRole(formData: FormData) {
     entityType: "profile",
     entityId: userId,
   });
+
   revalidatePath("/portal/admin/user-approvals");
+  revalidatePath("/portal/admin/users");
   redirect("/portal/admin/user-approvals?success=role");
+}
+
+export async function deactivatePortalUser(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const backTo = "/portal/admin/users";
+  const userId = str(formData, "user_id");
+
+  if (!userId) redirect(`${backTo}?error=user`);
+
+  const target = await preventAdminSelfOrLastAdminAction(
+    db,
+    admin.id,
+    userId,
+    backTo
+  );
+
+  if (isReleasedEmail(target.email)) {
+    redirect(`${backTo}?error=already-released`);
+  }
+
+  const archivedEmail = releasedEmail(target.email, userId);
+  const authReleased = await releaseAuthEmail(db, userId, archivedEmail);
+
+  if (!authReleased) {
+    redirect(`${backTo}?error=auth-release`);
+  }
+
+  const { error } = await db
+    .from("profiles")
+    .update({
+      email: archivedEmail,
+      status: "suspended",
+      is_active: false,
+      invitation_status: "deactivated_email_released",
+      last_login_at: null,
+    })
+    .eq("id", userId);
+
+  if (error) redirect(`${backTo}?error=deactivate`);
+
+  await logAuditEvent({
+    actor: admin,
+    action: "user_deactivated_email_released",
+    detail: `Deactivated ${target.email} and released email for future access requests`,
+    entityType: "profile",
+    entityId: userId,
+  });
+
+  revalidatePath("/portal/admin/users");
+  revalidatePath("/portal/admin/user-approvals");
+  redirect(`${backTo}?success=deactivated`);
+}
+
+export async function deletePortalUser(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const backTo = "/portal/admin/users";
+  const userId = str(formData, "user_id");
+
+  if (!userId) redirect(`${backTo}?error=user`);
+
+  const target = await preventAdminSelfOrLastAdminAction(
+    db,
+    admin.id,
+    userId,
+    backTo
+  );
+
+  const archivedEmail = isReleasedEmail(target.email)
+    ? target.email
+    : releasedEmail(target.email, userId);
+
+  if (!isReleasedEmail(target.email)) {
+    const authReleased = await releaseAuthEmail(db, userId, archivedEmail);
+
+    if (!authReleased) {
+      redirect(`${backTo}?error=auth-release`);
+    }
+
+    await db
+      .from("profiles")
+      .update({
+        email: archivedEmail,
+        status: "suspended",
+        is_active: false,
+        invitation_status: "deleted_email_released",
+        last_login_at: null,
+      })
+      .eq("id", userId);
+  }
+
+  try {
+    await db.auth.admin.deleteUser(userId);
+  } catch {
+    // Non-fatal. Auth user may already be gone or email may already be released.
+  }
+
+  const { error } = await db.from("profiles").delete().eq("id", userId);
+
+  if (error) {
+    await logAuditEvent({
+      actor: admin,
+      action: "user_delete_failed_email_released",
+      detail: `Attempted to delete ${target.email}; email was released but profile deletion failed`,
+      entityType: "profile",
+      entityId: userId,
+    });
+
+    redirect(`${backTo}?error=delete`);
+  }
+
+  await logAuditEvent({
+    actor: admin,
+    action: "user_deleted_email_released",
+    detail: `Deleted ${target.email} and released email for future access requests`,
+    entityType: "profile",
+    entityId: userId,
+  });
+
+  revalidatePath("/portal/admin/users");
+  revalidatePath("/portal/admin/user-approvals");
+  redirect(`${backTo}?success=deleted`);
 }
 
 export async function createPortalUser(formData: FormData) {
@@ -116,6 +322,7 @@ export async function createPortalUser(formData: FormData) {
     .select("id")
     .ilike("email", email)
     .maybeSingle();
+
   if (duplicate) redirect(`${backTo}?error=duplicate`);
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
@@ -130,6 +337,7 @@ export async function createPortalUser(formData: FormData) {
       redirectTo,
     }
   );
+
   if (inviteError || !invite.user) redirect(`${backTo}?error=invite`);
 
   const { error: profileError } = await db.from("profiles").upsert({
@@ -148,6 +356,7 @@ export async function createPortalUser(formData: FormData) {
     invited_by: admin.id,
     permissions: role === "admin" ? PORTAL_PERMISSIONS : selectedPermissions(formData),
   });
+
   if (profileError) redirect(`${backTo}?error=profile`);
 
   await logAuditEvent({
@@ -157,6 +366,7 @@ export async function createPortalUser(formData: FormData) {
     entityType: "profile",
     entityId: invite.user.id,
   });
+
   revalidatePath("/portal/admin/users");
   revalidatePath("/portal/admin/user-approvals");
   redirect(`${backTo}?success=invited`);
@@ -167,21 +377,26 @@ export async function resendPortalInvitation(formData: FormData) {
   const db = await createServiceClient();
   const userId = str(formData, "user_id");
   const backTo = "/portal/admin/users";
+
   const { data: profile } = await db
     .from("profiles")
     .select("id, email, full_name, role")
     .eq("id", userId)
     .maybeSingle();
+
   if (!profile?.email) redirect(`${backTo}?error=missing`);
+  if (isReleasedEmail(profile.email)) redirect(`${backTo}?error=released`);
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
   const redirectTo = appUrl
     ? `${appUrl.startsWith("http") ? appUrl : `https://${appUrl}`}/login`
     : undefined;
+
   const { error } = await db.auth.admin.inviteUserByEmail(profile.email, {
     data: { full_name: profile.full_name, role: profile.role },
     redirectTo,
   });
+
   if (error) redirect(`${backTo}?error=invite`);
 
   await db
@@ -193,6 +408,7 @@ export async function resendPortalInvitation(formData: FormData) {
       invited_by: admin.id,
     })
     .eq("id", userId);
+
   await logAuditEvent({
     actor: admin,
     action: "invitation_resent",
@@ -200,6 +416,7 @@ export async function resendPortalInvitation(formData: FormData) {
     entityType: "profile",
     entityId: userId,
   });
+
   revalidatePath("/portal/admin/users");
   redirect(`${backTo}?success=resent`);
 }
@@ -265,6 +482,7 @@ export async function assignCrew(formData: FormData) {
       { label: "Crew Roles", value: assignments.map((item) => item.crew_role.toUpperCase()).join(", ") },
     ],
   });
+
   revalidatePath(`/portal/admin/trips/${missionId}`);
   redirect(`/portal/admin/trips/${missionId}?success=crew`);
 }
@@ -275,9 +493,11 @@ export async function assignPartner(formData: FormData) {
   const missionId = str(formData, "mission_id");
   const partnerId = str(formData, "partner_id");
   const serviceType = str(formData, "service_type");
+
   if (!missionId || !partnerId || !serviceType) {
     redirect(`/portal/admin/trips/${missionId}?error=missing`);
   }
+
   await db.from("mission_partner_assignments").insert({
     mission_id: missionId,
     partner_id: partnerId,
@@ -287,11 +507,13 @@ export async function assignPartner(formData: FormData) {
     admin_notes: str(formData, "admin_notes") || null,
     status: "assigned",
   });
+
   const { data: mission } = await db
     .from("missions")
     .select("ref")
     .eq("id", missionId)
     .maybeSingle();
+
   await logAuditEvent({
     actor: admin,
     action: "partner_assigned",
@@ -299,6 +521,7 @@ export async function assignPartner(formData: FormData) {
     entityType: "mission",
     entityId: missionId,
   });
+
   await notifyUser({
     userId: partnerId,
     title: "New service request",
@@ -307,6 +530,7 @@ export async function assignPartner(formData: FormData) {
     entityType: "mission",
     entityId: missionId,
   });
+
   await notifyMissionContactByEmail({
     missionId,
     title: "Partner support has been assigned",
@@ -318,6 +542,7 @@ export async function assignPartner(formData: FormData) {
       { label: "Location", value: str(formData, "location") || null },
     ],
   });
+
   revalidatePath(`/portal/admin/trips/${missionId}`);
   redirect(`/portal/admin/trips/${missionId}?success=partner`);
 }
@@ -330,6 +555,7 @@ export async function saveAircraft(formData: FormData) {
   const backTo = str(formData, "back_to") || "/portal/admin/aircraft";
   const tailNumber = str(formData, "tail_number").toUpperCase().replace(/\s+/g, "");
   const clientId = str(formData, "client_id") || null;
+
   if (!tailNumber) redirect(`${backTo}?error=missing`);
 
   if (clientId) {
@@ -338,6 +564,7 @@ export async function saveAircraft(formData: FormData) {
       .select("id, role")
       .eq("id", clientId)
       .maybeSingle();
+
     if (!client || client.role !== "client") redirect(`${backTo}?error=client`);
   }
 
@@ -346,6 +573,7 @@ export async function saveAircraft(formData: FormData) {
     .select("id")
     .ilike("tail_number", tailNumber)
     .limit(2);
+
   const existing = (matches ?? []).find((row) => row.id !== id);
   if (existing && existing.id !== id) redirect(`${backTo}?error=duplicate`);
 
@@ -366,6 +594,7 @@ export async function saveAircraft(formData: FormData) {
   };
 
   let savedId = id;
+
   if (id) {
     const { data, error } = await db.from("aircraft").update(payload).eq("id", id).select("id").single();
     if (error || !data) redirect(`${backTo}?error=save`);
@@ -375,6 +604,7 @@ export async function saveAircraft(formData: FormData) {
     if (error || !data) redirect(`${backTo}?error=save`);
     savedId = data.id;
   }
+
   await logAuditEvent({
     actor: admin,
     action: id ? "aircraft_updated" : "aircraft_created",
@@ -382,9 +612,11 @@ export async function saveAircraft(formData: FormData) {
     entityType: "aircraft",
     entityId: savedId || null,
   });
+
   revalidatePath("/portal/admin/aircraft");
   revalidatePath("/portal/client/aircraft");
   revalidatePath("/portal/client/trips/new");
+
   if (clientId) {
     await notifyUser({
       userId: clientId,
@@ -395,6 +627,7 @@ export async function saveAircraft(formData: FormData) {
       entityId: savedId || null,
     });
   }
+
   redirect(`${backTo}?success=aircraft`);
 }
 
@@ -404,6 +637,7 @@ export async function reviewDocument(formData: FormData) {
   const db = (await createServiceClient()) as any;
   const docId = str(formData, "document_id");
   const decision = str(formData, "decision");
+
   await db
     .from("documents")
     .update({
@@ -415,10 +649,12 @@ export async function reviewDocument(formData: FormData) {
       updated_at: new Date().toISOString(),
     })
     .eq("id", docId);
+
   await db
     .from("crew_credentials")
     .update({ status: decision === "approved" ? "approved" : "rejected", reviewed_by: admin.id })
     .eq("document_id", docId);
+
   await logAuditEvent({
     actor: admin,
     action: decision === "approved" ? "document_approved" : "document_rejected",
@@ -426,6 +662,7 @@ export async function reviewDocument(formData: FormData) {
     entityType: "document",
     entityId: docId,
   });
+
   revalidatePath("/portal/admin/documents");
   redirect("/portal/admin/documents?success=reviewed");
 }
@@ -436,6 +673,7 @@ export async function reviewExpense(formData: FormData) {
   const db = await createServiceClient();
   const expenseId = str(formData, "expense_id");
   const status = str(formData, "status");
+
   const { data: expense } = await db
     .from("expenses")
     .update({
@@ -449,6 +687,7 @@ export async function reviewExpense(formData: FormData) {
     .eq("id", expenseId)
     .select("crew_id, amount, category")
     .maybeSingle();
+
   await logAuditEvent({
     actor: admin,
     action: `expense_${status}`,
@@ -456,6 +695,7 @@ export async function reviewExpense(formData: FormData) {
     entityType: "expense",
     entityId: expenseId,
   });
+
   if (expense?.crew_id) {
     await notifyUser({
       userId: expense.crew_id,
@@ -464,6 +704,7 @@ export async function reviewExpense(formData: FormData) {
       type: "expense_review",
     });
   }
+
   revalidatePath("/portal/admin/expenses");
   redirect("/portal/admin/expenses?success=reviewed");
 }
