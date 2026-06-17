@@ -9,6 +9,8 @@ import {
   publicSupportRequestClientConfirmationEmail,
 } from "@/lib/portal/email-templates";
 
+const CONTACT_INBOX = "information@amgaviationgroup.com";
+
 function value(formData: FormData, key: string): string {
   return String(formData.get(key) ?? "").trim();
 }
@@ -51,6 +53,17 @@ const missionTypeBySupportCategory: Record<string, string> = {
   "fleet-support-program": "aircraft_support",
   "subscription-program-inquiry": "aircraft_support",
   "other-support": "aircraft_support",
+};
+
+const supportCategoryLabels: Record<string, string> = {
+  "aircraft-management-support": "Aircraft Support Administration",
+  "contract-pilot-support": "Contract Pilot Support",
+  "ferry-and-repositioning": "Ferry and Repositioning",
+  "maintenance-flight-support": "Maintenance Flight Support",
+  "flight-operations-coordination": "Support Operations Coordination",
+  "fleet-support-program": "Fleet / Department Support",
+  "subscription-program-inquiry": "Support Plan Inquiry",
+  "other-support": "Other Support",
 };
 
 const detailFields = [
@@ -148,6 +161,131 @@ function labelize(key: string) {
   return key.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+function escapeHtml(input: string) {
+  return input
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function formatDisplayValue(input?: string | null) {
+  return input?.trim() || "Not provided";
+}
+
+function emailSubjectForInquiry(inquiryType: string) {
+  return inquiryType ? `New AMG Contact Inquiry — ${inquiryType}` : "New AMG Contact Inquiry";
+}
+
+function buildContactInquiryEmail(input: {
+  requesterName: string;
+  email: string;
+  phone: string;
+  organization: string;
+  inquiryType: string;
+  aircraft: string;
+  tailNumber: string;
+  aircraftBase: string;
+  timing: string;
+  preferredContact: string;
+  notes: string;
+  acknowledgment: string;
+  submittedAt: string;
+  sourcePage: string;
+  reference?: string;
+  categoryDetails: string;
+  rawForm: Record<string, string>;
+}) {
+  const requiredRows = [
+    ["Full Name", input.requesterName],
+    ["Email", input.email],
+    ["Phone", input.phone],
+    ["Company / Operator", input.organization],
+    ["Inquiry Type", input.inquiryType],
+    ["Aircraft Type", input.aircraft],
+    ["Tail Number", input.tailNumber],
+    ["Home Airport", input.aircraftBase],
+    ["Timeline / Urgency", input.timing],
+    ["Preferred Contact Method", input.preferredContact],
+    ["Message", input.notes],
+    ["Acknowledgment status", input.acknowledgment === "accepted" ? "Accepted" : input.acknowledgment],
+    ["Submitted At", input.submittedAt],
+    ["Source Page", input.sourcePage],
+  ] as const;
+
+  const additionalRows = Object.entries(input.rawForm)
+    .filter(([key]) => key !== "acknowledgment")
+    .map(([key, fieldValue]) => [labelize(key), fieldValue] as const);
+
+  const text = [
+    input.reference ? `Reference: ${input.reference}` : null,
+    ...requiredRows.map(([label, fieldValue]) => `${label}: ${formatDisplayValue(fieldValue)}`),
+    input.categoryDetails ? `Category Details:\n${input.categoryDetails}` : null,
+    additionalRows.length
+      ? `All Submitted Form Details:\n${additionalRows
+          .map(([label, fieldValue]) => `${label}: ${formatDisplayValue(fieldValue)}`)
+          .join("\n")}`
+      : null,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
+  const renderRows = (rows: readonly (readonly [string, string])[]) =>
+    rows
+      .map(
+        ([label, fieldValue]) => `
+          <tr>
+            <th style="width: 34%; padding: 10px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid #e5e7eb; color: #334155; font-size: 13px;">${escapeHtml(label)}</th>
+            <td style="padding: 10px 12px; border-bottom: 1px solid #e5e7eb; color: #0f172a; font-size: 13px; white-space: pre-wrap;">${escapeHtml(formatDisplayValue(fieldValue))}</td>
+          </tr>
+        `,
+      )
+      .join("");
+
+  const html = `
+    <div style="margin: 0; padding: 0; background: #f6f8fb; font-family: Arial, sans-serif; color: #0f172a;">
+      <div style="max-width: 720px; margin: 0 auto; padding: 28px 16px;">
+        <div style="background: #ffffff; border: 1px solid #dbe3ec; border-radius: 14px; overflow: hidden;">
+          <div style="padding: 24px 26px; background: #0b1a2b; color: #ffffff;">
+            <p style="margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: #b6bdc5;">AMG Contact Inquiry</p>
+            <h1 style="margin: 0; font-size: 22px; line-height: 1.25;">${escapeHtml(input.inquiryType || "New AMG Contact Inquiry")}</h1>
+            ${input.reference ? `<p style="margin: 12px 0 0; font-size: 13px; color: #dbe3ec;">Reference: ${escapeHtml(input.reference)}</p>` : ""}
+          </div>
+          <div style="padding: 22px 26px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+              <tbody>${renderRows(requiredRows)}</tbody>
+            </table>
+            ${
+              input.categoryDetails
+                ? `<h2 style="margin: 24px 0 10px; font-size: 16px;">Category Details</h2><pre style="margin: 0; padding: 14px; border: 1px solid #e5e7eb; border-radius: 10px; background: #f8fafc; white-space: pre-wrap; color: #0f172a; font-family: Arial, sans-serif; font-size: 13px;">${escapeHtml(input.categoryDetails)}</pre>`
+                : ""
+            }
+            ${
+              additionalRows.length
+                ? `<h2 style="margin: 24px 0 10px; font-size: 16px;">All Submitted Form Details</h2><table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%; border-collapse: collapse;"><tbody>${renderRows(additionalRows)}</tbody></table>`
+                : ""
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  return { text, html };
+}
+
+async function sendContactInquiryEmail(input: Parameters<typeof buildContactInquiryEmail>[0]) {
+  const email = buildContactInquiryEmail(input);
+  return sendEmail({
+    to: CONTACT_INBOX,
+    subject: emailSubjectForInquiry(input.inquiryType),
+    text: email.text,
+    html: email.html,
+    replyTo: input.email,
+  });
+}
+
 export async function submitPublicSupportRequest(formData: FormData) {
   const firstName = value(formData, "first_name");
   const lastName = value(formData, "last_name");
@@ -163,9 +301,11 @@ export async function submitPublicSupportRequest(formData: FormData) {
   const tailNumber = value(formData, "tail_number").toUpperCase().replace(/\s+/g, "");
   const timing = value(formData, "requested_timing");
   const supportType = value(formData, "requested_service_category") || "aircraft-management-support";
+  const supportTypeLabel = supportCategoryLabels[supportType] || supportType;
   const notes = value(formData, "operational_summary");
   const acknowledgment = value(formData, "acknowledgment");
   const honeypot = value(formData, "website");
+  const submittedAt = new Date().toISOString();
 
   if (honeypot) {
     redirect("/contact?success=received");
@@ -188,6 +328,7 @@ export async function submitPublicSupportRequest(formData: FormData) {
   const categoryDetails = categoryDetailPairs
     .map(([key, fieldValue]) => `${labelize(key)}: ${fieldValue}`)
     .join("\n");
+  const rawForm = formDataToRecord(formData);
 
   const { data: existingProfile } = await db
     .from("profiles")
@@ -219,6 +360,36 @@ export async function submitPublicSupportRequest(formData: FormData) {
     .maybeSingle();
 
   if (existing) {
+    const contactEmailResult = await sendContactInquiryEmail({
+      requesterName,
+      email,
+      phone,
+      organization,
+      inquiryType: supportTypeLabel,
+      aircraft,
+      tailNumber,
+      aircraftBase,
+      timing,
+      preferredContact,
+      notes,
+      acknowledgment,
+      submittedAt,
+      sourcePage: "Contact",
+      reference: existing.ref,
+      categoryDetails,
+      rawForm,
+    });
+
+    if (contactEmailResult.status !== "sent") {
+      console.error("Public contact inquiry operations email failed", {
+        ref: existing.ref,
+        recipient: CONTACT_INBOX,
+        status: contactEmailResult.status,
+        error: contactEmailResult.error,
+      });
+      redirect(`/contact?error=email&category=${encodeURIComponent(supportType)}`);
+    }
+
     redirect(`/contact?success=${encodeURIComponent(existing.ref)}&duplicate=1&category=${encodeURIComponent(supportType)}`);
   }
 
@@ -283,7 +454,7 @@ export async function submitPublicSupportRequest(formData: FormData) {
       arrival_airport: arrival || null,
       operational_summary: notes || null,
       category_details: categoryDetailsRecord,
-      raw_form: formDataToRecord(formData),
+      raw_form: rawForm,
       portal_account_status: existingProfile?.id ? "existing_account" : "not_created",
       portal_account_user_id: existingProfile?.id ?? null,
     });
@@ -336,6 +507,36 @@ export async function submitPublicSupportRequest(formData: FormData) {
     entityId: mission.id,
     replyTo: email,
   });
+
+  const contactEmailResult = await sendContactInquiryEmail({
+    requesterName,
+    email,
+    phone,
+    organization,
+    inquiryType: supportTypeLabel,
+    aircraft,
+    tailNumber,
+    aircraftBase,
+    timing,
+    preferredContact,
+    notes,
+    acknowledgment,
+    submittedAt,
+    sourcePage: "Contact",
+    reference: mission.ref,
+    categoryDetails,
+    rawForm,
+  });
+
+  if (contactEmailResult.status !== "sent") {
+    console.error("Public contact inquiry operations email failed", {
+      ref: mission.ref,
+      recipient: CONTACT_INBOX,
+      status: contactEmailResult.status,
+      error: contactEmailResult.error,
+    });
+    redirect(`/contact?error=email&category=${encodeURIComponent(supportType)}`);
+  }
 
   const confirmationBody = [
     `Hello ${requesterName},`,

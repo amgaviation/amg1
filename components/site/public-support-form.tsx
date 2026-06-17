@@ -263,7 +263,8 @@ export function PublicSupportForm({
       <div className="p-6 lg:p-8">
       {success ? (
         <div role="status" className="mb-5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm leading-relaxed text-emerald-900">
-          Support request {success} was submitted for review. AMG Operations will review it before any acceptance, crew confirmation, or coordination is confirmed.
+          Inquiry received. AMG will review the submitted details and route the request based on support scope, aircraft context, timing, and operational requirements.
+          {success !== "received" ? ` Reference: ${success}.` : ""}
           {duplicate ? " We found a matching recent request and returned the existing reference." : ""}
         </div>
       ) : null}
@@ -271,6 +272,8 @@ export function PublicSupportForm({
         <div role="alert" className="mb-5 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm leading-relaxed text-red-900">
           {error === "missing"
             ? "Please complete the required fields and accept the privacy and terms acknowledgment."
+            : error === "email"
+              ? "The inquiry was received, but AMG could not send the required operations email. Please try again or email AMG Operations directly."
             : "The request could not be submitted. Please try again or email AMG Operations directly."}
         </div>
       ) : null}
