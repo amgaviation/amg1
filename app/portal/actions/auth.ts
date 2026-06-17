@@ -13,6 +13,140 @@ function field(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
 
+function isReleasedEmail(email: string) {
+  return email.includes("+released-") || email.includes("__released__");
+}
+
+function releasedEmailPattern(originalEmail: string) {
+  const [local, ...domainParts] = originalEmail.toLowerCase().split("@");
+  const domain = domainParts.join("@");
+
+  if (!local || !domain) return null;
+
+  return `${local}+released-%@${domain}`;
+}
+
+function isReusableReleasedProfile(profile: {
+  email: string;
+  status: string | null;
+  is_active: boolean | null;
+  invitation_status: string | null;
+}) {
+  return (
+    isReleasedEmail(profile.email) ||
+    profile.invitation_status === "deactivated_email_released" ||
+    profile.invitation_status === "deleted_email_released" ||
+    (profile.status === "suspended" && profile.is_active === false)
+  );
+}
+
+async function requestAccessUsingExistingAuthUser({
+  userId,
+  email,
+  password,
+  fullName,
+  roleValue,
+  company,
+  phone,
+}: {
+  userId: string;
+  email: string;
+  password: string;
+  fullName: string;
+  roleValue: PortalRole;
+  company: string;
+  phone: string;
+}) {
+  const svc = await createServiceClient();
+
+  const fullAuthUpdate = await svc.auth.admin.updateUserById(userId, {
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: {
+      full_name: fullName,
+      role: roleValue,
+    },
+  });
+
+  if (fullAuthUpdate.error) {
+    const message = fullAuthUpdate.error.message ?? "";
+
+    if (/already|registered|exists/i.test(message)) {
+      const passwordOnlyUpdate = await svc.auth.admin.updateUserById(userId, {
+        password,
+        email_confirm: true,
+        user_metadata: {
+          full_name: fullName,
+          role: roleValue,
+        },
+      });
+
+      if (passwordOnlyUpdate.error) {
+        redirect("/login?mode=request&error=signup");
+      }
+    } else {
+      redirect("/login?mode=request&error=signup");
+    }
+  }
+
+  const { error: profileError } = await svc
+    .from("profiles")
+    .update({
+      email,
+      full_name: fullName,
+      role: roleValue,
+      company_name: company || null,
+      phone: phone || null,
+      status: "pending",
+      is_active: false,
+      invitation_status: "access_requested_after_release",
+      invitation_channel: "portal_request",
+      invitation_sent_at: null,
+      last_login_at: null,
+    })
+    .eq("id", userId);
+
+  if (profileError) {
+    redirect("/login?mode=request&error=signup");
+  }
+
+  await notifyAdmins({
+    title: "New portal access request",
+    body: `${fullName} (${email}) requested ${roleValue} access after a released account record.`,
+    type: "access_request",
+    entityType: "profile",
+    entityId: userId,
+  });
+
+  await logAuditEvent({
+    actor: { id: userId, email, role: roleValue },
+    action: "access_requested_after_release",
+    detail: `${fullName} requested ${roleValue} access after account release`,
+    entityType: "profile",
+    entityId: userId,
+  });
+
+  redirect("/login?success=requested");
+}
+
+async function findReleasedProfileForEmail(email: string) {
+  const svc = await createServiceClient();
+  const pattern = releasedEmailPattern(email);
+
+  if (!pattern) return null;
+
+  const { data } = await svc
+    .from("profiles")
+    .select("id, email, status, is_active, invitation_status")
+    .ilike("email", pattern)
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return data;
+}
+
 export async function signIn(formData: FormData) {
   const email = field(formData, "email").toLowerCase();
   const password = field(formData, "password");
@@ -34,10 +168,12 @@ export async function signIn(formData: FormData) {
     await supabase.auth.signOut();
     redirect("/login?error=invalid");
   }
+
   if (profile.status === "pending") {
     await supabase.auth.signOut();
     redirect("/pending-approval");
   }
+
   if (profile.status === "suspended") {
     await supabase.auth.signOut();
     redirect("/access-denied");
@@ -75,32 +211,67 @@ export async function signUp(formData: FormData) {
   if (!email || !password || !fullName || !isPortalRole(roleValue) || roleValue === "admin") {
     redirect("/login?mode=request&error=missing");
   }
+
   if (password.length < 8) {
     redirect("/login?mode=request&error=weakpassword");
   }
 
   const svc = await createServiceClient();
+
   const { data: existingProfile } = await svc
     .from("profiles")
-    .select("id")
+    .select("id, email, status, is_active, invitation_status")
     .ilike("email", email)
     .maybeSingle();
 
   if (existingProfile) {
+    if (isReusableReleasedProfile(existingProfile)) {
+      await requestAccessUsingExistingAuthUser({
+        userId: existingProfile.id,
+        email,
+        password,
+        fullName,
+        roleValue,
+        company,
+        phone,
+      });
+    }
+
     redirect(`/login?mode=request&error=account_exists&email=${encodeURIComponent(email)}`);
   }
 
   const supabase = await createClient();
+
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { full_name: fullName, role: roleValue } },
+    options: {
+      data: {
+        full_name: fullName,
+        role: roleValue,
+      },
+    },
   });
 
   if (error || !data.user) {
     if (error?.message && /already|registered|exists/i.test(error.message)) {
+      const releasedProfile = await findReleasedProfileForEmail(email);
+
+      if (releasedProfile && isReusableReleasedProfile(releasedProfile)) {
+        await requestAccessUsingExistingAuthUser({
+          userId: releasedProfile.id,
+          email,
+          password,
+          fullName,
+          roleValue,
+          company,
+          phone,
+        });
+      }
+
       redirect(`/login?mode=request&error=account_exists&email=${encodeURIComponent(email)}`);
     }
+
     redirect("/login?mode=request&error=signup");
   }
 
@@ -108,11 +279,14 @@ export async function signUp(formData: FormData) {
     await svc
       .from("profiles")
       .update({
+        email,
         full_name: fullName,
         role: roleValue,
         company_name: company || null,
         phone: phone || null,
         status: "pending",
+        is_active: false,
+        invitation_status: "access_requested",
       })
       .eq("id", data.user.id);
   } catch {
@@ -126,6 +300,7 @@ export async function signUp(formData: FormData) {
     entityType: "profile",
     entityId: data.user.id,
   });
+
   await logAuditEvent({
     actor: { id: data.user.id, email, role: roleValue },
     action: "access_requested",
@@ -146,6 +321,7 @@ export async function signOut() {
 
 export async function requestPasswordReset(formData: FormData) {
   const email = field(formData, "email").toLowerCase();
+
   if (!email) redirect("/forgot-password?error=missing");
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
@@ -156,25 +332,30 @@ export async function requestPasswordReset(formData: FormData) {
     : "";
 
   const supabase = await createClient();
+
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: origin ? `${origin.replace(/\/+$/, "")}/auth/password-setup` : undefined,
   });
 
   if (error) redirect("/forgot-password?error=failed");
+
   redirect("/forgot-password?success=sent");
 }
 
 export async function updatePassword(formData: FormData) {
   const password = field(formData, "password");
   const confirm = field(formData, "confirm_password");
+
   if (!password || password.length < 8) redirect("/reset-password?error=weakpassword");
   if (password !== confirm) redirect("/reset-password?error=mismatch");
 
   const cookieStore = await cookies();
   const expectedUserId = cookieStore.get(PASSWORD_SETUP_COOKIE)?.value;
+
   if (!expectedUserId) redirect("/forgot-password?error=failed");
 
   const supabase = await createClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -186,10 +367,12 @@ export async function updatePassword(formData: FormData) {
   }
 
   const { error } = await supabase.auth.updateUser({ password });
+
   if (error) redirect("/reset-password?error=failed");
 
   cookieStore.delete(PASSWORD_SETUP_COOKIE);
   await supabase.auth.signOut();
+
   redirect("/login?success=password-reset");
 }
 
@@ -209,6 +392,7 @@ export async function updatePortalEmail(formData: FormData) {
     : "";
 
   const supabase = await createClient();
+
   const { error } = await supabase.auth.updateUser({
     email: nextEmail,
   });
@@ -236,6 +420,7 @@ export async function updatePortalPassword(formData: FormData) {
   if (password !== confirm) redirect(`${backTo}?accountError=mismatch`);
 
   const supabase = await createClient();
+
   const { error } = await supabase.auth.updateUser({ password });
 
   if (error) redirect(`${backTo}?accountError=password-failed`);
