@@ -1,38 +1,38 @@
 export const COMPANY = {
   name: "AMG Aviation Group",
   shortName: "AMG",
-  tagline: "Aircraft operations support for owners, crews, and flight departments.",
+  tagline: "Private aircraft support coordination for owners, crews, and flight departments.",
   email: "information@amgaviationgroup.com",
   phone: "",
-  location: "United States based. Worldwide coordination.",
+  location: "United States based. Support reviewed by operating region.",
   disclaimer:
-    "AMG Aviation Group provides aircraft operations support, coordination, and crew sourcing assistance for Part 91 aviation environments. AMG is not an air carrier, does not advertise charter service, and does not act as the legal operator of any aircraft unless separately documented in writing.",
+    "AMG Aviation Group provides private aircraft support coordination, crew sourcing assistance, and operational administration for owner/operator and Part 91 aviation environments. AMG is not an air carrier, does not advertise or sell charter service, and does not act as the legal operator of any aircraft unless separately documented in writing.",
   requestDisclaimer:
-    "Submitting a Support Request does not constitute mission acceptance, crew confirmation, aircraft availability, a binding quote, or a contract. All services remain subject to operational review, crew availability, aircraft availability, aircraft status, maintenance status, insurance requirements, weather, airport restrictions, owner/operator approval, and final acceptance.",
+    "Submitting a Support Request does not constitute mission acceptance, crew confirmation, aircraft availability, a binding quote, or a contract. Every request remains subject to support-scope review, aircraft status, maintenance status, crew availability, insurance requirements, weather, airport restrictions, owner/operator approval, and final acceptance.",
 } as const;
 
 export const STATS = [
   { label: "Support Categories", value: 6, suffix: "" },
   { label: "Aircraft Classes", value: 8, suffix: "" },
-  { label: "Standard Portal Entry", value: 1, suffix: "" },
+  { label: "Portal Entry Point", value: 1, suffix: "" },
   { label: "Acceptance Review", value: 100, suffix: "%" },
 ] as const;
 
 export const SERVICES = [
   {
     id: "aircraft-management-support",
-    title: "Aircraft Management Support",
+    title: "Aircraft Support Administration",
     summary:
-      "Administrative support for aircraft scheduling inputs, crew coordination, records organization, maintenance communication, and recurring owner updates.",
+      "Administrative coordination for aircraft scheduling inputs, crew communication, records organization, maintenance communication, and recurring owner updates.",
     useCase:
-      "For owners or flight departments that need a structured support layer around aircraft readiness, communication, and recurring operating tasks.",
+      "For owners or flight departments that need a structured support layer around aircraft readiness, communication, documents, and recurring operating tasks.",
     requiredInfo:
-      "Ownership or operating entity, aircraft base, current crew arrangement, management arrangement, records status, scheduling expectations, accounting needs, desired scope, start date, aircraft count, and current concerns.",
+      "Ownership or operating entity, aircraft base, current crew arrangement, management arrangement, records status, scheduling expectations, accounting needs, desired support scope, start date, aircraft count, and current concerns.",
     notIncluded:
-      "Operational control, guaranteed aircraft availability, aircraft-management accounting, maintenance invoices, insurance, fuel, parts, or mechanic labor.",
-    requestCategory: "Aircraft Management Support",
+      "Operational control, guaranteed aircraft availability, full aircraft-management accounting, maintenance invoices, insurance, fuel, parts, or mechanic labor.",
+    requestCategory: "Aircraft Support Administration",
     points: [
-      "Scheduling and owner communication",
+      "Scheduling inputs and owner communication",
       "Crew coordination and assignment readiness",
       "Aircraft record and document organization",
       "Maintenance communication support",
@@ -44,7 +44,7 @@ export const SERVICES = [
     summary:
       "Pilot sourcing and assignment review aligned with aircraft type, crew seat, insurance minimums, timing, route, and operating scope.",
     useCase:
-      "For a mission, repositioning event, maintenance movement, or temporary coverage need that requires credential-reviewed pilot support.",
+      "For a repositioning event, maintenance movement, owner-requested activity, or temporary coverage need that requires credential-reviewed pilot support.",
     requiredInfo:
       "Aircraft make/model, tail number, PIC/SIC need, type-rating requirements, insurance minimums, dates, origin, destination, duty estimate, legs, international requirements, positioning, lodging, operator requirements, and special notes.",
     notIncluded:
@@ -80,7 +80,7 @@ export const SERVICES = [
     id: "maintenance-flight-support",
     title: "Maintenance Flight Support",
     summary:
-      "Structured support for movements associated with inspections, maintenance events, acceptance flights, and return-to-service activity.",
+      "Structured coordination for maintenance positioning, inspection-related movement, acceptance-flight context, and return-to-service activity.",
     useCase:
       "For maintenance-related aircraft movement that requires owner, facility, crew, documentation, and aircraft-status coordination.",
     requiredInfo:
@@ -97,16 +97,16 @@ export const SERVICES = [
   },
   {
     id: "flight-operations-coordination",
-    title: "Flight Operations Coordination",
+    title: "Support Operations Coordination",
     summary:
-      "Mission intake, scheduling inputs, crew logistics, travel, lodging, vendor communication, documentation, and owner updates.",
+      "Request intake, scheduling inputs, crew logistics, travel, lodging, vendor communication, documentation, and owner updates.",
     useCase:
       "For an owner or flight department that needs one accountable coordination point for an approved Part 91 support requirement.",
     requiredInfo:
-      "Mission dates, origin, destination, passenger count, crew requirements, aircraft status, FBO needs, ground transportation, lodging, international requirements, permits, catering, timing restrictions, and primary decision maker.",
+      "Support dates, origin, destination, passenger count if relevant, crew requirements, aircraft status, FBO needs, ground transportation, lodging, international requirements, permits, catering, timing restrictions, and primary decision maker.",
     notIncluded:
       "Direct air-carrier service, guaranteed mission acceptance, fuel, airport fees, catering, permits, customs, or aircraft operating expenses.",
-    requestCategory: "Flight Operations Coordination",
+    requestCategory: "Support Operations Coordination",
     points: [
       "Support request intake",
       "Route and timing coordination",
@@ -116,7 +116,7 @@ export const SERVICES = [
   },
   {
     id: "fleet-support-programs",
-    title: "Fleet Support Program",
+    title: "Fleet / Department Support",
     summary:
       "Recurring support models for owners and flight departments managing multiple aircraft, frequent activity, or variable crew requirements.",
     useCase:
@@ -125,7 +125,7 @@ export const SERVICES = [
       "Number of aircraft, aircraft types, bases, current staffing, expected monthly activity, maintenance activity, desired support functions, reporting needs, dedicated-contact requirement, after-hours requirement, and start date.",
     notIncluded:
       "Full aircraft-management accounting, aircraft expenses, vendor charges, dedicated dispatch unless quoted, or guaranteed crew availability.",
-    requestCategory: "Fleet Support Program",
+    requestCategory: "Fleet / Department Support",
     points: [
       "Baseline coordination support",
       "Recurring service allowance",
@@ -144,17 +144,17 @@ export const HOW_AMG_WORKS = [
   {
     step: "02",
     title: "Review",
-    body: "AMG reviews availability, qualifications, logistics, operating limitations, and mission conditions.",
+    body: "AMG reviews support scope, aircraft status, crew availability, logistics, operating limitations, and request conditions.",
   },
   {
     step: "03",
     title: "Coordinate",
-    body: "Approved crew, travel, lodging, documentation, vendors, and communication are coordinated as required.",
+    body: "When the path is suitable, crew, travel, lodging, documentation, vendors, and communication are coordinated as required.",
   },
   {
     step: "04",
     title: "Support",
-    body: "The mission proceeds under the applicable operating authority, approvals, and responsibilities of the aircraft owner or operator.",
+    body: "Support proceeds under the applicable operating authority, approvals, and responsibilities of the aircraft owner or operator.",
   },
 ] as const;
 
@@ -168,11 +168,11 @@ export const CAPABILITIES = [
     body: "Pilot support is evaluated against credentials, aircraft qualifications, availability, insurance requirements, and assignment suitability.",
   },
   {
-    title: "Owner Communication",
+    title: "Owner Visibility",
     body: "AMG keeps owners and approved representatives informed without implying automatic acceptance or aircraft availability.",
   },
   {
-    title: "Operational Accountability",
+    title: "Support Accountability",
     body: "Support activity is organized through clear review, coordination, documentation, and communication checkpoints.",
   },
 ] as const;
@@ -185,7 +185,7 @@ export const AIRCRAFT_CATEGORIES = [
     examples: "Cirrus SR22, Beechcraft Bonanza, Cessna 182",
     crew: "Typically single-pilot, subject to aircraft, insurance, and owner/operator requirements.",
     support: "Owner support, repositioning, document organization, and pilot qualification review for piston aircraft operations.",
-    useCases: "Owner travel support, maintenance positioning, purchase support, currency-sensitive assignments, and local or regional repositioning.",
+    useCases: "Maintenance positioning, purchase support, owner-requested repositioning, currency-sensitive assignments, and local or regional support.",
     pricing: "Standard subscription class",
     factors: ["Airport limitations", "Aircraft status", "Pilot qualification", "Owner/operator approval"],
   },
@@ -195,8 +195,8 @@ export const AIRCRAFT_CATEGORIES = [
     category: "Multi-Engine Piston",
     examples: "Baron, Seneca, Diamond DA42/DA62",
     crew: "Usually single-pilot or two-pilot by requirement, aircraft, insurance, and mission profile.",
-    support: "Crew sourcing, maintenance movements, aircraft documentation, and mission review for piston twins.",
-    useCases: "Training-adjacent movements, owner repositioning, maintenance flights, and regional operations.",
+    support: "Crew sourcing, maintenance movements, aircraft documentation, and support review for piston twins.",
+    useCases: "Owner repositioning, maintenance flights, training-adjacent movements, and regional support activity.",
     pricing: "Standard subscription class",
     factors: ["Multi-engine currency", "Aircraft status", "Runway performance", "Insurance requirements"],
   },
@@ -207,7 +207,7 @@ export const AIRCRAFT_CATEGORIES = [
     examples: "TBM, Pilatus PC-12, King Air",
     crew: "Single-pilot or two-pilot depending on aircraft, insurance, operator standards, and mission profile.",
     support: "Regional support, maintenance positioning, crew sourcing, and operating-condition review.",
-    useCases: "Regional owner travel, maintenance positioning, weather-sensitive operations, and remote-airport planning.",
+    useCases: "Regional owner activity, maintenance positioning, weather-sensitive operations, and remote-airport planning.",
     pricing: "Standard subscription class",
     factors: ["Route profile", "Maintenance status", "Crew availability", "Weather"],
   },
@@ -217,7 +217,7 @@ export const AIRCRAFT_CATEGORIES = [
     category: "Single-Engine Jet / VLJ",
     examples: "Cirrus Vision Jet SF50",
     crew: "Typically single-pilot, subject to type, currency, insurance, and owner/operator requirements.",
-    support: "Aircraft-specific support for owner missions, ferry movement, and crew qualification review.",
+    support: "Aircraft-specific support for owner activity, ferry movement, and crew qualification review.",
     useCases: "Owner-flown support, contract pilot review, short repositioning, and maintenance movement support.",
     pricing: "Standard subscription class",
     factors: ["Aircraft type", "Insurance requirements", "Airport restrictions", "Pilot currency"],
@@ -229,7 +229,7 @@ export const AIRCRAFT_CATEGORIES = [
     examples: "Citation M2, Citation CJ series, HondaJet, Phenom 100",
     crew: "Often single-pilot-capable by type but subject to insurance, operator, and mission requirements.",
     support: "Short-haul support, repositioning coordination, owner communication, and assignment readiness.",
-    useCases: "Owner missions, temporary crew coverage, maintenance positioning, and regional support.",
+    useCases: "Owner-requested activity, temporary crew coverage, maintenance positioning, and regional support.",
     pricing: "Standard subscription class",
     factors: ["Crew pairing", "Timing", "Aircraft readiness", "Operating limitations"],
   },
@@ -240,7 +240,7 @@ export const AIRCRAFT_CATEGORIES = [
     examples: "Citation Latitude, Hawker 800XP, Learjet 60",
     crew: "Commonly two-pilot operations, subject to aircraft, insurance, and owner/operator standards.",
     support: "Crew sourcing, support request review, and coordination for domestic or regional operating needs.",
-    useCases: "Owner trips, repositioning, maintenance support, standby review, and expanded crew logistics.",
+    useCases: "Owner support activity, repositioning, maintenance support, standby review, and expanded crew logistics.",
     pricing: "Standard subscription class",
     factors: ["Crew requirement", "Aircraft status", "Route complexity", "Owner/operator approval"],
   },
@@ -251,7 +251,7 @@ export const AIRCRAFT_CATEGORIES = [
     examples: "Challenger 350, Praetor 600, Citation X/X+",
     crew: "Two-pilot operations are typical, with proposal review based on crew, route, and operating scope.",
     support: "Expanded crew, travel, documentation, and logistics support for more complex movements.",
-    useCases: "Longer domestic missions, complex repositioning, international planning inputs, and higher-touch crew logistics.",
+    useCases: "Longer domestic movements, complex repositioning, international planning inputs, and higher-touch crew logistics.",
     pricing: "Custom proposal only",
     factors: ["Mission complexity", "Crew availability", "International considerations", "Vendor coordination"],
   },
@@ -262,7 +262,7 @@ export const AIRCRAFT_CATEGORIES = [
     examples: "Gulfstream, Global, large-cabin Falcon",
     crew: "Two-pilot operations with possible cabin, international, and support requirements by mission.",
     support: "Longer-range support coordination where crew, aircraft status, facilities, and approvals require tighter control.",
-    useCases: "Owner travel support, crew sourcing review, maintenance movement, international support planning, and vendor coordination.",
+    useCases: "Owner support activity, crew sourcing review, maintenance movement, international support planning, and vendor coordination.",
     pricing: "Standard subscription class",
     factors: ["Operating authority", "Insurance", "Airport restrictions", "Final acceptance"],
   },
@@ -273,7 +273,7 @@ export const AIRCRAFT_CATEGORIES = [
     examples: "Reviewed by aircraft, operator, mission profile, and risk context",
     crew: "Custom review only; not a standard subscription class.",
     support: "Helicopter requests may be reviewed when the scope, approvals, aircraft status, and crew requirements are clear.",
-    useCases: "Specialized movement, owner/operator support, or unusual mission review where AMG can determine an appropriate support path.",
+    useCases: "Specialized movement, owner/operator support, or unusual request review where AMG can determine an appropriate support path.",
     pricing: "Custom review only",
     factors: ["Mission profile", "Aircraft status", "Operator approval", "Risk review"],
   },
@@ -288,7 +288,7 @@ export const VALUES = [
   },
   {
     title: "Responsiveness",
-    body: "Owners, crews, and vendors need quick coordination without vague promises or buried assumptions.",
+    body: "Owners, crews, and vendors need timely coordination without vague promises or buried assumptions.",
   },
   {
     title: "Suitability",
@@ -303,20 +303,20 @@ export const VALUES = [
 export const TEAM = [
   {
     name: "AMG Operations",
-    title: "Mission Coordination",
-    bio: "The central support desk for request review, scheduling, aircraft readiness communication, owner updates, and crew coordination.",
+    title: "Support Coordination",
+    bio: "The central support desk for request review, aircraft-readiness communication, owner updates, vendor coordination, and crew coverage routing.",
     initials: "AO",
   },
   {
     name: "Crew Network",
     title: "Assignment Readiness",
-    bio: "Credential-reviewed pilots and aviation professionals considered for assignment suitability, aircraft qualification, and availability.",
+    bio: "Credential-reviewed pilots and aviation professionals considered for aircraft qualification, availability, and assignment suitability.",
     initials: "CN",
   },
   {
     name: "Client Services",
     title: "Owner Communication",
-    bio: "The owner-facing support channel for aircraft needs, support requests, passenger context, documents, and operational updates.",
+    bio: "The owner-facing support channel for aircraft needs, support requests, passenger context where applicable, documents, and operational updates.",
     initials: "CS",
   },
   {
@@ -332,7 +332,7 @@ export const PILOT_REQUIREMENTS = [
   "Aircraft qualifications and recent experience",
   "Availability and assignment suitability",
   "Current documents and credentials where applicable",
-  "Owner/operator, insurance, and mission-specific approval",
+  "Owner/operator, insurance, and support-specific approval",
 ] as const;
 
 export const PILOT_BENEFITS = [
@@ -365,7 +365,7 @@ export const PLANS = [
       "Support request review",
       "Owner communication",
       "Document visibility",
-      "Mission-variable costs reviewed separately",
+      "Variable costs reviewed separately",
     ],
     highlighted: false,
   },
@@ -385,11 +385,11 @@ export const PLANS = [
   },
   {
     id: "fleet",
-    name: "Fleet Support",
+    name: "Fleet / Department Support",
     monthly: "Annual support plan",
     description: "For owners or flight departments managing multiple aircraft, recurring activity, or variable crew needs.",
     features: [
-      "Fleet-level support credit",
+      "Fleet-level support structure",
       "Recurring support cadence",
       "Multi-aircraft coordination visibility",
       "Role-based portal access",
@@ -405,14 +405,14 @@ export const PORTAL_ROLES = [
     title: "Client Portal",
     href: "/portal/client",
     access: "Aircraft owners and approved representatives",
-    actions: ["Support requests", "Passenger context", "Aircraft documents", "AMG messages"],
+    actions: ["Support requests", "Aircraft context", "Documents", "AMG messages"],
   },
   {
     id: "crew",
     title: "Crew Portal",
     href: "/portal/crew",
     access: "Pilots, maintenance, aircraft managers, and external support users",
-    actions: ["Assignment review", "Manifest context", "Aircraft readiness", "Document tracking"],
+    actions: ["Assignment review", "Support context", "Aircraft readiness", "Document tracking"],
   },
   {
     id: "admin",
@@ -432,16 +432,16 @@ export const PORTAL_ROLES = [
 
 export const CONTACT_CARDS = [
   {
-    title: "Operations Support",
-    body: "Aircraft management support, flight operations coordination, ferry and repositioning assistance, or maintenance flight support.",
+    title: "Aircraft Support",
+    body: "Aircraft support administration, support operations coordination, ferry/reposition assistance, or maintenance flight support.",
   },
   {
-    title: "Pilot Network",
+    title: "Crew Network",
     body: "Credential submission, crew profile questions, aircraft qualification updates, or assignment suitability inquiries.",
   },
   {
     title: "Client / Owner Support",
-    body: "Owner communication, support request status, aircraft profile details, passenger context, or portal access.",
+    body: "Owner communication, support request status, aircraft profile details, approved passenger context, or portal access.",
   },
   {
     title: "General Inquiries",
@@ -483,9 +483,9 @@ export const FOOTER_COLS = [
     links: [
       { label: "Aircraft Support", href: "/aircraft-support" },
       { label: "Aircraft Movement", href: "/operations" },
-      { label: "Crew Coverage", href: "/operations" },
-      { label: "Mission Coordination", href: "/operations" },
-      { label: "Maintenance Repositioning", href: "/operations" },
+      { label: "Crew Coverage", href: "/crew-network" },
+      { label: "Support Coordination", href: "/operations" },
+      { label: "Maintenance Repositioning", href: "/aircraft-support" },
     ],
   },
   {
@@ -493,7 +493,7 @@ export const FOOTER_COLS = [
     links: [
       { label: "Member Login", href: "/login" },
       { label: "Request Access", href: "/login?mode=request" },
-      { label: "Portal Preview", href: "/amg-connect" },
+      { label: "Portal Overview", href: "/amg-connect" },
       { label: "Support Plans", href: "/plans" },
     ],
   },
