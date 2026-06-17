@@ -8,7 +8,7 @@ import { IMG } from "@/lib/site-media";
 export const metadata: Metadata = {
   title: "Crew Network",
   description:
-    "A credential-reviewed crew network. AMG matches pilots and aviation professionals to aircraft type, insurance minimums, and assignment suitability.",
+    "A credential-reviewed crew network organized by base airport, aircraft experience, documents, availability, and assignment suitability.",
 };
 
 export default function CrewNetworkPage() {
@@ -16,8 +16,8 @@ export default function CrewNetworkPage() {
     <>
       <PageHero
         eyebrow="Crew Network"
-        title="A credential-reviewed crew network."
-        lead="AMG organizes pilots and aviation professionals around qualifications, aircraft experience, and assignment suitability — so crew is matched to the mission, not just sourced."
+        title="Crew coverage reviewed by aircraft, role, and assignment."
+        lead="AMG organizes pilots and aviation professionals around base airport, aircraft experience, documents, and suitability — so crew support is reviewed against the aircraft need, not treated as an automatic placement."
         image={IMG.pilotNetwork}
         imageAlt="Flight crew walking the ramp toward an aircraft"
         primary={{ label: "Submit Credentials", href: "/credential-submission" }}
@@ -32,7 +32,7 @@ export default function CrewNetworkPage() {
             <SectionHeading
               eyebrow="How the network works"
               title="Reviewed before assignment, every time."
-              lead="Profiles are organized around what actually determines suitability for a mission."
+              lead="Profiles are organized around the details that actually determine whether a crew member can support a specific aircraft need."
             />
             <ol className="mt-8 grid gap-3" data-stagger-container>
               {PILOT_REQUIREMENTS.map((req, i) => (
@@ -59,7 +59,7 @@ export default function CrewNetworkPage() {
           <SectionHeading
             eyebrow="For crew"
             title="What approved users can expect."
-            lead="The network is built for clarity and suitability — not a casual job board."
+            lead="The network is built for credential organization, assignment context, and clear communication — not a casual job board or guaranteed placement system."
           />
           <div className="mt-12 grid gap-5 sm:grid-cols-2" data-stagger-container>
             {PILOT_BENEFITS.map((b) => (
@@ -76,8 +76,8 @@ export default function CrewNetworkPage() {
 
       <CtaBand
         eyebrow="Crew Network"
-        title="Join the AMG crew network."
-        body="Submit your credentials for review. Profile submission and approval do not guarantee assignment, compensation, or future engagement."
+        title="Submit credentials for crew network review."
+        body="Profile submission helps AMG review qualifications, aircraft experience, documents, base airport, and support suitability. Submission and approval do not guarantee assignment, compensation, or future engagement."
         primaryLabel="Submit Credentials"
         primaryHref="/credential-submission"
         secondaryLabel="Member Login"
