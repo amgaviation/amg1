@@ -3,7 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 import { COMPANY, FOOTER_COLS } from "@/lib/content";
 
 const FOOTER_NOTE =
-  "AMG support requests are subject to aircraft status, crew availability, owner/operator approval, operating conditions, and final acceptance. AMG Aviation Group does not present a request as accepted until the applicable review is complete.";
+  "AMG support requests are subject to aircraft status, crew availability, owner/operator approval, operating conditions, support-scope review, and final acceptance. AMG Aviation Group does not present a request as accepted until the applicable review is complete.";
 
 export function SiteFooter() {
   return (
@@ -14,8 +14,8 @@ export function SiteFooter() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/logo-white.png" alt="AMG Aviation Group" width="1088" height="221" className="h-9 w-auto" />
             <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]">
-              Coordination for aircraft movement, crew coverage, maintenance repositioning, and mission-specific
-              support — built for owners, flight departments, crews, and approved representatives.
+              Private aircraft support coordination for aircraft movement, crew coverage, maintenance repositioning, and
+              support-specific activity — built for owners, flight departments, crews, and approved representatives.
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <Link href="/contact" prefetch={false} className="oc-btn oc-btn-light">
