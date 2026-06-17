@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft,
   ArrowRight,
   BadgeCheck,
   FileText,
@@ -63,26 +62,7 @@ export function PortalLogin({
 
   return (
     <main className="grid min-h-svh bg-[#07111f] text-white lg:grid-cols-2">
-      <section className="flex min-h-svh flex-col px-6 py-6 md:px-10">
-        <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/logo-white.png"
-              alt="AMG Aviation Group"
-              className="h-8 w-auto"
-            />
-          </Link>
-
-          <Link
-            href="/"
-            className="inline-flex min-h-11 items-center gap-2 text-sm text-white/65 transition hover:text-white"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Public site
-          </Link>
-        </div>
-
+      <section className="flex min-h-svh flex-col px-6 py-16 md:px-10 lg:py-20">
         <div className="flex flex-1 items-center justify-center py-12">
           <div className="w-full max-w-md">
             <div className="mb-8">
@@ -135,19 +115,22 @@ export function PortalLogin({
 
             {error ? (
               <div className="mb-4 rounded-xl border border-red-400/25 bg-red-500/10 px-4 py-3 text-sm leading-6 text-red-100">
-                {ERROR_MESSAGES[error] ?? "Something went wrong. Please try again."}
+                {ERROR_MESSAGES[error] ??
+                  "Something went wrong. Please try again."}
               </div>
             ) : null}
 
             {success === "requested" ? (
               <div className="mb-4 rounded-xl border border-emerald-300/25 bg-emerald-500/10 px-4 py-3 text-sm leading-6 text-emerald-100">
-                Access request submitted. AMG Operations will review and approve your account.
+                Access request submitted. AMG Operations will review and approve
+                your account.
               </div>
             ) : null}
 
             {success === "password-reset" ? (
               <div className="mb-4 rounded-xl border border-emerald-300/25 bg-emerald-500/10 px-4 py-3 text-sm leading-6 text-emerald-100">
-                Password created. Sign in with your AMG portal email and new login key.
+                Password created. Sign in with your AMG portal email and new
+                login key.
               </div>
             ) : null}
 
@@ -241,7 +224,8 @@ export function PortalLogin({
                 </button>
 
                 <p className="mt-5 text-center text-xs leading-relaxed text-white/45">
-                  Portal access is limited to approved users. Unauthorized access is denied.
+                  Portal access is limited to approved users. Unauthorized
+                  access is denied.
                 </p>
               </form>
             ) : (
@@ -311,14 +295,15 @@ export function PortalLogin({
                 </button>
 
                 <p className="mt-4 text-center text-xs leading-relaxed text-white/45">
-                  AMG Operations reviews and approves every account before activation.
+                  AMG Operations reviews and approves every account before
+                  activation.
                 </p>
               </form>
             )}
 
             <p className="mt-6 text-xs leading-5 text-white/40">
-              Portal visibility does not replace operational approval, crew confirmation,
-              aircraft status review, or final support acceptance.
+              Portal visibility does not replace operational approval, crew
+              confirmation, aircraft status review, or final support acceptance.
             </p>
           </div>
         </div>
