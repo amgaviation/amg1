@@ -6,7 +6,7 @@ import { IMG } from "@/lib/site-media";
 export const metadata: Metadata = {
   title: "About AMG",
   description:
-    "AMG Aviation Group provides structured aircraft operations support and coordination for Part 91 environments — not charter, not an air carrier.",
+    "AMG Aviation Group provides structured aircraft support coordination for owner/operator and Part 91 environments — not charter, not an air carrier.",
 };
 
 export default function AboutPage() {
@@ -14,8 +14,8 @@ export default function AboutPage() {
     <>
       <PageHero
         eyebrow="About AMG"
-        title="Built by operators, for operators."
-        lead="AMG Aviation Group provides structured coordination and support for aircraft owners, flight departments, crews, and approved representatives — with operational control kept where it belongs."
+        title="Built around real aircraft support needs."
+        lead="AMG Aviation Group provides structured coordination for aircraft owners, flight departments, crews, and approved representatives — with operating authority, aircraft approval, and pilot-in-command responsibility kept where they belong."
         image={IMG.aboutOperations}
         imageAlt="AMG operations environment"
         primary={{ label: "Request Support", href: "/contact" }}
@@ -27,8 +27,8 @@ export default function AboutPage() {
           <div data-scroll-animate>
             <SectionHeading
               eyebrow="What AMG does"
-              title="Coordination with operational discipline."
-              lead="AMG supports aircraft movement, crew coverage, maintenance repositioning, and mission coordination — organized through clear review, documentation, and communication."
+              title="Coordination for the work around the aircraft."
+              lead="AMG supports aircraft movement, crew coverage, maintenance repositioning, support administration, and stakeholder communication through clear review, documentation, and coordination."
             />
             <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-[var(--oc-muted)]">
               {COMPANY.disclaimer}
@@ -63,9 +63,9 @@ export default function AboutPage() {
       <section className="oc-section bg-[var(--oc-ivory)]">
         <div className="oc-shell">
           <SectionHeading
-            eyebrow="The desks"
-            title="One support desk, four points of contact."
-            lead="AMG is organized around the roles that keep a support request moving — coordination, crew, owner communication, and access."
+            eyebrow="Support desk"
+            title="One support model, four working functions."
+            lead="AMG is organized around the functions that keep a support request moving — coordination, crew review, owner communication, and access control."
           />
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
             {TEAM.map((member) => (
