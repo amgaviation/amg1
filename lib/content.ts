@@ -473,7 +473,7 @@ export const FOOTER_COLS = [
     heading: "Company",
     links: [
       { label: "About AMG", href: "/about" },
-      { label: "AMG Operations", href: "/operations" },
+      { label: "Capabilities", href: "/capabilities" },
       { label: "Crew Network", href: "/crew-network" },
       { label: "Contact", href: "/contact" },
       { label: "Request Support", href: "/request-support" },
@@ -482,10 +482,10 @@ export const FOOTER_COLS = [
   {
     heading: "Capabilities",
     links: [
-      { label: "Aircraft Support", href: "/aircraft-support" },
-      { label: "Aircraft Movement", href: "/operations" },
+      { label: "Aircraft Supported", href: "/aircraft-support" },
+      { label: "Aircraft Movement", href: "/capabilities" },
       { label: "Crew Coverage", href: "/crew-network" },
-      { label: "Support Coordination", href: "/operations" },
+      { label: "Support Coordination", href: "/capabilities" },
       { label: "Maintenance Repositioning", href: "/aircraft-support" },
     ],
   },
@@ -512,12 +512,11 @@ export const FOOTER_COLS = [
 
 export const NAV_LINKS = [
   { label: "Home", href: "/" },
-  { label: "Operations", href: "/operations" },
-  { label: "Aircraft Support", href: "/aircraft-support" },
-  { label: "Crew Network", href: "/crew-network" },
-  { label: "AMG Connect", href: "/amg-connect" },
-  { label: "Plans", href: "/plans" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
-  { label: "Request Support", href: "/request-support" },
+  { label: "Capabilities", href: "/capabilities" },
+  { label: "Plans", href: "/plans" },
+  { label: "Aircraft Supported", href: "/aircraft-support" },
+  { label: "Crew Network", href: "/crew-network" },
+  { label: "AMG Connect", href: "/amg-connect" },
 ] as const;

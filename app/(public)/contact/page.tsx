@@ -7,7 +7,7 @@ import { COMPANY } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Contact AMG Aviation Group | Aviation Operations Support",
+    absolute: "Contact AMG Aviation Group | Aviation Support Capabilities",
   },
   description:
     "Contact AMG Aviation Group for general inquiries, plan questions, pilot network communication, vendor coordination, and aviation support routing.",
@@ -44,7 +44,7 @@ export default async function ContactPage({
         <div className="grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-start">
           <aside className="grid gap-5">
             <div className="rounded-2xl border border-[var(--oc-line)] bg-white/72 p-6 shadow-[var(--oc-shadow)] backdrop-blur-xl">
-              <p className="oc-eyebrow text-[var(--oc-blue)]">AMG Operations</p>
+              <p className="oc-eyebrow text-[var(--oc-blue)]">AMG Contact</p>
               <h2 className="mt-4 text-2xl font-semibold text-[var(--oc-ink)]">Inquiry routing</h2>
               <p className="mt-4 text-sm leading-relaxed text-[var(--oc-muted)]">
                 AMG routes inquiries based on request type, aircraft context when applicable, timing, and the appropriate support path.

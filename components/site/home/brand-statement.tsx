@@ -34,7 +34,7 @@ export function BrandStatement() {
     <section className="oc-panel-graphite oc-grain relative overflow-hidden text-[var(--oc-paper)]">
       <div className="oc-shell relative z-10 py-20 lg:py-28">
         <div className="mx-auto max-w-3xl text-center" data-scroll-animate>
-          <p className="oc-eyebrow oc-eyebrow-light">AMG Operations</p>
+          <p className="oc-eyebrow oc-eyebrow-light">AMG Capabilities</p>
           <h2 className="oc-display mt-5 text-3xl text-[var(--oc-paper)] sm:text-4xl lg:text-[2.9rem]">
             Private aviation support built around
           </h2>

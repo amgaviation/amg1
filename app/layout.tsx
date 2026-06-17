@@ -10,13 +10,13 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: {
-    default: "AMG Aviation Group — Aircraft Operations Support",
+    default: "AMG Aviation Group - Aircraft Support Capabilities",
     template: "%s | AMG Aviation Group",
   },
   description:
-    "Aircraft operations support, crew coordination, ferry and repositioning assistance, maintenance flight support, and owner communication for Part 91 aviation environments.",
+    "Aircraft support capabilities, crew coordination, ferry and repositioning assistance, maintenance flight support, and owner communication for Part 91 aviation environments.",
   keywords: [
-    "aircraft operations support",
+    "aircraft support capabilities",
     "aircraft management support",
     "Part 91 operations",
     "contract pilot support",
@@ -27,9 +27,9 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "AMG Aviation Group" }],
   openGraph: {
-    title: "AMG Aviation Group — Aircraft Operations Support",
+    title: "AMG Aviation Group - Aircraft Support Capabilities",
     description:
-      "Aircraft operations support and coordination for Part 91 aviation environments.",
+      "Aircraft support capabilities and coordination for Part 91 aviation environments.",
     type: "website",
   },
 };

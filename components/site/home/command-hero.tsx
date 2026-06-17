@@ -42,7 +42,7 @@ export function CommandHero() {
           <div>
             <p className="oc-eyebrow oc-eyebrow-light inline-flex items-center gap-3">
               <span className="h-px w-10 bg-[var(--oc-aluminum-2)]" />
-              AMG Operations Command
+              AMG Capabilities
             </p>
             <h1 className="oc-display mt-6 max-w-4xl text-[clamp(2.7rem,7.2vw,5.6rem)] text-[var(--oc-paper)]">
               Aircraft support coordinated around movement, crew coverage, and mission timing.
@@ -56,8 +56,8 @@ export function CommandHero() {
                 Request Support
                 <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link href="/operations" prefetch={false} className="oc-btn oc-btn-ghost-dark">
-                Explore AMG Operations
+              <Link href="/capabilities" prefetch={false} className="oc-btn oc-btn-ghost-dark">
+                Explore Capabilities
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
             </div>

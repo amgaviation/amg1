@@ -20,7 +20,7 @@ export function HomeHero() {
         <div className="max-w-5xl" data-scroll-animate>
           <p className="eyebrow mb-6 inline-flex items-center gap-3 text-sky-200">
             <span className="h-px w-12 bg-sky-300/80" />
-            Aircraft Operations Support
+            Aircraft Support Capabilities
           </p>
 
           <h1 className="display-heading max-w-6xl text-balance text-5xl text-white sm:text-6xl lg:text-[5.2rem] 2xl:text-[7.2rem]">
@@ -44,7 +44,7 @@ export function HomeHero() {
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
-              href="/services"
+              href="/capabilities"
               prefetch={false}
               className="group inline-flex min-h-12 items-center gap-2 rounded-full border border-white/24 bg-white/10 px-8 py-4 font-display text-sm font-semibold uppercase text-white backdrop-blur transition-colors hover:border-sky-300 hover:text-sky-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
             >

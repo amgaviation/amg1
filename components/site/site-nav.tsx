@@ -19,18 +19,10 @@ function isActivePath(pathname: string, href: string) {
 }
 
 export function SiteNav() {
-  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 28);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => setOpen(false), [pathname]);
 
@@ -65,40 +57,23 @@ export function SiteNav() {
     };
   }, [open]);
 
-  // transparent over the dark hero at the very top; solid ivory once scrolled
-  const solid = scrolled || open;
-
   return (
     <header
-      className={cn(
-        "fixed inset-x-0 top-0 z-50 h-[var(--public-header-height)] transition-colors duration-300 motion-reduce:transition-none",
-        solid
-          ? "border-b border-[var(--oc-line)] bg-[var(--oc-paper)]/88 backdrop-blur-xl"
-          : "border-b border-transparent bg-transparent"
-      )}
+      className="fixed inset-x-0 top-0 z-50 h-[var(--public-header-height)] border-b border-[var(--oc-line)] bg-[var(--oc-paper)]/94 shadow-[0_14px_36px_rgba(11,26,43,0.08)] backdrop-blur-xl"
     >
-      <nav className="oc-shell flex h-full items-center gap-6">
+      <nav className="oc-shell flex h-full items-center gap-5">
         <Link href="/" prefetch={false} className="relative z-50 flex min-h-11 items-center" aria-label="AMG Aviation Group — home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/images/logo-white.png"
+            src="/images/logo-navy.png"
             alt="AMG Aviation Group"
             width="1088"
             height="221"
-            className={cn("h-7 w-auto transition-opacity duration-300", solid ? "opacity-0" : "opacity-100")}
-          />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/logo-navy.png"
-            alt=""
-            aria-hidden="true"
-            width="1088"
-            height="221"
-            className={cn("absolute left-0 h-7 w-auto transition-opacity duration-300", solid ? "opacity-100" : "opacity-0")}
+            className="h-7 w-auto"
           />
         </Link>
 
-        <ul className="ml-auto hidden items-center gap-4 xl:flex 2xl:gap-6">
+        <ul className="ml-auto hidden items-center gap-3 xl:flex 2xl:gap-5">
           {NAV_LINKS.map((link) => {
             const active = isActivePath(pathname, link.href);
             return (
@@ -108,9 +83,8 @@ export function SiteNav() {
                   prefetch={false}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "oc-kicker relative inline-flex min-h-11 items-center whitespace-nowrap transition-colors",
-                    solid ? "text-[var(--oc-ink)]/65 hover:text-[var(--oc-ink)]" : "text-white/75 hover:text-white",
-                    active && (solid ? "text-[var(--oc-ink)]" : "text-white"),
+                    "relative inline-flex min-h-11 items-center whitespace-nowrap text-[0.72rem] font-semibold uppercase leading-none text-[var(--oc-ink)]/66 transition-colors hover:text-[var(--oc-ink)]",
+                    active && "text-[var(--oc-ink)]",
                     active && "after:absolute after:inset-x-0 after:-bottom-1.5 after:h-px after:bg-current"
                   )}
                 >
@@ -121,34 +95,28 @@ export function SiteNav() {
           })}
         </ul>
 
-        <div className="ml-auto flex items-center gap-2.5 xl:ml-8">
-          <Link
-            href="/login"
-            prefetch={false}
-            className={cn(
-              "oc-kicker hidden min-h-11 items-center px-2 transition-colors sm:inline-flex",
-              solid ? "text-[var(--oc-ink)]/70 hover:text-[var(--oc-ink)]" : "text-white/80 hover:text-white"
-            )}
-          >
-            Member Login
-          </Link>
+        <div className="ml-auto flex items-center gap-2.5 xl:ml-5">
           <Link
             href="/request-support"
             prefetch={false}
-            className={cn("oc-btn hidden sm:inline-flex", solid ? "oc-btn-primary" : "oc-btn-light")}
+            className="oc-btn oc-btn-primary hidden sm:inline-flex"
           >
             Request Support
             <ArrowUpRight className="h-4 w-4" />
+          </Link>
+          <Link
+            href="/login"
+            prefetch={false}
+            className="hidden min-h-11 items-center whitespace-nowrap px-2 text-[0.72rem] font-semibold uppercase leading-none text-[var(--oc-ink)]/70 transition-colors hover:text-[var(--oc-ink)] sm:inline-flex"
+          >
+            Member Login
           </Link>
 
           <button
             ref={menuButtonRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className={cn(
-              "inline-flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full border transition-colors xl:hidden",
-              solid ? "border-[var(--oc-line-strong)] text-[var(--oc-ink)]" : "border-white/30 text-white"
-            )}
+            className="inline-flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full border border-[var(--oc-line-strong)] text-[var(--oc-ink)] transition-colors hover:border-[var(--oc-navy)] xl:hidden"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="amg-mobile-menu"
@@ -186,12 +154,12 @@ export function SiteNav() {
             })}
           </ul>
           <div className="oc-shell mt-8 grid gap-3 sm:grid-cols-2">
-            <Link href="/login" prefetch={false} className="oc-btn oc-btn-ghost justify-center">
-              Member Login
-            </Link>
             <Link href="/request-support" prefetch={false} className="oc-btn oc-btn-primary justify-center">
               Request Support
               <ArrowUpRight className="h-4 w-4" />
+            </Link>
+            <Link href="/login" prefetch={false} className="oc-btn oc-btn-ghost justify-center">
+              Member Login
             </Link>
           </div>
         </div>

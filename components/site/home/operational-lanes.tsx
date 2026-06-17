@@ -9,7 +9,7 @@ const LANES = [
     title: "Aircraft Movement",
     body: "Ferry, repositioning, delivery, and maintenance moves coordinated around airworthiness, route, timing, and owner/operator authorization.",
     image: IMG.runway,
-    href: "/operations",
+    href: "/capabilities",
     alt: "Jet on a runway prepared for a repositioning movement",
   },
   {
@@ -25,7 +25,7 @@ const LANES = [
     title: "Support Coordination",
     body: "A defined coordination point for scheduling inputs, logistics, travel, vendor communication, and documentation around a support request.",
     image: IMG.mapNetwork,
-    href: "/operations",
+    href: "/capabilities",
     alt: "Route and dispatch map overview",
   },
   {
@@ -52,7 +52,7 @@ export function OperationalLanes() {
             the logistics, and the people responsible for the operation.
           </p>
           <Link
-            href="/operations"
+            href="/capabilities"
             prefetch={false}
             className="oc-btn oc-btn-ghost mt-8"
           >

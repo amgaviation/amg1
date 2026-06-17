@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 const publicRoutes = [
   "",
-  "/operations",
+  "/capabilities",
   "/aircraft-support",
   "/crew-network",
   "/amg-connect",
