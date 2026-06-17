@@ -151,7 +151,7 @@ export function PageHero({
 export function CtaBand({
   eyebrow = "Support Request",
   title = "Start with the aircraft. We’ll review the support path.",
-  body = "Submit a Support Request for aircraft movement, crew coverage, maintenance repositioning, or mission-specific coordination.",
+  body = "Submit a Support Request for aircraft movement, crew coverage, maintenance repositioning, or support-specific coordination.",
   primaryLabel = "Submit a Support Request",
   primaryHref = "/contact",
   secondaryLabel = "Member Login",
@@ -189,7 +189,7 @@ export function CtaBand({
         </div>
         <p className="mt-8 max-w-2xl text-xs leading-relaxed text-[var(--oc-aluminum-2)]">
           Requests remain subject to aircraft status, crew availability, owner/operator approval, route and airport
-          constraints, weather, and final acceptance.
+          constraints, weather, support-scope review, and final acceptance.
         </p>
       </div>
     </section>
