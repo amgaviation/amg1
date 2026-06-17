@@ -23,7 +23,7 @@ export default function OperationsPage() {
         image={IMG.heroOperations}
         imageAlt="Operations team coordinating an aircraft on the ramp"
         position="center 40%"
-        primary={{ label: "Request Support", href: "/contact" }}
+        primary={{ label: "Request Support", href: "/request-support" }}
         secondary={{ label: "AMG Connect", href: "/amg-connect" }}
       />
 
@@ -57,7 +57,7 @@ export default function OperationsPage() {
                     ))}
                   </ul>
                   <Link
-                    href="/contact"
+                    href="/request-support"
                     prefetch={false}
                     className="oc-kicker mt-6 inline-flex min-h-11 items-center gap-2 text-[var(--oc-blue)]"
                   >

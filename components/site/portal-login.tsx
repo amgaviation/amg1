@@ -153,7 +153,7 @@ export function PortalLogin({
                   </Link>
 
                   <Link
-                    href="/contact?category=other-support"
+                    href="/contact"
                     className="inline-flex min-h-10 items-center justify-center rounded-full border border-white/15 px-4 text-xs font-semibold uppercase text-white/75 hover:border-sky-300 hover:text-white"
                   >
                     Wrong email

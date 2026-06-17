@@ -17,7 +17,7 @@ import {
 } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 
-const REQUEST_REVIEW_HREF = "/contact?category=subscription-program-inquiry";
+const REQUEST_REVIEW_HREF = "/request-support?category=subscription-program-inquiry";
 const CONTACT_HREF = "/contact";
 
 function displayValue(value: unknown, fallback = "Reviewed during intake") {

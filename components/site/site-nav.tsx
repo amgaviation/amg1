@@ -98,7 +98,7 @@ export function SiteNav() {
           />
         </Link>
 
-        <ul className="ml-auto hidden items-center gap-7 xl:flex">
+        <ul className="ml-auto hidden items-center gap-4 xl:flex 2xl:gap-6">
           {NAV_LINKS.map((link) => {
             const active = isActivePath(pathname, link.href);
             return (
@@ -108,7 +108,7 @@ export function SiteNav() {
                   prefetch={false}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "oc-kicker relative inline-flex min-h-11 items-center transition-colors",
+                    "oc-kicker relative inline-flex min-h-11 items-center whitespace-nowrap transition-colors",
                     solid ? "text-[var(--oc-ink)]/65 hover:text-[var(--oc-ink)]" : "text-white/75 hover:text-white",
                     active && (solid ? "text-[var(--oc-ink)]" : "text-white"),
                     active && "after:absolute after:inset-x-0 after:-bottom-1.5 after:h-px after:bg-current"
@@ -133,7 +133,7 @@ export function SiteNav() {
             Member Login
           </Link>
           <Link
-            href="/contact"
+            href="/request-support"
             prefetch={false}
             className={cn("oc-btn hidden sm:inline-flex", solid ? "oc-btn-primary" : "oc-btn-light")}
           >
@@ -174,7 +174,7 @@ export function SiteNav() {
                     prefetch={false}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "oc-display group flex items-center justify-between border-b border-[var(--oc-line)] py-5 text-4xl text-[var(--oc-ink)] transition-colors sm:text-5xl",
+                    "oc-display group flex items-center justify-between gap-4 border-b border-[var(--oc-line)] py-5 text-3xl text-[var(--oc-ink)] transition-colors sm:text-5xl",
                       active ? "text-[var(--oc-blue)]" : "hover:text-[var(--oc-blue)]"
                     )}
                   >
@@ -189,7 +189,7 @@ export function SiteNav() {
             <Link href="/login" prefetch={false} className="oc-btn oc-btn-ghost justify-center">
               Member Login
             </Link>
-            <Link href="/contact" prefetch={false} className="oc-btn oc-btn-primary justify-center">
+            <Link href="/request-support" prefetch={false} className="oc-btn oc-btn-primary justify-center">
               Request Support
               <ArrowUpRight className="h-4 w-4" />
             </Link>

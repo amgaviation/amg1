@@ -52,7 +52,7 @@ export function CommandHero() {
               crew readiness, logistics, documents, and stakeholder communication aligned before support proceeds.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-3">
-              <Link href="/contact" prefetch={false} className="oc-btn oc-btn-light">
+              <Link href="/request-support" prefetch={false} className="oc-btn oc-btn-light">
                 Request Support
                 <ArrowRight className="h-4 w-4" />
               </Link>

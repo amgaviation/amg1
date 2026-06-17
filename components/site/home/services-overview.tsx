@@ -38,7 +38,7 @@ export function ServicesOverview() {
               <div className="p-6">
                 <p className="text-sm leading-relaxed text-slate-600">{featuredService.useCase}</p>
                 <Link
-                  href={`/contact?service=${featuredService.id}`}
+                  href={`/request-support?service=`}
                   className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 py-3 font-display text-xs font-semibold uppercase text-primary-foreground transition-colors hover:bg-primary/90"
                 >
                   Start with this path
@@ -52,7 +52,7 @@ export function ServicesOverview() {
             {remainingServices.map((service, index) => (
               <RevealItem key={service.id} data-stagger-item>
                 <Link
-                  href={`/contact?service=${service.id}`}
+                  href={`/request-support?service=`}
                   className="hover-lift group grid gap-5 rounded-lg border border-slate-200 bg-white p-5 shadow-[0_18px_50px_rgba(8,20,36,0.07)] transition-colors hover:border-primary/50 sm:grid-cols-[4.5rem_1fr_auto] sm:p-6"
                 >
                   <span className="font-display text-5xl font-extrabold leading-none text-primary/35">

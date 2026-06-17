@@ -29,7 +29,7 @@ export function HomeCrewGlobe() {
             suitability so owners and flight departments have a clearer path when crew coverage is needed.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/contact?category=contract-pilot-support" prefetch={false} className="oc-btn oc-btn-light">
+            <Link href="/request-support?category=contract-pilot-support" prefetch={false} className="oc-btn oc-btn-light">
               Request Crew Support
               <ArrowUpRight className="h-4 w-4" />
             </Link>

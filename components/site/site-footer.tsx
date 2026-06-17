@@ -18,7 +18,7 @@ export function SiteFooter() {
               support-specific activity — built for owners, flight departments, crews, and approved representatives.
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
-              <Link href="/contact" prefetch={false} className="oc-btn oc-btn-light">
+              <Link href="/request-support" prefetch={false} className="oc-btn oc-btn-light">
                 Request Support
                 <ArrowUpRight className="h-4 w-4" />
               </Link>

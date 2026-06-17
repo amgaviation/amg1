@@ -476,6 +476,7 @@ export const FOOTER_COLS = [
       { label: "AMG Operations", href: "/operations" },
       { label: "Crew Network", href: "/crew-network" },
       { label: "Contact", href: "/contact" },
+      { label: "Request Support", href: "/request-support" },
     ],
   },
   {
@@ -518,4 +519,5 @@ export const NAV_LINKS = [
   { label: "Plans", href: "/plans" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
+  { label: "Request Support", href: "/request-support" },
 ] as const;

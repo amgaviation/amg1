@@ -80,6 +80,7 @@ export const PORTAL_NAV: Record<PortalRole, NavItem[]> = {
     { label: "Partners", href: "/portal/admin/partners", icon: "handshake" },
     { label: "Users", href: "/portal/admin/users", icon: "userCheck" },
     { label: "Messages", href: "/portal/admin/messages", icon: "messageSquare" },
+    { label: "Form Submissions", href: "/portal/admin/form-submissions", icon: "clipboard" },
     { label: "Quotes", href: "/portal/admin/quotes", icon: "receipt" },
     { label: "Invoices", href: "/portal/admin/invoices", icon: "wallet" },
     { label: "Payments", href: "/portal/admin/payments", icon: "wallet" },
