@@ -6,21 +6,21 @@ import { IMG } from "@/lib/site-media";
 export const metadata: Metadata = {
   title: "Aircraft Support",
   description:
-    "Aircraft support matched to class — from piston and turboprop to heavy-cabin jets — scoped around crew, insurance, route, and airport constraints.",
+    "Aircraft support matched to class — from piston and turboprop to heavy-cabin jets — reviewed around crew, status, route, and airport constraints.",
 };
 
 const CONSIDERATIONS = [
   {
     title: "Aircraft status",
-    body: "Airworthiness, maintenance status, and operating limits are confirmed before any movement or assignment is committed.",
+    body: "Airworthiness, maintenance status, records context, and operating limits are reviewed before any movement or assignment is committed.",
   },
   {
     title: "Crew & insurance",
-    body: "Crew is matched to aircraft type, currency, and insurance minimums — single-pilot or two-pilot as the aircraft and mission require.",
+    body: "Crew is evaluated against aircraft type, currency, seat requirement, and insurance minimums — single-pilot or two-pilot as the aircraft and support scope require.",
   },
   {
     title: "Route environment",
-    body: "Runway performance, airport restrictions, weather, and facility timing all shape how a movement can proceed.",
+    body: "Runway performance, airport restrictions, weather, facility timing, and owner/operator authority all shape whether support can proceed.",
   },
 ];
 
@@ -29,8 +29,8 @@ export default function AircraftSupportPage() {
     <>
       <PageHero
         eyebrow="Aircraft Support"
-        title="Support matched to the aircraft."
-        lead="From owner-flown pistons to heavy-cabin jets, AMG scopes support to the aircraft class, the crew requirement, route, timing, and airport context."
+        title="Support matched to the aircraft, not a generic request."
+        lead="From owner-flown pistons to heavy-cabin jets, AMG reviews support around the aircraft class, crew requirement, route, timing, status, and airport context."
         image={IMG.aircraftSupportMain}
         imageAlt="Business jet prepared for an aircraft support movement"
         primary={{ label: "Request Support", href: "/contact?service=aircraft_support" }}
@@ -39,8 +39,8 @@ export default function AircraftSupportPage() {
 
       <AircraftGallery
         eyebrow="By Class"
-        title="Every class, correctly scoped."
-        lead="Support is never one-size-fits-all. Each aircraft class carries its own crew, logistics, route, and airport considerations."
+        title="Every aircraft class needs its own support path."
+        lead="Support is never one-size-fits-all. Each aircraft class carries its own crew, logistics, route, documentation, and airport considerations."
         withSectionCta={false}
       />
 
@@ -57,8 +57,8 @@ export default function AircraftSupportPage() {
           <div data-scroll-animate>
             <SectionHeading
               eyebrow="What we review"
-              title="Three things decide the support path."
-              lead="Before AMG commits to anything, the same disciplined questions are answered for every aircraft."
+              title="Three inputs shape the support path."
+              lead="Before AMG commits to support, the same practical questions are answered for every aircraft."
             />
             <div className="mt-8 grid gap-4">
               {CONSIDERATIONS.map((c, i) => (
@@ -77,7 +77,7 @@ export default function AircraftSupportPage() {
 
       <CtaBand
         title="Tell us about the aircraft."
-        body="Share the aircraft, the movement or coverage need, and the timing. AMG will review the support path."
+        body="Share the aircraft, movement or coverage need, timing, and known constraints. AMG will review the support path before anything is accepted."
         primaryLabel="Request Support"
         primaryHref="/contact?service=aircraft_support"
       />
