@@ -5,16 +5,16 @@ import { useReducedMotion } from "framer-motion";
 import { TextFlippingBoard } from "@/components/ui/text-flipping-board";
 
 const WORDS = [
-  "AIRCRAFT MOVEMENT",
-  "CREW COVERAGE",
-  "MISSION TIMING",
-  "OWNER VISIBILITY",
+  "ATTENTION TO DETAIL",
+  "ONE COMMON MISSION",
+  "FILLING INDUSTRY GAPS",
+  "SAFETY",
   "OPERATIONAL CLARITY",
-  "MAINTENANCE REPOSITIONING",
-  "APPROVED SUPPORT PATHS",
+  "COMMUNICATION",
+  "INDUSTRY EXPERIENCE",
 ];
 
-const RESTING = "OPERATIONAL CLARITY";
+const RESTING = "INDUSTRY EXPERIENCE";
 const WORD_CHANGE_INTERVAL_MS = 6000;
 
 export function BrandStatement() {
