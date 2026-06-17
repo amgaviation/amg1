@@ -8,7 +8,7 @@ import { IMG } from "@/lib/site-media";
 export const metadata: Metadata = {
   title: "Request Support",
   description:
-    "Submit a Support Request to AMG Aviation Group for aircraft movement, crew coverage, maintenance repositioning, ferry coordination, or mission-specific support.",
+    "Submit a Support Request to AMG Aviation Group for aircraft movement, crew coverage, maintenance repositioning, ferry/reposition support, or support-specific coordination.",
 };
 
 export default async function ContactPage({
@@ -33,8 +33,8 @@ export default async function ContactPage({
     <>
       <PageHero
         eyebrow="Request Support"
-        title="Start with the aircraft."
-        lead="Tell us the aircraft, the movement or coverage need, and the timing. AMG will review the support path and respond — no request is presented as accepted until the review is complete."
+        title="Start with the aircraft and the support need."
+        lead="Tell us the aircraft, timing, route or location, crew context, and requested support. AMG will review the scope before confirming whether support can proceed."
         image={IMG.contactSupport}
         imageAlt="Aircraft cockpit prepared for support review"
       />
