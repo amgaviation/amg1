@@ -7,7 +7,7 @@ import { IMG } from "@/lib/site-media";
 export const metadata: Metadata = {
   title: "Plans",
   description:
-    "AMG support plans — on-demand, recurring owner, and fleet/department support — plus subscription allowances by aircraft class. Pricing is proposal-based.",
+    "AMG support plans — on-demand, recurring owner, and fleet/department support — structured around aircraft class, crew requirements, and request scope.",
 };
 
 export default function PlansPage() {
@@ -15,8 +15,8 @@ export default function PlansPage() {
     <>
       <PageHero
         eyebrow="Plans"
-        title="Support plans, scoped to the aircraft."
-        lead="Engage AMG for a single mission or as a standing support layer. Detailed allowances are set by aircraft class, crew requirements, and operating scope — pricing is proposal-based."
+        title="Support structure scoped to the aircraft and activity level."
+        lead="Engage AMG for a single support event or as a standing coordination layer. Allowances and proposals are shaped by aircraft class, crew requirements, operating scope, and variable support costs."
         image={IMG.plansSelector}
         imageAlt="Aircraft class selector for AMG support plans"
         primary={{ label: "Request Support", href: "/contact" }}
@@ -28,8 +28,8 @@ export default function PlansPage() {
 
       <CtaBand
         eyebrow="Plans"
-        title="Not sure which plan fits?"
-        body="Tell us about the aircraft and the activity level. AMG will recommend a support path and a proposal."
+        title="Not sure which support model fits?"
+        body="Tell us about the aircraft, expected activity, crew need, and operating context. AMG will recommend a support path and proposal structure."
         primaryLabel="Request a Proposal"
         primaryHref="/contact?category=subscription-program-inquiry"
       />
