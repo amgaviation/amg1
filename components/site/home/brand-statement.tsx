@@ -15,6 +15,7 @@ const WORDS = [
 ];
 
 const RESTING = "OPERATIONAL CLARITY";
+const WORD_CHANGE_INTERVAL_MS = 6000;
 
 export function BrandStatement() {
   const reduce = useReducedMotion();
@@ -25,7 +26,7 @@ export function BrandStatement() {
     setIndex(0);
     const id = window.setInterval(() => {
       setIndex((i) => (i + 1) % WORDS.length);
-    }, 3000);
+    }, WORD_CHANGE_INTERVAL_MS);
     return () => window.clearInterval(id);
   }, [reduce]);
 
