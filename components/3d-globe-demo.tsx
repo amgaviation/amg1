@@ -10,6 +10,7 @@ type Globe3DDemoProps = {
 
 export default function Globe3DDemo({ markers }: Globe3DDemoProps) {
   const [activeMarker, setActiveMarker] = useState<CrewGlobeMarker | null>(markers[0] ?? null);
+  const [selectedMarker, setSelectedMarker] = useState<CrewGlobeMarker | null>(null);
 
   return (
     <div className="relative min-h-[30rem] overflow-hidden rounded-[1.25rem] border border-[var(--oc-line)] bg-[var(--oc-paper)] shadow-[var(--oc-shadow)]">
@@ -20,29 +21,33 @@ export default function Globe3DDemo({ markers }: Globe3DDemoProps) {
             className="absolute inset-0 h-full"
             markers={markers}
             config={{
-              radius: 1.7,
               atmosphereColor: "#7fb7ff",
               atmosphereIntensity: 0.8,
               atmosphereBlur: 3.4,
               showAtmosphere: true,
               showWireframe: true,
               wireframeColor: "#7fb7ff",
-              bumpScale: 5,
+              bumpScale: 2,
               autoRotateSpeed: 0.14,
               ambientIntensity: 0.72,
               pointLightIntensity: 1.7,
-              enableZoom: true,
               enablePan: false,
-              minDistance: 1.25,
-              maxDistance: 3.4,
               initialView: {
                 lat: 39.8283,
                 lng: -98.5795,
-                altitude: 1.65,
+                altitude: 3.5,
               },
             }}
-            onMarkerClick={(marker) => setActiveMarker(marker as CrewGlobeMarker)}
-            onMarkerHover={(marker) => setActiveMarker((marker as CrewGlobeMarker | null) ?? activeMarker)}
+            selectedMarker={selectedMarker}
+            onMarkerClick={(marker) => {
+              setActiveMarker(marker as CrewGlobeMarker);
+              setSelectedMarker(marker as CrewGlobeMarker);
+            }}
+            onMarkerHover={(marker) => {
+              const hoveredMarker = marker as CrewGlobeMarker | null;
+              setSelectedMarker(hoveredMarker);
+              if (hoveredMarker) setActiveMarker(hoveredMarker);
+            }}
           />
         </div>
 

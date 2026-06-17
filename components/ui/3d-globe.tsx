@@ -79,6 +79,8 @@ interface Globe3DProps {
   onMarkerClick?: (marker: GlobeMarker) => void;
   /** Callback when a marker is hovered */
   onMarkerHover?: (marker: GlobeMarker | null) => void;
+  /** Current selected marker */
+  selectedMarker?: GlobeMarker | null;
 }
 
 // ============================================================================
@@ -120,6 +122,8 @@ interface MarkerProps {
   marker: GlobeMarker;
   radius: number;
   defaultSize: number;
+  selected: boolean;
+  dimmed: boolean;
   onClick?: (marker: GlobeMarker) => void;
   onHover?: (marker: GlobeMarker | null) => void;
 }
@@ -128,6 +132,8 @@ function Marker({
   marker,
   radius,
   defaultSize,
+  selected,
+  dimmed,
   onClick,
   onHover,
 }: MarkerProps) {
@@ -144,7 +150,7 @@ function Marker({
 
   // Top of the line (where the image is) - positioned further out to prevent going inside globe
   const topPosition = useMemo(() => {
-    return latLngToVector3(marker.lat, marker.lng, radius * 1.18);
+    return latLngToVector3(marker.lat, marker.lng, radius * 1.065);
   }, [marker.lat, marker.lng, radius]);
 
   const lineHeight = topPosition.distanceTo(surfacePosition);
@@ -196,22 +202,31 @@ function Marker({
     return { lineCenter: center, lineQuaternion: quaternion };
   }, [surfacePosition, topPosition]);
 
+  const markerPx = Math.round((marker.size ?? defaultSize) * 220);
+  const markerSize = Math.min(Math.max(markerPx, 12), 16);
+  const isActive = hovered || selected;
+  const visualOpacity = dimmed && !isActive ? 0.34 : isActive ? 1 : 0.78;
+
   return (
     <group ref={groupRef} visible={isVisible}>
       {/* Pin line from surface to image - properly oriented */}
       <mesh position={lineCenter} quaternion={lineQuaternion}>
-        <cylinderGeometry args={[0.003, 0.003, lineHeight, 8]} />
+        <cylinderGeometry args={[0.0014, 0.0014, lineHeight, 8]} />
         <meshBasicMaterial
-          color={hovered ? "#ffffff" : "#7fb7ff"}
+          color={isActive ? "#ffffff" : "#7fb7ff"}
           transparent
-          opacity={hovered ? 0.95 : 0.72}
+          opacity={isActive ? 0.58 : dimmed ? 0.14 : 0.24}
         />
       </mesh>
 
       {/* Pin point at the surface */}
       <mesh position={surfacePosition} quaternion={lineQuaternion}>
-        <coneGeometry args={[0.015, 0.04, 8]} />
-        <meshBasicMaterial color={hovered ? "#ffffff" : "#3b82f6"} />
+        <coneGeometry args={[0.007, 0.018, 8]} />
+        <meshBasicMaterial
+          color={isActive ? "#ffffff" : "#3b82f6"}
+          transparent
+          opacity={dimmed && !isActive ? 0.34 : 0.72}
+        />
       </mesh>
 
       {/* Circular image at the top */}
@@ -220,21 +235,21 @@ function Marker({
           transform
           center
           sprite
-          distanceFactor={10}
+          distanceFactor={3.5}
           style={{
             pointerEvents: isVisible ? "auto" : "none",
-            opacity: isVisible ? 1 : 0,
+            opacity: isVisible ? visualOpacity : 0,
             transition: "opacity 0.15s ease-out",
           }}
         >
           <div
             className={cn(
-              "cursor-pointer overflow-hidden rounded-full border border-white/40 bg-white/20 shadow-[0_0_18px_rgba(59,130,246,0.35)] backdrop-blur transition-transform duration-200",
-              hovered && "scale-125 shadow-[0_0_28px_rgba(127,183,255,0.7)] ring-1 ring-white/70",
+              "cursor-pointer overflow-hidden rounded-full border border-white/35 bg-white/35 shadow-[0_0_4px_rgba(96,165,250,0.14)] transition-transform duration-150",
+              isActive && "scale-[1.2] border-white/70 shadow-[0_0_10px_rgba(127,183,255,0.36)] ring-1 ring-white/35",
             )}
             style={{
-              width: "8px",
-              height: "8px",
+              width: `${markerSize}px`,
+              height: `${markerSize}px`,
             }}
             onMouseEnter={handlePointerEnter}
             onMouseLeave={handlePointerLeave}
@@ -243,7 +258,7 @@ function Marker({
             <img
               src={marker.src}
               alt={marker.label || "Marker"}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain"
               draggable={false}
             />
           </div>
@@ -262,6 +277,7 @@ interface RotatingGlobeProps {
   markers: GlobeMarker[];
   onMarkerClick?: (marker: GlobeMarker) => void;
   onMarkerHover?: (marker: GlobeMarker | null) => void;
+  selectedMarker?: GlobeMarker | null;
 }
 
 function RotatingGlobe({
@@ -269,6 +285,7 @@ function RotatingGlobe({
   markers,
   onMarkerClick,
   onMarkerHover,
+  selectedMarker,
 }: RotatingGlobeProps) {
   const groupRef = useRef<THREE.Group>(null);
 
@@ -330,6 +347,8 @@ function RotatingGlobe({
           marker={marker}
           radius={config.radius}
           defaultSize={config.markerSize}
+          selected={selectedMarker === marker}
+          dimmed={Boolean(selectedMarker && selectedMarker !== marker)}
           onClick={onMarkerClick}
           onHover={onMarkerHover}
         />
@@ -404,9 +423,10 @@ interface SceneProps {
   config: Required<Globe3DConfig>;
   onMarkerClick?: (marker: GlobeMarker) => void;
   onMarkerHover?: (marker: GlobeMarker | null) => void;
+  selectedMarker?: GlobeMarker | null;
 }
 
-function Scene({ markers, config, onMarkerClick, onMarkerHover }: SceneProps) {
+function Scene({ markers, config, onMarkerClick, onMarkerHover, selectedMarker }: SceneProps) {
   const { camera } = useThree();
   const { altitude, lat, lng } = config.initialView;
 
@@ -444,6 +464,7 @@ function Scene({ markers, config, onMarkerClick, onMarkerHover }: SceneProps) {
         markers={markers}
         onMarkerClick={onMarkerClick}
         onMarkerHover={onMarkerHover}
+        selectedMarker={selectedMarker}
       />
 
       {/* Atmosphere (static) */}
@@ -528,6 +549,7 @@ export function Globe3D({
   className,
   onMarkerClick,
   onMarkerHover,
+  selectedMarker,
 }: Globe3DProps) {
   const mergedConfig = useMemo(
     () => ({ ...defaultConfig, ...config }),
@@ -559,6 +581,7 @@ export function Globe3D({
             config={mergedConfig}
             onMarkerClick={onMarkerClick}
             onMarkerHover={onMarkerHover}
+            selectedMarker={selectedMarker}
           />
         </Suspense>
       </Canvas>

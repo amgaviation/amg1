@@ -10,6 +10,7 @@ type Globe3DDemoSecondProps = {
 
 export default function Globe3DDemoSecond({ markers }: Globe3DDemoSecondProps) {
   const [activeMarker, setActiveMarker] = useState<CrewGlobeMarker | null>(markers[0] ?? null);
+  const [selectedMarker, setSelectedMarker] = useState<CrewGlobeMarker | null>(null);
 
   return (
     <div className="relative min-h-[34rem] overflow-hidden rounded-[1.25rem] border border-[var(--oc-line-dark)] bg-[rgba(11,26,43,0.72)] shadow-[var(--oc-shadow)]">
@@ -18,29 +19,34 @@ export default function Globe3DDemoSecond({ markers }: Globe3DDemoSecondProps) {
         className="absolute inset-x-0 bottom-0 top-0 h-full"
         markers={markers}
         config={{
-          radius: 1.7,
           atmosphereColor: "#7fb7ff",
-          atmosphereIntensity: 22,
+          atmosphereIntensity: 1,
           atmosphereBlur: 3.8,
           showAtmosphere: true,
           showWireframe: true,
           wireframeColor: "#7fb7ff",
-          bumpScale: 5,
-          autoRotateSpeed: 0.25,
+          bumpScale: 2.8,
+          autoRotateSpeed: 0.16,
           ambientIntensity: 0.74,
           pointLightIntensity: 1.9,
-          enableZoom: true,
+          enableZoom: false,
           enablePan: false,
-          minDistance: 1.25,
-          maxDistance: 3.4,
           initialView: {
             lat: 39.8283,
             lng: -98.5795,
-            altitude: 1.65,
+            altitude: 3.5,
           },
         }}
-        onMarkerClick={(marker) => setActiveMarker(marker as CrewGlobeMarker)}
-        onMarkerHover={(marker) => setActiveMarker((marker as CrewGlobeMarker | null) ?? activeMarker)}
+        selectedMarker={selectedMarker}
+        onMarkerClick={(marker) => {
+          setActiveMarker(marker as CrewGlobeMarker);
+          setSelectedMarker(marker as CrewGlobeMarker);
+        }}
+        onMarkerHover={(marker) => {
+          const hoveredMarker = marker as CrewGlobeMarker | null;
+          setSelectedMarker(hoveredMarker);
+          if (hoveredMarker) setActiveMarker(hoveredMarker);
+        }}
       />
 
       <div className="pointer-events-none absolute inset-x-4 bottom-4 z-10 rounded-xl border border-white/10 bg-[rgba(5,11,20,0.62)] p-4 text-white shadow-[0_20px_60px_rgba(0,0,0,0.28)] backdrop-blur-md sm:inset-x-auto sm:left-5 sm:max-w-sm">

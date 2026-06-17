@@ -11,6 +11,7 @@ type Globe3DDemoThirdProps = {
 
 export default function Globe3DDemoThird({ markers, regionCount }: Globe3DDemoThirdProps) {
   const [activeMarker, setActiveMarker] = useState<CrewGlobeMarker | null>(markers[0] ?? null);
+  const [selectedMarker, setSelectedMarker] = useState<CrewGlobeMarker | null>(null);
 
   return (
     <div className="relative min-h-[28rem] overflow-hidden rounded-[1.25rem] border border-[var(--oc-line-dark)] bg-[rgba(250,248,242,0.045)] shadow-[var(--oc-shadow)] backdrop-blur-xl">
@@ -66,8 +67,16 @@ export default function Globe3DDemoThird({ markers, regionCount }: Globe3DDemoTh
                 altitude: 1.9,
               },
             }}
-            onMarkerClick={(marker) => setActiveMarker(marker as CrewGlobeMarker)}
-            onMarkerHover={(marker) => setActiveMarker((marker as CrewGlobeMarker | null) ?? activeMarker)}
+            selectedMarker={selectedMarker}
+            onMarkerClick={(marker) => {
+              setActiveMarker(marker as CrewGlobeMarker);
+              setSelectedMarker(marker as CrewGlobeMarker);
+            }}
+            onMarkerHover={(marker) => {
+              const hoveredMarker = marker as CrewGlobeMarker | null;
+              setSelectedMarker(hoveredMarker);
+              if (hoveredMarker) setActiveMarker(hoveredMarker);
+            }}
           />
         </div>
       </div>
