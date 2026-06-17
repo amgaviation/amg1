@@ -10,8 +10,8 @@ import { COMPANY } from "@/lib/content";
 const categories = [
   {
     value: "aircraft-management-support",
-    label: "Aircraft Management Support",
-    help: "For recurring owner, records, scheduling, crew, and aircraft-support administration.",
+    label: "Aircraft Support Administration",
+    help: "For recurring owner communication, records, scheduling inputs, crew coordination, and aircraft-support administration.",
     fields: [
       ["ownership_entity", "Ownership or operating entity", "text", true],
       ["current_crew_arrangement", "Current crew arrangement", "text", true],
@@ -20,16 +20,16 @@ const categories = [
       ["scheduling_expectations", "Scheduling expectations", "textarea", true],
       ["records_status", "Records status", "textarea", false],
       ["accounting_support_requirements", "Accounting support requirements", "textarea", false],
-      ["desired_management_scope", "Desired management scope", "textarea", true],
+      ["desired_management_scope", "Desired support scope", "textarea", true],
       ["anticipated_start_date", "Anticipated start date", "date", false],
       ["number_of_aircraft", "Number of aircraft", "number", true],
-      ["current_operational_concerns", "Current operational concerns", "textarea", false],
+      ["current_operational_concerns", "Current aircraft/support concerns", "textarea", false],
     ],
   },
   {
     value: "contract-pilot-support",
     label: "Contract Pilot Support",
-    help: "For PIC, SIC, or two-pilot support tied to a specific aircraft, date, route, or coverage need.",
+    help: "For PIC, SIC, or two-pilot support tied to a specific aircraft, date, route, repositioning event, or coverage need.",
     fields: [
       ["crew_seat", "PIC, SIC, or both", "text", true],
       ["type_rating_requirements", "Type-rating requirements", "text", false],
@@ -45,7 +45,7 @@ const categories = [
       ["crew_positioning_expectations", "Crew positioning expectations", "textarea", false],
       ["lodging_requirements", "Lodging requirements", "textarea", false],
       ["known_operator_requirements", "Known operator requirements", "textarea", false],
-      ["special_mission_notes", "Special mission notes", "textarea", false],
+      ["special_mission_notes", "Special support notes", "textarea", false],
     ],
   },
   {
@@ -71,7 +71,7 @@ const categories = [
   {
     value: "maintenance-flight-support",
     label: "Maintenance Flight Support",
-    help: "For maintenance positioning, return-to-service, functional-check, or acceptance-flight support.",
+    help: "For maintenance positioning, return-to-service context, functional-check, or acceptance-flight support review.",
     fields: [
       ["maintenance_facility", "Maintenance facility", "text", true],
       ["facility_contact", "Facility contact", "textarea", true],
@@ -90,12 +90,12 @@ const categories = [
   },
   {
     value: "flight-operations-coordination",
-    label: "Flight Operations Coordination",
-    help: "For mission intake, crew logistics, vendor communication, travel, lodging, and operational updates.",
+    label: "Support Operations Coordination",
+    help: "For support intake, crew logistics, vendor communication, travel, lodging, documentation, and approved stakeholder updates.",
     fields: [
-      ["mission_dates", "Mission dates", "text", true],
+      ["mission_dates", "Requested support dates", "text", true],
       ["origin_destination", "Origin and destination", "text", true],
-      ["number_of_passengers", "Number of passengers", "number", false],
+      ["number_of_passengers", "Passenger count if relevant", "number", false],
       ["crew_requirements", "Crew requirements", "textarea", true],
       ["aircraft_status", "Aircraft status", "text", true],
       ["fbo_requirements", "FBO requirements", "textarea", false],
@@ -110,8 +110,8 @@ const categories = [
   },
   {
     value: "fleet-support-program",
-    label: "Fleet Support Program",
-    help: "For multi-aircraft or recurring operating support programs.",
+    label: "Fleet / Department Support",
+    help: "For multi-aircraft or recurring support programs with defined coordination structure.",
     fields: [
       ["number_of_aircraft", "Number of aircraft", "number", true],
       ["aircraft_types", "Aircraft types", "textarea", true],
@@ -128,18 +128,18 @@ const categories = [
   },
   {
     value: "subscription-program-inquiry",
-    label: "Subscription Program Inquiry",
+    label: "Support Plan Inquiry",
     help: "For aircraft-class, billing, allowance, tier, travel, lodging, and proposal questions.",
     fields: [
       ["aircraft_category", "Aircraft category", "text", true],
       ["single_or_two_pilot", "Single-pilot or two-pilot requirement", "text", true],
       ["preferred_billing", "Preferred monthly or annual billing", "text", true],
-      ["expected_client_flight_duty_days", "Expected client-flight duty days", "number", false],
-      ["expected_mx_movements", "Expected MX movements", "number", false],
+      ["expected_client_flight_duty_days", "Expected support duty days", "number", false],
+      ["expected_mx_movements", "Expected maintenance movements", "number", false],
       ["domestic_or_international_activity", "Domestic or international activity", "text", false],
       ["expected_overnight_frequency", "Expected overnight frequency", "text", false],
       ["travel_lodging_preference", "Travel/lodging preference", "textarea", false],
-      ["desired_tier", "Desired tier", "text", false],
+      ["desired_tier", "Desired support tier", "text", false],
       ["expected_start_date", "Expected start date", "date", false],
       ["questions_or_special_requirements", "Questions or special requirements", "textarea", false],
     ],
@@ -147,7 +147,7 @@ const categories = [
   {
     value: "other-support",
     label: "Other Support",
-    help: "For support needs that do not fit the standard categories.",
+    help: "For aircraft support needs that do not fit the standard categories.",
     fields: [
       ["aircraft_information", "Aircraft information", "textarea", true],
       ["detailed_support_description", "Detailed support description", "textarea", true],
@@ -169,7 +169,7 @@ function SubmitRequestButton() {
       disabled={pending}
       className="oc-btn oc-btn-primary mt-7 w-full justify-center disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
     >
-      {pending ? "Submitting..." : "Start Support Request"}
+      {pending ? "Submitting..." : "Submit for Review"}
       <Send className="h-4 w-4" />
     </button>
   );
@@ -238,11 +238,11 @@ export function PublicSupportForm({
           <div>
             <p className="oc-kicker text-[var(--oc-blue)]">Support Intake</p>
             <h2 className="oc-display mt-4 text-4xl text-[var(--oc-ink)] sm:text-5xl">
-              Define the aircraft need
+              Define the support need
             </h2>
             <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--oc-muted)]">
               Give AMG the aircraft, timing, crew need, and support category so the operations desk can route the
-              request to the right next step.
+              request to the right review path.
             </p>
           </div>
           <div className="grid grid-cols-3 gap-2 lg:grid-cols-1">
@@ -263,7 +263,7 @@ export function PublicSupportForm({
       <div className="p-6 lg:p-8">
       {success ? (
         <div role="status" className="mb-5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm leading-relaxed text-emerald-900">
-          Support request {success} was submitted. AMG Operations will review it before any acceptance or coordination is confirmed.
+          Support request {success} was submitted for review. AMG Operations will review it before any acceptance, crew confirmation, or coordination is confirmed.
           {duplicate ? " We found a matching recent request and returned the existing reference." : ""}
         </div>
       ) : null}
@@ -342,7 +342,7 @@ export function PublicSupportForm({
       <fieldset className="support-form-panel mt-6 grid gap-5 rounded-lg border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-5 md:grid-cols-2">
         <legend className="mb-1 flex items-center gap-2 font-display text-2xl font-bold uppercase text-[var(--oc-ink)] md:col-span-2">
           <Plane className="h-5 w-5 text-[var(--oc-blue)]" />
-          Aircraft and Timing
+          Aircraft and timing
         </legend>
         <label className="grid gap-2 text-sm font-medium text-[var(--oc-ink)]">
           Aircraft make
@@ -361,7 +361,7 @@ export function PublicSupportForm({
           <input name="aircraft_base" className="support-field px-4 text-base" />
         </label>
         <label className="grid gap-2 text-sm font-medium text-[var(--oc-ink)] md:col-span-2">
-          Requested service category <span className="text-[var(--oc-blue)]">*</span>
+          Requested support category <span className="text-[var(--oc-blue)]">*</span>
           <select
             name="requested_service_category"
             value={category}
