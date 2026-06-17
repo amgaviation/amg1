@@ -9,9 +9,9 @@ import { IMG } from "@/lib/site-media";
 
 const STATUS_ROWS = [
   { label: "Request intake", value: "Open", live: true },
-  { label: "Aircraft status", value: "Under review" },
-  { label: "Crew availability", value: "Checking" },
-  { label: "Owner approval", value: "Required" },
+  { label: "Aircraft status", value: "Reviewing" },
+  { label: "Crew coverage", value: "Checking" },
+  { label: "Owner/operator approval", value: "Required" },
 ];
 
 export function CommandHero() {
@@ -45,11 +45,11 @@ export function CommandHero() {
               AMG Operations Command
             </p>
             <h1 className="oc-display mt-6 max-w-4xl text-[clamp(2.7rem,7.2vw,5.6rem)] text-[var(--oc-paper)]">
-              Aircraft movement, crew coverage, and mission timing on one operating board.
+              Aircraft support coordinated around movement, crew coverage, and mission timing.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-relaxed text-[var(--oc-aluminum)] sm:text-xl">
-              AMG helps aircraft owners, flight departments, crews, and approved representatives coordinate support
-              around aircraft status, crew readiness, logistics, and clear stakeholder communication.
+              AMG helps aircraft owners, flight departments, crews, and approved representatives keep aircraft status,
+              crew readiness, logistics, documents, and stakeholder communication aligned before support proceeds.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <Link href="/contact" prefetch={false} className="oc-btn oc-btn-light">
@@ -70,7 +70,7 @@ export function CommandHero() {
             style={{ background: "linear-gradient(160deg, rgba(32,39,48,0.82), rgba(11,26,43,0.82))" }}
           >
             <div className="flex items-center justify-between border-b border-[var(--oc-line-dark)] pb-4">
-              <p className="oc-kicker text-[var(--oc-aluminum)]">Operations Status</p>
+              <p className="oc-kicker text-[var(--oc-aluminum)]">Support Status</p>
               <span className="oc-dot oc-dot-live" aria-hidden="true" />
             </div>
             <ul className="mt-4 grid gap-3" data-stagger-container>
@@ -85,7 +85,7 @@ export function CommandHero() {
               ))}
             </ul>
             <p className="mt-5 text-xs leading-relaxed text-[var(--oc-aluminum-2)]">
-              Indicative status only. A request is not accepted until the applicable review is complete.
+              Indicative status only. A request is not accepted until the applicable support review is complete.
             </p>
           </div>
         </div>
