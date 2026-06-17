@@ -7,7 +7,7 @@ import { createMission } from "@/app/portal/actions/missions";
 import { listAircraftForClient } from "@/lib/portal/queries";
 import { MISSION_TYPE, URGENCY } from "@/lib/portal/constants";
 
-export const metadata = { title: "New Trip Request — Client Portal" };
+export const metadata = { title: "New Support Request — Client Portal" };
 
 export default async function NewTripPage({
   searchParams,
@@ -30,8 +30,8 @@ export default async function NewTripPage({
 
       <PageHeader
         eyebrow="Owner Services"
-        title="New Trip Request"
-        description="Submit an aircraft support request. AMG Operations will review and coordinate."
+        title="New Support Request"
+        description="Submit an aircraft support request. AMG Operations will review the scope, aircraft context, crew availability, and operational conditions before confirming."
       />
 
       <form action={createMission}>

@@ -9,7 +9,7 @@ import { listMissionsForClient } from "@/lib/portal/queries";
 import { MISSION_STATUS_LABEL, MISSION_STATUS_TONE, MISSION_TYPE_LABEL, URGENCY_LABEL, URGENCY_TONE, toneFor } from "@/lib/portal/constants";
 import { formatRoute, formatDateTime } from "@/lib/portal/format";
 
-export const metadata = { title: "Trip Requests — Client Portal" };
+export const metadata = { title: "Support Requests — Client Portal" };
 
 export default async function ClientTripsPage({
   searchParams,
@@ -23,11 +23,13 @@ export default async function ClientTripsPage({
 
   return (
     <PortalShell role="client" user={user}>
-      {params.success === "cancelled" ? <Notice tone="success">Trip request cancelled.</Notice> : null}
+      {params.success === "cancelled" ? (
+        <Notice tone="success">Support request cancelled.</Notice>
+      ) : null}
 
       <PageHeader
         eyebrow="Owner Services"
-        title="Trip Requests"
+        title="Support Requests"
         description="All support requests associated with your aircraft and account."
         actions={
           <Button asChild className="rounded-full">
@@ -38,14 +40,16 @@ export default async function ClientTripsPage({
         }
       />
 
+      {/* Status filters */}
       <div className="flex flex-wrap gap-2">
         {[
           { label: "All", value: "" },
-          { label: "Active", value: "submitted" },
+          { label: "Submitted", value: "submitted" },
           { label: "Under Review", value: "under_review" },
           { label: "Quoted", value: "quoted" },
           { label: "Approved", value: "approved" },
           { label: "Scheduled", value: "scheduled" },
+          { label: "In Progress", value: "in_progress" },
           { label: "Completed", value: "completed" },
           { label: "Cancelled", value: "cancelled" },
         ].map((f) => (
@@ -54,7 +58,7 @@ export default async function ClientTripsPage({
             href={f.value ? `/portal/client/trips?status=${f.value}` : "/portal/client/trips"}
             className={`rounded-full border px-3 py-1 text-xs transition-colors ${
               params.status === f.value || (!params.status && !f.value)
-                ? "border-accent bg-accent/10 text-accent"
+                ? "border-accent bg-accent/10 font-semibold text-accent"
                 : "border-border text-muted-foreground hover:border-accent/40"
             }`}
           >
@@ -67,9 +71,15 @@ export default async function ClientTripsPage({
         {filtered.length === 0 ? (
           <EmptyState
             icon="plane"
-            title="No trip requests"
-            description="Submit a request and AMG Operations will coordinate everything."
-            action={<Button asChild><Link href="/portal/client/trips/new"><Plus className="h-4 w-4" /> New Request</Link></Button>}
+            title="No support requests"
+            description="Submit a support request and AMG Operations will review the scope, aircraft context, crew availability, and operational conditions."
+            action={
+              <Button asChild>
+                <Link href="/portal/client/trips/new">
+                  <Plus className="h-4 w-4" /> New Support Request
+                </Link>
+              </Button>
+            }
           />
         ) : (
           <div className="space-y-3">
@@ -82,18 +92,26 @@ export default async function ClientTripsPage({
                 <div className="grid gap-1">
                   <div className="flex flex-wrap items-center gap-3">
                     <span className="font-mono text-xs text-accent">{m.ref}</span>
-                    <span className="text-xs text-muted-foreground">{MISSION_TYPE_LABEL[m.mission_type] ?? m.mission_type}</span>
-                    {m.urgency !== "standard" ? (
-                      <StatusBadge label={URGENCY_LABEL[m.urgency] ?? m.urgency} tone={toneFor(URGENCY_TONE, m.urgency)} />
-                    ) : null}
+                    <span className="text-xs text-muted-foreground">
+                      {MISSION_TYPE_LABEL[m.mission_type] ?? m.mission_type}
+                    </span>
+                    {m.urgency !== "standard" && (
+                      <StatusBadge
+                        label={URGENCY_LABEL[m.urgency] ?? m.urgency}
+                        tone={toneFor(URGENCY_TONE, m.urgency)}
+                      />
+                    )}
                   </div>
                   <p className="font-semibold">{formatRoute(m.departure_airport, m.arrival_airport)}</p>
                   <p className="text-xs text-muted-foreground">
-                    {m.tail_number ?? "Aircraft TBD"} · {formatDateTime(m.requested_departure)} · {m.passenger_count} pax
+                    {m.tail_number ?? "Aircraft TBD"} &nbsp;·&nbsp; {formatDateTime(m.requested_departure)} &nbsp;·&nbsp; {m.passenger_count} pax
                   </p>
                 </div>
                 <div className="flex items-start">
-                  <StatusBadge label={MISSION_STATUS_LABEL[m.status] ?? m.status} tone={toneFor(MISSION_STATUS_TONE, m.status)} />
+                  <StatusBadge
+                    label={MISSION_STATUS_LABEL[m.status] ?? m.status}
+                    tone={toneFor(MISSION_STATUS_TONE, m.status)}
+                  />
                 </div>
               </Link>
             ))}
