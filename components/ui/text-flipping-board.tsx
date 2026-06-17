@@ -28,6 +28,23 @@ type AccentColor = {
 const CELL_TEXT_STYLE: React.CSSProperties = {
   fontSize: "clamp(0.68rem, 1.8vw, 1.22rem)",
   lineHeight: 1,
+  color: "#fff",
+  textShadow: "0 1px 8px rgba(255,255,255,0.22), 0 2px 12px rgba(0,0,0,0.36)",
+};
+
+const GLASS_TILE_STYLE: React.CSSProperties = {
+  background: "linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.055))",
+  borderColor: "rgba(255,255,255,0.16)",
+  boxShadow:
+    "inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,0,0,0.22), 0 10px 28px rgba(0,0,0,0.22)",
+  backdropFilter: "blur(18px) saturate(145%)",
+  WebkitBackdropFilter: "blur(18px) saturate(145%)",
+};
+
+const GLASS_CELL_STYLE: React.CSSProperties = {
+  borderColor: "rgba(255,255,255,0.12)",
+  background: "rgba(255,255,255,0.035)",
+  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
 };
 
 // ── Individual Split-Flap Character ───────────────────────────────────
@@ -121,32 +138,36 @@ const FlapCell = React.memo(function FlapCell({
   const showPrev = prev === " " ? "\u00A0" : prev;
 
   const textCx =
-    "absolute inset-x-0 flex select-none items-center justify-center font-mono font-bold tracking-wide";
-  const topBg = accent?.top ?? "bg-neutral-200/80 dark:bg-neutral-900";
-  const bottomBg = accent?.bottom ?? "bg-neutral-200/80 dark:bg-neutral-900";
-  const textColor = accent?.text ?? "text-neutral-800 dark:text-white";
+    "absolute inset-x-0 flex select-none items-center justify-center font-mono font-bold tracking-wide text-white";
+  const topBg = accent?.top ?? "";
+  const bottomBg = accent?.bottom ?? "";
+  const textColor = accent?.text ?? "text-white";
 
-  const flapTopBg = prevAccent?.top ?? "bg-neutral-100 dark:bg-neutral-800";
-  const flapTextColor = prevAccent?.text ?? "text-neutral-800 dark:text-white";
+  const flapTopBg = prevAccent?.top ?? "";
+  const flapTextColor = prevAccent?.text ?? "text-white";
 
   const bottomDelay = flipDuration * 0.5;
 
   return (
-    <div className="flex aspect-3/6 flex-col overflow-hidden rounded-[2px] border border-neutral-300 md:rounded-[3px] md:border-2 dark:border-black">
+    <div
+      className="flex aspect-3/6 flex-col overflow-hidden rounded-[2px] border md:rounded-[3px]"
+      style={GLASS_CELL_STYLE}
+    >
       {/* Flap content area */}
       <div className="relative flex-1 perspective-dramatic transform-3d">
         <div className="absolute inset-0 z-40 hidden flex-row items-center justify-center md:flex">
-          <div className="h-1/2 w-px rounded-tr-sm rounded-br-sm bg-neutral-300 dark:bg-black" />
-          <div className="flex h-px flex-1 bg-neutral-300 dark:bg-black" />
-          <div className="h-1/2 w-px rounded-tl-sm rounded-bl-sm bg-neutral-300 dark:bg-black" />
+          <div className="h-1/2 w-px rounded-tr-sm rounded-br-sm bg-white/[0.10]" />
+          <div className="flex h-px flex-1 bg-white/[0.10]" />
+          <div className="h-1/2 w-px rounded-tl-sm rounded-bl-sm bg-white/[0.10]" />
         </div>
 
         {/* Static top – new character top half */}
         <div
           className={cn(
-            "absolute inset-x-0 top-0 h-[calc(50%-0.5px)] overflow-hidden rounded-t-[3px]",
+            "absolute inset-x-0 top-0 h-[calc(50%-0.5px)] overflow-hidden rounded-t-[3px] border",
             topBg,
           )}
+          style={GLASS_TILE_STYLE}
         >
           <div
             className={cn(textCx, textColor, "top-0 h-[200%]")}
@@ -159,9 +180,10 @@ const FlapCell = React.memo(function FlapCell({
         {/* Static bottom – new character bottom half */}
         <div
           className={cn(
-            "absolute inset-x-0 bottom-0 h-[calc(50%-0.5px)] overflow-hidden rounded-b-[3px]",
+            "absolute inset-x-0 bottom-0 h-[calc(50%-0.5px)] overflow-hidden rounded-b-[3px] border",
             bottomBg,
           )}
+          style={GLASS_TILE_STYLE}
         >
           <div
             className={cn(textCx, textColor, "bottom-0 h-[200%]")}
@@ -172,7 +194,7 @@ const FlapCell = React.memo(function FlapCell({
           {flipId > 0 && (
             <motion.div
               key={`s${flipId}`}
-              className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.8),transparent_60%)] dark:bg-[linear-gradient(to_bottom,rgba(0,0,0,0.8),transparent_60%)]"
+              className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.24),transparent_62%)]"
               initial={{ opacity: 0.5 }}
               animate={{ opacity: 0 }}
               transition={{ duration: flipDuration * 1.3, ease: "easeOut" }}
@@ -185,9 +207,10 @@ const FlapCell = React.memo(function FlapCell({
           <motion.div
             key={flipId}
             className={cn(
-              "absolute inset-x-0 top-0 z-10 h-[calc(50%-0.5px)] origin-bottom overflow-hidden rounded-t-[3px] backface-hidden transform-3d",
+              "absolute inset-x-0 top-0 z-10 h-[calc(50%-0.5px)] origin-bottom overflow-hidden rounded-t-[3px] border backface-hidden transform-3d",
               flapTopBg,
             )}
+            style={GLASS_TILE_STYLE}
             initial={{ rotateX: 0 }}
             animate={{ rotateX: -100 }}
             transition={{
@@ -202,7 +225,7 @@ const FlapCell = React.memo(function FlapCell({
               {showPrev}
             </div>
             <motion.div
-              className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0),rgba(255,255,255,1))] dark:bg-[linear-gradient(to_bottom,rgba(0,0,0,0),rgba(0,0,0,1))]"
+              className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0),rgba(255,255,255,0.22))]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.6 }}
               transition={{ duration: flipDuration }}
@@ -215,9 +238,10 @@ const FlapCell = React.memo(function FlapCell({
           <motion.div
             key={`b${flipId}`}
             className={cn(
-              "absolute inset-x-0 bottom-0 z-10 h-[calc(50%-0.5px)] origin-top overflow-hidden rounded-b-[3px] backface-hidden transform-3d",
+              "absolute inset-x-0 bottom-0 z-10 h-[calc(50%-0.5px)] origin-top overflow-hidden rounded-b-[3px] border backface-hidden transform-3d",
               bottomBg,
             )}
+            style={GLASS_TILE_STYLE}
             initial={{ rotateX: 90 }}
             animate={{ rotateX: 0 }}
             transition={{
@@ -233,7 +257,7 @@ const FlapCell = React.memo(function FlapCell({
               {show}
             </div>
             <motion.div
-              className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgba(255,255,255,0),rgba(255,255,255,0.6))] dark:bg-[linear-gradient(to_top,rgba(0,0,0,0),rgba(0,0,0,0.6))]"
+              className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgba(255,255,255,0),rgba(255,255,255,0.2))]"
               initial={{ opacity: 0.4 }}
               animate={{ opacity: 0 }}
               transition={{
@@ -245,11 +269,11 @@ const FlapCell = React.memo(function FlapCell({
         )}
 
         {/* Split line */}
-        <div className="pointer-events-none absolute inset-x-0 top-1/2 z-20 h-px -translate-y-[0.5px] bg-neutral-400/50 dark:bg-black/50" />
+        <div className="pointer-events-none absolute inset-x-0 top-1/2 z-20 h-px -translate-y-[0.5px] bg-white/[0.10]" />
       </div>
 
       {/* Bottom stripes – decorative, outside the flap area */}
-      <div className="h-2 w-full bg-[repeating-linear-gradient(to_bottom,currentColor_0,currentColor_1px,transparent_1px,transparent_0.15rem)] mask-t-from-50% text-neutral-400 opacity-20 md:h-4 md:bg-[repeating-linear-gradient(to_bottom,currentColor_0,currentColor_1px,transparent_1px,transparent_0.2rem)] dark:text-black dark:opacity-100" />
+      <div className="h-2 w-full bg-[repeating-linear-gradient(to_bottom,currentColor_0,currentColor_1px,transparent_1px,transparent_0.15rem)] mask-t-from-50% text-white/[0.10] md:h-4 md:bg-[repeating-linear-gradient(to_bottom,currentColor_0,currentColor_1px,transparent_1px,transparent_0.2rem)]" />
     </div>
   );
 },
@@ -275,8 +299,11 @@ const COLOR_MAP: Record<string, string> = {
 const ColorCell = React.memo(function ColorCell({ color }: { color: string }) {
   return (
     <div
-      className="aspect-3/5 rounded-[3px] border-2 border-neutral-300 dark:border-black"
-      style={{ backgroundColor: color }}
+      className="aspect-3/5 rounded-[3px] border"
+      style={{
+        ...GLASS_TILE_STYLE,
+        background: `linear-gradient(180deg, ${color}55, rgba(255,255,255,0.055))`,
+      }}
     />
   );
 });
@@ -409,7 +436,7 @@ export function TextFlippingBoard({
   return (
     <div
       className={cn(
-        "relative mx-auto w-full max-w-3xl rounded-xl bg-neutral-100 p-2 shadow-xl md:rounded-2xl md:p-4 dark:bg-neutral-900 dark:shadow-[0_20px_70px_-15px_rgba(0,0,0,0.6)]",
+        "relative mx-auto w-full max-w-3xl rounded-xl border border-white/[0.14] bg-white/[0.045] p-2 shadow-[0_24px_70px_rgba(0,0,0,0.24)] backdrop-blur-xl md:rounded-2xl md:p-4",
         className,
       )}
     >
