@@ -19,12 +19,11 @@ export function CrewNetworkSecondaryGlobe() {
         <div data-scroll-animate>
           <p className="oc-eyebrow text-[var(--oc-blue)]">Coordination Layer</p>
           <h2 className="oc-display mt-5 text-4xl text-[var(--oc-ink)] sm:text-5xl lg:text-6xl">
-            Built for scalable crew coordination.
+            Built for scalable crew review.
           </h2>
           <p className="mt-6 text-lg leading-relaxed text-[var(--oc-muted)]">
-            As AMG’s network expands, pilot location, aircraft experience, documentation status, and assignment
-            readiness can be organized into a clearer operational view for owners, flight departments, and AMG
-            administrators.
+            As AMG’s network expands, airport region, aircraft experience, documentation status, and assignment readiness
+            can be organized into a clearer view for owners, flight departments, and AMG administrators.
           </p>
         </div>
         <div data-scroll-animate>
