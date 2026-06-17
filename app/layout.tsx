@@ -1,27 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Barlow_Condensed, Fraunces } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const montserrat = Montserrat({
   subsets: ["latin"],
-  variable: "--font-inter",
   display: "swap",
-});
-
-const barlow = Barlow_Condensed({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  variable: "--font-barlow",
-  display: "swap",
-});
-
-// Editorial display serif for the AMG Operations Command public site.
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-editorial",
-  display: "swap",
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
+  variable: "--font-montserrat",
 });
 
 export const metadata: Metadata = {
@@ -64,13 +48,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`bg-background ${inter.variable} ${barlow.variable} ${fraunces.variable}`}
+      className={`bg-background ${montserrat.variable}`}
     >
       <body
         style={
           {
-            "--font-sans": "var(--font-inter)",
-            "--font-display": "var(--font-barlow)",
+            "--font-sans": "var(--font-montserrat)",
+            "--font-display": "var(--font-montserrat)",
           } as React.CSSProperties
         }
       >

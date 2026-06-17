@@ -13,7 +13,7 @@
     AMG Slate Gray    #9CA3AF (muted text)
     AMG Light Gray    #C0C7D1 (labels)
     AMG White         #FFFFFF (typography)
-  Display: Barlow Condensed. Body: Inter.
+  Display and body: Montserrat.
 */
 
 :root {
@@ -80,8 +80,8 @@
   --sidebar-border: oklch(0.93 0.018 248 / 16%);
   --sidebar-ring: oklch(0.62 0.19 258);
 
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-display: "Barlow Condensed", system-ui, sans-serif;
+  --font-sans: "Montserrat", system-ui, sans-serif;
+  --font-display: "Montserrat", system-ui, sans-serif;
   --font-mono: ui-monospace, monospace;
 }
 
@@ -549,8 +549,8 @@ html {
   --oc-sand: #c0a079;
   --oc-shadow: 30px 60px -30px rgba(11, 26, 43, 0.35);
 
-  --oc-display: var(--font-editorial), "Times New Roman", serif;
-  --oc-sans: var(--font-inter), "Inter", system-ui, sans-serif;
+  --oc-display: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
+  --oc-sans: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
 
   background: var(--oc-ivory);
   color: var(--oc-ink);
@@ -590,9 +590,9 @@ html {
   /* typography */
   .oc-display {
     font-family: var(--oc-display);
-    font-weight: 400;
-    line-height: 0.98;
-    letter-spacing: -0.015em;
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: 0;
     text-wrap: balance;
   }
   .oc-eyebrow {
