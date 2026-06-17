@@ -5,40 +5,40 @@ import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "fr
 
 const STEPS = [
   {
-    code: "MSN-01",
+    code: "SUP-01",
     title: "Request received",
     state: "Logged",
-    body: "Aircraft, route, timing, crew need, and support category are captured in one structured intake.",
+    body: "Aircraft, route, timing, crew need, and support category are captured in a structured intake.",
   },
   {
-    code: "MSN-02",
-    title: "Aircraft status checked",
+    code: "SUP-02",
+    title: "Aircraft context reviewed",
     state: "Reviewing",
-    body: "Airworthiness, maintenance status, and operating limits are checked before anything is committed.",
+    body: "Airworthiness, maintenance status, operating limits, records context, and owner/operator authority are reviewed before commitment.",
   },
   {
-    code: "MSN-03",
-    title: "Crew availability checked",
-    state: "Matching",
-    body: "Credential-reviewed crew is matched to aircraft type, insurance minimums, and assignment suitability.",
+    code: "SUP-03",
+    title: "Crew path evaluated",
+    state: "Checking",
+    body: "Crew options are evaluated against aircraft type, documents, insurance minimums, availability, and assignment suitability.",
   },
   {
-    code: "MSN-04",
+    code: "SUP-04",
     title: "Logistics coordinated",
     state: "Coordinating",
-    body: "Travel, lodging, vendors, permits where applicable, and documentation are arranged around the mission.",
+    body: "Travel, lodging, vendors, facility communication, permits where applicable, and documentation are organized around the support need.",
   },
   {
-    code: "MSN-05",
+    code: "SUP-05",
     title: "Stakeholders updated",
     state: "Updating",
-    body: "Owners and approved representatives stay informed as status changes — no silent gaps.",
+    body: "Owners and approved representatives receive clear status updates as the support path changes.",
   },
   {
-    code: "MSN-06",
-    title: "Support path confirmed",
+    code: "SUP-06",
+    title: "Support proceeds after review",
     state: "On approval",
-    body: "Next steps are confirmed under the owner/operator's authority after the applicable review is complete.",
+    body: "Next steps proceed under the responsible owner/operator authority only after the applicable review and acceptance are complete.",
   },
 ];
 
@@ -53,13 +53,13 @@ export function MissionFlow() {
     <section className="oc-panel-navy oc-section relative overflow-hidden text-[var(--oc-paper)]">
       <div className="oc-shell">
         <div className="max-w-2xl" data-scroll-animate>
-          <p className="oc-eyebrow oc-eyebrow-light">Mission Flow</p>
+          <p className="oc-eyebrow oc-eyebrow-light">Support Flow</p>
           <h2 className="oc-display mt-4 text-4xl text-[var(--oc-paper)] sm:text-5xl">
-            From request to support, on one board.
+            From intake to support, with review at every handoff.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-[var(--oc-aluminum)]">
-            A dispatch view of how a support request moves through AMG — visible, sequenced, and clear about who needs
-            the next update.
+            A command-board view of how a support request moves through AMG — sequenced, visible, and clear about the
+            next decision point.
           </p>
         </div>
 
