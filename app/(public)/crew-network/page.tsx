@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { PageHero, SectionHeading, CtaBand, Figure } from "@/components/site/oc/shared";
+import { CrewNetworkHeroGlobe } from "@/components/sections/crew-network-hero-globe";
+import { CrewNetworkSecondaryGlobe } from "@/components/sections/crew-network-secondary-globe";
 import { PILOT_REQUIREMENTS, PILOT_BENEFITS } from "@/lib/content";
 import { IMG } from "@/lib/site-media";
 
@@ -21,6 +23,8 @@ export default function CrewNetworkPage() {
         primary={{ label: "Submit Credentials", href: "/credential-submission" }}
         secondary={{ label: "Member Login", href: "/login" }}
       />
+
+      <CrewNetworkHeroGlobe />
 
       <section className="oc-section bg-[var(--oc-ivory)]">
         <div className="oc-shell grid items-center gap-12 lg:grid-cols-2">
@@ -67,6 +71,8 @@ export default function CrewNetworkPage() {
           </div>
         </div>
       </section>
+
+      <CrewNetworkSecondaryGlobe />
 
       <CtaBand
         eyebrow="Crew Network"
