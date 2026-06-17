@@ -20,11 +20,37 @@ function isActivePath(pathname: string, href: string) {
 
 export function SiteNav() {
   const [open, setOpen] = useState(false);
+  const [atTop, setAtTop] = useState(true);
   const pathname = usePathname();
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  const isHome = normalizePath(pathname) === "/";
+  // Transparent, light-on-dark treatment only while the homepage cinematic hero
+  // fills the viewport. Every other state (scrolled, menu open, interior pages)
+  // uses the solid navy-on-paper header so the logo and links stay readable.
+  const transparent = isHome && atTop && !open;
+
   useEffect(() => setOpen(false), [pathname]);
+
+  // Track whether the dark hero still sits behind the fixed header (home only).
+  useEffect(() => {
+    if (!isHome) {
+      setAtTop(false);
+      return;
+    }
+    // Reading scrollY/innerHeight is cheap and React bails out on an
+    // unchanged value, so update directly rather than via rAF (which is
+    // throttled when the tab is backgrounded and would stall the swap).
+    const update = () => setAtTop(window.scrollY < window.innerHeight - 88);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [isHome]);
 
   useEffect(() => {
     if (!open) return;
@@ -59,13 +85,23 @@ export function SiteNav() {
 
   return (
     <header
-      className="fixed inset-x-0 top-0 z-50 h-[var(--public-header-height)] border-b border-[var(--oc-line)] bg-[var(--oc-paper)]/94 shadow-[0_14px_36px_rgba(11,26,43,0.08)] backdrop-blur-xl"
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 h-[var(--public-header-height)] transition-[background-color,box-shadow,border-color] duration-300",
+        transparent
+          ? "border-b border-transparent bg-transparent"
+          : "border-b border-[var(--oc-line)] bg-[var(--oc-paper)]/94 shadow-[0_14px_36px_rgba(11,26,43,0.08)] backdrop-blur-xl"
+      )}
     >
       <nav className="oc-shell flex h-full items-center gap-5">
-        <Link href="/" prefetch={false} className="relative z-50 flex min-h-11 items-center" aria-label="AMG Aviation Group — home">
+        <Link
+          href="/"
+          prefetch={false}
+          className="relative z-50 flex min-h-11 items-center"
+          aria-label="AMG Aviation Group — home"
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/images/logo-navy.png"
+            src={transparent ? "/images/logo-white.png" : "/images/logo-navy.png"}
             alt="AMG Aviation Group"
             width="1088"
             height="221"
@@ -83,8 +119,11 @@ export function SiteNav() {
                   prefetch={false}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "relative inline-flex min-h-11 items-center whitespace-nowrap text-[0.72rem] font-semibold uppercase leading-none text-[var(--oc-ink)]/66 transition-colors hover:text-[var(--oc-ink)]",
-                    active && "text-[var(--oc-ink)]",
+                    "relative inline-flex min-h-11 items-center whitespace-nowrap text-[0.72rem] font-semibold uppercase leading-none transition-colors",
+                    transparent
+                      ? "text-[var(--oc-paper)]/75 hover:text-[var(--oc-paper)]"
+                      : "text-[var(--oc-ink)]/66 hover:text-[var(--oc-ink)]",
+                    active && (transparent ? "text-[var(--oc-paper)]" : "text-[var(--oc-ink)]"),
                     active && "after:absolute after:inset-x-0 after:-bottom-1.5 after:h-px after:bg-current"
                   )}
                 >
@@ -99,7 +138,10 @@ export function SiteNav() {
           <Link
             href="/request-support"
             prefetch={false}
-            className="oc-btn oc-btn-primary hidden sm:inline-flex"
+            className={cn(
+              "oc-btn hidden sm:inline-flex",
+              transparent ? "oc-btn-light" : "oc-btn-primary"
+            )}
           >
             Request Support
             <ArrowUpRight className="h-4 w-4" />
@@ -107,7 +149,12 @@ export function SiteNav() {
           <Link
             href="/login"
             prefetch={false}
-            className="hidden min-h-11 items-center whitespace-nowrap px-2 text-[0.72rem] font-semibold uppercase leading-none text-[var(--oc-ink)]/70 transition-colors hover:text-[var(--oc-ink)] sm:inline-flex"
+            className={cn(
+              "hidden min-h-11 items-center whitespace-nowrap px-2 text-[0.72rem] font-semibold uppercase leading-none transition-colors sm:inline-flex",
+              transparent
+                ? "text-[var(--oc-paper)]/80 hover:text-[var(--oc-paper)]"
+                : "text-[var(--oc-ink)]/70 hover:text-[var(--oc-ink)]"
+            )}
           >
             Member Login
           </Link>
@@ -116,7 +163,12 @@ export function SiteNav() {
             ref={menuButtonRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="inline-flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full border border-[var(--oc-line-strong)] text-[var(--oc-ink)] transition-colors hover:border-[var(--oc-navy)] xl:hidden"
+            className={cn(
+              "inline-flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full border transition-colors xl:hidden",
+              transparent
+                ? "border-[var(--oc-line-dark)] text-[var(--oc-paper)] hover:border-[var(--oc-paper)]"
+                : "border-[var(--oc-line-strong)] text-[var(--oc-ink)] hover:border-[var(--oc-navy)]"
+            )}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="amg-mobile-menu"
