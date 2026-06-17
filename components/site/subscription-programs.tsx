@@ -31,59 +31,59 @@ const pistonClasses = new Set<string>(["Single-Engine Piston", "Multi-Engine Pis
 
 const allowanceCopy = {
   Basic: {
-    monthly: ["2 client-flight duty days", "1 MX movement"],
-    annual: ["28 client-flight duty days", "5 MX movements"],
-    priority: "Standard priority; rush fee waived when requested at least 48 hours in advance.",
+    monthly: ["2 support duty days", "1 maintenance movement"],
+    annual: ["28 support duty days", "5 maintenance movements"],
+    priority: "Standard review cadence; rush review fee waived when requested at least 48 hours in advance.",
     benefits: [
-      "Crew sourcing",
-      "Crew compensation within selected allowance",
+      "Crew sourcing review",
+      "Crew compensation within selected allowance when included in proposal",
       "Standard intake administration",
-      "Standard scheduling communication",
+      "Standard support communication",
       "Monthly usage report",
       "Annual planning call",
       "Maintenance coordination available separately",
     ],
-    travel: "Crew travel and lodging are pass-through or separately quoted. No included travel allowance.",
+    travel: "Crew travel and lodging are pass-through or separately quoted. No included travel allowance unless stated in the proposal.",
   },
   Core: {
-    monthly: ["3 client-flight duty days", "1 MX movement"],
-    annual: ["36 client-flight duty days", "7 MX movements"],
-    priority: "Elevated priority; rush fee waived when requested at least 24 hours in advance.",
+    monthly: ["3 support duty days", "1 maintenance movement"],
+    annual: ["36 support duty days", "7 maintenance movements"],
+    priority: "Elevated review cadence; rush review fee waived when requested at least 24 hours in advance.",
     benefits: [
       "Everything in Basic",
-      "Standard mission coordination",
-      "Improved booking priority",
-      "More detailed mission communication",
+      "Standard support coordination",
+      "Improved request-review priority",
+      "More detailed support communication",
       "Monthly usage report",
       "Annual planning call",
       "After-hours support available separately",
     ],
-    travel: "Lodging allowance up to $125 per applicable crew duty day. Crew positioning travel is pass-through unless included in the proposal.",
+    travel: "Lodging allowance up to $125 per applicable crew duty day when included in the proposal. Crew positioning travel is pass-through unless included in the proposal.",
   },
   Priority: {
-    monthly: ["5 client-flight duty days", "2 MX movements"],
-    annual: ["60 client-flight duty days", "12 MX movements"],
-    priority: "High priority; rush fee waived when requested at least 12 hours in advance.",
+    monthly: ["5 support duty days", "2 maintenance movements"],
+    annual: ["60 support duty days", "12 maintenance movements"],
+    priority: "High review priority; rush review fee waived when requested at least 12 hours in advance.",
     benefits: [
       "Everything in Core",
-      "Enhanced mission coordination",
+      "Enhanced support coordination",
       "Maintenance coordination",
       "Dedicated support contact",
       "After-hours support",
-      "Higher booking priority",
+      "Higher request-review priority",
       "Applicable lodging/travel allowance",
     ],
     travel: "Lodging allowance up to $125 per applicable crew duty day. Domestic crew positioning allowance up to $1,000 per applicable trip when included in the proposal.",
   },
   Premier: {
-    monthly: ["7 client-flight duty days", "3 MX movements"],
-    annual: ["90 client-flight duty days", "15 MX movements"],
-    priority: "Highest priority; rush fee waived when requested at least 8 hours in advance.",
+    monthly: ["7 support duty days", "3 maintenance movements"],
+    annual: ["90 support duty days", "15 maintenance movements"],
+    priority: "Highest review priority; rush review fee waived when requested at least 8 hours in advance.",
     benefits: [
       "Everything in Priority",
-      "Highest booking priority",
-      "Comprehensive coordination",
-      "Highest service responsiveness",
+      "Highest request-review priority",
+      "Expanded coordination structure",
+      "Highest support responsiveness",
       "Highest included usage",
       "Enhanced planning support",
       "Applicable lodging/travel allowance",
@@ -119,7 +119,7 @@ export function SubscriptionPrograms() {
               <Gauge className="h-5 w-5 text-[var(--oc-blue)]" />
             </div>
             <h2 className="oc-display mt-6 text-4xl text-[var(--oc-ink)] sm:text-5xl">
-              Select Aircraft and Billing
+              Select aircraft and billing preference
             </h2>
             <div className="mt-6 grid gap-5">
               <label className="grid gap-2 text-sm font-medium text-[var(--oc-ink)]">
@@ -162,7 +162,7 @@ export function SubscriptionPrograms() {
               </fieldset>
             </div>
             <p className="mt-6 text-sm leading-relaxed text-[var(--oc-muted)]">
-              Pricing is based on aircraft class, crew requirements, selected allowances, and operating scope. Two-pilot requirements affect proposal pricing.
+              Pricing is based on aircraft class, crew requirements, selected allowances, variable costs, and operating scope. Two-pilot requirements affect proposal pricing.
             </p>
             <div className="mt-6 rounded-lg border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-4">
               <p className="oc-kicker text-[0.62rem] text-[var(--oc-muted)]">Current selection</p>
@@ -221,7 +221,7 @@ export function SubscriptionPrograms() {
                       Request Tailored Proposal
                     </p>
                     <p className="mt-2 text-sm leading-relaxed text-[var(--oc-muted)]">
-                      Proposal-based support for selected aircraft class, crew requirements, and operating scope.
+                      Proposal-based support for selected aircraft class, crew requirements, allowances, and operating scope.
                     </p>
                     <div className="mt-6 rounded-lg border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-4">
                       <p className="oc-kicker text-[0.62rem] text-[var(--oc-ink)]/80">
@@ -282,16 +282,16 @@ export function SubscriptionPrograms() {
 
       <section className="mt-16 grid gap-5 lg:grid-cols-3" data-stagger-container>
         <div className="oc-card p-6" data-stagger-item>
-          <h3 className="oc-display text-2xl text-[var(--oc-ink)]">Included Events</h3>
+          <h3 className="oc-display text-2xl text-[var(--oc-ink)]">Included support events</h3>
           <p className="mt-4 text-sm leading-relaxed text-[var(--oc-muted)]">
-            One included Client Flight means one crew duty day. Multiple legs during the same duty day remain one event. Trips exceeding 12 hours or involving overnight activity may consume additional duty days.
+            One included support duty day means one crew duty day. Multiple legs during the same duty day remain one event. Duty periods exceeding 12 hours or involving overnight activity may consume additional duty days.
           </p>
           <p className="mt-4 text-sm leading-relaxed text-[var(--oc-muted)]">
-            One included MX Flight means one maintenance-related aircraft movement. Base to MRO is one movement; MRO to base is one movement; a round trip is two movements.
+            One included maintenance movement means one maintenance-related aircraft movement. Base to MRO is one movement; MRO to base is one movement; a round trip is two movements.
           </p>
         </div>
         <div className="oc-card p-6" data-stagger-item>
-          <h3 className="oc-display text-2xl text-[var(--oc-ink)]">Credits and Annual Billing</h3>
+          <h3 className="oc-display text-2xl text-[var(--oc-ink)]">Credits and annual billing</h3>
           <p className="mt-4 text-sm leading-relaxed text-[var(--oc-muted)]">
             Unused eligible credits remain available while the subscription is active and in good standing. Credits expire upon cancellation, termination, non-renewal, or default; they have no cash value and cannot be refunded or transferred.
           </p>
@@ -300,12 +300,12 @@ export function SubscriptionPrograms() {
           </p>
         </div>
         <div className="oc-card p-6" data-stagger-item>
-          <h3 className="oc-display text-2xl text-[var(--oc-ink)]">Major Exclusions</h3>
+          <h3 className="oc-display text-2xl text-[var(--oc-ink)]">Major exclusions</h3>
           <p className="mt-4 text-sm leading-relaxed text-[var(--oc-muted)]">
             Owner/operator expenses include fuel, oil, insurance, maintenance invoices, parts, mechanic labor, aircraft subscriptions, and databases. Pass-through items include landing, ramp, parking, hangar, handling, deicing, catering, cleaning, customs, immigration, handlers, and overflight permits.
           </p>
           <p className="mt-4 text-sm leading-relaxed text-[var(--oc-muted)]">
-            Flight attendants, dedicated dispatch, full management accounting, specialized maintenance representation, AOG support, ferry permits, special permits, and unusual-risk missions require a separate quote.
+            Flight attendants, dedicated dispatch, full management accounting, specialized maintenance representation, AOG support, ferry permits, special permits, and unusual-risk support requests require a separate quote.
           </p>
         </div>
       </section>
