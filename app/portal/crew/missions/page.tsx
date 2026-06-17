@@ -10,7 +10,7 @@ import {
 } from "@/lib/portal/constants";
 import { formatRoute, formatDateTime } from "@/lib/portal/format";
 
-export const metadata = { title: "Missions — Crew Portal" };
+export const metadata = { title: "Assignments — Crew Portal" };
 
 export default async function CrewMissionsPage({
   searchParams,
@@ -25,19 +25,19 @@ export default async function CrewMissionsPage({
   ]);
 
   const missions = params.pool === "open" ? openPool : myMissions;
-  const title = params.pool === "open" ? "Available Missions" : "My Missions";
+  const title = params.pool === "open" ? "Open Assignments" : "My Assignments";
 
   return (
     <PortalShell role="crew" user={user}>
       <PageHeader eyebrow="Flight Crew" title={title} />
       <div className="flex gap-2">
-        <Link href="/portal/crew/missions" className={`rounded-full border px-3 py-1 text-xs ${!params.pool ? "border-accent bg-accent/10 text-accent" : "border-border text-muted-foreground"}`}>My Missions</Link>
-        <Link href="/portal/crew/missions?pool=open" className={`rounded-full border px-3 py-1 text-xs ${params.pool === "open" ? "border-accent bg-accent/10 text-accent" : "border-border text-muted-foreground"}`}>Available Pool</Link>
+        <Link href="/portal/crew/missions" className={`rounded-full border px-3 py-1 text-xs ${!params.pool ? "border-accent bg-accent/10 font-semibold text-accent" : "border-border text-muted-foreground hover:border-accent/40"}`}>My Assignments</Link>
+        <Link href="/portal/crew/missions?pool=open" className={`rounded-full border px-3 py-1 text-xs ${params.pool === "open" ? "border-accent bg-accent/10 font-semibold text-accent" : "border-border text-muted-foreground hover:border-accent/40"}`}>Open Pool</Link>
       </div>
 
       <SectionCard>
         {missions.length === 0 ? (
-          <EmptyState icon="plane" title={params.pool === "open" ? "No open missions" : "No missions assigned"} description={params.pool === "open" ? "Check back when new missions are available." : "Your assigned missions will appear here."} />
+          <EmptyState icon="plane" title={params.pool === "open" ? "No open assignments" : "No assignments"} description={params.pool === "open" ? "Check back when AMG Operations posts new open assignments." : "Your accepted assignments will appear here. Check the Open Pool for available missions."} />
         ) : (
           <div className="space-y-3">
             {missions.map((m) => (

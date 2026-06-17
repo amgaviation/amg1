@@ -87,7 +87,7 @@ export function StatCard({
   value: string | number;
   detail?: string;
   href?: string;
-  tone?: "default" | "accent" | "warn" | "danger";
+  tone?: "default" | "accent" | "warn" | "danger" | "info";
 }) {
   const ring =
     tone === "accent"
@@ -96,7 +96,9 @@ export function StatCard({
         ? "border-amber-500/40"
         : tone === "danger"
           ? "border-destructive/40"
-          : "border-border";
+          : tone === "info"
+            ? "border-sky-500/40"
+            : "border-border";
   const inner = (
     <div className={cn("h-full rounded-lg border bg-white p-5 shadow-[0_14px_40px_rgba(8,20,36,0.06)] transition-colors", ring, href && "hover:border-primary/60")}>
       <p className="font-display text-4xl font-extrabold uppercase leading-none text-slate-950">{value}</p>

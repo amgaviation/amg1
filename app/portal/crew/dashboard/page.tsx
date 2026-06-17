@@ -52,7 +52,7 @@ export default async function CrewDashboardPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Pending offers" value={offered.length} tone={offered.length > 0 ? "warn" : "default"} href="/portal/crew/missions" />
+        <StatCard label="Pending offers" value={offered.length} tone={offered.length > 0 ? "warn" : "default"} href="/portal/crew/missions" detail={offered.length > 0 ? "Review in Assignments" : undefined} />
         <StatCard label="Active assignments" value={active.length} href="/portal/crew/missions" />
         <StatCard label="Credential alerts" value={expiringCreds.length} tone={expiringCreds.length > 0 ? "danger" : "default"} href="/portal/crew/credentials" />
         <StatCard label="Unread messages" value={unread} tone={unread > 0 ? "warn" : "default"} href="/portal/crew/messages" />

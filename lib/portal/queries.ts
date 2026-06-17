@@ -849,6 +849,12 @@ export async function countUnread(userId: string): Promise<number> {
   return count ?? 0;
 }
 
+export async function markNotificationsRead(ids: string[]): Promise<void> {
+  if (!ids.length) return;
+  const db = await createServiceClient();
+  await db.from("notifications").update({ is_read: true }).in("id", ids);
+}
+
 // ─── Audit ──────────────────────────────────────────────────────────
 export async function listAuditEvents(limit = 100): Promise<AuditEvent[]> {
   const db = await createServiceClient();
@@ -864,20 +870,32 @@ export async function listAuditEvents(limit = 100): Promise<AuditEvent[]> {
 export async function getAdminMetrics() {
   const db = await createServiceClient();
 
-  const [missionsActive, missionsSubmitted, pendingUsers, pendingDocs, pendingExpenses, crewCount, activeSubscriptions, subscriptionOverages] =
-    await Promise.all([
-      db
-        .from("missions")
-        .select("id", { count: "exact", head: true })
-        .in("status", ["approved", "crew_assigned", "scheduled", "in_progress"]),
-      db.from("missions").select("id", { count: "exact", head: true }).eq("status", "submitted"),
-      db.from("profiles").select("id", { count: "exact", head: true }).eq("status", "pending"),
-      db.from("documents").select("id", { count: "exact", head: true }).eq("status", "pending_review"),
-      db.from("expenses").select("id", { count: "exact", head: true }).eq("status", "submitted"),
-      db.from("profiles").select("id", { count: "exact", head: true }).eq("role", "crew"),
-      (db as any).from("client_subscriptions").select("id", { count: "exact", head: true }).eq("status", "active"),
-      (db as any).from("subscription_usage_events").select("id", { count: "exact", head: true }).gt("overage_amount", 0),
-    ]);
+  const [
+    missionsActive,
+    missionsSubmitted,
+    pendingUsers,
+    pendingDocs,
+    pendingExpenses,
+    crewCount,
+    activeSubscriptions,
+    subscriptionOverages,
+    newFormSubmissions,
+    openInvoices,
+  ] = await Promise.all([
+    db
+      .from("missions")
+      .select("id", { count: "exact", head: true })
+      .in("status", ["approved", "crew_assigned", "scheduled", "in_progress"]),
+    db.from("missions").select("id", { count: "exact", head: true }).eq("status", "submitted"),
+    db.from("profiles").select("id", { count: "exact", head: true }).eq("status", "pending"),
+    db.from("documents").select("id", { count: "exact", head: true }).eq("status", "pending_review"),
+    db.from("expenses").select("id", { count: "exact", head: true }).eq("status", "submitted"),
+    db.from("profiles").select("id", { count: "exact", head: true }).eq("role", "crew"),
+    (db as any).from("client_subscriptions").select("id", { count: "exact", head: true }).eq("status", "active"),
+    (db as any).from("subscription_usage_events").select("id", { count: "exact", head: true }).gt("overage_amount", 0),
+    (db as any).from("contact_form_submissions").select("id", { count: "exact", head: true }).eq("status", "new"),
+    db.from("invoices").select("id", { count: "exact", head: true }).in("status", ["sent", "viewed", "overdue", "partially_paid"]),
+  ]);
 
   return {
     activeMissions: missionsActive.count ?? 0,
@@ -888,5 +906,7 @@ export async function getAdminMetrics() {
     crewCount: crewCount.count ?? 0,
     activeSubscriptions: activeSubscriptions.count ?? 0,
     subscriptionOverages: subscriptionOverages.count ?? 0,
+    newFormSubmissions: newFormSubmissions.count ?? 0,
+    openInvoices: openInvoices.count ?? 0,
   };
 }

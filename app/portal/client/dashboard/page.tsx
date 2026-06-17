@@ -21,7 +21,7 @@ import {
 } from "@/lib/portal/constants";
 import { formatRoute, formatDateTime } from "@/lib/portal/format";
 
-export const metadata = { title: "Dashboard — Client Portal" };
+export const metadata = { title: "Overview — Client Portal" };
 
 export default async function ClientDashboardPage({
   searchParams,
@@ -52,7 +52,9 @@ export default async function ClientDashboardPage({
   return (
     <PortalShell role="client" user={user} unread={unread}>
       {params.success === "created" ? (
-        <Notice tone="success">Trip request submitted. AMG Operations will review shortly.</Notice>
+        <Notice tone="success">
+          Request received. AMG Operations will review the submitted details against support scope, aircraft context, crew availability, owner/operator approval, and operational conditions.
+        </Notice>
       ) : null}
 
       <div className="flex flex-col gap-1">
@@ -64,7 +66,7 @@ export default async function ClientDashboardPage({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <StatCard label="Active missions" value={active.length} href="/portal/client/trips" />
+        <StatCard label="Active requests" value={active.length} href="/portal/client/trips" />
         <StatCard label="Aircraft on file" value={aircraft.length} href="/portal/client/aircraft" />
         <StatCard
           label="Open quotes"

@@ -1,5 +1,53 @@
-import { redirect } from "next/navigation";
+import { requireRole } from "@/lib/portal/session";
+import { PortalShell } from "@/components/portal/shell/portal-shell";
+import { EmptyState, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
+import { listNotifications, markNotificationsRead } from "@/lib/portal/queries";
+import { formatDateTime } from "@/lib/portal/format";
 
-export default function ClientNotificationsAliasPage() {
-  redirect("/portal/client/dashboard");
+export const metadata = { title: "Notifications — Client Portal" };
+
+export default async function ClientNotificationsPage() {
+  const user = await requireRole("client");
+  const notifications = await listNotifications(user.id);
+
+  // Mark unread notifications as read (fire-and-forget on server side)
+  const unread = notifications.filter((n) => !n.is_read).map((n) => n.id);
+  if (unread.length > 0) {
+    await markNotificationsRead(unread).catch(() => null);
+  }
+
+  return (
+    <PortalShell role="client" user={user}>
+      <PageHeader
+        eyebrow="Owner Services"
+        title="Notifications"
+        description="Updates from AMG Operations on your requests, quotes, and account."
+      />
+
+      <SectionCard title="Recent Notifications" icon="bell">
+        {notifications.length === 0 ? (
+          <EmptyState
+            icon="bell"
+            title="No notifications"
+            description="AMG Operations will notify you here when your support requests are updated, quotes are sent, or actions are needed."
+          />
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {notifications.map((n) => (
+              <div key={n.id} className={`flex gap-4 py-4 first:pt-0 last:pb-0 ${!n.is_read ? "opacity-100" : "opacity-70"}`}>
+                <div className={`mt-1 h-2 w-2 shrink-0 rounded-full ${!n.is_read ? "bg-primary" : "bg-transparent"}`} />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-slate-900">{n.title}</p>
+                  {n.body && (
+                    <p className="mt-1 text-sm leading-5 text-slate-600">{n.body}</p>
+                  )}
+                  <p className="mt-1 text-xs text-slate-400">{formatDateTime(n.created_at)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </SectionCard>
+    </PortalShell>
+  );
 }
