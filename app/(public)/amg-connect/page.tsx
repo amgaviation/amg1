@@ -9,7 +9,7 @@ import { IMG } from "@/lib/site-media";
 export const metadata: Metadata = {
   title: "AMG Connect",
   description:
-    "AMG Connect is the role-based portal for owners, crews, and administrators — requests, aircraft profiles, crew assignments, documents, quotes, and status in one place.",
+    "AMG Connect is the role-based portal for approved owners, crews, and administrators — support requests, aircraft profiles, documents, quotes, and status in one place.",
 };
 
 export default function AmgConnectPage() {
@@ -17,8 +17,8 @@ export default function AmgConnectPage() {
     <>
       <PageHero
         eyebrow="AMG Connect"
-        title="One operational source of truth."
-        lead="Requests, aircraft profiles, crew assignments, documents, quotes, and status updates — organized by role so owners, crews, and administrators work from the same picture."
+        title="One support view for approved stakeholders."
+        lead="Support requests, aircraft profiles, crew review, documents, quotes, invoices, and status updates are organized by role so owners, crews, and administrators can work from the same support picture."
         image={IMG.mapNetwork}
         imageAlt="Route and dispatch map used for operational coordination"
         primary={{ label: "Member Login", href: "/login" }}
@@ -31,8 +31,8 @@ export default function AmgConnectPage() {
         <div className="oc-shell">
           <SectionHeading
             eyebrow="Role views"
-            title="Access scoped to the role."
-            lead="Every user sees what their role needs — and nothing it doesn't. Access is reviewed and approved before it is granted."
+            title="Access scoped to the support role."
+            lead="Every user sees what their role needs — and nothing it does not. Portal access is reviewed and approved before it is granted."
           />
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
             {PORTAL_ROLES.map((role) => (
@@ -62,7 +62,7 @@ export default function AmgConnectPage() {
       <CtaBand
         eyebrow="AMG Connect"
         title="Request access to the portal."
-        body="Approved owners, crews, and partners get a role-based view of the operation. Access is reviewed before it is granted."
+        body="Approved owners, crews, and partners get a role-based view of support activity. Portal visibility does not replace crew confirmation, operational approval, or final support acceptance."
         primaryLabel="Request Access"
         primaryHref="/login?mode=request"
         secondaryLabel="Member Login"
