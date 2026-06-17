@@ -5,13 +5,13 @@ import { useReducedMotion } from "framer-motion";
 import { TextFlippingBoard } from "@/components/ui/text-flipping-board";
 
 const WORDS = [
-  "AIRCRAFT MOVEMENT",
-  "CREW COVERAGE",
-  "MISSION TIMING",
-  "OWNER VISIBILITY",
+  "ATTENTION TO DETAIL",
+  "ONE COMMON MISSION",
+  "FILLING INDUSTRY GAPS",
+  "SAFETY",
   "OPERATIONAL CLARITY",
-  "MAINTENANCE REPOSITIONING",
-  "APPROVED SUPPORT PATHS",
+  "COMMUNICATION",
+  "INDUSTRY EXPERIENCE",
 ];
 
 const RESTING = "OPERATIONAL CLARITY";
@@ -48,13 +48,12 @@ export function BrandStatement() {
           <TextFlippingBoard
             text={reduce ? RESTING : WORDS[index]}
             duration={reduce ? 0.001 : undefined}
-            className="bg-transparent shadow-none"
           />
         </div>
         {/* Accessible text equivalent for the decorative split-flap board. */}
         <p className="sr-only">
-          Private aviation support built around aircraft movement, crew coverage, mission timing, owner visibility,
-          operational clarity, maintenance repositioning, and approved support paths.
+          Private aviation support built around attention to detail, one common mission, filling industry gaps, safety,
+          operational clarity, communication, and industry experience.
         </p>
 
         <div className="mx-auto mt-10 max-w-2xl text-center" data-scroll-animate>

@@ -41,7 +41,7 @@ export default function Globe3DDemo({ markers }: Globe3DDemoProps) {
             <p className="oc-kicker text-[var(--oc-blue)]">Coordination Layer</p>
             <h3 className="oc-display mt-4 text-3xl text-[var(--oc-ink)]">Region, role, readiness.</h3>
             <p className="mt-4 text-sm leading-relaxed text-[var(--oc-muted)]">
-              Public operating points can be organized without exposing personal addresses or contact information.
+              Public airport coverage points can be organized without exposing personal addresses or contact information.
             </p>
           </div>
 
@@ -49,7 +49,7 @@ export default function Globe3DDemo({ markers }: Globe3DDemoProps) {
             <p className="oc-kicker text-[var(--oc-muted)]">Active Review Point</p>
             <h4 className="mt-3 text-base font-semibold text-[var(--oc-ink)]">{activeMarker?.label ?? "Operating region"}</h4>
             <p className="mt-2 text-sm leading-relaxed text-[var(--oc-muted)]">
-              {activeMarker?.region ?? "Region"} · {activeMarker?.role ?? "Crew coverage"} · documentation and assignment suitability reviewed before support proceeds.
+              {activeMarker?.airportCode ?? "Airport"} · {activeMarker?.sourceLocation ?? "Source market"} · documentation and assignment suitability reviewed before support proceeds.
             </p>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { featuredCrewRegions, crewGlobeMarkers } from "@/components/sections/crew-globe-data";
+import { featuredCrewRegions, crewGlobeStats } from "@/components/sections/crew-globe-data";
 
 type GlobeFallbackProps = {
   tone?: "dark" | "light";
@@ -19,15 +19,15 @@ export function GlobeFallback({ tone = "dark", label = "Crew operating regions" 
       <p className={dark ? "oc-kicker text-[var(--oc-aluminum-2)]" : "oc-kicker text-[var(--oc-blue)]"}>{label}</p>
       <div className="mt-6 grid grid-cols-2 gap-3">
         <div>
-          <p className="oc-display text-4xl">{crewGlobeMarkers.length}</p>
+          <p className="oc-display text-4xl">{crewGlobeStats.publicMarkerCount}</p>
           <p className={dark ? "mt-1 text-xs uppercase text-[var(--oc-aluminum)]" : "mt-1 text-xs uppercase text-[var(--oc-muted)]"}>
-            Public-safe points
+            Public airport markers
           </p>
         </div>
         <div>
-          <p className="oc-display text-4xl">{featuredCrewRegions.length}</p>
+          <p className="oc-display text-4xl">{crewGlobeStats.publicCrewCount}</p>
           <p className={dark ? "mt-1 text-xs uppercase text-[var(--oc-aluminum)]" : "mt-1 text-xs uppercase text-[var(--oc-muted)]"}>
-            Regions shown
+            Crew records
           </p>
         </div>
       </div>

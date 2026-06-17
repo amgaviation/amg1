@@ -38,8 +38,9 @@ export default function Globe3DDemoSecond({ markers }: Globe3DDemoSecondProps) {
         <p className="oc-kicker text-[var(--oc-aluminum-2)]">Region Detail</p>
         <h3 className="mt-3 text-lg font-semibold">{activeMarker?.label ?? "Crew coverage point"}</h3>
         <p className="mt-2 text-sm leading-relaxed text-[var(--oc-aluminum)]">
-          {activeMarker?.baseAirport ? `${activeMarker.baseAirport} · ` : ""}
-          {activeMarker?.aircraftExperience?.slice(0, 3).join(", ") || "Aircraft experience"} · final assignment review required.
+          {activeMarker?.airportCode ? `${activeMarker.airportCode} · ` : ""}
+          {activeMarker?.airportName ?? "Public-use airport"} · {activeMarker?.crewCount ?? 1} crew record
+          {(activeMarker?.crewCount ?? 1) === 1 ? "" : "s"} represented. Final assignment review required.
         </p>
       </div>
     </div>

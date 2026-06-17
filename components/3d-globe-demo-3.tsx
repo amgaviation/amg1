@@ -22,11 +22,11 @@ export default function Globe3DDemoThird({ markers, regionCount }: Globe3DDemoTh
             <div className="mt-5 grid grid-cols-2 gap-3">
               <div>
                 <p className="oc-display text-4xl text-white">{markers.length}</p>
-                <p className="mt-1 text-xs uppercase tracking-wide text-[var(--oc-aluminum)]">Public-safe points</p>
+                <p className="mt-1 text-xs uppercase tracking-wide text-[var(--oc-aluminum)]">Public airport markers</p>
               </div>
               <div>
                 <p className="oc-display text-4xl text-white">{regionCount}</p>
-                <p className="mt-1 text-xs uppercase tracking-wide text-[var(--oc-aluminum)]">Operating regions</p>
+                <p className="mt-1 text-xs uppercase tracking-wide text-[var(--oc-aluminum)]">States represented</p>
               </div>
             </div>
           </div>
@@ -35,8 +35,9 @@ export default function Globe3DDemoThird({ markers, regionCount }: Globe3DDemoTh
             <p className="oc-kicker text-[var(--oc-aluminum-2)]">Selected Point</p>
             <h3 className="mt-3 text-lg font-semibold text-white">{activeMarker?.label ?? "Operating region"}</h3>
             <p className="mt-2 text-sm leading-relaxed text-[var(--oc-aluminum)]">
-              {activeMarker?.baseAirport ? `${activeMarker.baseAirport} · ` : ""}
-              {activeMarker?.role ?? "Crew coverage"} organized by region, aircraft experience, and credential readiness.
+              {activeMarker?.airportCode ? `${activeMarker.airportCode} · ` : ""}
+              {activeMarker?.airportName ?? "Public-use airport"} · {activeMarker?.crewCount ?? 1} crew record
+              {(activeMarker?.crewCount ?? 1) === 1 ? "" : "s"} represented.
             </p>
           </div>
         </div>
