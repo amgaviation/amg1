@@ -10,7 +10,7 @@ import { getServiceImage, IMG } from "@/lib/site-media";
 export const metadata: Metadata = {
   title: "AMG Operations",
   description:
-    "How AMG coordinates aircraft movement, crew coverage, mission logistics, and owner visibility — from request intake through approved support.",
+    "How AMG coordinates aircraft movement, crew coverage, support logistics, and owner visibility — from intake through reviewed support.",
 };
 
 export default function OperationsPage() {
@@ -18,8 +18,8 @@ export default function OperationsPage() {
     <>
       <PageHero
         eyebrow="AMG Operations"
-        title="Operational control, end to end."
-        lead="From the first request to the moment support proceeds, AMG keeps the aircraft, the crew, the logistics, and the people who need to know moving in one coordinated chain."
+        title="A clearer support path around the aircraft."
+        lead="AMG organizes the moving parts around aircraft support — aircraft context, crew coverage, logistics, documents, vendors, and approved stakeholder communication — while operating authority remains with the responsible owner/operator and crew."
         image={IMG.heroOperations}
         imageAlt="Operations team coordinating an aircraft on the ramp"
         position="center 40%"
@@ -33,8 +33,8 @@ export default function OperationsPage() {
         <div className="oc-shell">
           <SectionHeading
             eyebrow="Capabilities"
-            title="Support functions, defined and accountable."
-            lead="Each capability is scoped around aircraft status, crew need, timing, route, and the responsible owner/operator authority."
+            title="Support functions with defined boundaries."
+            lead="Each capability is scoped around aircraft status, crew need, timing, route, documentation, and the responsible owner/operator authority."
           />
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-stagger-container>
             {SERVICES.map((service) => (
