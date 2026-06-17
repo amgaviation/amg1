@@ -8,6 +8,7 @@
 const BASE = "/images/amg-custom";
 
 export const IMG = {
+  homeHangarDusk: `${BASE}/home-hangar-dusk.jpg`,
   heroOperations: `${BASE}/hero-aircraft-operations.jpg`,
   aircraftSupportMain: `${BASE}/aircraft-support-main.jpg`,
   servicesHero: `${BASE}/services-hero.jpg`,

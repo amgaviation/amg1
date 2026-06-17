@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 
 const STEPS = [
@@ -44,10 +44,16 @@ const STEPS = [
 
 export function MissionFlow() {
   const ref = useRef<HTMLDivElement>(null);
-  const reduce = useReducedMotion();
+  const [hasMounted, setHasMounted] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
+  const reduce = hasMounted && prefersReducedMotion === true;
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 75%", "end 45%"] });
   const raw = useTransform(scrollYProgress, [0, 1], [0, 1]);
   const scaleY = useSpring(raw, { stiffness: 120, damping: 30, mass: 0.4 });
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   return (
     <section className="oc-panel-navy oc-section relative overflow-hidden text-[var(--oc-paper)]">

@@ -1,4 +1,4 @@
-import { CommandHero } from "@/components/site/home/command-hero";
+import { HomeHangarEntry } from "@/components/site/home/home-hangar-entry";
 import { OperationalTrustStrip } from "@/components/site/home/operational-trust-strip";
 import { SitePreviewLayer } from "@/components/site/home/site-preview-layer";
 import { BrandStatement } from "@/components/site/home/brand-statement";
@@ -21,7 +21,7 @@ export const metadata = {
 export default function HomePage() {
   return (
     <>
-      <CommandHero />
+      <HomeHangarEntry />
       <OperationalTrustStrip />
       <SitePreviewLayer />
       <BrandStatement />

@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { useReducedMotion } from "framer-motion";
 import { GlobeFallback } from "@/components/sections/globe-fallback";
@@ -13,7 +14,13 @@ const HomeGlobeDemo = dynamic(() => import("@/components/3d-globe-demo-3"), {
 });
 
 export function HomeCrewGlobe() {
-  const reduce = useReducedMotion();
+  const [hasMounted, setHasMounted] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
+  const reduce = hasMounted && prefersReducedMotion === true;
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   return (
     <section className="oc-panel-navy oc-section relative overflow-hidden text-[var(--oc-paper)]">
