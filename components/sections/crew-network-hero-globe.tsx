@@ -19,16 +19,15 @@ export function CrewNetworkHeroGlobe() {
         <div data-scroll-animate>
           <p className="oc-eyebrow oc-eyebrow-light">Operating Regions</p>
           <h2 className="oc-display mt-5 text-4xl text-white sm:text-5xl lg:text-6xl">
-            Crew coverage by operating region.
+            Crew coverage by airport region.
           </h2>
           <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]">
             AMG organizes crew support by base airport, aircraft experience, role, credential readiness, and assignment
-            review. Coverage remains subject to crew confirmation, aircraft status, owner/operator approval, and final
-            support acceptance.
+            review. Pins represent public airport regions, not home addresses or guaranteed crew availability.
           </p>
           <dl className="mt-8 grid gap-3 sm:grid-cols-3">
             <div className="rounded-xl border border-white/10 bg-white/[0.055] p-4">
-              <dt className="text-xs uppercase tracking-wide text-[var(--oc-aluminum-2)]">Public airport markers</dt>
+              <dt className="text-xs uppercase tracking-wide text-[var(--oc-aluminum-2)]">Airport markers</dt>
               <dd className="oc-display mt-2 text-3xl text-white">{crewGlobeStats.publicMarkerCount}</dd>
             </div>
             <div className="rounded-xl border border-white/10 bg-white/[0.055] p-4">
@@ -36,7 +35,7 @@ export function CrewNetworkHeroGlobe() {
               <dd className="oc-display mt-2 text-3xl text-white">{crewGlobeStats.publicCrewCount}</dd>
             </div>
             <div className="rounded-xl border border-white/10 bg-white/[0.055] p-4">
-              <dt className="text-xs uppercase tracking-wide text-[var(--oc-aluminum-2)]">Location rows needing review</dt>
+              <dt className="text-xs uppercase tracking-wide text-[var(--oc-aluminum-2)]">Locations needing review</dt>
               <dd className="oc-display mt-2 text-3xl text-white">{crewGlobeStats.excludedLocationReviewNeededCount}</dd>
             </div>
           </dl>
