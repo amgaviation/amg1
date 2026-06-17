@@ -48,6 +48,12 @@ export interface Globe3DConfig {
   maxDistance?: number;
   /** Initial rotation */
   initialRotation?: { x: number; y: number };
+  /** Initial camera focus point */
+  initialView?: {
+    lat: number;
+    lng: number;
+    altitude?: number;
+  };
   /** Marker default size */
   markerSize?: number;
   /** Show wireframe overlay */
@@ -402,12 +408,20 @@ interface SceneProps {
 
 function Scene({ markers, config, onMarkerClick, onMarkerHover }: SceneProps) {
   const { camera } = useThree();
+  const { altitude, lat, lng } = config.initialView;
 
   // Set initial camera position (pulled back to accommodate markers)
   React.useEffect(() => {
-    camera.position.set(0, 0, config.radius * 3.5);
+    const distance = altitude ? config.radius * altitude : config.radius * 3.5;
+    const initialCameraPosition = latLngToVector3(
+      lat,
+      lng,
+      distance,
+    );
+
+    camera.position.copy(initialCameraPosition);
     camera.lookAt(0, 0, 0);
-  }, [camera, config.radius]);
+  }, [altitude, camera, lat, lng, config.radius]);
 
   return (
     <>
@@ -495,6 +509,11 @@ const defaultConfig: Required<Globe3DConfig> = {
   minDistance: 5,
   maxDistance: 15,
   initialRotation: { x: 0, y: 0 },
+  initialView: {
+    lat: 0,
+    lng: 0,
+    altitude: 3.5,
+  },
   markerSize: 0.06,
   showWireframe: false,
   wireframeColor: "#4a9eff",

@@ -18,17 +18,26 @@ export default function Globe3DDemoSecond({ markers }: Globe3DDemoSecondProps) {
         className="absolute inset-x-0 bottom-0 top-0 h-full"
         markers={markers}
         config={{
+          radius: 1.7,
           atmosphereColor: "#7fb7ff",
-          atmosphereIntensity: 1,
+          atmosphereIntensity: 22,
           atmosphereBlur: 3.8,
           showAtmosphere: true,
           showWireframe: true,
           wireframeColor: "#7fb7ff",
-          bumpScale: 2.8,
-          autoRotateSpeed: 0.16,
+          bumpScale: 5,
+          autoRotateSpeed: 0.25,
           ambientIntensity: 0.74,
           pointLightIntensity: 1.9,
-          enableZoom: false,
+          enableZoom: true,
+          enablePan: false,
+          minDistance: 1.25,
+          maxDistance: 3.4,
+          initialView: {
+            lat: 39.8283,
+            lng: -98.5795,
+            altitude: 1.65,
+          },
         }}
         onMarkerClick={(marker) => setActiveMarker(marker as CrewGlobeMarker)}
         onMarkerHover={(marker) => setActiveMarker((marker as CrewGlobeMarker | null) ?? activeMarker)}
