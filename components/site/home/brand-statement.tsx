@@ -14,7 +14,7 @@ const WORDS = [
   "INDUSTRY EXPERIENCE",
 ];
 
-const RESTING = "OPERATIONAL CLARITY";
+const RESTING = "INDUSTRY EXPERIENCE";
 const WORD_CHANGE_INTERVAL_MS = 6000;
 
 export function BrandStatement() {
