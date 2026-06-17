@@ -15,15 +15,15 @@ const LANES = [
   {
     n: "02",
     title: "Crew Coverage",
-    body: "Credential-reviewed pilots matched to aircraft type, insurance minimums, and assignment suitability for missions and temporary coverage.",
+    body: "Credential-reviewed pilots evaluated against aircraft type, insurance minimums, availability, and assignment suitability.",
     image: IMG.pilotPreflight,
     href: "/crew-network",
     alt: "Pilot performing a preflight walkaround",
   },
   {
     n: "03",
-    title: "Mission Coordination",
-    body: "One accountable point for scheduling inputs, logistics, travel, vendor communication, and documentation across a support requirement.",
+    title: "Support Coordination",
+    body: "A defined coordination point for scheduling inputs, logistics, travel, vendor communication, and documentation around a support request.",
     image: IMG.mapNetwork,
     href: "/operations",
     alt: "Route and dispatch map overview",
@@ -31,7 +31,7 @@ const LANES = [
   {
     n: "04",
     title: "Owner Visibility",
-    body: "Aircraft status, request progress, documents, and operational updates kept visible to owners and approved representatives in AMG Connect.",
+    body: "Aircraft status, request progress, documents, quotes, and updates kept legible to owners and approved representatives in AMG Connect.",
     image: IMG.cockpitDetail,
     href: "/amg-connect",
     alt: "Cockpit instrument detail",
@@ -45,18 +45,18 @@ export function OperationalLanes() {
         <div className="lg:sticky lg:top-[calc(var(--public-header-height)+3rem)] lg:self-start" data-scroll-animate>
           <p className="oc-eyebrow">Operational Lanes</p>
           <h2 className="oc-display mt-4 text-4xl text-[var(--oc-ink)] sm:text-5xl">
-            Four lanes, one chain of operational control.
+            Four lanes, one coordinated support path.
           </h2>
           <p className="mt-5 max-w-md text-lg leading-relaxed text-[var(--oc-muted)]">
-            Every request runs through the same disciplined path — from the aircraft and the route to the crew and the
-            people who need to stay informed.
+            Every request is organized around the same practical sequence: the aircraft, the route, the crew requirement,
+            the logistics, and the people responsible for the operation.
           </p>
           <Link
             href="/operations"
             prefetch={false}
             className="oc-btn oc-btn-ghost mt-8"
           >
-            See how operations run
+            See how support is reviewed
             <ArrowUpRight className="h-4 w-4" />
           </Link>
         </div>
