@@ -6,21 +6,21 @@ const MODELS = [
   {
     label: "Model 01",
     name: "On-Demand Support",
-    summary: "For a specific movement, repositioning, or coverage need handled request by request.",
-    points: ["Mission-by-mission intake", "Crew sourcing and logistics", "No recurring commitment"],
+    summary: "For a specific aircraft movement, maintenance repositioning, or crew coverage need handled request by request.",
+    points: ["Request-by-request intake", "Crew sourcing and logistics review", "No recurring commitment"],
     featured: false,
   },
   {
     label: "Model 02",
     name: "Recurring Owner Support",
-    summary: "For owners who want a defined coordination cadence around one aircraft's recurring needs.",
-    points: ["Defined monthly scope", "Priority support review", "Owner communication and visibility"],
+    summary: "For owners who want a defined coordination cadence around one aircraft's recurring support needs.",
+    points: ["Defined monthly scope", "Priority support review", "Owner communication and portal visibility"],
     featured: true,
   },
   {
     label: "Model 03",
     name: "Fleet / Department Support",
-    summary: "For flight departments and owners running multiple aircraft or higher activity.",
+    summary: "For flight departments and owners managing multiple aircraft, higher activity, or variable crew needs.",
     points: ["Multi-aircraft coordination", "Role-based portal access", "Reporting and support cadence"],
     featured: false,
   },
@@ -33,8 +33,8 @@ export function SupportModels() {
         <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
           <SectionHeading
             eyebrow="Support Models"
-            title="Engage AMG the way the aircraft needs."
-            lead="Three ways to work with AMG — from a single mission to standing support across a department. Detailed allowances live in Plans."
+            title="Engage AMG around the aircraft’s support need."
+            lead="Three ways to work with AMG — from a single support event to standing coordination across an owner account or flight department. Detailed allowances live in Plans."
           />
           <Link href="/plans" prefetch={false} className="oc-btn oc-btn-ghost shrink-0">
             Compare plans
