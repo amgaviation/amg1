@@ -75,11 +75,11 @@ export const ownerApprovalStatuses = [
 ] as const;
 
 export const submissionStatuses = [
-  "New",
-  "Reviewed",
-  "In Progress",
-  "Closed",
-  "Archived",
+  "new",
+  "reviewed",
+  "in_progress",
+  "closed",
+  "archived",
 ] as const;
 
 export type ConditionalField = {

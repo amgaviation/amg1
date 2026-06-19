@@ -9,7 +9,8 @@ import { submissionStatuses } from "@/lib/public-form-options";
 
 export const metadata = { title: "Form Submissions - Admin Portal" };
 
-function display(value?: string | null) {
+function display(value?: string | boolean | null) {
+  if (typeof value === "boolean") return value ? "Yes" : "No";
   return value?.trim() || "-";
 }
 
@@ -17,9 +18,18 @@ function labelize(key: string) {
   return key.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+function statusLabel(status: string) {
+  return labelize(status);
+}
+
 function SubmissionDetails({ row }: { row: FormSubmission }) {
   const conditional = Object.entries(row.conditional_details ?? {});
-  const raw = Object.entries(row.raw_form ?? {});
+  const payload = Object.entries(row.payload ?? row.raw_form ?? {});
+  const requesterName = row.requester_name || row.full_name;
+  const company = row.company || row.organization || row.company_operator;
+  const aircraft = row.aircraft || row.aircraft_type;
+  const supportType = row.support_type || row.support_path || row.service_interest || row.inquiry_type;
+  const timing = row.timing || row.timeline_urgency;
 
   return (
     <details className="rounded-lg border border-slate-200 bg-slate-50">
@@ -28,33 +38,38 @@ function SubmissionDetails({ row }: { row: FormSubmission }) {
       </summary>
       <div className="grid gap-6 border-t border-slate-200 p-4 lg:grid-cols-2">
         <dl>
-          <DetailRow label="Full Name">{row.full_name}</DetailRow>
+          <DetailRow label="Full Name">{requesterName}</DetailRow>
           <DetailRow label="Email">{row.email}</DetailRow>
           <DetailRow label="Phone">{row.phone}</DetailRow>
-          <DetailRow label="Company">{display(row.company_operator)}</DetailRow>
+          <DetailRow label="Company">{display(company)}</DetailRow>
           <DetailRow label="Preferred Contact">{display(row.preferred_contact_method)}</DetailRow>
           <DetailRow label="Source Page">{row.source_page}</DetailRow>
           <DetailRow label="Type">{row.submission_type === "support_request" ? "Support Request" : "Contact Inquiry"}</DetailRow>
-          <DetailRow label="Inquiry / Path">{display(row.support_path ?? row.inquiry_type)}</DetailRow>
+          <DetailRow label="Inquiry / Path">{display(supportType)}</DetailRow>
           <DetailRow label="Submitted">{formatDateTime(row.created_at)}</DetailRow>
-          <DetailRow label="Email Sent">{row.email_sent ? `Yes${row.email_sent_at ? ` (${formatDateTime(row.email_sent_at)})` : ""}` : `No${row.email_error ? ` - ${row.email_error}` : ""}`}</DetailRow>
+          <DetailRow label="Internal Email">{row.email_sent ? `Yes${row.email_sent_at ? ` (${formatDateTime(row.email_sent_at)})` : ""}` : `No${row.email_error ? ` - ${row.email_error}` : ""}`}</DetailRow>
+          <DetailRow label="Confirmation Email">{row.confirmation_email_sent ? `Yes${row.confirmation_email_sent_at ? ` (${formatDateTime(row.confirmation_email_sent_at)})` : ""}` : "No"}</DetailRow>
         </dl>
         <dl>
           <DetailRow label="Requester Role">{display(row.requester_role)}</DetailRow>
           <DetailRow label="Aircraft Category">{display(row.aircraft_category)}</DetailRow>
-          <DetailRow label="Aircraft Type">{display(row.aircraft_type)}</DetailRow>
+          <DetailRow label="Aircraft">{display(aircraft)}</DetailRow>
           <DetailRow label="Tail Number">{display(row.tail_number)}</DetailRow>
+          <DetailRow label="Route">{display(row.route)}</DetailRow>
+          <DetailRow label="Departure">{display(row.departure_airport)}</DetailRow>
+          <DetailRow label="Arrival">{display(row.arrival_airport)}</DetailRow>
           <DetailRow label="Home Airport">{display(row.home_airport)}</DetailRow>
           <DetailRow label="Current Location">{display(row.current_aircraft_location)}</DetailRow>
           <DetailRow label="Aircraft Status">{display(row.aircraft_status)}</DetailRow>
-          <DetailRow label="Timeline">{display(row.timeline_urgency)}</DetailRow>
+          <DetailRow label="Timeline">{display(timing)}</DetailRow>
+          <DetailRow label="Crew Need">{display(row.crew_need)}</DetailRow>
           <DetailRow label="Owner Approval">{display(row.owner_operator_approval_status)}</DetailRow>
           <DetailRow label="Acknowledgment">{row.acknowledgement}</DetailRow>
         </dl>
         <div className="lg:col-span-2">
           <h3 className="text-sm font-semibold text-slate-950">Message / Summary</h3>
           <p className="mt-2 whitespace-pre-wrap rounded-lg border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-700">
-            {row.requested_support_summary || row.message || "-"}
+            {row.message || row.requested_support_summary || "-"}
           </p>
         </div>
         {conditional.length ? (
@@ -67,12 +82,12 @@ function SubmissionDetails({ row }: { row: FormSubmission }) {
             </dl>
           </div>
         ) : null}
-        {raw.length ? (
+        {payload.length ? (
           <div className="lg:col-span-2">
             <h3 className="text-sm font-semibold text-slate-950">All Submitted Fields</h3>
             <dl className="mt-2 rounded-lg border border-slate-200 bg-white p-4">
-              {raw.map(([key, value]) => (
-                <DetailRow key={key} label={labelize(key)}>{display(value)}</DetailRow>
+              {payload.map(([key, value]) => (
+                <DetailRow key={key} label={labelize(key)}>{Array.isArray(value) ? value.join(", ") : display(value)}</DetailRow>
               ))}
             </dl>
           </div>
@@ -83,7 +98,7 @@ function SubmissionDetails({ row }: { row: FormSubmission }) {
             Submission Status
             <select name="status" defaultValue={row.status} className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm">
               {submissionStatuses.map((status) => (
-                <option key={status} value={status}>{status}</option>
+                <option key={status} value={status}>{statusLabel(status)}</option>
               ))}
             </select>
           </label>
@@ -136,7 +151,7 @@ export default async function AdminFormSubmissionsPage({
             <select name="status" defaultValue={params.status || "All"} className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm">
               <option>All</option>
               {submissionStatuses.map((status) => (
-                <option key={status}>{status}</option>
+                <option key={status} value={status}>{statusLabel(status)}</option>
               ))}
             </select>
           </label>
@@ -159,21 +174,21 @@ export default async function AdminFormSubmissionsPage({
               <article key={row.id} className="rounded-lg border border-slate-200 bg-white p-4">
                 <div className="grid gap-3 xl:grid-cols-[1.2fr_1fr_1fr_auto] xl:items-start">
                   <div>
-                    <p className="text-sm font-semibold text-slate-950">{row.full_name}</p>
+                    <p className="text-sm font-semibold text-slate-950">{row.requester_name || row.full_name}</p>
                     <p className="mt-1 text-xs text-slate-500">{row.email} | {row.phone}</p>
-                    <p className="mt-1 text-xs text-slate-500">{display(row.company_operator)}</p>
+                    <p className="mt-1 text-xs text-slate-500">{display(row.company || row.organization || row.company_operator)}</p>
                   </div>
                   <div>
                     <p className="text-xs uppercase text-slate-500">{row.source_page}</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">{display(row.support_path ?? row.inquiry_type)}</p>
+                    <p className="mt-1 text-sm font-semibold text-slate-900">{display(row.support_type ?? row.support_path ?? row.service_interest ?? row.inquiry_type)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-slate-500">{display(row.aircraft_type)} {row.tail_number ? `| ${row.tail_number}` : ""}</p>
-                    <p className="mt-1 text-xs text-slate-500">{display(row.timeline_urgency)}</p>
+                    <p className="text-xs text-slate-500">{display(row.aircraft || row.aircraft_type)} {row.tail_number ? `| ${row.tail_number}` : ""}</p>
+                    <p className="mt-1 text-xs text-slate-500">{display(row.timing || row.timeline_urgency)}</p>
                     <p className="mt-1 text-xs text-slate-500">{formatDateTime(row.created_at)}</p>
                   </div>
                   <div className="flex flex-wrap gap-2 xl:justify-end">
-                    <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">{row.status}</span>
+                    <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">{statusLabel(row.status)}</span>
                     <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${row.email_sent ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-800" : "border-amber-500/30 bg-amber-500/10 text-amber-800"}`}>
                       Email {row.email_sent ? "sent" : "not sent"}
                     </span>

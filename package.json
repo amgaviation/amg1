@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "media:audit": "node scripts/audit-media-uniqueness.ts",
+    "forms:verify": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-public-form-normalization.mjs",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "npm run typecheck"
