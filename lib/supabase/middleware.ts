@@ -1,5 +1,4 @@
-// Supabase middleware helpers.
-// The root middleware.ts at project root handles session refresh and route protection.
-// This file is a placeholder for any future middleware utilities.
+// Supabase middleware helpers live in the root proxy.ts file, which refreshes
+// sessions and blocks unauthenticated /portal routes before page rendering.
 
 export {};

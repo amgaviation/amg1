@@ -5,9 +5,9 @@ import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
-import { isPortalRole, PORTAL_PERMISSIONS } from "@/lib/portal/constants";
+import { isPortalRole, PORTAL_PERMISSIONS, PROFILE_STATUS } from "@/lib/portal/constants";
 import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
-import { actor, num, str } from "./_helpers";
+import { actor, num, safeRedirectPath, str } from "./_helpers";
 
 function normalizeEmail(formData: FormData, key: string): string {
   return str(formData, key).toLowerCase();
@@ -136,7 +136,12 @@ export async function setUserStatus(formData: FormData) {
   const db = await createServiceClient();
   const userId = str(formData, "user_id");
   const status = str(formData, "status");
-  const backTo = str(formData, "back_to") || "/portal/admin/user-approvals";
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/user-approvals");
+
+  if (!PROFILE_STATUS.some((item) => item.value === status)) redirect(`${backTo}?error=status`);
+  if (status !== "approved") {
+    await preventAdminSelfOrLastAdminAction(db, admin.id, userId, backTo);
+  }
 
   await db
     .from("profiles")
@@ -164,6 +169,7 @@ export async function setUserRole(formData: FormData) {
   const role = str(formData, "role");
 
   if (!isPortalRole(role)) redirect("/portal/admin/user-approvals?error=role");
+  await preventAdminSelfOrLastAdminAction(db, admin.id, userId, "/portal/admin/user-approvals");
 
   await db.from("profiles").update({ role }).eq("id", userId);
 
@@ -552,7 +558,7 @@ export async function saveAircraft(formData: FormData) {
   const admin = await actor(["admin"]);
   const db = await createServiceClient();
   const id = str(formData, "aircraft_id");
-  const backTo = str(formData, "back_to") || "/portal/admin/aircraft";
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/aircraft");
   const tailNumber = str(formData, "tail_number").toUpperCase().replace(/\s+/g, "");
   const clientId = str(formData, "client_id") || null;
 

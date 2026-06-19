@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
-import { actor, str } from "./_helpers";
+import { actor, safeRedirectPath, str } from "./_helpers";
 
 const VISIBILITY_BY_ROLE: Record<string, string> = {
   client: "owner",
@@ -13,13 +13,53 @@ const VISIBILITY_BY_ROLE: Record<string, string> = {
   admin: "admin",
 };
 
+async function verifyMissionReferenceForUploader(
+  db: any,
+  role: string,
+  userId: string,
+  missionId: string,
+  backTo: string
+) {
+  if (role === "client") {
+    const { data } = await db
+      .from("missions")
+      .select("id")
+      .eq("id", missionId)
+      .eq("client_id", userId)
+      .maybeSingle();
+    if (!data) redirect(`${backTo}?error=forbidden`);
+    return;
+  }
+
+  if (role === "crew") {
+    const { data } = await db
+      .from("mission_crew_assignments")
+      .select("mission_id")
+      .eq("mission_id", missionId)
+      .eq("crew_id", userId)
+      .maybeSingle();
+    if (!data) redirect(`${backTo}?error=forbidden`);
+    return;
+  }
+
+  if (role === "partner") {
+    const { data } = await db
+      .from("mission_partner_assignments")
+      .select("mission_id")
+      .eq("mission_id", missionId)
+      .eq("partner_id", userId)
+      .maybeSingle();
+    if (!data) redirect(`${backTo}?error=forbidden`);
+  }
+}
+
 export async function uploadDocument(formData: FormData) {
   const user = await actor();
   const db = (await createServiceClient()) as any;
   const file = formData.get("file");
   const name = str(formData, "name");
   const docType = str(formData, "doc_type") || "Other";
-  const backTo = str(formData, "back_to") || `/portal/${user.role}/documents`;
+  const backTo = safeRedirectPath(str(formData, "back_to"), `/portal/${user.role}/documents`);
 
   if (!(file instanceof File) || file.size === 0 || !name) {
     redirect(`${backTo}?error=missing`);
@@ -41,6 +81,11 @@ export async function uploadDocument(formData: FormData) {
       ? str(formData, "visibility") || "admin"
       : VISIBILITY_BY_ROLE[user.role] ?? "admin";
   const targetProfileId = user.role === "admin" ? str(formData, "target_profile_id") : "";
+  const requestedMissionId = str(formData, "mission_id") || null;
+  if (user.role !== "admin" && requestedMissionId) {
+    await verifyMissionReferenceForUploader(db, user.role, user.id, requestedMissionId, backTo);
+  }
+
   const { data: targetProfile } = targetProfileId
     ? await db.from("profiles").select("id, role").eq("id", targetProfileId).maybeSingle()
     : { data: null };
@@ -57,9 +102,12 @@ export async function uploadDocument(formData: FormData) {
     mime_type: file.type || null,
     file_size: file.size,
     doc_type: docType,
-    scope_type: inferredScopeType || str(formData, "scope_type") || (user.role === "client" ? "aircraft" : "crew"),
-    scope_id: targetProfile?.id || str(formData, "scope_id") || null,
-    mission_id: str(formData, "mission_id") || null,
+    scope_type:
+      user.role === "admin"
+        ? inferredScopeType || str(formData, "scope_type") || "admin"
+        : user.role,
+    scope_id: user.role === "admin" ? targetProfile?.id || str(formData, "scope_id") || null : user.id,
+    mission_id: requestedMissionId,
     visibility: inferredVisibility || visibility,
     uploaded_by: user.id,
     status: "pending_review",

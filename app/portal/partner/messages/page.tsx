@@ -21,6 +21,7 @@ export default async function PartnerMessagesPage({
   return (
     <PortalShell role="partner" user={user}>
       {params.error === "empty" ? <Notice tone="danger">Please enter a message.</Notice> : null}
+      {params.error === "forbidden" ? <Notice tone="danger">That service request cannot be linked to your message.</Notice> : null}
       <PageHeader eyebrow="Service Partner" title="Messages" description="Coordinate service work with AMG Operations." />
       <SectionCard title="Start a New Thread" icon="messageSquare">
         <form action={startThread}>

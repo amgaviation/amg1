@@ -38,7 +38,6 @@ const sourceRoots = [
   "components/site/home/aircraft-gallery.tsx",
   "components/site/home/connect-preview.tsx",
   "components/site/home/support-models.tsx",
-  "components/site/public-support-form.tsx",
   "components/site/subscription-programs.tsx",
   "components/site/legal-page.tsx",
   "components/site/site-nav.tsx",

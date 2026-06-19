@@ -5,7 +5,45 @@ import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
 import { outboundMessageSenderLabel } from "@/lib/portal/message-display";
-import { actor, str } from "./_helpers";
+import { actor, safeRedirectPath, str } from "./_helpers";
+
+async function verifyThreadMissionReference(
+  db: Awaited<ReturnType<typeof createServiceClient>>,
+  user: Awaited<ReturnType<typeof actor>>,
+  missionId: string
+) {
+  if (user.role === "client") {
+    const { data } = await db
+      .from("missions")
+      .select("id")
+      .eq("id", missionId)
+      .eq("client_id", user.id)
+      .maybeSingle();
+    return Boolean(data);
+  }
+
+  if (user.role === "crew") {
+    const { data } = await db
+      .from("mission_crew_assignments")
+      .select("mission_id")
+      .eq("mission_id", missionId)
+      .eq("crew_id", user.id)
+      .maybeSingle();
+    return Boolean(data);
+  }
+
+  if (user.role === "partner") {
+    const { data } = await db
+      .from("mission_partner_assignments")
+      .select("mission_id")
+      .eq("mission_id", missionId)
+      .eq("partner_id", user.id)
+      .maybeSingle();
+    return Boolean(data);
+  }
+
+  return false;
+}
 
 /** Post a message into an existing thread. */
 export async function postMessage(formData: FormData) {
@@ -13,7 +51,9 @@ export async function postMessage(formData: FormData) {
   const db = await createServiceClient();
   const threadId = str(formData, "thread_id");
   const body = str(formData, "body");
-  const backTo = str(formData, "back_to") || `/portal/${user.role}/messages`;
+  const messagesRoot = `/portal/${user.role}/messages`;
+  const requestedBackTo = safeRedirectPath(str(formData, "back_to"), messagesRoot);
+  const backTo = requestedBackTo.startsWith(messagesRoot) ? requestedBackTo : messagesRoot;
   if (!threadId || !body) redirect(`${backTo}?error=empty`);
 
   // Authorize: admin or thread member
@@ -79,11 +119,14 @@ export async function startThread(formData: FormData) {
   const body = str(formData, "body");
   const missionId = str(formData, "mission_id") || null;
   if (!body) redirect(`/portal/${user.role}/messages?error=empty`);
+  if (missionId && !(await verifyThreadMissionReference(db, user, missionId))) {
+    redirect(`/portal/${user.role}/messages?error=forbidden`);
+  }
 
   const { data: thread } = await db
     .from("message_threads")
     .insert({
-      scope_type: missionId ? "general" : "general",
+      scope_type: missionId ? "mission" : "general",
       scope_id: missionId,
       mission_id: missionId,
       title,

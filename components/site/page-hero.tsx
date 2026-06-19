@@ -25,7 +25,7 @@ export function PageHero({
         <div className="absolute inset-0 z-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={image || "/placeholder.svg"}
+            src={image}
             alt=""
             className="h-full w-full scale-105 object-cover opacity-76"
           />

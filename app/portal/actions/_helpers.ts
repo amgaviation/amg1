@@ -27,6 +27,19 @@ export function isoOrNull(fd: FormData, key: string): string | null {
   return Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
 
+export function safeRedirectPath(value: string | null | undefined, fallback: string): string {
+  const raw = String(value ?? "").trim();
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return fallback;
+
+  try {
+    const parsed = new URL(raw, "https://amg.local");
+    if (parsed.origin !== "https://amg.local") return fallback;
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return fallback;
+  }
+}
+
 /** Resolve the acting user and enforce role + approval. Redirects otherwise. */
 export async function actor(roles?: PortalRole[]): Promise<SessionUser> {
   const user = await getSessionUser();

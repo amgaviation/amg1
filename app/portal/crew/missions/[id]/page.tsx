@@ -4,7 +4,7 @@ import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, DetailRow, Notice } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
-import { getMissionDetail, listCredentials } from "@/lib/portal/queries";
+import { getMissionDetail } from "@/lib/portal/queries";
 import { respondToAssignment } from "@/app/portal/actions/crew";
 import {
   MISSION_STATUS_LABEL, MISSION_STATUS_TONE, MISSION_TYPE_LABEL,
@@ -13,6 +13,8 @@ import {
 import { formatRoute, formatDateTime } from "@/lib/portal/format";
 
 export const metadata = { title: "Mission Brief — Crew Portal" };
+
+const OPEN_POOL_STATUSES = new Set(["submitted", "under_review", "approved", "quoted"]);
 
 export default async function CrewMissionDetailPage({
   params,
@@ -28,11 +30,20 @@ export default async function CrewMissionDetailPage({
   if (!mission) notFound();
 
   const myAssignment = mission.crew.find((ca) => ca.crew_id === user.id);
+  const openPoolEligible = !mission.assigned_crew_id && OPEN_POOL_STATUSES.has(mission.status);
+  if (!myAssignment && !openPoolEligible) notFound();
+
   const canRespond = myAssignment && myAssignment.status === "offered";
+  const showAssignedDetails = Boolean(myAssignment);
 
   return (
     <PortalShell role="crew" user={user}>
       {sp.success === "responded" ? <Notice tone="success">Assignment response recorded.</Notice> : null}
+      {!myAssignment && openPoolEligible ? (
+        <Notice tone="info">
+          Open pool preview. AMG has not assigned you to this mission, so passenger details and assignment notes remain hidden.
+        </Notice>
+      ) : null}
 
       <PageHeader
         eyebrow={mission.ref}
@@ -84,13 +95,13 @@ export default async function CrewMissionDetailPage({
             </dl>
           </SectionCard>
 
-          {mission.client_notes ? (
+          {showAssignedDetails && mission.client_notes ? (
             <SectionCard title="Operational Notes" icon="fileText">
               <p className="text-sm leading-6 text-muted-foreground">{mission.client_notes}</p>
             </SectionCard>
           ) : null}
 
-          {mission.passengers.length > 0 ? (
+          {showAssignedDetails && mission.passengers.length > 0 ? (
             <SectionCard title="Passenger Manifest" icon="users">
               <div className="space-y-2">
                 {mission.passengers.map((p) => (

@@ -74,6 +74,28 @@ async function logCompletedMissionUsage(db: any, missionId: string, admin: Await
   });
 }
 
+async function requireMissionAccessForMutation(
+  db: Awaited<ReturnType<typeof createServiceClient>>,
+  missionId: string,
+  user: Awaited<ReturnType<typeof actor>>,
+  backTo: string
+) {
+  if (!missionId) redirect(`${backTo}?error=missing`);
+
+  const { data: mission } = await db
+    .from("missions")
+    .select("id, client_id, ref")
+    .eq("id", missionId)
+    .maybeSingle();
+
+  if (!mission) redirect(`${backTo}?error=notfound`);
+  if (user.role !== "admin" && mission.client_id !== user.id) {
+    redirect(`${backTo}?error=forbidden`);
+  }
+
+  return mission;
+}
+
 export async function createMission(formData: FormData) {
   const user = await actor(["client", "admin"]);
   const db = await createServiceClient();
@@ -99,6 +121,9 @@ export async function createMission(formData: FormData) {
       redirect("/portal/client/trips/new?error=aircraft");
     }
     tail = ac?.tail_number ?? null;
+    if (user.role !== "admin" && ac?.client_id !== user.id) {
+      redirect("/portal/client/trips/new?error=aircraft");
+    }
     if (user.role === "admin" && ac?.client_id) clientId = ac.client_id;
   } else {
     tail = str(formData, "tail_number").toUpperCase().replace(/\s+/g, "") || null;
@@ -308,6 +333,10 @@ export async function addPassenger(formData: FormData) {
   const missionId = str(formData, "mission_id");
   const fullName = str(formData, "full_name");
   if (!missionId || !fullName) redirect(`/portal/client/trips/${missionId}?error=missing`);
+
+  const backTo = user.role === "admin" ? `/portal/admin/trips/${missionId}` : `/portal/client/trips/${missionId}`;
+  await requireMissionAccessForMutation(db, missionId, user, backTo);
+
   await db.from("mission_passengers").insert({
     mission_id: missionId,
     full_name: fullName,
@@ -331,7 +360,11 @@ export async function removePassenger(formData: FormData) {
   const db = await createServiceClient();
   const id = str(formData, "passenger_id");
   const missionId = str(formData, "mission_id");
-  await db.from("mission_passengers").delete().eq("id", id);
+
+  const backTo = user.role === "admin" ? `/portal/admin/trips/${missionId}` : `/portal/client/trips/${missionId}`;
+  await requireMissionAccessForMutation(db, missionId, user, backTo);
+
+  await db.from("mission_passengers").delete().eq("id", id).eq("mission_id", missionId);
   const base = user.role === "admin" ? "/portal/admin/trips" : "/portal/client/trips";
   revalidatePath(`${base}/${missionId}`);
   redirect(`${base}/${missionId}?success=passenger`);
