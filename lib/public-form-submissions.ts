@@ -195,9 +195,45 @@ function missingSchemaColumn(error: unknown) {
   return err.message.match(/'([^']+)' column/)?.[1] ?? null;
 }
 
+function booleanTypeSyntaxError(error: unknown) {
+  if (!error || typeof error !== "object") return false;
+  const err = error as { code?: string; message?: string };
+  return err.code === "22P02" && Boolean(err.message?.includes("invalid input syntax for type boolean"));
+}
+
+function booleanFromText(value: string) {
+  const normalized = value.trim().toLowerCase();
+  if (["1", "true", "yes", "on", "accepted", "checked"].includes(normalized)) return true;
+  if (["0", "false", "no", "off", "not accepted", "unchecked"].includes(normalized)) return false;
+  return null;
+}
+
+const BOOLEAN_COMPATIBILITY_COLUMNS = [
+  "acknowledgement",
+  "marketing_consent",
+  "email_sent",
+  "internal_email_sent",
+  "confirmation_email_sent",
+];
+
+function booleanCompatibilityColumn(error: unknown, row: Record<string, unknown>) {
+  if (!booleanTypeSyntaxError(error)) return null;
+
+  for (const column of BOOLEAN_COMPATIBILITY_COLUMNS) {
+    const value = row[column];
+    if (typeof value !== "string") continue;
+
+    const booleanValue = booleanFromText(value);
+    if (booleanValue !== null) return { column, value: booleanValue };
+  }
+
+  return null;
+}
+
 async function insertSubmissionRow(db: any, row: Record<string, unknown>) {
   const insertRow = { ...row };
   const omittedColumns: string[] = [];
+  const coercedColumns: string[] = [];
   let lastError: unknown = null;
 
   for (let attempt = 0; attempt < 20; attempt += 1) {
@@ -208,20 +244,28 @@ async function insertSubmissionRow(db: any, row: Record<string, unknown>) {
       .single();
 
     if (!error && data?.id) {
-      return { data, error: null, omittedColumns };
+      return { data, error: null, omittedColumns, coercedColumns };
     }
 
     lastError = error;
     const missingColumn = missingSchemaColumn(error);
-    if (!missingColumn || !(missingColumn in insertRow)) {
-      return { data, error, omittedColumns };
+    if (missingColumn && missingColumn in insertRow) {
+      delete insertRow[missingColumn];
+      omittedColumns.push(missingColumn);
+      continue;
     }
 
-    delete insertRow[missingColumn];
-    omittedColumns.push(missingColumn);
+    const booleanCoercion = booleanCompatibilityColumn(error, insertRow);
+    if (booleanCoercion) {
+      insertRow[booleanCoercion.column] = booleanCoercion.value;
+      coercedColumns.push(booleanCoercion.column);
+      continue;
+    }
+
+    return { data, error, omittedColumns, coercedColumns };
   }
 
-  return { data: null, error: lastError, omittedColumns };
+  return { data: null, error: lastError, omittedColumns, coercedColumns };
 }
 
 async function updateWithSchemaDriftRetry(
@@ -294,7 +338,7 @@ export async function saveAndEmailSubmission(
   const db = await createServiceClient();
   const row = publicFormDatabaseRow(submission, context);
   const normalizedKeys = Object.keys(row).sort();
-  const { data, error, omittedColumns } = await insertSubmissionRow(db as any, row);
+  const { data, error, omittedColumns, coercedColumns } = await insertSubmissionRow(db as any, row);
 
   if (error || !data?.id) {
     console.error("Public form submission database insert failed", {
@@ -306,11 +350,12 @@ export async function saveAndEmailSubmission(
     return { ok: false, reason: "database", message: "Database insert failed" };
   }
 
-  if (omittedColumns.length) {
+  if (omittedColumns.length || coercedColumns.length) {
     console.warn("Public form submission stored with schema drift fallback", {
       sourcePage: submission.sourcePage,
       submissionType: submission.submissionType,
       omittedColumns,
+      coercedColumns,
     });
   }
 

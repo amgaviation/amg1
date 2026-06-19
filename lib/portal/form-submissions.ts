@@ -43,7 +43,7 @@ export type FormSubmission = {
   conditional_details: Record<string, string>;
   raw_form: Record<string, string>;
   payload: Record<string, string | boolean | string[]>;
-  acknowledgement: string;
+  acknowledgement: string | boolean | null;
   email_sent: boolean;
   email_sent_at: string | null;
   email_error: string | null;

@@ -64,7 +64,7 @@ function SubmissionDetails({ row }: { row: FormSubmission }) {
           <DetailRow label="Timeline">{display(timing)}</DetailRow>
           <DetailRow label="Crew Need">{display(row.crew_need)}</DetailRow>
           <DetailRow label="Owner Approval">{display(row.owner_operator_approval_status)}</DetailRow>
-          <DetailRow label="Acknowledgment">{row.acknowledgement}</DetailRow>
+          <DetailRow label="Acknowledgment">{display(row.acknowledgement)}</DetailRow>
         </dl>
         <div className="lg:col-span-2">
           <h3 className="text-sm font-semibold text-slate-950">Message / Summary</h3>
