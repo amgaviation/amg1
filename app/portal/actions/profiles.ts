@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { logAuditEvent } from "@/lib/portal/audit";
 import { createServiceClient } from "@/lib/supabase/server";
-import { actor, str } from "./_helpers";
+import { actor, safeRedirectPath, str } from "./_helpers";
 
 function splitEmails(value: string) {
   return value
@@ -17,7 +17,7 @@ export async function updateBillingContact(formData: FormData) {
   const user = await actor(["client", "admin"]);
   const db = (await createServiceClient()) as any;
   const profileId = str(formData, "profile_id") || user.id;
-  const backTo = str(formData, "back_to") || "/portal/client/settings";
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/client/settings");
 
   if (user.role !== "admin" && profileId !== user.id) redirect("/access-denied");
 

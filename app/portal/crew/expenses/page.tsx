@@ -24,6 +24,8 @@ export default async function CrewExpensesPage({
     <PortalShell role="crew" user={user}>
       {params.success ? <Notice tone="success">Expense submitted for review.</Notice> : null}
       {params.error === "invalid" ? <Notice tone="danger">Enter a valid category and amount.</Notice> : null}
+      {params.error === "forbidden" ? <Notice tone="danger">Select one of your assigned missions for mission-related expenses.</Notice> : null}
+      {params.error === "upload" ? <Notice tone="danger">Receipt upload failed. Use a PDF, JPG, or PNG under 50 MB.</Notice> : null}
 
       <PageHeader eyebrow="Flight Crew" title="Expenses" description="Submit mission expenses with receipts for AMG review and payment tracking." />
 

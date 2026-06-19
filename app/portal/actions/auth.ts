@@ -6,6 +6,7 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/portal/session";
 import { ROLE_HOME, isPortalRole, type PortalRole } from "@/lib/portal/constants";
 import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
+import { safeRedirectPath } from "./_helpers";
 
 const PASSWORD_SETUP_COOKIE = "amg_password_setup_user";
 
@@ -379,7 +380,7 @@ export async function updatePassword(formData: FormData) {
 export async function updatePortalEmail(formData: FormData) {
   const user = await requireUser();
   const nextEmail = field(formData, "email").toLowerCase();
-  const backTo = field(formData, "back_to") || ROLE_HOME[user.role];
+  const backTo = safeRedirectPath(field(formData, "back_to"), ROLE_HOME[user.role]);
 
   if (!nextEmail) redirect(`${backTo}?accountError=missing-email`);
   if (nextEmail === user.email.toLowerCase()) redirect(`${backTo}?accountError=same-email`);
@@ -414,7 +415,7 @@ export async function updatePortalPassword(formData: FormData) {
   const user = await requireUser();
   const password = field(formData, "password");
   const confirm = field(formData, "confirm_password");
-  const backTo = field(formData, "back_to") || ROLE_HOME[user.role];
+  const backTo = safeRedirectPath(field(formData, "back_to"), ROLE_HOME[user.role]);
 
   if (!password || password.length < 8) redirect(`${backTo}?accountError=weakpassword`);
   if (password !== confirm) redirect(`${backTo}?accountError=mismatch`);

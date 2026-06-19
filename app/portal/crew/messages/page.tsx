@@ -22,6 +22,7 @@ export default async function CrewMessagesPage({
   return (
     <PortalShell role="crew" user={user}>
       {params.error === "empty" ? <Notice tone="danger">Please enter a message.</Notice> : null}
+      {params.error === "forbidden" ? <Notice tone="danger">That mission cannot be linked to your message.</Notice> : null}
       <PageHeader eyebrow="Flight Crew" title="Messages" description="Direct communication with AMG Operations." />
       <SectionCard title="Start a New Thread" icon="messageSquare">
         <form action={startThread}>

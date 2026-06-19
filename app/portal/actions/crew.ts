@@ -220,13 +220,28 @@ export async function submitExpense(formData: FormData) {
   const db = await createServiceClient();
   const amount = num(formData, "amount");
   const category = str(formData, "category");
+  const missionId = str(formData, "mission_id") || null;
   if (!amount || amount <= 0 || !category) {
     redirect("/portal/crew/expenses?error=invalid");
+  }
+
+  if (missionId) {
+    const { data: assignment } = await db
+      .from("mission_crew_assignments")
+      .select("mission_id")
+      .eq("mission_id", missionId)
+      .eq("crew_id", user.id)
+      .maybeSingle();
+    if (!assignment) redirect("/portal/crew/expenses?error=forbidden");
   }
 
   let receiptPath: string | null = null;
   const file = formData.get("receipt");
   if (file instanceof File && file.size > 0) {
+    const allowedTypes = new Set(["application/pdf", "image/jpeg", "image/png"]);
+    if (file.size > 50 * 1024 * 1024 || (file.type && !allowedTypes.has(file.type))) {
+      redirect("/portal/crew/expenses?error=upload");
+    }
     const path = `${user.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
     const { error } = await db.storage
       .from("documents")
@@ -236,7 +251,7 @@ export async function submitExpense(formData: FormData) {
 
   await db.from("expenses").insert({
     crew_id: user.id,
-    mission_id: str(formData, "mission_id") || null,
+    mission_id: missionId,
     expense_date: str(formData, "expense_date") || new Date().toISOString().slice(0, 10),
     category,
     amount,

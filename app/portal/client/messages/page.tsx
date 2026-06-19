@@ -22,6 +22,7 @@ export default async function ClientMessagesPage({
   return (
     <PortalShell role="client" user={user}>
       {params.error === "empty" ? <Notice tone="danger">Please enter a message.</Notice> : null}
+      {params.error === "forbidden" ? <Notice tone="danger">That mission cannot be linked to your message.</Notice> : null}
 
       <PageHeader eyebrow="Owner Services" title="Messages" description="Direct communication with AMG Operations." />
 
