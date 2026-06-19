@@ -273,7 +273,7 @@ export function PublicSupportForm({
           {error === "missing"
             ? "Please complete the required fields and accept the privacy and terms acknowledgment."
             : error === "email"
-              ? "The inquiry was received, but AMG could not send the required operations email. Please try again or email AMG Operations directly."
+              ? "The inquiry was received, but AMG could not send one of the notification emails. AMG has still stored the submission for review."
             : "The request could not be submitted. Please try again or email AMG Operations directly."}
         </div>
       ) : null}

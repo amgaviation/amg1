@@ -77,7 +77,7 @@ export function ContactInquiryForm({
         {error ? (
           <div role="alert" className="mb-5 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm leading-relaxed text-red-900">
             {error === "email"
-              ? "Unable to submit because the operations email could not be sent. Please try again or email AMG directly."
+              ? "The inquiry was received, but AMG could not send one of the notification emails. AMG has still stored the submission for review."
               : error === "database"
                 ? "Unable to submit because the inquiry could not be saved. Please try again."
                 : "Complete the required fields and confirm the acknowledgment before submitting."}
