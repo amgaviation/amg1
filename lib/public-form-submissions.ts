@@ -188,6 +188,66 @@ function errorSummary(error: unknown) {
   };
 }
 
+function missingSchemaColumn(error: unknown) {
+  if (!error || typeof error !== "object") return null;
+  const err = error as { code?: string; message?: string };
+  if (err.code !== "PGRST204" || !err.message) return null;
+  return err.message.match(/'([^']+)' column/)?.[1] ?? null;
+}
+
+async function insertSubmissionRow(db: any, row: Record<string, unknown>) {
+  const insertRow = { ...row };
+  const omittedColumns: string[] = [];
+  let lastError: unknown = null;
+
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const { data, error } = await db
+      .from("contact_form_submissions")
+      .insert(insertRow)
+      .select("id")
+      .single();
+
+    if (!error && data?.id) {
+      return { data, error: null, omittedColumns };
+    }
+
+    lastError = error;
+    const missingColumn = missingSchemaColumn(error);
+    if (!missingColumn || !(missingColumn in insertRow)) {
+      return { data, error, omittedColumns };
+    }
+
+    delete insertRow[missingColumn];
+    omittedColumns.push(missingColumn);
+  }
+
+  return { data: null, error: lastError, omittedColumns };
+}
+
+async function updateWithSchemaDriftRetry(
+  table: any,
+  patch: Record<string, unknown>,
+  id: string,
+) {
+  const updatePatch = { ...patch };
+  const omittedColumns: string[] = [];
+
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const { error } = await table.update(updatePatch).eq("id", id);
+    if (!error) return { error: null, omittedColumns };
+
+    const missingColumn = missingSchemaColumn(error);
+    if (!missingColumn || !(missingColumn in updatePatch)) {
+      return { error, omittedColumns };
+    }
+
+    delete updatePatch[missingColumn];
+    omittedColumns.push(missingColumn);
+  }
+
+  return { error: new Error("Schema drift retry limit exceeded"), omittedColumns };
+}
+
 async function markEmailDelivery(
   db: any,
   id: string,
@@ -197,9 +257,9 @@ async function markEmailDelivery(
   const errors = [internal.error, confirmation.error].filter(Boolean).join("; ") || null;
   const now = new Date().toISOString();
 
-  const { error } = await db
-    .from("contact_form_submissions")
-    .update({
+  const { error, omittedColumns } = await updateWithSchemaDriftRetry(
+    db.from("contact_form_submissions"),
+    {
       email_sent: internal.sent,
       email_sent_at: internal.sent ? now : null,
       email_error: errors,
@@ -208,8 +268,16 @@ async function markEmailDelivery(
       confirmation_email_sent: confirmation.sent,
       confirmation_email_sent_at: confirmation.sent ? now : null,
       updated_at: now,
-    })
-    .eq("id", id);
+    },
+    id,
+  );
+
+  if (omittedColumns.length) {
+    console.warn("Public form submission email status used schema drift fallback", {
+      id,
+      omittedColumns,
+    });
+  }
 
   if (error) {
     console.warn("Public form submission email status update failed", {
@@ -226,11 +294,7 @@ export async function saveAndEmailSubmission(
   const db = await createServiceClient();
   const row = publicFormDatabaseRow(submission, context);
   const normalizedKeys = Object.keys(row).sort();
-  const { data, error } = await (db as any)
-    .from("contact_form_submissions")
-    .insert(row)
-    .select("id")
-    .single();
+  const { data, error, omittedColumns } = await insertSubmissionRow(db as any, row);
 
   if (error || !data?.id) {
     console.error("Public form submission database insert failed", {
@@ -240,6 +304,14 @@ export async function saveAndEmailSubmission(
       error: errorSummary(error),
     });
     return { ok: false, reason: "database", message: "Database insert failed" };
+  }
+
+  if (omittedColumns.length) {
+    console.warn("Public form submission stored with schema drift fallback", {
+      sourcePage: submission.sourcePage,
+      submissionType: submission.submissionType,
+      omittedColumns,
+    });
   }
 
   const id = data.id as string;
