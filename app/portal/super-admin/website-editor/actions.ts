@@ -11,7 +11,7 @@ import {
   validateWebsiteContent,
   type WebsiteContentSlug,
 } from "@/lib/website-editor/content";
-import { createWebsiteContentPullRequest, mergeWebsiteEditorPullRequest } from "@/lib/website-editor/github";
+import { GitHubApiError, createWebsiteContentPullRequest, mergeWebsiteEditorPullRequest } from "@/lib/website-editor/github";
 import { recordComplianceEvidence } from "@/lib/compliance/evidence";
 
 function editorPath(slug: string, status: string) {
@@ -19,6 +19,11 @@ function editorPath(slug: string, status: string) {
 }
 
 function safeErrorMessage(error: unknown) {
+  if (error instanceof GitHubApiError) {
+    return error.status === 401
+      ? "GitHub publishing token is invalid or expired."
+      : `GitHub rejected the request (${error.status}).`;
+  }
   if (error instanceof Error && /GitHub publishing is not configured|checks are pending|outside approved|valid Website Editor/.test(error.message)) {
     return error.message;
   }

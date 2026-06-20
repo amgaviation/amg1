@@ -15,6 +15,18 @@ type GitHubConfig = {
   defaultBranch: string;
 };
 
+export class GitHubApiError extends Error {
+  status: number;
+  detail: string;
+
+  constructor(status: number, detail: string) {
+    super(`GitHub request failed (${status}): ${detail.slice(0, 240)}`);
+    this.name = "GitHubApiError";
+    this.status = status;
+    this.detail = detail;
+  }
+}
+
 export type GitHubPublishResult = {
   branch: string;
   commitSha: string;
@@ -49,7 +61,7 @@ async function githubFetch<T>(config: GitHubConfig, path: string, init: RequestI
   });
   if (!response.ok) {
     const detail = await response.text();
-    throw new Error(`GitHub request failed (${response.status}): ${detail.slice(0, 240)}`);
+    throw new GitHubApiError(response.status, detail);
   }
   return response.json() as Promise<T>;
 }
@@ -135,19 +147,32 @@ export async function createWebsiteContentPullRequest({
   return { branch, commitSha: commit.commit.sha, pullRequestUrl: pr.html_url, pullRequestNumber: pr.number };
 }
 
-async function checksPass(config: GitHubConfig, ref: string) {
-  const status = await githubFetch<{ state: string; statuses: unknown[] }>(
-    config,
-    `/repos/${config.owner}/${config.repo}/commits/${encodeURIComponent(ref)}/status`,
-  );
-  const checks = await githubFetch<{ total_count: number; check_runs: Array<{ conclusion: string | null; status: string }> }>(
-    config,
-    `/repos/${config.owner}/${config.repo}/commits/${encodeURIComponent(ref)}/check-runs`,
-  );
+async function checksPass(config: GitHubConfig, ref: string): Promise<"pass" | "fail" | "unverifiable"> {
+  let status: { state: string; statuses: unknown[] };
+  let checks: { total_count: number; check_runs: Array<{ conclusion: string | null; status: string }> };
+
+  try {
+    [status, checks] = await Promise.all([
+      githubFetch<{ state: string; statuses: unknown[] }>(
+        config,
+        `/repos/${config.owner}/${config.repo}/commits/${encodeURIComponent(ref)}/status`,
+      ),
+      githubFetch<{ total_count: number; check_runs: Array<{ conclusion: string | null; status: string }> }>(
+        config,
+        `/repos/${config.owner}/${config.repo}/commits/${encodeURIComponent(ref)}/check-runs`,
+      ),
+    ]);
+  } catch (error) {
+    if (error instanceof GitHubApiError && [403, 404].includes(error.status)) return "unverifiable";
+    throw error;
+  }
+
   const hasStatuses = status.statuses.length > 0;
   const hasChecks = checks.total_count > 0;
-  if (!hasStatuses && !hasChecks) return true;
-  return status.state === "success" && checks.check_runs.every((run) => run.status === "completed" && run.conclusion === "success");
+  if (!hasStatuses && !hasChecks) return "pass";
+  return status.state === "success" && checks.check_runs.every((run) => run.status === "completed" && run.conclusion === "success")
+    ? "pass"
+    : "fail";
 }
 
 export async function mergeWebsiteEditorPullRequest(prUrl: string) {
@@ -178,7 +203,8 @@ export async function mergeWebsiteEditorPullRequest(prUrl: string) {
     throw new Error("Merge blocked because the pull request modifies files outside approved content/site paths.");
   }
 
-  if (!(await checksPass(config, pr.head.sha))) {
+  const checkState = await checksPass(config, pr.head.sha);
+  if (checkState === "fail") {
     throw new Error("Merge blocked because GitHub checks are pending or failing.");
   }
 
