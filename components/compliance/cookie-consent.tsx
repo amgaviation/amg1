@@ -112,6 +112,22 @@ export function CookieConsentBanner() {
     [stored],
   );
 
+  function acceptAllCookies() {
+    const next = defaultConsentState(true);
+    persistConsent(next, "accept_all");
+    setChoices(next);
+    setStored(readStoredConsent());
+    setOpen(false);
+  }
+
+  function rejectOptionalCookies() {
+    const next = defaultConsentState(false);
+    persistConsent(next, "reject_optional");
+    setChoices(next);
+    setStored(readStoredConsent());
+    setOpen(false);
+  }
+
   if (!mounted) return null;
 
   return (
@@ -129,11 +145,14 @@ export function CookieConsentBanner() {
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => {
-                  const next = defaultConsentState(false);
-                  persistConsent(next, "reject_optional");
-                  setStored(readStoredConsent());
-                }}
+                onClick={acceptAllCookies}
+                className="min-h-11 rounded-full bg-[var(--oc-blue)] px-4 text-sm font-semibold text-white hover:bg-[var(--oc-navy)]"
+              >
+                Accept all cookies
+              </button>
+              <button
+                type="button"
+                onClick={rejectOptionalCookies}
                 className="min-h-11 rounded-full border border-slate-300 px-4 text-sm font-semibold text-slate-800 hover:border-accent"
               >
                 Reject Optional
@@ -144,17 +163,6 @@ export function CookieConsentBanner() {
                 className="min-h-11 rounded-full border border-slate-300 px-4 text-sm font-semibold text-slate-800 hover:border-accent"
               >
                 Manage
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const next = defaultConsentState(true);
-                  persistConsent(next, "accept_all");
-                  setStored(readStoredConsent());
-                }}
-                className="min-h-11 rounded-full bg-[var(--oc-blue)] px-4 text-sm font-semibold text-white hover:bg-[var(--oc-navy)]"
-              >
-                Accept All
               </button>
             </div>
           </div>
@@ -190,13 +198,7 @@ export function CookieConsentBanner() {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  const next = defaultConsentState(true);
-                  persistConsent(next, "accept_all");
-                  setChoices(next);
-                  setStored(readStoredConsent());
-                  setOpen(false);
-                }}
+                onClick={acceptAllCookies}
                 className="min-h-11 rounded-full border border-[var(--oc-blue)] px-4 text-sm font-semibold text-[var(--oc-blue)] hover:bg-blue-50"
               >
                 Accept all
