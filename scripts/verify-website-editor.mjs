@@ -25,6 +25,7 @@ const requiredFiles = [
   "app/portal/super-admin/website-editor/actions.ts",
   "app/portal/super-admin/website-editor/preview/[draftId]/page.tsx",
   "supabase/migrations/20260620120000_super_admin_website_editor.sql",
+  "supabase/migrations/20260620123000_assign_tony_super_admin_profile.sql",
   "components/site/portal-screenshot-frame.tsx",
   "docs/website-editor-implementation-note.md",
   "docs/portal-screenshot-implementation-note.md",
@@ -82,6 +83,11 @@ const session = read("lib/portal/session.ts");
 if (!session.includes("requireSuperAdmin")) fail("requireSuperAdmin guard missing");
 if (!session.includes('user.role !== "super_admin"')) fail("requireSuperAdmin must require exact super_admin role");
 
+const shell = read("components/portal/shell/portal-shell.tsx");
+if (!shell.includes('user.role === "super_admin" && role === "admin"')) {
+  fail("admin portal shell must expose Website Editor navigation for signed-in super_admin users");
+}
+
 const actions = read("app/portal/super-admin/website-editor/actions.ts");
 if (!actions.includes("requireSuperAdmin")) fail("editor actions do not enforce super admin");
 if (!actions.includes("createWebsiteContentPullRequest")) fail("publish action missing GitHub PR flow");
@@ -110,6 +116,11 @@ for (const phrase of [
   "grant select, insert, update on table public.website_content_drafts to authenticated",
 ]) {
   if (!migration.includes(phrase)) fail(`migration missing ${phrase}`);
+}
+
+const assignMigration = read("supabase/migrations/20260620123000_assign_tony_super_admin_profile.sql");
+for (const phrase of ["from auth.users", "tony@amgaviationgroup.com", "role = 'super_admin'", "on conflict (id) do update"]) {
+  if (!assignMigration.includes(phrase)) fail(`Tony super admin assignment migration missing ${phrase}`);
 }
 
 const publicSearch = ["app", "components", "lib", "content"].flatMap((dir) => {

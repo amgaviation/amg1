@@ -39,6 +39,12 @@ const SETTINGS_HREF: Record<PortalRole, string> = {
   super_admin: "/portal/admin/settings",
 };
 
+const WEBSITE_EDITOR_NAV = {
+  label: "Website Editor",
+  href: "/portal/super-admin/website-editor",
+  icon: "fileText",
+};
+
 export function PortalShell({
   role,
   user,
@@ -51,7 +57,10 @@ export function PortalShell({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const nav = PORTAL_NAV[role];
+  const nav =
+    user.role === "super_admin" && role === "admin"
+      ? [WEBSITE_EDITOR_NAV, ...PORTAL_NAV.admin]
+      : PORTAL_NAV[role];
 
   return (
     <div className="relative min-h-screen bg-slate-50 text-slate-950 lg:grid lg:grid-cols-[17rem_1fr]">
