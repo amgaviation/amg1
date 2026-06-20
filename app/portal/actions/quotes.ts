@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent, notifyAdmins, notifyUser } from "@/lib/portal/audit";
+import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
+import { recordComplianceEvidence } from "@/lib/compliance/evidence";
 import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
 import { combinedPaymentInstructions, getBillingSettings } from "@/lib/portal/billing-config";
 import { createInvoiceDraftFromQuote, generateAndStoreQuotePdf } from "@/lib/portal/billing-documents";
@@ -388,6 +390,9 @@ export async function respondToQuote(formData: FormData) {
   const billingDb = db as any;
   const quoteId = str(formData, "quote_id");
   const decision = str(formData, "decision"); // approved | rejected | revision_requested
+  if (decision === "approved" && str(formData, "quote_terms_acknowledged") !== "accepted") {
+    redirect(`/portal/client/quotes/${quoteId}?error=terms`);
+  }
 
   const { data: quote } = await db
     .from("quotes")
@@ -433,6 +438,30 @@ export async function respondToQuote(formData: FormData) {
     entityType: "quote",
     entityId: quoteId,
   });
+  if (decision === "approved") {
+    await recordComplianceEvidence({
+      actor: user,
+      audience: user.role,
+      eventType: "quote_terms_acknowledged",
+      eventArea: "quotes",
+      relatedRecordType: "quote",
+      relatedRecordId: quoteId,
+      policyKey: POLICY_KEYS.quoteTerms,
+      policyVersion: COMPLIANCE_POLICY_VERSION,
+      acknowledgmentText: ACKNOWLEDGMENT_TEXT.quoteApproval,
+      metadata: { quoteRef: quote.ref, invoiceCreated: invoiceId },
+    });
+    await recordComplianceEvidence({
+      actor: user,
+      audience: user.role,
+      eventType: "quote_approved",
+      eventArea: "quotes",
+      relatedRecordType: "quote",
+      relatedRecordId: quoteId,
+      policyVersion: COMPLIANCE_POLICY_VERSION,
+      metadata: { quoteRef: quote.ref, invoiceCreated: invoiceId },
+    });
+  }
   await notifyAdmins({
     title: `Quote ${decision}`,
     body:

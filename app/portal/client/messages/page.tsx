@@ -24,9 +24,15 @@ export default async function ClientMessagesPage({
     <PortalShell role="client" user={user}>
       {params.error === "empty" ? <Notice tone="danger">Please enter a message.</Notice> : null}
       {params.error === "forbidden" ? <Notice tone="danger">{getUserFacingErrorMessage({ audience: "client", area: "communications", action: "message", category: "permission" })}</Notice> : null}
-      {params.error && !["empty", "forbidden"].includes(params.error) ? <Notice tone="danger">{getUserFacingErrorMessage({ audience: "client", area: "communications", action: "message" })}</Notice> : null}
+      {params.error === "payment-data" ? <Notice tone="danger">Remove full card numbers, CVV codes, bank account numbers, or routing numbers before sending.</Notice> : null}
+      {params.error && !["empty", "forbidden", "payment-data"].includes(params.error) ? <Notice tone="danger">{getUserFacingErrorMessage({ audience: "client", area: "communications", action: "message" })}</Notice> : null}
 
       <PageHeader eyebrow="Owner Services" title="Messages" description="Direct communication with AMG Operations." />
+      <Notice tone="info">
+        Portal messages may include operational updates, document requests, quotes, invoices, and support review information.
+        Unless expressly stated by AMG in writing, a message does not indicate final acceptance of a support request. Do not
+        send full card numbers, CVV codes, bank account numbers, or routing numbers.
+      </Notice>
 
       <SectionCard title="Start a New Thread" icon="messageSquare">
         <form action={startThread}>

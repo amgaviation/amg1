@@ -2,6 +2,12 @@ import "server-only";
 
 import { amgEmailLayout } from "@/lib/portal/email-templates";
 import { sendEmail } from "@/lib/portal/notification-delivery";
+import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
+import {
+  recordComplianceEvidence,
+  recordConsentEvent,
+  recordSupportRequestDisclaimerAcknowledgment,
+} from "@/lib/compliance/evidence";
 import {
   normalizeContactSubmission,
   normalizeSupportSubmission,
@@ -136,6 +142,8 @@ function buildConfirmationEmail(submission: NormalizedPublicFormSubmission, id: 
     "",
     "AMG will review the request before acceptance. Review may depend on support scope, aircraft status, crew availability, owner/operator approvals, route and airport constraints, weather, maintenance status, documentation, and operating conditions.",
     "",
+    "AMG Aviation does not provide emergency response services through this website or portal. Time-sensitive requests remain subject to review, availability, and operational conditions.",
+    "",
     "This confirmation does not mean the request is accepted, confirmed, scheduled, operationally approved, or binding.",
   ].join("\n");
 
@@ -163,6 +171,11 @@ function buildConfirmationEmail(submission: NormalizedPublicFormSubmission, id: 
         title: "Review Required",
         body:
           "AMG will review the request based on support scope, aircraft status, crew availability, applicable approvals, route and airport constraints, weather, maintenance status, documentation, and operating conditions. AMG will follow up if additional information is needed.",
+      },
+      {
+        title: "No Emergency Response",
+        body:
+          "AMG Aviation does not provide emergency response services through this website or portal. Time-sensitive requests remain subject to review, availability, and operational conditions.",
       },
     ],
     footerNote:
@@ -400,6 +413,36 @@ async function recordPublicFormConsents(
       error: errorSummary(error),
     });
   }
+
+  if (submission.marketingConsent !== null) {
+    await recordConsentEvent({
+      actorEmail: submission.email,
+      actorRole: "public",
+      audience: "public_form_submitter",
+      eventType: submission.marketingConsent ? "marketing_consent_given" : "marketing_consent_revoked",
+      relatedRecordType: "contact_form_submission",
+      relatedRecordId: id,
+      policyKey: "email-communications",
+      policyVersion: COMPLIANCE_POLICY_VERSION,
+      acknowledgmentText: "Optional AMG email updates checkbox on public website form.",
+      metadata: { sourcePage: submission.sourcePage, submissionType: submission.submissionType },
+    });
+  }
+
+  if (submission.smsConsent !== null) {
+    await recordConsentEvent({
+      actorEmail: submission.email,
+      actorRole: "public",
+      audience: "public_form_submitter",
+      eventType: submission.smsConsent ? "sms_consent_given" : "sms_consent_revoked",
+      relatedRecordType: "contact_form_submission",
+      relatedRecordId: id,
+      policyKey: "sms-terms",
+      policyVersion: COMPLIANCE_POLICY_VERSION,
+      acknowledgmentText: "Optional AMG SMS consent checkbox on public website form.",
+      metadata: { sourcePage: submission.sourcePage, submissionType: submission.submissionType },
+    });
+  }
 }
 
 export async function saveAndEmailSubmission(
@@ -432,6 +475,44 @@ export async function saveAndEmailSubmission(
   }
 
   const id = data.id as string;
+  if (submission.submissionType === "support_request") {
+    await recordSupportRequestDisclaimerAcknowledgment({
+      actorEmail: submission.email,
+      actorRole: "public",
+      audience: "public_form_submitter",
+      relatedRecordType: "contact_form_submission",
+      relatedRecordId: id,
+      policyKey: POLICY_KEYS.missionAcceptance,
+      policyVersion: COMPLIANCE_POLICY_VERSION,
+      acknowledgmentText: ACKNOWLEDGMENT_TEXT.supportRequest,
+      metadata: { sourcePage: submission.sourcePage, supportType: submission.supportType },
+    });
+  } else {
+    await recordComplianceEvidence({
+      actorEmail: submission.email,
+      actorRole: "public",
+      audience: "public_form_submitter",
+      eventType: "privacy_acknowledged",
+      eventArea: "public_site",
+      relatedRecordType: "contact_form_submission",
+      relatedRecordId: id,
+      policyKey: POLICY_KEYS.privacy,
+      policyVersion: COMPLIANCE_POLICY_VERSION,
+      acknowledgmentText: "Contact form submitter acknowledged AMG privacy and non-acceptance notices.",
+      metadata: { sourcePage: submission.sourcePage, serviceInterest: submission.serviceInterest },
+    });
+  }
+  await recordComplianceEvidence({
+    actorEmail: submission.email,
+    actorRole: "public",
+    audience: "public_form_submitter",
+    eventType: submission.submissionType === "support_request" ? "support_request_submitted" : "privacy_acknowledged",
+    eventArea: submission.submissionType === "support_request" ? "request_support" : "public_site",
+    relatedRecordType: "contact_form_submission",
+    relatedRecordId: id,
+    policyVersion: COMPLIANCE_POLICY_VERSION,
+    metadata: { sourcePage: submission.sourcePage, submissionType: submission.submissionType },
+  });
   await recordPublicFormConsents(db as any, submission, id, context);
   const internalEmail = buildInternalEmail(submission, id);
   const confirmationEmail = buildConfirmationEmail(submission, id);

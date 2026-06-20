@@ -4,6 +4,8 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logServerError } from "@/lib/errors/user-facing-errors";
+import { COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
+import { recordComplianceEvidence } from "@/lib/compliance/evidence";
 
 const requestTypes = new Set([
   "access",
@@ -41,7 +43,7 @@ export async function submitPrivacyChoicesRequest(formData: FormData) {
 
   try {
     const db = await createServiceClient();
-    const { error } = await (db as any).from("privacy_requests").insert({
+    const { data, error } = await (db as any).from("privacy_requests").insert({
       requester_name: fullName,
       email,
       phone: clean(formData.get("phone")) || null,
@@ -51,9 +53,22 @@ export async function submitPrivacyChoicesRequest(formData: FormData) {
       status: "new",
       source_url: requestHeaders.get("referer"),
       user_agent: requestHeaders.get("user-agent"),
-    });
+    }).select("id").single();
 
     if (error) throw error;
+    await recordComplianceEvidence({
+      actorEmail: email,
+      actorRole: "public",
+      audience: "privacy_requester",
+      eventType: "privacy_request_submitted",
+      eventArea: "privacy",
+      relatedRecordType: "privacy_request",
+      relatedRecordId: data?.id ?? null,
+      policyKey: POLICY_KEYS.privacy,
+      policyVersion: COMPLIANCE_POLICY_VERSION,
+      acknowledgmentText: "Privacy choices requester acknowledged AMG verification and response notice.",
+      metadata: { requestType, relationship },
+    });
   } catch (error) {
     const referenceId = logServerError("Privacy choices request storage failed", error, {
       requestType,

@@ -95,7 +95,8 @@ export default async function ClientInvoicePage({ params }: { params: Promise<{ 
             <DetailRow label="Payment Instructions">{(invoice as any).payment_instructions ?? "-"}</DetailRow>
           </dl>
           <p className="mt-4 rounded-md border border-border bg-background/60 p-3 text-xs leading-5 text-muted-foreground">
-            Online portal payment coming soon. Use the payment instructions shown on this invoice or contact AMG for additional payment methods.
+            AMG does not process payment card or bank account payments through this website or portal. Use only the
+            payment instructions provided by AMG or contact AMG for additional payment coordination.
           </p>
         </SectionCard>
       </div>

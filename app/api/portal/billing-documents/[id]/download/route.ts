@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/portal/session";
 import { createServiceClient } from "@/lib/supabase/server";
 import { createSafeErrorResponse, logServerError } from "@/lib/errors/user-facing-errors";
+import { recordComplianceEvidence, recordSensitiveAccessEvent } from "@/lib/compliance/evidence";
 
 export async function GET(
   _request: Request,
@@ -47,6 +48,30 @@ export async function GET(
       createSafeErrorResponse({ audience: user.role === "admin" ? "admin" : "client", area: "documents", action: "download", category: "unavailable", correlationId: referenceId }),
       { status: 404 },
     );
+  }
+
+  await recordSensitiveAccessEvent({
+    actor: user,
+    audience: user.role,
+    relatedRecordType: "billing_document",
+    relatedRecordId: id,
+    sensitive: true,
+    metadata: {
+      documentType: document.document_type,
+      documentNumber: document.document_number,
+      clientId: document.client_id,
+    },
+  });
+  if (document.document_type === "invoice") {
+    await recordComplianceEvidence({
+      actor: user,
+      audience: user.role,
+      eventType: "invoice_viewed",
+      eventArea: "invoices",
+      relatedRecordType: "invoice",
+      relatedRecordId: document.invoice_id,
+      metadata: { billingDocumentId: id, documentNumber: document.document_number },
+    });
   }
 
   return new NextResponse(await data.arrayBuffer(), {

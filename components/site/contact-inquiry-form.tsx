@@ -80,6 +80,10 @@ export function ContactInquiryForm({
             <div role="alert" className="mb-5 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm leading-relaxed text-red-900">
               Complete the required fields and confirm the acknowledgment before submitting.
             </div>
+          ) : error === "payment-data" ? (
+            <div role="alert" className="mb-5 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm leading-relaxed text-red-900">
+              Remove full card numbers, CVV codes, bank account numbers, or routing numbers before submitting. AMG does not process payment card or bank account payments through this website or portal.
+            </div>
           ) : (
             <SafeErrorMessage area="public_contact" action="submit" className="mb-5 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm leading-relaxed text-red-900" />
           )
@@ -139,6 +143,10 @@ export function ContactInquiryForm({
           <Field label="Message" required>
             <Textarea name="message" required className="min-h-36 bg-white/80" />
           </Field>
+          <p className="rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
+            Do not enter full credit card numbers, CVV codes, bank account numbers, or routing numbers. AMG does not
+            process payment card or bank account payments through this website or portal.
+          </p>
 
           <label className="flex items-start gap-3 rounded-xl border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
             <input name="acknowledgment" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />

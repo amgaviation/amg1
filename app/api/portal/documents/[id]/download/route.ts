@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { isPortalRole } from "@/lib/portal/constants";
 import { createSafeErrorResponse, logServerError } from "@/lib/errors/user-facing-errors";
+import { isSensitiveDocumentCategory } from "@/lib/compliance/document-classification";
+import { recordSensitiveAccessEvent } from "@/lib/compliance/evidence";
 
 export async function GET(
   _req: NextRequest,
@@ -36,7 +38,7 @@ export async function GET(
 
   const { data: doc, error } = await db
     .from("documents")
-    .select("storage_path, storage_bucket, name, visibility, uploaded_by, scope_id")
+    .select("storage_path, storage_bucket, name, visibility, uploaded_by, scope_id, compliance_category, doc_type, access_level")
     .eq("id", id)
     .maybeSingle();
 
@@ -78,6 +80,19 @@ export async function GET(
       { status: 500 },
     );
   }
+
+  await recordSensitiveAccessEvent({
+    actor: { id: profile.id, email: user.email ?? "", role: profile.role },
+    audience: profile.role,
+    relatedRecordType: "document",
+    relatedRecordId: id,
+    sensitive: isSensitiveDocumentCategory(doc.compliance_category ?? doc.doc_type),
+    metadata: {
+      category: doc.compliance_category ?? doc.doc_type ?? null,
+      accessLevel: doc.access_level ?? null,
+      documentName: doc.name,
+    },
+  });
 
   return NextResponse.redirect(signed.signedUrl);
 }

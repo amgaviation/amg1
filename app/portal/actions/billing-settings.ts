@@ -6,6 +6,9 @@ import { redirect } from "next/navigation";
 import { saveBillingSettings } from "@/lib/portal/billing-config";
 import { createClient } from "@/lib/supabase/server";
 import { logAuditEvent } from "@/lib/portal/audit";
+import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
+import { recordComplianceEvidence } from "@/lib/compliance/evidence";
+import { detectProhibitedPaymentData } from "@/lib/compliance/payment-data-guard";
 import { actor, bool, num, str } from "./_helpers";
 
 const COOKIE = "amg_billing_settings_confirmed";
@@ -52,6 +55,28 @@ export async function updateBillingSettings(formData: FormData) {
   const admin = await actor(["admin"]);
   if (!(await billingSettingsConfirmed())) {
     redirect("/portal/admin/settings/billing?error=confirm");
+  }
+
+  const paymentFindings = detectProhibitedPaymentData({
+    payment_instructions: str(formData, "payment_instructions"),
+    wire_instructions: str(formData, "wire_instructions"),
+    ach_instructions: str(formData, "ach_instructions"),
+    check_instructions: str(formData, "check_instructions"),
+    quote_terms: str(formData, "quote_terms"),
+    invoice_terms: str(formData, "invoice_terms"),
+  });
+  if (paymentFindings.length) {
+    await recordComplianceEvidence({
+      actor: admin,
+      audience: "admin",
+      eventType: "no_online_payment_notice_acknowledged",
+      eventArea: "billing",
+      policyKey: POLICY_KEYS.noOnlinePayment,
+      policyVersion: COMPLIANCE_POLICY_VERSION,
+      acknowledgmentText: ACKNOWLEDGMENT_TEXT.noOnlinePayment,
+      metadata: { action: "billing_settings_blocked", fields: paymentFindings.map((finding) => finding.field), findingTypes: paymentFindings.map((finding) => finding.type) },
+    });
+    redirect("/portal/admin/settings/billing?error=payment-data");
   }
 
   await saveBillingSettings({

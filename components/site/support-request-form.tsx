@@ -160,6 +160,10 @@ export function SupportRequestForm({
             <div role="alert" className="mt-6 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm leading-relaxed text-red-900">
               Complete the required fields and confirm the acknowledgment before submitting.
             </div>
+          ) : error === "payment-data" ? (
+            <div role="alert" className="mt-6 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm leading-relaxed text-red-900">
+              Remove full card numbers, CVV codes, bank account numbers, or routing numbers before submitting. AMG does not process payment card or bank account payments through this website or portal.
+            </div>
           ) : (
             <SafeErrorMessage area="request_support" action="submit" className="mt-6 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm leading-relaxed text-red-900" />
           )
@@ -236,6 +240,10 @@ export function SupportRequestForm({
             <Field label="Requested Support Summary" required className="md:col-span-2">
               <Textarea name="requested_support_summary" required className="min-h-32 bg-white/80" />
             </Field>
+            <p className="rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)] md:col-span-2">
+              Do not enter full credit card numbers, CVV codes, bank account numbers, or routing numbers. AMG does not
+              process payment card or bank account payments through this website or portal.
+            </p>
             {conditionalFields.map((field) => (
               <ConditionalInput key={`${supportPath}-${field.name}`} field={field} />
             ))}
@@ -266,6 +274,12 @@ export function SupportRequestForm({
             <Field label="Additional Notes" className="md:col-span-2">
               <Textarea name="additional_notes" className="min-h-28 bg-white/80" />
             </Field>
+            <p className="rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)] md:col-span-2">
+              AMG Aviation does not provide emergency response services through this website or portal. Time-sensitive
+              requests remain subject to review, availability, and operational conditions. International requests may
+              require additional review for service availability, crew availability, vendor participation, regulatory,
+              customs, insurance, and local operating requirements.
+            </p>
           </Section>
 
           <section className="rounded-2xl border border-[var(--oc-line)] bg-white/70 p-5">

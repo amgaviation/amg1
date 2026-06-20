@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { CONSENT_VERSION, consentCategories } from "@/lib/compliance/consent";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logServerError } from "@/lib/errors/user-facing-errors";
+import { recordConsentEvent } from "@/lib/compliance/evidence";
 
 const validCategoryIds = new Set(consentCategories.map((category) => category.id));
 
@@ -43,9 +44,29 @@ export async function POST(request: Request) {
     });
 
     if (error) throw error;
+    await recordConsentEvent({
+      actorRole: "browser",
+      audience: "website_visitor",
+      eventType: "cookie_preferences_saved",
+      relatedRecordType: "consent_event",
+      policyKey: "cookie-policy",
+      policyVersion: record.version,
+      consentCategories: choices,
+      metadata: { source: record.source ?? "browser", stored: true },
+    });
     return NextResponse.json({ ok: true, stored: true });
   } catch (error) {
     logServerError("Consent event storage failed", error, { route: "/api/compliance/consent" });
+    await recordConsentEvent({
+      actorRole: "browser",
+      audience: "website_visitor",
+      eventType: "cookie_preferences_saved",
+      relatedRecordType: "consent_event",
+      policyKey: "cookie-policy",
+      policyVersion: record.version,
+      consentCategories: choices,
+      metadata: { source: record.source ?? "browser", stored: false },
+    });
     return NextResponse.json({ ok: true, stored: false });
   }
 }

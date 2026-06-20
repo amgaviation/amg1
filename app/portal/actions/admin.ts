@@ -7,6 +7,8 @@ import type { Database } from "@/lib/supabase/database.types";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
 import { isPortalRole, PORTAL_PERMISSIONS, PROFILE_STATUS } from "@/lib/portal/constants";
 import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
+import { COMPLIANCE_POLICY_VERSION } from "@/lib/compliance/config";
+import { recordComplianceEvidence } from "@/lib/compliance/evidence";
 import { actor, num, safeRedirectPath, str } from "./_helpers";
 
 function normalizeEmail(formData: FormData, key: string): string {
@@ -185,7 +187,6 @@ export async function setUserStatus(formData: FormData) {
     entityType: "profile",
     entityId: userId,
   });
-
   revalidatePath("/portal/admin/user-approvals");
   revalidatePath("/portal/admin/users");
   revalidatePath("/portal/admin/clients");
@@ -209,6 +210,16 @@ export async function setUserRole(formData: FormData) {
     detail: `Set ${userId} role to ${role}`,
     entityType: "profile",
     entityId: userId,
+  });
+  await recordComplianceEvidence({
+    actor: admin,
+    audience: "admin",
+    eventType: "role_changed",
+    eventArea: "security",
+    relatedRecordType: "profile",
+    relatedRecordId: userId,
+    policyVersion: COMPLIANCE_POLICY_VERSION,
+    metadata: { newRole: role },
   });
 
   revalidatePath("/portal/admin/user-approvals");

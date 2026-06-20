@@ -17,3 +17,15 @@ Potential privacy, security, document, account, credential, or communications in
 ## Follow-up
 
 Record the root cause, remediation steps, affected records, notifications, and any changes to RLS policies, storage rules, forms, or portal controls.
+
+## Operational Checklists
+
+- Admin account compromise: suspend affected account, review audit/evidence events, rotate affected credentials, require password reset, review role changes.
+- Supabase key rotation: rotate service-role and anon keys in Supabase, update Vercel env vars, redeploy, verify server-only imports.
+- Vercel env rotation: update production/preview env vars, redeploy, invalidate compromised values, preserve timeline.
+- Email provider key rotation: rotate API keys, verify sending domains, review failed-send logs.
+- Storage exposure: review bucket policies, signed URL routes, document access evidence, and affected storage paths.
+- Document exposure: identify affected records, users, categories, download logs, and access evidence.
+- Evidence preservation: export relevant audit/evidence rows, deployment IDs, request IDs, and timeline notes for counsel review.
+
+Do not send automatic breach notifications from the app. Notification duties and wording require counsel review.

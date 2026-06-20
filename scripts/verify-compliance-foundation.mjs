@@ -116,6 +116,7 @@ const prohibited = [
 ];
 for (const file of textTargets) {
   const relative = path.relative(root, file);
+  if (relative === "lib/compliance/aviation-claim-guard.ts") continue;
   const body = fs.readFileSync(file, "utf8");
   for (const pattern of prohibited) {
     assert(!pattern.test(body), `${relative} contains prohibited language ${pattern}`);

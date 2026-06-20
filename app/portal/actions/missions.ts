@@ -6,6 +6,9 @@ import { createServiceClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { logAuditEvent, notifyAdmins, notifyUser } from "@/lib/portal/audit";
 import { MISSION_TYPE_LABEL } from "@/lib/portal/constants";
+import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
+import { recordComplianceEvidence, recordSupportRequestDisclaimerAcknowledgment } from "@/lib/compliance/evidence";
+import { detectProhibitedPaymentData } from "@/lib/compliance/payment-data-guard";
 import { ensureClientAccountForMission } from "@/lib/portal/client-account-provisioning";
 import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
 import { actor, bool, isoOrNull, num, str } from "./_helpers";
@@ -103,6 +106,28 @@ export async function createMission(formData: FormData) {
   const departure = str(formData, "departure_airport").toUpperCase();
   const arrival = str(formData, "arrival_airport").toUpperCase();
   const missionType = str(formData, "mission_type") || "owner_trip";
+  if (str(formData, "support_disclaimer_acknowledged") !== "accepted") {
+    redirect("/portal/client/trips/new?error=terms");
+  }
+  const paymentFindings = detectProhibitedPaymentData({
+    client_notes: str(formData, "client_notes"),
+    customs_notes: str(formData, "customs_notes"),
+    additional_notes: str(formData, "additional_notes"),
+    passenger_names: str(formData, "passenger_names"),
+  });
+  if (paymentFindings.length) {
+    await recordComplianceEvidence({
+      actor: user,
+      audience: user.role,
+      eventType: "no_online_payment_notice_acknowledged",
+      eventArea: "security",
+      policyKey: POLICY_KEYS.noOnlinePayment,
+      policyVersion: COMPLIANCE_POLICY_VERSION,
+      acknowledgmentText: ACKNOWLEDGMENT_TEXT.noOnlinePayment,
+      metadata: { action: "portal_support_request_blocked", fields: paymentFindings.map((finding) => finding.field) },
+    });
+    redirect("/portal/client/trips/new?error=payment-data");
+  }
 
   if (!departure || !arrival) {
     redirect("/portal/client/trips/new?error=missing");
@@ -186,6 +211,26 @@ export async function createMission(formData: FormData) {
     detail: `Submitted ${MISSION_TYPE_LABEL[missionType] ?? missionType} ${departure}-${arrival} (${mission.ref})`,
     entityType: "mission",
     entityId: mission.id,
+  });
+  await recordSupportRequestDisclaimerAcknowledgment({
+    actor: user,
+    audience: user.role,
+    relatedRecordType: "mission",
+    relatedRecordId: mission.id,
+    policyKey: POLICY_KEYS.missionAcceptance,
+    policyVersion: COMPLIANCE_POLICY_VERSION,
+    acknowledgmentText: ACKNOWLEDGMENT_TEXT.supportRequest,
+    metadata: { missionType, departure, arrival, urgency: str(formData, "urgency") || "standard" },
+  });
+  await recordComplianceEvidence({
+    actor: user,
+    audience: user.role,
+    eventType: "support_request_submitted",
+    eventArea: "client_portal",
+    relatedRecordType: "mission",
+    relatedRecordId: mission.id,
+    policyVersion: COMPLIANCE_POLICY_VERSION,
+    metadata: { missionType, departure, arrival, isInternational: bool(formData, "is_international") },
   });
   await notifyAdmins({
     title: "New trip request",

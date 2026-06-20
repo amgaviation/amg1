@@ -55,6 +55,11 @@ export default async function AdminSettingsPage({
               Review legal notices, privacy requests, consent events, and compliance controls
             </Link>
           </p>
+          <p>
+            <Link href="/portal/admin/security-review" className="text-accent hover:underline">
+              Complete monthly account security and permission review
+            </Link>
+          </p>
         </div>
       </SectionCard>
       <AccountSecurityForm email={user.email} backTo="/portal/admin/settings" />

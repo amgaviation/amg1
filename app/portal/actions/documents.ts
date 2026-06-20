@@ -4,6 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
+import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
+import { normalizeDocumentAccessLevel, normalizeDocumentCategory } from "@/lib/compliance/document-classification";
+import { recordComplianceEvidence } from "@/lib/compliance/evidence";
+import { detectProhibitedPaymentData } from "@/lib/compliance/payment-data-guard";
 import { actor, safeRedirectPath, str } from "./_helpers";
 
 const VISIBILITY_BY_ROLE: Record<string, string> = {
@@ -60,9 +64,28 @@ export async function uploadDocument(formData: FormData) {
   const name = str(formData, "name");
   const docType = str(formData, "doc_type") || "Other";
   const backTo = safeRedirectPath(str(formData, "back_to"), `/portal/${user.role}/documents`);
+  const notes = str(formData, "notes") || null;
+
+  if (str(formData, "document_terms_acknowledged") !== "accepted") {
+    redirect(`${backTo}?error=terms`);
+  }
 
   if (!(file instanceof File) || file.size === 0 || !name) {
     redirect(`${backTo}?error=missing`);
+  }
+  const paymentFindings = detectProhibitedPaymentData({ name, notes, doc_type: docType, original_file_name: file.name });
+  if (paymentFindings.length) {
+    await recordComplianceEvidence({
+      actor: user,
+      audience: user.role,
+      eventType: "no_online_payment_notice_acknowledged",
+      eventArea: "security",
+      policyKey: POLICY_KEYS.noOnlinePayment,
+      policyVersion: COMPLIANCE_POLICY_VERSION,
+      acknowledgmentText: ACKNOWLEDGMENT_TEXT.noOnlinePayment,
+      metadata: { action: "document_upload_blocked", fields: paymentFindings.map((finding) => finding.field), findingTypes: paymentFindings.map((finding) => finding.type) },
+    });
+    redirect(`${backTo}?error=payment-data`);
   }
   const allowedTypes = new Set(["application/pdf", "image/jpeg", "image/png"]);
   if (file.size > 50 * 1024 * 1024 || (file.type && !allowedTypes.has(file.type))) {
@@ -93,8 +116,19 @@ export async function uploadDocument(formData: FormData) {
     ? targetProfile.role
     : null;
   const inferredVisibility = targetProfile?.role === "client" ? "owner" : targetProfile?.role ?? null;
+  const complianceCategory = normalizeDocumentCategory(str(formData, "compliance_category") || docType);
+  const accessLevel = normalizeDocumentAccessLevel(
+    str(formData, "access_level"),
+    user.role === "admin"
+      ? "admin_only"
+      : user.role === "client"
+        ? "client_visible"
+        : user.role === "crew"
+          ? "crew_visible"
+          : "vendor_visible",
+  );
 
-  await db.from("documents").insert({
+  const { data: document } = await db.from("documents").insert({
     name,
     original_file_name: file.name,
     storage_bucket: "documents",
@@ -112,14 +146,41 @@ export async function uploadDocument(formData: FormData) {
     uploaded_by: user.id,
     status: "pending_review",
     expiration_date: str(formData, "expiration_date") || null,
-    notes: str(formData, "notes") || null,
-  });
+    notes,
+    compliance_category: complianceCategory,
+    access_level: accessLevel,
+    policy_version: COMPLIANCE_POLICY_VERSION,
+    terms_acknowledged_at: new Date().toISOString(),
+  }).select("id").single();
 
   await logAuditEvent({
     actor: user,
     action: "document_uploaded",
     detail: `Uploaded ${name}`,
     entityType: "document",
+    entityId: document?.id ?? null,
+  });
+  await recordComplianceEvidence({
+    actor: user,
+    audience: user.role,
+    eventType: "document_terms_acknowledged",
+    eventArea: "documents",
+    relatedRecordType: "document",
+    relatedRecordId: document?.id ?? null,
+    policyKey: POLICY_KEYS.documentUploadTerms,
+    policyVersion: COMPLIANCE_POLICY_VERSION,
+    acknowledgmentText: ACKNOWLEDGMENT_TEXT.documentUpload,
+    metadata: { complianceCategory, accessLevel },
+  });
+  await recordComplianceEvidence({
+    actor: user,
+    audience: user.role,
+    eventType: "document_uploaded",
+    eventArea: "documents",
+    relatedRecordType: "document",
+    relatedRecordId: document?.id ?? null,
+    policyVersion: COMPLIANCE_POLICY_VERSION,
+    metadata: { complianceCategory, accessLevel, mimeType: file.type || null, fileSize: file.size },
   });
   await notifyAdmins({
     title: "Document uploaded",

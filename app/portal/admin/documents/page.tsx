@@ -54,6 +54,8 @@ export default async function AdminDocumentsPage({
       {params.success === "uploaded" ? <Notice tone="success">Document uploaded and submitted for review.</Notice> : null}
       {params.success === "reviewed" ? <Notice tone="success">Document review saved.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Document name and file are required.</Notice> : null}
+      {params.error === "terms" ? <Notice tone="danger">Confirm the document upload terms before uploading.</Notice> : null}
+      {params.error === "payment-data" ? <Notice tone="danger">Remove full card numbers, CVV codes, bank account numbers, or routing numbers before uploading.</Notice> : null}
       {params.error === "upload" ? <Notice tone="danger">Upload failed. Use a PDF, JPG, or PNG under 50 MB.</Notice> : null}
       <PageHeader eyebrow="AMG Operations" title="Documents" description="Review uploaded client, crew, partner, and operations documents." />
       <SectionCard title="Upload Document" icon="fileText">
@@ -76,6 +78,10 @@ export default async function AdminDocumentsPage({
           <div className="lg:col-span-3">
             <FileField label="File" name="file" accept=".pdf,.jpg,.jpeg,.png" required />
           </div>
+          <label className="lg:col-span-4 flex items-start gap-3 rounded-lg border border-border bg-background/60 p-3 text-sm text-muted-foreground">
+            <input name="document_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-accent" />
+            <span>Upload only documents AMG is authorized to store and do not include full card numbers, CVV codes, bank account numbers, routing numbers, or unrelated personal information.</span>
+          </label>
           <div className="flex items-end">
             <SubmitButton className="rounded-full" pendingText="Uploading...">Upload Document</SubmitButton>
           </div>
