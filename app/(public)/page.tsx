@@ -1,4 +1,5 @@
 import { HomeHangarEntry } from "@/components/site/home/home-hangar-entry";
+import { HangarDoorIntro } from "@/components/site/home/hangar-door-intro";
 import { OperationalTrustStrip } from "@/components/site/home/operational-trust-strip";
 import { SitePreviewLayer } from "@/components/site/home/site-preview-layer";
 import { BrandStatement } from "@/components/site/home/brand-statement";
@@ -21,6 +22,7 @@ export const metadata = {
 export default function HomePage() {
   return (
     <>
+      <HangarDoorIntro />
       <HomeHangarEntry />
       <OperationalTrustStrip />
       <SitePreviewLayer />

@@ -11,6 +11,7 @@ const GENERATED = "/images/amg-generated";
 export const IMG = {
   generatedHeroPoster: `${GENERATED}/posters/amg-hero-hangar-dusk-poster.jpg`,
   generatedHeroVideo: "/videos/amg-generated/amg-hero-hangar-dusk-loop.mp4",
+  generatedHangarDoor: `${GENERATED}/backgrounds/hangar-door-closed-realistic.jpg`,
   generatedCrewMap: `${GENERATED}/backgrounds/crew-network-map-bg.jpg`,
   generatedConnectDashboard: `${GENERATED}/portal/amg-connect-dashboard-bg.jpg`,
   generatedDispatch: `${GENERATED}/backgrounds/operational-clarity-dispatch.jpg`,
@@ -43,14 +44,17 @@ export const SERVICE_IMAGES: Record<string, string> = {
 
 /** Aircraft category id (from content.ts AIRCRAFT_CATEGORIES) -> matching image. */
 export const AIRCRAFT_IMAGES: Record<string, string> = {
-  "single-engine-piston": `${GENERATED}/aircraft/aircraft-piston-turboprop.jpg`,
-  "multi-engine-piston": `${GENERATED}/aircraft/aircraft-piston-turboprop.jpg`,
-  turboprop: `${GENERATED}/aircraft/aircraft-piston-turboprop.jpg`,
-  "single-engine-jet-vlj": `${GENERATED}/aircraft/aircraft-single-engine-jet-vlj.jpg`,
-  "light-jet": `${GENERATED}/aircraft/aircraft-light-jet.jpg`,
-  "midsize-jet": `${GENERATED}/aircraft/aircraft-midsize-jet.jpg`,
-  "super-midsize-jet": `${GENERATED}/aircraft/aircraft-super-midsize-heavy.jpg`,
-  "large-cabin-heavy-jet": `${GENERATED}/aircraft/aircraft-super-midsize-heavy.jpg`,
+  "single-engine-piston": `${GENERATED}/aircraft-supported/piston-cirrus-sr22.jpg`,
+  "multi-engine-piston": `${GENERATED}/aircraft-supported/piston-cirrus-sr22.jpg`,
+  piston: `${GENERATED}/aircraft-supported/piston-cirrus-sr22.jpg`,
+  turboprop: `${GENERATED}/aircraft-supported/turboprop-pilatus-pc12.jpg`,
+  "single-engine-jet-vlj": `${GENERATED}/aircraft-supported/single-engine-jet-cirrus-sf50.jpg`,
+  "single-engine-jet": `${GENERATED}/aircraft-supported/single-engine-jet-cirrus-sf50.jpg`,
+  "light-jet": `${GENERATED}/aircraft-supported/light-jet-phenom-100.jpg`,
+  "midsize-jet": `${GENERATED}/aircraft-supported/midsize-jet-citation-latitude.jpg`,
+  "super-midsize-jet": `${GENERATED}/aircraft-supported/super-midsize-challenger-650.jpg`,
+  "large-cabin-heavy-jet": `${GENERATED}/aircraft-supported/heavy-gulfstream-g650.jpg`,
+  heavy: `${GENERATED}/aircraft-supported/heavy-gulfstream-g650.jpg`,
   helicopter: `${BASE}/aircraft-helicopter.jpg`,
 };
 

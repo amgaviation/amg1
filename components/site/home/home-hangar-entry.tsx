@@ -13,7 +13,6 @@ import {
   Plane,
   ShieldCheck,
   Users,
-  Wrench,
 } from "lucide-react";
 import { IMG } from "@/lib/site-media";
 
@@ -25,12 +24,6 @@ const REVIEW_CHIPS = [
   { label: "Mission Timing", value: "Assessing", icon: Clock3 },
 ];
 
-const revealTransition = {
-  delay: 0.28,
-  duration: 1.75,
-  ease: [0.76, 0, 0.24, 1],
-} as const;
-
 export function HomeHangarEntry() {
   const ref = useRef<HTMLElement>(null);
   const [hasMounted, setHasMounted] = useState(false);
@@ -39,9 +32,6 @@ export function HomeHangarEntry() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const contentY = useTransform(scrollYProgress, [0, 1], [0, isReduced ? 0 : 46]);
   const backgroundY = useTransform(scrollYProgress, [0, 1], [0, isReduced ? 0 : 34]);
-
-  const leftDoorX = isReduced ? "-104%" : "-101%";
-  const rightDoorX = isReduced ? "104%" : "101%";
 
   useEffect(() => {
     setHasMounted(true);
@@ -177,36 +167,6 @@ export function HomeHangarEntry() {
       </motion.div>
 
       <motion.div
-        className="pointer-events-none absolute inset-y-0 left-0 z-30 w-[58%] overflow-hidden border-r border-white/16 bg-[linear-gradient(180deg,#142945,#071321)] shadow-[inset_-20px_0_45px_rgba(0,0,0,0.42),18px_0_70px_rgba(0,0,0,0.36)] will-change-transform md:w-[52%]"
-        initial={isReduced ? { x: leftDoorX } : { x: "0%" }}
-        animate={{ x: leftDoorX }}
-        transition={isReduced ? { duration: 0 } : revealTransition}
-        data-hangar-door="left"
-        aria-hidden="true"
-      >
-        <DoorSurface side="left" />
-      </motion.div>
-
-      <motion.div
-        className="pointer-events-none absolute inset-y-0 right-0 z-30 w-[58%] overflow-hidden border-l border-white/16 bg-[linear-gradient(180deg,#142945,#071321)] shadow-[inset_20px_0_45px_rgba(0,0,0,0.42),-18px_0_70px_rgba(0,0,0,0.36)] will-change-transform md:w-[52%]"
-        initial={isReduced ? { x: rightDoorX } : { x: "0%" }}
-        animate={{ x: rightDoorX }}
-        transition={isReduced ? { duration: 0 } : revealTransition}
-        data-hangar-door="right"
-        aria-hidden="true"
-      >
-        <DoorSurface side="right" />
-      </motion.div>
-
-      <motion.div
-        className="pointer-events-none absolute left-1/2 top-0 z-40 h-full w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-white/90 to-transparent shadow-[0_0_34px_rgba(111,155,207,0.8)]"
-        initial={isReduced ? { opacity: 0 } : { opacity: 0, scaleY: 0.5 }}
-        animate={isReduced ? { opacity: 0 } : { opacity: [0, 1, 0], scaleY: [0.5, 1, 1] }}
-        transition={isReduced ? { duration: 0 } : { delay: 0.08, duration: 1.3, ease: "easeOut", times: [0, 0.26, 1] }}
-        aria-hidden="true"
-      />
-
-      <motion.div
         className="absolute bottom-7 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2 text-[0.62rem] font-semibold uppercase text-[var(--oc-aluminum)]"
         initial={isReduced ? false : { opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -219,24 +179,5 @@ export function HomeHangarEntry() {
         </span>
       </motion.div>
     </section>
-  );
-}
-
-function DoorSurface({ side }: { side: "left" | "right" }) {
-  return (
-    <div className="absolute inset-0">
-      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.08),transparent_18%,rgba(255,255,255,0.04)_54%,rgba(0,0,0,0.28)),repeating-linear-gradient(90deg,rgba(255,255,255,0.06)_0_1px,transparent_1px_46px),repeating-linear-gradient(180deg,rgba(255,255,255,0.045)_0_1px,transparent_1px_84px)]" />
-      <div
-        className={
-          side === "left"
-            ? "absolute right-0 top-0 h-full w-6 bg-gradient-to-l from-white/22 to-transparent"
-            : "absolute left-0 top-0 h-full w-6 bg-gradient-to-r from-white/22 to-transparent"
-        }
-      />
-      <div className="absolute bottom-10 left-8 hidden items-center gap-2 rounded border border-white/12 bg-black/20 px-3 py-2 text-[0.6rem] font-semibold uppercase text-[var(--oc-aluminum)] backdrop-blur-sm sm:flex">
-        <Wrench className="h-3.5 w-3.5 text-[var(--oc-sand)]" strokeWidth={1.7} />
-        AMG Operations Entry
-      </div>
-    </div>
   );
 }
