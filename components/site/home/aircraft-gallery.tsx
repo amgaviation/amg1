@@ -15,35 +15,35 @@ const CATEGORIES: Category[] = [
   {
     name: "Piston / Turboprop",
     image: AIRCRAFT_IMAGES["turboprop"],
-    alt: "Turboprop aircraft on the ramp",
+    alt: "Turboprop aircraft staged on an executive ramp",
     support: "Owner support, repositioning, maintenance positioning, records context, and pilot qualification review for piston and turboprop aircraft.",
     crew: "Often single-pilot by type; insurance minimums, currency, runway performance, and aircraft status shape each assignment.",
   },
   {
     name: "Single-Engine Jet",
     image: AIRCRAFT_IMAGES["single-engine-jet-vlj"],
-    alt: "Single-engine jet in flight",
+    alt: "Single-engine very light jet in flight over coastal terrain",
     support: "Aircraft-specific support for owner activity, ferry movement, maintenance positioning, and crew qualification review.",
     crew: "Typically single-pilot; subject to type, currency, insurance, airport restrictions, and owner/operator requirements.",
   },
   {
     name: "Light Jet",
     image: AIRCRAFT_IMAGES["light-jet"],
-    alt: "Light jet parked at a private terminal",
+    alt: "Light business jet parked at an executive FBO",
     support: "Repositioning coordination, owner communication, maintenance-movement support, and assignment readiness for lighter jet aircraft.",
     crew: "Some types are single-pilot capable, but insurance, operator standards, mission profile, and aircraft status decide the support path.",
   },
   {
     name: "Midsize Jet",
     image: AIRCRAFT_IMAGES["midsize-jet"],
-    alt: "Midsize business jet on the ramp",
+    alt: "Midsize business jet positioned on a dusk FBO ramp",
     support: "Crew sourcing, support request review, aircraft-status coordination, and logistics for domestic or regional operating needs.",
     crew: "Commonly two-pilot; crew pairing, duty timing, insurance minimums, and owner/operator standards are reviewed before acceptance.",
   },
   {
     name: "Super Midsize / Heavy Jet",
     image: AIRCRAFT_IMAGES["super-midsize-jet"],
-    alt: "Super-midsize business jet at dusk",
+    alt: "Large cabin business jet on an executive ramp at golden hour",
     support: "Expanded crew, travel, documentation, vendor, facility, and logistics coordination for more complex movements.",
     crew: "Two-pilot operations with possible cabin, international, facility, and vendor requirements depending on the support scope.",
   },
@@ -78,9 +78,9 @@ export function AircraftGallery({
             <article
               key={cat.name}
               data-stagger-item
-              className="oc-card group flex h-full flex-col overflow-hidden"
+              className="oc-card group flex h-full flex-col overflow-hidden transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(11,26,43,0.16)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
             >
-              <Figure src={cat.image} alt={cat.alt} sizes="(max-width: 640px) 100vw, 33vw" className="aspect-[16/10]">
+              <Figure src={cat.image} alt={cat.alt} sizes="(max-width: 640px) 100vw, 33vw" className="aspect-[4/3]">
                 <h3 className="oc-display absolute bottom-4 left-5 z-[2] text-2xl text-white drop-shadow-sm">
                   {cat.name}
                 </h3>

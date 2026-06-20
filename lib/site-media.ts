@@ -2,12 +2,18 @@
  * Central media map for the AMG Operations Command public site.
  * Single source of truth so aircraft categories always resolve to a correct,
  * matching image (no piston/prop imagery on jet cards) and pages share a
- * consistent set of crops. All assets live in /public/images/amg-custom.
+ * consistent set of crops.
  */
 
 const BASE = "/images/amg-custom";
+const GENERATED = "/images/amg-generated";
 
 export const IMG = {
+  generatedHeroPoster: `${GENERATED}/posters/amg-hero-hangar-dusk-poster.jpg`,
+  generatedHeroVideo: "/videos/amg-generated/amg-hero-hangar-dusk-loop.mp4",
+  generatedCrewMap: `${GENERATED}/backgrounds/crew-network-map-bg.jpg`,
+  generatedConnectDashboard: `${GENERATED}/portal/amg-connect-dashboard-bg.jpg`,
+  generatedDispatch: `${GENERATED}/backgrounds/operational-clarity-dispatch.jpg`,
   homeHangarDusk: `${BASE}/home-hangar-dusk.jpg`,
   heroOperations: `${BASE}/hero-aircraft-operations.jpg`,
   aircraftSupportMain: `${BASE}/aircraft-support-main.jpg`,
@@ -37,14 +43,14 @@ export const SERVICE_IMAGES: Record<string, string> = {
 
 /** Aircraft category id (from content.ts AIRCRAFT_CATEGORIES) -> matching image. */
 export const AIRCRAFT_IMAGES: Record<string, string> = {
-  "single-engine-piston": `${BASE}/aircraft-single-engine-piston.jpg`,
-  "multi-engine-piston": `${BASE}/aircraft-multi-engine-piston.jpg`,
-  turboprop: `${BASE}/aircraft-turboprop.jpg`,
-  "single-engine-jet-vlj": `${BASE}/aircraft-single-engine-jet-vlj.jpg`,
-  "light-jet": `${BASE}/aircraft-light-jet.jpg`,
-  "midsize-jet": `${BASE}/aircraft-midsize-jet.jpg`,
-  "super-midsize-jet": `${BASE}/aircraft-super-midsize-jet.jpg`,
-  "large-cabin-heavy-jet": `${BASE}/aircraft-large-cabin-heavy-jet.jpg`,
+  "single-engine-piston": `${GENERATED}/aircraft/aircraft-piston-turboprop.jpg`,
+  "multi-engine-piston": `${GENERATED}/aircraft/aircraft-piston-turboprop.jpg`,
+  turboprop: `${GENERATED}/aircraft/aircraft-piston-turboprop.jpg`,
+  "single-engine-jet-vlj": `${GENERATED}/aircraft/aircraft-single-engine-jet-vlj.jpg`,
+  "light-jet": `${GENERATED}/aircraft/aircraft-light-jet.jpg`,
+  "midsize-jet": `${GENERATED}/aircraft/aircraft-midsize-jet.jpg`,
+  "super-midsize-jet": `${GENERATED}/aircraft/aircraft-super-midsize-heavy.jpg`,
+  "large-cabin-heavy-jet": `${GENERATED}/aircraft/aircraft-super-midsize-heavy.jpg`,
   helicopter: `${BASE}/aircraft-helicopter.jpg`,
 };
 

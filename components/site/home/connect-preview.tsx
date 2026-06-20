@@ -1,5 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, ArrowUpRight, FileText, LayoutDashboard, Plane, Receipt, Users } from "lucide-react";
+import { IMG } from "@/lib/site-media";
 
 const FEATURES = [
   "Support requests",
@@ -32,7 +34,15 @@ const toneClass: Record<string, string> = {
 
 export function ConnectPreview() {
   return (
-    <section className="oc-panel-graphite oc-section relative overflow-hidden text-[var(--oc-paper)]">
+    <section className="oc-panel-graphite oc-section relative isolate overflow-hidden text-[var(--oc-paper)]">
+      <Image
+        src={IMG.generatedConnectDashboard}
+        alt=""
+        fill
+        sizes="100vw"
+        className="absolute inset-0 -z-20 object-cover opacity-[0.2]"
+      />
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(7,19,33,0.98),rgba(7,19,33,0.88)_44%,rgba(7,19,33,0.96)),radial-gradient(circle_at_80%_28%,rgba(229,177,105,0.18),transparent_28rem)]" />
       <div className="oc-shell grid items-center gap-14 lg:grid-cols-[0.85fr_1.15fr]">
         <div data-scroll-animate>
           <p className="oc-eyebrow oc-eyebrow-light">AMG Connect</p>
@@ -76,9 +86,17 @@ export function ConnectPreview() {
 
         {/* portal mock */}
         <div data-scroll-animate className="group [perspective:1600px]">
-          <div className="oc-card-dark overflow-hidden shadow-[var(--oc-shadow)] transition-transform duration-500 will-change-transform group-hover:[transform:rotateX(1.5deg)_rotateY(-2deg)] motion-reduce:transition-none motion-reduce:group-hover:[transform:none]">
+          <div className="oc-card-dark relative overflow-hidden shadow-[0_36px_110px_rgba(0,0,0,0.34)] transition-transform duration-500 will-change-transform group-hover:[transform:rotateX(1.5deg)_rotateY(-2deg)] motion-reduce:transition-none motion-reduce:group-hover:[transform:none]">
+            <Image
+              src={IMG.generatedConnectDashboard}
+              alt=""
+              fill
+              sizes="(max-width: 1024px) 100vw, 56vw"
+              className="absolute inset-0 object-cover opacity-[0.16]"
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(7,19,33,0.98),rgba(7,19,33,0.76)_46%,rgba(7,19,33,0.96))]" />
             {/* window chrome */}
-            <div className="flex items-center gap-2 border-b border-[var(--oc-line-dark)] px-5 py-3.5">
+            <div className="relative flex items-center gap-2 border-b border-[var(--oc-line-dark)] px-5 py-3.5">
               <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
               <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
               <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
@@ -86,7 +104,7 @@ export function ConnectPreview() {
               <span className="oc-dot oc-dot-live ml-auto h-1.5 w-1.5" aria-hidden="true" />
             </div>
 
-            <div className="grid grid-cols-[auto_1fr] gap-0">
+            <div className="relative grid grid-cols-[auto_1fr] gap-0">
               {/* sidebar */}
               <div className="hidden flex-col gap-1 border-r border-[var(--oc-line-dark)] p-4 sm:flex">
                 {NAV.map((item) => (

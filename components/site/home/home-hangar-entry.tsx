@@ -61,14 +61,28 @@ export function HomeHangarEntry() {
         style={{ y: backgroundY }}
       >
         <Image
-          src={IMG.homeHangarDusk}
-          alt="AMG hangar frontage at dusk"
+          src={IMG.generatedHeroPoster}
+          alt=""
           fill
           priority
           sizes="100vw"
           className="object-cover"
-          style={{ objectPosition: "center 50%" }}
+          style={{ objectPosition: "center 52%" }}
         />
+        {!isReduced ? (
+          <video
+            className="absolute inset-0 h-full w-full object-cover"
+            poster={IMG.generatedHeroPoster}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+          >
+            <source src={IMG.generatedHeroVideo} type="video/mp4" />
+          </video>
+        ) : null}
       </motion.div>
 
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_58%,rgba(229,177,105,0.34),transparent_28rem),linear-gradient(180deg,rgba(11,26,43,0.44),rgba(11,26,43,0.86)_66%,rgba(11,26,43,0.96))]" />
@@ -104,9 +118,9 @@ export function HomeHangarEntry() {
               Aircraft Support Built Around Operational Clarity
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-relaxed text-[var(--oc-aluminum)] sm:text-lg">
-              AMG supports owners, flight departments, crews, maintenance events, and
-              mission-specific operational needs through structured request review, practical
-              coordination, and clear stakeholder communication.
+              AMG coordinates aircraft support with a structured review of scope, aircraft status,
+              crew availability, owner/operator approval, and operational conditions before a
+              request is presented as accepted.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -122,9 +136,8 @@ export function HomeHangarEntry() {
 
             <p className="mt-6 flex max-w-2xl items-start gap-3 border-l border-[var(--oc-sand)]/60 pl-4 text-xs leading-relaxed text-[var(--oc-aluminum-2)] sm:text-sm">
               <span className="oc-dot oc-dot-live mt-1.5 h-1.5 w-1.5 shrink-0" aria-hidden="true" />
-              AMG does not present a request as accepted until the support scope, aircraft status,
-              crew availability, owner/operator approval, and operational conditions have been
-              reviewed.
+              Support is reviewed before acceptance. Scope, aircraft status, crew availability,
+              owner/operator approval, and operating conditions are considered first.
             </p>
           </motion.div>
 

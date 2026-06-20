@@ -1,9 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { useReducedMotion } from "framer-motion";
 import { GlobeFallback } from "@/components/sections/globe-fallback";
 import { crewGlobeMarkers, crewGlobeStats } from "@/components/sections/crew-globe-data";
+import { IMG } from "@/lib/site-media";
 
 const CrewHeroGlobeDemo = dynamic(() => import("@/components/3d-globe-demo-2"), {
   ssr: false,
@@ -14,7 +16,15 @@ export function CrewNetworkHeroGlobe() {
   const reduce = useReducedMotion();
 
   return (
-    <section className="oc-section bg-[var(--oc-graphite)] text-[var(--oc-paper)]">
+    <section className="oc-section relative isolate overflow-hidden bg-[var(--oc-graphite)] text-[var(--oc-paper)]">
+      <Image
+        src={IMG.generatedCrewMap}
+        alt=""
+        fill
+        sizes="100vw"
+        className="absolute inset-0 -z-20 object-cover opacity-[0.34]"
+      />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_70%_36%,rgba(229,177,105,0.18),transparent_28rem),linear-gradient(90deg,rgba(7,19,33,0.96),rgba(7,19,33,0.78)_48%,rgba(7,19,33,0.94))]" />
       <div className="oc-shell grid items-center gap-10 lg:grid-cols-[0.82fr_1.18fr]">
         <div data-scroll-animate>
           <p className="oc-eyebrow oc-eyebrow-light">Operating Regions</p>
@@ -26,21 +36,23 @@ export function CrewNetworkHeroGlobe() {
             review. Pins represent public airport regions, not home addresses or guaranteed crew availability.
           </p>
           <dl className="mt-8 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-xl border border-white/10 bg-white/[0.055] p-4">
+            <div className="rounded-xl border border-white/12 bg-white/[0.07] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)] backdrop-blur-md">
               <dt className="text-xs uppercase tracking-wide text-[var(--oc-aluminum-2)]">Airport markers</dt>
               <dd className="oc-display mt-2 text-3xl text-white">{crewGlobeStats.publicMarkerCount}</dd>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/[0.055] p-4">
+            <div className="rounded-xl border border-white/12 bg-white/[0.07] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)] backdrop-blur-md">
               <dt className="text-xs uppercase tracking-wide text-[var(--oc-aluminum-2)]">Crew records represented</dt>
               <dd className="oc-display mt-2 text-3xl text-white">{crewGlobeStats.publicCrewCount}</dd>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/[0.055] p-4">
+            <div className="rounded-xl border border-white/12 bg-white/[0.07] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)] backdrop-blur-md">
               <dt className="text-xs uppercase tracking-wide text-[var(--oc-aluminum-2)]">Locations needing review</dt>
               <dd className="oc-display mt-2 text-3xl text-white">{crewGlobeStats.excludedLocationReviewNeededCount}</dd>
             </div>
           </dl>
         </div>
-        <div data-scroll-animate>{reduce ? <GlobeFallback label="Crew coverage regions" /> : <CrewHeroGlobeDemo markers={crewGlobeMarkers} />}</div>
+        <div data-scroll-animate className="rounded-[1.25rem] border border-white/10 bg-slate-950/20 p-2 shadow-[0_30px_90px_rgba(0,0,0,0.26)] backdrop-blur-sm">
+          {reduce ? <GlobeFallback label="Crew coverage regions" /> : <CrewHeroGlobeDemo markers={crewGlobeMarkers} />}
+        </div>
       </div>
     </section>
   );

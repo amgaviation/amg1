@@ -19,8 +19,8 @@ export default function AmgConnectPage() {
         eyebrow="AMG Connect"
         title="One support view for approved stakeholders."
         lead="Support requests, aircraft profiles, crew review, documents, quotes, invoices, and status updates are organized by role so owners, crews, and administrators can work from the same support picture."
-        image={IMG.mapNetwork}
-        imageAlt="Route and dispatch map used for operational coordination"
+        image={IMG.generatedConnectDashboard}
+        imageAlt="Abstract AMG Connect dashboard view with aviation support panels"
         primary={{ label: "Member Login", href: "/login" }}
         secondary={{ label: "Request Access", href: "/login?mode=request" }}
       />
