@@ -1,21 +1,21 @@
 {
-  "page": "home",
-  "version": 1,
   "seo": {
     "title": "AMG Aviation Group",
     "description": "Professional aviation support coordination for owners, crews, and flight departments."
   },
+  "page": "home",
+  "version": 1,
   "sections": {
     "hero": {
+      "body": "AMG supports owners, flight departments, crews, maintenance events, and mission-specific operational needs through structured coordination and clear communication.",
       "enabled": true,
       "eyebrow": "AMG Aviation Group",
-      "headline": "Aircraft support with operational clarity.",
-      "body": "AMG supports owners, flight departments, crews, maintenance events, and mission-specific operational needs through structured coordination and clear communication.",
-      "primaryCtaLabel": "Request Support",
+      "headline": "Aircraft upport with operational clarity.",
+      "imageKey": "generatedHeroPoster",
       "primaryCtaHref": "/request-support",
-      "secondaryCtaLabel": "Explore Capabilities",
+      "primaryCtaLabel": "Request Support",
       "secondaryCtaHref": "/capabilities",
-      "imageKey": "generatedHeroPoster"
+      "secondaryCtaLabel": "Explore Capabilities"
     }
   }
 }
