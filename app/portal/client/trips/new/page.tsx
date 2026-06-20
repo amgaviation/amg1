@@ -6,6 +6,7 @@ import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { createMission } from "@/app/portal/actions/missions";
 import { listAircraftForClient } from "@/lib/portal/queries";
 import { MISSION_TYPE, URGENCY } from "@/lib/portal/constants";
+import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 
 export const metadata = { title: "New Support Request — Client Portal" };
 
@@ -23,9 +24,9 @@ export default async function NewTripPage({
       {params.error === "missing" ? (
         <Notice tone="danger">Please fill in all required fields (departure and arrival airports).</Notice>
       ) : params.error === "failed" ? (
-        <Notice tone="danger">Could not submit request. Please try again.</Notice>
+        <Notice tone="danger">{getUserFacingErrorMessage({ audience: "client", area: "client_portal", action: "create" })}</Notice>
       ) : params.error === "aircraft" ? (
-        <Notice tone="danger">That aircraft is unavailable for new requests. Please choose another aircraft or contact AMG Operations.</Notice>
+        <Notice tone="danger">{getUserFacingErrorMessage({ audience: "client", area: "aircraft", action: "load", category: "not_found" })}</Notice>
       ) : null}
 
       <PageHeader

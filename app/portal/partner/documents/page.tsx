@@ -9,6 +9,7 @@ import { uploadDocument } from "@/app/portal/actions/documents";
 import { listDocumentsForUser } from "@/lib/portal/queries";
 import { DOCUMENT_STATUS_LABEL, DOCUMENT_STATUS_TONE, DOCUMENT_TYPES, toneFor } from "@/lib/portal/constants";
 import { formatDate } from "@/lib/portal/format";
+import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 
 export const metadata = { title: "Documents - Partner Portal" };
 
@@ -24,7 +25,8 @@ export default async function PartnerDocumentsPage({
     <PortalShell role="partner" user={user}>
       {params.success === "uploaded" ? <Notice tone="success">Document uploaded and submitted for review.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Please provide a document name and file.</Notice> : null}
-      {params.error === "upload" ? <Notice tone="danger">Upload failed. Please try again.</Notice> : null}
+      {params.error === "upload" ? <Notice tone="danger">{getUserFacingErrorMessage({ audience: "vendor", area: "documents", action: "upload", category: "upload_failed" })}</Notice> : null}
+      {params.error && !["missing", "upload"].includes(params.error) ? <Notice tone="danger">{getUserFacingErrorMessage({ audience: "vendor", area: "vendor_portal", action: "update" })}</Notice> : null}
       <PageHeader eyebrow="Service Partner" title="Documents" description="Upload vendor agreements, insurance, airport permits, W-9s, and service documentation." />
       <SectionCard title="Upload Document" icon="fileText">
         <form action={uploadDocument} encType="multipart/form-data">

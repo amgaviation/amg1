@@ -9,6 +9,7 @@ import { uploadDocument } from "@/app/portal/actions/documents";
 import { listDocumentsForUser } from "@/lib/portal/queries";
 import { DOCUMENT_STATUS_LABEL, DOCUMENT_STATUS_TONE, DOCUMENT_TYPES, toneFor } from "@/lib/portal/constants";
 import { formatDate } from "@/lib/portal/format";
+import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 
 export const metadata = { title: "Documents — Client Portal" };
 
@@ -25,7 +26,8 @@ export default async function ClientDocumentsPage({
     <PortalShell role="client" user={user}>
       {params.success === "uploaded" ? <Notice tone="success">Document uploaded and submitted for review.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Please provide a document name, type, and file.</Notice> : null}
-      {params.error === "upload" ? <Notice tone="danger">Upload failed. Please try again with a PDF, JPG, or PNG under 50 MB.</Notice> : null}
+      {params.error === "upload" ? <Notice tone="danger">{getUserFacingErrorMessage({ audience: "client", area: "documents", action: "upload", category: "upload_failed" })}</Notice> : null}
+      {params.error && !["missing", "upload"].includes(params.error) ? <Notice tone="danger">{getUserFacingErrorMessage({ audience: "client", area: "documents", action: "load" })}</Notice> : null}
 
       <PageHeader eyebrow="Owner Services" title="Aircraft Documents" description="Upload and manage aircraft, owner, and mission documents." />
 

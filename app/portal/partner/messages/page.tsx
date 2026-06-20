@@ -7,6 +7,7 @@ import { TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { startThread } from "@/app/portal/actions/messages";
 import { listThreadsForUser } from "@/lib/portal/queries";
 import { formatDateTime } from "@/lib/portal/format";
+import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 
 export const metadata = { title: "Messages - Partner Portal" };
 
@@ -21,7 +22,8 @@ export default async function PartnerMessagesPage({
   return (
     <PortalShell role="partner" user={user}>
       {params.error === "empty" ? <Notice tone="danger">Please enter a message.</Notice> : null}
-      {params.error === "forbidden" ? <Notice tone="danger">That service request cannot be linked to your message.</Notice> : null}
+      {params.error === "forbidden" ? <Notice tone="danger">{getUserFacingErrorMessage({ audience: "vendor", area: "vendor_portal", action: "message", category: "permission" })}</Notice> : null}
+      {params.error && !["empty", "forbidden"].includes(params.error) ? <Notice tone="danger">{getUserFacingErrorMessage({ audience: "vendor", area: "vendor_portal", action: "message" })}</Notice> : null}
       <PageHeader eyebrow="Service Partner" title="Messages" description="Coordinate service work with AMG Operations." />
       <SectionCard title="Start a New Thread" icon="messageSquare">
         <form action={startThread}>

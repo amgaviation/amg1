@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { SafeErrorMessage } from "@/components/ui/safe-error-message";
 import {
   aircraftCategories,
   aircraftStatuses,
@@ -155,13 +156,13 @@ export function SupportRequestForm({
           </div>
         ) : null}
         {error ? (
-          <div role="alert" className="mt-6 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm leading-relaxed text-red-900">
-            {error === "email"
-              ? "The support request was received, but AMG could not send one of the notification emails. AMG has still stored the submission for review."
-              : error === "database"
-                ? "Unable to submit because the support request could not be saved. Please try again."
-                : "Complete the required fields and confirm the acknowledgment before submitting."}
-          </div>
+          error === "missing" ? (
+            <div role="alert" className="mt-6 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm leading-relaxed text-red-900">
+              Complete the required fields and confirm the acknowledgment before submitting.
+            </div>
+          ) : (
+            <SafeErrorMessage area="request_support" action="submit" className="mt-6 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm leading-relaxed text-red-900" />
+          )
         ) : null}
 
         <form action={submitSupportRequest} className="mt-7 grid gap-6">

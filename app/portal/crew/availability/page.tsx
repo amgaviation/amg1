@@ -8,6 +8,7 @@ import { getCrewProfile, listAvailability } from "@/lib/portal/queries";
 import { addAvailabilityWindow, removeAvailabilityWindow, setAvailabilityStatus } from "@/app/portal/actions/crew";
 import { AVAILABILITY_STATUS, AVAILABILITY_STATUS_LABEL, AVAILABILITY_STATUS_TONE, toneFor } from "@/lib/portal/constants";
 import { formatDate } from "@/lib/portal/format";
+import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 
 export const metadata = { title: "Availability - Crew Portal" };
 
@@ -24,6 +25,7 @@ export default async function CrewAvailabilityPage({
     <PortalShell role="crew" user={user}>
       {params.success ? <Notice tone="success">Availability updated.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Start date is required.</Notice> : null}
+      {params.error && params.error !== "missing" ? <Notice tone="danger">{getUserFacingErrorMessage({ audience: "crew", area: "crew_portal", action: "update" })}</Notice> : null}
 
       <PageHeader eyebrow="Flight Crew" title="Availability" description="Keep AMG Operations current on your duty availability and blackout periods." />
 

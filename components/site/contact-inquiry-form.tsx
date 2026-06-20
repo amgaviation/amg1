@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { SafeErrorMessage } from "@/components/ui/safe-error-message";
 import { contactInquiryTypes, preferredContactMethods } from "@/lib/public-form-options";
 
 function SubmitButton() {
@@ -75,13 +76,13 @@ export function ContactInquiryForm({
           </div>
         ) : null}
         {error ? (
-          <div role="alert" className="mb-5 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm leading-relaxed text-red-900">
-            {error === "email"
-              ? "The inquiry was received, but AMG could not send one of the notification emails. AMG has still stored the submission for review."
-              : error === "database"
-                ? "Unable to submit because the inquiry could not be saved. Please try again."
-                : "Complete the required fields and confirm the acknowledgment before submitting."}
-          </div>
+          error === "missing" ? (
+            <div role="alert" className="mb-5 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm leading-relaxed text-red-900">
+              Complete the required fields and confirm the acknowledgment before submitting.
+            </div>
+          ) : (
+            <SafeErrorMessage area="public_contact" action="submit" className="mb-5 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm leading-relaxed text-red-900" />
+          )
         ) : null}
         <form action={submitContactInquiry} className="grid gap-5">
           <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />

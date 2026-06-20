@@ -2,6 +2,7 @@ import { ArrowRight } from "lucide-react";
 import { requestPasswordReset } from "@/app/portal/actions/auth";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { PortalAccessShell } from "@/components/site/portal-access-shell";
+import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 
 export const metadata = {
   title: "Reset AMG Portal Password",
@@ -18,7 +19,7 @@ export default async function ForgotPasswordPage({
     <PortalAccessShell
       eyebrow="AMG Portal"
       title="Reset password"
-      description="Enter the email tied to your approved portal account. If it exists, Supabase will send a secure reset link."
+      description="Enter the email tied to your approved portal account. If it exists and is eligible, AMG will send a secure reset link."
     >
       {params.success === "sent" ? (
         <div className="mt-5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
@@ -27,7 +28,9 @@ export default async function ForgotPasswordPage({
       ) : null}
       {params.error ? (
         <div className="mt-5 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-red-200">
-          {params.error === "missing" ? "Enter your email address." : "The reset link could not be sent."}
+          {params.error === "missing"
+            ? "Enter your email address."
+            : getUserFacingErrorMessage({ audience: "public", area: "auth", action: "update" })}
         </div>
       ) : null}
       <form action={requestPasswordReset} className="mt-6 grid gap-4">
