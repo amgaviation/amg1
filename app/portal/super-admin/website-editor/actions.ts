@@ -25,6 +25,14 @@ function safeErrorMessage(error: unknown) {
   return "Website Editor action could not be completed.";
 }
 
+function logDatabaseFailure(action: string, error: unknown, context: Record<string, unknown>) {
+  console.error("Website Editor database operation failed", {
+    action,
+    ...context,
+    error,
+  });
+}
+
 async function logEditorEvent(input: {
   draftId?: string | null;
   pageSlug: WebsiteContentSlug;
@@ -88,7 +96,14 @@ export async function saveWebsiteContentDraft(formData: FormData) {
         .select("id")
         .single();
 
-  if (result.error || !result.data?.id) redirect(editorPath(slug, "save-failed"));
+  if (result.error || !result.data?.id) {
+    logDatabaseFailure(existing?.id ? "save_draft_update" : "save_draft_insert", result.error, {
+      pageSlug: slug,
+      draftId: existing?.id ?? null,
+      actorUserId: user.id,
+    });
+    redirect(editorPath(slug, "save-failed"));
+  }
   await logEditorEvent({
     draftId: result.data.id,
     pageSlug: slug,
@@ -258,7 +273,14 @@ export async function createRollbackDraft(formData: FormData) {
     })
     .select("id")
     .single();
-  if (error || !created?.id) redirect(editorPath(slug, "rollback-failed"));
+  if (error || !created?.id) {
+    logDatabaseFailure("rollback_draft_insert", error, {
+      pageSlug: slug,
+      sourceDraftId: draftId,
+      actorUserId: user.id,
+    });
+    redirect(editorPath(slug, "rollback-failed"));
+  }
   await logEditorEvent({
     draftId: created.id,
     pageSlug: slug,
