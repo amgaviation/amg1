@@ -50,6 +50,11 @@ export default async function AdminSettingsPage({
               Manage protected billing settings
             </Link>
           </p>
+          <p>
+            <Link href="/portal/admin/compliance" className="text-accent hover:underline">
+              Review legal notices, privacy requests, consent events, and compliance controls
+            </Link>
+          </p>
         </div>
       </SectionCard>
       <AccountSecurityForm email={user.email} backTo="/portal/admin/settings" />

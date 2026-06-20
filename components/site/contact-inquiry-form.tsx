@@ -144,7 +144,23 @@ export function ContactInquiryForm({
             <input name="acknowledgment" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
             <span>
               I understand that submitting this contact form does not confirm support acceptance, crew availability,
-              aircraft movement, or operational approval.
+              aircraft movement, or operational approval. I have reviewed the <Link href="/privacy-policy" className="font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">Privacy Policy</Link> and <Link href="/terms" className="font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">Terms</Link>.
+            </span>
+          </label>
+
+          <label className="flex items-start gap-3 rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
+            <input name="marketing_consent" value="yes" type="checkbox" className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
+            <span>
+              I agree to receive optional AMG email updates. Transactional emails about this inquiry may still be sent
+              without marketing consent. See the <Link href="/legal/email-communications" className="font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">Email Communications Notice</Link>.
+            </span>
+          </label>
+
+          <label className="flex items-start gap-3 rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
+            <input name="sms_consent" value="yes" type="checkbox" className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
+            <span>
+              I agree to receive optional AMG text messages about this inquiry or related operational administration.
+              Message and data rates may apply. See the <Link href="/legal/sms-terms" className="font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">SMS Terms</Link>.
             </span>
           </label>
 

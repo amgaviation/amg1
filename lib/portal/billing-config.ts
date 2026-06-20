@@ -41,11 +41,11 @@ export const DEFAULT_BILLING_SETTINGS: BillingSettings = {
   ach_instructions: "ACH details are available from AMG Aviation Group Billing.",
   check_instructions: "Checks are payable to AMG Aviation Group unless otherwise directed in writing.",
   quote_terms:
-    "Quotes are estimates based on currently available mission details and are subject to aircraft availability, crew availability, operating conditions, fuel, taxes, fees, and final dispatch review.",
+    "Quotes are estimates based on currently available support details and are subject to aircraft status, crew availability, owner/operator approval, operating conditions, fuel, taxes, fees, and final AMG review.",
   invoice_terms:
     "Invoices are due according to the terms shown on the invoice. Late, third-party, bank, wire, processing, airport, handling, international, and operational pass-through charges may be billed separately when applicable.",
   quote_disclaimer:
-    "This quote does not constitute a binding charter contract until accepted and confirmed by AMG Aviation Group in writing.",
+    "This quote does not constitute mission acceptance, aircraft availability, crew assignment, operational authorization, or a binding commitment until the applicable support scope is reviewed and confirmed by AMG Aviation Group in writing.",
   invoice_disclaimer:
     "This invoice reflects services, expenses, and pass-through charges known at issue. Additional verified charges may be invoiced separately.",
   receipt_disclaimer:

@@ -10,6 +10,10 @@ export type ErrorArea =
   | "vendor_portal"
   | "admin_portal"
   | "communications"
+  | "privacy_choices"
+  | "cookie_consent"
+  | "legal_pages"
+  | "consent"
   | "billing"
   | "quotes"
   | "invoices"
@@ -38,6 +42,8 @@ export type ErrorAction =
   | "quote"
   | "invoice"
   | "message"
+  | "privacy_request"
+  | "consent"
   | "unknown";
 export type ErrorCategory =
   | "unavailable"
@@ -81,6 +87,22 @@ const areaActionMessages: Partial<Record<ErrorArea, Partial<Record<ErrorAction, 
   },
   pilot_network: {
     submit: `Your crew submission could not be completed at this time. ${contact}`,
+  },
+  privacy_choices: {
+    submit: `This privacy request could not be submitted at this time. ${contact}`,
+    privacy_request: `This privacy request could not be submitted at this time. ${contact}`,
+    load: `This privacy choices page is not available right now. ${contact}`,
+  },
+  cookie_consent: {
+    save: `Cookie preferences could not be stored on the server right now. Your browser preferences remain saved on this device.`,
+    consent: `Cookie preferences could not be stored on the server right now. Your browser preferences remain saved on this device.`,
+  },
+  legal_pages: {
+    load: `This legal notice is not available right now. ${contact}`,
+  },
+  consent: {
+    save: `Consent preferences could not be stored on the server right now. Your browser preferences remain saved on this device.`,
+    consent: `Consent preferences could not be stored on the server right now. Your browser preferences remain saved on this device.`,
   },
   communications: {
     load: `Messages are not available right now. ${contact}`,

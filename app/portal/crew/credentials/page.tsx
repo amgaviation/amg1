@@ -29,6 +29,12 @@ export default async function CrewCredentialsPage({
       <PageHeader eyebrow="Flight Crew" title="Credentials" description="Upload certificates, medicals, passports, recurrent training, and insurance approvals." />
 
       <SectionCard title="Submit Credential" icon="badgeCheck">
+        <Notice tone="info">
+          Credential uploads are reviewed for assignment suitability and do not guarantee approval or work. Upload only
+          documents you are authorized to provide. Review the{" "}
+          <Link href="/legal/credential-submission" className="font-semibold text-accent hover:underline">Credential Submission Notice</Link>{" "}
+          and <Link href="/legal/document-upload-terms" className="font-semibold text-accent hover:underline">Document Upload Terms</Link>.
+        </Notice>
         <form action={addCredential} encType="multipart/form-data" className="grid gap-4 lg:grid-cols-4">
           <SelectField label="Credential Type" name="credential_type" required defaultValue="" placeholder="Select type..." options={CREDENTIAL_TYPES.map((t) => ({ value: t, label: t }))} />
           <TextField label="Identifier" name="identifier" placeholder="Certificate or document number" />

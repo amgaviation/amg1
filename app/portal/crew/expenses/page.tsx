@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, EmptyState, Notice } from "@/components/portal/ui/primitives";
@@ -30,6 +31,11 @@ export default async function CrewExpensesPage({
       <PageHeader eyebrow="Flight Crew" title="Expenses" description="Submit mission expenses with receipts for AMG review and payment tracking." />
 
       <SectionCard title="Submit Expense" icon="receipt">
+        <Notice tone="info">
+          Upload only receipts you are authorized to submit for review. Do not upload full card numbers, CVV codes, or
+          unrelated sensitive data. Review the{" "}
+          <Link href="/legal/document-upload-terms" className="font-semibold text-accent hover:underline">Document Upload Terms</Link>.
+        </Notice>
         <form action={submitExpense} encType="multipart/form-data" className="grid gap-4 lg:grid-cols-4">
           <SelectField label="Mission" name="mission_id" defaultValue="" options={[{ value: "", label: "General / unassigned" }, ...missions.map((m) => ({ value: m.id, label: `${m.ref} - ${m.departure_airport ?? ""}-${m.arrival_airport ?? ""}` }))]} />
           <SelectField label="Category" name="category" required defaultValue="" placeholder="Select category..." options={EXPENSE_CATEGORIES.map((c) => ({ value: c.value, label: c.label }))} />

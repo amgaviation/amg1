@@ -57,6 +57,11 @@ export default async function AdminDocumentsPage({
       {params.error === "upload" ? <Notice tone="danger">Upload failed. Use a PDF, JPG, or PNG under 50 MB.</Notice> : null}
       <PageHeader eyebrow="AMG Operations" title="Documents" description="Review uploaded client, crew, partner, and operations documents." />
       <SectionCard title="Upload Document" icon="fileText">
+        <Notice tone="info">
+          Upload only documents AMG is authorized to store and review. Avoid full card, CVV, raw bank, unrelated medical,
+          or unnecessary sensitive data. Review the{" "}
+          <Link href="/legal/document-upload-terms" className="font-semibold text-accent hover:underline">Document Upload Terms</Link>.
+        </Notice>
         <form action={uploadDocument} encType="multipart/form-data" className="grid gap-4 lg:grid-cols-4">
           <input type="hidden" name="back_to" value="/portal/admin/documents" />
           <TextField label="Document Name" name="name" required />

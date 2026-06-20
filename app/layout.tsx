@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Montserrat } from "next/font/google";
+import { CookieConsentBanner } from "@/components/compliance/cookie-consent";
+import { ConsentScriptLoader } from "@/components/compliance/consent-script-loader";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -59,6 +61,8 @@ export default function RootLayout({
         }
       >
         {children}
+        <CookieConsentBanner />
+        <ConsentScriptLoader />
       </body>
     </html>
   );

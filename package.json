@@ -9,6 +9,7 @@
     "media:audit": "node scripts/audit-media-uniqueness.ts",
     "forms:verify": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-public-form-normalization.mjs",
     "communications:verify": "node scripts/verify-communications-center.mjs",
+    "compliance:verify": "node scripts/verify-compliance-foundation.mjs",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "npm run typecheck"

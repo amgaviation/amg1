@@ -29,6 +29,7 @@ export type NormalizedPublicFormSubmission = {
   message: string | null;
   acknowledgement: boolean;
   marketingConsent: boolean | null;
+  smsConsent: boolean | null;
   payload: PublicFormPayload;
 };
 
@@ -42,6 +43,7 @@ const BOOLEAN_FIELDS = new Set([
   "acknowledgment",
   "acknowledgement",
   "marketing_consent",
+  "sms_consent",
   "privacy_consent",
   "terms_acknowledgment",
 ]);
@@ -229,6 +231,7 @@ function baseSubmission(
     ]),
     acknowledgement: boolField(formData, ["acknowledgment", "acknowledgement", "terms_acknowledgment"]),
     marketingConsent: optionalBoolField(formData, ["marketing_consent"]),
+    smsConsent: optionalBoolField(formData, ["sms_consent"]),
     payload: formDataToPayload(formData),
   };
 }
@@ -316,6 +319,7 @@ export function publicFormDatabaseRow(
     requested_support_summary: submission.submissionType === "support_request" ? submission.message : null,
     acknowledgement: submission.acknowledgement,
     marketing_consent: submission.marketingConsent ?? false,
+    sms_consent: submission.smsConsent ?? false,
     source_url: context?.sourceUrl ?? null,
     referrer: context?.referrer ?? null,
     user_agent: context?.userAgent ?? null,
