@@ -28,6 +28,7 @@ export default async function AdminBillingSettingsPage({
       {params.success === "confirmed" ? <Notice tone="success">Billing settings unlocked for this session.</Notice> : null}
       {params.success === "saved" ? <Notice tone="success">Billing settings saved for future documents.</Notice> : null}
       {params.error === "confirm" ? <Notice tone="danger">Confirm your admin password before editing billing settings.</Notice> : null}
+      {params.error === "payment-data" ? <Notice tone="danger">Remove full card numbers, CVV codes, bank account numbers, or routing numbers before saving billing settings.</Notice> : null}
 
       <PageHeader
         eyebrow="Admin Settings"
@@ -64,6 +65,10 @@ export default async function AdminBillingSettingsPage({
           </SectionCard>
 
           <SectionCard title="Payment Instructions" icon="wallet">
+            <Notice tone="info">
+              Do not enter full credit card numbers, CVV codes, bank account numbers, or routing numbers. AMG does not
+              process payment card or bank account payments through this website or portal.
+            </Notice>
             <div className="grid gap-4 md:grid-cols-2">
               <TextAreaField label="General Instructions" name="payment_instructions" defaultValue={settings.payment_instructions ?? ""} />
               <TextAreaField label="Wire Instructions" name="wire_instructions" defaultValue={settings.wire_instructions ?? ""} />

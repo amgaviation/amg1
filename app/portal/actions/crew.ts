@@ -5,6 +5,10 @@ import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
 import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
+import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
+import { normalizeDocumentCategory } from "@/lib/compliance/document-classification";
+import { recordComplianceEvidence } from "@/lib/compliance/evidence";
+import { detectProhibitedPaymentData } from "@/lib/compliance/payment-data-guard";
 import { actor, bool, num, str } from "./_helpers";
 
 function arr(formData: FormData, key: string): string[] {
@@ -155,6 +159,26 @@ export async function addCredential(formData: FormData) {
   const db = (await createServiceClient()) as any;
   const type = str(formData, "credential_type");
   if (!type) redirect("/portal/crew/credentials?error=missing");
+  if (str(formData, "document_terms_acknowledged") !== "accepted") {
+    redirect("/portal/crew/credentials?error=terms");
+  }
+  const paymentFindings = detectProhibitedPaymentData({
+    credential_type: type,
+    identifier: str(formData, "identifier"),
+  });
+  if (paymentFindings.length) {
+    await recordComplianceEvidence({
+      actor: user,
+      audience: "crew",
+      eventType: "no_online_payment_notice_acknowledged",
+      eventArea: "security",
+      policyKey: POLICY_KEYS.noOnlinePayment,
+      policyVersion: COMPLIANCE_POLICY_VERSION,
+      acknowledgmentText: ACKNOWLEDGMENT_TEXT.noOnlinePayment,
+      metadata: { action: "credential_upload_blocked", fields: paymentFindings.map((finding) => finding.field) },
+    });
+    redirect("/portal/crew/credentials?error=payment-data");
+  }
 
   let documentId: string | null = null;
   const file = formData.get("file");
@@ -183,6 +207,10 @@ export async function addCredential(formData: FormData) {
           visibility: "crew",
           uploaded_by: user.id,
           status: "pending_review",
+          compliance_category: normalizeDocumentCategory(type),
+          access_level: "crew_visible",
+          policy_version: COMPLIANCE_POLICY_VERSION,
+          terms_acknowledged_at: new Date().toISOString(),
         })
         .select("id")
         .single();
@@ -206,6 +234,30 @@ export async function addCredential(formData: FormData) {
     detail: `Uploaded ${type}`,
     entityType: "credential",
   });
+  await recordComplianceEvidence({
+    actor: user,
+    audience: "crew",
+    eventType: "credential_notice_acknowledged",
+    eventArea: "credentials",
+    relatedRecordType: "document",
+    relatedRecordId: documentId,
+    policyKey: POLICY_KEYS.credentialSubmissionNotice,
+    policyVersion: COMPLIANCE_POLICY_VERSION,
+    acknowledgmentText: ACKNOWLEDGMENT_TEXT.credentialUpload,
+    metadata: { credentialType: type },
+  });
+  await recordComplianceEvidence({
+    actor: user,
+    audience: "crew",
+    eventType: "document_terms_acknowledged",
+    eventArea: "documents",
+    relatedRecordType: "document",
+    relatedRecordId: documentId,
+    policyKey: POLICY_KEYS.documentUploadTerms,
+    policyVersion: COMPLIANCE_POLICY_VERSION,
+    acknowledgmentText: ACKNOWLEDGMENT_TEXT.documentUpload,
+    metadata: { credentialType: type },
+  });
   await notifyAdmins({
     title: "Credential submitted",
     body: `${user.name} submitted ${type} for review.`,
@@ -221,6 +273,23 @@ export async function submitExpense(formData: FormData) {
   const amount = num(formData, "amount");
   const category = str(formData, "category");
   const missionId = str(formData, "mission_id") || null;
+  const paymentFindings = detectProhibitedPaymentData({
+    merchant: str(formData, "merchant"),
+    notes: str(formData, "notes"),
+  });
+  if (paymentFindings.length) {
+    await recordComplianceEvidence({
+      actor: user,
+      audience: "crew",
+      eventType: "no_online_payment_notice_acknowledged",
+      eventArea: "security",
+      policyKey: POLICY_KEYS.noOnlinePayment,
+      policyVersion: COMPLIANCE_POLICY_VERSION,
+      acknowledgmentText: ACKNOWLEDGMENT_TEXT.noOnlinePayment,
+      metadata: { action: "expense_submission_blocked", fields: paymentFindings.map((finding) => finding.field) },
+    });
+    redirect("/portal/crew/expenses?error=payment-data");
+  }
   if (!amount || amount <= 0 || !category) {
     redirect("/portal/crew/expenses?error=invalid");
   }

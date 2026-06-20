@@ -18,7 +18,7 @@ export default async function ClientQuoteDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ success?: string }>;
+  searchParams: Promise<{ success?: string; error?: string }>;
 }) {
   const user = await requireRole("client");
   const { id } = await params;
@@ -33,6 +33,7 @@ export default async function ClientQuoteDetailPage({
     <PortalShell role="client" user={user}>
       {sp.success === "approved" ? <Notice tone="success">Quote approved. AMG Operations will continue the required operational review before any request is considered accepted.</Notice> : null}
       {sp.success === "rejected" ? <Notice tone="warn">Quote rejected. AMG Operations will follow up.</Notice> : null}
+      {sp.error === "terms" ? <Notice tone="danger">Confirm the quote terms and operational review notice before approving.</Notice> : null}
 
       <PageHeader
         eyebrow={quote.ref}
@@ -108,23 +109,33 @@ export default async function ClientQuoteDetailPage({
 
           {canRespond ? (
             <SectionCard title="Your Response" icon="receipt">
-              <p className="mb-4 text-sm text-muted-foreground">Review the line items above and approve to authorize AMG to proceed.</p>
-              <div className="flex gap-3">
-                <form action={respondToQuote}>
+              <p className="mb-4 text-sm text-muted-foreground">
+                Review the line items above. Approving the quote authorizes AMG to continue billing and support review;
+                it does not create mission acceptance, aircraft availability, crew assignment, operational authorization,
+                or online payment processing.
+              </p>
+              <div className="flex flex-col gap-3">
+                <form action={respondToQuote} className="grid gap-3">
                   <input type="hidden" name="quote_id" value={quote.id} />
                   <input type="hidden" name="decision" value="approved" />
+                  <label className="flex items-start gap-3 rounded-lg border border-border bg-background/60 p-3 text-sm text-muted-foreground">
+                    <input name="quote_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-accent" />
+                    <span>I acknowledge the quote terms, support review disclaimer, and no-online-payment notice.</span>
+                  </label>
                   <SubmitButton className="rounded-full" pendingText="Approving…">Approve Quote</SubmitButton>
                 </form>
-                <form action={respondToQuote}>
-                  <input type="hidden" name="quote_id" value={quote.id} />
-                  <input type="hidden" name="decision" value="revision_requested" />
-                  <SubmitButton variant="outline" className="rounded-full" pendingText="Sending…">Request Changes</SubmitButton>
-                </form>
-                <form action={respondToQuote}>
-                  <input type="hidden" name="quote_id" value={quote.id} />
-                  <input type="hidden" name="decision" value="rejected" />
-                  <SubmitButton variant="outline" className="rounded-full" pendingText="Rejecting…">Reject</SubmitButton>
-                </form>
+                <div className="flex gap-3">
+                  <form action={respondToQuote}>
+                    <input type="hidden" name="quote_id" value={quote.id} />
+                    <input type="hidden" name="decision" value="revision_requested" />
+                    <SubmitButton variant="outline" className="rounded-full" pendingText="Sending…">Request Changes</SubmitButton>
+                  </form>
+                  <form action={respondToQuote}>
+                    <input type="hidden" name="quote_id" value={quote.id} />
+                    <input type="hidden" name="decision" value="rejected" />
+                    <SubmitButton variant="outline" className="rounded-full" pendingText="Rejecting…">Reject</SubmitButton>
+                  </form>
+                </div>
               </div>
             </SectionCard>
           ) : null}

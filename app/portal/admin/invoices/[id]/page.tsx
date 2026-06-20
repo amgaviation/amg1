@@ -72,6 +72,7 @@ export default async function AdminInvoiceDetailPage({
       {flash.success ? <Notice tone="success">Invoice updated.</Notice> : null}
       {flash.error === "duplicate" ? <Notice tone="danger">This quote already has an active invoice.</Notice> : null}
       {flash.error === "payment-required" ? <Notice tone="danger">Record a payment to mark this invoice paid.</Notice> : null}
+      {flash.error === "payment-data" ? <Notice tone="danger">Remove full card numbers, CVV codes, bank account numbers, or routing numbers before recording payment details.</Notice> : null}
       {flash.error === "locked" ? <Notice tone="danger">This invoice is locked because it is paid, void, or written off.</Notice> : null}
       {flash.error === "revision" ? <Notice tone="danger">An invoice revision could not be created.</Notice> : null}
       <PageHeader
@@ -203,6 +204,10 @@ export default async function AdminInvoiceDetailPage({
 
           {!lockedInvoice ? (
             <SectionCard title="Record Payment" icon="wallet">
+              <Notice tone="info">
+                Record payment status only. Do not enter full card numbers, CVV codes, bank account numbers, or routing
+                numbers. AMG does not process payment card or bank account payments through this portal.
+              </Notice>
               <form action={recordInvoicePayment} className="space-y-4">
                 <input type="hidden" name="invoice_id" value={invoice.id} />
                 <TextField label="Amount" name="amount" type="number" min="0" step="0.01" defaultValue={String(invoice.amount_due)} required />

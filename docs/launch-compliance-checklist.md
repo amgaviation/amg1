@@ -1,0 +1,27 @@
+# Launch Compliance Checklist
+
+- Legal pages are live and linked.
+- Cookie consent works.
+- Non-essential scripts are gated.
+- Privacy Choices form works.
+- No raw technical errors in public/client/crew/vendor UI.
+- Support Request disclaimer visible.
+- No prohibited aviation claims.
+- No “Book Now,” “Pay Now,” or “AMG fleet” wording unless approved.
+- Portal terms/action acknowledgments are recorded.
+- Document upload terms are shown.
+- Sensitive files are private.
+- Signed URLs/authenticated downloads work.
+- Cross-client data access is blocked.
+- Admin MFA is enforced or formally flagged as required.
+- Admin permission review completed.
+- Quote/invoice audit events work.
+- Marketing consent is separate from transactional contact.
+- SMS consent is separate from phone collection.
+- Asset registry has no public assets marked remove_before_launch.
+- Accessibility smoke test completed.
+- Mobile/tablet flows tested.
+- No secrets exposed.
+- No service-role keys in client bundle.
+- Build/lint/typecheck pass.
+- Rollback branch/deployment identified.

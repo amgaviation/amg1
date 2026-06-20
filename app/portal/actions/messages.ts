@@ -5,6 +5,9 @@ import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
 import { outboundMessageSenderLabel } from "@/lib/portal/message-display";
+import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
+import { recordComplianceEvidence } from "@/lib/compliance/evidence";
+import { detectProhibitedPaymentData } from "@/lib/compliance/payment-data-guard";
 import { actor, safeRedirectPath, str } from "./_helpers";
 
 async function verifyThreadMissionReference(
@@ -55,6 +58,20 @@ export async function postMessage(formData: FormData) {
   const requestedBackTo = safeRedirectPath(str(formData, "back_to"), messagesRoot);
   const backTo = requestedBackTo.startsWith(messagesRoot) ? requestedBackTo : messagesRoot;
   if (!threadId || !body) redirect(`${backTo}?error=empty`);
+  const paymentFindings = detectProhibitedPaymentData({ body });
+  if (paymentFindings.length) {
+    await recordComplianceEvidence({
+      actor: user,
+      audience: user.role,
+      eventType: "no_online_payment_notice_acknowledged",
+      eventArea: "communications",
+      policyKey: POLICY_KEYS.noOnlinePayment,
+      policyVersion: COMPLIANCE_POLICY_VERSION,
+      acknowledgmentText: ACKNOWLEDGMENT_TEXT.noOnlinePayment,
+      metadata: { action: "portal_message_blocked", fields: paymentFindings.map((finding) => finding.field) },
+    });
+    redirect(`${backTo}?error=payment-data`);
+  }
 
   // Authorize: admin or thread member
   if (user.role !== "admin") {
@@ -119,6 +136,20 @@ export async function startThread(formData: FormData) {
   const body = str(formData, "body");
   const missionId = str(formData, "mission_id") || null;
   if (!body) redirect(`/portal/${user.role}/messages?error=empty`);
+  const paymentFindings = detectProhibitedPaymentData({ title, body });
+  if (paymentFindings.length) {
+    await recordComplianceEvidence({
+      actor: user,
+      audience: user.role,
+      eventType: "no_online_payment_notice_acknowledged",
+      eventArea: "communications",
+      policyKey: POLICY_KEYS.noOnlinePayment,
+      policyVersion: COMPLIANCE_POLICY_VERSION,
+      acknowledgmentText: ACKNOWLEDGMENT_TEXT.noOnlinePayment,
+      metadata: { action: "portal_thread_blocked", fields: paymentFindings.map((finding) => finding.field) },
+    });
+    redirect(`/portal/${user.role}/messages?error=payment-data`);
+  }
   if (missionId && !(await verifyThreadMissionReference(db, user, missionId))) {
     redirect(`/portal/${user.role}/messages?error=forbidden`);
   }

@@ -27,6 +27,7 @@ export default async function CrewExpensesPage({
       {params.error === "invalid" ? <Notice tone="danger">Enter a valid category and amount.</Notice> : null}
       {params.error === "forbidden" ? <Notice tone="danger">Select one of your assigned missions for mission-related expenses.</Notice> : null}
       {params.error === "upload" ? <Notice tone="danger">Receipt upload failed. Use a PDF, JPG, or PNG under 50 MB.</Notice> : null}
+      {params.error === "payment-data" ? <Notice tone="danger">Remove full card numbers, CVV codes, bank account numbers, or routing numbers before submitting.</Notice> : null}
 
       <PageHeader eyebrow="Flight Crew" title="Expenses" description="Submit mission expenses with receipts for AMG review and payment tracking." />
 

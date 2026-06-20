@@ -88,6 +88,7 @@ export const PORTAL_NAV: Record<PortalRole, NavItem[]> = {
     { label: "Documents", href: "/portal/admin/documents", icon: "fileText" },
     { label: "Expenses", href: "/portal/admin/expenses", icon: "wallet" },
     { label: "Compliance", href: "/portal/admin/compliance", icon: "shield" },
+    { label: "Security Review", href: "/portal/admin/security-review", icon: "shield" },
     { label: "User Approvals", href: "/portal/admin/user-approvals", icon: "userCheck" },
     { label: "All Users", href: "/portal/admin/users", icon: "userCheck" },
     { label: "Audit Log", href: "/portal/admin/audit-log", icon: "history" },

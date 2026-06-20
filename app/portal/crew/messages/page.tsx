@@ -24,8 +24,10 @@ export default async function CrewMessagesPage({
     <PortalShell role="crew" user={user}>
       {params.error === "empty" ? <Notice tone="danger">Please enter a message.</Notice> : null}
       {params.error === "forbidden" ? <Notice tone="danger">{getUserFacingErrorMessage({ audience: "crew", area: "communications", action: "message", category: "permission" })}</Notice> : null}
-      {params.error && !["empty", "forbidden"].includes(params.error) ? <Notice tone="danger">{getUserFacingErrorMessage({ audience: "crew", area: "communications", action: "message" })}</Notice> : null}
+      {params.error === "payment-data" ? <Notice tone="danger">Remove full card numbers, CVV codes, bank account numbers, or routing numbers before sending.</Notice> : null}
+      {params.error && !["empty", "forbidden", "payment-data"].includes(params.error) ? <Notice tone="danger">{getUserFacingErrorMessage({ audience: "crew", area: "communications", action: "message" })}</Notice> : null}
       <PageHeader eyebrow="Flight Crew" title="Messages" description="Direct communication with AMG Operations." />
+      <Notice tone="info">Portal messages do not indicate final acceptance of a support request unless expressly stated by AMG in writing. Do not send full card numbers, CVV codes, bank account numbers, or routing numbers.</Notice>
       <SectionCard title="Start a New Thread" icon="messageSquare">
         <form action={startThread}>
           <div className="grid gap-4 sm:grid-cols-2">

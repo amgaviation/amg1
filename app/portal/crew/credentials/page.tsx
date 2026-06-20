@@ -25,6 +25,8 @@ export default async function CrewCredentialsPage({
     <PortalShell role="crew" user={user}>
       {params.success ? <Notice tone="success">Credential submitted for AMG review.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Credential type is required.</Notice> : null}
+      {params.error === "terms" ? <Notice tone="danger">Confirm the credential and document upload notices before submitting.</Notice> : null}
+      {params.error === "payment-data" ? <Notice tone="danger">Remove full card numbers, CVV codes, bank account numbers, or routing numbers before submitting.</Notice> : null}
 
       <PageHeader eyebrow="Flight Crew" title="Credentials" description="Upload certificates, medicals, passports, recurrent training, and insurance approvals." />
 
@@ -43,6 +45,10 @@ export default async function CrewCredentialsPage({
           <div className="lg:col-span-3">
             <FileField label="Credential File" name="file" accept=".pdf,.jpg,.jpeg,.png" />
           </div>
+          <label className="lg:col-span-4 flex items-start gap-3 rounded-lg border border-border bg-background/60 p-3 text-sm text-muted-foreground">
+            <input name="document_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-accent" />
+            <span>I acknowledge the credential submission notice and document upload terms, and I will not submit full card numbers, CVV codes, bank account numbers, routing numbers, or unrelated sensitive information.</span>
+          </label>
           <div className="flex items-end">
             <SubmitButton className="rounded-full" pendingText="Submitting...">Submit Credential</SubmitButton>
           </div>

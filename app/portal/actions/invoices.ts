@@ -8,6 +8,9 @@ import { combinedPaymentInstructions, getBillingSettings } from "@/lib/portal/bi
 import { createInvoiceDraftFromQuote, generateAndStoreInvoicePdf } from "@/lib/portal/billing-documents";
 import { emailInvoicePdf, emailReceiptPdf } from "@/lib/portal/billing-emails";
 import { nextBillingDocumentNumber } from "@/lib/portal/billing-numbering";
+import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
+import { recordComplianceEvidence } from "@/lib/compliance/evidence";
+import { detectProhibitedPaymentData } from "@/lib/compliance/payment-data-guard";
 import { actor, bool, num, str } from "./_helpers";
 
 function money(formData: FormData, key: string): number {
@@ -390,6 +393,25 @@ export async function recordInvoicePayment(formData: FormData) {
   const invoiceId = str(formData, "invoice_id");
   const amount = money(formData, "amount");
   if (!invoiceId || amount <= 0) redirect("/portal/admin/invoices?error=payment");
+  const paymentFindings = detectProhibitedPaymentData({
+    payment_method: str(formData, "payment_method"),
+    payment_reference: str(formData, "payment_reference"),
+    notes: str(formData, "notes"),
+    internal_notes: str(formData, "internal_notes"),
+  });
+  if (paymentFindings.length) {
+    await recordComplianceEvidence({
+      actor: admin,
+      audience: "admin",
+      eventType: "no_online_payment_notice_acknowledged",
+      eventArea: "billing",
+      policyKey: POLICY_KEYS.noOnlinePayment,
+      policyVersion: COMPLIANCE_POLICY_VERSION,
+      acknowledgmentText: ACKNOWLEDGMENT_TEXT.noOnlinePayment,
+      metadata: { action: "invoice_payment_blocked", fields: paymentFindings.map((finding) => finding.field) },
+    });
+    redirect(`/portal/admin/invoices/${invoiceId}?error=payment-data`);
+  }
 
   const { data: invoice } = await db
     .from("invoices")
@@ -434,6 +456,18 @@ export async function recordInvoicePayment(formData: FormData) {
     detail: `Recorded payment ${amount} on ${invoice.invoice_number}`,
     entityType: "invoice",
     entityId: invoiceId,
+  });
+  await recordComplianceEvidence({
+    actor: admin,
+    audience: "admin",
+    eventType: "payment_marked_paid",
+    eventArea: "billing",
+    relatedRecordType: "invoice",
+    relatedRecordId: invoiceId,
+    policyKey: POLICY_KEYS.noOnlinePayment,
+    policyVersion: COMPLIANCE_POLICY_VERSION,
+    acknowledgmentText: ACKNOWLEDGMENT_TEXT.noOnlinePayment,
+    metadata: { amount, status, paymentId: payment.id },
   });
   if (bool(formData, "send_receipt")) {
     await emailReceiptPdf(payment.id, admin.id).catch((error) => {
