@@ -3,14 +3,14 @@
   "version": 1,
   "seo": {
     "title": "About AMG Aviation",
-    "description": "AMG Aviation provides disciplined aviation support coordination for aircraft owners, operators, crews, and aviation professionals."
+    "description": "AMG Aviation Group identity, operating philosophy, support structure, and responsibilities."
   },
   "sections": {
     "hero": {
       "enabled": true,
       "eyebrow": "About AMG Aviation",
       "headline": "Operational support built around clear communication.",
-      "body": "AMG Aviation coordinates aviation support through reviewed requests, trusted relationships, and practical operating discipline.",
+      "body": "AMG Aviation coordinates the communication, documentation, and review work around aircraft support while keeping operating authority and aircraft approvals clearly assigned.",
       "primaryCtaLabel": "Request Support",
       "primaryCtaHref": "/request-support",
       "secondaryCtaLabel": "Contact AMG Aviation",

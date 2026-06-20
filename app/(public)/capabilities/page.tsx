@@ -1,25 +1,14 @@
 import Link from "next/link";
-import type { LucideIcon } from "lucide-react";
 import {
   AlertTriangle,
   ArrowRight,
   ArrowUpRight,
-  Building2,
-  CalendarClock,
   CheckCircle2,
   ChevronDown,
-  ClipboardCheck,
   Compass,
-  Eye,
-  Plane,
-  RadioTower,
-  Route,
   ShieldCheck,
-  Users,
-  Wrench,
 } from "lucide-react";
 import { PageHero, Figure } from "@/components/site/oc/shared";
-import { cn } from "@/lib/utils";
 import { IMG } from "@/lib/site-media";
 import { heroForWebsiteContent, metadataForWebsiteContent } from "@/lib/website-editor/content";
 
@@ -28,61 +17,6 @@ export const metadata = metadataForWebsiteContent("services", {
   description:
     "Structured AMG Aviation Group capabilities for aircraft support review, crew coordination, ferry and repositioning, maintenance movement, flight operations coordination, fleet support, plans, and owner/operator visibility.",
 });
-
-const CAPABILITIES: {
-  title: string;
-  body: string;
-  icon: LucideIcon;
-  emphasis?: boolean;
-}[] = [
-  {
-    title: "Aircraft Support Review",
-    body: "Request intake organized around aircraft status, support scope, timing, operating authority, and known constraints.",
-    icon: ClipboardCheck,
-    emphasis: true,
-  },
-  {
-    title: "Crew Coordination",
-    body: "Pilot and crew coverage reviewed against aircraft type, qualification fit, availability, insurance context, and assignment suitability.",
-    icon: Users,
-  },
-  {
-    title: "Ferry & Repositioning",
-    body: "Movement support routed around aircraft readiness, route environment, airport limitations, documents, and owner/operator approval.",
-    icon: Route,
-  },
-  {
-    title: "Maintenance Movement Support",
-    body: "Maintenance repositioning reviewed with status, records context, facility timing, aircraft limitations, and crew requirement in view.",
-    icon: Wrench,
-  },
-  {
-    title: "Flight Operations Coordination",
-    body: "Operational inputs coordinated so timing, logistics, aircraft context, vendors, and responsible parties stay aligned.",
-    icon: RadioTower,
-  },
-  {
-    title: "Aircraft Management Support",
-    body: "Administrative visibility for aircraft support needs, documents, status communication, and owner/operator coordination.",
-    icon: Building2,
-  },
-  {
-    title: "Fleet Support Programs",
-    body: "Recurring support paths structured for operators managing multiple aircraft, variable timing, and ongoing coordination needs.",
-    icon: Plane,
-  },
-  {
-    title: "Plan / Subscription Review",
-    body: "Support plans reviewed against aircraft class, flight volume, expected movement needs, and required coordination depth.",
-    icon: CalendarClock,
-  },
-  {
-    title: "Owner / Operator Visibility",
-    body: "Support context, request status, documents, quotes, and approved communication kept legible through AMG Connect where applicable.",
-    icon: Eye,
-    emphasis: true,
-  },
-];
 
 const MODEL_STEPS = [
   {
@@ -231,44 +165,6 @@ export default function CapabilitiesPage() {
                 aircraft status, responsible authority, timing, availability, route conditions, and final review.
               </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="oc-section bg-[var(--oc-ivory)]">
-        <div className="oc-shell">
-          <div className="max-w-3xl">
-            <p className="oc-eyebrow text-[var(--oc-blue)]">Capability Overview</p>
-            <h2 className="oc-display mt-4 text-4xl text-[var(--oc-ink)] sm:text-5xl">
-              Practical support areas, reviewed before they move forward.
-            </h2>
-            <p className="mt-5 text-lg leading-relaxed text-[var(--oc-muted)]">
-              AMG keeps the support path structured so owners, operators, crews, and approved representatives can
-              understand what is being reviewed and what remains conditional.
-            </p>
-          </div>
-
-          <div className="mt-12 grid auto-rows-fr gap-5 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
-            {CAPABILITIES.map((capability) => {
-              const Icon = capability.icon;
-              return (
-                <article
-                  key={capability.title}
-                  data-stagger-item
-                  className={cn(
-                    "oc-card flex min-h-[15rem] flex-col p-6 transition-colors hover:border-[var(--oc-navy)]",
-                    capability.emphasis && "lg:col-span-2"
-                  )}
-                >
-                  <div className="flex items-start justify-between gap-5">
-                    <Icon className="h-6 w-6 text-[var(--oc-blue)]" aria-hidden="true" />
-                    <span className="oc-dot mt-1 h-2 w-2" aria-hidden="true" />
-                  </div>
-                  <h3 className="oc-display mt-8 text-2xl text-[var(--oc-ink)]">{capability.title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-[var(--oc-muted)]">{capability.body}</p>
-                </article>
-              );
-            })}
           </div>
         </div>
       </section>
