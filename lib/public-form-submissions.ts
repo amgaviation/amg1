@@ -29,26 +29,40 @@ function labelize(key: string) {
   return key.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function display(value?: string | number | boolean | null) {
-  if (value === undefined || value === null || value === "") return "Not provided";
+function submittedValue(value: string | number | boolean | string[] | null | undefined) {
+  if (value === undefined || value === null || value === "") return null;
+  if (Array.isArray(value)) {
+    const values = value.filter((item) => item.trim());
+    return values.length ? values.join(", ") : null;
+  }
   if (typeof value === "boolean") return value ? "Yes" : "No";
   return String(value);
 }
 
 function payloadText(payload: PublicFormPayload) {
   return Object.entries(payload)
-    .map(([key, value]) => {
-      const rendered = Array.isArray(value) ? value.join(", ") : display(value);
-      return `${labelize(key)}: ${rendered}`;
-    })
+    .map(([key, value]) => ({ label: labelize(key), value: submittedValue(value) }))
+    .filter((row): row is { label: string; value: string } => Boolean(row.value))
+    .map((row) => `${row.label}: ${row.value}`)
     .join("\n");
 }
 
 function payloadRows(payload: PublicFormPayload) {
-  return Object.entries(payload).map(([key, value]) => ({
-    label: labelize(key),
-    value: Array.isArray(value) ? value.join(", ") : display(value),
-  }));
+  return Object.entries(payload)
+    .map(([key, value]) => ({
+      label: labelize(key),
+      value: submittedValue(value),
+    }))
+    .filter((row): row is { label: string; value: string } => Boolean(row.value));
+}
+
+function row(label: string, value?: string | number | boolean | null) {
+  const rendered = submittedValue(value);
+  return rendered ? { label, value: rendered } : null;
+}
+
+function compactRows(rows: Array<{ label: string; value: string } | null>) {
+  return rows.filter((item): item is { label: string; value: string } => Boolean(item));
 }
 
 function subjectFor(submission: NormalizedPublicFormSubmission) {
@@ -63,44 +77,24 @@ function subjectFor(submission: NormalizedPublicFormSubmission) {
 }
 
 function normalizedRows(submission: NormalizedPublicFormSubmission, id: string) {
-  return [
-    { label: "Submission ID", value: id },
-    { label: "Source Page", value: submission.sourcePage },
-    { label: "Submission Type", value: submission.submissionType },
-    { label: "Submitter Name", value: submission.requesterName },
-    { label: "Email", value: submission.email },
-    { label: "Phone", value: submission.phone },
-    { label: "Company / Organization", value: submission.company ?? submission.organization },
-    { label: "Aircraft", value: submission.aircraft },
-    { label: "Aircraft Category", value: submission.aircraftCategory },
-    { label: "Aircraft Status", value: submission.aircraftStatus },
-    { label: "Tail Number", value: submission.tailNumber },
-    { label: "Requested Support / Service", value: submission.supportType ?? submission.serviceInterest },
-    { label: "Crew Need", value: submission.crewNeed },
-    { label: "Route", value: submission.route },
-    { label: "Departure", value: submission.departureAirport },
-    { label: "Arrival", value: submission.arrivalAirport },
-    { label: "Timing", value: submission.timing },
-    { label: "Requested Date", value: submission.requestedDate },
-    { label: "Requested Time", value: submission.requestedTime },
-    { label: "Passenger Context", value: submission.passengerContext },
-    { label: "Acknowledgement", value: submission.acknowledgement },
-    { label: "Marketing Consent", value: submission.marketingConsent },
-  ].map((row) => ({ ...row, value: display(row.value) }));
+  return compactRows([
+    row("Submission ID", id),
+    row("Source Page", submission.sourcePage),
+    row("Submission Type", submission.submissionType === "support_request" ? "Support Request" : "Contact Inquiry"),
+    row("Inquiry / Support Type", submission.supportType ?? submission.serviceInterest),
+  ]);
 }
 
 function buildInternalEmail(submission: NormalizedPublicFormSubmission, id: string) {
   const rows = normalizedRows(submission, id);
+  const submittedRows = payloadRows(submission.payload);
   const payload = payloadText(submission.payload);
   const text = [
     subjectFor(submission),
     "",
-    ...rows.map((row) => `${row.label}: ${display(row.value)}`),
+    ...rows.map((row) => `${row.label}: ${row.value}`),
     "",
-    "Message / Notes:",
-    display(submission.message),
-    "",
-    "Full Payload:",
+    "Submitted Fields:",
     payload || "No payload fields were captured.",
   ].join("\n");
 
@@ -114,16 +108,12 @@ function buildInternalEmail(submission: NormalizedPublicFormSubmission, id: stri
     status: "New",
     sections: [
       {
-        title: "Submission Details",
+        title: "Submission Metadata",
         rows,
       },
       {
-        title: "Message / Notes",
-        body: submission.message || "No message or notes provided.",
-      },
-      {
-        title: "Full Payload",
-        rows: payloadRows(submission.payload),
+        title: "Submitted Fields",
+        rows: submittedRows,
       },
     ],
     footerNote:
@@ -135,10 +125,14 @@ function buildInternalEmail(submission: NormalizedPublicFormSubmission, id: stri
 
 function buildConfirmationEmail(submission: NormalizedPublicFormSubmission, id: string) {
   const requestedCategory = submission.supportType ?? submission.serviceInterest ?? "Website inquiry";
+  const submittedRows = payloadRows(submission.payload);
   const text = [
     `AMG received your ${requestedCategory}.`,
     "",
     `Reference: ${id}`,
+    "",
+    "Submitted Fields:",
+    payloadText(submission.payload) || "No payload fields were captured.",
     "",
     "AMG will review the request before acceptance. Review may depend on support scope, aircraft status, crew availability, owner/operator approvals, route and airport constraints, weather, maintenance status, documentation, and operating conditions.",
     "",
@@ -156,14 +150,14 @@ function buildConfirmationEmail(submission: NormalizedPublicFormSubmission, id: 
     sections: [
       {
         title: "Submission Summary",
-        rows: [
-          { label: "Name", value: submission.requesterName },
-          { label: "Category", value: requestedCategory },
-          { label: "Aircraft", value: submission.aircraft },
-          { label: "Tail Number", value: submission.tailNumber },
-          { label: "Timing", value: submission.timing },
-          { label: "Reference", value: id },
-        ],
+        rows: compactRows([
+          row("Reference", id),
+          row("Category", requestedCategory),
+        ]),
+      },
+      {
+        title: "Submitted Fields",
+        rows: submittedRows,
       },
       {
         title: "Review Required",
