@@ -7,6 +7,7 @@ import { TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { listThreadsForUser } from "@/lib/portal/queries";
 import { startThread } from "@/app/portal/actions/messages";
 import { formatDateTime } from "@/lib/portal/format";
+import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 
 export const metadata = { title: "Messages — Client Portal" };
 
@@ -22,7 +23,8 @@ export default async function ClientMessagesPage({
   return (
     <PortalShell role="client" user={user}>
       {params.error === "empty" ? <Notice tone="danger">Please enter a message.</Notice> : null}
-      {params.error === "forbidden" ? <Notice tone="danger">That mission cannot be linked to your message.</Notice> : null}
+      {params.error === "forbidden" ? <Notice tone="danger">{getUserFacingErrorMessage({ audience: "client", area: "communications", action: "message", category: "permission" })}</Notice> : null}
+      {params.error && !["empty", "forbidden"].includes(params.error) ? <Notice tone="danger">{getUserFacingErrorMessage({ audience: "client", area: "communications", action: "message" })}</Notice> : null}
 
       <PageHeader eyebrow="Owner Services" title="Messages" description="Direct communication with AMG Operations." />
 

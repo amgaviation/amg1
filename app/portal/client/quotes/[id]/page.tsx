@@ -31,7 +31,7 @@ export default async function ClientQuoteDetailPage({
 
   return (
     <PortalShell role="client" user={user}>
-      {sp.success === "approved" ? <Notice tone="success">Quote approved. AMG will proceed with your request.</Notice> : null}
+      {sp.success === "approved" ? <Notice tone="success">Quote approved. AMG Operations will continue the required operational review before any request is considered accepted.</Notice> : null}
       {sp.success === "rejected" ? <Notice tone="warn">Quote rejected. AMG Operations will follow up.</Notice> : null}
 
       <PageHeader

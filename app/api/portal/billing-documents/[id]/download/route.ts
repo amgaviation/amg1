@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/portal/session";
 import { createServiceClient } from "@/lib/supabase/server";
+import { createSafeErrorResponse, logServerError } from "@/lib/errors/user-facing-errors";
 
 export async function GET(
   _request: Request,
@@ -8,7 +9,10 @@ export async function GET(
 ) {
   const user = await getSessionUser();
   if (!user || user.status !== "approved") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      createSafeErrorResponse({ audience: "client", area: "documents", action: "download", category: "permission" }),
+      { status: 401 },
+    );
   }
 
   const { id } = await params;
@@ -20,11 +24,17 @@ export async function GET(
     .maybeSingle();
 
   if (!document) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json(
+      createSafeErrorResponse({ audience: user.role === "admin" ? "admin" : "client", area: "documents", action: "download", category: "not_found" }),
+      { status: 404 },
+    );
   }
 
   if (user.role !== "admin" && document.client_id !== user.id) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return NextResponse.json(
+      createSafeErrorResponse({ audience: "client", area: "documents", action: "download", category: "permission" }),
+      { status: 403 },
+    );
   }
 
   const { data, error } = await db.storage
@@ -32,7 +42,11 @@ export async function GET(
     .download(document.storage_path);
 
   if (error || !data) {
-    return NextResponse.json({ error: "File unavailable" }, { status: 404 });
+    const referenceId = error ? logServerError("Billing document download failed", error, { userId: user.id, documentId: id }) : undefined;
+    return NextResponse.json(
+      createSafeErrorResponse({ audience: user.role === "admin" ? "admin" : "client", area: "documents", action: "download", category: "unavailable", correlationId: referenceId }),
+      { status: 404 },
+    );
   }
 
   return new NextResponse(await data.arrayBuffer(), {

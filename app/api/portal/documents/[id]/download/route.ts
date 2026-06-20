@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { isPortalRole } from "@/lib/portal/constants";
+import { createSafeErrorResponse, logServerError } from "@/lib/errors/user-facing-errors";
 
 export async function GET(
   _req: NextRequest,
@@ -14,7 +15,10 @@ export async function GET(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      createSafeErrorResponse({ audience: "client", area: "documents", action: "download", category: "permission" }),
+      { status: 401 },
+    );
   }
 
   const db = (await createServiceClient()) as any;
@@ -24,7 +28,10 @@ export async function GET(
     .eq("id", user.id)
     .maybeSingle();
   if (!profile || !isPortalRole(profile.role)) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return NextResponse.json(
+      createSafeErrorResponse({ audience: "client", area: "documents", action: "download", category: "permission" }),
+      { status: 403 },
+    );
   }
 
   const { data: doc, error } = await db
@@ -34,7 +41,10 @@ export async function GET(
     .maybeSingle();
 
   if (error || !doc) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json(
+      createSafeErrorResponse({ audience: profile.role === "admin" ? "admin" : profile.role === "crew" ? "crew" : profile.role === "partner" ? "vendor" : "client", area: "documents", action: "download", category: "not_found" }),
+      { status: 404 },
+    );
   }
 
   const allowed =
@@ -43,7 +53,10 @@ export async function GET(
     doc.uploaded_by === user.id ||
     doc.scope_id === user.id;
   if (!allowed) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return NextResponse.json(
+      createSafeErrorResponse({ audience: profile.role === "crew" ? "crew" : profile.role === "partner" ? "vendor" : "client", area: "documents", action: "download", category: "permission" }),
+      { status: 403 },
+    );
   }
 
   // Generate a signed URL (60 second expiry)
@@ -59,7 +72,11 @@ export async function GET(
   }
 
   if (signedError || !signed) {
-    return NextResponse.json({ error: "Could not generate download URL" }, { status: 500 });
+    const referenceId = signedError ? logServerError("Portal document signed URL failed", signedError, { userId: user.id, documentId: id }) : undefined;
+    return NextResponse.json(
+      createSafeErrorResponse({ audience: profile.role === "admin" ? "admin" : profile.role === "crew" ? "crew" : profile.role === "partner" ? "vendor" : "client", area: "documents", action: "download", category: "unavailable", correlationId: referenceId }),
+      { status: 500 },
+    );
   }
 
   return NextResponse.redirect(signed.signedUrl);

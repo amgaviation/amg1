@@ -1,0 +1,34 @@
+{
+  "id": "evt_local_inbound_001",
+  "provider": "resend",
+  "type": "email.received",
+  "data": {
+    "id": "eml_local_inbound_001",
+    "thread_id": "provider-thread-local-001",
+    "from": {
+      "email": "owner.operator@example.com",
+      "name": "Owner Operator"
+    },
+    "to": [
+      {
+        "email": "thread+THR-LOCALTEST@inbound.amgaviationgroup.com"
+      }
+    ],
+    "cc": [],
+    "subject": "[AMG-THR-LOCALTEST] Re: AMG Support Request Update",
+    "text": "AMG team, confirming receipt and adding updated aircraft availability details.",
+    "html": "<p>AMG team, confirming receipt and adding updated aircraft availability details.</p>",
+    "headers": {
+      "message-id": "<eml_local_inbound_001@example.com>",
+      "references": "[AMG-THR-LOCALTEST]"
+    },
+    "attachments": [
+      {
+        "filename": "availability-note.txt",
+        "content_type": "text/plain",
+        "size": 54,
+        "content": "QU1HIHRlc3QgYXR0YWNobWVudCBmb3IgbG9jYWwgd2ViaG9vayB2ZXJpZmljYXRpb24u"
+      }
+    ]
+  }
+}
