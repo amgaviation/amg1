@@ -13,6 +13,10 @@ function normalizeEmail(formData: FormData, key: string): string {
   return str(formData, key).toLowerCase();
 }
 
+function validEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
 function normalizePhone(value: string): string | null {
   if (!value) return null;
   const compact = value.replace(/[\s().-]/g, "");
@@ -26,6 +30,32 @@ function selectedPermissions(formData: FormData): string[] {
 
 function allStrings(formData: FormData, key: string): string[] {
   return formData.getAll(key).map((value) => String(value).trim());
+}
+
+function splitList(value: string): string[] {
+  return value
+    .split(/[,;\n]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function controlledProfileStatus(value: string) {
+  return PROFILE_STATUS.some((item) => item.value === value) ? value : "pending";
+}
+
+async function ensureUniqueProfileEmail(
+  db: Awaited<ReturnType<typeof createServiceClient>>,
+  email: string,
+  currentId: string | null,
+  backTo: string
+) {
+  const { data: duplicate } = await db
+    .from("profiles")
+    .select("id")
+    .ilike("email", email)
+    .maybeSingle();
+
+  if (duplicate && duplicate.id !== currentId) redirect(`${backTo}?error=duplicate`);
 }
 
 function releasedEmail(originalEmail: string, userId: string) {
@@ -635,6 +665,298 @@ export async function saveAircraft(formData: FormData) {
   }
 
   redirect(`${backTo}?success=aircraft`);
+}
+
+export async function archiveAircraft(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const id = str(formData, "aircraft_id");
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/aircraft");
+
+  if (!id) redirect(`${backTo}?error=missing`);
+
+  const { data, error } = await db
+    .from("aircraft")
+    .update({ status: "archived", updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .select("id, tail_number")
+    .maybeSingle();
+
+  if (error || !data) redirect(`${backTo}?error=save`);
+
+  await logAuditEvent({
+    actor: admin,
+    action: "aircraft_archived",
+    detail: `Archived ${data.tail_number}`,
+    entityType: "aircraft",
+    entityId: id,
+  });
+
+  revalidatePath("/portal/admin/aircraft");
+  revalidatePath("/portal/client/aircraft");
+  revalidatePath("/portal/client/trips/new");
+  redirect(`${backTo}?success=archived`);
+}
+
+// ─── Client record management ──────────────────────────────────────
+export async function saveClientRecord(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = (await createServiceClient()) as any;
+  const id = str(formData, "profile_id");
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/clients");
+  const email = normalizeEmail(formData, "email");
+  const fullName = str(formData, "full_name");
+  const status = controlledProfileStatus(str(formData, "status"));
+
+  if (!email || !validEmail(email) || !fullName) redirect(`${backTo}?error=missing`);
+  await ensureUniqueProfileEmail(db, email, id || null, backTo);
+
+  const payload = {
+    email,
+    full_name: fullName,
+    phone: str(formData, "phone") || null,
+    company_name: str(formData, "company_name") || null,
+    home_base: str(formData, "home_base").toUpperCase() || null,
+    preferred_airport: str(formData, "preferred_airport").toUpperCase() || null,
+    client_type: str(formData, "client_type") || null,
+    billing_preference: str(formData, "billing_preference") || null,
+    billing_contact_name: str(formData, "billing_contact_name") || null,
+    billing_contact_email: str(formData, "billing_contact_email") || null,
+    billing_contact_phone: str(formData, "billing_contact_phone") || null,
+    authorized_requesters: splitList(str(formData, "authorized_requesters")),
+    service_preferences: str(formData, "service_preferences") || null,
+    internal_notes: str(formData, "internal_notes") || null,
+    role: "client",
+    status,
+    is_active: status === "approved",
+    updated_at: new Date().toISOString(),
+  };
+
+  if (payload.billing_contact_email && !validEmail(payload.billing_contact_email)) {
+    redirect(`${backTo}?error=email`);
+  }
+
+  let profileId = id;
+
+  if (id) {
+    const { data: existing } = await db
+      .from("profiles")
+      .select("email, role")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (!existing || existing.role !== "client") redirect(`${backTo}?error=profile`);
+
+    if (existing.email !== email) {
+      const { error: authError } = await db.auth.admin.updateUserById(id, { email, email_confirm: true });
+      if (authError) redirect(`${backTo}?error=email`);
+    }
+
+    const { error } = await db.from("profiles").update(payload).eq("id", id);
+    if (error) redirect(`${backTo}?error=save`);
+  } else {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
+    const redirectTo = appUrl
+      ? `${appUrl.startsWith("http") ? appUrl : `https://${appUrl}`}/login`
+      : undefined;
+
+    const { data: invite, error: inviteError } = await db.auth.admin.inviteUserByEmail(email, {
+      data: { full_name: fullName, role: "client" },
+      redirectTo,
+    });
+
+    if (inviteError || !invite.user) redirect(`${backTo}?error=invite`);
+    profileId = invite.user.id;
+
+    const { error } = await db.from("profiles").upsert({
+      ...payload,
+      id: profileId,
+      invitation_status: "sent",
+      invitation_channel: "email",
+      invitation_sent_at: new Date().toISOString(),
+      invited_by: admin.id,
+    });
+
+    if (error) redirect(`${backTo}?error=save`);
+  }
+
+  await logAuditEvent({
+    actor: admin,
+    action: id ? "client_record_updated" : "client_record_created",
+    detail: `${id ? "Updated" : "Created"} client ${email}`,
+    entityType: "profile",
+    entityId: profileId || null,
+  });
+
+  revalidatePath("/portal/admin/clients");
+  revalidatePath("/portal/admin/users");
+  redirect(`${backTo}?success=client`);
+}
+
+export async function archiveClientRecord(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const id = str(formData, "profile_id");
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/clients");
+
+  if (!id) redirect(`${backTo}?error=profile`);
+
+  const { data, error } = await db
+    .from("profiles")
+    .update({ status: "suspended", is_active: false, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("role", "client")
+    .select("id, email")
+    .maybeSingle();
+
+  if (error || !data) redirect(`${backTo}?error=save`);
+
+  await logAuditEvent({
+    actor: admin,
+    action: "client_record_archived",
+    detail: `Archived client ${data.email}`,
+    entityType: "profile",
+    entityId: id,
+  });
+
+  revalidatePath("/portal/admin/clients");
+  revalidatePath("/portal/admin/users");
+  redirect(`${backTo}?success=archived`);
+}
+
+// ─── Crew record management ────────────────────────────────────────
+export async function saveCrewRecord(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = (await createServiceClient()) as any;
+  const id = str(formData, "profile_id");
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/crew");
+  const email = normalizeEmail(formData, "email");
+  const fullName = str(formData, "full_name");
+  const status = controlledProfileStatus(str(formData, "status"));
+  const availabilityStatus = ["available", "limited", "unavailable"].includes(str(formData, "availability_status"))
+    ? str(formData, "availability_status")
+    : "available";
+
+  if (!email || !validEmail(email) || !fullName) redirect(`${backTo}?error=missing`);
+  await ensureUniqueProfileEmail(db, email, id || null, backTo);
+
+  const profilePayload = {
+    email,
+    full_name: fullName,
+    phone: str(formData, "phone") || null,
+    company_name: str(formData, "company_name") || null,
+    home_base: str(formData, "home_base").toUpperCase() || null,
+    role: "crew",
+    status,
+    is_active: status === "approved",
+    updated_at: new Date().toISOString(),
+  };
+
+  let profileId = id;
+
+  if (id) {
+    const { data: existing } = await db
+      .from("profiles")
+      .select("email, role")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (!existing || existing.role !== "crew") redirect(`${backTo}?error=profile`);
+
+    if (existing.email !== email) {
+      const { error: authError } = await db.auth.admin.updateUserById(id, { email, email_confirm: true });
+      if (authError) redirect(`${backTo}?error=email`);
+    }
+
+    const { error } = await db.from("profiles").update(profilePayload).eq("id", id);
+    if (error) redirect(`${backTo}?error=save`);
+  } else {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
+    const redirectTo = appUrl
+      ? `${appUrl.startsWith("http") ? appUrl : `https://${appUrl}`}/login`
+      : undefined;
+
+    const { data: invite, error: inviteError } = await db.auth.admin.inviteUserByEmail(email, {
+      data: { full_name: fullName, role: "crew" },
+      redirectTo,
+    });
+
+    if (inviteError || !invite.user) redirect(`${backTo}?error=invite`);
+    profileId = invite.user.id;
+
+    const { error } = await db.from("profiles").upsert({
+      ...profilePayload,
+      id: profileId,
+      invitation_status: "sent",
+      invitation_channel: "email",
+      invitation_sent_at: new Date().toISOString(),
+      invited_by: admin.id,
+    });
+
+    if (error) redirect(`${backTo}?error=save`);
+  }
+
+  if (!profileId) redirect(`${backTo}?error=save`);
+
+  const { error: crewError } = await db.from("crew_profiles").upsert({
+    id: profileId,
+    certificate_level: str(formData, "certificate_level") || null,
+    availability_status: availabilityStatus,
+    preferred_aircraft: splitList(str(formData, "preferred_aircraft")),
+    type_ratings: splitList(str(formData, "type_ratings")),
+    preferred_regions: splitList(str(formData, "preferred_regions")),
+    total_time: num(formData, "total_time"),
+    turbine_time: num(formData, "turbine_time"),
+    jet_time: num(formData, "jet_time"),
+    time_in_type: str(formData, "time_in_type") || null,
+    ops_notes: str(formData, "ops_notes") || null,
+    updated_at: new Date().toISOString(),
+  });
+
+  if (crewError) redirect(`${backTo}?error=crew-profile`);
+
+  await logAuditEvent({
+    actor: admin,
+    action: id ? "crew_record_updated" : "crew_record_created",
+    detail: `${id ? "Updated" : "Created"} crew ${email}`,
+    entityType: "profile",
+    entityId: profileId,
+  });
+
+  revalidatePath("/portal/admin/crew");
+  revalidatePath("/portal/admin/users");
+  redirect(`${backTo}?success=crew`);
+}
+
+export async function archiveCrewRecord(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const id = str(formData, "profile_id");
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/crew");
+
+  if (!id) redirect(`${backTo}?error=profile`);
+
+  const { data, error } = await db
+    .from("profiles")
+    .update({ status: "suspended", is_active: false, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("role", "crew")
+    .select("id, email")
+    .maybeSingle();
+
+  if (error || !data) redirect(`${backTo}?error=save`);
+
+  await logAuditEvent({
+    actor: admin,
+    action: "crew_record_archived",
+    detail: `Archived crew ${data.email}`,
+    entityType: "profile",
+    entityId: id,
+  });
+
+  revalidatePath("/portal/admin/crew");
+  revalidatePath("/portal/admin/users");
+  redirect(`${backTo}?success=archived`);
 }
 
 // ─── Document review ────────────────────────────────────────────────
