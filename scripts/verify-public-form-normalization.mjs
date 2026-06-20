@@ -79,6 +79,7 @@ const row = publicFormDatabaseRow(legacySupport.submission, {
 assert(Object.hasOwn(row, "payload"), "database row should include payload");
 assert(!Object.hasOwn(row, "requested_service_category"), "database row must not insert arbitrary raw fields");
 assert(row.acknowledgement === true, "database row acknowledgement should be boolean");
+assert(row.marketing_consent === false, "missing marketing consent should store as false");
 assert(row.status === "new", "database row should use lowercase new status");
 
 console.log("Public form normalization verification passed.");

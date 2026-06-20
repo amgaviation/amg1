@@ -315,7 +315,7 @@ export function publicFormDatabaseRow(
     message: submission.message,
     requested_support_summary: submission.submissionType === "support_request" ? submission.message : null,
     acknowledgement: submission.acknowledgement,
-    marketing_consent: submission.marketingConsent,
+    marketing_consent: submission.marketingConsent ?? false,
     source_url: context?.sourceUrl ?? null,
     referrer: context?.referrer ?? null,
     user_agent: context?.userAgent ?? null,
