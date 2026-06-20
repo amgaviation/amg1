@@ -1,11 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Montserrat } from "next/font/google";
+import localFont from "next/font/local";
 import { CookieConsentBanner } from "@/components/compliance/cookie-consent";
 import { ConsentScriptLoader } from "@/components/compliance/consent-script-loader";
 import "./globals.css";
 
-const montserrat = Montserrat({
-  subsets: ["latin"],
+const montserrat = localFont({
+  src: [
+    {
+      path: "./fonts/montserrat/montserrat-latin-wght-normal.woff2",
+      weight: "100 900",
+      style: "normal",
+    },
+    {
+      path: "./fonts/montserrat/montserrat-latin-wght-italic.woff2",
+      weight: "100 900",
+      style: "italic",
+    },
+  ],
   display: "swap",
   variable: "--font-montserrat",
 });
