@@ -26,7 +26,7 @@ export function LegalPage({
           <h1 className="display-heading text-balance text-5xl text-white sm:text-6xl lg:text-7xl">
             {title}
           </h1>
-          <div className="mt-8 hidden rounded-lg border border-white/10 bg-white/[0.045] p-5 shadow-[0_16px_44px_rgba(0,0,0,0.22)] backdrop-blur lg:block">
+          <div className="mt-8 hidden rounded-lg border border-white/[0.10] bg-white/[0.045] p-5 shadow-[0_16px_44px_rgba(0,0,0,0.22)] backdrop-blur lg:block">
             <FileText className="h-5 w-5 text-accent" />
             <p className="mt-4 text-sm leading-relaxed text-[var(--amg-text-secondary)]">
               Administrative language for website use, portal access, and support request review.
@@ -37,7 +37,7 @@ export function LegalPage({
             </Link>
           </div>
         </aside>
-        <article className="rounded-lg border border-white/10 bg-[#07111F]/92 p-6 text-white shadow-[0_24px_70px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10" data-scroll-animate>
+        <article className="rounded-lg border border-white/[0.10] bg-[#07111F]/92 p-6 text-white shadow-[0_24px_70px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10" data-scroll-animate>
           <div className="space-y-6 text-base leading-relaxed text-[var(--amg-text-secondary)]">
             {children}
           </div>

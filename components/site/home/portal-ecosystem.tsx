@@ -29,7 +29,7 @@ export function PortalEcosystem() {
             Client, crew, partner, and AMG operations access remain connected through the
             secure portal ecosystem already built into this website.
           </p>
-          <p className="mt-5 text-sm uppercase text-slate-500">{COMPANY.location}</p>
+          <p className="mt-5 text-sm uppercase text-[var(--oc-muted)]">{COMPANY.location}</p>
           <div className="mt-9 flex flex-wrap gap-4">
             <Link
               href="/login"
@@ -72,7 +72,7 @@ export function PortalEcosystem() {
                   >
                     <div className="flex items-start justify-between gap-4">
                       <Icon className="h-6 w-6 text-accent" />
-                      <ArrowUpRight className="h-5 w-5 text-slate-400 transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+                      <ArrowUpRight className="h-5 w-5 text-[var(--oc-aluminum-2)] transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                     </div>
                     <h3 className="mt-7 font-display text-3xl font-extrabold uppercase leading-none text-slate-950">
                       {role.title}

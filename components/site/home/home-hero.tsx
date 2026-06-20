@@ -9,7 +9,7 @@ export function HomeHero() {
         <img
           src="/images/amg-custom/hero-aircraft-operations.jpg"
           alt=""
-          className="h-full w-full scale-105 object-cover opacity-82"
+          className="h-full w-full scale-105 object-cover opacity-[0.82]"
         />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,11,20,0.92)_0%,rgba(5,11,20,0.72)_42%,rgba(5,11,20,0.2)_100%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,11,20,0.44)_0%,rgba(5,11,20,0.14)_38%,rgba(5,11,20,0.88)_100%)]" />
@@ -46,14 +46,14 @@ export function HomeHero() {
             <Link
               href="/capabilities"
               prefetch={false}
-              className="group inline-flex min-h-12 items-center gap-2 rounded-full border border-white/24 bg-white/10 px-8 py-4 font-display text-sm font-semibold uppercase text-white backdrop-blur transition-colors hover:border-primary hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+              className="group inline-flex min-h-12 items-center gap-2 rounded-full border border-white/[0.24] bg-white/[0.10] px-8 py-4 font-display text-sm font-semibold uppercase text-white backdrop-blur transition-colors hover:border-primary hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
             >
               Explore Capabilities
               <ArrowUpRight className="h-4 w-4" />
             </Link>
           </div>
 
-          <ul className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-white/16 pt-6 text-xs uppercase text-slate-300">
+          <ul className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-white/[0.16] pt-6 text-xs uppercase text-slate-300">
             {[
               "Part 91 operations support",
               "Credential-reviewed crew",
@@ -67,8 +67,8 @@ export function HomeHero() {
           </ul>
         </div>
 
-        <div className="hidden rounded-lg border border-white/16 bg-white/10 p-5 text-white shadow-[0_28px_70px_rgba(0,0,0,0.26)] backdrop-blur-xl lg:block" data-scroll-animate>
-          <div className="flex items-center justify-between border-b border-white/12 pb-5">
+        <div className="hidden rounded-lg border border-white/[0.16] bg-white/[0.10] p-5 text-white shadow-[0_28px_70px_rgba(0,0,0,0.26)] backdrop-blur-xl lg:block" data-scroll-animate>
+          <div className="flex items-center justify-between border-b border-white/[0.12] pb-5">
             <p className="eyebrow text-[0.68rem] text-slate-300">Live Support Focus</p>
             <RadioTower className="h-5 w-5 text-primary" />
           </div>
@@ -78,7 +78,7 @@ export function HomeHero() {
               ["Crew", "Credentials, timing, suitability"],
               ["Mission", "Route, scope, approvals"],
             ].map(([label, detail]) => (
-              <div key={label} className="rounded-lg border border-white/12 bg-slate-950/34 p-4">
+              <div key={label} className="rounded-lg border border-white/[0.12] bg-slate-950/34 p-4">
                 <div className="flex items-center gap-3">
                   <Plane className="h-4 w-4 text-primary" />
                   <p className="font-display text-lg font-bold uppercase leading-none">{label}</p>
@@ -92,7 +92,7 @@ export function HomeHero() {
 
       <Link
         href="#capabilities"
-        className="scroll-cue group absolute bottom-6 right-6 z-20 hidden items-center gap-4 rounded-full border border-white/18 bg-white/10 px-4 py-3 text-xs uppercase text-white backdrop-blur transition-colors hover:border-primary md:flex"
+        className="scroll-cue group absolute bottom-6 right-6 z-20 hidden items-center gap-4 rounded-full border border-white/[0.18] bg-white/[0.10] px-4 py-3 text-xs uppercase text-white backdrop-blur transition-colors hover:border-primary md:flex"
         aria-label="Scroll to AMG capabilities"
       >
         <span className="font-display font-semibold">Scroll</span>

@@ -101,7 +101,7 @@ export function HiggsfieldMotionShowcase() {
     <div className="bg-[var(--amg-ink)] text-white">
       <section
         ref={heroSectionRef}
-        className="relative min-h-[130svh] overflow-hidden border-b border-white/10"
+        className="relative min-h-[130svh] overflow-hidden border-b border-white/[0.10]"
       >
         <div className="sticky top-0 min-h-svh overflow-hidden">
           <video
@@ -110,7 +110,7 @@ export function HiggsfieldMotionShowcase() {
             playsInline
             preload="metadata"
             poster="/images/amg-custom/hero-aircraft-operations.jpg"
-            className="absolute inset-0 h-full w-full object-cover opacity-55"
+            className="absolute inset-0 h-full w-full object-cover opacity-[0.55]"
             style={{ transform: `translate3d(0, ${heroY}px, 0) scale(${heroScale})` }}
           >
             <source src="/videos/amg-jet-flying.mp4" type="video/mp4" />
@@ -131,15 +131,15 @@ export function HiggsfieldMotionShowcase() {
                 Scroll-linked aerospace video, glass cockpit telemetry, and propulsion micro-motion for AMG Aviation Group.
               </p>
 
-              <div className="mt-10 grid max-w-3xl grid-cols-3 overflow-hidden rounded-lg border border-white/10 bg-white/[0.05] backdrop-blur-xl">
+              <div className="mt-10 grid max-w-3xl grid-cols-3 overflow-hidden rounded-lg border border-white/[0.10] bg-white/[0.05] backdrop-blur-xl">
                 {[
                   ["Scroll", `${Math.round(heroProgress * 100)}%`],
                   ["Asset", "8K"],
                   ["Motion", "24fps"],
                 ].map(([label, value]) => (
-                  <div key={label} className="border-r border-white/10 p-4 last:border-r-0">
+                  <div key={label} className="border-r border-white/[0.10] p-4 last:border-r-0">
                     <p className="font-display text-3xl font-extrabold uppercase text-white">{value}</p>
-                    <p className="eyebrow mt-2 text-[0.58rem] text-slate-400">{label}</p>
+                    <p className="eyebrow mt-2 text-[0.58rem] text-[var(--oc-aluminum-2)]">{label}</p>
                   </div>
                 ))}
               </div>
@@ -167,7 +167,7 @@ export function HiggsfieldMotionShowcase() {
             return (
               <article
                 key={asset.title}
-                className="group overflow-hidden rounded-lg border border-white/10 bg-white/[0.06]"
+                className="group overflow-hidden rounded-lg border border-white/[0.10] bg-white/[0.06]"
                 onMouseEnter={(event) => {
                   const video = event.currentTarget.querySelector("video");
                   if (video) void video.play();
@@ -204,7 +204,7 @@ export function HiggsfieldMotionShowcase() {
                     <source src={asset.src} type="video/mp4" />
                   </video>
                   <div className="absolute inset-0 bg-gradient-to-t from-[var(--amg-ink)] via-[rgba(5,11,20,0.32)] to-transparent" />
-                  <div className="absolute left-4 top-4 rounded-full border border-white/10 bg-black/30 p-3 backdrop-blur-xl">
+                  <div className="absolute left-4 top-4 rounded-full border border-white/[0.10] bg-black/30 p-3 backdrop-blur-xl">
                     <Icon className="h-5 w-5 text-accent" />
                   </div>
                 </div>
@@ -216,7 +216,7 @@ export function HiggsfieldMotionShowcase() {
                         {asset.title}
                       </h3>
                     </div>
-                    <span className="font-mono text-xs text-slate-400">{asset.metric}</span>
+                    <span className="font-mono text-xs text-[var(--oc-aluminum-2)]">{asset.metric}</span>
                   </div>
                   <p className="mt-4 text-sm leading-6 text-slate-300">{asset.body}</p>
                 </div>
@@ -250,9 +250,9 @@ export function HiggsfieldMotionShowcase() {
           </button>
         </div>
 
-        <div className="relative overflow-hidden rounded-lg border border-white/10 bg-white/[0.06] p-4 shadow-[0_30px_90px_rgba(0,0,0,0.35)]">
+        <div className="relative overflow-hidden rounded-lg border border-white/[0.10] bg-white/[0.06] p-4 shadow-[0_30px_90px_rgba(0,0,0,0.35)]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.16),transparent_36%)]" />
-          <div className="relative overflow-hidden rounded-md border border-white/10 bg-black">
+          <div className="relative overflow-hidden rounded-md border border-white/[0.10] bg-black">
             <video
               ref={cockpitVideoRef}
               muted
@@ -261,7 +261,7 @@ export function HiggsfieldMotionShowcase() {
               poster="/images/jet-interior.png"
               className={cn(
                 "aspect-video w-full object-cover transition duration-500",
-                cockpitActive ? "scale-100 opacity-90" : "scale-[1.02] opacity-35"
+                cockpitActive ? "scale-100 opacity-90" : "scale-[1.02] opacity-[0.35]"
               )}
             >
               <source src="/videos/amg-jet-flying.mp4" type="video/mp4" />
@@ -277,9 +277,9 @@ export function HiggsfieldMotionShowcase() {
                   ["SPD", cockpitActive ? "482" : "---"],
                   ["HDG", cockpitActive ? "086" : "---"],
                 ].map(([label, value]) => (
-                  <div key={label} className="rounded-md border border-white/10 bg-black/35 p-3 backdrop-blur-md">
+                  <div key={label} className="rounded-md border border-white/[0.10] bg-black/35 p-3 backdrop-blur-md">
                     <p className="font-mono text-lg text-white">{value}</p>
-                    <p className="eyebrow mt-1 text-[0.52rem] text-slate-400">{label}</p>
+                    <p className="eyebrow mt-1 text-[0.52rem] text-[var(--oc-aluminum-2)]">{label}</p>
                   </div>
                 ))}
               </div>
@@ -291,7 +291,7 @@ export function HiggsfieldMotionShowcase() {
               />
             </div>
           </div>
-          <div className="relative mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
+          <div className="relative mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-[var(--oc-aluminum-2)]">
             <span className="inline-flex items-center gap-2">
               <Activity className="h-4 w-4 text-accent" />
               Vibe Motion telemetry sequence

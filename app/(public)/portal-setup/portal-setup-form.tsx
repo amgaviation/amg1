@@ -109,7 +109,7 @@ export function PortalSetupForm() {
 
   return (
     <form action={submit} className="mt-6 grid gap-4">
-      {email ? <p className="rounded-lg border border-white/10 bg-background/60 px-4 py-3 text-sm text-muted-foreground">Setting up access for <span className="text-foreground">{email}</span></p> : null}
+      {email ? <p className="rounded-lg border border-white/[0.10] bg-background/60 px-4 py-3 text-sm text-muted-foreground">Setting up access for <span className="text-foreground">{email}</span></p> : null}
       {err ? <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-red-200">{message(err)}</div> : null}
       {!ready && !err ? <p className="text-sm text-muted-foreground">Verifying setup link...</p> : null}
       <label className="grid gap-2 text-sm text-muted-foreground">

@@ -18,7 +18,7 @@ function ratioClass(aspectRatio: string) {
 function PlaceholderLabel({ asset }: { asset: MediaAsset }) {
   if (process.env.NODE_ENV === "production") return null;
   return (
-    <div className="absolute left-4 top-4 max-w-xs rounded-md border border-white/20 bg-[#050B14]/75 px-3 py-2 text-[0.65rem] uppercase tracking-[0.16em] text-white/80 backdrop-blur">
+    <div className="absolute left-4 top-4 max-w-xs rounded-md border border-white/[0.20] bg-[#050B14]/75 px-3 py-2 text-[0.65rem] uppercase tracking-[0.16em] text-white/80 backdrop-blur">
       {asset.id}
       <br />
       {asset.type} | {asset.aspectRatio} | {asset.status}
@@ -83,7 +83,7 @@ export function MediaPlaceholder(props: MediaFrameProps) {
 }
 
 export function AircraftMediaPanel(props: MediaFrameProps) {
-  return <ResponsiveImageFrame {...props} className={cn("rounded-lg border border-white/10", props.className)} />;
+  return <ResponsiveImageFrame {...props} className={cn("rounded-lg border border-white/[0.10]", props.className)} />;
 }
 
 export function MediaWithPoster(props: MediaFrameProps) {

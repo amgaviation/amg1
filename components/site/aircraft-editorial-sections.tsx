@@ -39,10 +39,10 @@ export function AircraftEditorialSections() {
                   <img
                     src={AIRCRAFT_IMAGES[aircraft.id] ?? `${CUSTOM_IMAGE_ROOT}/aircraft-support-main.jpg`}
                     alt={`${aircraft.category} aircraft support category`}
-                    className="absolute inset-0 h-full w-full scale-105 object-cover opacity-88"
+                    className="absolute inset-0 h-full w-full scale-105 object-cover opacity-[0.88]"
                   />
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,11,20,0.1)_0%,rgba(5,11,20,0.88)_100%)]" />
-                  <div className="absolute left-7 top-7 rounded-full border border-white/24 bg-white/10 px-3 py-1 font-display text-xs font-semibold uppercase text-white backdrop-blur">
+                  <div className="absolute left-7 top-7 rounded-full border border-white/[0.24] bg-white/[0.10] px-3 py-1 font-display text-xs font-semibold uppercase text-white backdrop-blur">
                     {String(index + 1).padStart(2, "0")}
                   </div>
                   <div className="absolute bottom-7 left-7 right-7">
@@ -54,7 +54,7 @@ export function AircraftEditorialSections() {
                       {aircraft.factors.slice(0, 3).map((factor) => (
                         <span
                           key={factor}
-                          className="rounded-full border border-white/18 bg-white/10 px-3 py-1 text-xs text-slate-100 backdrop-blur"
+                          className="rounded-full border border-white/[0.18] bg-white/[0.10] px-3 py-1 text-xs text-slate-100 backdrop-blur"
                         >
                           {factor}
                         </span>

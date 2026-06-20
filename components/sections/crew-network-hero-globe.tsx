@@ -37,14 +37,14 @@ export function CrewNetworkHeroGlobe() {
           </p>
           <dl className="mt-8 grid gap-3 sm:grid-cols-3">
             {publicCrewCoverageMetrics.map((metric) => (
-              <div key={metric.label} className="rounded-xl border border-white/12 bg-white/[0.07] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)] backdrop-blur-md">
+              <div key={metric.label} className="rounded-xl border border-white/[0.12] bg-white/[0.07] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)] backdrop-blur-md">
                 <dt className="text-xs uppercase tracking-wide text-[var(--oc-aluminum-2)]">{metric.label}</dt>
                 <dd className="oc-display mt-2 text-[clamp(1.55rem,3vw,2rem)] leading-none text-white">{metric.value}</dd>
               </div>
             ))}
           </dl>
         </div>
-        <div data-scroll-animate className="rounded-[1.25rem] border border-white/10 bg-slate-950/20 p-2 shadow-[0_30px_90px_rgba(0,0,0,0.26)] backdrop-blur-sm">
+        <div data-scroll-animate className="rounded-[1.25rem] border border-white/[0.10] bg-slate-950/20 p-2 shadow-[0_30px_90px_rgba(0,0,0,0.26)] backdrop-blur-sm">
           {reduce ? <GlobeFallback label="Crew coverage regions" /> : <CrewHeroGlobeDemo markers={crewGlobeMarkers} />}
         </div>
       </div>

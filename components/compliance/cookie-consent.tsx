@@ -58,7 +58,7 @@ function CookiePreferencesForm({
   return (
     <div className="grid gap-3">
       {consentCategories.map((category) => (
-        <label key={category.id} className="flex items-start gap-3 rounded-lg border border-white/10 bg-white/[0.045] p-3">
+        <label key={category.id} className="flex items-start gap-3 rounded-lg border border-white/[0.10] bg-white/[0.045] p-3">
           <input
             type="checkbox"
             checked={choices[category.id]}
@@ -134,7 +134,7 @@ export function CookieConsentBanner() {
     <>
       {shouldShowBanner ? (
         <div className="fixed inset-x-0 bottom-0 z-[80] px-3 pb-3 sm:px-5 sm:pb-5">
-          <div className="mx-auto max-w-6xl overflow-hidden rounded-lg border border-white/12 bg-[#07111F]/96 text-white shadow-[0_-18px_64px_rgba(0,0,0,0.32)] backdrop-blur-xl">
+          <div className="mx-auto max-w-6xl overflow-hidden rounded-lg border border-white/[0.12] bg-[#07111F]/96 text-white shadow-[0_-18px_64px_rgba(0,0,0,0.32)] backdrop-blur-xl">
             <div className="h-px bg-[var(--amg-accent-blue)]" aria-hidden="true" />
             <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[1fr_auto] lg:items-center">
               <div className="max-w-3xl">
@@ -155,14 +155,14 @@ export function CookieConsentBanner() {
                 <button
                   type="button"
                   onClick={rejectOptionalCookies}
-                  className="min-h-12 rounded-md border border-white/18 bg-white/[0.055] px-4 text-sm font-semibold text-white transition-colors hover:border-[var(--amg-accent-blue)] hover:bg-white/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amg-accent-blue)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111F]"
+                  className="min-h-12 rounded-md border border-white/[0.18] bg-white/[0.055] px-4 text-sm font-semibold text-white transition-colors hover:border-[var(--amg-accent-blue)] hover:bg-white/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amg-accent-blue)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111F]"
                 >
                   Reject Optional
                 </button>
                 <button
                   type="button"
                   onClick={() => setOpen(true)}
-                  className="min-h-12 rounded-md border border-white/18 bg-transparent px-4 text-sm font-semibold text-[var(--amg-text-secondary)] transition-colors hover:border-[var(--amg-accent-blue)] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amg-accent-blue)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111F]"
+                  className="min-h-12 rounded-md border border-white/[0.18] bg-transparent px-4 text-sm font-semibold text-[var(--amg-text-secondary)] transition-colors hover:border-[var(--amg-accent-blue)] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amg-accent-blue)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111F]"
                 >
                   Manage
                 </button>
@@ -177,7 +177,7 @@ export function CookieConsentBanner() {
 
       {open ? (
         <div className="fixed inset-0 z-[90] flex items-end bg-slate-950/72 p-4 backdrop-blur-sm sm:items-center sm:justify-center" role="dialog" aria-modal="true" aria-labelledby="cookie-preferences-title">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded-lg border border-white/12 bg-[#07111F] p-5 text-white shadow-[0_24px_90px_rgba(0,0,0,0.42)]">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded-lg border border-white/[0.12] bg-[#07111F] p-5 text-white shadow-[0_24px_90px_rgba(0,0,0,0.42)]">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 id="cookie-preferences-title" className="font-display text-2xl font-bold uppercase text-white">
@@ -187,7 +187,7 @@ export function CookieConsentBanner() {
                   Choose which optional categories AMG may use on this browser.
                 </p>
               </div>
-              <button type="button" onClick={() => setOpen(false)} className="min-h-11 rounded-full border border-white/18 px-4 text-sm font-semibold text-white hover:border-[var(--amg-accent-blue)]">
+              <button type="button" onClick={() => setOpen(false)} className="min-h-11 rounded-full border border-white/[0.18] px-4 text-sm font-semibold text-white hover:border-[var(--amg-accent-blue)]">
                 Close
               </button>
             </div>
@@ -198,7 +198,7 @@ export function CookieConsentBanner() {
               <button
                 type="button"
                 onClick={() => setChoices(defaultConsentState(false))}
-                className="min-h-11 rounded-full border border-white/18 px-4 text-sm font-semibold text-[var(--amg-text-secondary)] hover:border-[var(--amg-accent-blue)] hover:text-white"
+                className="min-h-11 rounded-full border border-white/[0.18] px-4 text-sm font-semibold text-[var(--amg-text-secondary)] hover:border-[var(--amg-accent-blue)] hover:text-white"
               >
                 Disable Optional
               </button>

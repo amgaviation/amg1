@@ -15,6 +15,7 @@ export function ServicesOverview() {
           <div className="lg:sticky lg:top-28">
             <SectionHeading
               align="left"
+              tone="light"
               eyebrow="Core Capabilities"
               title="Aircraft support with clear responsibility"
               description="AMG coordinates defined support paths around aircraft status, crew requirements, timing, route complexity, and owner/operator approval."
@@ -70,7 +71,7 @@ export function ServicesOverview() {
                       {service.points[0]}
                     </span>
                   </span>
-                  <ArrowRight className="h-5 w-5 text-slate-400 transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+                  <ArrowRight className="h-5 w-5 text-[var(--oc-aluminum-2)] transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                 </Link>
               </RevealItem>
             ))}

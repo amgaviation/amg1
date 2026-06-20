@@ -49,7 +49,7 @@ export default function Globe3DDemoSecond({ markers }: Globe3DDemoSecondProps) {
         }}
       />
 
-      <div className="pointer-events-none absolute inset-x-4 bottom-4 z-10 rounded-xl border border-white/10 bg-[rgba(5,11,20,0.62)] p-4 text-white shadow-[0_20px_60px_rgba(0,0,0,0.28)] backdrop-blur-md sm:inset-x-auto sm:left-5 sm:max-w-sm">
+      <div className="pointer-events-none absolute inset-x-4 bottom-4 z-10 rounded-xl border border-white/[0.10] bg-[rgba(5,11,20,0.62)] p-4 text-white shadow-[0_20px_60px_rgba(0,0,0,0.28)] backdrop-blur-md sm:inset-x-auto sm:left-5 sm:max-w-sm">
         <p className="oc-kicker text-[var(--oc-aluminum-2)]">Region Detail</p>
         <h3 className="mt-3 text-lg font-semibold">{activeMarker?.label ?? "Crew coverage point"}</h3>
         <p className="mt-2 text-sm leading-relaxed text-[var(--oc-aluminum)]">

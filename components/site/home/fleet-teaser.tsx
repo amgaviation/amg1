@@ -39,7 +39,7 @@ export function FleetTeaser() {
                 <div className="relative min-h-64 overflow-hidden bg-slate-100">
                   <img src={image} alt={name} className="h-full w-full scale-105 object-cover transition-transform duration-500 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_42%,rgba(5,11,20,0.46)_100%)]" />
-                  <div className="absolute left-5 top-5 rounded-full border border-white/24 bg-slate-950/40 px-3 py-1 font-display text-xs font-semibold uppercase text-white backdrop-blur">
+                  <div className="absolute left-5 top-5 rounded-full border border-white/[0.24] bg-slate-950/40 px-3 py-1 font-display text-xs font-semibold uppercase text-white backdrop-blur">
                     {String(index + 1).padStart(2, "0")}
                   </div>
                 </div>
@@ -47,14 +47,14 @@ export function FleetTeaser() {
                   <div>
                     <div className="flex items-start justify-between gap-4">
                       <p className="eyebrow text-[0.68rem] text-[var(--amg-light-gray)]">Standard review class</p>
-                      <ArrowUpRight className="h-5 w-5 text-slate-400 transition-colors group-hover:text-white" />
+                      <ArrowUpRight className="h-5 w-5 text-[var(--oc-aluminum-2)] transition-colors group-hover:text-white" />
                     </div>
                     <h3 className="mt-7 font-display text-3xl font-extrabold uppercase leading-none text-white">
                       {name}
                     </h3>
                     <p className="mt-4 text-sm leading-relaxed text-slate-300">{description}</p>
                   </div>
-                  <div className="mt-7 flex flex-wrap gap-x-4 gap-y-1 border-t border-white/12 pt-5 text-xs text-slate-300">
+                  <div className="mt-7 flex flex-wrap gap-x-4 gap-y-1 border-t border-white/[0.12] pt-5 text-xs text-slate-300">
                     <span>Standard subscription class</span>
                     <span className="text-primary">/</span>
                     <span>Review required</span>

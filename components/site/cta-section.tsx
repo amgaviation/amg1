@@ -53,21 +53,21 @@ export function CtaSection({
             </Link>
             <Link
               href={secondaryHref}
-              className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/20 bg-white/8 px-8 py-4 font-display text-sm font-semibold uppercase text-white backdrop-blur transition-colors hover:border-primary hover:text-white"
+              className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/[0.20] bg-white/[0.08] px-8 py-4 font-display text-sm font-semibold uppercase text-white backdrop-blur transition-colors hover:border-primary hover:text-white"
             >
               {secondaryLabel}
             </Link>
           </div>
         </Reveal>
 
-        <Reveal className="hidden self-end rounded-lg border border-white/10 bg-white/8 p-6 backdrop-blur lg:block" data-scroll-animate>
-          <div className="flex items-center justify-between border-b border-white/10 pb-5">
+        <Reveal className="hidden self-end rounded-lg border border-white/[0.10] bg-white/[0.08] p-6 backdrop-blur lg:block" data-scroll-animate>
+          <div className="flex items-center justify-between border-b border-white/[0.10] pb-5">
             <p className="eyebrow text-[0.68rem] text-slate-300">Request Review</p>
             <RadioTower className="h-5 w-5 text-accent" />
           </div>
           <div className="mt-6 grid gap-4">
             {["Aircraft status", "Crew requirements", "Owner/operator approval"].map((item) => (
-              <div key={item} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.06] p-3">
+              <div key={item} className="flex items-center gap-3 rounded-lg border border-white/[0.10] bg-white/[0.06] p-3">
                 <ShieldCheck className="h-4 w-4 shrink-0 text-accent" />
                 <span className="text-sm text-slate-200">{item}</span>
               </div>

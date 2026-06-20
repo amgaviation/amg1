@@ -244,8 +244,8 @@ function Marker({
         >
           <div
             className={cn(
-              "cursor-pointer overflow-hidden rounded-full border border-white/35 bg-white/35 shadow-[0_0_4px_rgba(96,165,250,0.14)] transition-transform duration-150",
-              isActive && "scale-[1.2] border-white/70 shadow-[0_0_10px_rgba(127,183,255,0.36)] ring-1 ring-white/35",
+              "cursor-pointer overflow-hidden rounded-full border border-white/[0.35] bg-white/[0.35] shadow-[0_0_4px_rgba(96,165,250,0.14)] transition-transform duration-150",
+              isActive && "scale-[1.2] border-white/[0.70] shadow-[0_0_10px_rgba(127,183,255,0.36)] ring-1 ring-white/[0.35]",
             )}
             style={{
               width: `${markerSize}px`,

@@ -19,9 +19,9 @@ export default async function PrivacyChoicesPage({
   return (
     <>
       <LegalDocumentPage slug="privacy-choices" />
-      <section className="border-t border-white/10 bg-[#050B14] px-6 py-20 lg:px-10">
+      <section className="border-t border-white/[0.10] bg-[#050B14] px-6 py-20 lg:px-10">
         <div className="mx-auto max-w-4xl">
-          <div className="rounded-lg border border-white/10 bg-[#07111F]/92 p-6 text-white shadow-[0_18px_58px_rgba(0,0,0,0.24)]">
+          <div className="rounded-lg border border-white/[0.10] bg-[#07111F]/92 p-6 text-white shadow-[0_18px_58px_rgba(0,0,0,0.24)]">
             <p className="eyebrow text-accent">Privacy Request</p>
             <h2 className="mt-3 font-display text-3xl font-bold uppercase text-white">Submit a data rights request</h2>
             <p className="mt-3 text-sm leading-relaxed text-[var(--amg-text-secondary)]">
@@ -44,19 +44,19 @@ export default async function PrivacyChoicesPage({
               <div className="grid gap-5 sm:grid-cols-2">
                 <label className="grid gap-2">
                   <span className="text-sm font-semibold text-white">Full Name *</span>
-                  <input name="full_name" required autoComplete="name" className="min-h-11 rounded-lg border border-white/14 bg-[#050B14]/74 px-3 text-sm text-white outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]" />
+                  <input name="full_name" required autoComplete="name" className="min-h-11 rounded-lg border border-white/[0.14] bg-[#050B14]/74 px-3 text-sm text-white outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]" />
                 </label>
                 <label className="grid gap-2">
                   <span className="text-sm font-semibold text-white">Email *</span>
-                  <input name="email" type="email" required autoComplete="email" className="min-h-11 rounded-lg border border-white/14 bg-[#050B14]/74 px-3 text-sm text-white outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]" />
+                  <input name="email" type="email" required autoComplete="email" className="min-h-11 rounded-lg border border-white/[0.14] bg-[#050B14]/74 px-3 text-sm text-white outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]" />
                 </label>
                 <label className="grid gap-2">
                   <span className="text-sm font-semibold text-white">Phone</span>
-                  <input name="phone" type="tel" autoComplete="tel" className="min-h-11 rounded-lg border border-white/14 bg-[#050B14]/74 px-3 text-sm text-white outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]" />
+                  <input name="phone" type="tel" autoComplete="tel" className="min-h-11 rounded-lg border border-white/[0.14] bg-[#050B14]/74 px-3 text-sm text-white outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]" />
                 </label>
                 <label className="grid gap-2">
                   <span className="text-sm font-semibold text-white">Relationship to AMG</span>
-                  <select name="relationship" className="min-h-11 rounded-lg border border-white/14 bg-[#050B14]/74 px-3 text-sm text-white outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]">
+                  <select name="relationship" className="min-h-11 rounded-lg border border-white/[0.14] bg-[#050B14]/74 px-3 text-sm text-white outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]">
                     <option value="">Select one</option>
                     <option value="website_visitor">Website visitor</option>
                     <option value="client">Client or owner representative</option>
@@ -67,7 +67,7 @@ export default async function PrivacyChoicesPage({
                 </label>
                 <label className="grid gap-2 sm:col-span-2">
                   <span className="text-sm font-semibold text-white">Request Type *</span>
-                  <select name="request_type" required className="min-h-11 rounded-lg border border-white/14 bg-[#050B14]/74 px-3 text-sm text-white outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]">
+                  <select name="request_type" required className="min-h-11 rounded-lg border border-white/[0.14] bg-[#050B14]/74 px-3 text-sm text-white outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]">
                     <option value="">Select one</option>
                     <option value="access">Access</option>
                     <option value="correction">Correction</option>
@@ -83,10 +83,10 @@ export default async function PrivacyChoicesPage({
                 </label>
                 <label className="grid gap-2 sm:col-span-2">
                   <span className="text-sm font-semibold text-white">Request Details</span>
-                  <textarea name="details" className="min-h-32 rounded-lg border border-white/14 bg-[#050B14]/74 px-3 py-2 text-sm text-white outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]" />
+                  <textarea name="details" className="min-h-32 rounded-lg border border-white/[0.14] bg-[#050B14]/74 px-3 py-2 text-sm text-white outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]" />
                 </label>
               </div>
-              <label className="flex items-start gap-3 rounded-lg border border-white/10 bg-white/[0.045] p-4 text-sm leading-relaxed text-[var(--amg-text-secondary)]">
+              <label className="flex items-start gap-3 rounded-lg border border-white/[0.10] bg-white/[0.045] p-4 text-sm leading-relaxed text-[var(--amg-text-secondary)]">
                 <input name="acknowledgement" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
                 <span>
                   I understand AMG may verify this request and may respond through the contact information provided. Review the <Link href="/privacy-policy" className="text-accent hover:underline">Privacy Policy</Link>.

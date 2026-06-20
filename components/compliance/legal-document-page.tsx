@@ -18,7 +18,7 @@ function LegalArticle({ document }: { document: LegalDocument }) {
           <h1 className="display-heading text-balance text-5xl text-white sm:text-6xl">
             {document.title}
           </h1>
-          <div className="mt-8 rounded-lg border border-white/10 bg-white/[0.045] p-5 shadow-[0_16px_44px_rgba(0,0,0,0.22)] backdrop-blur">
+          <div className="mt-8 rounded-lg border border-white/[0.10] bg-white/[0.045] p-5 shadow-[0_16px_44px_rgba(0,0,0,0.22)] backdrop-blur">
             <FileText className="h-5 w-5 text-accent" />
             <p className="mt-4 text-sm leading-relaxed text-[var(--amg-text-secondary)]">{document.description}</p>
             <dl className="mt-5 space-y-3 text-xs text-[var(--amg-text-muted)]">
@@ -45,11 +45,11 @@ function LegalArticle({ document }: { document: LegalDocument }) {
             </Link>
           </div>
         </aside>
-        <article className="rounded-lg border border-white/10 bg-[#07111F]/92 p-6 text-white shadow-[0_24px_70px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10" data-scroll-animate>
+        <article className="rounded-lg border border-white/[0.10] bg-[#07111F]/92 p-6 text-white shadow-[0_24px_70px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10" data-scroll-animate>
           <div className="amg-quiet-disclaimer rounded-lg p-4">
             Attorney-review draft. This page is provided for administrative notice and is not legal advice.
           </div>
-          <nav aria-label={`${document.title} table of contents`} className="mt-8 rounded-lg border border-white/10 bg-white/[0.045] p-4">
+          <nav aria-label={`${document.title} table of contents`} className="mt-8 rounded-lg border border-white/[0.10] bg-white/[0.045] p-4">
             <h2 className="font-display text-sm font-bold uppercase text-white">Contents</h2>
             <ol className="mt-3 grid gap-2 sm:grid-cols-2">
               {document.sections.map((section) => (

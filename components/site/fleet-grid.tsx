@@ -49,7 +49,7 @@ export function FleetGrid() {
               "rounded-full border px-5 py-2.5 font-display text-xs font-semibold uppercase tracking-widest transition-colors",
               filter === cat
                 ? "border-accent bg-accent text-accent-foreground"
-                : "border-white/15 bg-white/5 text-foreground/70 backdrop-blur hover:border-accent hover:text-foreground"
+                : "border-white/15 bg-white/[0.05] text-foreground/70 backdrop-blur hover:border-accent hover:text-foreground"
             )}
           >
             {cat}
@@ -82,11 +82,11 @@ export function FleetGrid() {
               <p className="mt-3 leading-relaxed text-muted-foreground">
                 {aircraft.support}
               </p>
-              <div className="mt-6 grid grid-cols-2 gap-2 border-t border-white/10 pt-6">
+              <div className="mt-6 grid grid-cols-2 gap-2 border-t border-white/[0.10] pt-6">
                 {aircraft.factors.map((factor) => (
                   <span
                     key={factor}
-                    className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs text-foreground/75"
+                    className="rounded-full border border-white/[0.10] bg-white/[0.05] px-3 py-2 text-xs text-foreground/75"
                   >
                     {factor}
                   </span>

@@ -28,7 +28,7 @@ import {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} className="min-h-11 rounded-full bg-[var(--oc-navy)] px-6 text-white hover:bg-[var(--oc-blue)]">
+    <Button type="submit" disabled={pending} className="min-h-11 rounded-full bg-[var(--oc-blue)] px-6 text-white hover:bg-[var(--oc-navy)]">
       {pending ? "Sending..." : "Submit Support Request"}
       <Send className="h-4 w-4" />
     </Button>
@@ -132,7 +132,7 @@ export function SupportRequestForm({
   const conditionalFields = conditionalSupportFields[supportPath] ?? [];
 
   return (
-    <Card className="glass-panel rounded-2xl border-[var(--oc-line)] p-0">
+    <Card className="oc-card rounded-2xl border-[var(--oc-line)] p-0">
       <CardContent className="p-5 sm:p-6 lg:p-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -169,7 +169,7 @@ export function SupportRequestForm({
           )
         ) : null}
 
-        <form action={submitSupportRequest} className="mt-7 grid gap-6">
+        <form action={submitSupportRequest} className="mt-7 grid gap-6 text-[var(--oc-ink)]">
           <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
           <Section eyebrow="Section 1" title="Requester Information">
             <Field label="Full Name" required>
@@ -225,7 +225,7 @@ export function SupportRequestForm({
                   aria-pressed={supportPath === path.value}
                   className={`min-h-11 rounded-xl border px-4 py-3 text-left text-sm font-semibold transition-colors ${
                     supportPath === path.value
-                      ? "border-[var(--oc-blue)] bg-[var(--oc-blue)]/10 text-[var(--oc-blue)]"
+                      ? "border-[var(--oc-blue)] bg-[var(--oc-blue)] text-white shadow-[0_12px_28px_rgba(59,130,246,0.22)]"
                       : "border-[var(--oc-line)] bg-white/70 text-[var(--oc-ink)] hover:border-[var(--oc-blue)]"
                   }`}
                 >

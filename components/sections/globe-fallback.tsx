@@ -12,7 +12,7 @@ export function GlobeFallback({ tone = "dark", label = "Crew operating regions" 
     <div
       className={
         dark
-          ? "rounded-[1.25rem] border border-white/10 bg-[rgba(11,26,43,0.72)] p-6 text-white shadow-[var(--oc-shadow)]"
+          ? "rounded-[1.25rem] border border-white/[0.10] bg-[rgba(11,26,43,0.72)] p-6 text-white shadow-[var(--oc-shadow)]"
           : "rounded-[1.25rem] border border-[var(--oc-line)] bg-[var(--oc-ivory-2)] p-6 text-[var(--oc-ink)] shadow-[var(--oc-shadow)]"
       }
     >
@@ -37,7 +37,7 @@ export function GlobeFallback({ tone = "dark", label = "Crew operating regions" 
             key={region}
             className={
               dark
-                ? "rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs text-[var(--oc-aluminum)]"
+                ? "rounded-full border border-white/[0.10] bg-white/[0.06] px-3 py-1 text-xs text-[var(--oc-aluminum)]"
                 : "rounded-full border border-[var(--oc-line)] bg-[var(--oc-ivory)] px-3 py-1 text-xs text-[var(--oc-muted)]"
             }
           >

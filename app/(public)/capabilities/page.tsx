@@ -397,7 +397,7 @@ export default function CapabilitiesPage() {
       </section>
 
       <section className="relative isolate overflow-hidden bg-[var(--oc-graphite)]">
-        <div className="absolute inset-0 -z-10 opacity-55">
+        <div className="absolute inset-0 -z-10 opacity-[0.55]">
           <Figure src={IMG.ctaRunway} alt="" sizes="100vw" className="h-full w-full" position="center" />
           <div className="absolute inset-0 bg-gradient-to-r from-[var(--oc-graphite)] via-[var(--oc-graphite)]/88 to-[var(--oc-graphite)]/55" />
         </div>

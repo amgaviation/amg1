@@ -20,17 +20,17 @@ export function PortalScreenshotFrame({
   return (
     <figure
       className={cn(
-        "group relative mx-auto w-full overflow-hidden border border-white/12 bg-slate-950/70 shadow-[0_34px_110px_rgba(0,0,0,0.34)]",
+        "group relative mx-auto w-full overflow-hidden border border-white/[0.12] bg-slate-950/70 shadow-[0_34px_110px_rgba(0,0,0,0.34)]",
         isMobile ? "max-w-[24rem] rounded-[2rem] p-2" : "rounded-2xl",
         variant === "floating" && "shadow-[0_28px_90px_rgba(8,20,36,0.2)]",
         className,
       )}
     >
       {variant === "browser" ? (
-        <div className="flex items-center gap-2 border-b border-white/10 bg-white/[0.04] px-4 py-3">
-          <span className="h-2.5 w-2.5 rounded-full bg-white/18" />
-          <span className="h-2.5 w-2.5 rounded-full bg-white/18" />
-          <span className="h-2.5 w-2.5 rounded-full bg-white/18" />
+        <div className="flex items-center gap-2 border-b border-white/[0.10] bg-white/[0.04] px-4 py-3">
+          <span className="h-2.5 w-2.5 rounded-full bg-white/[0.18]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-white/[0.18]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-white/[0.18]" />
           <span className="oc-mono ml-2 truncate text-[0.68rem] text-[var(--oc-aluminum-2)]">AMG Aviation Portal</span>
         </div>
       ) : null}

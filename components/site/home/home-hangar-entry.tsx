@@ -151,7 +151,7 @@ export function HomeHangarEntry({
             {REVIEW_CHIPS.map((chip, index) => (
               <motion.div
                 key={chip.label}
-                className="flex min-h-14 items-center justify-between gap-4 rounded-lg border border-white/14 bg-[var(--oc-graphite)]/58 px-4 py-3 text-sm shadow-[0_20px_54px_rgba(0,0,0,0.24)] backdrop-blur-md"
+                className="flex min-h-14 items-center justify-between gap-4 rounded-lg border border-white/[0.14] bg-[var(--oc-graphite)]/58 px-4 py-3 text-sm shadow-[0_20px_54px_rgba(0,0,0,0.24)] backdrop-blur-md"
                 initial={isReduced ? false : { opacity: 0, x: 18 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{
@@ -161,7 +161,7 @@ export function HomeHangarEntry({
                 }}
               >
                 <span className="inline-flex items-center gap-3 text-[var(--oc-aluminum)]">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/[0.06] text-[var(--oc-blue-soft)]">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/[0.10] bg-white/[0.06] text-[var(--oc-blue-soft)]">
                     <chip.icon className="h-4 w-4" strokeWidth={1.7} />
                   </span>
                   {chip.label}

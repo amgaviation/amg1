@@ -27,7 +27,7 @@ export default async function ContactPage({
 
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-[var(--oc-ivory)] pb-12 pt-[calc(var(--public-header-height)+4rem)] lg:pb-16 lg:pt-[calc(var(--public-header-height)+5rem)]">
+      <section className="relative isolate overflow-hidden bg-[var(--oc-navy)] pb-12 pt-[calc(var(--public-header-height)+4rem)] lg:pb-16 lg:pt-[calc(var(--public-header-height)+5rem)]">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_80%_8%,rgba(47,107,174,0.12),transparent_28rem)]" />
         <div className="oc-shell">
           <div className="mx-auto max-w-4xl text-center">
@@ -38,7 +38,7 @@ export default async function ContactPage({
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-[var(--oc-aluminum)]">
               {hero.lead}
             </p>
-            <p className="mx-auto mt-5 max-w-3xl rounded-2xl border border-white/14 bg-white/8 p-4 text-sm leading-relaxed text-[var(--oc-aluminum)] backdrop-blur">
+            <p className="mx-auto mt-5 max-w-3xl rounded-2xl border border-white/[0.14] bg-white/[0.08] p-4 text-sm leading-relaxed text-[var(--oc-aluminum)] backdrop-blur">
               Submitting a contact inquiry does not confirm aircraft support, crew availability, aircraft movement, or operational acceptance.
             </p>
           </div>
@@ -48,7 +48,7 @@ export default async function ContactPage({
       <section className="oc-shell py-14 lg:py-20">
         <div className="grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-start">
           <aside className="grid gap-5">
-            <div className="rounded-2xl border border-[var(--oc-line)] bg-white/72 p-6 shadow-[var(--oc-shadow)] backdrop-blur-xl">
+            <div className="rounded-2xl border border-[var(--oc-line)] bg-white/[0.72] p-6 shadow-[var(--oc-shadow)] backdrop-blur-xl">
               <p className="oc-eyebrow text-[var(--oc-blue)]">AMG Contact</p>
               <h2 className="mt-4 text-2xl font-semibold text-[var(--oc-ink)]">Inquiry routing</h2>
               <p className="mt-4 text-sm leading-relaxed text-[var(--oc-muted)]">

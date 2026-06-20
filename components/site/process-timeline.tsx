@@ -4,7 +4,7 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/site/reveal";
 export function ProcessTimeline() {
   return (
     <section className="cinematic-section relative isolate overflow-hidden border-y border-slate-950/20 bg-[var(--amg-ink)] py-24 text-white lg:py-28">
-      <div className="absolute inset-0 opacity-24" aria-hidden="true">
+      <div className="absolute inset-0 opacity-[0.24]" aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/images/site/map-operations.jpg" alt="" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,11,20,0.98)_0%,rgba(5,11,20,0.92)_48%,rgba(5,11,20,0.74)_100%)]" />
@@ -27,14 +27,14 @@ export function ProcessTimeline() {
 
         <RevealGroup className="relative grid gap-5" data-process-track>
           <div
-            className="section-progress-rail absolute left-[2.15rem] top-8 hidden h-[calc(100%-4rem)] w-px bg-white/12 md:block"
+            className="section-progress-rail absolute left-[2.15rem] top-8 hidden h-[calc(100%-4rem)] w-px bg-white/[0.12] md:block"
             aria-hidden="true"
           >
             <span className="section-progress-line" data-progress-rail />
           </div>
           {HOW_AMG_WORKS.map((item) => (
             <RevealItem key={item.step}>
-              <article className="process-card grid gap-6 rounded-lg border border-white/12 bg-white/[0.07] p-7 shadow-[0_24px_70px_rgba(0,0,0,0.2)] backdrop-blur md:grid-cols-[110px_1fr] lg:p-10" data-process-step>
+              <article className="process-card grid gap-6 rounded-lg border border-white/[0.12] bg-white/[0.07] p-7 shadow-[0_24px_70px_rgba(0,0,0,0.2)] backdrop-blur md:grid-cols-[110px_1fr] lg:p-10" data-process-step>
                 <p className="relative z-10 font-display text-6xl font-extrabold leading-none text-primary/80" data-step-marker>
                   {item.step}
                 </p>

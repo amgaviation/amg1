@@ -17,7 +17,7 @@ import { contactInquiryTypes, preferredContactMethods } from "@/lib/public-form-
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} className="min-h-11 rounded-full bg-[var(--oc-navy)] px-6 text-white hover:bg-[var(--oc-blue)]">
+    <Button type="submit" disabled={pending} className="min-h-11 rounded-full bg-[var(--oc-blue)] px-6 text-white hover:bg-[var(--oc-navy)]">
       {pending ? "Sending..." : "Submit Inquiry"}
       <Send className="h-4 w-4" />
     </Button>
@@ -54,7 +54,7 @@ export function ContactInquiryForm({
   const [inquiryType, setInquiryType] = useState("General Inquiry");
 
   return (
-    <Card className="glass-panel rounded-2xl border-[var(--oc-line)] p-0">
+    <Card className="oc-card rounded-2xl border-[var(--oc-line)] p-0">
       <CardHeader className="px-6 pt-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -88,7 +88,7 @@ export function ContactInquiryForm({
             <SafeErrorMessage area="public_contact" action="submit" className="mb-5 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm leading-relaxed text-red-900" />
           )
         ) : null}
-        <form action={submitContactInquiry} className="grid gap-5">
+        <form action={submitContactInquiry} className="grid gap-5 text-[var(--oc-ink)]">
           <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
           <div className="grid gap-5 md:grid-cols-2">
             <Field label="Full Name" required>

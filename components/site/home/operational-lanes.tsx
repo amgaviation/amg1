@@ -76,7 +76,7 @@ export function OperationalLanes() {
                 sizes="(max-width: 640px) 100vw, 40vw"
                 className="aspect-[16/11] sm:aspect-auto sm:h-full"
               >
-                <span className="oc-mono absolute left-4 top-4 z-[2] text-xs text-white/85">{lane.n}</span>
+                <span className="oc-mono absolute left-4 top-4 z-[2] text-xs text-white/[0.85]">{lane.n}</span>
               </Figure>
               <div className="flex flex-col justify-between gap-6 p-6 lg:p-8">
                 <div>

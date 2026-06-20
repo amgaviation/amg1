@@ -55,7 +55,7 @@ export function AircraftCategoryShowcase() {
                       {aircraft.factors.map((factor) => (
                         <span
                           key={factor}
-                          className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs text-foreground/75"
+                          className="rounded-full border border-white/[0.10] bg-white/[0.05] px-3 py-2 text-xs text-foreground/75"
                         >
                           {factor}
                         </span>

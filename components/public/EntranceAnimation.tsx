@@ -210,14 +210,14 @@ export function EntranceAnimation() {
       <button
         type="button"
         onClick={() => finish(true)}
-        className="absolute right-5 top-5 z-20 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 text-xs font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-md transition hover:border-white/42 hover:bg-white/16 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:right-8 sm:top-8"
+        className="absolute right-5 top-5 z-20 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/[0.20] bg-white/[0.10] px-4 text-xs font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-md transition hover:border-white/[0.42] hover:bg-white/[0.16] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:right-8 sm:top-8"
       >
         <X className="h-3.5 w-3.5" />
         Skip Intro
       </button>
 
       <div className="pointer-events-none absolute inset-x-0 bottom-8 z-10 mx-auto flex w-[min(92vw,80rem)] items-end px-6">
-        <div className="hidden max-w-sm text-xs uppercase leading-relaxed tracking-[0.18em] text-white/68 sm:block">
+        <div className="hidden max-w-sm text-xs uppercase leading-relaxed tracking-[0.18em] text-white/[0.68] sm:block">
           Aircraft support built around operational clarity
         </div>
       </div>
@@ -226,10 +226,10 @@ export function EntranceAnimation() {
         <div
           role="status"
           aria-live="polite"
-          className="absolute left-5 top-20 z-20 max-w-md border border-white/20 bg-[#050B14]/90 p-4 text-sm text-white shadow-2xl backdrop-blur sm:left-8 sm:top-24"
+          className="absolute left-5 top-20 z-20 max-w-md border border-white/[0.20] bg-[#050B14]/90 p-4 text-sm text-white shadow-2xl backdrop-blur sm:left-8 sm:top-24"
         >
           <div className="font-semibold">{diagnostic.title}</div>
-          <div className="mt-1 text-white/72">{diagnostic.message}</div>
+          <div className="mt-1 text-white/[0.72]">{diagnostic.message}</div>
         </div>
       ) : null}
     </motion.div>,

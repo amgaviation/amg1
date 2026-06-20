@@ -55,7 +55,7 @@ export default async function RequestSupportPage({
                 Use this page to begin an aircraft support, crew coordination, ferry/repositioning, maintenance
                 movement, plan review, or operational coordination request.
               </p>
-              <p className="mt-5 max-w-3xl rounded-2xl border border-white/14 bg-white/8 p-4 text-sm leading-relaxed text-[var(--oc-aluminum)] backdrop-blur-md">
+              <p className="mt-5 max-w-3xl rounded-2xl border border-white/[0.14] bg-white/[0.08] p-4 text-sm leading-relaxed text-[var(--oc-aluminum)] backdrop-blur-md">
                 AMG does not present a request as accepted until the support scope, aircraft status, crew availability,
                 owner/operator approval, and operational conditions have been reviewed.
               </p>
@@ -69,7 +69,7 @@ export default async function RequestSupportPage({
                 <Button
                   asChild
                   variant="outline"
-                  className="min-h-11 rounded-full border-white/28 bg-white/5 px-6 text-white hover:bg-white/12 hover:text-white"
+                  className="min-h-11 rounded-full border-white/[0.28] bg-white/[0.05] px-6 text-white hover:bg-white/[0.12] hover:text-white"
                 >
                   <Link href="/contact" prefetch={false}>
                     General Contact
@@ -77,7 +77,7 @@ export default async function RequestSupportPage({
                 </Button>
               </div>
             </div>
-            <div className="overflow-hidden rounded-2xl border border-white/12 bg-white/8 shadow-[0_30px_90px_rgba(0,0,0,0.24)] backdrop-blur-xl">
+            <div className="overflow-hidden rounded-2xl border border-white/[0.12] bg-white/[0.08] shadow-[0_30px_90px_rgba(0,0,0,0.24)] backdrop-blur-xl">
               <div className="relative aspect-[4/3]">
                 <Image
                   src={IMG.generatedDispatch}
@@ -93,7 +93,7 @@ export default async function RequestSupportPage({
                 {["Support scope", "Aircraft status", "Crew availability", "Owner/operator approval"].map((item) => (
                   <div
                     key={item}
-                    className="flex items-center gap-3 border-b border-white/10 py-3 text-sm font-semibold text-[var(--oc-paper)] last:border-b-0"
+                    className="flex items-center gap-3 border-b border-white/[0.10] py-3 text-sm font-semibold text-[var(--oc-paper)] last:border-b-0"
                   >
                     <Check className="h-4 w-4 shrink-0 text-[var(--oc-accent)]" />
                     <span>{item}</span>
@@ -146,7 +146,7 @@ export default async function RequestSupportPage({
       </section>
 
       <section className="oc-shell pb-16 lg:pb-24">
-        <div className="rounded-2xl border border-[var(--oc-line)] bg-white/72 p-6 shadow-[var(--oc-shadow)] backdrop-blur-xl">
+        <div className="rounded-2xl border border-[var(--oc-line)] bg-white/[0.72] p-6 shadow-[var(--oc-shadow)] backdrop-blur-xl">
           <p className="oc-eyebrow text-[var(--oc-blue)]">General Contact</p>
           <h2 className="mt-4 text-2xl font-semibold text-[var(--oc-ink)]">Not requesting aircraft support?</h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--oc-muted)]">

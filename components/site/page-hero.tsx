@@ -27,7 +27,7 @@ export function PageHero({
           <img
             src={image}
             alt=""
-            className="h-full w-full scale-105 object-cover opacity-76"
+            className="h-full w-full scale-105 object-cover opacity-[0.76]"
           />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,11,20,0.92)_0%,rgba(5,11,20,0.72)_45%,rgba(5,11,20,0.22)_100%)]" />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,11,20,0.5)_0%,rgba(5,11,20,0.12)_40%,rgba(5,11,20,0.9)_100%)]" />
@@ -35,7 +35,7 @@ export function PageHero({
         </div>
       )}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-40 bg-gradient-to-t from-slate-950/86 to-transparent" />
-      <div className="pointer-events-none absolute left-6 top-[calc(var(--public-header-height)+2rem)] z-10 hidden h-[calc(100%-12rem)] w-px bg-white/12 lg:block" aria-hidden="true">
+      <div className="pointer-events-none absolute left-6 top-[calc(var(--public-header-height)+2rem)] z-10 hidden h-[calc(100%-12rem)] w-px bg-white/[0.12] lg:block" aria-hidden="true">
         <span className="block h-20 w-px bg-accent/90" />
       </div>
       <div className="relative z-10 mx-auto w-full max-w-7xl px-6 lg:px-10">
@@ -54,7 +54,7 @@ export function PageHero({
               </p>
             )}
           </div>
-          <div className="hidden self-end rounded-lg border border-white/14 bg-white/10 p-5 backdrop-blur-xl lg:block">
+          <div className="hidden self-end rounded-lg border border-white/[0.14] bg-white/[0.10] p-5 backdrop-blur-xl lg:block">
             <p className="eyebrow text-[0.68rem] text-[var(--amg-light-gray)]">AMG Aviation Group</p>
             <p className="mt-4 text-sm leading-relaxed text-slate-200">
               Aircraft support is reviewed before acceptance, then coordinated through clear operating responsibility.

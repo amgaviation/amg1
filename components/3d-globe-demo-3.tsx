@@ -18,7 +18,7 @@ export default function Globe3DDemoThird({ markers, regionCount }: Globe3DDemoTh
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_38%,rgba(59,130,246,0.24),transparent_20rem),linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.015))]" />
       <div className="relative z-10 grid min-h-[28rem] gap-4 p-5 md:grid-cols-[0.72fr_1fr] md:p-7">
         <div className="flex flex-col justify-between gap-6">
-          <div className="rounded-xl border border-white/10 bg-white/[0.055] p-5 backdrop-blur-md">
+          <div className="rounded-xl border border-white/[0.10] bg-white/[0.055] p-5 backdrop-blur-md">
             <p className="oc-kicker text-[var(--oc-aluminum-2)]">Network Status</p>
             <div className="mt-5 grid grid-cols-2 gap-3">
               <div>
@@ -32,7 +32,7 @@ export default function Globe3DDemoThird({ markers, regionCount }: Globe3DDemoTh
             </div>
           </div>
 
-          <div className="rounded-xl border border-white/10 bg-[rgba(11,26,43,0.58)] p-5 backdrop-blur-md">
+          <div className="rounded-xl border border-white/[0.10] bg-[rgba(11,26,43,0.58)] p-5 backdrop-blur-md">
             <p className="oc-kicker text-[var(--oc-aluminum-2)]">Selected Point</p>
             <h3 className="mt-3 text-lg font-semibold text-white">{activeMarker?.label ?? "Operating region"}</h3>
             <p className="mt-2 text-sm leading-relaxed text-[var(--oc-aluminum)]">
@@ -43,7 +43,7 @@ export default function Globe3DDemoThird({ markers, regionCount }: Globe3DDemoTh
           </div>
         </div>
 
-        <div className="relative min-h-[20rem] overflow-hidden rounded-xl border border-white/10 bg-[rgba(5,11,20,0.28)]">
+        <div className="relative min-h-[20rem] overflow-hidden rounded-xl border border-white/[0.10] bg-[rgba(5,11,20,0.28)]">
           <Globe3D
             className="absolute inset-0 h-full"
             markers={markers}

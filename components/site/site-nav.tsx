@@ -111,8 +111,8 @@ export function SiteNav() {
                   prefetch={false}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-[0.72rem] font-semibold uppercase leading-none text-white/70 transition-colors hover:bg-white/7 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white",
-                    active && "bg-white/8 text-white"
+                    "inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-[0.72rem] font-semibold uppercase leading-none text-white/[0.70] transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white",
+                    active && "bg-white/[0.08] text-white"
                   )}
                 >
                   {group.label}
@@ -155,7 +155,7 @@ export function SiteNav() {
           <Link
             href="/login"
             prefetch={false}
-            className="hidden min-h-11 items-center whitespace-nowrap px-2 text-[0.72rem] font-semibold uppercase leading-none text-white/74 transition-colors hover:text-white sm:inline-flex"
+            className="hidden min-h-11 items-center whitespace-nowrap px-2 text-[0.72rem] font-semibold uppercase leading-none text-white/[0.74] transition-colors hover:text-white sm:inline-flex"
           >
             Member Login
           </Link>
@@ -164,7 +164,7 @@ export function SiteNav() {
             ref={menuButtonRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="inline-flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full border border-white/18 text-white transition-colors hover:border-white/42 xl:hidden"
+            className="inline-flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full border border-white/[0.18] text-white transition-colors hover:border-white/[0.42] xl:hidden"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="amg-mobile-menu"
@@ -191,7 +191,7 @@ export function SiteNav() {
                     prefetch={false}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "flex min-h-12 items-center justify-between rounded-lg border border-[var(--oc-line-dark)] px-4 text-sm font-semibold uppercase text-white/78 transition hover:border-[var(--oc-blue)] hover:text-white",
+                      "flex min-h-12 items-center justify-between rounded-lg border border-[var(--oc-line-dark)] px-4 text-sm font-semibold uppercase text-white/[0.78] transition hover:border-[var(--oc-blue)] hover:text-white",
                       active && "border-[var(--oc-blue)] bg-[var(--oc-blue)]/10 text-white"
                     )}
                   >

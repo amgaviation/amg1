@@ -66,7 +66,7 @@ export function PortalLogin({
         <div className="flex flex-1 items-center justify-center py-12">
           <div className="w-full max-w-md">
             <div className="mb-8">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs uppercase tracking-[0.22em] text-white/65">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/[0.10] bg-white/[0.06] px-3 py-1 text-xs uppercase tracking-[0.22em] text-[var(--oc-aluminum)]">
                 <ShieldCheck className="h-3.5 w-3.5 text-primary" />
                 Approved Access
               </div>
@@ -75,13 +75,13 @@ export function PortalLogin({
                 AMG Connect
               </h1>
 
-              <p className="mt-4 text-sm leading-6 text-white/65">
+              <p className="mt-4 text-sm leading-6 text-[var(--oc-aluminum)]">
                 Secure access for approved owners, crews, partners, and AMG
                 administrators. Portal access is reviewed and approved by AMG.
               </p>
             </div>
 
-            <div className="mb-5 grid grid-cols-2 gap-1 rounded-full border border-white/10 bg-white/[0.06] p-1 backdrop-blur-xl">
+            <div className="mb-5 grid grid-cols-2 gap-1 rounded-full border border-white/[0.10] bg-white/[0.06] p-1 backdrop-blur-xl">
               <button
                 type="button"
                 onClick={() => setMode("signin")}
@@ -90,7 +90,7 @@ export function PortalLogin({
                   "inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition",
                   isSignIn
                     ? "bg-white text-[#07111f]"
-                    : "text-white/60 hover:text-white"
+                    : "text-[var(--oc-aluminum)] hover:text-white"
                 )}
               >
                 <LogIn className="h-4 w-4" />
@@ -105,7 +105,7 @@ export function PortalLogin({
                   "inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition",
                   !isSignIn
                     ? "bg-white text-[#07111f]"
-                    : "text-white/60 hover:text-white"
+                    : "text-[var(--oc-aluminum)] hover:text-white"
                 )}
               >
                 <UserPlus className="h-4 w-4" />
@@ -135,7 +135,7 @@ export function PortalLogin({
             ) : null}
 
             {error === "account_exists" ? (
-              <div className="mb-4 grid gap-3 rounded-xl border border-white/10 bg-white/[0.06] px-4 py-4 backdrop-blur-xl">
+              <div className="mb-4 grid gap-3 rounded-xl border border-white/[0.10] bg-white/[0.06] px-4 py-4 backdrop-blur-xl">
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                   <button
                     type="button"
@@ -165,7 +165,7 @@ export function PortalLogin({
             {isSignIn ? (
               <form
                 action={signIn}
-                className="rounded-2xl border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur-xl sm:p-8"
+                className="rounded-2xl border border-white/[0.10] bg-white/[0.06] p-6 shadow-2xl backdrop-blur-xl sm:p-8"
               >
                 <div className="grid gap-2">
                   <label
@@ -184,7 +184,7 @@ export function PortalLogin({
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
                     placeholder="name@company.com"
-                    className="h-12 rounded-lg border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-primary"
+                    className="h-12 rounded-lg border border-white/[0.10] bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-[var(--oc-aluminum-2)] focus:border-primary"
                   />
                 </div>
 
@@ -214,7 +214,7 @@ export function PortalLogin({
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     placeholder="Password"
-                    className="h-12 rounded-lg border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-primary"
+                    className="h-12 rounded-lg border border-white/[0.10] bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-[var(--oc-aluminum-2)] focus:border-primary"
                   />
                 </div>
 
@@ -223,7 +223,7 @@ export function PortalLogin({
                   <ArrowRight className="h-4 w-4" />
                 </button>
 
-                <p className="mt-5 text-center text-xs leading-relaxed text-white/45">
+                <p className="mt-5 text-center text-xs leading-relaxed text-[var(--oc-aluminum-2)]">
                   Portal access is limited to approved users. Unauthorized
                   access is denied.
                 </p>
@@ -231,7 +231,7 @@ export function PortalLogin({
             ) : (
               <form
                 action={signUp}
-                className="rounded-2xl border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur-xl sm:p-8"
+                className="rounded-2xl border border-white/[0.10] bg-white/[0.06] p-6 shadow-2xl backdrop-blur-xl sm:p-8"
               >
                 <div className="grid gap-4">
                   <label className="grid gap-2 text-sm font-medium text-white/80">
@@ -240,7 +240,7 @@ export function PortalLogin({
                       name="full_name"
                       required
                       autoComplete="name"
-                      className="h-12 rounded-lg border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-primary"
+                      className="h-12 rounded-lg border border-white/[0.10] bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-[var(--oc-aluminum-2)] focus:border-primary"
                     />
                   </label>
 
@@ -251,7 +251,7 @@ export function PortalLogin({
                       type="email"
                       required
                       autoComplete="email"
-                      className="h-12 rounded-lg border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-primary"
+                      className="h-12 rounded-lg border border-white/[0.10] bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-[var(--oc-aluminum-2)] focus:border-primary"
                     />
                   </label>
 
@@ -263,7 +263,7 @@ export function PortalLogin({
                       required
                       minLength={8}
                       autoComplete="new-password"
-                      className="h-12 rounded-lg border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-primary"
+                      className="h-12 rounded-lg border border-white/[0.10] bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-[var(--oc-aluminum-2)] focus:border-primary"
                     />
                   </label>
 
@@ -274,7 +274,7 @@ export function PortalLogin({
                     <input
                       name="company_name"
                       autoComplete="organization"
-                      className="h-12 rounded-lg border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-primary"
+                      className="h-12 rounded-lg border border-white/[0.10] bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-[var(--oc-aluminum-2)] focus:border-primary"
                     />
                   </label>
 
@@ -284,7 +284,7 @@ export function PortalLogin({
                       name="phone"
                       type="tel"
                       autoComplete="tel"
-                      className="h-12 rounded-lg border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-primary"
+                      className="h-12 rounded-lg border border-white/[0.10] bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-[var(--oc-aluminum-2)] focus:border-primary"
                     />
                   </label>
                 </div>
@@ -294,14 +294,14 @@ export function PortalLogin({
                   <ArrowRight className="h-4 w-4" />
                 </button>
 
-                <p className="mt-4 text-center text-xs leading-relaxed text-white/45">
+                <p className="mt-4 text-center text-xs leading-relaxed text-[var(--oc-aluminum-2)]">
                   AMG Operations reviews and approves every account before
                   activation.
                 </p>
               </form>
             )}
 
-            <p className="mt-6 text-xs leading-5 text-white/40">
+            <p className="mt-6 text-xs leading-5 text-[var(--oc-aluminum-2)]">
               Portal visibility does not replace operational approval, crew
               confirmation, aircraft status review, or final support acceptance.
             </p>
@@ -320,7 +320,7 @@ export function PortalLogin({
         <div className="absolute inset-0 bg-gradient-to-t from-[#07111f] via-[#07111f]/45 to-[#07111f]/10" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#07111f]/70 via-transparent to-transparent" />
 
-        <div className="absolute bottom-10 left-10 right-10 rounded-2xl border border-white/10 bg-black/35 p-6 backdrop-blur-md">
+        <div className="absolute bottom-10 left-10 right-10 rounded-2xl border border-white/[0.10] bg-black/35 p-6 backdrop-blur-md">
           <p className="text-xs uppercase tracking-[0.24em] text-[var(--amg-light-gray)]/80">
             Operations Portal
           </p>
@@ -329,7 +329,7 @@ export function PortalLogin({
             Aircraft support visibility, organized by role.
           </h2>
 
-          <p className="mt-3 max-w-xl text-sm leading-6 text-white/65">
+          <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--oc-aluminum)]">
             AMG Connect keeps support requests, aircraft context, crew review,
             documents, quotes, invoices, and status updates in one approved
             access environment.
@@ -342,13 +342,13 @@ export function PortalLogin({
               return (
                 <div
                   key={panel.title}
-                  className="rounded-xl border border-white/10 bg-white/[0.06] p-4"
+                  className="rounded-xl border border-white/[0.10] bg-white/[0.06] p-4"
                 >
                   <Icon className="h-4 w-4 text-primary" />
                   <p className="mt-4 font-display text-lg font-semibold uppercase text-white">
                     {panel.title}
                   </p>
-                  <p className="mt-2 text-xs leading-5 text-white/55">
+                  <p className="mt-2 text-xs leading-5 text-[var(--oc-aluminum)]">
                     {panel.body}
                   </p>
                 </div>

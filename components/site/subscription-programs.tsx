@@ -66,11 +66,11 @@ export function SubscriptionPrograms({ hero }: { hero?: PlansHeroContent }) {
   }
 
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-hidden bg-[var(--oc-ivory)] text-[var(--oc-ink)]">
       <PlansHero content={hero} />
 
       <section className="oc-shell py-16 lg:py-24" aria-labelledby="plan-builder-heading">
-        <Card className="glass-panel gap-0 rounded-2xl border-[var(--oc-line)] p-0">
+        <Card className="oc-card gap-0 rounded-2xl border-[var(--oc-line)] p-0">
           <CardContent className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[1fr_0.62fr] lg:items-end">
             <div>
               <p className="oc-eyebrow text-[var(--oc-blue)]">Plan Builder</p>
@@ -86,7 +86,7 @@ export function SubscriptionPrograms({ hero }: { hero?: PlansHeroContent }) {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
               <fieldset>
                 <legend className="text-sm font-semibold text-[var(--oc-ink)]">Billing interval</legend>
-                <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl border border-[var(--oc-line)] bg-white/55 p-1">
+                <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl border border-[var(--oc-line)] bg-white/[0.55] p-1">
                   {(["monthly", "annual"] as const).map((interval) => (
                     <button
                       key={interval}
@@ -125,7 +125,7 @@ export function SubscriptionPrograms({ hero }: { hero?: PlansHeroContent }) {
             onPistonSubtypeChange={selectPistonSubtype}
           />
 
-          <div className="mt-7 rounded-2xl border border-[var(--oc-line)] bg-white/58 p-5 shadow-[var(--oc-shadow)] backdrop-blur-xl sm:p-6">
+          <div className="mt-7 rounded-2xl border border-[var(--oc-line)] bg-white/[0.58] p-5 shadow-[var(--oc-shadow)] backdrop-blur-xl sm:p-6">
             <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-start">
               <div>
                 <p className="oc-eyebrow text-[var(--oc-blue)]">{category.label}</p>
@@ -193,7 +193,7 @@ function PlansHero({ content }: { content?: PlansHeroContent }) {
               {content?.lead ??
                 "AMG plans are structured around aircraft category, support frequency, crew coordination needs, maintenance movement requirements, and owner/operator visibility."}
             </p>
-            <p className="mt-5 max-w-3xl rounded-xl border border-white/14 bg-white/8 p-4 text-sm leading-relaxed text-[var(--oc-aluminum)] backdrop-blur-md">
+            <p className="mt-5 max-w-3xl rounded-xl border border-white/[0.14] bg-white/[0.08] p-4 text-sm leading-relaxed text-[var(--oc-aluminum)] backdrop-blur-md">
               AMG does not present a request as accepted until the support scope, aircraft status, crew availability,
               owner/operator approval, and operational conditions have been reviewed.
             </p>
@@ -204,15 +204,15 @@ function PlansHero({ content }: { content?: PlansHeroContent }) {
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="min-h-11 rounded-full border-white/28 bg-white/5 px-6 text-white hover:bg-white/12 hover:text-white">
+              <Button asChild variant="outline" className="min-h-11 rounded-full border-white/[0.28] bg-white/[0.05] px-6 text-white hover:bg-white/[0.12] hover:text-white">
                 <a href={secondary.href}>{secondary.label}</a>
               </Button>
             </div>
           </div>
 
-          <div className="grid gap-3 rounded-2xl border border-white/12 bg-white/8 p-5 backdrop-blur-xl">
+          <div className="grid gap-3 rounded-2xl border border-white/[0.12] bg-white/[0.08] p-5 backdrop-blur-xl">
             {["Aircraft category", "Support frequency", "Maintenance movement", "Crew coordination"].map((item) => (
-              <div key={item} className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/7 p-3">
+              <div key={item} className="flex items-center gap-3 rounded-xl border border-white/[0.10] bg-white/[0.07] p-3">
                 <ShieldCheck className="h-4 w-4 shrink-0 text-[var(--oc-sky)]" />
                 <span className="text-sm font-medium text-[var(--oc-paper)]">{item}</span>
               </div>
@@ -260,7 +260,7 @@ function CategoryControls({
       </div>
 
       {categoryId === "piston" && pistonCategory?.subcategories ? (
-        <div className="mt-4 inline-grid w-full grid-cols-1 gap-2 rounded-2xl border border-[var(--oc-line)] bg-white/62 p-2 sm:w-auto sm:grid-cols-2">
+        <div className="mt-4 inline-grid w-full grid-cols-1 gap-2 rounded-2xl border border-[var(--oc-line)] bg-white/[0.62] p-2 sm:w-auto sm:grid-cols-2">
           {pistonCategory.subcategories.map((subcategory) => (
             <button
               key={subcategory.id}
@@ -299,7 +299,7 @@ function PlanCard({
   return (
     <article
       className={cn(
-        "glass-panel flex h-full min-h-[560px] flex-col rounded-2xl border p-5 transition-colors",
+        "oc-card flex h-full min-h-[560px] flex-col rounded-2xl border p-5 transition-colors",
         plan.featured ? "border-[var(--oc-blue)]" : "border-[var(--oc-line)]",
         selected && "border-[var(--oc-navy)]",
       )}
@@ -370,7 +370,7 @@ function PlanDetailsPanel({ plan }: { plan: SupportPlan | null }) {
   if (!plan) return null;
 
   return (
-    <section id={`plan-details-${plan.id}`} className="mt-6 rounded-2xl border border-[var(--oc-line)] bg-white/72 p-5 shadow-[var(--oc-shadow)] backdrop-blur-xl sm:p-6" aria-live="polite">
+    <section id={`plan-details-${plan.id}`} className="mt-6 rounded-2xl border border-[var(--oc-line)] bg-white/[0.72] p-5 shadow-[var(--oc-shadow)] backdrop-blur-xl sm:p-6" aria-live="polite">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="oc-eyebrow text-[var(--oc-blue)]">Support details</p>
@@ -427,7 +427,7 @@ function PlanComparisonMatrix({ plans, contextLabel }: { plans: SupportPlan[]; c
         </p>
       </div>
 
-      <div className="mt-9 hidden overflow-hidden rounded-2xl border border-[var(--oc-line)] bg-white/72 shadow-[var(--oc-shadow)] backdrop-blur-xl lg:block">
+      <div className="mt-9 hidden overflow-hidden rounded-2xl border border-[var(--oc-line)] bg-white/[0.72] shadow-[var(--oc-shadow)] backdrop-blur-xl lg:block">
         <table className="w-full table-fixed border-collapse text-left">
           <thead>
             <tr className="border-b border-[var(--oc-line)]">
@@ -458,7 +458,7 @@ function PlanComparisonMatrix({ plans, contextLabel }: { plans: SupportPlan[]; c
 
       <div className="mt-8 grid gap-4 lg:hidden">
         {plans.map((plan) => (
-          <Card key={plan.id} className="rounded-2xl border-[var(--oc-line)] bg-white/74">
+          <Card key={plan.id} className="rounded-2xl border-[var(--oc-line)] bg-white/[0.74]">
             <CardContent className="p-5">
               <h3 className="text-lg font-semibold text-[var(--oc-ink)]">{plan.name}</h3>
               <dl className="mt-4 grid gap-3">
@@ -528,7 +528,7 @@ function PlansCTA() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
-            <Button asChild variant="outline" className="min-h-11 rounded-full border-white/28 bg-white/5 px-6 text-white hover:bg-white/12 hover:text-white">
+            <Button asChild variant="outline" className="min-h-11 rounded-full border-white/[0.28] bg-white/[0.05] px-6 text-white hover:bg-white/[0.12] hover:text-white">
               <Link href={CONTACT_HREF} prefetch={false}>
                 Contact AMG
               </Link>

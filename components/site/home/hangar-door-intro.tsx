@@ -204,7 +204,7 @@ export function HangarDoorIntro() {
           <button
             type="button"
             onClick={() => finishIntro(true)}
-            className="min-h-12 rounded-full border border-white/24 bg-white/8 px-5 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-white/14 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            className="min-h-12 rounded-full border border-white/[0.24] bg-white/[0.08] px-5 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-white/[0.14] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
           >
             Skip intro
           </button>
@@ -247,7 +247,7 @@ function DoorPanel({
 
   return (
     <motion.div
-      className={`absolute inset-y-0 z-30 w-[54vw] overflow-hidden border-white/14 shadow-[0_0_80px_rgba(0,0,0,0.42)] will-change-transform ${
+      className={`absolute inset-y-0 z-30 w-[54vw] overflow-hidden border-white/[0.14] shadow-[0_0_80px_rgba(0,0,0,0.42)] will-change-transform ${
         side === "left"
           ? "left-0 origin-right border-r"
           : "right-0 origin-left border-l"
@@ -266,8 +266,8 @@ function DoorPanel({
       aria-hidden="true"
     >
       <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,rgba(255,255,255,0.055)_0_1px,transparent_1px_56px),repeating-linear-gradient(180deg,rgba(255,255,255,0.045)_0_1px,transparent_1px_98px)] opacity-70" />
-      <div className="absolute inset-y-[12%] left-[12%] right-[12%] border-y border-white/10" />
-      <div className="absolute inset-y-[24%] left-[18%] right-[18%] border-y border-white/8" />
+      <div className="absolute inset-y-[12%] left-[12%] right-[12%] border-y border-white/[0.10]" />
+      <div className="absolute inset-y-[24%] left-[18%] right-[18%] border-y border-white/[0.08]" />
       <div
         className={`absolute inset-y-0 w-8 ${
           side === "left"

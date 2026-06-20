@@ -24,7 +24,7 @@ export function CapabilityCard({
             <h3 className="font-display text-2xl font-extrabold uppercase leading-none text-slate-950 sm:text-3xl">
               {title}
             </h3>
-            <ArrowUpRight className="h-6 w-6 shrink-0 text-slate-400 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-primary" />
+            <ArrowUpRight className="h-6 w-6 shrink-0 text-[var(--oc-aluminum-2)] transition-transform duration-200 group-hover:translate-x-1 group-hover:text-primary" />
           </div>
           <p className="mt-6 leading-relaxed text-slate-600">{summary}</p>
         </div>

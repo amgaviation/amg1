@@ -42,6 +42,31 @@
   --amg-border-strong: rgba(192, 199, 209, 0.32);
   --amg-border-accent: rgba(59, 130, 246, 0.52);
   --amg-border-glass: rgba(192, 199, 209, 0.18);
+
+  /* OC compatibility layer mapped back to the AMG brand system. */
+  --oc-ink: #050B14;
+  --oc-navy: #050B14;
+  --oc-navy-2: #07111F;
+  --oc-graphite: #07111F;
+  --oc-graphite-2: #050B14;
+  --oc-paper: #FFFFFF;
+  --oc-ivory: #F7F9FC;
+  --oc-ivory-2: #EEF2F7;
+  --oc-muted: rgb(5 11 20 / 0.68);
+  --oc-muted-dark: #C0C7D1;
+  --oc-aluminum: #C0C7D1;
+  --oc-aluminum-2: #9CA3AF;
+  --oc-blue: #3B82F6;
+  --oc-blue-soft: #3B82F6;
+  --oc-accent: #3B82F6;
+  --oc-sky: #3B82F6;
+  --oc-line: rgb(5 11 20 / 0.14);
+  --oc-line-strong: rgb(5 11 20 / 0.24);
+  --oc-line-dark: rgb(192 199 209 / 0.22);
+  --oc-shadow: 0 24px 70px rgb(5 11 20 / 0.14);
+  --oc-display: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
+  --oc-sans: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
+
   --amg-motion-fast: 160ms;
   --amg-motion-base: 240ms;
   --amg-motion-reveal: 720ms;
@@ -579,44 +604,33 @@ html {
    Palette: official AMG midnight / deep blue / accent blue / slate / white.
    ========================================================================== */
 .amg-oc {
-  --oc-ivory: #050B14;
-  --oc-ivory-2: #07111F;
-  --oc-paper: #FFFFFF;
-  --oc-graphite: #050B14;
-  --oc-graphite-2: #07111F;
-  --oc-navy: #050B14;
-  --oc-navy-2: #07111F;
-  --oc-aluminum: #C0C7D1;
-  --oc-aluminum-2: #9CA3AF;
-  --oc-ink: #050B14;
-  --oc-muted: #9CA3AF;
-  --oc-muted-dark: #C0C7D1;
-  --oc-line: rgba(192, 199, 209, 0.15);
-  --oc-line-strong: rgba(192, 199, 209, 0.24);
-  --oc-line-dark: rgba(255, 255, 255, 0.14);
-  --oc-blue: #3B82F6;
-  --oc-blue-soft: #C0C7D1;
-  --oc-accent: #3B82F6;
-  --oc-shadow: 30px 60px -30px rgba(0, 0, 0, 0.45);
+  --primary: var(--oc-blue);
+  --primary-foreground: var(--oc-paper);
+  --card: var(--oc-paper);
+  --card-foreground: var(--oc-ink);
+  --popover: var(--oc-paper);
+  --popover-foreground: var(--oc-ink);
+  --border: var(--oc-line);
+  --input: var(--oc-line-strong);
+  --muted-foreground: var(--oc-muted);
 
-  --oc-display: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
-  --oc-sans: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
-
-  background: var(--oc-ivory);
+  background: var(--amg-bg);
   color: var(--oc-paper);
   font-family: var(--oc-sans);
 }
 
 /* neutralize the legacy light-system background + grid overlay on AMG-OC pages */
 .public-site.amg-oc {
-  background: var(--oc-ivory);
+  background:
+    radial-gradient(circle at 78% 8%, rgb(59 130 246 / 0.13), transparent 28rem),
+    linear-gradient(180deg, #050B14 0%, #07111F 42%, #050B14 100%);
 }
 .public-site.amg-oc::before {
   opacity: 0;
 }
 
 .amg-oc ::selection {
-  background: var(--oc-navy);
+  background: var(--oc-blue);
   color: var(--oc-paper);
 }
 
@@ -626,7 +640,7 @@ html {
     width: 100%;
     max-width: 80rem;
     margin-inline: auto;
-    padding-inline: 1.5rem;
+    padding-inline: clamp(1rem, 5vw, 2rem);
   }
   @media (min-width: 1024px) {
     .oc-shell {
@@ -634,7 +648,7 @@ html {
     }
   }
   .oc-section {
-    padding-block: clamp(4.5rem, 9vw, 8.5rem);
+    padding-block: clamp(4rem, 8vw, 8rem);
   }
 
   /* typography */
@@ -650,8 +664,8 @@ html {
     font-weight: 600;
     text-transform: uppercase;
     font-size: 0.72rem;
-    letter-spacing: 0.24em;
-    color: var(--oc-muted);
+    letter-spacing: 0.12em;
+    color: var(--oc-blue);
   }
   .oc-eyebrow-light {
     color: var(--oc-aluminum);
@@ -660,7 +674,7 @@ html {
     font-family: var(--oc-sans);
     font-weight: 600;
     font-size: 0.7rem;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
   }
   .oc-mono {
@@ -689,8 +703,9 @@ html {
     font-family: var(--oc-sans);
     font-weight: 600;
     font-size: 0.8rem;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
+    border: 1px solid transparent;
     transition:
       transform var(--amg-motion-base) var(--amg-ease-out),
       background-color var(--amg-motion-base) ease,
@@ -708,57 +723,71 @@ html {
     transform: translateY(0);
   }
   .oc-btn-primary {
-    background: var(--oc-navy);
+    background: var(--oc-blue);
     color: var(--oc-paper);
+    box-shadow: 0 14px 34px rgb(59 130 246 / 0.24);
   }
   .oc-btn-primary:hover {
-    background: var(--oc-navy-2);
+    background: color-mix(in srgb, var(--oc-blue) 86%, var(--oc-navy));
   }
   .oc-btn-light {
     background: #ffffff;
     color: #050B14;
+    border-color: rgb(255 255 255 / 0.78);
+    box-shadow: 0 14px 34px rgb(0 0 0 / 0.18);
   }
   .oc-btn-light:hover {
-    background: #fff;
+    background: #F7F9FC;
+    color: #050B14;
   }
   .oc-btn-ghost {
-    border: 1px solid var(--oc-line-strong);
-    color: var(--oc-paper);
+    border-color: var(--oc-line-strong);
+    color: var(--oc-ink);
   }
   .oc-btn-ghost:hover {
     border-color: var(--oc-blue);
-    color: var(--oc-paper);
+    background: rgb(59 130 246 / 0.08);
+    color: var(--oc-blue);
   }
   .oc-btn-ghost-dark {
-    border: 1px solid var(--oc-line-dark);
+    border-color: var(--oc-line-dark);
     color: var(--oc-paper);
+    background: rgb(255 255 255 / 0.04);
   }
   .oc-btn-ghost-dark:hover {
-    border-color: var(--oc-aluminum);
-    color: #fff;
+    border-color: var(--oc-blue);
+    background: rgb(59 130 246 / 0.12);
+    color: var(--oc-paper);
   }
 
   /* surfaces */
   .oc-card {
-    background:
-      linear-gradient(145deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.015)),
-      rgba(7, 17, 31, 0.88);
+    background: rgba(255, 255, 255, 0.92);
     border: 1px solid var(--oc-line);
     border-radius: 0.75rem;
-    box-shadow: 0 18px 58px rgba(0, 0, 0, 0.22);
+    color: var(--oc-ink);
+    box-shadow: var(--oc-shadow);
+    backdrop-filter: blur(14px);
   }
   .oc-card-dark {
     background: linear-gradient(160deg, rgba(7, 17, 31, 0.96), rgba(5, 11, 20, 0.96));
     border: 1px solid var(--oc-line-dark);
     border-radius: 0.75rem;
+    color: var(--oc-paper);
+    box-shadow: 0 24px 70px rgb(0 0 0 / 0.26);
   }
   .oc-panel-navy {
     background:
       radial-gradient(120% 120% at 85% 0%, rgba(59, 130, 246, 0.18), transparent 55%),
       linear-gradient(170deg, #07111F, #050B14);
+    border: 1px solid var(--oc-line-dark);
+    color: var(--oc-paper);
+    box-shadow: 0 24px 70px rgb(0 0 0 / 0.28);
   }
   .oc-panel-graphite {
     background: linear-gradient(170deg, #07111F, #050B14);
+    border: 1px solid var(--oc-line-dark);
+    color: var(--oc-paper);
   }
 
   /* media treatment — consistent crops + warm graded overlay */
@@ -803,11 +832,29 @@ html {
     width: 0.5rem;
     border-radius: 999px;
     background: var(--oc-blue);
-    box-shadow: 0 0 0 4px rgba(47, 107, 174, 0.16);
+    box-shadow: 0 0 0 4px rgb(59 130 246 / 0.16);
   }
   .oc-dot-live {
     background: #34d399;
     box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.18);
+  }
+
+  .amg-oc .support-field {
+    min-height: 2.75rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--oc-line-strong);
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--oc-ink);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.86);
+  }
+  .amg-oc .support-field::placeholder {
+    color: rgb(5 11 20 / 0.48);
+  }
+  .amg-oc .support-field:focus,
+  .amg-oc .support-field:focus-visible {
+    border-color: var(--oc-blue);
+    box-shadow: 0 0 0 3px rgb(59 130 246 / 0.18);
+    outline: none;
   }
 
 }
