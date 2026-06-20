@@ -5,7 +5,6 @@ import { AIRCRAFT_IMAGES } from "@/lib/site-media";
 
 type Category = {
   name: string;
-  profile: string;
   image: string;
   alt: string;
   support: string;
@@ -15,7 +14,6 @@ type Category = {
 const CATEGORIES: Category[] = [
   {
     name: "Piston",
-    profile: "Representative profile: Cirrus SR22-class piston aircraft",
     image: AIRCRAFT_IMAGES["piston"],
     alt: "Cirrus SR22-style piston aircraft representing AMG piston aircraft support",
     support: "Owner support, maintenance positioning, records context, and pilot qualification review for piston aircraft.",
@@ -23,7 +21,6 @@ const CATEGORIES: Category[] = [
   },
   {
     name: "Turboprop",
-    profile: "Representative profile: Pilatus PC-12-class turboprop aircraft",
     image: AIRCRAFT_IMAGES["turboprop"],
     alt: "Pilatus PC-12-style turboprop aircraft representing AMG turboprop aircraft support",
     support: "Regional support, maintenance positioning, crew sourcing, and operating-condition review for turboprop aircraft.",
@@ -31,7 +28,6 @@ const CATEGORIES: Category[] = [
   },
   {
     name: "Single Engine Jet",
-    profile: "Representative profile: Cirrus SF50 Vision Jet-class aircraft",
     image: AIRCRAFT_IMAGES["single-engine-jet"],
     alt: "Cirrus SF50 Vision Jet-style aircraft representing AMG single-engine jet support",
     support: "Aircraft-specific support for owner activity, ferry movement, maintenance positioning, and crew qualification review.",
@@ -39,7 +35,6 @@ const CATEGORIES: Category[] = [
   },
   {
     name: "Light Jet",
-    profile: "Representative profile: Phenom 100-class light jet",
     image: AIRCRAFT_IMAGES["light-jet"],
     alt: "Embraer Phenom 100-style light jet representing AMG light jet support",
     support: "Repositioning coordination, owner communication, maintenance-movement support, and assignment readiness for lighter jet aircraft.",
@@ -47,7 +42,6 @@ const CATEGORIES: Category[] = [
   },
   {
     name: "Mid Size Jet",
-    profile: "Representative profile: Citation Latitude-class midsize jet",
     image: AIRCRAFT_IMAGES["midsize-jet"],
     alt: "Citation Latitude-style midsize jet representing AMG mid size jet support",
     support: "Crew sourcing, support request review, aircraft-status coordination, and logistics for domestic or regional operating needs.",
@@ -55,7 +49,6 @@ const CATEGORIES: Category[] = [
   },
   {
     name: "Super Midsize",
-    profile: "Representative profile: Challenger 650-class super midsize jet",
     image: AIRCRAFT_IMAGES["super-midsize-jet"],
     alt: "Challenger 650-style super midsize jet representing AMG super midsize aircraft support",
     support: "Expanded crew, travel, documentation, vendor, facility, and logistics coordination for more complex movements.",
@@ -63,7 +56,6 @@ const CATEGORIES: Category[] = [
   },
   {
     name: "Heavy",
-    profile: "Representative profile: Gulfstream G650-class heavy jet",
     image: AIRCRAFT_IMAGES["heavy"],
     alt: "Gulfstream G650-style heavy jet representing AMG heavy aircraft support",
     support: "Large-cabin support review, crew logistics, documentation, vendor coordination, and stakeholder communication for complex trips.",
@@ -108,7 +100,6 @@ export function AircraftGallery({
                 </h3>
               </Figure>
               <div className="flex flex-1 flex-col gap-4 p-6">
-                <p className="text-sm font-semibold leading-relaxed text-[var(--oc-ink)]">{cat.profile}</p>
                 <div>
                   <p className="oc-kicker text-[var(--oc-muted)]">Typical support</p>
                   <p className="mt-2 text-sm leading-relaxed text-[var(--oc-ink)]/80">{cat.support}</p>
