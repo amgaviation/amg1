@@ -499,13 +499,16 @@ export const FOOTER_COLS = [
     ],
   },
   {
-    heading: "Administrative",
+    heading: "Legal",
     links: [
       { label: "Privacy Policy", href: "/privacy-policy" },
+      { label: "Privacy Choices", href: "/privacy-choices" },
+      { label: "Cookie Policy", href: "/cookie-policy" },
       { label: "Terms & Conditions", href: "/terms" },
-      { label: "Operational Disclaimer", href: "/operational-disclaimer" },
       { label: "Mission Acceptance Policy", href: "/mission-acceptance" },
       { label: "Credential Submission Notice", href: "/credential-submission" },
+      { label: "Accessibility", href: "/accessibility" },
+      { label: "All Legal Notices", href: "/legal" },
     ],
   },
 ] as const;

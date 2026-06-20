@@ -32,6 +32,10 @@ export default async function ClientDocumentsPage({
       <PageHeader eyebrow="Owner Services" title="Aircraft Documents" description="Upload and manage aircraft, owner, and mission documents." />
 
       <SectionCard title="Upload Document" icon="fileText">
+        <Notice tone="info">
+          Upload only documents you are authorized to provide and avoid unnecessary sensitive data. Review the{" "}
+          <Link href="/legal/document-upload-terms" className="font-semibold text-accent hover:underline">Document Upload Terms</Link>.
+        </Notice>
         <form action={uploadDocument} encType="multipart/form-data">
           <input type="hidden" name="back_to" value="/portal/client/documents" />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

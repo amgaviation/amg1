@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { CookiePreferencesButton } from "@/components/compliance/cookie-consent";
 import { COMPANY, FOOTER_COLS } from "@/lib/content";
 
 const FOOTER_NOTE =
@@ -64,7 +65,10 @@ export function SiteFooter() {
           <span>
             &copy; {new Date().getFullYear()} {COMPANY.name}. All rights reserved.
           </span>
-          <span>{COMPANY.location}</span>
+          <span className="flex flex-wrap items-center gap-3">
+            <CookiePreferencesButton className="text-[var(--oc-aluminum-2)] transition-colors hover:text-white" />
+            <span>{COMPANY.location}</span>
+          </span>
         </div>
       </div>
     </footer>

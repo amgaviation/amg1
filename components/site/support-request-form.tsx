@@ -278,7 +278,21 @@ export function SupportRequestForm({
                 I understand that submitting this support request does not confirm support acceptance, crew availability,
                 aircraft movement, maintenance flight approval, or operational authorization. AMG must review support
                 scope, aircraft status, crew availability, owner/operator approval, and operational conditions before a
-                request is accepted.
+                request is accepted. I have reviewed the <Link href="/privacy-policy" className="font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">Privacy Policy</Link>, <Link href="/terms" className="font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">Terms</Link>, and <Link href="/mission-acceptance" className="font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">Mission Acceptance Disclaimer</Link>.
+              </span>
+            </label>
+            <label className="mt-4 flex items-start gap-3 text-sm leading-relaxed text-[var(--oc-muted)]">
+              <input name="marketing_consent" value="yes" type="checkbox" className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
+              <span>
+                I agree to receive optional AMG email updates. Transactional emails about this support request may still
+                be sent without marketing consent.
+              </span>
+            </label>
+            <label className="mt-4 flex items-start gap-3 text-sm leading-relaxed text-[var(--oc-muted)]">
+              <input name="sms_consent" value="yes" type="checkbox" className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
+              <span>
+                I agree to receive optional AMG text messages about this support request or related operational
+                administration. Message and data rates may apply. See the <Link href="/legal/sms-terms" className="font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">SMS Terms</Link>.
               </span>
             </label>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

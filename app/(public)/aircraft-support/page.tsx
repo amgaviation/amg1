@@ -44,6 +44,17 @@ export default function AircraftSupportPage() {
         withSectionCta={false}
       />
 
+      <section className="border-y border-[var(--oc-line)] bg-white px-6 py-8 lg:px-10">
+        <div className="oc-shell">
+          <p className="max-w-5xl text-sm leading-relaxed text-[var(--oc-muted)]">
+            Aircraft manufacturer and model names are used only for identification and aircraft-class context. AMG is
+            not affiliated with, endorsed by, sponsored by, or approved by aircraft manufacturers unless separately
+            documented in writing. Support remains subject to aircraft status, crew availability, owner/operator
+            approval, operating conditions, and final AMG review.
+          </p>
+        </div>
+      </section>
+
       <section className="oc-section bg-[var(--oc-ivory)]">
         <div className="oc-shell grid items-center gap-12 lg:grid-cols-2">
           <div data-scroll-animate>

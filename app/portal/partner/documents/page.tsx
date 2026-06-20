@@ -29,6 +29,10 @@ export default async function PartnerDocumentsPage({
       {params.error && !["missing", "upload"].includes(params.error) ? <Notice tone="danger">{getUserFacingErrorMessage({ audience: "vendor", area: "vendor_portal", action: "update" })}</Notice> : null}
       <PageHeader eyebrow="Service Partner" title="Documents" description="Upload vendor agreements, insurance, airport permits, W-9s, and service documentation." />
       <SectionCard title="Upload Document" icon="fileText">
+        <Notice tone="info">
+          Upload only partner documents you are authorized to provide. Review the{" "}
+          <Link href="/legal/document-upload-terms" className="font-semibold text-accent hover:underline">Document Upload Terms</Link>.
+        </Notice>
         <form action={uploadDocument} encType="multipart/form-data">
           <input type="hidden" name="back_to" value="/portal/partner/documents" />
           <input type="hidden" name="scope_type" value="partner" />

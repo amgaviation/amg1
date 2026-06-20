@@ -212,6 +212,7 @@ function booleanFromText(value: string) {
 const BOOLEAN_COMPATIBILITY_COLUMNS = [
   "acknowledgement",
   "marketing_consent",
+  "sms_consent",
   "email_sent",
   "internal_email_sent",
   "confirmation_email_sent",
@@ -233,6 +234,7 @@ function booleanCompatibilityColumn(error: unknown, row: Record<string, unknown>
 
 const NOT_NULL_COMPATIBILITY_VALUES: Record<string, unknown> = {
   marketing_consent: false,
+  sms_consent: false,
 };
 
 async function insertSubmissionRow(db: any, row: Record<string, unknown>) {
@@ -348,6 +350,58 @@ async function markEmailDelivery(
   }
 }
 
+async function recordPublicFormConsents(
+  db: any,
+  submission: NormalizedPublicFormSubmission,
+  id: string,
+  context?: PublicFormRequestContext,
+) {
+  const rows = [
+    submission.marketingConsent === null
+      ? null
+      : {
+          email: submission.email,
+          phone: submission.phone || null,
+          requester_name: submission.requesterName,
+          consent_channel: "email",
+          consent_status: submission.marketingConsent ? "opted_in" : "not_opted_in",
+          consent_source: submission.submissionType,
+          consent_text: "Optional AMG email updates checkbox on public website form.",
+          consent_version: "2026-06-20",
+          related_submission_id: id,
+          source_url: context?.sourceUrl ?? null,
+          user_agent: context?.userAgent ?? null,
+        },
+    submission.smsConsent === null
+      ? null
+      : {
+          email: submission.email,
+          phone: submission.phone || null,
+          requester_name: submission.requesterName,
+          consent_channel: "sms",
+          consent_status: submission.smsConsent ? "opted_in" : "not_opted_in",
+          consent_source: submission.submissionType,
+          consent_text: "Optional AMG SMS consent checkbox on public website form. Message and data rates may apply.",
+          consent_version: "2026-06-20",
+          related_submission_id: id,
+          source_url: context?.sourceUrl ?? null,
+          user_agent: context?.userAgent ?? null,
+        },
+  ].filter(Boolean);
+
+  if (!rows.length) return;
+
+  const { error } = await db.from("marketing_consents").insert(rows);
+  if (error) {
+    console.warn("Public form consent history insert failed", {
+      id,
+      sourcePage: submission.sourcePage,
+      submissionType: submission.submissionType,
+      error: errorSummary(error),
+    });
+  }
+}
+
 export async function saveAndEmailSubmission(
   submission: NormalizedPublicFormSubmission,
   context?: PublicFormRequestContext,
@@ -378,6 +432,7 @@ export async function saveAndEmailSubmission(
   }
 
   const id = data.id as string;
+  await recordPublicFormConsents(db as any, submission, id, context);
   const internalEmail = buildInternalEmail(submission, id);
   const confirmationEmail = buildConfirmationEmail(submission, id);
   const [internalResult, confirmationResult] = await Promise.all([
