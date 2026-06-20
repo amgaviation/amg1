@@ -191,6 +191,19 @@ export function CookieConsentBanner() {
               <button
                 type="button"
                 onClick={() => {
+                  const next = defaultConsentState(true);
+                  persistConsent(next, "accept_all");
+                  setChoices(next);
+                  setStored(readStoredConsent());
+                  setOpen(false);
+                }}
+                className="min-h-11 rounded-full border border-[var(--oc-blue)] px-4 text-sm font-semibold text-[var(--oc-blue)] hover:bg-blue-50"
+              >
+                Accept all
+              </button>
+              <button
+                type="button"
+                onClick={() => {
                   persistConsent(choices, "preferences");
                   setStored(readStoredConsent());
                   setOpen(false);
