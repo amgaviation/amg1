@@ -133,37 +133,43 @@ export function CookieConsentBanner() {
   return (
     <>
       {shouldShowBanner ? (
-        <div className="fixed inset-x-0 bottom-0 z-[80] border-t border-slate-200 bg-white/95 px-4 py-4 shadow-[0_-20px_50px_rgba(8,20,36,0.16)] backdrop-blur">
-          <div className="mx-auto flex max-w-6xl flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-3xl">
-              <p className="font-display text-sm font-bold uppercase text-slate-950">Cookie preferences</p>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                AMG uses necessary tools for site and portal operation. Optional analytics, marketing, session recording,
-                and embedded tools run only after consent. Review the <Link href="/cookie-policy" className="text-accent hover:underline">Cookie Policy</Link>.
+        <div className="fixed inset-x-0 bottom-0 z-[80] px-3 pb-3 sm:px-5 sm:pb-5">
+          <div className="mx-auto max-w-6xl overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_-10px_48px_rgba(8,20,36,0.18)]">
+            <div className="h-1.5 bg-[var(--oc-blue)]" aria-hidden="true" />
+            <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div className="max-w-3xl">
+                <p className="font-display text-sm font-bold uppercase text-slate-950">Cookie preferences</p>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  AMG uses necessary tools for site and portal operation. Optional analytics, marketing, session recording,
+                  and embedded tools run only after consent. Review the <Link href="/cookie-policy" className="font-semibold text-[var(--oc-blue)] hover:underline">Cookie Policy</Link>.
+                </p>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-[minmax(10rem,1.2fr)_minmax(8rem,1fr)_minmax(7rem,0.85fr)] lg:min-w-[28rem]">
+                <button
+                  type="button"
+                  onClick={acceptAllCookies}
+                  className="min-h-12 rounded-md bg-[var(--oc-blue)] px-5 text-sm font-bold uppercase text-white shadow-[0_10px_26px_rgba(47,107,174,0.3)] transition-colors hover:bg-[var(--oc-navy)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--oc-blue)] focus-visible:ring-offset-2"
+                >
+                  Accept all cookies
+                </button>
+                <button
+                  type="button"
+                  onClick={rejectOptionalCookies}
+                  className="min-h-12 rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-900 transition-colors hover:border-[var(--oc-blue)] hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--oc-blue)] focus-visible:ring-offset-2"
+                >
+                  Reject Optional
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOpen(true)}
+                  className="min-h-12 rounded-md border border-slate-300 bg-slate-50 px-4 text-sm font-semibold text-slate-900 transition-colors hover:border-[var(--oc-blue)] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--oc-blue)] focus-visible:ring-offset-2"
+                >
+                  Manage
+                </button>
+              </div>
+              <p className="text-xs leading-relaxed text-slate-500 lg:col-span-2">
+                You can update preferences later from the footer.
               </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={acceptAllCookies}
-                className="min-h-11 rounded-full bg-[var(--oc-blue)] px-4 text-sm font-semibold text-white hover:bg-[var(--oc-navy)]"
-              >
-                Accept all cookies
-              </button>
-              <button
-                type="button"
-                onClick={rejectOptionalCookies}
-                className="min-h-11 rounded-full border border-slate-300 px-4 text-sm font-semibold text-slate-800 hover:border-accent"
-              >
-                Reject Optional
-              </button>
-              <button
-                type="button"
-                onClick={() => setOpen(true)}
-                className="min-h-11 rounded-full border border-slate-300 px-4 text-sm font-semibold text-slate-800 hover:border-accent"
-              >
-                Manage
-              </button>
             </div>
           </div>
         </div>
