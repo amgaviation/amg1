@@ -21,7 +21,7 @@ export default async function ContactPage({
   const hero = heroForWebsiteContent("contact", {
     eyebrow: "AMG Contact",
     title: "Contact AMG Aviation Group",
-    lead: "For general inquiries, plan questions, pilot network communication, vendor coordination, or administrative requests.",
+    lead: "Use this page for general inquiries, plan questions, crew-network communication, vendor coordination, or administrative requests.",
     image: IMG.contactSupport,
   });
 
@@ -67,8 +67,7 @@ export default async function ContactPage({
               <p className="oc-eyebrow oc-eyebrow-light">Need aircraft support?</p>
               <h2 className="mt-4 text-2xl font-semibold text-[var(--oc-paper)]">Use the dedicated support request page.</h2>
               <p className="mt-4 text-sm leading-relaxed text-[var(--oc-aluminum)]">
-                For aircraft movement, crew coordination, ferry/repositioning, maintenance support, or mission-specific
-                operational coordination, use the dedicated support request page.
+                Aircraft movement, crew coordination, maintenance movement, and operational support requests need the structured intake flow.
               </p>
               <Button asChild className="mt-6 min-h-11 rounded-full bg-white text-[var(--oc-navy)] hover:bg-white/90">
                 <Link href="/request-support" prefetch={false}>

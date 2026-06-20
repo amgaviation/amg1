@@ -33,8 +33,8 @@ const FAQS = [
 export default function FaqsPage() {
   const hero = heroForWebsiteContent("faqs", {
     eyebrow: "FAQs",
-    title: "Common questions about reviewed support.",
-    lead: "AMG Aviation reviews every request before acceptance. Additional information, resource review, quotes, or follow-up may be required.",
+    title: "Common questions before support proceeds.",
+    lead: "Answers about request acceptance, crew availability, AMG Connect access, quotes, plans, and service limits.",
     image: IMG.generatedDispatch,
     imageAlt: "AMG dispatch and operations coordination environment",
     primary: { label: "Request Support", href: "/request-support" },
@@ -58,7 +58,7 @@ export default function FaqsPage() {
           <SectionHeading
             eyebrow="Support Review"
             title="Clear answers before a request moves forward."
-            lead="These answers summarize the review posture used across AMG Aviation website forms, portal workflows, and support conversations."
+            lead="These answers explain what visitors should understand before relying on a support path."
           />
           <div className="mt-12 grid gap-5 md:grid-cols-2" data-stagger-container>
             {FAQS.map((item) => (

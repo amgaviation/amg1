@@ -9,8 +9,8 @@
     "hero": {
       "enabled": true,
       "eyebrow": "Contact AMG Aviation",
-      "headline": "Start with a reviewed request.",
-      "body": "Share the support context and AMG Aviation will review the request before confirming availability, assignment, quote, referral, or follow-up.",
+      "headline": "Route the right inquiry.",
+      "body": "Use this page for general inquiries, plan questions, crew-network communication, vendor coordination, or administrative requests.",
       "primaryCtaLabel": "Request Support",
       "primaryCtaHref": "/request-support",
       "secondaryCtaLabel": "Email AMG Aviation",

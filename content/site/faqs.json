@@ -9,8 +9,8 @@
     "hero": {
       "enabled": true,
       "eyebrow": "FAQs",
-      "headline": "Common questions about reviewed support.",
-      "body": "AMG Aviation reviews every request before acceptance. Additional information, resource review, quotes, or follow-up may be required.",
+      "headline": "Common questions before support proceeds.",
+      "body": "Answers about request acceptance, crew availability, AMG Connect access, quotes, plans, and service limits.",
       "primaryCtaLabel": "Request Support",
       "primaryCtaHref": "/request-support",
       "secondaryCtaLabel": "Contact AMG Aviation",

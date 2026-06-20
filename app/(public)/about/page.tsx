@@ -13,7 +13,7 @@ export default function AboutPage() {
   const hero = heroForWebsiteContent("about", {
     eyebrow: "About AMG",
     title: "Built around real aircraft support needs.",
-    lead: "AMG Aviation Group provides structured coordination for aircraft owners, flight departments, crews, and approved representatives — with operating authority, aircraft approval, and pilot-in-command responsibility kept where they belong.",
+    lead: "AMG Aviation Group provides structured coordination for aircraft owners, flight departments, crews, and approved representatives while keeping operating authority, aircraft approval, and pilot-in-command responsibility clearly assigned.",
     image: IMG.aboutOperations,
     imageAlt: "AMG operations environment",
     primary: { label: "Request Support", href: "/request-support" },
@@ -38,7 +38,7 @@ export default function AboutPage() {
             <SectionHeading
               eyebrow="What AMG does"
               title="Coordination for the work around the aircraft."
-              lead="AMG supports aircraft movement, crew coverage, maintenance repositioning, support administration, and stakeholder communication through clear review, documentation, and coordination."
+              lead="AMG organizes the communication, documentation, and review work that surrounds aircraft support requests."
             />
             <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-[var(--oc-muted)]">
               {COMPANY.disclaimer}
@@ -74,8 +74,8 @@ export default function AboutPage() {
         <div className="oc-shell">
           <SectionHeading
             eyebrow="Support desk"
-            title="One support model, four working functions."
-            lead="AMG is organized around the functions that keep a support request moving — coordination, crew review, owner communication, and access control."
+            title="Four functions behind the support desk."
+            lead="The team structure keeps the company story here and leaves full capability detail on the Capabilities page."
           />
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
             {TEAM.map((member) => (

@@ -14,42 +14,42 @@ const PREVIEWS: PreviewItem[] = [
     n: "01",
     title: "Capabilities",
     description:
-      "Explore AMG's support paths for aircraft movement, crew coordination, maintenance support, flight ops coordination, and recurring support needs.",
+      "Review the complete support taxonomy, request sequence, and inputs AMG evaluates before a support path proceeds.",
     href: "/capabilities",
   },
   {
     n: "02",
     title: "Aircraft Supported",
     description:
-      "Review support by aircraft category, from piston and VLJ aircraft through heavy and long-range aircraft categories.",
+      "See how aircraft category changes crew, route, airport, documentation, and operating-limit considerations.",
     href: "/aircraft-support",
   },
   {
     n: "03",
     title: "Plans",
     description:
-      "Compare structured support plans built around aircraft category, support frequency, maintenance movement, and visibility needs.",
+      "Compare recurring support structures by aircraft category, support frequency, and coordination depth.",
     href: "/plans",
   },
   {
     n: "04",
     title: "Crew Network",
     description:
-      "Review how AMG approaches crew-related support through availability, aircraft category, qualification context, and owner/operator approval.",
+      "Understand how crew profiles, credentials, availability, and assignment suitability are reviewed.",
     href: "/crew-network",
   },
   {
     n: "05",
     title: "AMG Connect",
     description:
-      "Access the portal for clients, crews, and AMG Operations to organize requests, documents, messages, quotes, invoices, and support status.",
+      "Learn how approved users see requests, documents, messages, quotes, invoices, and status by role.",
     href: "/amg-connect",
   },
   {
     n: "06",
     title: "Request Support",
     description:
-      "Start an aircraft support, crew coordination, ferry/repositioning, maintenance movement, or plan review request.",
+      "Submit aircraft context, timing, support category, and constraints for review.",
     href: "/request-support",
     highlight: true,
   },
@@ -65,7 +65,7 @@ export function SitePreviewLayer() {
             Where do you want to start?
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-[var(--oc-muted)]">
-            AMG's site is organized around the practical questions owners, flight departments, and crews ask when aircraft support is needed.
+            Start with a concise overview here, then move to the page that owns the details.
           </p>
         </div>
 

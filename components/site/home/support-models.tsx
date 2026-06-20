@@ -6,22 +6,22 @@ const MODELS = [
   {
     label: "Model 01",
     name: "On-Demand Support",
-    summary: "For a specific aircraft movement, maintenance repositioning, or crew coverage need handled request by request.",
-    points: ["Request-by-request intake", "Crew sourcing and logistics review", "No recurring commitment"],
+    summary: "For one aircraft movement, maintenance repositioning, or crew coverage need.",
+    points: ["Request-by-request intake", "Scope and availability review", "No recurring commitment"],
     featured: false,
   },
   {
     label: "Model 02",
     name: "Recurring Owner Support",
-    summary: "For owners who want a defined coordination cadence around one aircraft's recurring support needs.",
-    points: ["Defined monthly scope", "Priority support review", "Owner communication and portal visibility"],
+    summary: "For owners who want a defined cadence around one aircraft's recurring support needs.",
+    points: ["Defined monthly scope", "Priority review path", "Owner communication"],
     featured: true,
   },
   {
     label: "Model 03",
     name: "Fleet / Department Support",
-    summary: "For flight departments and owners managing multiple aircraft, higher activity, or variable crew needs.",
-    points: ["Multi-aircraft coordination", "Role-based portal access", "Reporting and support cadence"],
+    summary: "For flight departments and owners managing multiple aircraft or variable crew needs.",
+    points: ["Multi-aircraft coordination", "Role-based visibility", "Support cadence"],
     featured: false,
   },
 ];
@@ -34,7 +34,7 @@ export function SupportModels() {
           <SectionHeading
             eyebrow="Support Models"
             title="Engage AMG around the aircraft’s support need."
-            lead="Three ways to work with AMG — from a single support event to standing coordination across an owner account or flight department. Detailed allowances live in Plans."
+            lead="Choose a single request, a recurring owner path, or a fleet-level review. Detailed allowances live in Plans."
           />
           <Link href="/plans" prefetch={false} className="oc-btn oc-btn-ghost shrink-0">
             Compare plans

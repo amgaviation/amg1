@@ -34,7 +34,7 @@ export default function AmgConnectPage() {
           <SectionHeading
             eyebrow="Role views"
             title="Access scoped to the support role."
-            lead="Every user sees what their role needs — and nothing it does not. Portal access is reviewed and approved before it is granted."
+            lead="Approved users receive only the request, document, communication, and status context their role requires."
           />
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
             {PORTAL_ROLES.map((role) => (
@@ -64,7 +64,7 @@ export default function AmgConnectPage() {
       <CtaBand
         eyebrow="AMG Connect"
         title="Request access to the portal."
-        body="Approved owners, crews, and partners get a role-based view of support activity. Portal visibility does not replace crew confirmation, operational approval, or final support acceptance."
+        body="Portal visibility supports communication; it does not replace crew confirmation, operational approval, or final support acceptance."
         primaryLabel="Request Access"
         primaryHref="/login?mode=request"
         secondaryLabel="Member Login"
