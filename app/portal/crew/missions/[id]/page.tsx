@@ -11,6 +11,7 @@ import {
   URGENCY_LABEL, URGENCY_TONE, toneFor, labelFor
 } from "@/lib/portal/constants";
 import { formatRoute, formatDateTime } from "@/lib/portal/format";
+import { COMPANY } from "@/lib/content";
 
 export const metadata = { title: "Mission Brief — Crew Portal" };
 
@@ -128,7 +129,7 @@ export default async function CrewMissionDetailPage({
 
           <SectionCard title="Operations Contact" icon="messageSquare">
             <p className="text-sm text-muted-foreground">Questions about this mission?</p>
-            <a href="mailto:ops@amgaviation.com" className="mt-2 block text-sm text-accent hover:underline">ops@amgaviation.com</a>
+            <a href={`mailto:${COMPANY.email}`} className="mt-2 block text-sm text-accent hover:underline">{COMPANY.email}</a>
           </SectionCard>
         </div>
       </div>

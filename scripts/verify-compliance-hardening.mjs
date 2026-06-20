@@ -73,6 +73,8 @@ for (const file of [
   "docs/launch-compliance-checklist.md",
   "docs/security-privacy-findings.md",
   "docs/compliance-hardening-qa.md",
+  "docs/secure-engineering-standard.md",
+  "docs/website-ground-truth.md",
 ]) {
   if (!exists(file)) fail(`missing ${file}`);
 }
@@ -128,9 +130,18 @@ for (const file of ["app", "components", "lib"].flatMap(walk)) {
   const relative = path.relative(root, file);
   if (allowedFiles.has(relative)) continue;
   const body = fs.readFileSync(file, "utf8");
+  if (/ops@amgaviation\.com/i.test(body)) {
+    fail(`${relative} contains legacy operations email instead of the canonical AMG Aviation contact`);
+  }
   for (const pattern of prohibited) {
     if (pattern.test(body)) fail(`${relative} contains direct prohibited aviation/payment claim ${pattern}`);
   }
+}
+
+const content = read("lib/content.ts");
+if (!content.includes("information@amgaviationgroup.com")) fail("company content missing canonical AMG Aviation contact email");
+if (!content.includes("Submitting a Support Request does not constitute mission acceptance")) {
+  fail("company content missing request review disclaimer");
 }
 
 if (failed) process.exit(1);

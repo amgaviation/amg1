@@ -7,6 +7,7 @@ import { PageHeader, SectionCard, DetailRow, Notice } from "@/components/portal/
 import { RoleBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { getProfile } from "@/lib/portal/queries";
+import { COMPANY } from "@/lib/content";
 
 export const metadata = { title: "Settings — Client Portal" };
 
@@ -53,7 +54,7 @@ export default async function ClientSettingsPage({
         </dl>
         <p className="mt-4 text-xs text-muted-foreground">
           To update your account details, contact AMG Operations at{" "}
-          <a href="mailto:ops@amgaviation.com" className="text-accent hover:underline">ops@amgaviation.com</a>.
+          <a href={`mailto:${COMPANY.email}`} className="text-accent hover:underline">{COMPANY.email}</a>.
         </p>
       </SectionCard>
 
