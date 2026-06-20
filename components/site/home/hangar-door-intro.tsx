@@ -149,7 +149,7 @@ export function HangarDoorIntro() {
       transition={{ duration: shouldReduceMotion ? 0 : 0.7, ease: [0.22, 1, 0.36, 1] }}
     >
       <Image src={IMG.generatedHangarDoor} alt="" fill priority sizes="100vw" className="object-cover opacity-70" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_68%,rgba(229,177,105,0.2),transparent_26rem),linear-gradient(180deg,rgba(5,11,20,0.22),rgba(5,11,20,0.78))]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_68%,rgba(59,130,246,0.2),transparent_26rem),linear-gradient(180deg,rgba(5,11,20,0.22),rgba(5,11,20,0.78))]" />
       <div className="absolute inset-x-0 bottom-0 h-[32svh] bg-[linear-gradient(180deg,transparent,rgba(5,11,20,0.58)),radial-gradient(ellipse_at_50%_100%,rgba(255,255,255,0.16),transparent_56%)]" />
 
       <DoorPanel
@@ -168,7 +168,7 @@ export function HangarDoorIntro() {
       />
 
       <motion.div
-        className="pointer-events-none absolute inset-y-[9%] left-1/2 z-20 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-white/80 to-transparent shadow-[0_0_46px_rgba(229,177,105,0.72)]"
+        className="pointer-events-none absolute inset-y-[9%] left-1/2 z-20 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-white/80 to-transparent shadow-[0_0_46px_rgba(59,130,246,0.54)]"
         animate={{ opacity: shouldReduceMotion ? 0.45 : 0.28 + openAmount * 0.65, scaleY: 0.72 + openAmount * 0.28 }}
         transition={{ duration: shouldReduceMotion ? 0 : 0.18 }}
         aria-hidden="true"
@@ -212,12 +212,12 @@ export function HangarDoorIntro() {
         <div className="mt-6 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--oc-aluminum)]">
           {isSimplified ? (
             <>
-              <CornerDownRight className="h-4 w-4 text-[var(--oc-sand)]" />
+              <CornerDownRight className="h-4 w-4 text-[var(--oc-accent)]" />
               Tap to enter
             </>
           ) : (
             <>
-              <ArrowDown className="h-4 w-4 text-[var(--oc-sand)]" />
+              <ArrowDown className="h-4 w-4 text-[var(--oc-accent)]" />
               Scroll to open
             </>
           )}
@@ -271,8 +271,8 @@ function DoorPanel({
       <div
         className={`absolute inset-y-0 w-8 ${
           side === "left"
-            ? "right-0 bg-gradient-to-l from-[var(--oc-sand)]/42 to-transparent"
-            : "left-0 bg-gradient-to-r from-[var(--oc-sand)]/42 to-transparent"
+            ? "right-0 bg-gradient-to-l from-[var(--oc-accent)]/42 to-transparent"
+            : "left-0 bg-gradient-to-r from-[var(--oc-accent)]/42 to-transparent"
         }`}
       />
       <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/56 to-transparent" />

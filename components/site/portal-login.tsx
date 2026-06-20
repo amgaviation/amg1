@@ -67,7 +67,7 @@ export function PortalLogin({
           <div className="w-full max-w-md">
             <div className="mb-8">
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs uppercase tracking-[0.22em] text-white/65">
-                <ShieldCheck className="h-3.5 w-3.5 text-sky-300" />
+                <ShieldCheck className="h-3.5 w-3.5 text-primary" />
                 Approved Access
               </div>
 
@@ -147,14 +147,14 @@ export function PortalLogin({
 
                   <Link
                     href="/forgot-password"
-                    className="inline-flex min-h-10 items-center justify-center rounded-full border border-white/15 px-4 text-xs font-semibold uppercase text-white/75 hover:border-sky-300 hover:text-white"
+                    className="inline-flex min-h-10 items-center justify-center rounded-full border border-white/15 px-4 text-xs font-semibold uppercase text-white/75 hover:border-primary hover:text-white"
                   >
                     Forgot password
                   </Link>
 
                   <Link
                     href="/contact"
-                    className="inline-flex min-h-10 items-center justify-center rounded-full border border-white/15 px-4 text-xs font-semibold uppercase text-white/75 hover:border-sky-300 hover:text-white"
+                    className="inline-flex min-h-10 items-center justify-center rounded-full border border-white/15 px-4 text-xs font-semibold uppercase text-white/75 hover:border-primary hover:text-white"
                   >
                     Wrong email
                   </Link>
@@ -184,7 +184,7 @@ export function PortalLogin({
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
                     placeholder="name@company.com"
-                    className="h-12 rounded-xl border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-sky-300/70"
+                    className="h-12 rounded-lg border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-primary"
                   />
                 </div>
 
@@ -199,7 +199,7 @@ export function PortalLogin({
 
                     <Link
                       href="/forgot-password"
-                      className="text-sm text-sky-300 underline-offset-4 hover:underline"
+                      className="text-sm text-primary underline-offset-4 hover:underline"
                     >
                       Forgot password?
                     </Link>
@@ -214,11 +214,11 @@ export function PortalLogin({
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     placeholder="Password"
-                    className="h-12 rounded-xl border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-sky-300/70"
+                    className="h-12 rounded-lg border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-primary"
                   />
                 </div>
 
-                <button className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-4 font-display text-sm font-semibold uppercase text-[#07111f] transition hover:bg-sky-100">
+                <button className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-4 font-display text-sm font-semibold uppercase text-[#07111f] transition hover:bg-white/90">
                   Sign in
                   <ArrowRight className="h-4 w-4" />
                 </button>
@@ -240,7 +240,7 @@ export function PortalLogin({
                       name="full_name"
                       required
                       autoComplete="name"
-                      className="h-12 rounded-xl border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-sky-300/70"
+                      className="h-12 rounded-lg border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-primary"
                     />
                   </label>
 
@@ -251,7 +251,7 @@ export function PortalLogin({
                       type="email"
                       required
                       autoComplete="email"
-                      className="h-12 rounded-xl border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-sky-300/70"
+                      className="h-12 rounded-lg border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-primary"
                     />
                   </label>
 
@@ -263,7 +263,7 @@ export function PortalLogin({
                       required
                       minLength={8}
                       autoComplete="new-password"
-                      className="h-12 rounded-xl border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-sky-300/70"
+                      className="h-12 rounded-lg border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-primary"
                     />
                   </label>
 
@@ -274,7 +274,7 @@ export function PortalLogin({
                     <input
                       name="company_name"
                       autoComplete="organization"
-                      className="h-12 rounded-xl border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-sky-300/70"
+                      className="h-12 rounded-lg border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-primary"
                     />
                   </label>
 
@@ -284,12 +284,12 @@ export function PortalLogin({
                       name="phone"
                       type="tel"
                       autoComplete="tel"
-                      className="h-12 rounded-xl border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-sky-300/70"
+                      className="h-12 rounded-lg border border-white/10 bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-primary"
                     />
                   </label>
                 </div>
 
-                <button className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-4 font-display text-sm font-semibold uppercase text-[#07111f] transition hover:bg-sky-100">
+                <button className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-4 font-display text-sm font-semibold uppercase text-[#07111f] transition hover:bg-white/90">
                   Submit access request
                   <ArrowRight className="h-4 w-4" />
                 </button>
@@ -321,7 +321,7 @@ export function PortalLogin({
         <div className="absolute inset-0 bg-gradient-to-r from-[#07111f]/70 via-transparent to-transparent" />
 
         <div className="absolute bottom-10 left-10 right-10 rounded-2xl border border-white/10 bg-black/35 p-6 backdrop-blur-md">
-          <p className="text-xs uppercase tracking-[0.24em] text-sky-200/80">
+          <p className="text-xs uppercase tracking-[0.24em] text-[var(--amg-light-gray)]/80">
             Operations Portal
           </p>
 
@@ -344,7 +344,7 @@ export function PortalLogin({
                   key={panel.title}
                   className="rounded-xl border border-white/10 bg-white/[0.06] p-4"
                 >
-                  <Icon className="h-4 w-4 text-sky-300" />
+                  <Icon className="h-4 w-4 text-primary" />
                   <p className="mt-4 font-display text-lg font-semibold uppercase text-white">
                     {panel.title}
                   </p>

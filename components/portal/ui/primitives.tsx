@@ -15,16 +15,16 @@ export function PageHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-end sm:justify-between">
+    <div className="flex flex-col gap-4 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
       <div>
         {eyebrow ? (
           <p className="eyebrow text-[0.64rem] text-primary">{eyebrow}</p>
         ) : null}
-        <h1 className="mt-2 font-display text-3xl font-extrabold uppercase leading-none text-slate-950 sm:text-4xl">
+        <h1 className="mt-2 font-display text-3xl font-extrabold uppercase leading-none text-white sm:text-4xl">
           {title}
         </h1>
         {description ? (
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--amg-text-secondary)]">
             {description}
           </p>
         ) : null}
@@ -53,17 +53,17 @@ export function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className={cn("rounded-lg border border-slate-200 bg-white shadow-[0_14px_40px_rgba(8,20,36,0.06)]", className)}>
+    <section className={cn("rounded-lg border border-white/10 bg-[#07111F]/92 shadow-[0_18px_58px_rgba(0,0,0,0.24)] backdrop-blur", className)}>
       {title ? (
-        <header className="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-4">
+        <header className="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-4">
           <div className="flex items-center gap-3">
             {icon ? <PortalIcon name={icon} className="h-4 w-4 text-primary" /> : null}
             <div>
-              <h2 className="font-display text-lg font-bold uppercase text-slate-950">
+              <h2 className="font-display text-lg font-bold uppercase text-white">
                 {title}
               </h2>
               {description ? (
-                <p className="mt-1 text-xs text-slate-500">{description}</p>
+                <p className="mt-1 text-xs leading-5 text-[var(--amg-text-muted)]">{description}</p>
               ) : null}
             </div>
           </div>
@@ -97,13 +97,13 @@ export function StatCard({
         : tone === "danger"
           ? "border-destructive/40"
           : tone === "info"
-            ? "border-sky-500/40"
-            : "border-border";
+            ? "border-primary/40"
+            : "border-white/10";
   const inner = (
-    <div className={cn("h-full rounded-lg border bg-white p-5 shadow-[0_14px_40px_rgba(8,20,36,0.06)] transition-colors", ring, href && "hover:border-primary/60")}>
-      <p className="font-display text-4xl font-extrabold uppercase leading-none text-slate-950">{value}</p>
+    <div className={cn("h-full rounded-lg border bg-[#07111F]/92 p-5 shadow-[0_18px_58px_rgba(0,0,0,0.2)] transition-colors", ring, href && "hover:border-primary/60")}>
+      <p className="font-display text-4xl font-extrabold uppercase leading-none text-white">{value}</p>
       <p className="eyebrow mt-3 text-[0.6rem] text-primary">{label}</p>
-      {detail ? <p className="mt-2 text-xs leading-5 text-slate-500">{detail}</p> : null}
+      {detail ? <p className="mt-2 text-xs leading-5 text-[var(--amg-text-muted)]">{detail}</p> : null}
     </div>
   );
   return href ? (
@@ -128,13 +128,13 @@ export function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white">
-        <PortalIcon name={icon} className="h-5 w-5 text-slate-500" />
+    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-white/15 bg-white/[0.04] px-6 py-12 text-center">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/[0.05]">
+        <PortalIcon name={icon} className="h-5 w-5 text-[var(--amg-text-secondary)]" />
       </div>
-      <h3 className="font-display text-lg font-bold uppercase text-slate-950">{title}</h3>
+      <h3 className="font-display text-lg font-bold uppercase text-white">{title}</h3>
       {description ? (
-        <p className="mt-2 max-w-sm text-sm leading-6 text-slate-500">{description}</p>
+        <p className="mt-2 max-w-sm text-sm leading-6 text-[var(--amg-text-muted)]">{description}</p>
       ) : null}
       {action ? <div className="mt-5">{action}</div> : null}
     </div>
@@ -150,9 +150,9 @@ export function DetailRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-[9rem_1fr] gap-4 border-b border-slate-200 py-3 last:border-0">
-      <dt className="text-xs uppercase text-slate-500">{label}</dt>
-      <dd className="text-sm text-slate-800">{children}</dd>
+    <div className="grid grid-cols-[9rem_1fr] gap-4 border-b border-white/10 py-3 last:border-0">
+      <dt className="text-xs uppercase text-[var(--amg-text-muted)]">{label}</dt>
+      <dd className="text-sm text-slate-100">{children}</dd>
     </div>
   );
 }
@@ -164,18 +164,18 @@ export function Timeline({
   items: { title: string; meta?: string; body?: string; tone?: string }[];
 }) {
   return (
-    <ol className="relative ml-2 space-y-5 border-l border-slate-200 pl-6">
+    <ol className="relative ml-2 space-y-5 border-l border-white/10 pl-6">
       {items.map((item, i) => (
         <li key={i} className="relative">
-          <span className="absolute -left-[1.65rem] top-1 h-3 w-3 rounded-full border border-primary bg-white shadow-[0_0_24px_rgba(59,130,246,0.18)]" />
+          <span className="absolute -left-[1.65rem] top-1 h-3 w-3 rounded-full border border-primary bg-[#07111F] shadow-[0_0_24px_rgba(59,130,246,0.22)]" />
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <p className="text-sm font-semibold text-slate-900">{item.title}</p>
+            <p className="text-sm font-semibold text-white">{item.title}</p>
             {item.meta ? (
-              <span className="font-mono text-xs text-slate-500">{item.meta}</span>
+              <span className="font-mono text-xs text-[var(--amg-text-muted)]">{item.meta}</span>
             ) : null}
           </div>
           {item.body ? (
-            <p className="mt-1 text-xs leading-5 text-slate-500">{item.body}</p>
+            <p className="mt-1 text-xs leading-5 text-[var(--amg-text-muted)]">{item.body}</p>
           ) : null}
         </li>
       ))}
@@ -192,10 +192,10 @@ export function Notice({
   children: React.ReactNode;
 }) {
   const cls = {
-    info: "border-sky-500/30 bg-sky-500/10 text-sky-900",
-    success: "border-emerald-500/30 bg-emerald-500/10 text-emerald-900",
-    danger: "border-destructive/40 bg-destructive/10 text-red-900",
-    warn: "border-amber-500/30 bg-amber-500/10 text-amber-900",
+    info: "border-primary/30 bg-primary/10 text-blue-100",
+    success: "border-emerald-400/30 bg-emerald-400/10 text-emerald-100",
+    danger: "border-red-400/40 bg-red-400/10 text-red-100",
+    warn: "border-amber-400/30 bg-amber-400/10 text-amber-100",
   }[tone];
   return (
     <div className={cn("rounded-lg border px-4 py-3 text-sm", cls)}>{children}</div>

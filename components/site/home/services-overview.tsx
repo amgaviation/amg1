@@ -29,7 +29,7 @@ export function ServicesOverview() {
                 />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_34%,rgba(5,11,20,0.86)_100%)]" />
                 <div className="absolute bottom-6 left-6 right-6">
-                  <p className="eyebrow text-[0.68rem] text-sky-200">Featured support path</p>
+                  <p className="eyebrow text-[0.68rem] text-[var(--amg-light-gray)]">Featured support path</p>
                   <h3 className="mt-3 font-display text-3xl font-extrabold uppercase leading-none text-white">
                     {featuredService.title}
                   </h3>

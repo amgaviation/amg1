@@ -9,7 +9,6 @@
     AMG Midnight Navy #050B14 (background)
     AMG Deep Blue     #07111F (cards / sections)
     AMG Accent Blue   #3B82F6 (buttons, highlights, active)
-    AMG Sky Blue      #38BDF8 (secondary highlights)
     AMG Slate Gray    #9CA3AF (muted text)
     AMG Light Gray    #C0C7D1 (labels)
     AMG White         #FFFFFF (typography)
@@ -20,48 +19,74 @@
   --radius: 0.625rem;
   --public-header-height: 80px;
   --public-section-spacing: clamp(4rem, 8vw, 7rem);
+  --amg-midnight-navy: #050B14;
+  --amg-deep-blue: #07111F;
+  --amg-accent-blue: #3B82F6;
+  --amg-slate-gray: #9CA3AF;
+  --amg-light-gray: #C0C7D1;
+  --amg-white: #FFFFFF;
+  --amg-bg: #050B14;
+  --amg-bg-muted: #07111F;
+  --amg-bg-elevated: rgba(12, 25, 43, 0.94);
+  --amg-bg-glass: rgba(7, 17, 31, 0.78);
+  --amg-bg-portal: #050B14;
+  --amg-bg-footer: #050B14;
+  --amg-text-primary: #FFFFFF;
+  --amg-text-secondary: #C0C7D1;
+  --amg-text-muted: #9CA3AF;
+  --amg-text-subtle: rgba(192, 199, 209, 0.72);
+  --amg-text-inverse: #050B14;
+  --amg-text-accent: #3B82F6;
+  --amg-border-default: rgba(192, 199, 209, 0.18);
+  --amg-border-muted: rgba(192, 199, 209, 0.12);
+  --amg-border-strong: rgba(192, 199, 209, 0.32);
+  --amg-border-accent: rgba(59, 130, 246, 0.52);
+  --amg-border-glass: rgba(192, 199, 209, 0.18);
+  --amg-motion-fast: 160ms;
+  --amg-motion-base: 240ms;
+  --amg-motion-reveal: 720ms;
+  --amg-motion-cinematic: 3200ms;
+  --amg-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --amg-ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);
 
   /* Core palette: light AMG aviation system */
-  --background: oklch(0.975 0.01 248);
-  --foreground: oklch(0.17 0.026 256);
+  --background: var(--amg-bg);
+  --foreground: var(--amg-text-primary);
 
-  --card: oklch(0.995 0.003 248);
-  --card-foreground: oklch(0.17 0.026 256);
+  --card: var(--amg-bg-elevated);
+  --card-foreground: var(--amg-text-primary);
 
-  --popover: oklch(0.995 0.003 248);
-  --popover-foreground: oklch(0.17 0.026 256);
+  --popover: var(--amg-bg-elevated);
+  --popover-foreground: var(--amg-text-primary);
 
   /* AMG Accent Blue #3B82F6 */
   --primary: oklch(0.62 0.19 258);
   --primary-foreground: oklch(0.99 0 0);
 
-  --secondary: oklch(0.93 0.018 248);
-  --secondary-foreground: oklch(0.19 0.026 256);
+  --secondary: rgba(192, 199, 209, 0.1);
+  --secondary-foreground: var(--amg-text-primary);
 
-  --muted: oklch(0.93 0.018 248);
-  --muted-foreground: oklch(0.46 0.025 248);
+  --muted: rgb(192 199 209 / 0.12);
+  --muted-foreground: var(--amg-text-muted);
 
-  /* Sky Blue accent #38BDF8 */
-  --accent: oklch(0.78 0.12 233);
-  --accent-foreground: oklch(0.13 0.018 256);
+  --accent: #3B82F6;
+  --accent-foreground: #FFFFFF;
 
   --destructive: oklch(0.58 0.21 27); /* #DC2626 alerts only */
   --destructive-foreground: oklch(0.99 0 0);
 
-  --border: oklch(0.82 0.019 248);
-  --input: oklch(0.78 0.022 248);
-  --ring: oklch(0.62 0.19 258);
+  --border: var(--amg-border-default);
+  --input: var(--amg-border-strong);
+  --ring: var(--amg-accent-blue);
 
   /* Brand raw tokens */
-  --amg-ink: oklch(0.13 0.018 256);
-  --amg-navy: oklch(0.17 0.022 256);
-  --amg-blue: oklch(0.62 0.19 258);
-  --amg-sky: oklch(0.78 0.12 233);
-  --amg-platinum: oklch(0.88 0.014 248);
-  --amg-silver: oklch(0.72 0.018 248);
-  --amg-gold: oklch(0.78 0.12 82);
-  --amg-glass: oklch(0.995 0.003 248 / 82%);
-  --amg-glass-border: oklch(0.75 0.025 248 / 42%);
+  --amg-ink: #050B14;
+  --amg-navy: #07111F;
+  --amg-blue: #3B82F6;
+  --amg-platinum: #C0C7D1;
+  --amg-silver: #9CA3AF;
+  --amg-glass: rgb(7 17 31 / 78%);
+  --amg-glass-border: rgb(192 199 209 / 18%);
   --scroll-depth: 0;
   --scroll-velocity: 0;
 
@@ -140,8 +165,8 @@
   }
   body {
     background:
-      radial-gradient(circle at 10% 0%, oklch(0.9 0.04 230 / 62%), transparent 34rem),
-      linear-gradient(180deg, oklch(0.985 0.008 248) 0%, var(--background) 48%, oklch(0.94 0.014 248) 100%);
+      radial-gradient(circle at 84% 0%, rgb(59 130 246 / 0.16), transparent 28rem),
+      linear-gradient(180deg, #050B14 0%, #07111F 48%, #050B14 100%);
     color: var(--foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -187,9 +212,9 @@
     inset: 0;
     z-index: -2;
     background:
-      radial-gradient(circle at 16% 20%, oklch(0.9 0.05 230 / 48%), transparent 26rem),
-      radial-gradient(circle at 92% 8%, oklch(0.78 0.12 233 / 10%), transparent 22rem),
-      linear-gradient(180deg, oklch(0.985 0.008 248), oklch(0.945 0.016 248));
+      radial-gradient(circle at 16% 20%, rgb(59 130 246 / 0.12), transparent 26rem),
+      radial-gradient(circle at 92% 8%, rgb(192 199 209 / 0.08), transparent 22rem),
+      linear-gradient(180deg, #07111F, #050B14);
   }
   .cinematic-band::after {
     content: "";
@@ -206,11 +231,11 @@
   .glass-panel {
     border: 1px solid var(--amg-glass-border);
     background:
-      linear-gradient(135deg, oklch(1 0 0 / 0.105), transparent 38%),
+      linear-gradient(135deg, rgb(255 255 255 / 0.08), transparent 38%),
       var(--amg-glass);
     box-shadow:
-      0 24px 70px oklch(0.18 0.026 256 / 12%),
-      inset 0 1px 0 oklch(1 0 0 / 70%);
+      0 24px 70px rgb(0 0 0 / 24%),
+      inset 0 1px 0 rgb(255 255 255 / 12%);
     backdrop-filter: blur(18px);
   }
   .glass-line {
@@ -233,7 +258,7 @@
     min-height: 3rem;
     border-radius: 0.75rem;
     border: 1px solid var(--input);
-    background: oklch(1 0 0 / 82%);
+    background: rgb(7 17 31 / 82%);
     color: var(--foreground);
     box-shadow: inset 0 1px 0 oklch(1 0 0 / 5%);
     outline: none;
@@ -245,14 +270,14 @@
   .support-field:focus {
     border-color: var(--accent);
     box-shadow:
-      0 0 0 3px oklch(0.78 0.12 233 / 14%),
-      0 0 28px oklch(0.62 0.19 258 / 12%);
+      0 0 0 3px rgb(59 130 246 / 18%),
+      0 0 28px rgb(59 130 246 / 14%);
   }
   .portal-glass {
     border-color: var(--amg-glass-border);
     background:
-      linear-gradient(135deg, oklch(1 0 0 / 0.08), transparent 46%),
-      oklch(1 0 0 / 82%);
+      linear-gradient(135deg, rgb(255 255 255 / 0.08), transparent 46%),
+      rgb(7 17 31 / 82%);
     backdrop-filter: blur(18px);
   }
   .hover-lift {
@@ -389,6 +414,30 @@
   .support-form-panel legend {
     padding-right: 0.75rem;
   }
+  .amg-surface {
+    border: 1px solid var(--amg-border-default);
+    background: var(--amg-bg-elevated);
+    color: var(--amg-text-primary);
+    box-shadow: 0 18px 58px rgb(0 0 0 / 22%);
+  }
+  .amg-surface-muted {
+    border: 1px solid var(--amg-border-muted);
+    background: rgb(192 199 209 / 0.08);
+    color: var(--amg-text-secondary);
+  }
+  .amg-surface-glass {
+    border: 1px solid var(--amg-border-glass);
+    background: var(--amg-bg-glass);
+    color: var(--amg-text-primary);
+    backdrop-filter: blur(18px);
+  }
+  .amg-quiet-disclaimer {
+    border: 1px solid var(--amg-border-muted);
+    background: rgb(192 199 209 / 0.055);
+    color: var(--amg-text-subtle);
+    font-size: 0.8125rem;
+    line-height: 1.65;
+  }
 }
 
 @keyframes amg-scroll-cue {
@@ -448,9 +497,9 @@ html {
   position: relative;
   isolation: isolate;
   background:
-    radial-gradient(circle at 78% 8%, oklch(0.83 0.055 230 / 42%), transparent 28rem),
-    radial-gradient(circle at 12% 32%, oklch(0.95 0.04 248 / 72%), transparent 24rem),
-    linear-gradient(180deg, oklch(0.99 0.006 248) 0%, var(--background) 42%, oklch(0.94 0.014 248) 100%);
+    radial-gradient(circle at 78% 8%, rgb(59 130 246 / 0.14), transparent 28rem),
+    radial-gradient(circle at 12% 32%, rgb(192 199 209 / 0.06), transparent 24rem),
+    linear-gradient(180deg, #050B14 0%, #07111F 42%, #050B14 100%);
 }
 
 .public-site::before {
@@ -527,34 +576,34 @@ html {
 /* ==========================================================================
    AMG OPERATIONS COMMAND — public-site design system
    Scoped to .amg-oc so the portal/auth surfaces are untouched.
-   Palette: warm ivory / graphite / AMG navy / aluminum + restrained aviation blue.
+   Palette: official AMG midnight / deep blue / accent blue / slate / white.
    ========================================================================== */
 .amg-oc {
-  --oc-ivory: #f1ede4;
-  --oc-ivory-2: #e7e1d4;
-  --oc-paper: #faf8f2;
-  --oc-graphite: #16181c;
-  --oc-graphite-2: #20242a;
-  --oc-navy: #0b1a2b;
-  --oc-navy-2: #102740;
-  --oc-aluminum: #b6bdc5;
-  --oc-aluminum-2: #889099;
-  --oc-ink: #14171a;
-  --oc-muted: #565d65;
-  --oc-muted-dark: #9aa6b2;
-  --oc-line: rgba(20, 23, 26, 0.12);
-  --oc-line-strong: rgba(20, 23, 26, 0.22);
+  --oc-ivory: #050B14;
+  --oc-ivory-2: #07111F;
+  --oc-paper: #FFFFFF;
+  --oc-graphite: #050B14;
+  --oc-graphite-2: #07111F;
+  --oc-navy: #050B14;
+  --oc-navy-2: #07111F;
+  --oc-aluminum: #C0C7D1;
+  --oc-aluminum-2: #9CA3AF;
+  --oc-ink: #050B14;
+  --oc-muted: #9CA3AF;
+  --oc-muted-dark: #C0C7D1;
+  --oc-line: rgba(192, 199, 209, 0.15);
+  --oc-line-strong: rgba(192, 199, 209, 0.24);
   --oc-line-dark: rgba(255, 255, 255, 0.14);
-  --oc-blue: #2f6bae;
-  --oc-blue-soft: #6f9bcf;
-  --oc-sand: #c0a079;
-  --oc-shadow: 30px 60px -30px rgba(11, 26, 43, 0.35);
+  --oc-blue: #3B82F6;
+  --oc-blue-soft: #C0C7D1;
+  --oc-accent: #3B82F6;
+  --oc-shadow: 30px 60px -30px rgba(0, 0, 0, 0.45);
 
   --oc-display: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
   --oc-sans: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
 
   background: var(--oc-ivory);
-  color: var(--oc-ink);
+  color: var(--oc-paper);
   font-family: var(--oc-sans);
 }
 
@@ -643,10 +692,10 @@ html {
     letter-spacing: 0.08em;
     text-transform: uppercase;
     transition:
-      transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-      background-color 0.3s ease,
-      color 0.3s ease,
-      border-color 0.3s ease;
+      transform var(--amg-motion-base) var(--amg-ease-out),
+      background-color var(--amg-motion-base) ease,
+      color var(--amg-motion-base) ease,
+      border-color var(--amg-motion-base) ease;
   }
   .oc-btn:focus-visible {
     outline: 2px solid var(--oc-blue);
@@ -666,18 +715,19 @@ html {
     background: var(--oc-navy-2);
   }
   .oc-btn-light {
-    background: var(--oc-paper);
-    color: var(--oc-ink);
+    background: #ffffff;
+    color: #050B14;
   }
   .oc-btn-light:hover {
     background: #fff;
   }
   .oc-btn-ghost {
     border: 1px solid var(--oc-line-strong);
-    color: var(--oc-ink);
+    color: var(--oc-paper);
   }
   .oc-btn-ghost:hover {
-    border-color: var(--oc-navy);
+    border-color: var(--oc-blue);
+    color: var(--oc-paper);
   }
   .oc-btn-ghost-dark {
     border: 1px solid var(--oc-line-dark);
@@ -690,22 +740,25 @@ html {
 
   /* surfaces */
   .oc-card {
-    background: var(--oc-paper);
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.015)),
+      rgba(7, 17, 31, 0.88);
     border: 1px solid var(--oc-line);
-    border-radius: 1.25rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 18px 58px rgba(0, 0, 0, 0.22);
   }
   .oc-card-dark {
-    background: linear-gradient(160deg, var(--oc-graphite-2), var(--oc-graphite));
+    background: linear-gradient(160deg, rgba(7, 17, 31, 0.96), rgba(5, 11, 20, 0.96));
     border: 1px solid var(--oc-line-dark);
-    border-radius: 1.25rem;
+    border-radius: 0.75rem;
   }
   .oc-panel-navy {
     background:
-      radial-gradient(120% 120% at 85% 0%, rgba(47, 107, 174, 0.22), transparent 55%),
-      linear-gradient(170deg, var(--oc-navy-2), var(--oc-navy));
+      radial-gradient(120% 120% at 85% 0%, rgba(59, 130, 246, 0.18), transparent 55%),
+      linear-gradient(170deg, #07111F, #050B14);
   }
   .oc-panel-graphite {
-    background: linear-gradient(170deg, var(--oc-graphite-2), var(--oc-graphite));
+    background: linear-gradient(170deg, #07111F, #050B14);
   }
 
   /* media treatment — consistent crops + warm graded overlay */
@@ -726,8 +779,8 @@ html {
     inset: 0;
     pointer-events: none;
     background:
-      linear-gradient(180deg, rgba(11, 26, 43, 0) 40%, rgba(11, 26, 43, 0.55) 100%),
-      linear-gradient(0deg, rgba(12, 14, 16, 0.18), rgba(12, 14, 16, 0.18));
+      linear-gradient(180deg, rgba(5, 11, 20, 0) 40%, rgba(5, 11, 20, 0.68) 100%),
+      linear-gradient(0deg, rgba(5, 11, 20, 0.2), rgba(5, 11, 20, 0.2));
     mix-blend-mode: multiply;
   }
   .oc-grain::before {
@@ -753,10 +806,93 @@ html {
     box-shadow: 0 0 0 4px rgba(47, 107, 174, 0.16);
   }
   .oc-dot-live {
-    background: #4f9e6a;
-    box-shadow: 0 0 0 4px rgba(79, 158, 106, 0.18);
+    background: #34d399;
+    box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.18);
   }
 
+}
+
+.amg-portal {
+  --portal-panel: rgba(7, 17, 31, 0.88);
+  --portal-panel-strong: rgba(7, 17, 31, 0.96);
+  --portal-line: rgba(192, 199, 209, 0.15);
+  --portal-muted: #9CA3AF;
+  --portal-soft: #C0C7D1;
+  background:
+    radial-gradient(circle at 82% 0%, rgba(59, 130, 246, 0.14), transparent 28rem),
+    linear-gradient(180deg, #050B14, #07111F 46%, #050B14);
+}
+
+.amg-portal .bg-white {
+  background-color: var(--portal-panel) !important;
+}
+
+.amg-portal [class*="bg-white/"] {
+  background-color: rgba(7, 17, 31, 0.72) !important;
+}
+
+.amg-portal .bg-slate-50,
+.amg-portal .bg-slate-100,
+.amg-portal .bg-sky-50,
+.amg-portal .bg-blue-50 {
+  background-color: rgba(192, 199, 209, 0.08) !important;
+}
+
+.amg-portal .border-slate-200,
+.amg-portal .border-slate-300,
+.amg-portal .border-slate-100,
+.amg-portal .border-white\/10 {
+  border-color: var(--portal-line) !important;
+}
+
+.amg-portal .text-slate-950,
+.amg-portal .text-slate-900,
+.amg-portal .text-slate-800 {
+  color: #FFFFFF !important;
+}
+
+.amg-portal .text-slate-700,
+.amg-portal .text-slate-600,
+.amg-portal .text-slate-500,
+.amg-portal .text-slate-400,
+.amg-portal .text-slate-300 {
+  color: var(--portal-muted) !important;
+}
+
+.amg-portal table {
+  color: var(--amg-text-secondary);
+}
+
+.amg-portal thead {
+  background-color: rgba(192, 199, 209, 0.08);
+}
+
+.amg-portal tr:hover {
+  background-color: rgba(59, 130, 246, 0.08);
+}
+
+.amg-portal option {
+  background: #07111F;
+  color: #FFFFFF;
+}
+
+.amg-portal .shadow-sm,
+.amg-portal .shadow-lg,
+.amg-portal .shadow-xl {
+  box-shadow: 0 18px 58px rgba(0, 0, 0, 0.22) !important;
+}
+
+.amg-portal input,
+.amg-portal textarea,
+.amg-portal select {
+  background-color: rgba(5, 11, 20, 0.72);
+  border-color: var(--portal-line);
+  color: #FFFFFF;
+}
+
+.amg-portal input::placeholder,
+.amg-portal textarea::placeholder {
+  color: rgba(192, 199, 209, 0.55);
 }
 
 /* ==========================================================================

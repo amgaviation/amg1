@@ -46,7 +46,7 @@ export function AircraftEditorialSections() {
                     {String(index + 1).padStart(2, "0")}
                   </div>
                   <div className="absolute bottom-7 left-7 right-7">
-                    <p className="eyebrow text-[0.68rem] text-sky-200">{aircraft.pricing}</p>
+                    <p className="eyebrow text-[0.68rem] text-[var(--amg-light-gray)]">{aircraft.pricing}</p>
                     <p className="mt-4 font-display text-4xl font-extrabold uppercase leading-none text-white">
                       {aircraft.category}
                     </p>

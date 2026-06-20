@@ -25,7 +25,7 @@ const TRUST_ITEMS = [
 
 export function OperationalTrustStrip() {
   return (
-    <section className="border-b border-[var(--oc-line)] bg-[var(--oc-paper)]">
+    <section className="border-b border-[var(--oc-line)] bg-[var(--oc-ivory)]">
       <div className="oc-shell py-12 lg:py-16">
         <p className="oc-eyebrow mb-8 text-center">How AMG Approaches Every Request</p>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
@@ -33,7 +33,7 @@ export function OperationalTrustStrip() {
             <div
               key={item.title}
               data-stagger-item
-              className="flex flex-col gap-3 rounded-[1.125rem] border border-[var(--oc-line)] bg-white/60 p-6 backdrop-blur-sm"
+              className="flex flex-col gap-3 rounded-lg border border-[var(--oc-line)] bg-[var(--oc-ivory-2)]/86 p-6 backdrop-blur-sm"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--oc-navy)]/6 text-[var(--oc-navy)]">
                 <item.icon className="h-5 w-5" strokeWidth={1.5} />

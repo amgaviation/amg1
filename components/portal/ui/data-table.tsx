@@ -28,16 +28,16 @@ export function DataTable<T>({
 }) {
   if (!rows.length) {
     return (
-      <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
+      <div className="rounded-lg border border-dashed border-white/16 bg-white/[0.04] px-4 py-8 text-center text-sm text-slate-400">
         {emptyLabel}
       </div>
     );
   }
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-      <Table>
+    <div className="overflow-hidden rounded-lg border border-white/10 bg-[#07111F]/88 shadow-[0_18px_58px_rgba(0,0,0,0.2)]">
+      <Table className="border-0">
         <TableHeader>
-          <TableRow className="bg-slate-50">
+          <TableRow className="bg-white/[0.045] hover:bg-white/[0.045]">
             {columns.map((c, i) => (
               <TableHead
                 key={i}
@@ -54,7 +54,7 @@ export function DataTable<T>({
         </TableHeader>
         <TableBody>
           {rows.map((row) => (
-            <TableRow key={getKey(row)}>
+            <TableRow key={getKey(row)} className="border-white/10">
               {columns.map((c, i) => (
                 <TableCell
                   key={i}

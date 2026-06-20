@@ -13,7 +13,7 @@ export function GlobeFallback({ tone = "dark", label = "Crew operating regions" 
       className={
         dark
           ? "rounded-[1.25rem] border border-white/10 bg-[rgba(11,26,43,0.72)] p-6 text-white shadow-[var(--oc-shadow)]"
-          : "rounded-[1.25rem] border border-[var(--oc-line)] bg-[var(--oc-paper)] p-6 text-[var(--oc-ink)] shadow-[var(--oc-shadow)]"
+          : "rounded-[1.25rem] border border-[var(--oc-line)] bg-[var(--oc-ivory-2)] p-6 text-[var(--oc-ink)] shadow-[var(--oc-shadow)]"
       }
     >
       <p className={dark ? "oc-kicker text-[var(--oc-aluminum-2)]" : "oc-kicker text-[var(--oc-blue)]"}>{label}</p>

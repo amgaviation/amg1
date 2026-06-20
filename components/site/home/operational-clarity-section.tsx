@@ -5,7 +5,7 @@ import { IMG } from "@/lib/site-media";
 
 export function OperationalClaritySection() {
   return (
-    <section className="oc-section bg-[var(--oc-paper)]">
+    <section className="oc-section bg-[var(--oc-ivory)]">
       <div className="oc-shell grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
         <div data-scroll-animate>
           <p className="oc-eyebrow">Operational Clarity</p>

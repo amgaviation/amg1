@@ -115,7 +115,7 @@ export function HiggsfieldMotionShowcase() {
           >
             <source src="/videos/amg-jet-flying.mp4" type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_18%,rgba(56,189,248,0.18),transparent_28%),linear-gradient(180deg,rgba(5,11,20,0.45),rgba(5,11,20,0.94))]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_18%,rgba(59,130,246,0.18),transparent_28%),linear-gradient(180deg,rgba(5,11,20,0.45),rgba(5,11,20,0.94))]" />
           <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[var(--amg-ink)] to-transparent" />
 
           <div className="relative mx-auto flex min-h-svh max-w-7xl items-end px-6 pb-16 pt-32 lg:px-10">
@@ -251,7 +251,7 @@ export function HiggsfieldMotionShowcase() {
         </div>
 
         <div className="relative overflow-hidden rounded-lg border border-white/10 bg-white/[0.06] p-4 shadow-[0_30px_90px_rgba(0,0,0,0.35)]">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(56,189,248,0.16),transparent_36%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.16),transparent_36%)]" />
           <div className="relative overflow-hidden rounded-md border border-white/10 bg-black">
             <video
               ref={cockpitVideoRef}

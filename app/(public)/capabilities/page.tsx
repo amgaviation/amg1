@@ -320,7 +320,7 @@ export default function CapabilitiesPage() {
               <details
                 key={path.title}
                 data-stagger-item
-                className="group rounded-2xl border border-[var(--oc-line)] bg-[var(--oc-paper)] transition-colors open:border-[var(--oc-navy)]"
+                className="group rounded-2xl border border-[var(--oc-line)] bg-[var(--oc-ivory-2)] transition-colors open:border-[var(--oc-blue)]"
                 open={index === 0}
               >
                 <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 p-5 marker:hidden">
@@ -359,7 +359,7 @@ export default function CapabilitiesPage() {
             </p>
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
               {DETAIL_ITEMS.map((item) => (
-                <div key={item} className="flex items-start gap-3 rounded-2xl border border-[var(--oc-line)] bg-[var(--oc-paper)] p-4">
+                <div key={item} className="flex items-start gap-3 rounded-2xl border border-[var(--oc-line)] bg-[var(--oc-ivory-2)] p-4">
                   <Compass className="mt-0.5 h-4 w-4 shrink-0 text-[var(--oc-blue)]" aria-hidden="true" />
                   <span className="text-sm leading-relaxed text-[var(--oc-ink)]/82">{item}</span>
                 </div>

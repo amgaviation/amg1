@@ -46,8 +46,8 @@ export function FleetTeaser() {
                 <div className="flex min-h-64 flex-col justify-between p-6 text-white">
                   <div>
                     <div className="flex items-start justify-between gap-4">
-                      <p className="eyebrow text-[0.68rem] text-sky-200">Standard review class</p>
-                      <ArrowUpRight className="h-5 w-5 text-slate-400 transition-colors group-hover:text-sky-200" />
+                      <p className="eyebrow text-[0.68rem] text-[var(--amg-light-gray)]">Standard review class</p>
+                      <ArrowUpRight className="h-5 w-5 text-slate-400 transition-colors group-hover:text-white" />
                     </div>
                     <h3 className="mt-7 font-display text-3xl font-extrabold uppercase leading-none text-white">
                       {name}
@@ -56,7 +56,7 @@ export function FleetTeaser() {
                   </div>
                   <div className="mt-7 flex flex-wrap gap-x-4 gap-y-1 border-t border-white/12 pt-5 text-xs text-slate-300">
                     <span>Standard subscription class</span>
-                    <span className="text-sky-200">/</span>
+                    <span className="text-primary">/</span>
                     <span>Review required</span>
                   </div>
                 </div>

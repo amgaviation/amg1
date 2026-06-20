@@ -1,5 +1,5 @@
 import { HomeHangarEntry } from "@/components/site/home/home-hangar-entry";
-import { HangarDoorIntro } from "@/components/site/home/hangar-door-intro";
+import { EntranceAnimation } from "@/components/public/EntranceAnimation";
 import { OperationalTrustStrip } from "@/components/site/home/operational-trust-strip";
 import { SitePreviewLayer } from "@/components/site/home/site-preview-layer";
 import { BrandStatement } from "@/components/site/home/brand-statement";
@@ -33,7 +33,7 @@ export default function HomePage() {
 
   return (
     <>
-      <HangarDoorIntro />
+      <EntranceAnimation />
       <HomeHangarEntry
         eyebrow={hero.eyebrow}
         headline={hero.title}

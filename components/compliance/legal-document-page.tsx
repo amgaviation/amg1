@@ -15,23 +15,23 @@ function LegalArticle({ document }: { document: LegalDocument }) {
             <span className="h-px w-10 bg-accent/70" />
             Administrative
           </p>
-          <h1 className="display-heading text-balance text-5xl text-slate-950 sm:text-6xl">
+          <h1 className="display-heading text-balance text-5xl text-white sm:text-6xl">
             {document.title}
           </h1>
-          <div className="mt-8 rounded-lg border border-slate-200 bg-white p-5 shadow-[0_16px_44px_rgba(8,20,36,0.07)]">
+          <div className="mt-8 rounded-lg border border-white/10 bg-white/[0.045] p-5 shadow-[0_16px_44px_rgba(0,0,0,0.22)] backdrop-blur">
             <FileText className="h-5 w-5 text-accent" />
-            <p className="mt-4 text-sm leading-relaxed text-slate-600">{document.description}</p>
-            <dl className="mt-5 space-y-3 text-xs text-slate-500">
+            <p className="mt-4 text-sm leading-relaxed text-[var(--amg-text-secondary)]">{document.description}</p>
+            <dl className="mt-5 space-y-3 text-xs text-[var(--amg-text-muted)]">
               <div>
-                <dt className="font-semibold uppercase tracking-[0.16em] text-slate-400">Effective</dt>
+                <dt className="font-semibold uppercase text-[var(--amg-text-subtle)]">Effective</dt>
                 <dd className="mt-1">{document.effectiveDate}</dd>
               </div>
               <div>
-                <dt className="font-semibold uppercase tracking-[0.16em] text-slate-400">Last Updated</dt>
+                <dt className="font-semibold uppercase text-[var(--amg-text-subtle)]">Last Updated</dt>
                 <dd className="mt-1">{document.lastUpdated}</dd>
               </div>
               <div>
-                <dt className="font-semibold uppercase tracking-[0.16em] text-slate-400">Questions</dt>
+                <dt className="font-semibold uppercase text-[var(--amg-text-subtle)]">Questions</dt>
                 <dd className="mt-1">
                   <a href={`mailto:${AMG_LEGAL_CONTACT}`} className="text-accent hover:underline">
                     {AMG_LEGAL_CONTACT}
@@ -45,26 +45,26 @@ function LegalArticle({ document }: { document: LegalDocument }) {
             </Link>
           </div>
         </aside>
-        <article className="rounded-lg border border-slate-200 bg-white p-6 shadow-[0_24px_70px_rgba(8,20,36,0.09)] sm:p-8 lg:p-10" data-scroll-animate>
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-950">
+        <article className="rounded-lg border border-white/10 bg-[#07111F]/92 p-6 text-white shadow-[0_24px_70px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10" data-scroll-animate>
+          <div className="amg-quiet-disclaimer rounded-lg p-4">
             Attorney-review draft. This page is provided for administrative notice and is not legal advice.
           </div>
-          <nav aria-label={`${document.title} table of contents`} className="mt-8 rounded-lg border border-slate-200 bg-slate-50 p-4">
-            <h2 className="font-display text-sm font-bold uppercase text-slate-950">Contents</h2>
+          <nav aria-label={`${document.title} table of contents`} className="mt-8 rounded-lg border border-white/10 bg-white/[0.045] p-4">
+            <h2 className="font-display text-sm font-bold uppercase text-white">Contents</h2>
             <ol className="mt-3 grid gap-2 sm:grid-cols-2">
               {document.sections.map((section) => (
                 <li key={section.id}>
-                  <a href={`#${section.id}`} className="text-sm text-slate-600 hover:text-accent hover:underline">
+                  <a href={`#${section.id}`} className="text-sm text-[var(--amg-text-secondary)] hover:text-accent hover:underline">
                     {section.heading}
                   </a>
                 </li>
               ))}
             </ol>
           </nav>
-          <div className="mt-10 space-y-10 text-base leading-relaxed text-slate-600">
+          <div className="mt-10 space-y-10 text-base leading-relaxed text-[var(--amg-text-secondary)]">
             {document.sections.map((section) => (
               <section key={section.id} id={section.id} className="scroll-mt-28">
-                <h2 className="font-display text-2xl font-bold uppercase text-slate-950">{section.heading}</h2>
+                <h2 className="font-display text-2xl font-bold uppercase text-white">{section.heading}</h2>
                 <div className="mt-4 space-y-4">
                   {section.body.map((paragraph) => (
                     <p key={paragraph}>{paragraph}</p>

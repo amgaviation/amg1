@@ -31,7 +31,7 @@ export function PageHero({
           />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,11,20,0.92)_0%,rgba(5,11,20,0.72)_45%,rgba(5,11,20,0.22)_100%)]" />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,11,20,0.5)_0%,rgba(5,11,20,0.12)_40%,rgba(5,11,20,0.9)_100%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_26%,rgba(56,189,248,0.18),transparent_28rem)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_26%,rgba(59,130,246,0.18),transparent_28rem)]" />
         </div>
       )}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-40 bg-gradient-to-t from-slate-950/86 to-transparent" />
@@ -41,8 +41,8 @@ export function PageHero({
       <div className="relative z-10 mx-auto w-full max-w-7xl px-6 lg:px-10">
         <Reveal className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem]" data-scroll-animate>
           <div className="max-w-5xl">
-            <p className="eyebrow mb-5 inline-flex items-center gap-3 text-sky-200">
-              <span className="h-px w-12 bg-sky-300/80" />
+            <p className="eyebrow mb-5 inline-flex items-center gap-3 text-[var(--amg-light-gray)]">
+              <span className="h-px w-12 bg-primary/80" />
               {eyebrow}
             </p>
             <h1 className="display-heading max-w-5xl text-balance text-5xl text-white sm:text-6xl lg:text-8xl">
@@ -55,7 +55,7 @@ export function PageHero({
             )}
           </div>
           <div className="hidden self-end rounded-lg border border-white/14 bg-white/10 p-5 backdrop-blur-xl lg:block">
-            <p className="eyebrow text-[0.68rem] text-sky-200">AMG Aviation Group</p>
+            <p className="eyebrow text-[0.68rem] text-[var(--amg-light-gray)]">AMG Aviation Group</p>
             <p className="mt-4 text-sm leading-relaxed text-slate-200">
               Aircraft support is reviewed before acceptance, then coordinated through clear operating responsibility.
             </p>

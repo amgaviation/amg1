@@ -32,13 +32,13 @@ export default async function ContactPage({
         <div className="oc-shell">
           <div className="mx-auto max-w-4xl text-center">
             <p className="oc-eyebrow text-[var(--oc-blue)]">{hero.eyebrow}</p>
-            <h1 className="oc-display mt-5 text-[clamp(2.75rem,7vw,5.25rem)] text-[var(--oc-ink)]">
+            <h1 className="oc-display mt-5 text-[clamp(2.75rem,7vw,5.25rem)] text-[var(--oc-paper)]">
               {hero.title}
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-[var(--oc-muted)]">
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-[var(--oc-aluminum)]">
               {hero.lead}
             </p>
-            <p className="mx-auto mt-5 max-w-3xl rounded-2xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
+            <p className="mx-auto mt-5 max-w-3xl rounded-2xl border border-white/14 bg-white/8 p-4 text-sm leading-relaxed text-[var(--oc-aluminum)] backdrop-blur">
               Submitting a contact inquiry does not confirm aircraft support, crew availability, aircraft movement, or operational acceptance.
             </p>
           </div>

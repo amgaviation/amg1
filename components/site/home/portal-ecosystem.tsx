@@ -17,7 +17,7 @@ export function PortalEcosystem() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/images/jet-interior.png" alt="" className="h-full w-full object-cover" />
       </div>
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_76%_24%,rgba(56,189,248,0.16),transparent_28rem)]" />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_76%_24%,rgba(59,130,246,0.16),transparent_28rem)]" />
 
       <div className="mx-auto grid w-full max-w-7xl gap-14 px-6 lg:grid-cols-[0.82fr_1.18fr] lg:px-10">
         <Reveal className="lg:sticky lg:top-28 lg:self-start" data-scroll-animate>

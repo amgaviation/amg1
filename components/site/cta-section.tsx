@@ -29,7 +29,7 @@ export function CtaSection({
           className="h-full w-full scale-105 object-cover opacity-25"
         />
         <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(5,11,20,0.98)_0%,rgba(5,11,20,0.9)_44%,rgba(5,11,20,0.52)_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_28%,rgba(56,189,248,0.18),transparent_28rem)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_28%,rgba(59,130,246,0.18),transparent_28rem)]" />
       </div>
       <div className="relative z-10 mx-auto grid max-w-7xl gap-10 px-6 lg:grid-cols-[1fr_26rem] lg:px-10">
         <Reveal data-scroll-animate>
@@ -53,7 +53,7 @@ export function CtaSection({
             </Link>
             <Link
               href={secondaryHref}
-              className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/20 bg-white/8 px-8 py-4 font-display text-sm font-semibold uppercase text-white backdrop-blur transition-colors hover:border-sky-300 hover:text-sky-200"
+              className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/20 bg-white/8 px-8 py-4 font-display text-sm font-semibold uppercase text-white backdrop-blur transition-colors hover:border-primary hover:text-white"
             >
               {secondaryLabel}
             </Link>

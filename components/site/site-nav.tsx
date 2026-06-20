@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUpRight, Menu, X } from "lucide-react";
+import { ArrowUpRight, ChevronDown, Menu, X } from "lucide-react";
+import { PUBLIC_NAV_GROUPS, PUBLIC_NAV_LINKS } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
-import { NAV_LINKS } from "@/lib/content";
 
 function normalizePath(path: string) {
   const normalized = path.split(/[?#]/)[0].replace(/\/+$/, "");
@@ -24,24 +24,16 @@ export function SiteNav() {
   const pathname = usePathname();
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-
   const isHome = normalizePath(pathname) === "/";
-  // Transparent, light-on-dark treatment only while the homepage cinematic hero
-  // fills the viewport. Every other state (scrolled, menu open, interior pages)
-  // uses the solid navy-on-paper header so the logo and links stay readable.
   const transparent = isHome && atTop && !open;
 
   useEffect(() => setOpen(false), [pathname]);
 
-  // Track whether the dark hero still sits behind the fixed header (home only).
   useEffect(() => {
     if (!isHome) {
       setAtTop(false);
       return;
     }
-    // Reading scrollY/innerHeight is cheap and React bails out on an
-    // unchanged value, so update directly rather than via rAF (which is
-    // throttled when the tab is backgrounded and would stall the swap).
     const update = () => setAtTop(window.scrollY < window.innerHeight - 88);
     update();
     window.addEventListener("scroll", update, { passive: true });
@@ -86,10 +78,10 @@ export function SiteNav() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 h-[var(--public-header-height)] transition-[background-color,box-shadow,border-color] duration-300",
+        "fixed inset-x-0 top-0 z-50 h-[var(--public-header-height)] border-b transition-[background-color,box-shadow,border-color] duration-300",
         transparent
-          ? "border-b border-transparent bg-transparent"
-          : "border-b border-[var(--oc-line)] bg-[var(--oc-paper)]/94 shadow-[0_14px_36px_rgba(11,26,43,0.08)] backdrop-blur-xl"
+          ? "border-transparent bg-transparent"
+          : "border-[var(--oc-line-dark)] bg-[#050B14]/92 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl"
       )}
     >
       <nav className="oc-shell flex h-full items-center gap-5">
@@ -97,11 +89,11 @@ export function SiteNav() {
           href="/"
           prefetch={false}
           className="relative z-50 flex min-h-11 items-center"
-          aria-label="AMG Aviation Group — home"
+          aria-label="AMG Aviation Group home"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={transparent ? "/images/logo-white.png" : "/images/logo-navy.png"}
+            src="/images/logo-white.png"
             alt="AMG Aviation Group"
             width="1088"
             height="221"
@@ -109,26 +101,43 @@ export function SiteNav() {
           />
         </Link>
 
-        <ul className="ml-auto hidden items-center gap-3 xl:flex 2xl:gap-5">
-          {NAV_LINKS.map((link) => {
-            const active = isActivePath(pathname, link.href);
+        <ul className="ml-auto hidden items-center gap-1 xl:flex">
+          {PUBLIC_NAV_GROUPS.map((group) => {
+            const active = isActivePath(pathname, group.href) || group.items.some((item) => isActivePath(pathname, item.href));
             return (
-              <li key={link.href}>
+              <li key={group.label} className="group relative">
                 <Link
-                  href={link.href}
+                  href={group.href}
                   prefetch={false}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "relative inline-flex min-h-11 items-center whitespace-nowrap text-[0.72rem] font-semibold uppercase leading-none transition-colors",
-                    transparent
-                      ? "text-[var(--oc-paper)]/75 hover:text-[var(--oc-paper)]"
-                      : "text-[var(--oc-ink)]/66 hover:text-[var(--oc-ink)]",
-                    active && (transparent ? "text-[var(--oc-paper)]" : "text-[var(--oc-ink)]"),
-                    active && "after:absolute after:inset-x-0 after:-bottom-1.5 after:h-px after:bg-current"
+                    "inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-[0.72rem] font-semibold uppercase leading-none text-white/70 transition-colors hover:bg-white/7 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white",
+                    active && "bg-white/8 text-white"
                   )}
                 >
-                  {link.label}
+                  {group.label}
+                  <ChevronDown className="h-3.5 w-3.5 opacity-70" />
                 </Link>
+                <div className="invisible absolute left-1/2 top-[calc(100%+0.7rem)] w-[24rem] -translate-x-1/2 opacity-0 transition duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
+                  <div className="rounded-lg border border-[var(--oc-line-dark)] bg-[#07111F]/96 p-2 shadow-[0_26px_90px_rgba(0,0,0,0.36)] backdrop-blur-xl">
+                    {group.items.map((item) => (
+                      <Link
+                        key={`${group.label}-${item.href}-${item.label}`}
+                        href={item.href}
+                        prefetch={false}
+                        className="group/item block rounded-md px-4 py-3 transition hover:bg-white/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                      >
+                        <span className="flex items-center justify-between gap-3 text-sm font-semibold text-white">
+                          {item.label}
+                          <ArrowUpRight className="h-3.5 w-3.5 text-[var(--oc-blue)] opacity-0 transition group-hover/item:opacity-100" />
+                        </span>
+                        {item.description ? (
+                          <span className="mt-1 block text-xs leading-5 text-[var(--oc-aluminum-2)]">{item.description}</span>
+                        ) : null}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
               </li>
             );
           })}
@@ -138,10 +147,7 @@ export function SiteNav() {
           <Link
             href="/request-support"
             prefetch={false}
-            className={cn(
-              "oc-btn hidden sm:inline-flex",
-              transparent ? "oc-btn-light" : "oc-btn-primary"
-            )}
+            className="oc-btn oc-btn-light hidden sm:inline-flex"
           >
             Request Support
             <ArrowUpRight className="h-4 w-4" />
@@ -149,12 +155,7 @@ export function SiteNav() {
           <Link
             href="/login"
             prefetch={false}
-            className={cn(
-              "hidden min-h-11 items-center whitespace-nowrap px-2 text-[0.72rem] font-semibold uppercase leading-none transition-colors sm:inline-flex",
-              transparent
-                ? "text-[var(--oc-paper)]/80 hover:text-[var(--oc-paper)]"
-                : "text-[var(--oc-ink)]/70 hover:text-[var(--oc-ink)]"
-            )}
+            className="hidden min-h-11 items-center whitespace-nowrap px-2 text-[0.72rem] font-semibold uppercase leading-none text-white/74 transition-colors hover:text-white sm:inline-flex"
           >
             Member Login
           </Link>
@@ -163,12 +164,7 @@ export function SiteNav() {
             ref={menuButtonRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className={cn(
-              "inline-flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full border transition-colors xl:hidden",
-              transparent
-                ? "border-[var(--oc-line-dark)] text-[var(--oc-paper)] hover:border-[var(--oc-paper)]"
-                : "border-[var(--oc-line-strong)] text-[var(--oc-ink)] hover:border-[var(--oc-navy)]"
-            )}
+            className="inline-flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full border border-white/18 text-white transition-colors hover:border-white/42 xl:hidden"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="amg-mobile-menu"
@@ -182,37 +178,59 @@ export function SiteNav() {
         <div
           id="amg-mobile-menu"
           ref={menuRef}
-          className="fixed inset-x-0 top-[var(--public-header-height)] z-40 h-[calc(100svh-var(--public-header-height))] overflow-y-auto bg-[var(--oc-paper)] px-6 pb-12 pt-6 xl:hidden"
+          className="fixed inset-x-0 top-[var(--public-header-height)] z-40 h-[calc(100svh-var(--public-header-height))] overflow-y-auto border-t border-[var(--oc-line-dark)] bg-[#050B14] px-6 pb-12 pt-6 xl:hidden"
         >
-          <ul className="oc-shell flex flex-col">
-            {NAV_LINKS.map((link) => {
-              const active = isActivePath(pathname, link.href);
-              return (
-                <li key={link.href}>
+          <div className="oc-shell grid gap-7">
+            <div className="grid gap-3 sm:grid-cols-2">
+              {PUBLIC_NAV_LINKS.map((link) => {
+                const active = isActivePath(pathname, link.href);
+                return (
                   <Link
+                    key={link.href}
                     href={link.href}
                     prefetch={false}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                    "oc-display group flex items-center justify-between gap-4 border-b border-[var(--oc-line)] py-5 text-3xl text-[var(--oc-ink)] transition-colors sm:text-5xl",
-                      active ? "text-[var(--oc-blue)]" : "hover:text-[var(--oc-blue)]"
+                      "flex min-h-12 items-center justify-between rounded-lg border border-[var(--oc-line-dark)] px-4 text-sm font-semibold uppercase text-white/78 transition hover:border-[var(--oc-blue)] hover:text-white",
+                      active && "border-[var(--oc-blue)] bg-[var(--oc-blue)]/10 text-white"
                     )}
                   >
                     {link.label}
-                    <ArrowUpRight className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100" />
+                    <ArrowUpRight className="h-4 w-4" />
                   </Link>
-                </li>
-              );
-            })}
-          </ul>
-          <div className="oc-shell mt-8 grid gap-3 sm:grid-cols-2">
-            <Link href="/request-support" prefetch={false} className="oc-btn oc-btn-primary justify-center">
-              Request Support
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
-            <Link href="/login" prefetch={false} className="oc-btn oc-btn-ghost justify-center">
-              Member Login
-            </Link>
+                );
+              })}
+            </div>
+
+            <div className="grid gap-5">
+              {PUBLIC_NAV_GROUPS.map((group) => (
+                <section key={group.label} className="rounded-lg border border-[var(--oc-line-dark)] bg-white/[0.035] p-4">
+                  <h2 className="oc-kicker text-[var(--oc-aluminum-2)]">{group.label}</h2>
+                  <div className="mt-3 grid gap-2">
+                    {group.items.map((item) => (
+                      <Link
+                        key={`${group.label}-mobile-${item.href}-${item.label}`}
+                        href={item.href}
+                        prefetch={false}
+                        className="rounded-md px-2 py-2 text-sm text-[var(--oc-aluminum)] transition hover:bg-white/[0.06] hover:text-white"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Link href="/request-support" prefetch={false} className="oc-btn oc-btn-light justify-center">
+                Request Support
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+              <Link href="/login" prefetch={false} className="oc-btn oc-btn-ghost-dark justify-center">
+                Member Login
+              </Link>
+            </div>
           </div>
         </div>
       ) : null}

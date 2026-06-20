@@ -95,17 +95,9 @@ export function HomeHangarEntry({
         ) : null}
       </motion.div>
 
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_58%,rgba(229,177,105,0.34),transparent_28rem),linear-gradient(180deg,rgba(11,26,43,0.44),rgba(11,26,43,0.86)_66%,rgba(11,26,43,0.96))]" />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_58%,rgba(59,130,246,0.24),transparent_28rem),linear-gradient(180deg,rgba(5,11,20,0.44),rgba(5,11,20,0.86)_66%,rgba(5,11,20,0.96))]" />
       <div className="absolute inset-x-0 top-0 -z-10 h-36 bg-gradient-to-b from-[var(--oc-navy)]/82 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-[radial-gradient(ellipse_at_50%_100%,rgba(111,155,207,0.28),transparent_58%)]" />
-
-      <div
-        className="pointer-events-none absolute inset-x-[8%] bottom-0 z-0 h-[34%] opacity-80"
-        aria-hidden="true"
-      >
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/70 to-transparent shadow-[0_0_42px_rgba(255,255,255,0.65)]" />
-        <div className="absolute bottom-0 left-1/2 h-full w-[54%] -translate-x-1/2 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.15)_49%,rgba(255,255,255,0.55)_50%,rgba(255,255,255,0.15)_51%,transparent),repeating-linear-gradient(180deg,rgba(111,155,207,0.45)_0_2px,transparent_2px_26px)] [clip-path:polygon(46%_0,54%_0,100%_100%,0_100%)]" />
-      </div>
+      <div className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-[radial-gradient(ellipse_at_50%_100%,rgba(59,130,246,0.22),transparent_58%)]" />
 
       <div className="pointer-events-none absolute inset-0 z-0 opacity-[0.18] [background-image:linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:92px_92px] [mask-image:linear-gradient(180deg,transparent,black_22%,black_72%,transparent)]" />
 
@@ -121,7 +113,7 @@ export function HomeHangarEntry({
             transition={{ delay: isReduced ? 0 : 1.0, duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
           >
             <p className="oc-eyebrow oc-eyebrow-light inline-flex items-center gap-3">
-              <span className="h-px w-10 bg-[var(--oc-sand)]" />
+              <span className="h-px w-10 bg-[var(--oc-accent)]" />
               {eyebrow}
             </p>
             <h1 className="oc-display mt-6 max-w-[18ch] text-[clamp(2.65rem,6.6vw,5.35rem)] leading-[0.96] text-[var(--oc-paper)]">
@@ -142,7 +134,7 @@ export function HomeHangarEntry({
               </Link>
             </div>
 
-            <p className="mt-6 flex max-w-2xl items-start gap-3 border-l border-[var(--oc-sand)]/60 pl-4 text-xs leading-relaxed text-[var(--oc-aluminum-2)] sm:text-sm">
+            <p className="mt-6 flex max-w-2xl items-start gap-3 border-l border-[var(--oc-accent)]/60 pl-4 text-xs leading-relaxed text-[var(--oc-aluminum-2)] sm:text-sm">
               <span className="oc-dot oc-dot-live mt-1.5 h-1.5 w-1.5 shrink-0" aria-hidden="true" />
               Support is reviewed before acceptance. Scope, aircraft status, crew availability,
               owner/operator approval, and operating conditions are considered first.

@@ -42,7 +42,7 @@ export default async function RequestSupportPage({
           sizes="100vw"
           className="absolute inset-0 -z-20 object-cover opacity-[0.36]"
         />
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(11,26,43,0.98),rgba(11,26,43,0.82)_52%,rgba(11,26,43,0.94)),radial-gradient(circle_at_82%_5%,rgba(56,189,248,0.16),transparent_28rem)]" />
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(5,11,20,0.98),rgba(7,17,31,0.84)_52%,rgba(5,11,20,0.94)),radial-gradient(circle_at_82%_5%,rgba(59,130,246,0.16),transparent_28rem)]" />
         <div className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-[var(--background)] to-transparent" />
         <div className="oc-shell">
           <div className="grid gap-8 lg:grid-cols-[1fr_0.58fr] lg:items-end">
@@ -95,7 +95,7 @@ export default async function RequestSupportPage({
                     key={item}
                     className="flex items-center gap-3 border-b border-white/10 py-3 text-sm font-semibold text-[var(--oc-paper)] last:border-b-0"
                   >
-                    <Check className="h-4 w-4 shrink-0 text-[var(--oc-sand)]" />
+                    <Check className="h-4 w-4 shrink-0 text-[var(--oc-accent)]" />
                     <span>{item}</span>
                   </div>
                 ))}

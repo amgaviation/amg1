@@ -13,7 +13,7 @@ export default function Globe3DDemo({ markers }: Globe3DDemoProps) {
   const [selectedMarker, setSelectedMarker] = useState<CrewGlobeMarker | null>(null);
 
   return (
-    <div className="relative min-h-[30rem] overflow-hidden rounded-[1.25rem] border border-[var(--oc-line)] bg-[var(--oc-paper)] shadow-[var(--oc-shadow)]">
+    <div className="relative min-h-[30rem] overflow-hidden rounded-[1.25rem] border border-[var(--oc-line)] bg-[var(--oc-ivory-2)] shadow-[var(--oc-shadow)]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_42%,rgba(47,107,174,0.22),transparent_22rem),linear-gradient(135deg,rgba(11,26,43,0.04),rgba(11,26,43,0))]" />
       <div className="relative z-10 grid min-h-[30rem] gap-5 p-5 md:grid-cols-[1fr_0.72fr] md:p-7">
         <div className="relative min-h-[21rem] overflow-hidden rounded-xl border border-[var(--oc-line)] bg-[rgba(11,26,43,0.84)]">

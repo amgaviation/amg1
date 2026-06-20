@@ -24,7 +24,7 @@ export function CrewNetworkHeroGlobe() {
         sizes="100vw"
         className="absolute inset-0 -z-20 object-cover opacity-[0.34]"
       />
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_70%_36%,rgba(229,177,105,0.18),transparent_28rem),linear-gradient(90deg,rgba(7,19,33,0.96),rgba(7,19,33,0.78)_48%,rgba(7,19,33,0.94))]" />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_70%_36%,rgba(59,130,246,0.16),transparent_28rem),linear-gradient(90deg,rgba(5,11,20,0.96),rgba(7,17,31,0.78)_48%,rgba(5,11,20,0.94))]" />
       <div className="oc-shell grid items-center gap-10 lg:grid-cols-[0.82fr_1.18fr]">
         <div data-scroll-animate>
           <p className="oc-eyebrow oc-eyebrow-light">Operating Regions</p>

@@ -65,7 +65,6 @@ const brand = {
   midnight: "#050B14",
   deepBlue: "#07111F",
   accentBlue: "#3B82F6",
-  skyBlue: "#38BDF8",
   slateGray: "#9CA3AF",
   lightGray: "#C0C7D1",
   white: "#FFFFFF",
@@ -182,7 +181,7 @@ export function amgEmailLayout(input: BaseEmailTemplateInput) {
             <tr>
               <td style="padding: 28px 32px 30px; background: ${brand.deepBlue}; border-bottom: 4px solid ${brand.accentBlue};">
                 ${logoHtml}
-                <div style="margin-top: 22px; color: ${brand.skyBlue}; font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase;">
+                <div style="margin-top: 22px; color: ${brand.accentBlue}; font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase;">
                   ${escapeHtml(input.eyebrow || "Operational Notification")}
                 </div>
                 <div style="margin-top: 8px; color: ${brand.white}; font-family: Arial, Helvetica, sans-serif; font-size: 24px; line-height: 1.25; font-weight: 800;">

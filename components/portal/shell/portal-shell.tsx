@@ -63,9 +63,9 @@ export function PortalShell({
       : PORTAL_NAV[role];
 
   return (
-    <div className="relative min-h-screen bg-slate-50 text-slate-950 lg:grid lg:grid-cols-[17rem_1fr]">
+    <div className="amg-portal relative min-h-screen text-white lg:grid lg:grid-cols-[17.5rem_1fr]">
       {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-screen flex-col border-r border-white/10 bg-[var(--amg-ink)] text-white shadow-[4px_0_24px_rgba(8,20,36,0.18)] lg:flex">
+      <aside className="sticky top-0 hidden h-screen flex-col border-r border-white/10 bg-[#050B14]/96 text-white shadow-[4px_0_24px_rgba(0,0,0,0.24)] lg:flex">
         <SidebarContent role={role} nav={nav} />
       </aside>
 
@@ -76,7 +76,7 @@ export function PortalShell({
             className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
-          <aside className="absolute left-0 top-0 flex h-full w-72 flex-col border-r border-white/10 bg-[var(--amg-ink)] text-white shadow-xl">
+          <aside className="absolute left-0 top-0 flex h-full w-72 flex-col border-r border-white/10 bg-[#050B14] text-white shadow-xl">
             <button
               onClick={() => setOpen(false)}
               className="absolute right-3 top-3 rounded-full border border-white/10 p-2 text-slate-300 hover:text-white"
@@ -91,12 +91,12 @@ export function PortalShell({
 
       <div className="flex min-h-screen flex-col">
         {/* Topbar */}
-        <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-slate-200 bg-white px-5 py-3 shadow-sm lg:px-8">
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-white/10 bg-[#050B14]/88 px-5 py-3 shadow-[0_16px_48px_rgba(0,0,0,0.18)] backdrop-blur-xl lg:px-8">
           {/* Left: mobile menu + role label */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setOpen(true)}
-              className="rounded-md border border-slate-200 bg-white p-2 text-slate-600 hover:text-slate-900 lg:hidden"
+              className="rounded-md border border-white/12 bg-white/[0.04] p-2 text-slate-300 hover:text-white lg:hidden"
               aria-label="Open menu"
             >
               <Menu className="h-4 w-4" />
@@ -105,7 +105,7 @@ export function PortalShell({
               <p className="text-[0.6rem] font-semibold uppercase tracking-wider text-primary">
                 {ROLE_SHORT[role]}
               </p>
-              <p className="text-sm font-semibold text-slate-950">{ROLE_LABELS[role]}</p>
+              <p className="text-sm font-semibold text-white">{ROLE_LABELS[role]}</p>
             </div>
           </div>
 
@@ -114,7 +114,7 @@ export function PortalShell({
             {/* Notifications bell */}
             <Link
               href={NOTIFICATIONS_HREF[role]}
-              className="relative rounded-md border border-slate-200 bg-white p-2 text-slate-500 transition-colors hover:border-primary/40 hover:text-primary"
+              className="relative rounded-md border border-white/12 bg-white/[0.04] p-2 text-slate-300 transition-colors hover:border-primary/50 hover:text-white"
               aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ""}`}
             >
               <PortalIcon name="bell" className="h-4 w-4" />
@@ -128,7 +128,7 @@ export function PortalShell({
             {/* Settings link */}
             <Link
               href={SETTINGS_HREF[role]}
-              className="hidden rounded-md border border-slate-200 bg-white p-2 text-slate-500 transition-colors hover:border-primary/40 hover:text-primary sm:block"
+              className="hidden rounded-md border border-white/12 bg-white/[0.04] p-2 text-slate-300 transition-colors hover:border-primary/50 hover:text-white sm:block"
               aria-label="Settings"
             >
               <PortalIcon name="settings" className="h-4 w-4" />
@@ -136,15 +136,15 @@ export function PortalShell({
 
             {/* User identity */}
             <div className="hidden items-center gap-3 pl-2 sm:flex">
-              <div className="border-l border-slate-200 pl-3 text-right">
-                <p className="max-w-[10rem] truncate text-sm font-semibold leading-tight text-slate-950">
+              <div className="border-l border-white/12 pl-3 text-right">
+                <p className="max-w-[10rem] truncate text-sm font-semibold leading-tight text-white">
                   {user.name}
                 </p>
-                <p className="max-w-[10rem] truncate text-xs text-slate-500">
+                <p className="max-w-[10rem] truncate text-xs text-slate-400">
                   {user.companyName ?? user.email}
                 </p>
               </div>
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-xs font-bold text-primary">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/35 bg-primary/15 text-xs font-bold text-blue-100">
                 {initials(user.name)}
               </div>
             </div>
@@ -153,7 +153,7 @@ export function PortalShell({
             <form action={signOut}>
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 transition-colors hover:border-slate-300 hover:text-slate-900"
+                className="inline-flex items-center gap-2 rounded-md border border-white/12 bg-white/[0.04] px-3 py-2 text-xs font-medium text-slate-300 transition-colors hover:border-white/24 hover:text-white"
                 aria-label="Sign out"
               >
                 <LogOut className="h-3.5 w-3.5" />
@@ -197,7 +197,7 @@ function SidebarContent({
             className="h-7 w-auto"
           />
         </Link>
-        <p className="mt-1 text-[0.6rem] uppercase tracking-widest text-slate-500">
+        <p className="mt-2 text-[0.6rem] uppercase tracking-widest text-slate-400">
           Connect Operations
         </p>
         <div className="mt-3">
@@ -222,8 +222,8 @@ function SidebarContent({
                 className={cn(
                   "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
                   active
-                    ? "bg-white/10 font-semibold text-white"
-                    : "text-slate-400 hover:bg-white/6 hover:text-white"
+                    ? "bg-primary/16 font-semibold text-white ring-1 ring-primary/25"
+                    : "text-slate-400 hover:bg-white/[0.06] hover:text-white"
                 )}
               >
                 <PortalIcon name={item.icon} className="h-4 w-4 shrink-0" />
@@ -236,10 +236,10 @@ function SidebarContent({
 
       {/* Footer */}
       <div className="shrink-0 border-t border-white/10 px-5 py-4">
-        <p className="text-[0.6rem] uppercase tracking-wider text-slate-500">
+        <p className="text-[0.6rem] uppercase tracking-wider text-slate-400">
           AMG Aviation Group
         </p>
-        <p className="mt-0.5 text-[0.6rem] text-slate-600">
+        <p className="mt-0.5 text-[0.6rem] text-slate-500">
           Part 91 Operational Support
         </p>
       </div>
