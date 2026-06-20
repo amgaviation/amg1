@@ -24,7 +24,7 @@ function safeErrorMessage(error: unknown) {
       ? "GitHub publishing token is invalid or expired."
       : `GitHub rejected the request (${error.status}).`;
   }
-  if (error instanceof Error && /GitHub publishing is not configured|checks are pending|outside approved|valid Website Editor/.test(error.message)) {
+  if (error instanceof Error && /GitHub publishing is not configured|checks are pending|outside approved|valid Website Editor|must target main/.test(error.message)) {
     return error.message;
   }
   return "Website Editor action could not be completed.";
@@ -109,6 +109,10 @@ export async function saveWebsiteContentDraft(formData: FormData) {
     });
     redirect(editorPath(slug, "save-failed"));
   }
+  await (db as any)
+    .from("website_content_drafts")
+    .update({ last_preview_url: `/portal/super-admin/website-editor/preview/${result.data.id}` })
+    .eq("id", result.data.id);
   await logEditorEvent({
     draftId: result.data.id,
     pageSlug: slug,

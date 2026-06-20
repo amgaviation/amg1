@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -22,14 +21,13 @@ import {
 import { PageHero, Figure } from "@/components/site/oc/shared";
 import { cn } from "@/lib/utils";
 import { IMG } from "@/lib/site-media";
+import { heroForWebsiteContent, metadataForWebsiteContent } from "@/lib/website-editor/content";
 
-export const metadata: Metadata = {
-  title: {
-    absolute: "AMG Capabilities | AMG Aviation Group",
-  },
+export const metadata = metadataForWebsiteContent("services", {
+  title: "AMG Capabilities | AMG Aviation Group",
   description:
     "Structured AMG Aviation Group capabilities for aircraft support review, crew coordination, ferry and repositioning, maintenance movement, flight operations coordination, fleet support, plans, and owner/operator visibility.",
-};
+});
 
 const CAPABILITIES: {
   title: string;
@@ -197,17 +195,28 @@ const DETAIL_ITEMS = [
 ];
 
 export default function CapabilitiesPage() {
+  const hero = heroForWebsiteContent("services", {
+    eyebrow: "AMG Capabilities",
+    title: "Structured Aircraft Support for Operational Clarity",
+    lead: "AMG organizes aircraft support requests around aircraft context, crew requirements, movement timing, owner/operator authority, documents, logistics, and approved stakeholder communication.",
+    image: IMG.heroOperations,
+    imageAlt: "Business jet staged on the ramp for coordinated aircraft support",
+    position: "center 42%",
+    primary: { label: "Request Support", href: "/request-support" },
+    secondary: { label: "View Plans", href: "/plans" },
+  });
+
   return (
     <>
       <PageHero
-        eyebrow="AMG Capabilities"
-        title="Structured Aircraft Support for Operational Clarity"
-        lead="AMG organizes aircraft support requests around aircraft context, crew requirements, movement timing, owner/operator authority, documents, logistics, and approved stakeholder communication."
-        image={IMG.heroOperations}
-        imageAlt="Business jet staged on the ramp for coordinated aircraft support"
-        position="center 42%"
-        primary={{ label: "Request Support", href: "/request-support" }}
-        secondary={{ label: "View Plans", href: "/plans" }}
+        eyebrow={hero.eyebrow}
+        title={hero.title}
+        lead={hero.lead}
+        image={hero.image}
+        imageAlt={hero.imageAlt}
+        position={hero.position}
+        primary={hero.primary}
+        secondary={hero.secondary}
       />
 
       <section className="bg-[var(--oc-ivory)]">

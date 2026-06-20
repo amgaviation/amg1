@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
+import { HomeHangarEntry } from "@/components/site/home/home-hangar-entry";
 import { PageHero } from "@/components/site/oc/shared";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { createServiceClient } from "@/lib/supabase/server";
@@ -38,15 +39,28 @@ export default async function WebsiteEditorPreviewPage({
       />
       <SectionCard title="Rendered Public Hero" icon="fileText" bodyClassName="p-0 overflow-hidden">
         <div className="overflow-hidden rounded-b-lg">
-          <PageHero
-            eyebrow={hero.eyebrow ?? content.seo.title}
-            title={hero.headline ?? content.seo.title}
-            lead={hero.body ?? content.seo.description}
-            image={imageSrcForKey(hero.imageKey) ?? "/images/amg-generated/backgrounds/operational-clarity-dispatch.jpg"}
-            imageAlt=""
-            primary={hero.primaryCtaLabel && hero.primaryCtaHref ? { label: hero.primaryCtaLabel, href: hero.primaryCtaHref } : undefined}
-            secondary={hero.secondaryCtaLabel && hero.secondaryCtaHref ? { label: hero.secondaryCtaLabel, href: hero.secondaryCtaHref } : undefined}
-          />
+          {content.page === "home" ? (
+            <HomeHangarEntry
+              eyebrow={hero.eyebrow ?? content.seo.title}
+              headline={hero.headline ?? content.seo.title}
+              body={hero.body ?? content.seo.description}
+              imageSrc={imageSrcForKey(hero.imageKey) ?? "/images/amg-generated/backgrounds/operational-clarity-dispatch.jpg"}
+              primaryCtaLabel={hero.primaryCtaLabel || undefined}
+              primaryCtaHref={hero.primaryCtaHref || undefined}
+              secondaryCtaLabel={hero.secondaryCtaLabel || undefined}
+              secondaryCtaHref={hero.secondaryCtaHref || undefined}
+            />
+          ) : (
+            <PageHero
+              eyebrow={hero.eyebrow ?? content.seo.title}
+              title={hero.headline ?? content.seo.title}
+              lead={hero.body ?? content.seo.description}
+              image={imageSrcForKey(hero.imageKey) ?? "/images/amg-generated/backgrounds/operational-clarity-dispatch.jpg"}
+              imageAlt=""
+              primary={hero.primaryCtaLabel && hero.primaryCtaHref ? { label: hero.primaryCtaLabel, href: hero.primaryCtaHref } : undefined}
+              secondary={hero.secondaryCtaLabel && hero.secondaryCtaHref ? { label: hero.secondaryCtaLabel, href: hero.secondaryCtaHref } : undefined}
+            />
+          )}
         </div>
       </SectionCard>
     </PortalShell>

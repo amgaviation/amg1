@@ -20,6 +20,14 @@ import { cn } from "@/lib/utils";
 const REQUEST_REVIEW_HREF = "/request-support?category=subscription-program-inquiry";
 const CONTACT_HREF = "/contact";
 
+type PlansHeroContent = {
+  eyebrow: string;
+  title: string;
+  lead?: string;
+  primary?: { label: string; href: string };
+  secondary?: { label: string; href: string };
+};
+
 function displayValue(value: unknown, fallback = "Reviewed during intake") {
   if (value === null || value === undefined || value === "") return fallback;
   return String(value);
@@ -31,7 +39,7 @@ function getPlanPrice(plan: SupportPlan, billing: BillingInterval) {
     : displayValue(plan.monthlyPrice, "Plan Review Required");
 }
 
-export function SubscriptionPrograms() {
+export function SubscriptionPrograms({ hero }: { hero?: PlansHeroContent }) {
   const [billing, setBilling] = useState<BillingInterval>("monthly");
   const [categoryId, setCategoryId] = useState<AircraftCategoryId>("piston");
   const [pistonSubtypeId, setPistonSubtypeId] = useState<PistonSubtypeId>("single-engine-piston");
@@ -59,7 +67,7 @@ export function SubscriptionPrograms() {
 
   return (
     <div className="overflow-hidden">
-      <PlansHero />
+      <PlansHero content={hero} />
 
       <section className="oc-shell py-16 lg:py-24" aria-labelledby="plan-builder-heading">
         <Card className="glass-panel gap-0 rounded-2xl border-[var(--oc-line)] p-0">
@@ -163,7 +171,10 @@ export function SubscriptionPrograms() {
   );
 }
 
-function PlansHero() {
+function PlansHero({ content }: { content?: PlansHeroContent }) {
+  const primary = content?.primary ?? { label: "Request Plan Review", href: REQUEST_REVIEW_HREF };
+  const secondary = content?.secondary ?? { label: "Compare Plans", href: "#plans-comparison" };
+
   return (
     <section className="relative isolate overflow-hidden bg-[var(--oc-navy)] pb-12 pt-[calc(var(--public-header-height)+4rem)] text-white lg:pb-16 lg:pt-[calc(var(--public-header-height)+6rem)]">
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(135deg,var(--oc-navy),var(--oc-graphite)_58%,oklch(0.25_0.04_240))]" />
@@ -173,14 +184,14 @@ function PlansHero() {
           <div className="max-w-4xl">
             <p className="oc-eyebrow oc-eyebrow-light inline-flex items-center gap-3">
               <span className="h-px w-10 bg-[var(--oc-aluminum-2)]" />
-              AMG Support Plans
+              {content?.eyebrow ?? "AMG Support Plans"}
             </p>
             <h1 className="oc-display mt-5 max-w-4xl text-[clamp(2.75rem,7vw,5.65rem)] text-[var(--oc-paper)]">
-              Aircraft Support Plans Built Around Reality
+              {content?.title ?? "Aircraft Support Plans Built Around Reality"}
             </h1>
             <p className="mt-6 max-w-3xl text-lg leading-relaxed text-[var(--oc-aluminum)]">
-              AMG plans are structured around aircraft category, support frequency, crew coordination needs,
-              maintenance movement requirements, and owner/operator visibility.
+              {content?.lead ??
+                "AMG plans are structured around aircraft category, support frequency, crew coordination needs, maintenance movement requirements, and owner/operator visibility."}
             </p>
             <p className="mt-5 max-w-3xl rounded-xl border border-white/14 bg-white/8 p-4 text-sm leading-relaxed text-[var(--oc-aluminum)] backdrop-blur-md">
               AMG does not present a request as accepted until the support scope, aircraft status, crew availability,
@@ -188,13 +199,13 @@ function PlansHero() {
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild className="min-h-11 rounded-full bg-white px-6 text-[var(--oc-navy)] hover:bg-white/90">
-                <Link href={REQUEST_REVIEW_HREF} prefetch={false}>
-                  Request Plan Review
+                <Link href={primary.href} prefetch={false}>
+                  {primary.label}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild variant="outline" className="min-h-11 rounded-full border-white/28 bg-white/5 px-6 text-white hover:bg-white/12 hover:text-white">
-                <a href="#plans-comparison">Compare Plans</a>
+                <a href={secondary.href}>{secondary.label}</a>
               </Button>
             </div>
           </div>

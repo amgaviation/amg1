@@ -34,6 +34,17 @@ export type WebsiteContentPage = {
   sections: Record<string, WebsiteContentSection>;
 };
 
+export type WebsiteContentHeroProps = {
+  eyebrow: string;
+  title: string;
+  lead?: string;
+  image: string;
+  imageAlt?: string;
+  position?: string;
+  primary?: { label: string; href: string };
+  secondary?: { label: string; href: string };
+};
+
 export const WEBSITE_CONTENT_PAGES = [
   { slug: "home", label: "Home", file: "content/site/home.json" },
   { slug: "about", label: "About", file: "content/site/about.json" },
@@ -113,6 +124,36 @@ export function assertApprovedContentPath(filePath: string) {
 export function imageSrcForKey(key: string | undefined) {
   if (!key) return null;
   return APPROVED_IMAGE_KEYS[key as keyof typeof APPROVED_IMAGE_KEYS] ?? null;
+}
+
+export function metadataForWebsiteContent(slug: WebsiteContentSlug, fallback: WebsiteContentPage["seo"]) {
+  const content = getWebsiteContentPage(slug);
+  return {
+    title: content.seo.title || fallback.title,
+    description: content.seo.description || fallback.description,
+  };
+}
+
+export function heroForWebsiteContent(slug: WebsiteContentSlug, fallback: WebsiteContentHeroProps): WebsiteContentHeroProps {
+  const content = getWebsiteContentPage(slug);
+  const hero = content.sections.hero;
+  if (!hero?.enabled) return fallback;
+
+  return {
+    ...fallback,
+    eyebrow: hero.eyebrow?.trim() || fallback.eyebrow,
+    title: hero.headline?.trim() || fallback.title,
+    lead: hero.body?.trim() || fallback.lead,
+    image: imageSrcForKey(hero.imageKey) ?? fallback.image,
+    primary:
+      hero.primaryCtaLabel?.trim() && hero.primaryCtaHref?.trim()
+        ? { label: hero.primaryCtaLabel, href: hero.primaryCtaHref }
+        : fallback.primary,
+    secondary:
+      hero.secondaryCtaLabel?.trim() && hero.secondaryCtaHref?.trim()
+        ? { label: hero.secondaryCtaLabel, href: hero.secondaryCtaHref }
+        : fallback.secondary,
+  };
 }
 
 function containsUnsafeMarkup(value: string) {

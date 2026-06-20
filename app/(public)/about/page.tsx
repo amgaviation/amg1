@@ -1,25 +1,35 @@
-import type { Metadata } from "next";
 import { PageHero, SectionHeading, CtaBand, Figure } from "@/components/site/oc/shared";
 import { COMPANY, VALUES, TEAM } from "@/lib/content";
 import { IMG } from "@/lib/site-media";
+import { heroForWebsiteContent, metadataForWebsiteContent } from "@/lib/website-editor/content";
 
-export const metadata: Metadata = {
+export const metadata = metadataForWebsiteContent("about", {
   title: "About AMG",
   description:
     "AMG Aviation Group provides structured aircraft support coordination for owner/operator and Part 91 environments — not charter, not an air carrier.",
-};
+});
 
 export default function AboutPage() {
+  const hero = heroForWebsiteContent("about", {
+    eyebrow: "About AMG",
+    title: "Built around real aircraft support needs.",
+    lead: "AMG Aviation Group provides structured coordination for aircraft owners, flight departments, crews, and approved representatives — with operating authority, aircraft approval, and pilot-in-command responsibility kept where they belong.",
+    image: IMG.aboutOperations,
+    imageAlt: "AMG operations environment",
+    primary: { label: "Request Support", href: "/request-support" },
+    secondary: { label: "Crew Network", href: "/crew-network" },
+  });
+
   return (
     <>
       <PageHero
-        eyebrow="About AMG"
-        title="Built around real aircraft support needs."
-        lead="AMG Aviation Group provides structured coordination for aircraft owners, flight departments, crews, and approved representatives — with operating authority, aircraft approval, and pilot-in-command responsibility kept where they belong."
-        image={IMG.aboutOperations}
-        imageAlt="AMG operations environment"
-        primary={{ label: "Request Support", href: "/request-support" }}
-        secondary={{ label: "Crew Network", href: "/crew-network" }}
+        eyebrow={hero.eyebrow}
+        title={hero.title}
+        lead={hero.lead}
+        image={hero.image}
+        imageAlt={hero.imageAlt}
+        primary={hero.primary}
+        secondary={hero.secondary}
       />
 
       <section className="oc-section bg-[var(--oc-ivory)]">

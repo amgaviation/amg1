@@ -24,7 +24,27 @@ const REVIEW_CHIPS = [
   { label: "Mission Timing", value: "Assessing", icon: Clock3 },
 ];
 
-export function HomeHangarEntry() {
+export type HomeHangarEntryProps = {
+  eyebrow?: string;
+  headline?: string;
+  body?: string;
+  imageSrc?: string;
+  primaryCtaLabel?: string;
+  primaryCtaHref?: string;
+  secondaryCtaLabel?: string;
+  secondaryCtaHref?: string;
+};
+
+export function HomeHangarEntry({
+  eyebrow = "AMG Aviation Group",
+  headline = "Aircraft Support Built Around Operational Clarity",
+  body = "AMG coordinates aircraft support with a structured review of scope, aircraft status, crew availability, owner/operator approval, and operational conditions before a request is presented as accepted.",
+  imageSrc = IMG.generatedHeroPoster,
+  primaryCtaLabel = "Request Support",
+  primaryCtaHref = "/request-support",
+  secondaryCtaLabel = "Explore Capabilities",
+  secondaryCtaHref = "/capabilities",
+}: HomeHangarEntryProps) {
   const ref = useRef<HTMLElement>(null);
   const [hasMounted, setHasMounted] = useState(false);
   const reduceMotion = useReducedMotion();
@@ -51,7 +71,7 @@ export function HomeHangarEntry() {
         style={{ y: backgroundY }}
       >
         <Image
-          src={IMG.generatedHeroPoster}
+          src={imageSrc}
           alt=""
           fill
           priority
@@ -102,24 +122,22 @@ export function HomeHangarEntry() {
           >
             <p className="oc-eyebrow oc-eyebrow-light inline-flex items-center gap-3">
               <span className="h-px w-10 bg-[var(--oc-sand)]" />
-              AMG Aviation Group
+              {eyebrow}
             </p>
             <h1 className="oc-display mt-6 max-w-[18ch] text-[clamp(2.65rem,6.6vw,5.35rem)] leading-[0.96] text-[var(--oc-paper)]">
-              Aircraft Support Built Around Operational Clarity
+              {headline}
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-relaxed text-[var(--oc-aluminum)] sm:text-lg">
-              AMG coordinates aircraft support with a structured review of scope, aircraft status,
-              crew availability, owner/operator approval, and operational conditions before a
-              request is presented as accepted.
+              {body}
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link href="/request-support" prefetch={false} className="oc-btn oc-btn-light">
-                Request Support
+              <Link href={primaryCtaHref} prefetch={false} className="oc-btn oc-btn-light">
+                {primaryCtaLabel}
                 <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link href="/capabilities" prefetch={false} className="oc-btn oc-btn-ghost-dark">
-                Explore Capabilities
+              <Link href={secondaryCtaHref} prefetch={false} className="oc-btn oc-btn-ghost-dark">
+                {secondaryCtaLabel}
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
             </div>

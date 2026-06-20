@@ -1,17 +1,16 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ContactInquiryForm } from "@/components/site/contact-inquiry-form";
 import { COMPANY } from "@/lib/content";
+import { IMG } from "@/lib/site-media";
+import { heroForWebsiteContent, metadataForWebsiteContent } from "@/lib/website-editor/content";
 
-export const metadata: Metadata = {
-  title: {
-    absolute: "Contact AMG Aviation Group | Aviation Support Capabilities",
-  },
+export const metadata = metadataForWebsiteContent("contact", {
+  title: "Contact AMG Aviation Group | Aviation Support Capabilities",
   description:
     "Contact AMG Aviation Group for general inquiries, plan questions, pilot network communication, vendor coordination, and aviation support routing.",
-};
+});
 
 export default async function ContactPage({
   searchParams,
@@ -19,6 +18,12 @@ export default async function ContactPage({
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
   const params = await searchParams;
+  const hero = heroForWebsiteContent("contact", {
+    eyebrow: "AMG Contact",
+    title: "Contact AMG Aviation Group",
+    lead: "For general inquiries, plan questions, pilot network communication, vendor coordination, or administrative requests.",
+    image: IMG.contactSupport,
+  });
 
   return (
     <>
@@ -26,12 +31,12 @@ export default async function ContactPage({
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_80%_8%,rgba(47,107,174,0.12),transparent_28rem)]" />
         <div className="oc-shell">
           <div className="mx-auto max-w-4xl text-center">
-            <p className="oc-eyebrow text-[var(--oc-blue)]">AMG Contact</p>
+            <p className="oc-eyebrow text-[var(--oc-blue)]">{hero.eyebrow}</p>
             <h1 className="oc-display mt-5 text-[clamp(2.75rem,7vw,5.25rem)] text-[var(--oc-ink)]">
-              Contact AMG Aviation Group
+              {hero.title}
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-[var(--oc-muted)]">
-              For general inquiries, plan questions, pilot network communication, vendor coordination, or administrative requests.
+              {hero.lead}
             </p>
             <p className="mx-auto mt-5 max-w-3xl rounded-2xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
               Submitting a contact inquiry does not confirm aircraft support, crew availability, aircraft movement, or operational acceptance.

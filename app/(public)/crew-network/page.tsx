@@ -1,27 +1,37 @@
-import type { Metadata } from "next";
 import { PageHero, SectionHeading, CtaBand, Figure } from "@/components/site/oc/shared";
 import { CrewNetworkHeroGlobe } from "@/components/sections/crew-network-hero-globe";
 import { CrewNetworkSecondaryGlobe } from "@/components/sections/crew-network-secondary-globe";
 import { PILOT_REQUIREMENTS, PILOT_BENEFITS } from "@/lib/content";
 import { IMG } from "@/lib/site-media";
+import { heroForWebsiteContent, metadataForWebsiteContent } from "@/lib/website-editor/content";
 
-export const metadata: Metadata = {
+export const metadata = metadataForWebsiteContent("crew-network", {
   title: "Crew Network",
   description:
     "A credential-reviewed crew network organized by base airport, aircraft experience, documents, availability, and assignment suitability.",
-};
+});
 
 export default function CrewNetworkPage() {
+  const hero = heroForWebsiteContent("crew-network", {
+    eyebrow: "Crew Network",
+    title: "Crew coverage reviewed by aircraft, role, and assignment.",
+    lead: "AMG organizes pilots and aviation professionals around base airport, aircraft experience, documents, and suitability — so crew support is reviewed against the aircraft need, not treated as an automatic placement.",
+    image: IMG.pilotNetwork,
+    imageAlt: "Flight crew walking the ramp toward an aircraft",
+    primary: { label: "Submit Credentials", href: "/credential-submission" },
+    secondary: { label: "Member Login", href: "/login" },
+  });
+
   return (
     <>
       <PageHero
-        eyebrow="Crew Network"
-        title="Crew coverage reviewed by aircraft, role, and assignment."
-        lead="AMG organizes pilots and aviation professionals around base airport, aircraft experience, documents, and suitability — so crew support is reviewed against the aircraft need, not treated as an automatic placement."
-        image={IMG.pilotNetwork}
-        imageAlt="Flight crew walking the ramp toward an aircraft"
-        primary={{ label: "Submit Credentials", href: "/credential-submission" }}
-        secondary={{ label: "Member Login", href: "/login" }}
+        eyebrow={hero.eyebrow}
+        title={hero.title}
+        lead={hero.lead}
+        image={hero.image}
+        imageAlt={hero.imageAlt}
+        primary={hero.primary}
+        secondary={hero.secondary}
       />
 
       <CrewNetworkHeroGlobe />

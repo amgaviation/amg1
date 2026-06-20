@@ -1,21 +1,28 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { legalDocuments } from "@/lib/compliance/legal-pages";
+import { IMG } from "@/lib/site-media";
+import { heroForWebsiteContent, metadataForWebsiteContent } from "@/lib/website-editor/content";
 
-export const metadata: Metadata = {
+export const metadata = metadataForWebsiteContent("legal", {
   title: "AMG Aviation Group - Legal Notices",
   description: "Legal, privacy, cookie, accessibility, portal, document, SMS, email, and compliance notices.",
-};
+});
 
 export default function LegalIndexPage() {
+  const hero = heroForWebsiteContent("legal", {
+    eyebrow: "Administrative",
+    title: "Legal Notices",
+    lead: "Attorney-review drafts for AMG Aviation Group website, portal, privacy, document, communications, media, and aviation support notices. These pages are administrative notices and are not legal advice.",
+    image: IMG.servicesHero,
+  });
+
   return (
     <section className="cinematic-band min-h-screen px-6 pb-24 pt-36 lg:px-10">
       <div className="mx-auto max-w-7xl">
-        <p className="eyebrow text-accent">Administrative</p>
-        <h1 className="display-heading mt-5 text-5xl text-slate-950 sm:text-6xl">Legal Notices</h1>
+        <p className="eyebrow text-accent">{hero.eyebrow}</p>
+        <h1 className="display-heading mt-5 text-5xl text-slate-950 sm:text-6xl">{hero.title}</h1>
         <p className="mt-5 max-w-3xl text-base leading-relaxed text-slate-600">
-          Attorney-review drafts for AMG Aviation Group website, portal, privacy, document, communications, media,
-          and aviation support notices. These pages are administrative notices and are not legal advice.
+          {hero.lead}
         </p>
         <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {legalDocuments.map((document) => (

@@ -15,6 +15,8 @@ type GitHubConfig = {
   defaultBranch: string;
 };
 
+const WEBSITE_EDITOR_BASE_BRANCH = "main";
+
 export class GitHubApiError extends Error {
   status: number;
   detail: string;
@@ -38,9 +40,8 @@ function githubConfig(): GitHubConfig | null {
   const token = process.env.GITHUB_TOKEN;
   const owner = process.env.GITHUB_OWNER;
   const repo = process.env.GITHUB_REPO;
-  const defaultBranch = process.env.GITHUB_DEFAULT_BRANCH || "main";
   if (!token || !owner || !repo) return null;
-  return { token, owner, repo, defaultBranch };
+  return { token, owner, repo, defaultBranch: WEBSITE_EDITOR_BASE_BRANCH };
 }
 
 export function githubPublishingConfigured() {
@@ -182,11 +183,14 @@ export async function mergeWebsiteEditorPullRequest(prUrl: string) {
   const number = match ? Number(match[1]) : null;
   if (!number) throw new Error("Draft does not have a valid Website Editor pull request.");
 
-  const pr = await githubFetch<{ head: { sha: string; ref: string }; html_url: string; merged: boolean }>(
+  const pr = await githubFetch<{ base: { ref: string }; head: { sha: string; ref: string }; html_url: string; merged: boolean }>(
     config,
     `/repos/${config.owner}/${config.repo}/pulls/${number}`,
   );
   if (pr.merged) return { merged: true, commitSha: pr.head.sha, pullRequestUrl: pr.html_url };
+  if (pr.base.ref !== config.defaultBranch) {
+    throw new Error(`Merge blocked because Website Editor pull requests must target ${config.defaultBranch}.`);
+  }
 
   const files = await githubFetch<Array<{ filename: string }>>(
     config,

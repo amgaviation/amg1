@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
 import { PageHero, SectionHeading, CtaBand, Figure } from "@/components/site/oc/shared";
 import { AircraftGallery } from "@/components/site/home/aircraft-gallery";
 import { IMG } from "@/lib/site-media";
+import { heroForWebsiteContent, metadataForWebsiteContent } from "@/lib/website-editor/content";
 
-export const metadata: Metadata = {
+export const metadata = metadataForWebsiteContent("aircraft-support", {
   title: "Aircraft Support",
   description:
     "Aircraft support matched to class — from piston and turboprop to heavy-cabin jets — reviewed around crew, status, route, and airport constraints.",
-};
+});
 
 const CONSIDERATIONS = [
   {
@@ -25,16 +25,26 @@ const CONSIDERATIONS = [
 ];
 
 export default function AircraftSupportPage() {
+  const hero = heroForWebsiteContent("aircraft-support", {
+    eyebrow: "Aircraft Support",
+    title: "Support matched to the aircraft, not a generic request.",
+    lead: "From owner-flown pistons to heavy-cabin jets, AMG reviews support around the aircraft class, crew requirement, route, timing, status, and airport context.",
+    image: IMG.aircraftSupportMain,
+    imageAlt: "Business jet prepared for an aircraft support movement",
+    primary: { label: "Request Support", href: "/request-support" },
+    secondary: { label: "View Plans", href: "/plans" },
+  });
+
   return (
     <>
       <PageHero
-        eyebrow="Aircraft Support"
-        title="Support matched to the aircraft, not a generic request."
-        lead="From owner-flown pistons to heavy-cabin jets, AMG reviews support around the aircraft class, crew requirement, route, timing, status, and airport context."
-        image={IMG.aircraftSupportMain}
-        imageAlt="Business jet prepared for an aircraft support movement"
-        primary={{ label: "Request Support", href: "/request-support" }}
-        secondary={{ label: "View Plans", href: "/plans" }}
+        eyebrow={hero.eyebrow}
+        title={hero.title}
+        lead={hero.lead}
+        image={hero.image}
+        imageAlt={hero.imageAlt}
+        primary={hero.primary}
+        secondary={hero.secondary}
       />
 
       <AircraftGallery

@@ -12,18 +12,38 @@ import { ConnectPreview } from "@/components/site/home/connect-preview";
 import { OperationalClaritySection } from "@/components/site/home/operational-clarity-section";
 import { ClientCrewAttentionSection } from "@/components/site/home/client-crew-attention-section";
 import { CtaBand } from "@/components/site/oc/shared";
+import { heroForWebsiteContent, metadataForWebsiteContent } from "@/lib/website-editor/content";
+import { IMG } from "@/lib/site-media";
 
-export const metadata = {
+export const metadata = metadataForWebsiteContent("home", {
   title: "AMG Aviation Group | Aircraft Support & Operational Coordination",
   description:
     "AMG Aviation Group supports aircraft owners, flight departments, crews, maintenance events, and mission-specific operational needs through structured request review, practical coordination, and clear stakeholder communication.",
-};
+});
 
 export default function HomePage() {
+  const hero = heroForWebsiteContent("home", {
+    eyebrow: "AMG Aviation Group",
+    title: "Aircraft Support Built Around Operational Clarity",
+    lead: "AMG coordinates aircraft support with a structured review of scope, aircraft status, crew availability, owner/operator approval, and operational conditions before a request is presented as accepted.",
+    image: IMG.generatedHeroPoster,
+    primary: { label: "Request Support", href: "/request-support" },
+    secondary: { label: "Explore Capabilities", href: "/capabilities" },
+  });
+
   return (
     <>
       <HangarDoorIntro />
-      <HomeHangarEntry />
+      <HomeHangarEntry
+        eyebrow={hero.eyebrow}
+        headline={hero.title}
+        body={hero.lead}
+        imageSrc={hero.image}
+        primaryCtaLabel={hero.primary?.label}
+        primaryCtaHref={hero.primary?.href}
+        secondaryCtaLabel={hero.secondary?.label}
+        secondaryCtaHref={hero.secondary?.href}
+      />
       <OperationalTrustStrip />
       <SitePreviewLayer />
       <BrandStatement />

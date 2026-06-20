@@ -107,11 +107,15 @@ function DraftActions({ draft }: { draft: WebsiteContentDraft | null }) {
       <DetailRow label="Updated">{new Date(draft.updated_at).toLocaleString()}</DetailRow>
       {draft.branch_name ? <DetailRow label="Branch"><span className="font-mono text-xs">{draft.branch_name}</span></DetailRow> : null}
       {draft.pull_request_url ? <DetailRow label="Pull Request"><a href={draft.pull_request_url} className="text-primary hover:underline" target="_blank" rel="noreferrer">Open PR</a></DetailRow> : null}
+      {draft.last_preview_url ? <DetailRow label="Preview"><a href={draft.last_preview_url} className="text-primary hover:underline" target="_blank" rel="noreferrer">Open Preview</a></DetailRow> : null}
+      <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-900">
+        Preview the draft first. Creating a PR writes approved JSON content only; Merge PR publishes that PR into main for the next Vercel production deployment.
+      </p>
       <div className="flex flex-wrap gap-2 pt-2">
         <form action={previewWebsiteContentDraft}>
           <input type="hidden" name="page_slug" value={draft.page_slug} />
           <input type="hidden" name="draft_id" value={draft.id} />
-          <SubmitButton variant="outline" className="rounded-full" pendingText="Opening...">Preview</SubmitButton>
+          <SubmitButton variant="outline" className="rounded-full" pendingText="Opening...">Preview Draft</SubmitButton>
         </form>
         <form action={publishWebsiteContentDraft}>
           <input type="hidden" name="page_slug" value={draft.page_slug} />
@@ -122,7 +126,7 @@ function DraftActions({ draft }: { draft: WebsiteContentDraft | null }) {
           <form action={mergeWebsiteContentDraft}>
             <input type="hidden" name="page_slug" value={draft.page_slug} />
             <input type="hidden" name="draft_id" value={draft.id} />
-            <SubmitButton variant="outline" className="rounded-full" pendingText="Checking PR...">Merge PR</SubmitButton>
+            <SubmitButton variant="outline" className="rounded-full" pendingText="Checking PR...">Merge PR to Main</SubmitButton>
           </form>
         ) : null}
         <form action={archiveWebsiteContentDraft}>
