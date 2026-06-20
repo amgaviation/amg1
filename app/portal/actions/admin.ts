@@ -39,6 +39,91 @@ function splitList(value: string): string[] {
     .filter(Boolean);
 }
 
+const OPTIONAL_PROFILE_COLUMNS = [
+  "preferred_airport",
+  "client_type",
+  "billing_preference",
+  "billing_contact_name",
+  "billing_contact_email",
+  "billing_contact_phone",
+  "billing_cc_emails",
+  "authorized_requesters",
+  "service_preferences",
+  "internal_notes",
+  "invitation_status",
+  "invitation_channel",
+  "invitation_sent_at",
+  "invited_by",
+  "permissions",
+] as const;
+
+const OPTIONAL_CREW_PROFILE_COLUMNS = [
+  "certificate_level",
+  "availability_status",
+  "preferred_aircraft",
+  "type_ratings",
+  "preferred_regions",
+  "total_time",
+  "turbine_time",
+  "jet_time",
+  "time_in_type",
+  "ops_notes",
+] as const;
+
+const OPTIONAL_AIRCRAFT_COLUMNS = [
+  "client_id",
+  "make",
+  "model",
+  "serial_number",
+  "year",
+  "home_base",
+  "aircraft_category",
+  "passenger_capacity",
+  "required_crew",
+  "maintenance_status",
+  "status",
+  "notes",
+] as const;
+
+type WritePayload = Record<string, unknown>;
+type WriteResult<T = unknown> = { data?: T | null; error?: { code?: string; message?: string; details?: string | null } | null };
+
+function missingColumnName(error: WriteResult["error"]) {
+  if (!error || error.code !== "PGRST204") return null;
+  return error.message?.match(/'([^']+)' column/)?.[1] ?? null;
+}
+
+async function writeWithOptionalColumnFallback<T>(
+  label: string,
+  payload: WritePayload,
+  optionalColumns: readonly string[],
+  write: (payload: WritePayload) => Promise<WriteResult<T>>
+) {
+  const next = { ...payload };
+  const omitted: string[] = [];
+
+  for (let attempt = 0; attempt <= optionalColumns.length; attempt += 1) {
+    const result = await write(next);
+    const missingColumn = missingColumnName(result.error ?? null);
+
+    if (!missingColumn || !optionalColumns.includes(missingColumn) || !(missingColumn in next)) {
+      if (omitted.length && !result.error) {
+        console.warn(`${label} saved without optional columns`, { omitted });
+      }
+      return { ...result, omitted };
+    }
+
+    omitted.push(missingColumn);
+    delete next[missingColumn];
+    console.warn(`${label} optional column missing; retrying without it`, {
+      missingColumn,
+      error: result.error,
+    });
+  }
+
+  return write(next);
+}
+
 function controlledProfileStatus(value: string) {
   return PROFILE_STATUS.some((item) => item.value === value) ? value : "pending";
 }
@@ -341,7 +426,7 @@ export async function deletePortalUser(formData: FormData) {
 
 export async function createPortalUser(formData: FormData) {
   const admin = await actor(["admin"]);
-  const db = await createServiceClient();
+  const db = (await createServiceClient()) as any;
   const email = normalizeEmail(formData, "email");
   const fullName = str(formData, "full_name");
   const role = str(formData, "role");
@@ -376,24 +461,32 @@ export async function createPortalUser(formData: FormData) {
 
   if (inviteError || !invite.user) redirect(`${backTo}?error=invite`);
 
-  const { error: profileError } = await db.from("profiles").upsert({
-    id: invite.user.id,
-    email,
-    full_name: fullName,
-    role,
-    status,
-    is_active: status === "approved",
-    company_name: str(formData, "company_name") || null,
-    phone,
-    home_base: str(formData, "home_base").toUpperCase() || null,
-    invitation_status: "sent",
-    invitation_channel: invitationChannel,
-    invitation_sent_at: new Date().toISOString(),
-    invited_by: admin.id,
-    permissions: role === "admin" ? PORTAL_PERMISSIONS : selectedPermissions(formData),
-  });
+  const { error: profileError } = await writeWithOptionalColumnFallback(
+    "Portal user profile upsert",
+    {
+      id: invite.user.id,
+      email,
+      full_name: fullName,
+      role,
+      status,
+      is_active: status === "approved",
+      company_name: str(formData, "company_name") || null,
+      phone,
+      home_base: str(formData, "home_base").toUpperCase() || null,
+      invitation_status: "sent",
+      invitation_channel: invitationChannel,
+      invitation_sent_at: new Date().toISOString(),
+      invited_by: admin.id,
+      permissions: role === "admin" ? PORTAL_PERMISSIONS : selectedPermissions(formData),
+    },
+    OPTIONAL_PROFILE_COLUMNS,
+    async (candidate) => await db.from("profiles").upsert(candidate)
+  );
 
-  if (profileError) redirect(`${backTo}?error=profile`);
+  if (profileError) {
+    console.error("Portal user profile save failed after invite", { userId: invite.user.id, error: profileError });
+    redirect(`${backTo}?error=profile`);
+  }
 
   await logAuditEvent({
     actor: admin,
@@ -586,7 +679,7 @@ export async function assignPartner(formData: FormData) {
 // ─── Aircraft management ────────────────────────────────────────────
 export async function saveAircraft(formData: FormData) {
   const admin = await actor(["admin"]);
-  const db = await createServiceClient();
+  const db = (await createServiceClient()) as any;
   const id = str(formData, "aircraft_id");
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/aircraft");
   const tailNumber = str(formData, "tail_number").toUpperCase().replace(/\s+/g, "");
@@ -610,7 +703,7 @@ export async function saveAircraft(formData: FormData) {
     .ilike("tail_number", tailNumber)
     .limit(2);
 
-  const existing = (matches ?? []).find((row) => row.id !== id);
+  const existing = ((matches ?? []) as Array<{ id: string }>).find((row) => row.id !== id);
   if (existing && existing.id !== id) redirect(`${backTo}?error=duplicate`);
 
   const payload: Database["public"]["Tables"]["aircraft"]["Insert"] = {
@@ -632,13 +725,29 @@ export async function saveAircraft(formData: FormData) {
   let savedId = id;
 
   if (id) {
-    const { data, error } = await db.from("aircraft").update(payload).eq("id", id).select("id").single();
-    if (error || !data) redirect(`${backTo}?error=save`);
-    savedId = data.id;
+    const { data, error } = await writeWithOptionalColumnFallback(
+      "Aircraft update",
+      payload as WritePayload,
+      OPTIONAL_AIRCRAFT_COLUMNS,
+      async (candidate) => await db.from("aircraft").update(candidate).eq("id", id).select("id").single()
+    );
+    if (error || !data) {
+      console.error("Aircraft record save failed", { id, error });
+      redirect(`${backTo}?error=save`);
+    }
+    savedId = (data as { id: string }).id;
   } else {
-    const { data, error } = await db.from("aircraft").insert(payload).select("id").single();
-    if (error || !data) redirect(`${backTo}?error=save`);
-    savedId = data.id;
+    const { data, error } = await writeWithOptionalColumnFallback(
+      "Aircraft insert",
+      payload as WritePayload,
+      OPTIONAL_AIRCRAFT_COLUMNS,
+      async (candidate) => await db.from("aircraft").insert(candidate).select("id").single()
+    );
+    if (error || !data) {
+      console.error("Aircraft record save failed", { error });
+      redirect(`${backTo}?error=save`);
+    }
+    savedId = (data as { id: string }).id;
   }
 
   await logAuditEvent({
@@ -707,11 +816,12 @@ export async function saveClientRecord(formData: FormData) {
   const email = normalizeEmail(formData, "email");
   const fullName = str(formData, "full_name");
   const status = controlledProfileStatus(str(formData, "status"));
+  const billingContactEmail = normalizeEmail(formData, "billing_contact_email");
 
   if (!email || !validEmail(email) || !fullName) redirect(`${backTo}?error=missing`);
   await ensureUniqueProfileEmail(db, email, id || null, backTo);
 
-  const payload = {
+  const payload: WritePayload = {
     email,
     full_name: fullName,
     phone: str(formData, "phone") || null,
@@ -721,7 +831,7 @@ export async function saveClientRecord(formData: FormData) {
     client_type: str(formData, "client_type") || null,
     billing_preference: str(formData, "billing_preference") || null,
     billing_contact_name: str(formData, "billing_contact_name") || null,
-    billing_contact_email: str(formData, "billing_contact_email") || null,
+    billing_contact_email: billingContactEmail || null,
     billing_contact_phone: str(formData, "billing_contact_phone") || null,
     authorized_requesters: splitList(str(formData, "authorized_requesters")),
     service_preferences: str(formData, "service_preferences") || null,
@@ -732,7 +842,7 @@ export async function saveClientRecord(formData: FormData) {
     updated_at: new Date().toISOString(),
   };
 
-  if (payload.billing_contact_email && !validEmail(payload.billing_contact_email)) {
+  if (billingContactEmail && !validEmail(billingContactEmail)) {
     redirect(`${backTo}?error=email`);
   }
 
@@ -752,8 +862,16 @@ export async function saveClientRecord(formData: FormData) {
       if (authError) redirect(`${backTo}?error=email`);
     }
 
-    const { error } = await db.from("profiles").update(payload).eq("id", id);
-    if (error) redirect(`${backTo}?error=save`);
+    const { error } = await writeWithOptionalColumnFallback(
+      "Client profile update",
+      payload,
+      OPTIONAL_PROFILE_COLUMNS,
+      (candidate) => db.from("profiles").update(candidate).eq("id", id)
+    );
+    if (error) {
+      console.error("Client record save failed", { id, error });
+      redirect(`${backTo}?error=save`);
+    }
   } else {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
     const redirectTo = appUrl
@@ -768,16 +886,24 @@ export async function saveClientRecord(formData: FormData) {
     if (inviteError || !invite.user) redirect(`${backTo}?error=invite`);
     profileId = invite.user.id;
 
-    const { error } = await db.from("profiles").upsert({
-      ...payload,
-      id: profileId,
-      invitation_status: "sent",
-      invitation_channel: "email",
-      invitation_sent_at: new Date().toISOString(),
-      invited_by: admin.id,
-    });
+    const { error } = await writeWithOptionalColumnFallback(
+      "Client profile upsert",
+      {
+        ...payload,
+        id: profileId,
+        invitation_status: "sent",
+        invitation_channel: "email",
+        invitation_sent_at: new Date().toISOString(),
+        invited_by: admin.id,
+      },
+      OPTIONAL_PROFILE_COLUMNS,
+      (candidate) => db.from("profiles").upsert(candidate)
+    );
 
-    if (error) redirect(`${backTo}?error=save`);
+    if (error) {
+      console.error("Client record save failed after invite", { profileId, error });
+      redirect(`${backTo}?error=save`);
+    }
   }
 
   await logAuditEvent({
@@ -840,7 +966,7 @@ export async function saveCrewRecord(formData: FormData) {
   if (!email || !validEmail(email) || !fullName) redirect(`${backTo}?error=missing`);
   await ensureUniqueProfileEmail(db, email, id || null, backTo);
 
-  const profilePayload = {
+  const profilePayload: WritePayload = {
     email,
     full_name: fullName,
     phone: str(formData, "phone") || null,
@@ -868,8 +994,16 @@ export async function saveCrewRecord(formData: FormData) {
       if (authError) redirect(`${backTo}?error=email`);
     }
 
-    const { error } = await db.from("profiles").update(profilePayload).eq("id", id);
-    if (error) redirect(`${backTo}?error=save`);
+    const { error } = await writeWithOptionalColumnFallback(
+      "Crew profile update",
+      profilePayload,
+      OPTIONAL_PROFILE_COLUMNS,
+      (candidate) => db.from("profiles").update(candidate).eq("id", id)
+    );
+    if (error) {
+      console.error("Crew record save failed", { id, error });
+      redirect(`${backTo}?error=save`);
+    }
   } else {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
     const redirectTo = appUrl
@@ -884,36 +1018,52 @@ export async function saveCrewRecord(formData: FormData) {
     if (inviteError || !invite.user) redirect(`${backTo}?error=invite`);
     profileId = invite.user.id;
 
-    const { error } = await db.from("profiles").upsert({
-      ...profilePayload,
-      id: profileId,
-      invitation_status: "sent",
-      invitation_channel: "email",
-      invitation_sent_at: new Date().toISOString(),
-      invited_by: admin.id,
-    });
+    const { error } = await writeWithOptionalColumnFallback(
+      "Crew profile upsert",
+      {
+        ...profilePayload,
+        id: profileId,
+        invitation_status: "sent",
+        invitation_channel: "email",
+        invitation_sent_at: new Date().toISOString(),
+        invited_by: admin.id,
+      },
+      OPTIONAL_PROFILE_COLUMNS,
+      (candidate) => db.from("profiles").upsert(candidate)
+    );
 
-    if (error) redirect(`${backTo}?error=save`);
+    if (error) {
+      console.error("Crew record save failed after invite", { profileId, error });
+      redirect(`${backTo}?error=save`);
+    }
   }
 
   if (!profileId) redirect(`${backTo}?error=save`);
 
-  const { error: crewError } = await db.from("crew_profiles").upsert({
-    id: profileId,
-    certificate_level: str(formData, "certificate_level") || null,
-    availability_status: availabilityStatus,
-    preferred_aircraft: splitList(str(formData, "preferred_aircraft")),
-    type_ratings: splitList(str(formData, "type_ratings")),
-    preferred_regions: splitList(str(formData, "preferred_regions")),
-    total_time: num(formData, "total_time"),
-    turbine_time: num(formData, "turbine_time"),
-    jet_time: num(formData, "jet_time"),
-    time_in_type: str(formData, "time_in_type") || null,
-    ops_notes: str(formData, "ops_notes") || null,
-    updated_at: new Date().toISOString(),
-  });
+  const { error: crewError } = await writeWithOptionalColumnFallback(
+    "Crew details upsert",
+    {
+      id: profileId,
+      certificate_level: str(formData, "certificate_level") || null,
+      availability_status: availabilityStatus,
+      preferred_aircraft: splitList(str(formData, "preferred_aircraft")),
+      type_ratings: splitList(str(formData, "type_ratings")),
+      preferred_regions: splitList(str(formData, "preferred_regions")),
+      total_time: num(formData, "total_time"),
+      turbine_time: num(formData, "turbine_time"),
+      jet_time: num(formData, "jet_time"),
+      time_in_type: str(formData, "time_in_type") || null,
+      ops_notes: str(formData, "ops_notes") || null,
+      updated_at: new Date().toISOString(),
+    },
+    OPTIONAL_CREW_PROFILE_COLUMNS,
+    (candidate) => db.from("crew_profiles").upsert(candidate)
+  );
 
-  if (crewError) redirect(`${backTo}?error=crew-profile`);
+  if (crewError) {
+    console.error("Crew profile details save failed", { profileId, error: crewError });
+    redirect(`${backTo}?error=crew-profile`);
+  }
 
   await logAuditEvent({
     actor: admin,

@@ -57,10 +57,11 @@ export default async function AdminSubscriptionsPage({
           <DataTable
             rows={subscriptions}
             getKey={(row) => row.id}
+            getHref={(row) => `/portal/admin/subscriptions/${row.id}`}
             emptyLabel="No client subscriptions."
             columns={[
               { header: "Client", cell: (row) => row.client?.company_name ?? row.client?.full_name ?? row.client?.email ?? "-" },
-              { header: "Plan", cell: (row) => <Link href={`/portal/admin/subscriptions/${row.id}`} className="text-accent hover:underline">{row.plan?.name ?? "Custom subscription"}</Link> },
+              { header: "Plan", cell: (row) => <span className="text-accent">{row.plan?.name ?? "Custom subscription"}</span> },
               { header: "Tier", cell: (row) => row.tier?.name ?? "-" },
               { header: "Aircraft", cell: (row) => row.aircraft?.tail_number ?? "-" },
               { header: "Status", cell: (row) => <StatusBadge label={SUBSCRIPTION_STATUS_LABEL[row.status] ?? row.status} tone={toneFor(SUBSCRIPTION_STATUS_TONE, row.status)} /> },
