@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
@@ -34,8 +33,9 @@ export default async function ClientBillingPage() {
           <DataTable
             rows={invoices}
             getKey={(row) => row.id}
+            getHref={(row) => `/portal/client/billing/${row.id}`}
             columns={[
-              { header: "Invoice", cell: (row) => <Link href={`/portal/client/billing/${row.id}`} className="font-mono text-xs text-accent hover:underline">{row.invoice_number}</Link> },
+              { header: "Invoice", cell: (row) => <span className="font-mono text-xs text-accent">{row.invoice_number}</span> },
               { header: "Mission", cell: (row) => row.mission?.ref ?? "-" },
               { header: "Quote", cell: (row) => row.quote?.ref ?? "-" },
               { header: "Due Date", cell: (row) => formatDate(row.due_date) },

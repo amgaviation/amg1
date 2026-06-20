@@ -153,8 +153,15 @@ export function PortalShell({
         </header>
 
         {/* Main content */}
-        <main className="flex-1 px-5 py-6 lg:px-8 lg:py-8">
-          <div className="mx-auto w-full max-w-6xl space-y-6">{children}</div>
+        <main className="flex-1 px-4 py-5 sm:px-6 lg:px-8 lg:py-8 2xl:px-10">
+          <div
+            className={cn(
+              "mx-auto w-full space-y-6",
+              role === "admin" ? "max-w-[1680px]" : "max-w-7xl"
+            )}
+          >
+            {children}
+          </div>
         </main>
       </div>
     </div>

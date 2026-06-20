@@ -188,6 +188,7 @@ export default async function AdminCrewPage({
       {params.error === "duplicate" ? <Notice tone="danger">A profile already exists for that email.</Notice> : null}
       {params.error === "invite" ? <Notice tone="danger">Portal invitation could not be sent.</Notice> : null}
       {params.error === "email" ? <Notice tone="danger">Email update could not be completed.</Notice> : null}
+      {params.error === "profile" ? <Notice tone="danger">That profile is not available as a crew record.</Notice> : null}
       {params.error === "crew-profile" ? <Notice tone="danger">Crew profile details could not be saved.</Notice> : null}
       {params.error === "save" ? <Notice tone="danger">Crew record could not be saved.</Notice> : null}
 

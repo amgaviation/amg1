@@ -1,8 +1,18 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowDown, ArrowUp, Edit3, Filter, Plus, RefreshCw, Search, X } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  Edit3,
+  Filter,
+  PanelRightOpen,
+  Plus,
+  RefreshCw,
+  Search,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -154,9 +164,11 @@ export function AdminRecordManager({
     key: columns[0]?.key ?? "title",
     direction: "asc",
   });
-  const [selectedId, setSelectedId] = useState(rows[0]?.id ?? "");
+  const [selectedId, setSelectedId] = useState("");
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [activeDetailTab, setActiveDetailTab] = useState("overview");
   const [editor, setEditor] = useState<{ mode: "create" | "edit"; row?: AdminRecordRow } | null>(null);
-  const selected = rows.find((row) => row.id === selectedId) ?? rows[0] ?? null;
+  const selected = rows.find((row) => row.id === selectedId) ?? null;
 
   const visibleRows = useMemo(() => {
     const needle = search.trim().toLowerCase();
@@ -195,6 +207,22 @@ export function AdminRecordManager({
     }));
   }
 
+  function openRecord(row: AdminRecordRow) {
+    setSelectedId(row.id);
+    setActiveDetailTab("overview");
+    setDetailOpen(true);
+  }
+
+  function handleRowKeyDown(event: KeyboardEvent<HTMLTableRowElement>, row: AdminRecordRow) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    openRecord(row);
+  }
+
+  function isArchiveDisabled(row: AdminRecordRow) {
+    return ["archived", "suspended", "inactive"].includes(row.status?.label.toLowerCase() ?? "") && archiveDisabledReason;
+  }
+
   return (
     <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-[0_18px_44px_rgba(8,20,36,0.07)]">
       <header className="border-b border-slate-200 bg-slate-50/80 px-5 py-4">
@@ -222,15 +250,25 @@ export function AdminRecordManager({
         </div>
 
         <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center">
-          <label className="relative flex-1">
+          <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search records"
-              className="h-11 w-full rounded-md border border-slate-300 bg-white pl-9 pr-3 text-sm outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.14)]"
+              className="h-11 w-full rounded-md border border-slate-300 bg-white pl-9 pr-10 text-sm outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.14)]"
             />
-          </label>
+            {search ? (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="absolute right-2 top-1/2 rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            ) : null}
+          </div>
           <Button type="button" variant="outline" className="gap-2 rounded-full" onClick={() => setFilterOpen((open) => !open)}>
             <Filter className="h-4 w-4" />
             Advanced Filters
@@ -284,157 +322,208 @@ export function AdminRecordManager({
         ) : null}
       </header>
 
-      <div className="grid min-h-[34rem] xl:grid-cols-[minmax(0,1fr)_25rem]">
-        <div className="overflow-hidden border-b border-slate-200 xl:border-b-0 xl:border-r">
-          {visibleRows.length ? (
-            <div className="max-h-[44rem] overflow-auto">
-              <table className="w-full border-collapse text-sm">
-                <thead className="sticky top-0 z-10 bg-slate-100 shadow-[0_1px_0_rgba(15,23,42,0.08)]">
-                  <tr>
-                    {columns.map((column) => (
-                      <th key={column.key} className={cn("whitespace-nowrap px-4 py-3 text-left text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500", column.className)}>
-                        {column.sortable ? (
-                          <button type="button" className="inline-flex items-center gap-1" onClick={() => toggleSort(column.key)}>
-                            {column.label}
-                            {sort.key === column.key ? (
-                              sort.direction === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
-                            ) : null}
-                          </button>
-                        ) : (
-                          column.label
-                        )}
-                      </th>
-                    ))}
-                    <th className="px-4 py-3 text-right text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {visibleRows.map((row) => (
-                    <tr
-                      key={row.id}
+      <div>
+        {visibleRows.length ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full border-collapse text-sm">
+              <thead className="bg-slate-100/90 shadow-[0_1px_0_rgba(15,23,42,0.08)]">
+                <tr>
+                  {columns.map((column) => (
+                    <th
+                      key={column.key}
                       className={cn(
-                        "cursor-pointer border-b border-slate-100 bg-white transition-colors hover:bg-slate-50",
-                        selected?.id === row.id && "bg-sky-50/70"
+                        "whitespace-nowrap px-4 py-3 text-left text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500",
+                        column.className
                       )}
-                      onClick={() => setSelectedId(row.id)}
                     >
-                      {columns.map((column, index) => (
-                        <td key={column.key} className={cn("px-4 py-3 align-middle text-slate-700", column.className)}>
-                          {index === 0 ? (
-                            <div>
-                              <div className="font-semibold text-slate-950">{valueText(row.cells[column.key])}</div>
-                              {row.subtitle ? <div className="mt-0.5 text-xs text-slate-500">{row.subtitle}</div> : null}
-                            </div>
-                          ) : column.key === "status" && row.status ? (
-                            <StatusBadge label={row.status.label} tone={row.status.tone} />
-                          ) : column.key === "secondaryStatus" && row.secondaryStatus ? (
-                            <StatusBadge label={row.secondaryStatus.label} tone={row.secondaryStatus.tone} />
-                          ) : (
-                            valueText(row.cells[column.key])
-                          )}
-                        </td>
-                      ))}
-                      <td className="px-4 py-3 text-right" onClick={(event) => event.stopPropagation()}>
-                        <div className="flex justify-end gap-2">
-                          <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => setEditor({ mode: "edit", row })}>
-                            Edit
-                          </Button>
-                          {archiveAction ? (
-                            ["archived", "suspended", "inactive"].includes(row.status?.label.toLowerCase() ?? "") && archiveDisabledReason ? (
-                              <Button type="button" variant="ghost" size="sm" className="rounded-full" disabled title={archiveDisabledReason}>
-                                {row.status?.label ?? "Inactive"}
-                              </Button>
-                            ) : (
-                              <form action={archiveAction}>
-                                <input type="hidden" name={recordIdName} value={row.id} />
-                                <input type="hidden" name="back_to" value={backTo} />
-                                <SubmitButton
-                                  variant="ghost"
-                                  size="sm"
-                                  className="rounded-full text-slate-600"
-                                  confirm={archiveConfirm}
-                                  pendingText="Saving..."
-                                >
-                                  {archiveLabel}
-                                </SubmitButton>
-                              </form>
-                            )
+                      {column.sortable ? (
+                        <button type="button" className="inline-flex items-center gap-1" onClick={() => toggleSort(column.key)}>
+                          {column.label}
+                          {sort.key === column.key ? (
+                            sort.direction === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
                           ) : null}
-                        </div>
-                      </td>
-                    </tr>
+                        </button>
+                      ) : (
+                        column.label
+                      )}
+                    </th>
                   ))}
-                </tbody>
-              </table>
+                  <th className="px-4 py-3 text-right text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500">Record</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visibleRows.map((row) => (
+                  <tr
+                    key={row.id}
+                    role="button"
+                    tabIndex={0}
+                    className={cn(
+                      "group cursor-pointer border-b border-slate-100 bg-white transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+                      selected?.id === row.id && detailOpen && "bg-sky-50/70"
+                    )}
+                    onClick={() => openRecord(row)}
+                    onKeyDown={(event) => handleRowKeyDown(event, row)}
+                    aria-label={`Open ${row.title}`}
+                  >
+                    {columns.map((column, index) => (
+                      <td key={column.key} className={cn("px-4 py-3 align-middle text-slate-700", column.className)}>
+                        {index === 0 ? (
+                          <div>
+                            <div className="font-semibold text-slate-950">{valueText(row.cells[column.key])}</div>
+                            {row.subtitle ? <div className="mt-0.5 text-xs text-slate-500">{row.subtitle}</div> : null}
+                          </div>
+                        ) : column.key === "status" && row.status ? (
+                          <StatusBadge label={row.status.label} tone={row.status.tone} />
+                        ) : column.key === "secondaryStatus" && row.secondaryStatus ? (
+                          <StatusBadge label={row.secondaryStatus.label} tone={row.secondaryStatus.tone} />
+                        ) : (
+                          valueText(row.cells[column.key])
+                        )}
+                      </td>
+                    ))}
+                    <td className="px-4 py-3 text-right">
+                      <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors group-hover:border-primary/40 group-hover:text-primary">
+                        <PanelRightOpen className="h-3.5 w-3.5" />
+                        Open
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="flex min-h-[28rem] flex-col items-center justify-center p-8 text-center">
+            <div className="rounded-full border border-dashed border-slate-300 p-4">
+              <Search className="h-6 w-6 text-slate-400" />
             </div>
-          ) : (
-            <div className="flex min-h-[28rem] flex-col items-center justify-center p-8 text-center">
-              <div className="rounded-full border border-dashed border-slate-300 p-4">
-                <Search className="h-6 w-6 text-slate-400" />
-              </div>
-              <h3 className="mt-4 font-display text-lg font-bold uppercase text-slate-950">{emptyTitle}</h3>
-              <p className="mt-2 max-w-sm text-sm leading-6 text-slate-500">{emptyDescription}</p>
-            </div>
-          )}
-        </div>
+            <h3 className="mt-4 font-display text-lg font-bold uppercase text-slate-950">{emptyTitle}</h3>
+            <p className="mt-2 max-w-sm text-sm leading-6 text-slate-500">{emptyDescription}</p>
+          </div>
+        )}
+      </div>
 
-        <aside className="bg-slate-50/80">
-          {selected ? (
-            <div className="sticky top-4 p-5">
+      {detailOpen && selected ? (
+        <div className="fixed inset-0 z-40" role="dialog" aria-modal="true" aria-label={`${selected.title} details`}>
+          <button
+            type="button"
+            className="absolute inset-0 bg-slate-950/45 backdrop-blur-sm"
+            onClick={() => setDetailOpen(false)}
+            aria-label="Close record details"
+          />
+          <aside className="absolute right-0 top-0 flex h-full w-full max-w-3xl flex-col border-l border-slate-200 bg-white shadow-2xl">
+            <header className="border-b border-slate-200 bg-slate-50 px-5 py-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-primary">Selected Record</p>
-                  <h3 className="mt-2 text-xl font-bold text-slate-950">{selected.title}</h3>
+                  <p className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-primary">Record Details</p>
+                  <h3 className="mt-1 text-2xl font-bold text-slate-950">{selected.title}</h3>
                   {selected.subtitle ? <p className="mt-1 text-sm text-slate-500">{selected.subtitle}</p> : null}
                 </div>
-                {selected.status ? <StatusBadge label={selected.status.label} tone={selected.status.tone} /> : null}
+                <div className="flex items-center gap-2">
+                  {selected.status ? <StatusBadge label={selected.status.label} tone={selected.status.tone} /> : null}
+                  <Button type="button" variant="ghost" size="icon" onClick={() => setDetailOpen(false)} aria-label="Close details">
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
 
-              <div className="mt-5 rounded-lg border border-slate-200 bg-white p-4">
-                <dl>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveDetailTab("overview")}
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
+                    activeDetailTab === "overview"
+                      ? "border-primary bg-primary text-white"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-primary/40 hover:text-primary"
+                  )}
+                >
+                  Overview
+                </button>
+                {selected.tabs?.map((tab) => (
+                  <button
+                    key={tab.title}
+                    type="button"
+                    onClick={() => setActiveDetailTab(tab.title)}
+                    className={cn(
+                      "rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
+                      activeDetailTab === tab.title
+                        ? "border-primary bg-primary text-white"
+                        : "border-slate-200 bg-white text-slate-600 hover:border-primary/40 hover:text-primary"
+                    )}
+                  >
+                    {tab.title}
+                  </button>
+                ))}
+              </div>
+            </header>
+
+            <div className="min-h-0 flex-1 overflow-y-auto p-5">
+              {activeDetailTab === "overview" ? (
+                <dl className="overflow-hidden rounded-lg border border-slate-200 bg-white">
                   {selected.details.map((detail) => (
-                    <div key={detail.label} className="grid grid-cols-[8rem_1fr] gap-3 border-b border-slate-100 py-2.5 last:border-0">
+                    <div key={detail.label} className="grid gap-2 border-b border-slate-100 px-4 py-3 last:border-0 sm:grid-cols-[11rem_1fr]">
                       <dt className="text-[0.64rem] font-bold uppercase tracking-[0.12em] text-slate-500">{detail.label}</dt>
                       <dd className="text-sm leading-5 text-slate-800">{valueText(detail.value)}</dd>
                     </div>
                   ))}
                 </dl>
-              </div>
+              ) : (
+                selected.tabs
+                  ?.filter((tab) => tab.title === activeDetailTab)
+                  .map((tab) => (
+                    <div key={tab.title} className="rounded-lg border border-slate-200 bg-white">
+                      {tab.rows?.length ? (
+                        <dl>
+                          {tab.rows.map((item) => (
+                            <div key={`${tab.title}-${item.label}`} className="grid gap-2 border-b border-slate-100 px-4 py-3 last:border-0 sm:grid-cols-[11rem_1fr]">
+                              <dt className="text-[0.64rem] font-bold uppercase tracking-[0.12em] text-slate-500">{item.label}</dt>
+                              <dd className="text-sm leading-5 text-slate-800">{valueText(item.value)}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                      ) : (
+                        <p className="p-4 text-sm leading-6 text-slate-500">{tab.empty ?? "No related records yet."}</p>
+                      )}
+                    </div>
+                  ))
+              )}
+            </div>
 
-              <div className="mt-4 grid gap-3">
-                {selected.tabs?.map((tab) => (
-                  <div key={tab.title} className="rounded-lg border border-slate-200 bg-white p-4">
-                    <h4 className="text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500">{tab.title}</h4>
-                    {tab.rows?.length ? (
-                      <dl className="mt-3">
-                        {tab.rows.map((item) => (
-                          <div key={`${tab.title}-${item.label}`} className="grid grid-cols-[8rem_1fr] gap-3 border-b border-slate-100 py-2 last:border-0">
-                            <dt className="text-xs text-slate-500">{item.label}</dt>
-                            <dd className="text-sm text-slate-800">{valueText(item.value)}</dd>
-                          </div>
-                        ))}
-                      </dl>
-                    ) : (
-                      <p className="mt-3 text-sm leading-6 text-slate-500">{tab.empty ?? "No related records yet."}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-5 flex flex-wrap gap-2">
+            <footer className="flex flex-col-reverse gap-2 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <Button type="button" variant="outline" className="rounded-full" onClick={() => setDetailOpen(false)}>
+                Close
+              </Button>
+              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                {archiveAction ? (
+                  isArchiveDisabled(selected) ? (
+                    <Button type="button" variant="ghost" className="rounded-full" disabled title={archiveDisabledReason}>
+                      {selected.status?.label ?? "Inactive"}
+                    </Button>
+                  ) : (
+                    <form action={archiveAction}>
+                      <input type="hidden" name={recordIdName} value={selected.id} />
+                      <input type="hidden" name="back_to" value={backTo} />
+                      <SubmitButton
+                        variant="ghost"
+                        className="rounded-full text-slate-600"
+                        confirm={archiveConfirm}
+                        pendingText="Saving..."
+                      >
+                        {archiveLabel}
+                      </SubmitButton>
+                    </form>
+                  )
+                ) : null}
                 <Button type="button" className="gap-2 rounded-full" onClick={() => setEditor({ mode: "edit", row: selected })}>
                   <Edit3 className="h-4 w-4" />
                   {editLabel}
                 </Button>
               </div>
-            </div>
-          ) : (
-            <div className="flex min-h-[24rem] items-center justify-center p-8 text-center text-sm text-slate-500">
-              Select a record to view details.
-            </div>
-          )}
-        </aside>
-      </div>
+            </footer>
+          </aside>
+        </div>
+      ) : null}
 
       {editor ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4" role="dialog" aria-modal="true">

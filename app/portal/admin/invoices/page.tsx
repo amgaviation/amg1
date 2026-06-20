@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
@@ -94,9 +93,10 @@ export default async function AdminInvoicesPage({
         <DataTable
           rows={invoices}
           getKey={(row) => row.id}
+          getHref={(row) => `/portal/admin/invoices/${row.id}`}
           emptyLabel="No invoices created."
           columns={[
-            { header: "Invoice", cell: (row) => <Link href={`/portal/admin/invoices/${row.id}`} className="font-mono text-xs text-accent hover:underline">{row.invoice_number}</Link> },
+            { header: "Invoice", cell: (row) => <span className="font-mono text-xs text-accent">{row.invoice_number}</span> },
             { header: "Client", cell: (row) => row.client?.company_name ?? row.client?.full_name ?? row.client?.email ?? "-" },
             { header: "Mission", cell: (row) => row.mission?.ref ?? "-" },
             { header: "Quote", cell: (row) => row.quote?.ref ?? "-" },

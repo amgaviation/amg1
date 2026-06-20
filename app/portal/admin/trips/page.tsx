@@ -92,18 +92,12 @@ export default async function AdminTripsPage({
           <DataTable
             rows={filtered}
             getKey={(row) => row.id}
+            getHref={(row) => `/portal/admin/trips/${row.id}`}
             emptyLabel="No support requests submitted."
             columns={[
               {
                 header: "Ref",
-                cell: (row) => (
-                  <Link
-                    href={`/portal/admin/trips/${row.id}`}
-                    className="font-mono text-xs text-accent hover:underline"
-                  >
-                    {row.ref}
-                  </Link>
-                ),
+                cell: (row) => <span className="font-mono text-xs text-accent">{row.ref}</span>,
               },
               { header: "Route", cell: (row) => formatRoute(row.departure_airport, row.arrival_airport) },
               { header: "Type", cell: (row) => MISSION_TYPE_LABEL[row.mission_type] ?? row.mission_type },
