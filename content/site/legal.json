@@ -1,0 +1,21 @@
+{
+  "page": "legal",
+  "version": 1,
+  "seo": {
+    "title": "Legal and Disclaimers",
+    "description": "Legal, privacy, terms, accessibility, and operational disclaimer resources for AMG Aviation Group LLC."
+  },
+  "sections": {
+    "hero": {
+      "enabled": true,
+      "eyebrow": "Legal",
+      "headline": "AMG Aviation Group LLC legal resources.",
+      "body": "AMG Aviation Group LLC coordinates and facilitates aviation-related services. Service availability, crew availability, vendor participation, operational acceptance, and final approvals are subject to review and confirmation.",
+      "primaryCtaLabel": "Privacy Policy",
+      "primaryCtaHref": "/privacy-policy",
+      "secondaryCtaLabel": "Terms",
+      "secondaryCtaHref": "/terms",
+      "imageKey": "generatedDispatch"
+    }
+  }
+}

@@ -2,7 +2,7 @@ import "server-only";
 
 import { redirect } from "next/navigation";
 import { getSessionUser, type SessionUser } from "@/lib/portal/session";
-import type { PortalRole } from "@/lib/portal/constants";
+import { isAdminRole, type PortalRole } from "@/lib/portal/constants";
 
 export function str(fd: FormData, key: string): string {
   return String(fd.get(key) ?? "").trim();
@@ -45,7 +45,7 @@ export async function actor(roles?: PortalRole[]): Promise<SessionUser> {
   const user = await getSessionUser();
   if (!user) redirect("/login");
   if (user.status !== "approved") redirect(user.status === "suspended" ? "/access-denied" : "/pending-approval");
-  if (roles && user.role !== "admin" && !roles.includes(user.role)) {
+  if (roles && !isAdminRole(user.role) && !roles.includes(user.role)) {
     redirect("/access-denied");
   }
   return user;

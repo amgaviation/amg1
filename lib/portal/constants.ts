@@ -3,7 +3,7 @@
  * and the status/label/tone maps shared across every portal surface.
  */
 
-export type PortalRole = "client" | "crew" | "admin" | "partner";
+export type PortalRole = "client" | "crew" | "admin" | "partner" | "super_admin";
 
 export type Tone =
   | "neutral"
@@ -14,14 +14,20 @@ export type Tone =
   | "accent";
 
 export const PORTAL_ROLES: PortalRole[] = ["client", "crew", "admin", "partner"];
+export const SUPER_ADMIN_ROLE: PortalRole = "super_admin";
 
 export function isPortalRole(value: unknown): value is PortalRole {
   return (
     value === "client" ||
     value === "crew" ||
     value === "admin" ||
-    value === "partner"
+    value === "partner" ||
+    value === "super_admin"
   );
+}
+
+export function isAdminRole(value: unknown): value is "admin" | "super_admin" {
+  return value === "admin" || value === "super_admin";
 }
 
 export const ROLE_LABELS: Record<PortalRole, string> = {
@@ -29,6 +35,7 @@ export const ROLE_LABELS: Record<PortalRole, string> = {
   crew: "Crew Portal",
   admin: "Operations Command",
   partner: "Partner Portal",
+  super_admin: "Super Admin Console",
 };
 
 export const ROLE_SHORT: Record<PortalRole, string> = {
@@ -36,6 +43,7 @@ export const ROLE_SHORT: Record<PortalRole, string> = {
   crew: "Flight Crew",
   admin: "AMG Operations",
   partner: "Service Partner",
+  super_admin: "Website Governance",
 };
 
 export const ROLE_HOME: Record<PortalRole, string> = {
@@ -43,6 +51,7 @@ export const ROLE_HOME: Record<PortalRole, string> = {
   crew: "/portal/crew/dashboard",
   admin: "/portal/admin/dashboard",
   partner: "/portal/partner/dashboard",
+  super_admin: "/portal/super-admin/website-editor",
 };
 
 export type NavItem = { label: string; href: string; icon: string };
@@ -102,6 +111,12 @@ export const PORTAL_NAV: Record<PortalRole, NavItem[]> = {
     { label: "Documents", href: "/portal/partner/documents", icon: "fileText" },
     { label: "Messages", href: "/portal/partner/messages", icon: "messageSquare" },
     { label: "Settings", href: "/portal/partner/settings", icon: "settings" },
+  ],
+  super_admin: [
+    { label: "Website Editor", href: "/portal/super-admin/website-editor", icon: "fileText" },
+    { label: "Preview History", href: "/portal/super-admin/website-editor?panel=history", icon: "history" },
+    { label: "Operations Admin", href: "/portal/admin/dashboard", icon: "shield" },
+    { label: "Settings", href: "/portal/admin/settings", icon: "settings" },
   ],
 };
 

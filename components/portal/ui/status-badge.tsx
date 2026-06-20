@@ -42,12 +42,14 @@ export function RoleBadge({ role }: { role: string }) {
     crew: "Crew",
     admin: "AMG Admin",
     partner: "Partner",
+    super_admin: "Super Admin",
   };
   const tones: Record<string, Tone> = {
     client: "info",
     crew: "accent",
     admin: "success",
     partner: "warn",
+    super_admin: "danger",
   };
   return <StatusBadge label={labels[role] ?? role} tone={tones[role] ?? "neutral"} />;
 }

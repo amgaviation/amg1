@@ -10,7 +10,8 @@
     "forms:verify": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-public-form-normalization.mjs",
     "communications:verify": "node scripts/verify-communications-center.mjs",
     "compliance:verify": "node scripts/verify-compliance-foundation.mjs",
-    "compliance:check": "node scripts/verify-compliance-foundation.mjs && node scripts/verify-compliance-hardening.mjs",
+    "compliance:check": "node scripts/verify-compliance-foundation.mjs && node scripts/verify-compliance-hardening.mjs && node scripts/verify-website-editor.mjs",
+    "website-editor:verify": "node scripts/verify-website-editor.mjs",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "npm run typecheck"

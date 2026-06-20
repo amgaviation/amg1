@@ -2,7 +2,7 @@ import "server-only";
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { ROLE_HOME, isPortalRole, type PortalRole } from "@/lib/portal/constants";
+import { ROLE_HOME, isAdminRole, isPortalRole, type PortalRole } from "@/lib/portal/constants";
 
 export type SessionUser = {
   id: string;
@@ -64,8 +64,15 @@ export async function requireRole(
 ): Promise<SessionUser> {
   const user = await requireUser();
   const roles = Array.isArray(allowed) ? allowed : [allowed];
-  if (user.role !== "admin" && !roles.includes(user.role)) {
+  if (!isAdminRole(user.role) && !roles.includes(user.role)) {
     redirect("/access-denied");
   }
+  return user;
+}
+
+/** Require the restricted Super Admin role for website governance tools. */
+export async function requireSuperAdmin(): Promise<SessionUser> {
+  const user = await requireUser();
+  if (user.role !== "super_admin") redirect("/access-denied");
   return user;
 }

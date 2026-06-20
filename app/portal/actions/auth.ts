@@ -209,7 +209,7 @@ export async function signUp(formData: FormData) {
   const company = field(formData, "company_name");
   const phone = field(formData, "phone");
 
-  if (!email || !password || !fullName || !isPortalRole(roleValue) || roleValue === "admin") {
+  if (!email || !password || !fullName || !isPortalRole(roleValue) || roleValue === "admin" || roleValue === "super_admin") {
     redirect("/login?mode=request&error=missing");
   }
 

@@ -30,6 +30,15 @@ export const IMG = {
   runway: `${BASE}/runway.jpg`,
   plansSelector: `${BASE}/plans-aircraft-class-selector.jpg`,
   plansCrewLogistics: `${BASE}/plans-crew-logistics.jpg`,
+  portalClientDashboard: "/images/portal-screenshots/portal-client-dashboard-enhanced.webp",
+  portalClientRequests: "/images/portal-screenshots/portal-client-requests-enhanced.webp",
+  portalClientAircraft: "/images/portal-screenshots/portal-client-aircraft-enhanced.webp",
+  portalClientDocuments: "/images/portal-screenshots/portal-client-documents-enhanced.webp",
+  portalClientQuotesInvoices: "/images/portal-screenshots/portal-client-quotes-invoices-enhanced.webp",
+  portalCrewDashboard: "/images/portal-screenshots/portal-crew-dashboard-enhanced.webp",
+  portalAdminDashboard: "/images/portal-screenshots/portal-admin-dashboard-enhanced.webp",
+  portalAdminRequests: "/images/portal-screenshots/portal-admin-requests-enhanced.webp",
+  portalMobileClient: "/images/portal-screenshots/portal-mobile-client-enhanced.webp",
 } as const;
 
 /** Service id (from content.ts SERVICES) -> editorial image. */

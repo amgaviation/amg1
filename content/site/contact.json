@@ -1,0 +1,21 @@
+{
+  "page": "contact",
+  "version": 1,
+  "seo": {
+    "title": "Contact AMG Aviation",
+    "description": "Contact AMG Aviation for reviewed aviation support coordination and operational assistance."
+  },
+  "sections": {
+    "hero": {
+      "enabled": true,
+      "eyebrow": "Contact AMG Aviation",
+      "headline": "Start with a reviewed request.",
+      "body": "Share the support context and AMG Aviation will review the request before confirming availability, assignment, quote, referral, or follow-up.",
+      "primaryCtaLabel": "Request Support",
+      "primaryCtaHref": "/request-support",
+      "secondaryCtaLabel": "Email AMG Aviation",
+      "secondaryCtaHref": "mailto:information@amgaviationgroup.com",
+      "imageKey": "contactSupport"
+    }
+  }
+}

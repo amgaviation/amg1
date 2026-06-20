@@ -1,0 +1,32 @@
+{
+  "page": "amg-connect",
+  "version": 1,
+  "seo": {
+    "title": "AMG Connect",
+    "description": "AMG Connect is the role-based portal for approved owners, crews, partners, and administrators."
+  },
+  "sections": {
+    "hero": {
+      "enabled": true,
+      "eyebrow": "AMG Connect",
+      "headline": "One support view for approved stakeholders.",
+      "body": "Support requests, aircraft profiles, crew review, documents, quotes, invoices, and status updates are organized by role so owners, crews, partners, and administrators can work from the same support picture.",
+      "primaryCtaLabel": "Member Login",
+      "primaryCtaHref": "/login",
+      "secondaryCtaLabel": "Request Access",
+      "secondaryCtaHref": "/login?mode=request",
+      "imageKey": "portalClientDashboard"
+    },
+    "portalPreview": {
+      "enabled": true,
+      "eyebrow": "AMG Connect",
+      "headline": "The support picture, in one portal.",
+      "body": "AMG Connect gives approved owners, crews, partners, and administrators a role-based view of requests, aircraft, documents, quotes, and status without replacing operational approval or final acceptance.",
+      "primaryCtaLabel": "Member Login",
+      "primaryCtaHref": "/login",
+      "secondaryCtaLabel": "Request Access",
+      "secondaryCtaHref": "/login?mode=request",
+      "imageKey": "portalClientDashboard"
+    }
+  }
+}
