@@ -12,3 +12,15 @@ next-env.d.ts
 .vscode/
 .idea/
 .env*
+.turbo
+.expo
+dist
+.env
+.env.local
+.env.*.local
+logs
+*.log
+.cache
+cache
+.parcel-cache
+.eslintcache
