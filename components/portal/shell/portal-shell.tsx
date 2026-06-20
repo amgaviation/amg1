@@ -28,6 +28,7 @@ const NOTIFICATIONS_HREF: Record<PortalRole, string> = {
   crew: "/portal/crew/notifications",
   admin: "/portal/admin/dashboard",
   partner: "/portal/partner/dashboard",
+  super_admin: "/portal/admin/dashboard",
 };
 
 const SETTINGS_HREF: Record<PortalRole, string> = {
@@ -35,6 +36,7 @@ const SETTINGS_HREF: Record<PortalRole, string> = {
   crew: "/portal/crew/settings",
   admin: "/portal/admin/settings",
   partner: "/portal/partner/settings",
+  super_admin: "/portal/admin/settings",
 };
 
 export function PortalShell({

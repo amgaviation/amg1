@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useReducedMotion } from "framer-motion";
 import { GlobeFallback } from "@/components/sections/globe-fallback";
-import { crewGlobeMarkers, crewGlobeStats } from "@/components/sections/crew-globe-data";
+import { crewGlobeMarkers, publicCrewCoverageMetrics } from "@/components/sections/crew-globe-data";
 import { IMG } from "@/lib/site-media";
 
 const CrewHeroGlobeDemo = dynamic(() => import("@/components/3d-globe-demo-2"), {
@@ -36,18 +36,12 @@ export function CrewNetworkHeroGlobe() {
             review. Pins represent public airport regions, not home addresses or guaranteed crew availability.
           </p>
           <dl className="mt-8 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-xl border border-white/12 bg-white/[0.07] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)] backdrop-blur-md">
-              <dt className="text-xs uppercase tracking-wide text-[var(--oc-aluminum-2)]">Airport markers</dt>
-              <dd className="oc-display mt-2 text-3xl text-white">{crewGlobeStats.publicMarkerCount}</dd>
-            </div>
-            <div className="rounded-xl border border-white/12 bg-white/[0.07] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)] backdrop-blur-md">
-              <dt className="text-xs uppercase tracking-wide text-[var(--oc-aluminum-2)]">Crew records represented</dt>
-              <dd className="oc-display mt-2 text-3xl text-white">{crewGlobeStats.publicCrewCount}</dd>
-            </div>
-            <div className="rounded-xl border border-white/12 bg-white/[0.07] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)] backdrop-blur-md">
-              <dt className="text-xs uppercase tracking-wide text-[var(--oc-aluminum-2)]">Locations needing review</dt>
-              <dd className="oc-display mt-2 text-3xl text-white">{crewGlobeStats.excludedLocationReviewNeededCount}</dd>
-            </div>
+            {publicCrewCoverageMetrics.map((metric) => (
+              <div key={metric.label} className="rounded-xl border border-white/12 bg-white/[0.07] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)] backdrop-blur-md">
+                <dt className="text-xs uppercase tracking-wide text-[var(--oc-aluminum-2)]">{metric.label}</dt>
+                <dd className="oc-display mt-2 text-[clamp(1.55rem,3vw,2rem)] leading-none text-white">{metric.value}</dd>
+              </div>
+            ))}
           </dl>
         </div>
         <div data-scroll-animate className="rounded-[1.25rem] border border-white/10 bg-slate-950/20 p-2 shadow-[0_30px_90px_rgba(0,0,0,0.26)] backdrop-blur-sm">

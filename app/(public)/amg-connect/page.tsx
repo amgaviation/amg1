@@ -4,25 +4,27 @@ import { ArrowUpRight, Check } from "lucide-react";
 import { PageHero, SectionHeading, CtaBand } from "@/components/site/oc/shared";
 import { ConnectPreview } from "@/components/site/home/connect-preview";
 import { PORTAL_ROLES } from "@/lib/content";
-import { IMG } from "@/lib/site-media";
+import { getWebsiteContentPage, imageSrcForKey } from "@/lib/website-editor/content";
+
+const content = getWebsiteContentPage("amg-connect");
 
 export const metadata: Metadata = {
-  title: "AMG Connect",
-  description:
-    "AMG Connect is the role-based portal for approved owners, crews, and administrators — support requests, aircraft profiles, documents, quotes, and status in one place.",
+  title: content.seo.title,
+  description: content.seo.description,
 };
 
 export default function AmgConnectPage() {
+  const hero = content.sections.hero;
   return (
     <>
       <PageHero
-        eyebrow="AMG Connect"
-        title="One support view for approved stakeholders."
-        lead="Support requests, aircraft profiles, crew review, documents, quotes, invoices, and status updates are organized by role so owners, crews, and administrators can work from the same support picture."
-        image={IMG.generatedConnectDashboard}
-        imageAlt="Abstract AMG Connect dashboard view with aviation support panels"
-        primary={{ label: "Member Login", href: "/login" }}
-        secondary={{ label: "Request Access", href: "/login?mode=request" }}
+        eyebrow={hero.eyebrow ?? "AMG Connect"}
+        title={hero.headline ?? "One support view for approved stakeholders."}
+        lead={hero.body}
+        image={imageSrcForKey(hero.imageKey) ?? "/images/portal-screenshots/portal-client-dashboard-enhanced.webp"}
+        imageAlt="AMG client portal dashboard showing support requests and aircraft records"
+        primary={hero.primaryCtaLabel && hero.primaryCtaHref ? { label: hero.primaryCtaLabel, href: hero.primaryCtaHref } : undefined}
+        secondary={hero.secondaryCtaLabel && hero.secondaryCtaHref ? { label: hero.secondaryCtaLabel, href: hero.secondaryCtaHref } : undefined}
       />
 
       <ConnectPreview />

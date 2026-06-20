@@ -19,6 +19,12 @@ export const crewRegionCount = new Set(
 
 export const crewGlobeStats = crewAirportMarkerStats;
 
+export const publicCrewCoverageMetrics = [
+  { label: "Crew Count", value: "70" },
+  { label: "Total Crew Flight Hours", value: "837,028 Hours" },
+  { label: "States With Crew Coverage", value: "48" },
+] as const;
+
 export const featuredCrewRegions = [
   "Florida",
   "Texas",

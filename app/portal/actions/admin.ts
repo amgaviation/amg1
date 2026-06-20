@@ -11,6 +11,8 @@ import { COMPLIANCE_POLICY_VERSION } from "@/lib/compliance/config";
 import { recordComplianceEvidence } from "@/lib/compliance/evidence";
 import { actor, num, safeRedirectPath, str } from "./_helpers";
 
+const INITIAL_SUPER_ADMIN_EMAIL = "tony@amgaviationgroup.com";
+
 function normalizeEmail(formData: FormData, key: string): string {
   return str(formData, key).toLowerCase();
 }
@@ -43,6 +45,10 @@ function splitList(value: string): string[] {
 
 function controlledProfileStatus(value: string) {
   return PROFILE_STATUS.some((item) => item.value === value) ? value : "pending";
+}
+
+function canAssignSuperAdmin(actingRole: string, targetEmail: string) {
+  return actingRole === "super_admin" && targetEmail.toLowerCase() === INITIAL_SUPER_ADMIN_EMAIL;
 }
 
 async function ensureUniqueProfileEmail(
@@ -112,6 +118,18 @@ async function preventAdminSelfOrLastAdminAction(
 
   if (!target) {
     redirect(`${backTo}?error=user`);
+  }
+
+  if (target.role === "super_admin") {
+    const { data: actorProfile } = await db
+      .from("profiles")
+      .select("role")
+      .eq("id", actingAdminId)
+      .maybeSingle();
+
+    if (actorProfile?.role !== "super_admin") {
+      redirect(`${backTo}?error=role`);
+    }
   }
 
   if (target.role === "admin") {
@@ -201,6 +219,13 @@ export async function setUserRole(formData: FormData) {
 
   if (!isPortalRole(role)) redirect("/portal/admin/user-approvals?error=role");
   await preventAdminSelfOrLastAdminAction(db, admin.id, userId, "/portal/admin/user-approvals");
+
+  if (role === "super_admin") {
+    const { data: targetProfile } = await db.from("profiles").select("email").eq("id", userId).maybeSingle();
+    if (!targetProfile?.email || !canAssignSuperAdmin(admin.role, targetProfile.email)) {
+      redirect("/portal/admin/user-approvals?error=role");
+    }
+  }
 
   await db.from("profiles").update({ role }).eq("id", userId);
 
@@ -362,6 +387,7 @@ export async function createPortalUser(formData: FormData) {
   const backTo = "/portal/admin/users";
 
   if (!email || !fullName || !isPortalRole(role)) redirect(`${backTo}?error=missing`);
+  if (role === "super_admin" && !canAssignSuperAdmin(admin.role, email)) redirect(`${backTo}?error=missing`);
   if (phone && !/^\+[1-9]\d{7,14}$/.test(phone)) redirect(`${backTo}?error=phone`);
 
   const { data: duplicate } = await db
