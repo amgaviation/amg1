@@ -48,7 +48,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#050B14",
+  themeColor: "#000000",
   width: "device-width",
   initialScale: 1,
 };
@@ -61,7 +61,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`bg-background ${montserrat.variable}`}
+      className={`bg-black ${montserrat.variable}`}
     >
       <body
         style={

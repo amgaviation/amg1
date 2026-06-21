@@ -9,21 +9,35 @@ const STEPS = [
 
 export function OperationalTrustStrip() {
   return (
-    <section className="border-b border-[var(--oc-line)] bg-[var(--oc-ivory)]">
-      <div className="oc-shell py-12 lg:py-16">
+    <section className="border-t border-white/[0.06] bg-[#000000] py-24 lg:py-32">
+      <div className="oc-shell">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="oc-eyebrow text-[var(--oc-blue)]">How it works</p>
-          <h2 className="oc-display mt-3 text-3xl text-[var(--oc-ink)] sm:text-5xl">From a support request to a clear next step.</h2>
+          <p className="mb-5 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-white/30">
+            How it works
+          </p>
+          <h2 className="text-balance text-4xl font-bold leading-[0.9] tracking-tight text-white sm:text-5xl">
+            From a support request to a clear next step.
+          </h2>
         </div>
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
+
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
           {STEPS.map((item, index) => (
-            <article key={item.title} data-stagger-item className="flex h-full flex-col gap-3 rounded-xl border border-[var(--oc-line)] bg-white/78 p-6 shadow-[0_14px_40px_rgba(11,26,43,0.06)]">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--oc-navy)]/6 text-[var(--oc-navy)]"><item.icon className="h-5 w-5" strokeWidth={1.5} /></div>
-                <span className="oc-mono text-xs text-[var(--oc-muted)]">0{index + 1}</span>
+            <article
+              key={item.title}
+              data-stagger-item
+              className="group relative flex flex-col gap-4 rounded-xl border border-white/[0.06] bg-[#0a0a0a] p-6 transition-colors duration-200 hover:border-white/[0.1] hover:bg-[#111111]"
+            >
+              {/* Step number */}
+              <span className="absolute right-5 top-5 font-mono text-[0.58rem] tabular-nums text-white/15">
+                0{index + 1}
+              </span>
+
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04]">
+                <item.icon className="h-5 w-5 text-white/50" strokeWidth={1.5} />
               </div>
-              <h3 className="text-base font-semibold text-[var(--oc-ink)]">{item.title}</h3>
-              <p className="text-sm leading-relaxed text-[var(--oc-muted)]">{item.body}</p>
+
+              <h3 className="text-[0.92rem] font-semibold leading-snug text-white">{item.title}</h3>
+              <p className="text-[0.8rem] leading-relaxed text-white/40">{item.body}</p>
             </article>
           ))}
         </div>

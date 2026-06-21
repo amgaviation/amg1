@@ -4,66 +4,71 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
-  AMG Aviation Group — Design System
-  Official AMG Aviation palette (brand-preserving base):
-    AMG Midnight Navy #050B14 (background)
-    AMG Deep Blue     #07111F (cards / sections)
-    AMG Accent Blue   #3B82F6 (buttons, highlights, active)
-    AMG Slate Gray    #9CA3AF (muted text)
-    AMG Light Gray    #C0C7D1 (labels)
-    AMG White         #FFFFFF (typography)
+  AMG Aviation Group — Design System (Magma Cinematic Dark)
+  Palette:
+    Pure Black     #000000  (html/body background)
+    Deep Charcoal  #0a0a0a  (section fills)
+    Elevated Dark  #111111  (cards / glass panels)
+    Accent White   #FFFFFF  (headlines)
+    Neutral Mid    #a3a3a3  (body copy)
+    Border Sharp   rgba(255,255,255,0.08)  (hairlines)
   Display and body: Montserrat.
 */
 
 :root {
-  --radius: 0.625rem;
-  --public-header-height: 80px;
-  --public-section-spacing: clamp(4rem, 8vw, 7rem);
-  --amg-midnight-navy: #050B14;
-  --amg-deep-blue: #07111F;
-  --amg-accent-blue: #3B82F6;
-  --amg-slate-gray: #9CA3AF;
-  --amg-light-gray: #C0C7D1;
-  --amg-white: #FFFFFF;
-  --amg-bg: #050B14;
-  --amg-bg-muted: #07111F;
-  --amg-bg-elevated: rgba(12, 25, 43, 0.94);
-  --amg-bg-glass: rgba(7, 17, 31, 0.78);
-  --amg-bg-portal: #050B14;
-  --amg-bg-footer: #050B14;
-  --amg-text-primary: #FFFFFF;
-  --amg-text-secondary: #C0C7D1;
-  --amg-text-muted: #9CA3AF;
-  --amg-text-subtle: rgba(192, 199, 209, 0.72);
-  --amg-text-inverse: #050B14;
-  --amg-text-accent: #3B82F6;
-  --amg-border-default: rgba(192, 199, 209, 0.18);
-  --amg-border-muted: rgba(192, 199, 209, 0.12);
-  --amg-border-strong: rgba(192, 199, 209, 0.32);
-  --amg-border-accent: rgba(59, 130, 246, 0.52);
-  --amg-border-glass: rgba(192, 199, 209, 0.18);
+  --radius: 0.5rem;
+  --public-header-height: 72px;
+  --public-section-spacing: clamp(5rem, 9vw, 8rem);
 
-  /* OC compatibility layer mapped back to the AMG brand system. */
-  --oc-ink: #050B14;
-  --oc-navy: #050B14;
-  --oc-navy-2: #07111F;
-  --oc-graphite: #07111F;
-  --oc-graphite-2: #050B14;
+  /* ─── Magma Core Palette ─── */
+  --amg-midnight-navy: #000000;
+  --amg-deep-blue: #0a0a0a;
+  --amg-accent-blue: #3B82F6;
+  --amg-slate-gray: #737373;
+  --amg-light-gray: #a3a3a3;
+  --amg-white: #FFFFFF;
+
+  --amg-bg: #000000;
+  --amg-bg-muted: #0a0a0a;
+  --amg-bg-elevated: rgba(17, 17, 17, 0.96);
+  --amg-bg-glass: rgba(10, 10, 10, 0.72);
+  --amg-bg-portal: #000000;
+  --amg-bg-footer: #000000;
+
+  --amg-text-primary: #FFFFFF;
+  --amg-text-secondary: #a3a3a3;
+  --amg-text-muted: #737373;
+  --amg-text-subtle: rgba(163, 163, 163, 0.72);
+  --amg-text-inverse: #000000;
+  --amg-text-accent: #3B82F6;
+
+  --amg-border-default: rgba(255, 255, 255, 0.08);
+  --amg-border-muted: rgba(255, 255, 255, 0.05);
+  --amg-border-strong: rgba(255, 255, 255, 0.14);
+  --amg-border-accent: rgba(59, 130, 246, 0.52);
+  --amg-border-glass: rgba(255, 255, 255, 0.08);
+
+  /* OC compatibility layer mapped to Magma dark system */
+  --oc-ink: #000000;
+  --oc-navy: #000000;
+  --oc-navy-2: #0a0a0a;
+  --oc-graphite: #0a0a0a;
+  --oc-graphite-2: #000000;
   --oc-paper: #FFFFFF;
-  --oc-ivory: #F7F9FC;
-  --oc-ivory-2: #EEF2F7;
-  --oc-muted: rgb(5 11 20 / 0.68);
-  --oc-muted-dark: #C0C7D1;
-  --oc-aluminum: #C0C7D1;
-  --oc-aluminum-2: #9CA3AF;
+  --oc-ivory: #0a0a0a;
+  --oc-ivory-2: #111111;
+  --oc-muted: rgba(163, 163, 163, 0.8);
+  --oc-muted-dark: #a3a3a3;
+  --oc-aluminum: #a3a3a3;
+  --oc-aluminum-2: #737373;
   --oc-blue: #3B82F6;
   --oc-blue-soft: #3B82F6;
   --oc-accent: #3B82F6;
   --oc-sky: #3B82F6;
-  --oc-line: rgb(5 11 20 / 0.14);
-  --oc-line-strong: rgb(5 11 20 / 0.24);
-  --oc-line-dark: rgb(192 199 209 / 0.22);
-  --oc-shadow: 0 24px 70px rgb(5 11 20 / 0.14);
+  --oc-line: rgba(255, 255, 255, 0.07);
+  --oc-line-strong: rgba(255, 255, 255, 0.12);
+  --oc-line-dark: rgba(255, 255, 255, 0.08);
+  --oc-shadow: 0 24px 70px rgb(0 0 0 / 0.5);
   --oc-display: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
   --oc-sans: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
 
@@ -74,7 +79,7 @@
   --amg-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --amg-ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);
 
-  /* Core palette: light AMG aviation system */
+  /* Core palette: Magma dark system */
   --background: var(--amg-bg);
   --foreground: var(--amg-text-primary);
 
@@ -189,9 +194,7 @@
     scroll-padding-top: calc(var(--public-header-height) + 24px);
   }
   body {
-    background:
-      radial-gradient(circle at 84% 0%, rgb(59 130 246 / 0.16), transparent 28rem),
-      linear-gradient(180deg, #050B14 0%, #07111F 48%, #050B14 100%);
+    background: #000000;
     color: var(--foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -237,9 +240,8 @@
     inset: 0;
     z-index: -2;
     background:
-      radial-gradient(circle at 16% 20%, rgb(59 130 246 / 0.12), transparent 26rem),
-      radial-gradient(circle at 92% 8%, rgb(192 199 209 / 0.08), transparent 22rem),
-      linear-gradient(180deg, #07111F, #050B14);
+      radial-gradient(circle at 16% 20%, rgb(59 130 246 / 0.07), transparent 26rem),
+      #000000;
   }
   .cinematic-band::after {
     content: "";
@@ -521,10 +523,7 @@ html {
   --primary: var(--amg-blue);
   position: relative;
   isolation: isolate;
-  background:
-    radial-gradient(circle at 78% 8%, rgb(59 130 246 / 0.14), transparent 28rem),
-    radial-gradient(circle at 12% 32%, rgb(192 199 209 / 0.06), transparent 24rem),
-    linear-gradient(180deg, #050B14 0%, #07111F 42%, #050B14 100%);
+  background: #000000;
 }
 
 .public-site::before {
@@ -534,10 +533,10 @@ html {
   z-index: -1;
   pointer-events: none;
   background:
-    linear-gradient(90deg, oklch(0.17 0.026 256 / 0.04) 1px, transparent 1px),
-    linear-gradient(180deg, oklch(0.17 0.026 256 / 0.03) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: linear-gradient(180deg, black, transparent 58%);
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: linear-gradient(180deg, black, transparent 40%);
 }
 
 .public-site [data-scroll-animate],
@@ -606,27 +605,25 @@ html {
 .amg-oc {
   --primary: var(--oc-blue);
   --primary-foreground: var(--oc-paper);
-  --card: var(--oc-paper);
-  --card-foreground: var(--oc-ink);
-  --popover: var(--oc-paper);
-  --popover-foreground: var(--oc-ink);
+  --card: rgba(17, 17, 17, 0.96);
+  --card-foreground: var(--oc-paper);
+  --popover: rgba(17, 17, 17, 0.96);
+  --popover-foreground: var(--oc-paper);
   --border: var(--oc-line);
   --input: var(--oc-line-strong);
   --muted-foreground: var(--oc-muted);
 
-  background: var(--amg-bg);
+  background: #000000;
   color: var(--oc-paper);
   font-family: var(--oc-sans);
 }
 
 /* neutralize the legacy light-system background + grid overlay on AMG-OC pages */
 .public-site.amg-oc {
-  background:
-    radial-gradient(circle at 78% 8%, rgb(59 130 246 / 0.13), transparent 28rem),
-    linear-gradient(180deg, #050B14 0%, #07111F 42%, #050B14 100%);
+  background: #000000;
 }
 .public-site.amg-oc::before {
-  opacity: 0;
+  opacity: 1;
 }
 
 .amg-oc ::selection {
@@ -732,9 +729,13 @@ html {
   }
   .oc-btn-light {
     background: #ffffff;
-    color: #050B14;
-    border-color: rgb(255 255 255 / 0.78);
-    box-shadow: 0 14px 34px rgb(0 0 0 / 0.18);
+    color: #000000;
+    border-color: #ffffff;
+    box-shadow: 0 0 0 0 transparent;
+  }
+  .oc-btn-light:hover {
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 0 32px rgba(255, 255, 255, 0.18);
   }
   .oc-btn-light:hover {
     background: #F7F9FC;
@@ -762,31 +763,31 @@ html {
 
   /* surfaces */
   .oc-card {
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid var(--oc-line);
-    border-radius: 0.75rem;
-    color: var(--oc-ink);
-    box-shadow: var(--oc-shadow);
-    backdrop-filter: blur(14px);
-  }
-  .oc-card-dark {
-    background: linear-gradient(160deg, rgba(7, 17, 31, 0.96), rgba(5, 11, 20, 0.96));
-    border: 1px solid var(--oc-line-dark);
+    background: rgba(17, 17, 17, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.07);
     border-radius: 0.75rem;
     color: var(--oc-paper);
-    box-shadow: 0 24px 70px rgb(0 0 0 / 0.26);
+    box-shadow: 0 24px 70px rgb(0 0 0 / 0.5);
+    backdrop-filter: blur(12px);
+  }
+  .oc-card-dark {
+    background: rgba(17, 17, 17, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 0.75rem;
+    color: var(--oc-paper);
+    box-shadow: 0 24px 70px rgb(0 0 0 / 0.5);
   }
   .oc-panel-navy {
     background:
-      radial-gradient(120% 120% at 85% 0%, rgba(59, 130, 246, 0.18), transparent 55%),
-      linear-gradient(170deg, #07111F, #050B14);
-    border: 1px solid var(--oc-line-dark);
+      radial-gradient(120% 120% at 85% 0%, rgba(59, 130, 246, 0.12), transparent 55%),
+      rgba(10, 10, 10, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     color: var(--oc-paper);
-    box-shadow: 0 24px 70px rgb(0 0 0 / 0.28);
+    box-shadow: 0 24px 70px rgb(0 0 0 / 0.5);
   }
   .oc-panel-graphite {
-    background: linear-gradient(170deg, #07111F, #050B14);
-    border: 1px solid var(--oc-line-dark);
+    background: rgba(10, 10, 10, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     color: var(--oc-paper);
   }
 
@@ -860,14 +861,14 @@ html {
 }
 
 .amg-portal {
-  --portal-panel: rgba(7, 17, 31, 0.88);
-  --portal-panel-strong: rgba(7, 17, 31, 0.96);
-  --portal-line: rgba(192, 199, 209, 0.15);
-  --portal-muted: #9CA3AF;
-  --portal-soft: #C0C7D1;
+  --portal-panel: rgba(17, 17, 17, 0.92);
+  --portal-panel-strong: rgba(10, 10, 10, 0.98);
+  --portal-line: rgba(255, 255, 255, 0.08);
+  --portal-muted: #737373;
+  --portal-soft: #a3a3a3;
   background:
-    radial-gradient(circle at 82% 0%, rgba(59, 130, 246, 0.14), transparent 28rem),
-    linear-gradient(180deg, #050B14, #07111F 46%, #050B14);
+    radial-gradient(circle at 82% 0%, rgba(59, 130, 246, 0.08), transparent 28rem),
+    #000000;
 }
 
 .amg-portal .bg-white {
