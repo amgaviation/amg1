@@ -149,7 +149,7 @@ export function SiteNav() {
             prefetch={false}
             className="oc-btn oc-btn-light hidden sm:inline-flex"
           >
-            Start Your Request
+            Start a Support Request
             <ArrowUpRight className="h-4 w-4" />
           </Link>
           <Link
@@ -224,7 +224,7 @@ export function SiteNav() {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <Link href="/request-support" prefetch={false} className="oc-btn oc-btn-light justify-center">
-                Start Your Request
+                Start a Support Request
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
               <Link href="/login" prefetch={false} className="oc-btn oc-btn-ghost-dark justify-center">

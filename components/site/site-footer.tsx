@@ -21,7 +21,7 @@ export function SiteFooter() {
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <Link href="/request-support" prefetch={false} className="oc-btn oc-btn-light">
-                Start Your Request
+                Start a Support Request
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
               <Link href="/login" prefetch={false} className="oc-btn oc-btn-ghost-dark">

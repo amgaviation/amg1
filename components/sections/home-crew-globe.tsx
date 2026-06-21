@@ -31,20 +31,15 @@ export function HomeCrewGlobe() {
       <div className="oc-shell relative z-10 grid items-center gap-10 lg:grid-cols-[0.84fr_1.16fr]">
         <div data-scroll-animate>
           <p className="oc-eyebrow oc-eyebrow-light">Crew Coverage</p>
-          <h2 className="oc-display mt-5 text-3xl text-white sm:text-5xl lg:text-6xl">
-            Find crew coverage by aircraft, airport, and timing.
+          <h2 className="oc-display mt-5 text-4xl text-white sm:text-5xl lg:text-6xl">
+            Request crew coverage by aircraft, location, and timing.
           </h2>
-          <p className="mt-5 text-base leading-relaxed text-[var(--oc-aluminum)] sm:text-lg">
-            AMG organizes pilot and crew information by base airport, aircraft experience, credentials, and availability. Public map markers show broad airport regions only; they are not real-time crew locations or guaranteed coverage.
+          <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]">
+            AMG reviews base location, aircraft experience, credentials, availability, and assignment fit before presenting a crew option. The map is a public geographic representation of operating regions, not real-time crew availability.
           </p>
-          <div className="mt-6 overflow-hidden rounded-2xl border border-white/[0.14] bg-white/[0.06]">
-            <div className="relative aspect-[16/9]">
-              <Image src={IMG.pilotPreflight} alt="Pilot completing preflight planning for a private aircraft assignment" fill sizes="(max-width: 1024px) 100vw, 42vw" className="object-cover" />
-            </div>
-          </div>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <Link href="/request-support?category=contract-pilot-support" prefetch={false} data-analytics="crew_coverage_request" className="oc-btn oc-btn-light">
-              Start a Crew Request
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/request-support?category=contract-pilot-support" prefetch={false} className="oc-btn oc-btn-light">
+              Request Crew Coverage
               <ArrowUpRight className="h-4 w-4" />
             </Link>
             <Link href="/credential-submission" prefetch={false} className="oc-btn oc-btn-ghost-dark">

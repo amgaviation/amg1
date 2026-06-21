@@ -140,7 +140,7 @@ export function SupportRequestForm({
             <h2 className="oc-display mt-3 text-3xl text-[var(--oc-ink)] sm:text-4xl">Submit operating details for review</h2>
           </div>
           <Badge variant="outline" className="border-[var(--oc-line)] bg-white/70 text-[var(--oc-ink)]">
-            Source: Start Your Request
+            Source: Start a Support Request
           </Badge>
         </div>
 
@@ -171,8 +171,8 @@ export function SupportRequestForm({
         <div className="mt-6 rounded-2xl border border-[var(--oc-line)] bg-white/75 p-5">
           <h3 className="text-lg font-semibold text-[var(--oc-ink)]">What happens after you submit</h3>
           <ol className="mt-3 grid gap-2 text-sm leading-relaxed text-[var(--oc-muted)] sm:grid-cols-2">
-            <li>1. The team checks the aircraft, timing, location, and requested service.</li>
-            <li>2. AMG may contact you for missing aircraft or trip details.</li>
+            <li>1. AMG reviews the aircraft, timing, location, and requested support.</li>
+            <li>2. AMG may contact you for missing operating details.</li>
             <li>3. You receive a defined next step, scope, quote, or plan-review request.</li>
             <li>4. Support proceeds only after the applicable review and approval.</li>
           </ol>

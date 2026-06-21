@@ -3,9 +3,9 @@ import { ArrowUpRight, Check } from "lucide-react";
 import { SectionHeading } from "@/components/site/oc/shared";
 
 const MODELS = [
-  { name: "On-Demand", summary: "For one crew assignment, ferry flight, reposition, or maintenance move. AMG prices the individual job after the operating details are checked.", points: ["Pay per request", "Crew and aircraft details checked first", "No monthly commitment"], cta: "View On-Demand Plan" },
-  { name: "Monthly Owner Plan", summary: "For an owner or representative who wants ongoing help around one aircraft and a more consistent communication rhythm.", points: ["Defined monthly scope", "Priority review path", "Consistent owner communication"], cta: "View Owner Plan", featured: true },
-  { name: "Fleet / Department Plan", summary: "For flight departments, owner groups, or operators managing multiple aircraft or changing crew needs.", points: ["Multi-aircraft coordination", "Role-based portal visibility", "Custom plan structure"], cta: "View Fleet Plan" },
+  { name: "On-Demand Support", summary: "For a single crew coverage, aircraft movement, or maintenance repositioning need. Scope and pricing are confirmed for each request.", points: ["Request-specific scope", "Availability and feasibility review", "No recurring commitment"], cta: "View On-Demand Support" },
+  { name: "Recurring Owner Support", summary: "For an owner who needs ongoing support around one aircraft under a defined monthly scope.", points: ["Defined monthly support scope", "Priority review process", "Consistent owner communication"], cta: "View Recurring Support", featured: true },
+  { name: "Fleet / Department Support", summary: "For owners and flight departments managing multiple aircraft or variable crew requirements.", points: ["Multi-aircraft coordination", "Role-based portal visibility", "Custom support structure"], cta: "View Department Support" },
 ];
 
 export function SupportModels() {
@@ -13,10 +13,10 @@ export function SupportModels() {
     <section className="bg-[var(--oc-ivory)] py-14 lg:py-20">
       <div className="oc-shell">
         <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-          <SectionHeading eyebrow="Plans & Pricing" title="Choose pay-per-job help, monthly owner support, or a fleet plan." lead="Pricing depends on the aircraft, timing, service type, frequency, and work needed. AMG confirms final pricing after the details are reviewed." />
-          <Link href="/plans" prefetch={false} data-analytics="support_option_comparison" className="oc-btn oc-btn-ghost shrink-0">Compare Plans<ArrowUpRight className="h-4 w-4" /></Link>
+          <SectionHeading eyebrow="Support Options" title="Choose the support structure that fits the operation." lead="Use AMG for one request, recurring support for one aircraft, or a custom structure for a flight department." />
+          <Link href="/plans" prefetch={false} data-analytics="support_option_comparison" className="oc-btn oc-btn-ghost shrink-0">Compare Support Options<ArrowUpRight className="h-4 w-4" /></Link>
         </div>
-        <div className="mt-9 grid gap-5 lg:grid-cols-3" data-stagger-container>
+        <div className="mt-10 grid gap-5 lg:grid-cols-3" data-stagger-container>
           {MODELS.map((m) => (
             <article key={m.name} data-stagger-item className={`group flex h-full flex-col rounded-[1.25rem] p-7 lg:p-8 ${m.featured ? "oc-panel-navy text-[var(--oc-paper)]" : "oc-card text-[var(--oc-ink)]"}`}>
               <h3 className="oc-display text-2xl sm:text-[1.7rem]">{m.name}</h3>
@@ -29,9 +29,9 @@ export function SupportModels() {
           ))}
         </div>
         <div className="mt-6 rounded-2xl border border-[var(--oc-line)] bg-white/75 p-6">
-          <h3 className="text-lg font-semibold text-[var(--oc-ink)]">How pricing is set</h3>
-          <p className="mt-2 max-w-4xl text-sm leading-relaxed text-[var(--oc-muted)]">Single jobs are priced around the specific request. Monthly owner support uses a defined scope for one aircraft. Fleet and department plans are shaped around aircraft count, request frequency, crew needs, and portal visibility. No price is final until the operating details are checked.</p>
-          <div className="mt-5 flex flex-wrap gap-3"><Link href="/plans" className="oc-btn oc-btn-primary">Compare Plans</Link><Link href="/contact" className="oc-btn oc-btn-ghost">Talk to an Expert</Link></div>
+          <h3 className="text-lg font-semibold text-[var(--oc-ink)]">How pricing works</h3>
+          <p className="mt-2 max-w-4xl text-sm leading-relaxed text-[var(--oc-muted)]">On-demand work is scoped for the individual request. Recurring owner support uses a defined monthly structure. Fleet and flight-department support is configured around aircraft count, frequency, and support scope. Final pricing is confirmed after AMG reviews the operating details.</p>
+          <div className="mt-5 flex flex-wrap gap-3"><Link href="/plans" className="oc-btn oc-btn-primary">Compare Support Options</Link><Link href="/contact" className="oc-btn oc-btn-ghost">Speak With AMG</Link></div>
         </div>
       </div>
     </section>
