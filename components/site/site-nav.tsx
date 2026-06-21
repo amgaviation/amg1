@@ -147,7 +147,7 @@ export function SiteNav() {
           <Link
             href="/request-support"
             prefetch={false}
-            className="oc-btn oc-btn-light hidden sm:inline-flex"
+            className="oc-btn oc-btn-light !hidden sm:!inline-flex"
           >
             Start a Support Request
             <ArrowUpRight className="h-4 w-4" />

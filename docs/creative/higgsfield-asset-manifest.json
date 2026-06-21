@@ -1,0 +1,175 @@
+{
+  "project": "AMG Aviation Group public homepage cockpit entrance",
+  "repository": "amgaviation/amg1",
+  "createdAt": "2026-06-21",
+  "generator": {
+    "name": "Higgsfield CLI",
+    "version": "0.2.3",
+    "models": ["gpt_image_2", "seedance_2_0"]
+  },
+  "referenceUse": [
+    {
+      "label": "User Image #1",
+      "role": "Macro layout reference",
+      "usage": "Scroll entrance composition, centered aircraft aperture, split typography. Not used as a production asset."
+    },
+    {
+      "label": "User Image #2",
+      "role": "Macro zoom reference",
+      "usage": "Cockpit/window-to-sky transition pacing. Not used as a production asset."
+    },
+    {
+      "label": "User Images #3-#5",
+      "role": "Cockpit structure references",
+      "usage": "Flight-deck geometry, panels, seats, and cockpit tone. Not used directly as production assets."
+    }
+  ],
+  "selectedAssets": [
+    {
+      "id": "home-intro-cockpit-desktop",
+      "higgsfieldJobId": "1e3be625-872b-427b-9baf-7a579824fd4f",
+      "model": "gpt_image_2",
+      "sourceDimensions": "2688x1520",
+      "resultUrl": "https://d8j0ntlcm91z4.cloudfront.net/user_3EzqiTADHvMi4oDyrZxWIPD5meN/hf_20260621_052446_1e3be625-872b-427b-9baf-7a579824fd4f.png",
+      "promptSummary": "Original large-cabin business-jet cockpit, dark graphite/navy interior, panoramic logo-safe windshield, no logos or readable text.",
+      "productionFiles": [
+        {
+          "path": "public/images/home-intro/amg-cockpit-desktop.avif",
+          "dimensions": "2200x1244",
+          "size": "114 KB"
+        },
+        {
+          "path": "public/images/home-intro/amg-cockpit-desktop.webp",
+          "dimensions": "2200x1244",
+          "size": "147 KB"
+        }
+      ],
+      "selectionReason": "Best desktop composition with a clear centered sky aperture and no central windshield post crossing the AMG logo field."
+    },
+    {
+      "id": "home-intro-cockpit-mobile",
+      "higgsfieldJobId": "d8c46749-e7b4-44d2-b98d-765672e424bb",
+      "model": "gpt_image_2",
+      "sourceDimensions": "1520x2688",
+      "resultUrl": "https://d8j0ntlcm91z4.cloudfront.net/user_3EzqiTADHvMi4oDyrZxWIPD5meN/hf_20260621_052443_d8c46749-e7b4-44d2-b98d-765672e424bb.png",
+      "promptSummary": "Original portrait cockpit hero with dark AMG-toned panels, broad centered sky aperture, no logos or readable text.",
+      "productionFiles": [
+        {
+          "path": "public/images/home-intro/amg-cockpit-mobile.avif",
+          "dimensions": "1200x2133",
+          "size": "113 KB"
+        },
+        {
+          "path": "public/images/home-intro/amg-cockpit-mobile.webp",
+          "dimensions": "1200x2133",
+          "size": "143 KB"
+        }
+      ],
+      "selectionReason": "Best portrait version with a clean center field, dark side framing, and enough cockpit detail for mobile."
+    },
+    {
+      "id": "home-intro-sky-desktop",
+      "higgsfieldJobId": "6d1241a8-493f-40ef-8951-4e2adbb6a6a5",
+      "model": "gpt_image_2",
+      "sourceDimensions": "2688x1520",
+      "resultUrl": "https://d8j0ntlcm91z4.cloudfront.net/user_3EzqiTADHvMi4oDyrZxWIPD5meN/hf_20260621_051132_6d1241a8-493f-40ef-8951-4e2adbb6a6a5.png",
+      "promptSummary": "High-altitude cloud deck, level horizon, cool AMG blue sky, clean center logo field, no aircraft or text.",
+      "productionFiles": [
+        {
+          "path": "public/images/home-intro/amg-sky-desktop.avif",
+          "dimensions": "2200x1244",
+          "size": "23 KB"
+        },
+        {
+          "path": "public/images/home-intro/amg-sky-desktop.webp",
+          "dimensions": "2200x1244",
+          "size": "42 KB"
+        }
+      ],
+      "selectionReason": "Cooler, calmer sky plate with the best desktop logo-safe center."
+    },
+    {
+      "id": "home-intro-sky-mobile",
+      "higgsfieldJobId": "ce3ae965-bb61-4d11-a035-c1c062e26839",
+      "model": "gpt_image_2",
+      "sourceDimensions": "1520x2688",
+      "resultUrl": "https://d8j0ntlcm91z4.cloudfront.net/user_3EzqiTADHvMi4oDyrZxWIPD5meN/hf_20260621_051131_ce3ae965-bb61-4d11-a035-c1c062e26839.png",
+      "promptSummary": "Portrait high-altitude cloud deck, cool blue upper field, level horizon, no aircraft or text.",
+      "productionFiles": [
+        {
+          "path": "public/images/home-intro/amg-sky-mobile.avif",
+          "dimensions": "1200x2133",
+          "size": "25 KB"
+        },
+        {
+          "path": "public/images/home-intro/amg-sky-mobile.webp",
+          "dimensions": "1200x2133",
+          "size": "44 KB"
+        }
+      ],
+      "selectionReason": "Best mobile sky crop with clean upper field and stable cloud horizon."
+    },
+    {
+      "id": "home-intro-sky-motion-desktop",
+      "higgsfieldJobId": "cae44d4a-80fd-4a16-90da-8ea3bbb1770f",
+      "model": "seedance_2_0",
+      "sourceDimensions": "1280x720",
+      "resultUrl": "https://d8j0ntlcm91z4.cloudfront.net/user_3EzqiTADHvMi4oDyrZxWIPD5meN/hf_20260621_052535_cae44d4a-80fd-4a16-90da-8ea3bbb1770f.mp4",
+      "promptSummary": "Slow forward drift through high-altitude cloud tops, fixed horizon, no aircraft, no text, no logo.",
+      "productionFiles": [
+        {
+          "path": "public/videos/home-intro/amg-sky-motion-desktop.mp4",
+          "dimensions": "1280x720",
+          "size": "1.3 MB"
+        }
+      ],
+      "selectionReason": "Small enough for optional background motion behind the still sky fallback."
+    },
+    {
+      "id": "home-intro-sky-motion-mobile",
+      "higgsfieldJobId": "40027270-8c7a-4990-a910-951a427d4a00",
+      "model": "seedance_2_0",
+      "sourceDimensions": "720x1280",
+      "resultUrl": "https://d8j0ntlcm91z4.cloudfront.net/user_3EzqiTADHvMi4oDyrZxWIPD5meN/hf_20260621_052535_40027270-8c7a-4990-a910-951a427d4a00.mp4",
+      "promptSummary": "Portrait slow forward cloud drift, fixed horizon, no aircraft, no text, no logo.",
+      "productionFiles": [
+        {
+          "path": "public/videos/home-intro/amg-sky-motion-mobile.mp4",
+          "dimensions": "720x1280",
+          "size": "1.4 MB"
+        }
+      ],
+      "selectionReason": "Small enough for optional mobile background motion with reduced-motion CSS disabled."
+    }
+  ],
+  "rejectedAssets": [
+    {
+      "higgsfieldJobId": "36e6cd9d-cd58-4114-815d-c38e4a1a3a43",
+      "reason": "Strong cockpit tone, but the center windshield post conflicted with the logo-safe field."
+    },
+    {
+      "higgsfieldJobId": "bfb2a5fd-bdc0-4af7-8ffa-bd616a039783",
+      "reason": "Dramatic cockpit, but the central support was too dominant."
+    },
+    {
+      "higgsfieldJobId": "40984681-5e8e-4caa-b266-f0ac39930cf8",
+      "reason": "Cleaner than earlier desktop candidates, but still retained a center post."
+    },
+    {
+      "higgsfieldJobId": "a9ecb3dd-1c36-4d12-9dbc-52b4a91502d4",
+      "reason": "Good portrait cockpit, but a central support ran through the logo area."
+    },
+    {
+      "higgsfieldJobId": "335e8d69-12e1-454e-b265-a37728123796",
+      "reason": "Strong cockpit, but less clean for the logo-safe center than the selected final portrait image."
+    },
+    {
+      "higgsfieldJobId": "810427d5-cc75-4dd2-ba6b-cedd454dfc94",
+      "reason": "Good desktop sky plate, but less atmospheric and less centered than the selected desktop sky."
+    },
+    {
+      "higgsfieldJobId": "e8c0badf-ac0d-4c8c-8ccb-e82cfff66182",
+      "reason": "Good mobile sky plate, but warmer than the AMG visual direction."
+    }
+  ]
+}
