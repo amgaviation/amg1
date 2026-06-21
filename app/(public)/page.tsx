@@ -26,8 +26,28 @@ export default function HomePage() {
     secondary: { label: "Speak With AMG", href: "/contact" },
   });
 
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "AMG Aviation Group",
+    url: "https://www.amgaviationgroup.com",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Fort Lauderdale",
+      addressRegion: "FL",
+      addressCountry: "US",
+    },
+    makesOffer: [
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Crew hiring and crew coverage coordination" } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Aircraft repositioning and ferry movement support" } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Maintenance repositioning coordination" } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Recurring private aircraft operations support" } },
+    ],
+  };
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }} />
       <EntranceAnimation />
       <HomeHangarEntry
         eyebrow={hero.eyebrow}
@@ -39,8 +59,10 @@ export default function HomePage() {
         secondaryCtaLabel={hero.secondary?.label}
         secondaryCtaHref={hero.secondary?.href}
       />
-      <OperationalTrustStrip />
       <SitePreviewLayer />
+      <OperationalTrustStrip />
+      <WhoWeServe />
+      <WhyAmg />
       <SupportModels />
       <WhyAmg />
       <HomeCrewGlobe />

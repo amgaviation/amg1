@@ -10,7 +10,7 @@ const MODELS = [
 
 export function SupportModels() {
   return (
-    <section className="oc-section bg-[var(--oc-ivory)]">
+    <section className="bg-[var(--oc-ivory)] py-14 lg:py-20">
       <div className="oc-shell">
         <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
           <SectionHeading eyebrow="Support Options" title="Choose the support structure that fits the operation." lead="Use AMG for one request, recurring support for one aircraft, or a custom structure for a flight department." />

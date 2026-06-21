@@ -149,8 +149,7 @@ export function SupportRequestForm({
             <div className="flex gap-2">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
               <span>
-                Support request received. AMG will review the submitted details based on support scope, aircraft
-                context, timing, crew availability, owner/operator approval, and operational conditions.
+                Request received. AMG will check the aircraft, timing, crew fit, owner/operator approval, airports, weather, and required next steps before confirming what can proceed.
               </span>
             </div>
           </div>

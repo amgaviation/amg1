@@ -1,12 +1,14 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { useReducedMotion } from "framer-motion";
 import { GlobeFallback } from "@/components/sections/globe-fallback";
 import { crewGlobeMarkers, crewRegionCount } from "@/components/sections/crew-globe-data";
+import { IMG } from "@/lib/site-media";
 
 const HomeGlobeDemo = dynamic(() => import("@/components/3d-globe-demo-3"), {
   ssr: false,
@@ -23,9 +25,10 @@ export function HomeCrewGlobe() {
   }, []);
 
   return (
-    <section className="oc-panel-navy oc-section relative overflow-hidden text-[var(--oc-paper)]">
-      <div className="absolute inset-0 opacity-60 [background-image:linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.035)_1px,transparent_1px)] [background-size:80px_80px]" />
-      <div className="oc-shell relative z-10 grid items-center gap-10 lg:grid-cols-[0.78fr_1.22fr]">
+    <section className="oc-panel-navy relative overflow-hidden py-14 text-[var(--oc-paper)] lg:py-20">
+      <Image src={IMG.generatedCrewMap} alt="" fill sizes="100vw" className="absolute inset-0 -z-20 object-cover opacity-20" />
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(5,11,20,0.98),rgba(7,17,31,0.88)_55%,rgba(5,11,20,0.95))]" />
+      <div className="oc-shell relative z-10 grid items-center gap-10 lg:grid-cols-[0.84fr_1.16fr]">
         <div data-scroll-animate>
           <p className="oc-eyebrow oc-eyebrow-light">Crew Coverage</p>
           <h2 className="oc-display mt-5 text-4xl text-white sm:text-5xl lg:text-6xl">
@@ -47,7 +50,7 @@ export function HomeCrewGlobe() {
 
         <div data-scroll-animate>
           {reduce ? (
-            <GlobeFallback label="Crew operating regions" />
+            <GlobeFallback label="Crew airport regions" />
           ) : (
             <HomeGlobeDemo markers={crewGlobeMarkers} regionCount={crewRegionCount} />
           )}

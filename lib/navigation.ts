@@ -28,7 +28,7 @@ export const PUBLIC_NAV_GROUPS: PublicNavGroup[] = [
     label: "Services",
     href: "/capabilities",
     items: [
-      { label: "What AMG Supports", href: "/capabilities#what-amg-supports", description: "Aircraft movement, crew coordination, maintenance support, and support operations." },
+      { label: "Services Overview", href: "/capabilities#what-amg-supports", description: "Crew hiring, aircraft movement, maintenance repositioning, and recurring plans." },
       { label: "Request Process", href: "/capabilities#request-process", description: "How support is reviewed, quoted, coordinated, and closed out." },
       { label: "Aircraft Supported", href: "/aircraft-support", description: "Aircraft categories and support context." },
       { label: "Crew Network", href: "/crew-network", description: "Crew-related support and credential review context." },
@@ -38,7 +38,7 @@ export const PUBLIC_NAV_GROUPS: PublicNavGroup[] = [
     label: "Support Options",
     href: "/plans",
     items: [
-      { label: "Support Plans", href: "/plans", description: "Compare plan structure by aircraft category and recurring support needs." },
+      { label: "Support Plans", href: "/plans", description: "Compare on-demand, monthly owner, and fleet plans." },
       { label: "Plan Comparison", href: "/plans#plans-comparison", description: "Review included support areas and operational notes." },
       { label: "Request Support Option Review", href: "/request-support?category=subscription-program-inquiry", description: "Start a scoped support-plan review." },
     ],
