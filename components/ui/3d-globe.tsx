@@ -1,7 +1,7 @@
 "use client";
 import React, { useRef, useMemo, useState, useCallback, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { OrbitControls, Html, useTexture } from "@react-three/drei";
+import { OrbitControls, Html } from "@react-three/drei";
 import * as THREE from "three";
 import { cn } from "@/lib/utils";
 
@@ -84,13 +84,11 @@ interface Globe3DProps {
 }
 
 // ============================================================================
-// Constants - Earth Texture URLs (NASA Blue Marble)
+// Constants - Local procedural AMG globe texture fallback
 // ============================================================================
 
-const DEFAULT_EARTH_TEXTURE =
-  "https://unpkg.com/three-globe@2.31.0/example/img/earth-blue-marble.jpg";
-const DEFAULT_BUMP_TEXTURE =
-  "https://unpkg.com/three-globe@2.31.0/example/img/earth-topology.png";
+const DEFAULT_EARTH_TEXTURE = "amg-procedural-earth";
+const DEFAULT_BUMP_TEXTURE = "amg-procedural-topology";
 
 // ============================================================================
 // Utility Functions
@@ -289,22 +287,46 @@ function RotatingGlobe({
 }: RotatingGlobeProps) {
   const groupRef = useRef<THREE.Group>(null);
 
-  // Load Earth textures
-  const [earthTexture, bumpTexture] = useTexture([
-    config.textureUrl,
-    config.bumpMapUrl,
-  ]);
+  const earthTexture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 2048;
+    canvas.height = 1024;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
 
-  // Configure textures
-  useMemo(() => {
-    if (earthTexture) {
-      earthTexture.colorSpace = THREE.SRGBColorSpace;
-      earthTexture.anisotropy = 16;
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, "#07111f");
+    gradient.addColorStop(0.48, config.globeColor);
+    gradient.addColorStop(1, "#050b14");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.globalAlpha = 0.72;
+    ctx.fillStyle = "#1d4f8f";
+    ctx.beginPath();
+    ctx.ellipse(520, 430, 360, 160, -0.2, 0, Math.PI * 2);
+    ctx.ellipse(1180, 515, 460, 175, 0.16, 0, Math.PI * 2);
+    ctx.ellipse(1640, 335, 330, 145, -0.34, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.globalAlpha = 0.32;
+    ctx.strokeStyle = "#c0c7d1";
+    ctx.lineWidth = 5;
+    for (let y = 220; y <= 820; y += 150) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      for (let x = 0; x <= canvas.width; x += 160) {
+        ctx.lineTo(x, y + Math.sin((x + y) / 170) * 42);
+      }
+      ctx.stroke();
     }
-    if (bumpTexture) {
-      bumpTexture.anisotropy = 8;
-    }
-  }, [earthTexture, bumpTexture]);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = 16;
+    texture.needsUpdate = true;
+    return texture;
+  }, [config.globeColor]);
 
   // Create geometries
   const geometry = useMemo(() => {
@@ -321,8 +343,7 @@ function RotatingGlobe({
       <mesh geometry={geometry}>
         <meshStandardMaterial
           map={earthTexture}
-          bumpMap={bumpTexture}
-          bumpScale={config.bumpScale * 0.05}
+          bumpScale={0}
           roughness={0.7}
           metalness={0.0}
         />
