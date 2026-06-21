@@ -17,12 +17,11 @@ export function SiteFooter() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/logo-white.png" alt="AMG Aviation Group" width="1088" height="221" className="h-9 w-auto" />
             <p className="mt-6 text-base leading-relaxed text-[var(--oc-aluminum)]">
-              Private aircraft support coordination for aircraft movement, crew coverage, maintenance repositioning,
-              and support-specific activity.
+              Private aircraft support coordination for crew coverage, aircraft movement, maintenance repositioning, and recurring owner or flight-department needs.
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <Link href="/request-support" prefetch={false} className="oc-btn oc-btn-light">
-                Request Support
+                Start a Support Request
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
               <Link href="/login" prefetch={false} className="oc-btn oc-btn-ghost-dark">

@@ -1,28 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import {
-  ArrowDown,
-  ArrowRight,
-  ArrowUpRight,
-  ClipboardCheck,
-  Clock3,
-  Plane,
-  ShieldCheck,
-  Users,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, CheckCircle2, ClipboardCheck, MapPin, Plane, ShieldCheck, Users } from "lucide-react";
 import { IMG } from "@/lib/site-media";
 
-const REVIEW_CHIPS = [
-  { label: "Aircraft Status", value: "Reviewing", icon: Plane },
-  { label: "Crew Availability", value: "Checking", icon: Users },
-  { label: "Owner / Operator Approval", value: "Required", icon: ShieldCheck },
-  { label: "Support Scope", value: "Defining", icon: ClipboardCheck },
-  { label: "Mission Timing", value: "Assessing", icon: Clock3 },
+const REVIEW_ITEMS = [
+  { label: "Aircraft status", icon: Plane },
+  { label: "Crew availability and qualifications", icon: Users },
+  { label: "Owner/operator approval", icon: ShieldCheck },
+  { label: "Route and airport constraints", icon: MapPin },
+  { label: "Scope and timing", icon: ClipboardCheck },
 ];
+
+const SERVICE_LABELS = ["Crew Coverage", "Aircraft Movement", "Maintenance Repositioning", "Recurring Support"];
 
 export type HomeHangarEntryProps = {
   eyebrow?: string;
@@ -36,158 +27,55 @@ export type HomeHangarEntryProps = {
 };
 
 export function HomeHangarEntry({
-  eyebrow = "AMG Aviation Group",
-  headline = "Aircraft Support Built Around Operational Clarity",
-  body = "AMG coordinates aircraft support with a structured review of scope, aircraft status, crew availability, owner/operator approval, and operational conditions before a request is presented as accepted.",
+  eyebrow = "PRIVATE AIRCRAFT SUPPORT COORDINATION",
+  headline = "Crew coverage, aircraft movement, and maintenance repositioning—coordinated in one place.",
+  body = "AMG helps private aircraft owners, owner representatives, and flight departments define the need, review feasibility, and coordinate the next step. Start with the aircraft, location, timing, and requested support.",
   imageSrc = IMG.generatedHeroPoster,
-  primaryCtaLabel = "Request Support",
+  primaryCtaLabel = "Start a Support Request",
   primaryCtaHref = "/request-support",
-  secondaryCtaLabel = "Explore Capabilities",
-  secondaryCtaHref = "/capabilities",
+  secondaryCtaLabel = "Speak With AMG",
+  secondaryCtaHref = "/contact",
 }: HomeHangarEntryProps) {
-  const ref = useRef<HTMLElement>(null);
-  const [hasMounted, setHasMounted] = useState(false);
-  const reduceMotion = useReducedMotion();
-  const isReduced = hasMounted && reduceMotion === true;
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const contentY = useTransform(scrollYProgress, [0, 1], [0, isReduced ? 0 : 46]);
-  const backgroundY = useTransform(scrollYProgress, [0, 1], [0, isReduced ? 0 : 34]);
-
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
   return (
-    <section
-      ref={ref}
-      id="top"
-      className="relative isolate flex min-h-[100svh] overflow-hidden bg-[var(--oc-navy)] text-[var(--oc-paper)]"
-    >
-      <motion.div
-        className="absolute inset-0 -z-20 will-change-transform"
-        initial={isReduced ? false : { scale: 1.04 }}
-        animate={isReduced ? { scale: 1 } : { scale: 1 }}
-        transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }}
-        style={{ y: backgroundY }}
-      >
-        <Image
-          src={imageSrc}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-          style={{ objectPosition: "center 52%" }}
-        />
-        {!isReduced ? (
-          <video
-            className="absolute inset-0 h-full w-full object-cover"
-            poster={IMG.generatedHeroPoster}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            aria-hidden="true"
-          >
-            <source src={IMG.generatedHeroVideo} type="video/mp4" />
-          </video>
-        ) : null}
-      </motion.div>
+    <section id="top" className="relative isolate flex min-h-[100svh] overflow-hidden bg-[var(--oc-navy)] text-[var(--oc-paper)]">
+      <div className="absolute inset-0 -z-20">
+        <Image src={imageSrc} alt="" fill priority sizes="100vw" className="object-cover" style={{ objectPosition: "center 52%" }} />
+      </div>
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_72%_52%,rgba(59,130,246,0.18),transparent_26rem),linear-gradient(90deg,rgba(5,11,20,0.96),rgba(5,11,20,0.83)_48%,rgba(5,11,20,0.66)),linear-gradient(180deg,rgba(5,11,20,0.34),rgba(5,11,20,0.96))]" />
+      <div className="pointer-events-none absolute inset-0 z-0 opacity-[0.13] [background-image:linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:92px_92px]" />
 
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_58%,rgba(59,130,246,0.24),transparent_28rem),linear-gradient(180deg,rgba(5,11,20,0.44),rgba(5,11,20,0.86)_66%,rgba(5,11,20,0.96))]" />
-      <div className="absolute inset-x-0 top-0 -z-10 h-36 bg-gradient-to-b from-[var(--oc-navy)]/82 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-[radial-gradient(ellipse_at_50%_100%,rgba(59,130,246,0.22),transparent_58%)]" />
-
-      <div className="pointer-events-none absolute inset-0 z-0 opacity-[0.18] [background-image:linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:92px_92px] [mask-image:linear-gradient(180deg,transparent,black_22%,black_72%,transparent)]" />
-
-      <motion.div
-        className="oc-shell relative z-10 flex w-full flex-col justify-end pb-16 pt-[calc(var(--public-header-height)+3rem)] lg:pb-24"
-        style={{ y: contentY }}
-        data-hangar-entry-content
-      >
-        <div className="grid items-end gap-10 lg:grid-cols-[minmax(0,1.06fr)_minmax(320px,0.72fr)]">
-          <motion.div
-            initial={isReduced ? false : { opacity: 0, y: 24, filter: "blur(8px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ delay: isReduced ? 0 : 1.0, duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <p className="oc-eyebrow oc-eyebrow-light inline-flex items-center gap-3">
-              <span className="h-px w-10 bg-[var(--oc-accent)]" />
-              {eyebrow}
-            </p>
-            <h1 className="oc-display mt-6 max-w-[18ch] text-[clamp(2.65rem,6.6vw,5.35rem)] leading-[0.96] text-[var(--oc-paper)]">
-              {headline}
-            </h1>
-            <p className="mt-6 max-w-2xl text-base leading-relaxed text-[var(--oc-aluminum)] sm:text-lg">
-              {body}
-            </p>
-
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link href={primaryCtaHref} prefetch={false} className="oc-btn oc-btn-light">
-                {primaryCtaLabel}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link href={secondaryCtaHref} prefetch={false} className="oc-btn oc-btn-ghost-dark">
-                {secondaryCtaLabel}
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
+      <div className="oc-shell relative z-10 flex w-full flex-col justify-center pb-8 pt-[calc(var(--public-header-height)+1rem)] sm:pb-10 lg:pb-12">
+        <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.58fr)]">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--oc-blue-soft)] sm:text-base">{eyebrow}</p>
+            <h1 className="oc-display mt-4 max-w-[17ch] text-[clamp(2.15rem,5.2vw,4.7rem)] leading-[1.02] text-[var(--oc-paper)]">{headline}</h1>
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-[var(--oc-aluminum)] sm:text-lg">{body}</p>
+            <div className="mt-5 flex flex-wrap gap-2" aria-label="AMG support categories">
+              {SERVICE_LABELS.map((label) => (
+                <span key={label} className="rounded-full border border-white/[0.16] bg-white/[0.08] px-3 py-1.5 text-xs font-semibold text-white sm:text-sm">{label}</span>
+              ))}
             </div>
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <Link href={primaryCtaHref} prefetch={false} data-analytics="hero_primary_cta" className="oc-btn oc-btn-light">{primaryCtaLabel}<ArrowRight className="h-4 w-4" /></Link>
+              <Link href={secondaryCtaHref} prefetch={false} data-analytics="hero_secondary_cta" className="oc-btn oc-btn-ghost-dark">{secondaryCtaLabel}<ArrowUpRight className="h-4 w-4" /></Link>
+            </div>
+            <p className="mt-5 max-w-2xl border-l border-[var(--oc-accent)]/70 pl-4 text-sm leading-relaxed text-[var(--oc-aluminum)]">Requests are reviewed before acceptance. Scope, aircraft status, crew availability, owner/operator approval, and operating constraints are confirmed first.</p>
+          </div>
 
-            <p className="mt-6 flex max-w-2xl items-start gap-3 border-l border-[var(--oc-accent)]/60 pl-4 text-xs leading-relaxed text-[var(--oc-aluminum-2)] sm:text-sm">
-              <span className="oc-dot oc-dot-live mt-1.5 h-1.5 w-1.5 shrink-0" aria-hidden="true" />
-              Support is reviewed before acceptance. Scope, aircraft status, crew availability,
-              owner/operator approval, and operating conditions are considered first.
-            </p>
-          </motion.div>
-
-          <motion.div
-            className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1"
-            initial={isReduced ? false : { opacity: 0, y: 22 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: isReduced ? 0 : 1.35, duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
-            aria-label="Operational review checkpoints"
-          >
-            {REVIEW_CHIPS.map((chip, index) => (
-              <motion.div
-                key={chip.label}
-                className="flex min-h-14 items-center justify-between gap-4 rounded-lg border border-white/[0.14] bg-[var(--oc-graphite)]/58 px-4 py-3 text-sm shadow-[0_20px_54px_rgba(0,0,0,0.24)] backdrop-blur-md"
-                initial={isReduced ? false : { opacity: 0, x: 18 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{
-                  delay: isReduced ? 0 : 1.55 + index * 0.08,
-                  duration: 0.42,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-              >
-                <span className="inline-flex items-center gap-3 text-[var(--oc-aluminum)]">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/[0.10] bg-white/[0.06] text-[var(--oc-blue-soft)]">
-                    <chip.icon className="h-4 w-4" strokeWidth={1.7} />
-                  </span>
-                  {chip.label}
-                </span>
-                <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase text-[var(--oc-paper)]">
-                  <span className="oc-dot oc-dot-live h-1.5 w-1.5" aria-hidden="true" />
-                  {chip.value}
-                </span>
-              </motion.div>
-            ))}
-          </motion.div>
+          <aside className="rounded-2xl border border-white/[0.14] bg-[#07111F]/76 p-5 shadow-[0_24px_70px_rgba(0,0,0,0.34)] backdrop-blur-md" aria-labelledby="request-review-heading">
+            <h2 id="request-review-heading" className="text-lg font-semibold text-white">Every request is reviewed for:</h2>
+            <ul className="mt-4 grid gap-3">
+              {REVIEW_ITEMS.map((item) => (
+                <li key={item.label} className="flex items-center gap-3 rounded-lg border border-white/[0.10] bg-white/[0.06] px-3 py-3 text-sm text-[var(--oc-aluminum)]">
+                  <item.icon className="h-4 w-4 shrink-0 text-[var(--oc-blue-soft)]" aria-hidden="true" />
+                  <span>{item.label}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4 flex gap-2 text-xs leading-relaxed text-[var(--oc-aluminum-2)]"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--oc-blue-soft)]" />This is a static review checklist, not live request-status data.</p>
+          </aside>
         </div>
-      </motion.div>
-
-      <motion.div
-        className="absolute bottom-7 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2 text-[0.62rem] font-semibold uppercase text-[var(--oc-aluminum)]"
-        initial={isReduced ? false : { opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: isReduced ? 0 : 1.75, duration: 0.5 }}
-        aria-hidden="true"
-      >
-        <ArrowDown className="h-4 w-4" strokeWidth={1.7} />
-        <span className="scroll-cue-track">
-          <span className="scroll-cue-line" />
-        </span>
-      </motion.div>
+      </div>
     </section>
   );
 }

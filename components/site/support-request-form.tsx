@@ -29,7 +29,7 @@ function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="min-h-11 rounded-full bg-[var(--oc-blue)] px-6 text-white hover:bg-[var(--oc-navy)]">
-      {pending ? "Sending..." : "Submit Support Request"}
+      {pending ? "Sending..." : "Submit for Review"}
       <Send className="h-4 w-4" />
     </Button>
   );
@@ -137,10 +137,10 @@ export function SupportRequestForm({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="oc-eyebrow text-[var(--oc-blue)]">Operational Intake</p>
-            <h2 className="oc-display mt-3 text-3xl text-[var(--oc-ink)] sm:text-4xl">Define the support request</h2>
+            <h2 className="oc-display mt-3 text-3xl text-[var(--oc-ink)] sm:text-4xl">Submit operating details for review</h2>
           </div>
           <Badge variant="outline" className="border-[var(--oc-line)] bg-white/70 text-[var(--oc-ink)]">
-            Source: Request Support
+            Source: Start a Support Request
           </Badge>
         </div>
 
@@ -168,6 +168,16 @@ export function SupportRequestForm({
             <SafeErrorMessage area="request_support" action="submit" className="mt-6 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm leading-relaxed text-red-900" />
           )
         ) : null}
+
+        <div className="mt-6 rounded-2xl border border-[var(--oc-line)] bg-white/75 p-5">
+          <h3 className="text-lg font-semibold text-[var(--oc-ink)]">What happens after you submit</h3>
+          <ol className="mt-3 grid gap-2 text-sm leading-relaxed text-[var(--oc-muted)] sm:grid-cols-2">
+            <li>1. AMG reviews the aircraft, timing, location, and requested support.</li>
+            <li>2. AMG may contact you for missing operating details.</li>
+            <li>3. You receive a defined next step, scope, quote, or plan-review request.</li>
+            <li>4. Support proceeds only after the applicable review and approval.</li>
+          </ol>
+        </div>
 
         <form action={submitSupportRequest} className="mt-7 grid gap-6 text-[var(--oc-ink)]">
           <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
@@ -215,7 +225,7 @@ export function SupportRequestForm({
 
           <section className="rounded-2xl border border-[var(--oc-line)] bg-[var(--oc-ivory)]/70 p-5">
             <p className="oc-eyebrow text-[0.68rem] text-[var(--oc-blue)]">Section 3</p>
-            <h2 className="mt-2 text-lg font-semibold text-[var(--oc-ink)]">Support Path</h2>
+            <h2 className="mt-2 text-lg font-semibold text-[var(--oc-ink)]">Support Category</h2>
             <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {supportPaths.map((path) => (
                 <button
@@ -237,7 +247,7 @@ export function SupportRequestForm({
           </section>
 
           <Section eyebrow="Section 4" title="Support Details">
-            <Field label="Requested Support Summary" required className="md:col-span-2">
+            <Field label="Requested support and operating context" required className="md:col-span-2">
               <Textarea name="requested_support_summary" required className="min-h-32 bg-white/80" />
             </Field>
             <p className="rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)] md:col-span-2">
@@ -309,6 +319,7 @@ export function SupportRequestForm({
                 administration. Message and data rates may apply. See the <Link href="/legal/sms-terms" className="font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">SMS Terms</Link>.
               </span>
             </label>
+            <p className="mt-5 rounded-xl border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-4 text-sm leading-relaxed text-[var(--oc-muted)]">Submitting starts AMG’s review. Support is not accepted until AMG confirms scope and availability.</p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <SubmitButton />
               <Button asChild variant="outline" className="min-h-11 rounded-full">
