@@ -1,0 +1,93 @@
+{
+  "project": "AMG Aviation Group cockpit-to-sky homepage hero",
+  "status": "implementation-ready; Higgsfield generation blocked in this environment",
+  "higgsfield": {
+    "mandatory": true,
+    "cliInstallAttemptedAtUtc": "2026-06-21T03:34:50Z",
+    "officialInstallCommand": "npm install -g @higgsfield/cli",
+    "result": "failed",
+    "failure": "@higgsfield/cli postinstall attempted to download https://github.com/higgsfield-ai/cli/releases/download/v0.2.3/hf_0.2.3_linux_amd64.tar.gz and failed with ENETUNREACH",
+    "credentialHandling": "No credentials were present or committed. Authentication must use `higgsfield auth login` outside the repository.",
+    "testGeneration": "not run; CLI binary unavailable after network failure"
+  },
+  "creativeDirection": "Centered, empty, large-cabin private-business-jet cockpit moving forward into a calm high-altitude AMG-blue cloud deck. Official repository logo is an HTML overlay only and is not baked into generated imagery.",
+  "prompts": [
+    {
+      "id": "desktop-cockpit-16x9",
+      "tool": "Higgsfield",
+      "model": "pending account/model selection",
+      "seed": null,
+      "dimensions": "3840x2160 master, 1920x1080 web export",
+      "prompt": "Ultra-realistic modern large-cabin private-business-jet cockpit interior, camera perfectly centered behind both pilot seats, empty cockpit, realistic instrument panel, center pedestal, throttle quadrant, overhead panel, seats, forward windscreens, glass reflections, and accurate scale. Dark graphite and AMG midnight-navy interior, cool white and restrained blue illumination, calm professional aviation tone, photorealistic, high detail, no people, no manufacturer branding, no registration, no airline branding, no logo, no text, no watermark, not presented as a specific AMG-operated aircraft.",
+      "negativePrompt": "No Jesko Jets assets or styling, no stock photography, no generated AMG logo, no manufacturer branding, no registration, no airline branding, no people, no pilots, no hands, no malformed controls, no duplicated controls, no floating controls, no impossible geometry, no emergency warning state, no fantasy lighting, no gold luxury styling, no text artifacts, no watermark."
+    },
+    {
+      "id": "mobile-cockpit-9x16",
+      "tool": "Higgsfield",
+      "model": "pending account/model selection",
+      "seed": null,
+      "dimensions": "2160x3840 master, 900x1600 web export",
+      "prompt": "Native vertical 9:16 ultra-realistic modern large-cabin private-business-jet cockpit, centered behind both empty pilot seats, recognizable cockpit with instrument panel, center pedestal, throttle quadrant, overhead, seats, windscreen reflections, and realistic scale. Dark graphite and midnight navy, cool white and restrained AMG blue illumination, enough upper windscreen/sky space for an external centered white AMG logo overlay, no people, no text, no branding.",
+      "negativePrompt": "No center-cropped desktop composition, no stretched image, no generated logo, no people, no pilot hands, no manufacturer marks, no registration, no airline branding, no malformed or duplicate controls, no floating yokes, no impossible geometry, no text, no watermark."
+    },
+    {
+      "id": "desktop-sky-16x9",
+      "tool": "Higgsfield",
+      "model": "pending account/model selection",
+      "seed": null,
+      "dimensions": "3840x2160 master, 1920x1080 web export",
+      "prompt": "Photorealistic high-altitude cloud deck with a level horizon, calm silver-white clouds, cool AMG-compatible blue atmosphere, clean daylight, premium calm aviation mood, no aircraft parts, no land, no wing, no contrails, no text, no logo, no watermark, no fantasy colors.",
+      "negativePrompt": "No land, no wing, no aircraft, no contrails, no sunset gold, no fantasy colors, no storm, no text, no logo, no watermark."
+    },
+    {
+      "id": "mobile-sky-9x16",
+      "tool": "Higgsfield",
+      "model": "pending account/model selection",
+      "seed": null,
+      "dimensions": "2160x3840 master, 900x1600 web export",
+      "prompt": "Native vertical 9:16 photorealistic high-altitude cloud deck, level horizon, calm silver-white clouds, cool AMG-compatible blue atmosphere, no land, no wing, no aircraft, no contrails, no text, no logo, no watermark.",
+      "negativePrompt": "No center-cropped desktop composition, no land, no wing, no aircraft, no contrails, no fantasy colors, no text, no logo, no watermark."
+    },
+    {
+      "id": "optional-motion-plate",
+      "tool": "Higgsfield",
+      "model": "pending account/model selection",
+      "seed": null,
+      "dimensions": "1920x1080 and 900x1600 web exports, 24fps, 3-5 seconds",
+      "prompt": "Subtle cockpit glass reflection and cloud-light motion plate for a scroll-driven website hero, restrained movement only, no camera shake, no text, no logos, no people, compatible with dark graphite cockpit and cool blue sky.",
+      "negativePrompt": "No hard cuts, no abrupt masks, no readable text, no watermarks, no people, no aircraft branding, no generated logo."
+    }
+  ],
+  "implementationPlaceholderAssets": [
+    {
+      "path": "/images/amg-generated/home-cockpit/cockpit-to-sky-desktop.svg",
+      "dimensions": "1920x1080",
+      "bytes": 3735,
+      "note": "Original procedural placeholder committed only to avoid broken imagery while Higgsfield is blocked; replace with approved Higgsfield WebP/AVIF."
+    },
+    {
+      "path": "/images/amg-generated/home-cockpit/cockpit-to-sky-mobile.svg",
+      "dimensions": "900x1600",
+      "bytes": 2003,
+      "note": "Original procedural placeholder committed only to avoid broken imagery while Higgsfield is blocked; replace with approved Higgsfield WebP/AVIF."
+    },
+    {
+      "path": "/images/amg-generated/home-cockpit/sky-above-clouds-desktop.svg",
+      "dimensions": "1920x1080",
+      "bytes": 1119,
+      "note": "Original procedural placeholder committed only to avoid broken imagery while Higgsfield is blocked; replace with approved Higgsfield WebP/AVIF."
+    },
+    {
+      "path": "/images/amg-generated/home-cockpit/sky-above-clouds-mobile.svg",
+      "dimensions": "900x1600",
+      "bytes": 821,
+      "note": "Original procedural placeholder committed only to avoid broken imagery while Higgsfield is blocked; replace with approved Higgsfield WebP/AVIF."
+    }
+  ],
+  "optimizationNotes": [
+    "Final Higgsfield raster exports should be optimized to AVIF/WebP with responsive desktop and mobile variants.",
+    "Do not preload desktop and mobile assets together; use media queries/picture sources.",
+    "Keep official AMG logo as `/images/logo-white.png` HTML overlay only.",
+    "Animate only transform and opacity."
+  ]
+}
