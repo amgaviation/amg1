@@ -1,15 +1,12 @@
 .section {
-  --intro-progress: 0;
-  --cockpit-scale: 1;
-  --cockpit-y: 0svh;
-  --cockpit-opacity: 1;
-  --sky-scale: 1.05;
-  --sky-y: 0svh;
+  --scene-scale: 1;
+  --scene-x: 0vw;
+  --scene-y: 0svh;
+  --scene-origin-y: 34%;
   --logo-scale: 0.9;
-  --logo-opacity: 0.84;
+  --logo-opacity: 1;
   --initial-copy-opacity: 1;
-  --support-copy-opacity: 0.74;
-  --support-copy-y: 0.9rem;
+  --cue-opacity: 1;
   position: relative;
   height: 286svh;
   min-height: 150rem;
@@ -41,35 +38,30 @@
   object-position: center;
 }
 
-.skyVideo {
+.scene {
   position: absolute;
   inset: 0;
-  display: block;
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-  object-position: center;
-  opacity: 0.7;
+  z-index: 1;
+  overflow: hidden;
+  transform: translate3d(var(--scene-x), var(--scene-y), 0) scale(var(--scene-scale));
+  transform-origin: 50% var(--scene-origin-y);
+  will-change: transform;
 }
 
-.skyLayer,
-.cockpitLayer {
+.skyPlate,
+.cockpitShell {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  transform-origin: center center;
-  will-change: transform, opacity;
 }
 
-.skyLayer {
+.skyPlate {
   z-index: 0;
-  transform: translate3d(0, var(--sky-y), 0) scale(var(--sky-scale));
+  background: #06142a;
 }
 
-.cockpitLayer {
-  z-index: 2;
-  opacity: var(--cockpit-opacity);
-  transform: translate3d(0, var(--cockpit-y), 0) scale(var(--cockpit-scale));
+.cockpitShell {
+  z-index: 1;
 }
 
 .shade {
@@ -154,9 +146,6 @@
   bottom: 5.5rem;
   z-index: 8;
   max-width: 31rem;
-  opacity: var(--support-copy-opacity);
-  transform: translate3d(0, var(--support-copy-y), 0);
-  will-change: transform, opacity;
 }
 
 .kicker {
@@ -246,6 +235,7 @@
   line-height: 1;
   text-decoration: none;
   text-transform: uppercase;
+  opacity: var(--cue-opacity);
 }
 
 .scrollIcon {
@@ -352,7 +342,7 @@
     min-height: 42rem;
   }
 
-  .cockpitLayer .media {
+  .cockpitShell .media {
     object-position: center top;
   }
 
@@ -365,6 +355,10 @@
   .centerLogo {
     top: 38%;
     width: 9.8rem;
+  }
+
+  .scene {
+    transform-origin: 50% 39%;
   }
 
   .heading {
@@ -380,7 +374,7 @@
   .headingBottom {
     right: 1rem;
     bottom: 41%;
-    max-width: 9ch;
+    max-width: 12ch;
   }
 
   .supportCopy {
@@ -407,7 +401,7 @@
   }
 
   .scrollCue {
-    left: 1rem;
+    left: 4.25rem;
     right: auto;
     bottom: 2rem;
   }
@@ -432,7 +426,7 @@
   }
 
   .headingBottom {
-    bottom: 42%;
+    bottom: 44%;
   }
 
   .supportCopy {
@@ -457,30 +451,15 @@
     min-height: 100svh;
   }
 
-  .cockpitLayer,
-  .skyLayer,
-  .centerLogo,
-  .supportCopy {
+  .scene {
     transform: none;
-  }
-
-  .cockpitLayer {
-    opacity: 0.46;
   }
 
   .heading {
     opacity: 0.96;
   }
 
-  .supportCopy {
-    opacity: 1;
-  }
-
   .scrollIcon {
     animation: none;
-  }
-
-  .skyVideo {
-    display: none;
   }
 }

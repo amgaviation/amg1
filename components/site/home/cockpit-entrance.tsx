@@ -25,22 +25,17 @@ function smoothstep(edge0: number, edge1: number, value: number) {
 
 function setFrameProgress(frame: HTMLElement, progress: number) {
   const eased = easeOutCubic(progress);
-  const cockpitFade = 1 - smoothstep(0.56, 0.88, progress);
-  const initialCopy = 1 - smoothstep(0.14, 0.58, progress);
-  const supportCopy = 0.74 + smoothstep(0.38, 0.72, progress) * 0.26;
-  const logoFocus = 0.84 + smoothstep(0.28, 0.78, progress) * 0.16;
+  const initialCopy = 1 - smoothstep(0.22, 0.62, progress);
+  const exitOpacity = 1 - smoothstep(0.94, 1, progress);
+  const cueOpacity = 1 - smoothstep(0.64, 0.86, progress);
 
-  frame.style.setProperty("--intro-progress", progress.toFixed(4));
-  frame.style.setProperty("--cockpit-scale", (1 + eased * 1.92).toFixed(4));
-  frame.style.setProperty("--cockpit-y", `${(-7.5 * progress).toFixed(3)}svh`);
-  frame.style.setProperty("--cockpit-opacity", cockpitFade.toFixed(4));
-  frame.style.setProperty("--sky-scale", (1.05 - eased * 0.035).toFixed(4));
-  frame.style.setProperty("--sky-y", `${(-2.5 * progress).toFixed(3)}svh`);
-  frame.style.setProperty("--logo-scale", (0.9 + eased * 0.12).toFixed(4));
-  frame.style.setProperty("--logo-opacity", logoFocus.toFixed(4));
+  frame.style.setProperty("--scene-scale", (1 + eased * 3.18).toFixed(4));
+  frame.style.setProperty("--scene-x", "0vw");
+  frame.style.setProperty("--scene-y", `${(-6.25 * progress).toFixed(3)}svh`);
+  frame.style.setProperty("--logo-scale", (0.88 + eased * 0.13).toFixed(4));
+  frame.style.setProperty("--logo-opacity", exitOpacity.toFixed(4));
   frame.style.setProperty("--initial-copy-opacity", initialCopy.toFixed(4));
-  frame.style.setProperty("--support-copy-opacity", supportCopy.toFixed(4));
-  frame.style.setProperty("--support-copy-y", `${((1 - supportCopy) * 3.5).toFixed(3)}rem`);
+  frame.style.setProperty("--cue-opacity", cueOpacity.toFixed(4));
 }
 
 function sendIntroEvent(eventName: string) {
@@ -59,7 +54,7 @@ export function CockpitEntrance() {
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reducedMotion) {
-      setFrameProgress(frame, 1);
+      setFrameProgress(frame, 0);
       return;
     }
 
@@ -99,44 +94,40 @@ export function CockpitEntrance() {
   return (
     <section id="top" ref={sectionRef} className={styles.section} aria-label="AMG Aviation Group homepage entrance">
       <div ref={frameRef} className={styles.frame}>
-        <div className={styles.skyLayer} aria-hidden="true">
-          <picture className={styles.picture}>
-            <source media="(max-width: 767px)" srcSet={IMG.homeIntroSkyMobileAvif} type="image/avif" />
-            <source media="(max-width: 767px)" srcSet={IMG.homeIntroSkyMobileWebp} type="image/webp" />
-            <source srcSet={IMG.homeIntroSkyDesktopAvif} type="image/avif" />
-            <source srcSet={IMG.homeIntroSkyDesktopWebp} type="image/webp" />
-            <img
-              src={IMG.homeIntroSkyDesktopWebp}
-              alt=""
-              width={DESKTOP_IMAGE_SIZE.width}
-              height={DESKTOP_IMAGE_SIZE.height}
-              className={styles.media}
-              decoding="async"
-              fetchPriority="high"
-            />
-          </picture>
-          <video className={styles.skyVideo} autoPlay muted loop playsInline preload="metadata" poster={IMG.homeIntroSkyDesktopWebp}>
-            <source media="(max-width: 767px)" src={IMG.homeIntroSkyMobileVideo} type="video/mp4" />
-            <source src={IMG.homeIntroSkyDesktopVideo} type="video/mp4" />
-          </video>
-        </div>
+        <div className={styles.scene} aria-hidden="true">
+          <div className={styles.skyPlate}>
+            <picture className={styles.picture}>
+              <source media="(max-width: 767px)" srcSet={IMG.homeIntroSkyMobileAvif} type="image/avif" />
+              <source media="(max-width: 767px)" srcSet={IMG.homeIntroSkyMobileWebp} type="image/webp" />
+              <source srcSet={IMG.homeIntroSkyDesktopAvif} type="image/avif" />
+              <source srcSet={IMG.homeIntroSkyDesktopWebp} type="image/webp" />
+              <img
+                src={IMG.homeIntroSkyDesktopWebp}
+                alt=""
+                width={DESKTOP_IMAGE_SIZE.width}
+                height={DESKTOP_IMAGE_SIZE.height}
+                className={styles.media}
+                decoding="async"
+                fetchPriority="high"
+              />
+            </picture>
+          </div>
 
-        <div className={styles.cockpitLayer} aria-hidden="true">
-          <picture className={styles.picture}>
-            <source media="(max-width: 767px)" srcSet={IMG.homeIntroCockpitMobileAvif} type="image/avif" />
-            <source media="(max-width: 767px)" srcSet={IMG.homeIntroCockpitMobileWebp} type="image/webp" />
-            <source srcSet={IMG.homeIntroCockpitDesktopAvif} type="image/avif" />
-            <source srcSet={IMG.homeIntroCockpitDesktopWebp} type="image/webp" />
-            <img
-              src={IMG.homeIntroCockpitDesktopWebp}
-              alt=""
-              width={DESKTOP_IMAGE_SIZE.width}
-              height={DESKTOP_IMAGE_SIZE.height}
-              className={styles.media}
-              decoding="async"
-              fetchPriority="high"
-            />
-          </picture>
+          <div className={styles.cockpitShell}>
+            <picture className={styles.picture}>
+              <source media="(max-width: 767px)" srcSet={IMG.homeIntroCockpitShellMobileWebp} type="image/webp" />
+              <source srcSet={IMG.homeIntroCockpitShellDesktopWebp} type="image/webp" />
+              <img
+                src={IMG.homeIntroCockpitShellDesktopWebp}
+                alt=""
+                width={DESKTOP_IMAGE_SIZE.width}
+                height={DESKTOP_IMAGE_SIZE.height}
+                className={styles.media}
+                decoding="async"
+                fetchPriority="high"
+              />
+            </picture>
+          </div>
         </div>
 
         <div className={styles.shade} aria-hidden="true" />

@@ -2,59 +2,67 @@
 
 Date: 2026-06-21
 
-## Baseline Findings
+## Scope
 
-- Repository confirmed as `amgaviation/amg1`.
-- `npm install` was already up to date before implementation; npm reported two pre-existing moderate audit findings.
-- Baseline `npm run lint` failed because `app/(public)/page.tsx` rendered `WhoWeServe` without importing it.
-- Baseline `npm run build` compiled but failed during prerender for the same `WhoWeServe is not defined` homepage error.
+Replaced the previous cockpit intro with a scroll-driven windshield push. The runtime scene now uses one shared transform plane:
 
-## Implementation Checks
+- Sky plate behind the windshield.
+- Transparent cockpit shell above the sky.
+- One `.scene` transform for both visual layers.
+- Stable AMG logo, CTA, support copy, skip control, and reduced-motion static fallback.
 
-- Removed the old blocking `EntranceAnimation` from the public homepage render path.
-- Added `CockpitEntrance` as a native sticky-scroll section with no body scroll lock, no wheel interception, no session storage gate, and a real skip control.
-- Preserved existing downstream homepage sections and fixed the missing `WhoWeServe` import.
-- Used the repository official logo asset at `/images/logo-white.png`; no generated logo was used.
-- Added reduced-motion handling that disables the video layer and presents a static composition.
-- Added `data-analytics` hooks for:
-  - `home_intro_primary_cta_clicked`
-  - `home_intro_scroll_cue_clicked`
+This avoids separate cockpit and sky transforms, opacity crossfades, and background video drift.
+
+## Asset Notes
+
+- Added `public/images/home-intro/amg-cockpit-shell-desktop.webp`.
+- Added `public/images/home-intro/amg-cockpit-shell-mobile.webp`.
+- Removed the unused sky motion MP4 files from `public/videos/home-intro`.
+- Fresh Higgsfield generation was attempted on 2026-06-21, but the Higgsfield API endpoints were unreachable. Existing Higgsfield stills were reused, and transparent cockpit shell files were derived locally from those selected stills.
 
 ## Command Results
 
-- `npm run lint`: passed after implementation.
-- `npm run build`: passed after implementation. Static prerender completed for `/` and the rest of the app route tree.
+- `npm install`: passed; npm reported two pre-existing moderate audit findings.
+- `npm run lint`: passed.
+- `npm run build`: passed. Next.js prerender completed for the app route tree.
 
 ## Browser Verification
 
-- Tooling: Playwright from the installed `playwright-skill` runtime.
-- URL: `http://localhost:3000`
-- Viewports:
-  - `desktop-1440x900`
-  - `desktop-1920x1080`
-  - `mobile-390x844`
-  - `mobile-360x740`
-  - `reduced-mobile-390x844`
-- Results:
-  - No console errors.
-  - One logical H1 found: `Private aircraft support, coordinated.`
-  - Primary CTA found with `/request-support` href.
-  - Scroll cue found.
-  - Scroll progress advanced through cockpit-to-sky states.
-  - Skip control landed near `#home-after-intro` and focused it.
-  - Reduced-motion viewport hid the video layer.
-  - Mobile header CTA remained hidden after the nav utility fix.
+Tooling: Playwright from the installed `playwright-skill` runtime.
+
+URL: `http://localhost:3000`
+
+Viewports:
+
+- `desktop-1440x900`
+- `tablet-1024x768`
+- `mobile-390x844`
+- `mobile-360x740`
+- `reduced-mobile-390x844`
+
+Results:
+
+- No console or page errors.
+- One logical H1 found: `Private aircraft support, coordinated.`
+- CTA found with `/request-support` href and verified clickable at top, mid, near-exit, and exit scroll states.
+- `#top video` count stayed `0`.
+- Mid-scroll `.scene` transformed while `.skyPlate` and `.cockpitShell` had no independent transforms.
+- The centered AMG logo stayed horizontally centered during top, mid, and near-exit states.
+- The centered AMG logo opacity reached `0` at the transition exit.
+- Skip button focused `#home-after-intro` and landed at the global fixed-header scroll offset.
+- Reduced-motion viewport used a one-viewport static scene, no videos, static scene transform, centered logo, and clickable CTA.
+- Mobile 390px and 360px screenshots verified no clipped headline text and no scroll-cue overlap with the fixed lower-left control.
 
 ## Screenshot Artifacts
 
-Saved in `/tmp/amg-cockpit-qa`:
+Saved in `/tmp/amg-seamless-cockpit-qa`:
 
 - `desktop-1440x900-top.png`
 - `desktop-1440x900-mid.png`
 - `desktop-1440x900-end.png`
-- `desktop-1920x1080-top.png`
-- `desktop-1920x1080-mid.png`
-- `desktop-1920x1080-end.png`
+- `tablet-1024x768-top.png`
+- `tablet-1024x768-mid.png`
+- `tablet-1024x768-end.png`
 - `mobile-390x844-top.png`
 - `mobile-390x844-mid.png`
 - `mobile-390x844-end.png`
