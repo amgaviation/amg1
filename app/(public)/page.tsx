@@ -1,14 +1,13 @@
-import { HomeHangarEntry } from "@/components/site/home/home-hangar-entry";
-import { EntranceAnimation } from "@/components/public/EntranceAnimation";
+import { CockpitEntrance } from "@/components/site/home/cockpit-entrance";
 import { OperationalTrustStrip } from "@/components/site/home/operational-trust-strip";
 import { SitePreviewLayer } from "@/components/site/home/site-preview-layer";
 import { SupportModels } from "@/components/site/home/support-models";
 import { HomeCrewGlobe } from "@/components/sections/home-crew-globe";
 import { ConnectPreview } from "@/components/site/home/connect-preview";
 import { WhyAmg } from "@/components/site/home/why-amg";
+import { WhoWeServe } from "@/components/site/home/who-we-serve";
 import { CtaBand } from "@/components/site/oc/shared";
-import { heroForWebsiteContent, metadataForWebsiteContent } from "@/lib/website-editor/content";
-import { IMG } from "@/lib/site-media";
+import { metadataForWebsiteContent } from "@/lib/website-editor/content";
 
 export const metadata = metadataForWebsiteContent("home", {
   title: "Private Aircraft Support Coordination | AMG Aviation Group",
@@ -17,15 +16,6 @@ export const metadata = metadataForWebsiteContent("home", {
 });
 
 export default function HomePage() {
-  const hero = heroForWebsiteContent("home", {
-    eyebrow: "PRIVATE AIRCRAFT SUPPORT COORDINATION",
-    title: "Crew coverage, aircraft movement, and maintenance repositioning—coordinated in one place.",
-    lead: "AMG helps private aircraft owners, owner representatives, and flight departments define the need, review feasibility, and coordinate the next step. Start with the aircraft, location, timing, and requested support.",
-    image: IMG.generatedHeroPoster,
-    primary: { label: "Start a Support Request", href: "/request-support" },
-    secondary: { label: "Speak With AMG", href: "/contact" },
-  });
-
   const serviceSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -48,18 +38,10 @@ export default function HomePage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }} />
-      <EntranceAnimation />
-      <HomeHangarEntry
-        eyebrow={hero.eyebrow}
-        headline={hero.title}
-        body={hero.lead}
-        imageSrc={hero.image}
-        primaryCtaLabel={hero.primary?.label}
-        primaryCtaHref={hero.primary?.href}
-        secondaryCtaLabel={hero.secondary?.label}
-        secondaryCtaHref={hero.secondary?.href}
-      />
-      <SitePreviewLayer />
+      <CockpitEntrance />
+      <div id="home-after-intro" tabIndex={-1}>
+        <SitePreviewLayer />
+      </div>
       <OperationalTrustStrip />
       <WhoWeServe />
       <WhyAmg />
