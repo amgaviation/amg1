@@ -19,13 +19,13 @@ export const PUBLIC_NAV_GROUPS: PublicNavGroup[] = [
     label: "Company",
     href: "/about",
     items: [
-      { label: "About AMG", href: "/about", description: "Operating focus, values, and AMG support structure." },
-      { label: "Contact", href: "/contact", description: "Route a general inquiry to the right AMG channel." },
+      { label: "About AMG", href: "/about", description: "Company overview, values, and AMG support structure." },
+      { label: "Contact", href: "/contact", description: "Send a general inquiry to AMG." },
       { label: "AMG Connect", href: "/amg-connect", description: "Portal overview for clients, crews, partners, and AMG Operations." },
     ],
   },
   {
-    label: "Capabilities",
+    label: "Services",
     href: "/capabilities",
     items: [
       { label: "What AMG Supports", href: "/capabilities#what-amg-supports", description: "Aircraft movement, crew coordination, maintenance support, and support operations." },
@@ -35,21 +35,21 @@ export const PUBLIC_NAV_GROUPS: PublicNavGroup[] = [
     ],
   },
   {
-    label: "Plans",
+    label: "Support Options",
     href: "/plans",
     items: [
       { label: "Support Plans", href: "/plans", description: "Compare plan structure by aircraft category and recurring support needs." },
       { label: "Plan Comparison", href: "/plans#plans-comparison", description: "Review included support areas and operational notes." },
-      { label: "Request Plan Review", href: "/request-support?category=subscription-program-inquiry", description: "Start a scoped support-plan review." },
+      { label: "Request Support Option Review", href: "/request-support?category=subscription-program-inquiry", description: "Start a scoped support-plan review." },
     ],
   },
   {
-    label: "Portal",
+    label: "AMG Connect",
     href: "/amg-connect",
     items: [
       { label: "Member Login", href: "/login", description: "Access AMG Connect." },
-      { label: "Request Access", href: "/login?mode=request", description: "Request a portal account for an approved role." },
-      { label: "Request Support", href: "/request-support", description: "Submit an aircraft support request." },
+      { label: "Request Portal Access", href: "/login?mode=request", description: "Request a portal account for an approved role." },
+      { label: "Start a Support Request", href: "/request-support", description: "Submit an aircraft support request." },
     ],
   },
 ];

@@ -5,24 +5,25 @@ import { SitePreviewLayer } from "@/components/site/home/site-preview-layer";
 import { SupportModels } from "@/components/site/home/support-models";
 import { HomeCrewGlobe } from "@/components/sections/home-crew-globe";
 import { ConnectPreview } from "@/components/site/home/connect-preview";
+import { WhyAmg } from "@/components/site/home/why-amg";
 import { CtaBand } from "@/components/site/oc/shared";
 import { heroForWebsiteContent, metadataForWebsiteContent } from "@/lib/website-editor/content";
 import { IMG } from "@/lib/site-media";
 
 export const metadata = metadataForWebsiteContent("home", {
-  title: "AMG Aviation Group | Aircraft Support & Operational Coordination",
+  title: "Private Aircraft Support Coordination | AMG Aviation Group",
   description:
-    "AMG Aviation Group supports aircraft owners, flight departments, crews, maintenance events, and mission-specific operational needs through structured request review, practical coordination, and clear stakeholder communication.",
+    "Crew coverage, aircraft movement, maintenance repositioning, and recurring support for private aircraft owners and flight departments.",
 });
 
 export default function HomePage() {
   const hero = heroForWebsiteContent("home", {
-    eyebrow: "AMG Aviation Group",
-    title: "Aircraft Support Built Around Operational Clarity",
-    lead: "AMG helps owners, flight departments, crews, and approved representatives route aircraft support requests through structured review, practical coordination, and clear communication.",
+    eyebrow: "PRIVATE AIRCRAFT SUPPORT COORDINATION",
+    title: "Crew coverage, aircraft movement, and maintenance repositioning—coordinated in one place.",
+    lead: "AMG helps private aircraft owners, owner representatives, and flight departments define the need, review feasibility, and coordinate the next step. Start with the aircraft, location, timing, and requested support.",
     image: IMG.generatedHeroPoster,
-    primary: { label: "Request Support", href: "/request-support" },
-    secondary: { label: "Explore Capabilities", href: "/capabilities" },
+    primary: { label: "Start a Support Request", href: "/request-support" },
+    secondary: { label: "Speak With AMG", href: "/contact" },
   });
 
   return (
@@ -41,16 +42,17 @@ export default function HomePage() {
       <OperationalTrustStrip />
       <SitePreviewLayer />
       <SupportModels />
+      <WhyAmg />
       <HomeCrewGlobe />
       <ConnectPreview />
       <CtaBand
-        eyebrow="Support Request"
-        title="Ready to route a support need?"
-        body="Start with the aircraft, timing, requested support path, and known constraints. AMG will review the context before presenting a next step."
-        primaryLabel="Request Support"
+        eyebrow="Start a Request"
+        title="Have an aircraft support need?"
+        body="Send the aircraft, location, timing, requested support, and known constraints. AMG will review feasibility and tell you the next step. Submitting a request does not mean it has been accepted."
+        primaryLabel="Start a Support Request"
         primaryHref="/request-support"
-        secondaryLabel="View Capabilities"
-        secondaryHref="/capabilities"
+        secondaryLabel="Contact AMG"
+        secondaryHref="/contact"
       />
     </>
   );
