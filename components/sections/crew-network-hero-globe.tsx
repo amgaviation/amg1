@@ -1,20 +1,9 @@
-"use client";
-
-import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useReducedMotion } from "framer-motion";
 import { GlobeFallback } from "@/components/sections/globe-fallback";
-import { crewGlobeMarkers, publicCrewCoverageMetrics } from "@/components/sections/crew-globe-data";
+import { publicCrewCoverageMetrics } from "@/components/sections/crew-globe-data";
 import { IMG } from "@/lib/site-media";
 
-const CrewHeroGlobeDemo = dynamic(() => import("@/components/3d-globe-demo-2"), {
-  ssr: false,
-  loading: () => <GlobeFallback label="Loading crew coverage view" />,
-});
-
 export function CrewNetworkHeroGlobe() {
-  const reduce = useReducedMotion();
-
   return (
     <section className="oc-section relative isolate overflow-hidden bg-[var(--oc-graphite)] text-[var(--oc-paper)]">
       <Image
@@ -44,8 +33,14 @@ export function CrewNetworkHeroGlobe() {
             ))}
           </dl>
         </div>
-        <div data-scroll-animate className="rounded-[1.25rem] border border-white/[0.10] bg-slate-950/20 p-2 shadow-[0_30px_90px_rgba(0,0,0,0.26)] backdrop-blur-sm">
-          {reduce ? <GlobeFallback label="Crew coverage regions" /> : <CrewHeroGlobeDemo markers={crewGlobeMarkers} />}
+        <div data-scroll-animate className="rounded-lg border border-white/[0.10] bg-slate-950/20 p-3 shadow-[0_30px_90px_rgba(0,0,0,0.26)] backdrop-blur-sm">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-md">
+            <Image src={IMG.generatedCrewMap} alt="" fill sizes="(max-width: 1024px) 100vw, 48vw" className="object-cover opacity-85" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_62%_42%,rgba(59,130,246,0.16),transparent_16rem),linear-gradient(180deg,rgba(5,11,20,0.08),rgba(5,11,20,0.64))]" />
+          </div>
+          <div className="mt-3">
+            <GlobeFallback label="Crew coverage regions" />
+          </div>
         </div>
       </div>
     </section>

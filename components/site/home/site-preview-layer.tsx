@@ -1,7 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { getServiceImage } from "@/lib/site-media";
 
 const SERVICES = [
   { n: "01", title: "Crew Coverage", body: "AMG reviews location, aircraft experience, credentials, availability, and assignment fit before presenting a crew option.", href: "/crew-network", cta: "Explore Crew Coverage" },
@@ -12,21 +10,33 @@ const SERVICES = [
 
 export function SitePreviewLayer() {
   return (
-    <section className="bg-[var(--oc-ivory)] py-14 lg:py-20">
+    <section id="services" className="public-editorial-section public-services-section" aria-labelledby="services-heading">
       <div className="oc-shell">
-        <div className="mx-auto max-w-2xl text-center" data-scroll-animate>
-          <p className="oc-eyebrow text-[var(--oc-blue)]">What AMG coordinates</p>
-          <h2 className="oc-display mt-4 text-3xl text-[var(--oc-ink)] sm:text-5xl">Support built around the aircraft and the operating need.</h2>
-        </div>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
-          {SERVICES.map((item) => (
-            <Link key={item.n} href={item.href} prefetch={false} data-stagger-item className="group flex h-full flex-col rounded-[1.25rem] border border-[var(--oc-line)] bg-white/75 p-6 transition hover:border-[var(--oc-navy)] hover:shadow-[0_16px_48px_rgba(11,26,43,0.10)]">
-              <span className="oc-mono text-[0.65rem] text-[var(--oc-muted)]">{item.n}</span>
-              <h3 className="oc-display mt-4 text-2xl text-[var(--oc-ink)]">{item.title}</h3>
-              <p className="mt-3 flex-1 text-sm leading-relaxed text-[var(--oc-muted)]">{item.body}</p>
-              <span className="oc-kicker mt-6 inline-flex items-center gap-1.5 text-[0.67rem] text-[var(--oc-blue)]">{item.cta}<ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span>
-            </Link>
-          ))}
+        <div className="grid gap-10 lg:grid-cols-[0.68fr_1.32fr] lg:items-start">
+          <div className="lg:sticky lg:top-[calc(var(--public-header-height)+3rem)]" data-scroll-animate>
+            <p className="oc-eyebrow oc-eyebrow-light">What AMG coordinates</p>
+            <h2 id="services-heading" className="oc-display mt-4 text-4xl text-[var(--oc-paper)] sm:text-5xl lg:text-[4.8rem]">
+              Support built around the aircraft and the operating need.
+            </h2>
+            <p className="mt-6 max-w-md text-base leading-relaxed text-[var(--oc-aluminum)]">
+              Four public service paths, one review-led operating posture. Each path keeps authority, availability, and acceptance conditions explicit.
+            </p>
+          </div>
+          <div className="public-service-list" data-stagger-container>
+            {SERVICES.map((item) => (
+              <Link key={item.n} href={item.href} prefetch={false} data-stagger-item className="public-service-row group">
+                <span className="public-service-row__number">{item.n}</span>
+                <span className="public-service-row__main">
+                  <span className="public-service-row__title">{item.title}</span>
+                  <span className="public-service-row__body">{item.body}</span>
+                </span>
+                <span className="public-service-row__cta">
+                  {item.cta}
+                  <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </section>

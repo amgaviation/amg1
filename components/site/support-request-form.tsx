@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { SafeErrorMessage } from "@/components/ui/safe-error-message";
@@ -47,13 +46,13 @@ function Field({
   className?: string;
 }) {
   return (
-    <div className={`grid gap-2 ${className ?? ""}`}>
-      <Label className="text-sm font-semibold text-[var(--oc-ink)]">
+    <label className={`grid gap-2 ${className ?? ""}`}>
+      <span className="text-sm font-semibold text-[var(--oc-ink)]">
         {label}
         {required ? <span className="text-[var(--oc-blue)]">*</span> : null}
-      </Label>
+      </span>
       {children}
-    </div>
+    </label>
   );
 }
 

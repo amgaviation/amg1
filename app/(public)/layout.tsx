@@ -8,6 +8,7 @@ export default function PublicLayout({
 }) {
   return (
     <div className="public-site amg-oc flex min-h-screen flex-col">
+      <div className="public-atmosphere" aria-hidden="true" />
       <a href="#main-content" className="skip-link">
         Skip to content
       </a>

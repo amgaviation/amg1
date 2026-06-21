@@ -9,18 +9,20 @@ const REASONS = [
 
 export function WhyAmg() {
   return (
-    <section className="oc-section bg-[var(--oc-ivory-2)]">
+    <section id="why-amg" className="public-editorial-section public-why-section" aria-labelledby="why-amg-heading">
       <div className="oc-shell">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="oc-eyebrow text-[var(--oc-blue)]">Why AMG</p>
-          <h2 className="oc-display mt-4 text-3xl text-[var(--oc-ink)] sm:text-5xl">A clearer operating picture before support is accepted.</h2>
+        <div className="max-w-3xl">
+          <p className="oc-eyebrow oc-eyebrow-light">Why AMG</p>
+          <h2 id="why-amg-heading" className="oc-display mt-4 text-4xl text-[var(--oc-paper)] sm:text-5xl lg:text-[5.2rem]">
+            A clearer operating picture before support is accepted.
+          </h2>
         </div>
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="public-wake-grid mt-12 grid gap-0 sm:grid-cols-2 lg:grid-cols-4">
           {REASONS.map((reason) => (
-            <article key={reason.title} className="rounded-xl border border-[var(--oc-line)] bg-white/75 p-6">
+            <article key={reason.title} className="public-why-column">
               <reason.icon className="h-6 w-6 text-[var(--oc-blue)]" strokeWidth={1.6} />
-              <h3 className="mt-4 text-base font-semibold text-[var(--oc-ink)]">{reason.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[var(--oc-muted)]">{reason.body}</p>
+              <h3>{reason.title}</h3>
+              <p>{reason.body}</p>
             </article>
           ))}
         </div>

@@ -74,7 +74,6 @@ export function ConnectPreview() {
           <PortalScreenshotFrame
             src={screenshot}
             alt="AMG client portal dashboard showing support requests and aircraft records"
-            priority
             className="transition-transform duration-500 will-change-transform group-hover:[transform:rotateX(1.5deg)_rotateY(-2deg)] motion-reduce:transition-none motion-reduce:group-hover:[transform:none]"
           />
         </div>

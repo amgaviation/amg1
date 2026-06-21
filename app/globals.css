@@ -12,7 +12,8 @@
     AMG Slate Gray    #9CA3AF (muted text)
     AMG Light Gray    #C0C7D1 (labels)
     AMG White         #FFFFFF (typography)
-  Display and body: Montserrat.
+  Body/navigation: self-hosted Montserrat. Public editorial display:
+  system serif scoped to .amg-oc so protected portal typography is untouched.
 */
 
 :root {
@@ -527,6 +528,44 @@ html {
     linear-gradient(180deg, #050B14 0%, #07111F 42%, #050B14 100%);
 }
 
+.public-atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(5, 11, 20, 0.34), rgba(5, 11, 20, 0.84) 54%, rgba(5, 11, 20, 0.94)),
+    radial-gradient(circle at 76% 12%, rgba(59, 130, 246, 0.16), transparent 28rem),
+    radial-gradient(circle at 14% 64%, rgba(185, 137, 79, 0.09), transparent 24rem),
+    url("/images/home-intro/amg-sky-desktop.webp") center / cover no-repeat;
+  opacity: 0.7;
+  transform: translateZ(0);
+}
+
+.public-atmosphere::before,
+.public-atmosphere::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.public-atmosphere::before {
+  background-image:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 92px 92px;
+  mask-image: linear-gradient(180deg, transparent, black 18%, black 84%, transparent);
+}
+
+.public-atmosphere::after {
+  background:
+    repeating-linear-gradient(118deg, transparent 0 42px, rgba(192, 199, 209, 0.055) 43px, transparent 44px),
+    radial-gradient(ellipse at 70% 42%, rgba(59, 130, 246, 0.12), transparent 34rem);
+  opacity: 0.38;
+  animation: public-airflow-drift 32s linear infinite;
+}
+
 .public-site::before {
   content: "";
   position: fixed;
@@ -538,6 +577,354 @@ html {
     linear-gradient(180deg, oklch(0.17 0.026 256 / 0.03) 1px, transparent 1px);
   background-size: 72px 72px;
   mask-image: linear-gradient(180deg, black, transparent 58%);
+}
+
+.public-editorial-section {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding-block: clamp(5rem, 10vw, 10rem);
+  color: var(--oc-paper);
+}
+
+.public-editorial-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.026) 1px, transparent 1px);
+  background-size: 88px 88px;
+  mask-image: linear-gradient(180deg, transparent, black 18%, black 86%, transparent);
+}
+
+.public-editorial-section::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 82% 12%, rgba(59, 130, 246, 0.13), transparent 28rem),
+    linear-gradient(180deg, rgba(5, 11, 20, 0.92), rgba(7, 17, 31, 0.86));
+}
+
+.public-company-section {
+  margin-top: -1px;
+}
+
+.public-review-panel {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--oc-line-dark);
+  border-radius: 0.5rem;
+  background: rgba(7, 17, 31, 0.78);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.28);
+}
+
+.public-review-panel .oc-media {
+  min-height: 31rem;
+}
+
+.public-review-panel__content {
+  position: absolute;
+  inset: auto 1.25rem 1.25rem;
+  border: 1px solid var(--oc-line-dark);
+  border-radius: 0.5rem;
+  background: rgba(5, 11, 20, 0.72);
+  padding: 1.25rem;
+  backdrop-filter: blur(16px);
+}
+
+.public-review-factor {
+  border-top: 1px solid var(--oc-line-dark);
+  padding-top: 0.7rem;
+  color: var(--oc-aluminum);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.public-service-list {
+  border-top: 1px solid var(--oc-line-dark);
+}
+
+.public-service-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.15rem;
+  min-height: 9.5rem;
+  border-bottom: 1px solid var(--oc-line-dark);
+  padding-block: clamp(1.35rem, 4vw, 2.35rem);
+  color: var(--oc-paper);
+}
+
+.public-service-row:hover,
+.public-service-row:focus-visible {
+  outline: none;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.1), transparent);
+}
+
+.public-service-row:focus-visible {
+  box-shadow: 0 0 0 2px var(--oc-blue);
+}
+
+.public-service-row__number {
+  color: var(--oc-blue);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.78rem;
+}
+
+.public-service-row__main {
+  min-width: 0;
+}
+
+.public-service-row__title {
+  display: block;
+  font-family: var(--oc-display);
+  font-size: clamp(1.75rem, 5vw, 4.2rem);
+  font-weight: 700;
+  line-height: 0.98;
+}
+
+.public-service-row__body {
+  display: block;
+  max-width: 38rem;
+  margin-top: 0.9rem;
+  color: var(--oc-aluminum);
+  font-size: 0.96rem;
+  line-height: 1.65;
+}
+
+.public-service-row__cta {
+  grid-column: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: fit-content;
+  min-height: 2.75rem;
+  color: var(--oc-blue);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.public-route-line {
+  position: relative;
+  height: 1px;
+  margin-top: clamp(2rem, 6vw, 4rem);
+  background: linear-gradient(90deg, rgba(192, 199, 209, 0.16), var(--oc-blue), rgba(192, 199, 209, 0.1));
+}
+
+.public-route-line::before,
+.public-route-line::after {
+  content: "";
+  position: absolute;
+  top: -3px;
+  height: 7px;
+  width: 7px;
+  border-radius: 999px;
+  background: var(--oc-blue);
+  box-shadow: 0 0 24px rgba(59, 130, 246, 0.64);
+}
+
+.public-route-line::before {
+  left: 0;
+}
+
+.public-route-line::after {
+  right: 0;
+}
+
+.public-process-step {
+  position: relative;
+  min-height: 18rem;
+  border-left: 1px solid var(--oc-line-dark);
+  padding: 1rem 1rem 1rem 1.2rem;
+}
+
+.public-process-step__icon {
+  display: flex;
+  height: 2.75rem;
+  width: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--oc-line-dark);
+  border-radius: 999px;
+  color: var(--oc-blue);
+}
+
+.public-process-step__number {
+  display: block;
+  margin-top: 1.4rem;
+  color: var(--oc-blue);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.78rem;
+}
+
+.public-process-step h3,
+.public-support-model h3,
+.public-why-column h3 {
+  margin-top: 0.9rem;
+  color: var(--oc-paper);
+  font-size: 1.18rem;
+  font-weight: 700;
+}
+
+.public-process-step p,
+.public-support-model p,
+.public-why-column p {
+  margin-top: 0.7rem;
+  color: var(--oc-aluminum);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.public-arrow-button {
+  display: inline-flex;
+  min-height: 2.75rem;
+  width: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--oc-line-dark);
+  border-radius: 999px;
+  color: var(--oc-paper);
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+.public-arrow-button:hover,
+.public-arrow-button:focus-visible {
+  border-color: var(--oc-blue);
+  background: rgba(59, 130, 246, 0.12);
+  outline: none;
+}
+
+.public-audience-rail {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--oc-line-dark);
+}
+
+.public-audience-tab {
+  min-height: 4.25rem;
+  border-bottom: 1px solid var(--oc-line-dark);
+  color: var(--oc-aluminum-2);
+  font-family: var(--oc-display);
+  font-size: clamp(1.45rem, 4vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1;
+  text-align: left;
+  transition: color 180ms ease, padding-left 180ms ease;
+}
+
+.public-audience-tab[aria-selected="true"],
+.public-audience-tab:hover,
+.public-audience-tab:focus-visible {
+  color: var(--oc-paper);
+  outline: none;
+  padding-left: 0.75rem;
+}
+
+.public-audience-panel {
+  margin-top: 2rem;
+  border: 1px solid var(--oc-line-dark);
+  border-radius: 0.5rem;
+  background: rgba(7, 17, 31, 0.74);
+  padding: clamp(1.25rem, 4vw, 2rem);
+}
+
+.public-audience-panel__index {
+  margin-top: 1.5rem;
+  color: var(--oc-blue);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.8rem;
+}
+
+.public-audience-panel h3 {
+  margin-top: 0.8rem;
+  color: var(--oc-paper);
+  font-family: var(--oc-display);
+  font-size: clamp(2rem, 5vw, 4.6rem);
+  font-weight: 700;
+  line-height: 0.98;
+}
+
+.public-audience-panel p {
+  margin-top: 1rem;
+  max-width: 44rem;
+  color: var(--oc-aluminum);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.public-wake-grid {
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--oc-line-dark);
+  border-bottom: 1px solid var(--oc-line-dark);
+}
+
+.public-wake-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-radial-gradient(ellipse at 70% 20%, rgba(59, 130, 246, 0.16) 0 1px, transparent 2px 22px);
+  opacity: 0.34;
+}
+
+.public-why-column {
+  position: relative;
+  z-index: 1;
+  min-height: 18rem;
+  border-right: 1px solid var(--oc-line-dark);
+  padding: clamp(1.15rem, 4vw, 2rem);
+}
+
+.public-support-model {
+  display: flex;
+  min-height: 19rem;
+  flex-direction: column;
+  border: 1px solid var(--oc-line-dark);
+  border-radius: 0.5rem;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.075), transparent 42%),
+    rgba(7, 17, 31, 0.76);
+  padding: clamp(1.25rem, 4vw, 2rem);
+}
+
+.public-support-model:nth-child(2) {
+  background:
+    radial-gradient(circle at 88% 12%, rgba(59, 130, 246, 0.18), transparent 18rem),
+    rgba(7, 17, 31, 0.86);
+}
+
+.public-aircraft-card {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--oc-line-dark);
+  border-radius: 0.5rem;
+  background: rgba(7, 17, 31, 0.78);
+  color: var(--oc-paper);
+  transition: transform 220ms var(--amg-ease-out), border-color 220ms ease;
+}
+
+.public-aircraft-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(59, 130, 246, 0.58);
+}
+
+@keyframes public-airflow-drift {
+  from {
+    transform: translate3d(-3%, 0, 0);
+  }
+  to {
+    transform: translate3d(3%, 0, 0);
+  }
 }
 
 .public-site [data-scroll-animate],
@@ -604,6 +991,8 @@ html {
    Palette: official AMG midnight / deep blue / accent blue / slate / white.
    ========================================================================== */
 .amg-oc {
+  --oc-display: Georgia, "Times New Roman", Times, serif;
+  --font-display: var(--oc-display);
   --primary: var(--oc-blue);
   --primary-foreground: var(--oc-paper);
   --card: var(--oc-paper);
@@ -664,7 +1053,7 @@ html {
     font-weight: 600;
     text-transform: uppercase;
     font-size: 0.72rem;
-    letter-spacing: 0.12em;
+    letter-spacing: 0;
     color: var(--oc-blue);
   }
   .oc-eyebrow-light {
@@ -674,12 +1063,12 @@ html {
     font-family: var(--oc-sans);
     font-weight: 600;
     font-size: 0.7rem;
-    letter-spacing: 0.1em;
+    letter-spacing: 0;
     text-transform: uppercase;
   }
   .oc-mono {
     font-family: var(--font-mono, ui-monospace, monospace);
-    letter-spacing: 0.04em;
+    letter-spacing: 0;
   }
 
   /* hairlines + rules */
@@ -703,7 +1092,7 @@ html {
     font-family: var(--oc-sans);
     font-weight: 600;
     font-size: 0.8rem;
-    letter-spacing: 0.06em;
+    letter-spacing: 0;
     text-transform: uppercase;
     border: 1px solid transparent;
     transition:

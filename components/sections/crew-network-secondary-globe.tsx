@@ -1,18 +1,8 @@
-"use client";
-
-import dynamic from "next/dynamic";
-import { useReducedMotion } from "framer-motion";
+import Image from "next/image";
 import { GlobeFallback } from "@/components/sections/globe-fallback";
-import { crewGlobeMarkers } from "@/components/sections/crew-globe-data";
-
-const CrewSecondaryGlobeDemo = dynamic(() => import("@/components/3d-globe-demo"), {
-  ssr: false,
-  loading: () => <GlobeFallback tone="light" label="Loading coordination layer" />,
-});
+import { IMG } from "@/lib/site-media";
 
 export function CrewNetworkSecondaryGlobe() {
-  const reduce = useReducedMotion();
-
   return (
     <section className="oc-section bg-[var(--oc-ivory)]">
       <div className="oc-shell grid items-center gap-10 lg:grid-cols-[0.72fr_1.28fr]">
@@ -26,12 +16,14 @@ export function CrewNetworkSecondaryGlobe() {
             can be organized into a clearer view for owners, flight departments, and AMG administrators.
           </p>
         </div>
-        <div data-scroll-animate>
-          {reduce ? (
+        <div data-scroll-animate className="rounded-lg border border-[var(--oc-line)] bg-white/[0.7] p-3 shadow-[var(--oc-shadow)]">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-md">
+            <Image src={IMG.generatedCrewMap} alt="" fill sizes="(max-width: 1024px) 100vw, 48vw" className="object-cover" />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(5,11,20,0.38))]" />
+          </div>
+          <div className="mt-3">
             <GlobeFallback tone="light" label="Crew coordination regions" />
-          ) : (
-            <CrewSecondaryGlobeDemo markers={crewGlobeMarkers} />
-          )}
+          </div>
         </div>
       </div>
     </section>

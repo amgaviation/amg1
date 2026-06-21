@@ -115,9 +115,8 @@ export function CockpitEntrance() {
               fetchPriority="high"
             />
           </picture>
-          <video className={styles.skyVideo} autoPlay muted loop playsInline preload="metadata" poster={IMG.homeIntroSkyDesktopWebp}>
-            <source media="(max-width: 767px)" src={IMG.homeIntroSkyMobileVideo} type="video/mp4" />
-            <source src={IMG.homeIntroSkyDesktopVideo} type="video/mp4" />
+          <video className={styles.skyVideo} autoPlay muted loop playsInline preload="none" poster={IMG.homeIntroSkyDesktopWebp}>
+            <source media="(min-width: 768px)" src={IMG.homeIntroSkyDesktopVideo} type="video/mp4" />
           </video>
         </div>
 

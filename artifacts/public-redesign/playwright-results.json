@@ -1,0 +1,34 @@
+{
+  "target": "http://localhost:3101",
+  "screenshots": [
+    "home-desktop-top.png",
+    "home-desktop-cockpit-mid.png",
+    "home-desktop-services-process.png",
+    "home-mobile-top.png",
+    "home-mobile-reduced-motion.png",
+    "about-desktop.png",
+    "capabilities-desktop.png",
+    "aircraft-support-desktop.png",
+    "crew-network-desktop.png",
+    "plans-desktop.png",
+    "amg-connect-desktop.png",
+    "contact-form-desktop.png",
+    "request-support-form-desktop.png",
+    "login-regression-desktop.png",
+    "portal-setup-public-desktop.png",
+    "home-desktop-full.png"
+  ],
+  "checks": [
+    "Homepage H1 visible",
+    "Header and hero CTAs available",
+    "Required homepage section anchors present",
+    "Audience control works: Flight Departments",
+    "Mobile menu opens and Escape closes it",
+    "Reduced motion hides cockpit video layer",
+    "Public route screenshot pass complete",
+    "Contact required validation blocked empty submit (5 invalid controls)",
+    "Support required validation and query preselection pass (8 invalid controls)"
+  ],
+  "consoleIssues": [],
+  "failedRequests": []
+}

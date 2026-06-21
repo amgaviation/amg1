@@ -1,29 +1,10 @@
-"use client";
-
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
-import { useReducedMotion } from "framer-motion";
 import { GlobeFallback } from "@/components/sections/globe-fallback";
-import { crewGlobeMarkers, crewRegionCount } from "@/components/sections/crew-globe-data";
 import { IMG } from "@/lib/site-media";
 
-const HomeGlobeDemo = dynamic(() => import("@/components/3d-globe-demo-3"), {
-  ssr: false,
-  loading: () => <GlobeFallback label="Loading crew network view" />,
-});
-
 export function HomeCrewGlobe() {
-  const [hasMounted, setHasMounted] = useState(false);
-  const prefersReducedMotion = useReducedMotion();
-  const reduce = hasMounted && prefersReducedMotion === true;
-
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
   return (
     <section className="oc-panel-navy relative overflow-hidden py-14 text-[var(--oc-paper)] lg:py-20">
       <Image src={IMG.generatedCrewMap} alt="" fill sizes="100vw" className="absolute inset-0 -z-20 object-cover opacity-20" />
@@ -48,12 +29,14 @@ export function HomeCrewGlobe() {
           </div>
         </div>
 
-        <div data-scroll-animate>
-          {reduce ? (
+        <div data-scroll-animate className="relative overflow-hidden rounded-lg border border-white/[0.10] bg-slate-950/20 p-3 shadow-[0_30px_90px_rgba(0,0,0,0.24)]">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-md">
+            <Image src={IMG.generatedCrewMap} alt="" fill sizes="(max-width: 1024px) 100vw, 48vw" className="object-cover opacity-80" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_62%_42%,rgba(59,130,246,0.16),transparent_16rem),linear-gradient(180deg,rgba(5,11,20,0.08),rgba(5,11,20,0.62))]" />
+          </div>
+          <div className="mt-3">
             <GlobeFallback label="Crew airport regions" />
-          ) : (
-            <HomeGlobeDemo markers={crewGlobeMarkers} regionCount={crewRegionCount} />
-          )}
+          </div>
         </div>
       </div>
     </section>

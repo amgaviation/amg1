@@ -61,7 +61,7 @@ export function PortalLogin({
   const isSignIn = mode === "signin";
 
   return (
-    <main className="grid min-h-svh bg-[#07111f] text-white lg:grid-cols-2">
+    <div className="grid min-h-svh bg-[#07111f] text-white lg:grid-cols-2">
       <section className="flex min-h-svh flex-col px-6 py-16 md:px-10 lg:py-20">
         <div className="flex flex-1 items-center justify-center py-12">
           <div className="w-full max-w-md">
@@ -357,6 +357,6 @@ export function PortalLogin({
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

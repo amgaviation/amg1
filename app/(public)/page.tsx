@@ -1,4 +1,5 @@
 import { CockpitEntrance } from "@/components/site/home/cockpit-entrance";
+import { CompanyPositioning } from "@/components/site/home/company-positioning";
 import { OperationalTrustStrip } from "@/components/site/home/operational-trust-strip";
 import { SitePreviewLayer } from "@/components/site/home/site-preview-layer";
 import { SupportModels } from "@/components/site/home/support-models";
@@ -6,6 +7,7 @@ import { HomeCrewGlobe } from "@/components/sections/home-crew-globe";
 import { ConnectPreview } from "@/components/site/home/connect-preview";
 import { WhyAmg } from "@/components/site/home/why-amg";
 import { WhoWeServe } from "@/components/site/home/who-we-serve";
+import { AircraftGallery } from "@/components/site/home/aircraft-gallery";
 import { CtaBand } from "@/components/site/oc/shared";
 import { metadataForWebsiteContent } from "@/lib/website-editor/content";
 
@@ -40,13 +42,18 @@ export default function HomePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }} />
       <CockpitEntrance />
       <div id="home-after-intro" tabIndex={-1}>
+        <CompanyPositioning />
         <SitePreviewLayer />
       </div>
       <OperationalTrustStrip />
       <WhoWeServe />
       <WhyAmg />
+      <AircraftGallery
+        eyebrow="Aircraft Support Context"
+        title="Aircraft class, status, route, and approvals shape the support path."
+        lead="AMG supports a range of private-aircraft categories. Coverage is never implied by category alone; each request is reviewed around aircraft status, crew requirements, route, timing, and operator authority."
+      />
       <SupportModels />
-      <WhyAmg />
       <HomeCrewGlobe />
       <ConnectPreview />
       <CtaBand

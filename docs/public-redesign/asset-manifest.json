@@ -1,0 +1,76 @@
+{
+  "date": "2026-06-21",
+  "branch": "redesign/magma-inspired-aviation-production",
+  "new_generation_performed": false,
+  "generation_blocker": "No Higgsfield connector or install candidate was available in this Codex environment.",
+  "source_manifests": [
+    "docs/creative/higgsfield-asset-manifest.json",
+    "public/images/amg-generated/manifests/higgsfield-assets.json"
+  ],
+  "reused_assets": [
+    {
+      "role": "homepage cockpit desktop",
+      "paths": [
+        "public/images/home-intro/amg-cockpit-desktop.avif",
+        "public/images/home-intro/amg-cockpit-desktop.webp"
+      ],
+      "placement": "components/site/home/cockpit-entrance.tsx"
+    },
+    {
+      "role": "homepage cockpit mobile",
+      "paths": [
+        "public/images/home-intro/amg-cockpit-mobile.avif",
+        "public/images/home-intro/amg-cockpit-mobile.webp"
+      ],
+      "placement": "components/site/home/cockpit-entrance.tsx"
+    },
+    {
+      "role": "continuous sky and final CTA",
+      "paths": [
+        "public/images/home-intro/amg-sky-desktop.avif",
+        "public/images/home-intro/amg-sky-desktop.webp",
+        "public/images/home-intro/amg-sky-mobile.avif",
+        "public/images/home-intro/amg-sky-mobile.webp"
+      ],
+      "placement": "app/globals.css, components/site/oc/shared.tsx, cockpit entrance"
+    },
+    {
+      "role": "sky motion",
+      "paths": [
+        "public/videos/home-intro/amg-sky-motion-desktop.mp4",
+        "public/videos/home-intro/amg-sky-motion-mobile.mp4"
+      ],
+      "placement": "components/site/home/cockpit-entrance.tsx"
+    },
+    {
+      "role": "crew operating region map",
+      "paths": [
+        "public/images/amg-generated/backgrounds/crew-network-map-bg.jpg"
+      ],
+      "placement": "components/sections/home-crew-globe.tsx, crew network detail"
+    },
+    {
+      "role": "aircraft support cards",
+      "paths": [
+        "public/images/amg-generated/aircraft-supported/piston-cirrus-sr22.jpg",
+        "public/images/amg-generated/aircraft-supported/turboprop-pilatus-pc12.jpg",
+        "public/images/amg-generated/aircraft-supported/single-engine-jet-cirrus-sf50.jpg",
+        "public/images/amg-generated/aircraft-supported/light-jet-phenom-100.jpg",
+        "public/images/amg-generated/aircraft-supported/midsize-jet-citation-latitude.jpg",
+        "public/images/amg-generated/aircraft-supported/super-midsize-challenger-650.jpg",
+        "public/images/amg-generated/aircraft-supported/heavy-gulfstream-g650.jpg"
+      ],
+      "placement": "components/site/home/aircraft-gallery.tsx"
+    },
+    {
+      "role": "sanitized portal screenshots",
+      "paths": [
+        "public/images/portal-screenshots/portal-client-dashboard-enhanced.webp",
+        "public/images/portal-screenshots/portal-client-requests-enhanced.webp",
+        "public/images/portal-screenshots/portal-admin-dashboard-enhanced.webp",
+        "public/images/portal-screenshots/portal-crew-dashboard-enhanced.webp"
+      ],
+      "placement": "components/site/home/connect-preview.tsx, app/(public)/amg-connect/page.tsx"
+    }
+  ]
+}

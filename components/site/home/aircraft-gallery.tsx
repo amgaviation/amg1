@@ -75,12 +75,12 @@ export function AircraftGallery({
   withSectionCta?: boolean;
 }) {
   return (
-    <section className="oc-section bg-[var(--oc-ivory-2)]">
+    <section id="aircraft-context" className="public-editorial-section public-aircraft-section" aria-labelledby="aircraft-context-heading">
       <div className="oc-shell">
         <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-          <SectionHeading eyebrow={eyebrow} title={title} lead={lead} />
+          <SectionHeading eyebrow={eyebrow} title={<span id="aircraft-context-heading">{title}</span>} lead={lead} tone="light" />
           {withSectionCta ? (
-            <Link href="/aircraft-support" prefetch={false} className="oc-btn oc-btn-ghost shrink-0">
+            <Link href="/aircraft-support" prefetch={false} className="oc-btn oc-btn-ghost-dark shrink-0">
               All aircraft support
               <ArrowUpRight className="h-4 w-4" />
             </Link>
@@ -92,7 +92,7 @@ export function AircraftGallery({
             <article
               key={cat.name}
               data-stagger-item
-              className="oc-card group flex h-full flex-col overflow-hidden transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(11,26,43,0.16)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+              className="public-aircraft-card group"
             >
               <Figure src={cat.image} alt={cat.alt} sizes="(max-width: 640px) 100vw, 33vw" className="aspect-[4/3]">
                 <h3 className="oc-display absolute bottom-4 left-5 z-[2] text-2xl text-white drop-shadow-sm">
@@ -101,12 +101,12 @@ export function AircraftGallery({
               </Figure>
               <div className="flex flex-1 flex-col gap-4 p-6">
                 <div>
-                  <p className="oc-kicker text-[var(--oc-muted)]">Typical support</p>
-                  <p className="mt-2 text-sm leading-relaxed text-[var(--oc-ink)]/80">{cat.support}</p>
+                  <p className="oc-kicker text-[var(--oc-aluminum-2)]">Typical support</p>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--oc-aluminum)]">{cat.support}</p>
                 </div>
                 <div>
-                  <p className="oc-kicker text-[var(--oc-muted)]">Crew &amp; logistics</p>
-                  <p className="mt-2 text-sm leading-relaxed text-[var(--oc-muted)]">{cat.crew}</p>
+                  <p className="oc-kicker text-[var(--oc-aluminum-2)]">Crew &amp; logistics</p>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--oc-aluminum)]">{cat.crew}</p>
                 </div>
                 <Link
                   href="/request-support"

@@ -168,8 +168,9 @@ export function CtaBand({
   return (
     <section className="relative isolate overflow-hidden bg-[var(--oc-graphite)]">
       <div className="absolute inset-0 -z-10">
-        <Figure src={IMG.ctaRunway} alt="" sizes="100vw" className="h-full w-full" position="center" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--oc-graphite)] via-[var(--oc-graphite)]/85 to-[var(--oc-graphite)]/45" />
+        <Figure src={IMG.homeIntroSkyDesktopWebp} alt="" sizes="100vw" className="h-full w-full" position="center 52%" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,11,20,0.98),rgba(7,17,31,0.88)_48%,rgba(5,11,20,0.76)),radial-gradient(circle_at_84%_52%,rgba(180,128,58,0.22),transparent_22rem)]" />
+        <div className="absolute bottom-[22%] right-[14%] h-2 w-2 rounded-full bg-[#b9894f] shadow-[0_0_32px_rgba(185,137,79,0.7)]" aria-hidden="true" />
       </div>
       <div className="oc-shell py-20 lg:py-28" data-scroll-animate>
         <p className="oc-eyebrow oc-eyebrow-light">{eyebrow}</p>

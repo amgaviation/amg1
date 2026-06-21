@@ -141,7 +141,7 @@ export function CookieConsentBanner() {
                 <p className="font-display text-sm font-bold uppercase text-white">Cookie preferences</p>
                 <p className="mt-2 text-sm leading-relaxed text-[var(--amg-text-secondary)]">
                   AMG uses necessary tools for site and portal operation. Optional analytics, marketing, session recording,
-                  and embedded tools run only after consent. Review the <Link href="/cookie-policy" className="font-semibold text-[var(--amg-accent-blue)] hover:underline">Cookie Policy</Link>.
+                  and embedded tools run only after consent. Review the <Link href="/cookie-policy" prefetch={false} className="font-semibold text-[var(--amg-accent-blue)] hover:underline">Cookie Policy</Link>.
                 </p>
               </div>
               <div className="grid gap-2 sm:grid-cols-[minmax(10rem,1.2fr)_minmax(8rem,1fr)_minmax(7rem,0.85fr)] lg:min-w-[28rem]">
