@@ -1,21 +1,21 @@
 {
   "seo": {
-    "title": "AMG Aviation Group",
-    "description": "Concise aircraft support coordination for owners, flight departments, crews, and approved representatives."
+    "title": "Private Jet Support Services | AMG Aviation Group",
+    "description": "Crew hiring, aircraft movement, maintenance repositioning, and recurring support for private aircraft owners, owner representatives, and flight departments."
   },
   "page": "home",
   "version": 1,
   "sections": {
     "hero": {
-      "body": "AMG routes aircraft support requests through structured review, practical coordination, and clear communication for the people responsible for the operation.",
+      "body": "Hire qualified crew, move an aircraft, plan a maintenance reposition, or set up recurring help for one aircraft or a fleet. Tell AMG the aircraft, airport, timing, and goal; we will check what is possible before work begins.",
       "enabled": true,
-      "eyebrow": "AMG Aviation Group",
-      "headline": "Aircraft support built around operational clarity",
+      "eyebrow": "PRIVATE JET SUPPORT SERVICES",
+      "headline": "Private jet support services for owners and flight departments.",
       "imageKey": "generatedHeroPoster",
       "primaryCtaHref": "/request-support",
-      "primaryCtaLabel": "Request Support",
-      "secondaryCtaHref": "/capabilities",
-      "secondaryCtaLabel": "Explore Capabilities"
+      "primaryCtaLabel": "Start Your Request",
+      "secondaryCtaHref": "/contact",
+      "secondaryCtaLabel": "Talk to an Expert"
     }
   }
 }
