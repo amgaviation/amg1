@@ -10,7 +10,8 @@ const FEATURES = [
   "Aircraft profiles",
   "Crew review",
   "Documents",
-  "Quotes & invoices",
+  "Messages",
+  "Quotes and invoices",
   "Status updates",
 ];
 
@@ -31,12 +32,12 @@ export function ConnectPreview() {
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(5,11,20,0.98),rgba(7,17,31,0.9)_44%,rgba(5,11,20,0.96)),radial-gradient(circle_at_80%_28%,rgba(59,130,246,0.16),transparent_28rem)]" />
       <div className="oc-shell grid items-center gap-14 lg:grid-cols-[0.85fr_1.15fr]">
         <div data-scroll-animate>
-          <p className="oc-eyebrow oc-eyebrow-light">{section.eyebrow ?? "AMG Connect"}</p>
+          <p className="oc-eyebrow oc-eyebrow-light">AMG Connect</p>
           <h2 className="oc-display mt-4 text-4xl text-[var(--oc-paper)] sm:text-5xl">
-            {section.headline ?? "The support picture, in one portal."}
+            Track requests, documents, quotes, invoices, and status in one portal.
           </h2>
           <p className="mt-5 max-w-md text-lg leading-relaxed text-[var(--oc-aluminum)]">
-            {section.body}
+            Owners, crew members, approved partners, and AMG administrators see information relevant to their role.
           </p>
 
           <ul className="mt-7 flex flex-wrap gap-2" data-stagger-container>
@@ -63,7 +64,7 @@ export function ConnectPreview() {
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link href={section.secondaryCtaHref ?? "/login?mode=request"} prefetch={false} className="oc-btn oc-btn-ghost-dark">
-              {section.secondaryCtaLabel ?? "Request Access"}
+              Request Portal Access
               <ArrowUpRight className="h-4 w-4" />
             </Link>
           </div>

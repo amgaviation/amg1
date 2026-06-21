@@ -5,28 +5,51 @@ import { SitePreviewLayer } from "@/components/site/home/site-preview-layer";
 import { SupportModels } from "@/components/site/home/support-models";
 import { HomeCrewGlobe } from "@/components/sections/home-crew-globe";
 import { ConnectPreview } from "@/components/site/home/connect-preview";
+import { WhyAmg } from "@/components/site/home/why-amg";
+import { WhoWeServe } from "@/components/site/home/who-we-serve";
+import { ProofSection } from "@/components/site/home/proof-section";
 import { CtaBand } from "@/components/site/oc/shared";
 import { heroForWebsiteContent, metadataForWebsiteContent } from "@/lib/website-editor/content";
 import { IMG } from "@/lib/site-media";
 
 export const metadata = metadataForWebsiteContent("home", {
-  title: "AMG Aviation Group | Aircraft Support & Operational Coordination",
+  title: "Private Jet Support Services | AMG Aviation Group",
   description:
-    "AMG Aviation Group supports aircraft owners, flight departments, crews, maintenance events, and mission-specific operational needs through structured request review, practical coordination, and clear stakeholder communication.",
+    "Crew hiring, aircraft movement, maintenance repositioning, and recurring support for private aircraft owners, owner representatives, and flight departments."
 });
 
 export default function HomePage() {
   const hero = heroForWebsiteContent("home", {
-    eyebrow: "AMG Aviation Group",
-    title: "Aircraft Support Built Around Operational Clarity",
-    lead: "AMG helps owners, flight departments, crews, and approved representatives route aircraft support requests through structured review, practical coordination, and clear communication.",
+    eyebrow: "PRIVATE AIRCRAFT SUPPORT COORDINATION",
+    title: "Private jet support services for owners and flight departments.",
+    lead: "Hire qualified crew, move an aircraft, plan a maintenance reposition, or set up recurring help for one aircraft or a fleet. Tell AMG the aircraft, airport, timing, and goal; we will check what is possible before work begins.",
     image: IMG.generatedHeroPoster,
-    primary: { label: "Request Support", href: "/request-support" },
-    secondary: { label: "Explore Capabilities", href: "/capabilities" },
+    primary: { label: "Start Your Request", href: "/request-support" },
+    secondary: { label: "Talk to an Expert", href: "/contact" },
   });
+
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "AMG Aviation Group",
+    url: "https://www.amgaviationgroup.com",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Fort Lauderdale",
+      addressRegion: "FL",
+      addressCountry: "US",
+    },
+    makesOffer: [
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Crew hiring and crew coverage coordination" } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Aircraft repositioning and ferry movement support" } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Maintenance repositioning coordination" } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Recurring private aircraft operations support" } },
+    ],
+  };
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }} />
       <EntranceAnimation />
       <HomeHangarEntry
         eyebrow={hero.eyebrow}
@@ -38,19 +61,22 @@ export default function HomePage() {
         secondaryCtaLabel={hero.secondary?.label}
         secondaryCtaHref={hero.secondary?.href}
       />
-      <OperationalTrustStrip />
       <SitePreviewLayer />
+      <OperationalTrustStrip />
+      <WhoWeServe />
+      <WhyAmg />
       <SupportModels />
+      <ProofSection />
       <HomeCrewGlobe />
       <ConnectPreview />
       <CtaBand
-        eyebrow="Support Request"
-        title="Ready to route a support need?"
-        body="Start with the aircraft, timing, requested support path, and known constraints. AMG will review the context before presenting a next step."
-        primaryLabel="Request Support"
+        eyebrow="Start a Request"
+        title="Ready to keep the aircraft moving?"
+        body="Send the aircraft, airport, timing, requested service, and known limits. AMG will check crew fit, aircraft status, approvals, route factors, weather, and timing before confirming the next step."
+        primaryLabel="Start Your Request"
         primaryHref="/request-support"
-        secondaryLabel="View Capabilities"
-        secondaryHref="/capabilities"
+        secondaryLabel="Talk to an Expert"
+        secondaryHref="/contact"
       />
     </>
   );

@@ -8,10 +8,10 @@ import { IMG } from "@/lib/site-media";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Request Aircraft Support | AMG Aviation Group",
+    absolute: "Start a Support Request | AMG Aviation Group",
   },
   description:
-    "Request AMG Aviation Group aircraft support for crew coordination, ferry and repositioning, maintenance movement, flight operations coordination, aircraft management support, and plan review.",
+    "Submit aircraft, location, timing, crew coverage, aircraft movement, maintenance repositioning, or recurring support details for AMG review.",
 };
 
 export default async function RequestSupportPage({
@@ -47,13 +47,12 @@ export default async function RequestSupportPage({
         <div className="oc-shell">
           <div className="grid gap-8 lg:grid-cols-[1fr_0.58fr] lg:items-end">
             <div>
-              <p className="oc-eyebrow oc-eyebrow-light">AMG Support Request</p>
+              <p className="oc-eyebrow oc-eyebrow-light">Start a Support Request</p>
               <h1 className="oc-display mt-5 text-[clamp(2.75rem,7vw,5.25rem)] text-[var(--oc-paper)]">
-                Request Aircraft Support
+                Start a Support Request
               </h1>
               <p className="mt-6 max-w-3xl text-lg leading-relaxed text-[var(--oc-aluminum)]">
-                Use this page to begin an aircraft support, crew coordination, ferry/repositioning, maintenance
-                movement, plan review, or operational coordination request.
+                Send the aircraft, location, timing, requested service, and known constraints so AMG can review feasibility and confirm the next step.
               </p>
               <p className="mt-5 max-w-3xl rounded-2xl border border-white/[0.14] bg-white/[0.08] p-4 text-sm leading-relaxed text-[var(--oc-aluminum)] backdrop-blur-md">
                 AMG does not present a request as accepted until the support scope, aircraft status, crew availability,
@@ -62,7 +61,7 @@ export default async function RequestSupportPage({
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button asChild className="min-h-11 rounded-full bg-white px-6 text-[var(--oc-navy)] hover:bg-white/90">
                   <a href="#support-request-form">
-                    Start Request
+                    Submit for Review
                     <ArrowRight className="h-4 w-4" />
                   </a>
                 </Button>

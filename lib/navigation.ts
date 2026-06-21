@@ -19,16 +19,16 @@ export const PUBLIC_NAV_GROUPS: PublicNavGroup[] = [
     label: "Company",
     href: "/about",
     items: [
-      { label: "About AMG", href: "/about", description: "Operating focus, values, and AMG support structure." },
-      { label: "Contact", href: "/contact", description: "Route a general inquiry to the right AMG channel." },
+      { label: "About AMG", href: "/about", description: "Company overview, values, and aircraft support approach." },
+      { label: "Contact", href: "/contact", description: "Send a general inquiry to AMG." },
       { label: "AMG Connect", href: "/amg-connect", description: "Portal overview for clients, crews, partners, and AMG Operations." },
     ],
   },
   {
-    label: "Capabilities",
+    label: "Services",
     href: "/capabilities",
     items: [
-      { label: "What AMG Supports", href: "/capabilities#what-amg-supports", description: "Aircraft movement, crew coordination, maintenance support, and support operations." },
+      { label: "Services Overview", href: "/capabilities#what-amg-supports", description: "Crew hiring, aircraft movement, maintenance repositioning, and recurring plans." },
       { label: "Request Process", href: "/capabilities#request-process", description: "How support is reviewed, quoted, coordinated, and closed out." },
       { label: "Aircraft Supported", href: "/aircraft-support", description: "Aircraft categories and support context." },
       { label: "Crew Network", href: "/crew-network", description: "Crew-related support and credential review context." },
@@ -38,18 +38,18 @@ export const PUBLIC_NAV_GROUPS: PublicNavGroup[] = [
     label: "Plans",
     href: "/plans",
     items: [
-      { label: "Support Plans", href: "/plans", description: "Compare plan structure by aircraft category and recurring support needs." },
+      { label: "Support Plans", href: "/plans", description: "Compare on-demand, monthly owner, and fleet plans." },
       { label: "Plan Comparison", href: "/plans#plans-comparison", description: "Review included support areas and operational notes." },
       { label: "Request Plan Review", href: "/request-support?category=subscription-program-inquiry", description: "Start a scoped support-plan review." },
     ],
   },
   {
-    label: "Portal",
+    label: "AMG Connect",
     href: "/amg-connect",
     items: [
       { label: "Member Login", href: "/login", description: "Access AMG Connect." },
-      { label: "Request Access", href: "/login?mode=request", description: "Request a portal account for an approved role." },
-      { label: "Request Support", href: "/request-support", description: "Submit an aircraft support request." },
+      { label: "Request Portal Access", href: "/login?mode=request", description: "Request a portal account for an approved role." },
+      { label: "Start Your Request", href: "/request-support", description: "Submit an aircraft support request." },
     ],
   },
 ];
