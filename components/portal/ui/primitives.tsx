@@ -15,7 +15,7 @@ export function PageHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
+    <div className="flex flex-col gap-4 border-b border-neutral-900 pb-6 sm:flex-row sm:items-end sm:justify-between">
       <div>
         {eyebrow ? (
           <p className="eyebrow text-[0.64rem] text-primary">{eyebrow}</p>
@@ -53,9 +53,9 @@ export function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className={cn("rounded-lg border border-white/10 bg-[#07111F]/92 shadow-[0_18px_58px_rgba(0,0,0,0.24)] backdrop-blur", className)}>
+    <section className={cn("rounded-xl border border-neutral-900 bg-[#0a0a0a] shadow-2xl", className)}>
       {title ? (
-        <header className="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-4">
+        <header className="flex items-start justify-between gap-4 border-b border-neutral-900 px-5 py-4">
           <div className="flex items-center gap-3">
             {icon ? <PortalIcon name={icon} className="h-4 w-4 text-primary" /> : null}
             <div>
@@ -98,9 +98,9 @@ export function StatCard({
           ? "border-destructive/40"
           : tone === "info"
             ? "border-primary/40"
-            : "border-white/10";
+            : "border-neutral-900";
   const inner = (
-    <div className={cn("h-full rounded-lg border bg-[#07111F]/92 p-5 shadow-[0_18px_58px_rgba(0,0,0,0.2)] transition-colors", ring, href && "hover:border-primary/60")}>
+    <div className={cn("h-full rounded-xl border bg-[#0a0a0a] p-5 shadow-2xl transition-colors", ring, href && "hover:border-primary/60")}>
       <p className="font-display text-4xl font-extrabold uppercase leading-none text-white">{value}</p>
       <p className="eyebrow mt-3 text-[0.6rem] text-primary">{label}</p>
       {detail ? <p className="mt-2 text-xs leading-5 text-[var(--amg-text-muted)]">{detail}</p> : null}
@@ -128,8 +128,8 @@ export function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-white/15 bg-white/[0.04] px-6 py-12 text-center">
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/[0.05]">
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-neutral-800 bg-neutral-950 px-6 py-12 text-center">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900/50">
         <PortalIcon name={icon} className="h-5 w-5 text-[var(--amg-text-secondary)]" />
       </div>
       <h3 className="font-display text-lg font-bold uppercase text-white">{title}</h3>
@@ -150,7 +150,7 @@ export function DetailRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-[9rem_1fr] gap-4 border-b border-white/10 py-3 last:border-0">
+    <div className="grid grid-cols-[9rem_1fr] gap-4 border-b border-neutral-900 py-3 last:border-0">
       <dt className="text-xs uppercase text-[var(--amg-text-muted)]">{label}</dt>
       <dd className="text-sm text-slate-100">{children}</dd>
     </div>
@@ -164,7 +164,7 @@ export function Timeline({
   items: { title: string; meta?: string; body?: string; tone?: string }[];
 }) {
   return (
-    <ol className="relative ml-2 space-y-5 border-l border-white/10 pl-6">
+    <ol className="relative ml-2 space-y-5 border-l border-neutral-900 pl-6">
       {items.map((item, i) => (
         <li key={i} className="relative">
           <span className="absolute -left-[1.65rem] top-1 h-3 w-3 rounded-full border border-primary bg-[#07111F] shadow-[0_0_24px_rgba(59,130,246,0.22)]" />

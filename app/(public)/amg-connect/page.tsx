@@ -29,22 +29,26 @@ export default function AmgConnectPage() {
 
       <ConnectPreview />
 
-      <section className="oc-section bg-[var(--oc-ivory)]">
+      <section className="bg-[#000000] py-24 lg:py-32">
         <div className="oc-shell">
           <SectionHeading
             eyebrow="Role views"
             title="Access scoped to the support role."
             lead="Approved users receive only the request, document, communication, and status context their role requires."
           />
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
             {PORTAL_ROLES.map((role) => (
-              <article key={role.id} data-stagger-item className="oc-card flex h-full flex-col p-6">
-                <h3 className="oc-display text-2xl text-[var(--oc-ink)]">{role.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--oc-muted)]">{role.access}</p>
-                <ul className="mt-5 grid gap-2 border-t border-[var(--oc-line)] pt-5">
+              <article
+                key={role.id}
+                data-stagger-item
+                className="flex h-full flex-col rounded-2xl border border-neutral-900 bg-[#0a0a0a] p-6 shadow-2xl"
+              >
+                <h3 className="text-xl font-bold tracking-tighter text-white">{role.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-neutral-500">{role.access}</p>
+                <ul className="mt-5 grid gap-2 border-t border-neutral-900 pt-5">
                   {role.actions.map((action) => (
-                    <li key={action} className="flex items-start gap-2.5 text-sm text-[var(--oc-ink)]/80">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--oc-blue)]" />
+                    <li key={action} className="flex items-start gap-2.5 text-sm text-neutral-400">
+                      <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-white/60" />
                       {action}
                     </li>
                   ))}
@@ -53,9 +57,13 @@ export default function AmgConnectPage() {
             ))}
           </div>
           <div className="mt-10">
-            <Link href="/login" prefetch={false} className="oc-btn oc-btn-primary">
+            <Link
+              href="/login"
+              prefetch={false}
+              className="inline-flex items-center gap-2 rounded-full border border-white bg-white px-6 py-3 text-[0.72rem] font-semibold uppercase tracking-widest text-black transition-all duration-200 hover:bg-white/88"
+            >
               Member Login
-              <ArrowUpRight className="h-4 w-4" />
+              <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </div>
         </div>
