@@ -5,7 +5,12 @@
   "generator": {
     "name": "Higgsfield CLI",
     "version": "0.2.3",
-    "models": ["gpt_image_2", "seedance_2_0"]
+    "models": ["gpt_image_2", "seedance_2_0"],
+    "latestGenerationAttempt": {
+      "attemptedAt": "2026-06-21",
+      "status": "unavailable",
+      "note": "Fresh generation was attempted for the seamless windshield transition, but the Higgsfield API endpoints were unreachable. Existing Higgsfield stills were reused, and transparent cockpit shell assets were derived locally for the new animation."
+    }
   },
   "referenceUse": [
     {
@@ -42,6 +47,12 @@
           "path": "public/images/home-intro/amg-cockpit-desktop.webp",
           "dimensions": "2200x1244",
           "size": "147 KB"
+        },
+        {
+          "path": "public/images/home-intro/amg-cockpit-shell-desktop.webp",
+          "dimensions": "2200x1244",
+          "size": "142 KB",
+          "derivation": "Transparent windshield shell derived from the selected desktop cockpit still for the unified cockpit-to-sky scene."
         }
       ],
       "selectionReason": "Best desktop composition with a clear centered sky aperture and no central windshield post crossing the AMG logo field."
@@ -63,6 +74,12 @@
           "path": "public/images/home-intro/amg-cockpit-mobile.webp",
           "dimensions": "1200x2133",
           "size": "143 KB"
+        },
+        {
+          "path": "public/images/home-intro/amg-cockpit-shell-mobile.webp",
+          "dimensions": "1200x2133",
+          "size": "139 KB",
+          "derivation": "Transparent windshield shell derived from the selected portrait cockpit still for the unified cockpit-to-sky scene."
         }
       ],
       "selectionReason": "Best portrait version with a clean center field, dark side framing, and enough cockpit detail for mobile."
@@ -108,7 +125,9 @@
         }
       ],
       "selectionReason": "Best mobile sky crop with clean upper field and stable cloud horizon."
-    },
+    }
+  ],
+  "retiredAssets": [
     {
       "id": "home-intro-sky-motion-desktop",
       "higgsfieldJobId": "cae44d4a-80fd-4a16-90da-8ea3bbb1770f",
@@ -123,7 +142,7 @@
           "size": "1.3 MB"
         }
       ],
-      "selectionReason": "Small enough for optional background motion behind the still sky fallback."
+      "retirementReason": "Removed from the homepage because the new seamless transition uses a single still scene transform and no separate video drift layer."
     },
     {
       "id": "home-intro-sky-motion-mobile",
@@ -139,7 +158,7 @@
           "size": "1.4 MB"
         }
       ],
-      "selectionReason": "Small enough for optional mobile background motion with reduced-motion CSS disabled."
+      "retirementReason": "Removed from the homepage because the new seamless transition uses a single still scene transform and no separate video drift layer."
     }
   ],
   "rejectedAssets": [

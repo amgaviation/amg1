@@ -44,3 +44,19 @@ The selected copy avoids charter sales language, guaranteed availability, operat
 The entrance is implemented as a native scroll section with a sticky viewport frame. It does not block the page, store session state, lock body scrolling, intercept wheel events, or hijack the user's scroll. A skip control jumps to the next homepage section, and reduced-motion users receive a static one-viewport composition with video disabled.
 
 The centered logo uses the repository's official `/images/logo-white.png` asset. It is not generated, boxed, or placed inside a badge.
+
+## Seamless Motion Storyboard
+
+Concept A, **Windshield Push**: one cockpit shell, one sky plate, and one shared transform origin at the windshield center. The camera pushes forward until the windshield aperture fills the viewport. The AMG logo and CTA sit above the scene plane, so they remain stable and clickable while the environment moves underneath.
+
+Concept B, **Depth Parallax**: cockpit frame, sky, avionics, and copy move at slightly different rates. This creates more depth, but it risks recreating the mismatched layer drift and ghosting that made the previous version feel less cohesive.
+
+Selected: **Concept A**. It is closest to the Jesko Jets macro behavior without copying assets or code, and it best satisfies the requirement that the transition feel like one continuous cockpit-to-sky scene rather than separate images fading across each other.
+
+Motion architecture:
+
+- Use a transparent cockpit shell with the windshield cut out.
+- Place the matching sky plate behind the shell.
+- Transform both together in a single `.scene` plane.
+- Scale around the windshield focal point so the aperture expands naturally into the full viewport.
+- Fade only the text at the end of the entrance; do not fade the cockpit out over a separate sky layer.
