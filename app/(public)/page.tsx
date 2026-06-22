@@ -1,7 +1,8 @@
-import { CockpitEntrance } from "@/components/site/home/cockpit-entrance";
+import { HomeIntroSection } from "@/components/site/home/home-intro-section";
 import { OperationalTrustStrip } from "@/components/site/home/operational-trust-strip";
 import { SitePreviewLayer } from "@/components/site/home/site-preview-layer";
 import { SupportModels } from "@/components/site/home/support-models";
+import { SplashIntro } from "@/components/site/splash-intro";
 import { HomeCrewGlobe } from "@/components/sections/home-crew-globe";
 import { ConnectPreview } from "@/components/site/home/connect-preview";
 import { WhyAmg } from "@/components/site/home/why-amg";
@@ -38,10 +39,9 @@ export default function HomePage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }} />
-      <CockpitEntrance />
-      <div id="home-after-intro" tabIndex={-1}>
-        <SitePreviewLayer />
-      </div>
+      <SplashIntro />
+      <HomeIntroSection />
+      <SitePreviewLayer />
       <OperationalTrustStrip />
       <WhoWeServe />
       <WhyAmg />

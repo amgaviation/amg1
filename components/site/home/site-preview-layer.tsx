@@ -1,7 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { getServiceImage } from "@/lib/site-media";
 
 const SERVICES = [
   { n: "01", title: "Crew Coverage", body: "AMG reviews location, aircraft experience, credentials, availability, and assignment fit before presenting a crew option.", href: "/crew-network", cta: "Explore Crew Coverage" },
@@ -12,7 +10,7 @@ const SERVICES = [
 
 export function SitePreviewLayer() {
   return (
-    <section className="bg-[var(--oc-ivory)] py-14 lg:py-20">
+    <section id="capabilities" className="bg-[var(--oc-ivory)] py-14 lg:py-20">
       <div className="oc-shell">
         <div className="mx-auto max-w-2xl text-center" data-scroll-animate>
           <p className="oc-eyebrow text-[var(--oc-blue)]">What AMG coordinates</p>
