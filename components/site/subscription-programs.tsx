@@ -250,8 +250,8 @@ function CategoryControls({
             className={cn(
               "min-h-11 shrink-0 rounded-full border px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--oc-blue)] focus-visible:ring-offset-2",
               categoryId === category.id
-                ? "border-[var(--oc-navy)] bg-[var(--oc-navy)] text-white"
-                : "border-[var(--oc-line)] bg-white/70 text-[var(--oc-muted)] hover:border-[var(--oc-blue)] hover:text-[var(--oc-ink)]",
+                ? "border-white bg-white text-black"
+                : "border-white/10 bg-white/[0.04] text-[var(--oc-muted)] hover:border-[var(--oc-blue)] hover:text-white",
             )}
           >
             {category.label}
