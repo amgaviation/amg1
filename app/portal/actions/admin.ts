@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
+import { portalInviteRedirectUrl } from "@/lib/auth/urls";
 import type { Database } from "@/lib/supabase/database.types";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
 import { isPortalRole, PORTAL_PERMISSIONS, PROFILE_STATUS } from "@/lib/portal/constants";
@@ -398,10 +399,7 @@ export async function createPortalUser(formData: FormData) {
 
   if (duplicate) redirect(`${backTo}?error=duplicate`);
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
-  const redirectTo = appUrl
-    ? `${appUrl.startsWith("http") ? appUrl : `https://${appUrl}`}/login`
-    : undefined;
+  const redirectTo = portalInviteRedirectUrl();
 
   const { data: invite, error: inviteError } = await db.auth.admin.inviteUserByEmail(
     email,
@@ -460,10 +458,7 @@ export async function resendPortalInvitation(formData: FormData) {
   if (!profile?.email) redirect(`${backTo}?error=missing`);
   if (isReleasedEmail(profile.email)) redirect(`${backTo}?error=released`);
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
-  const redirectTo = appUrl
-    ? `${appUrl.startsWith("http") ? appUrl : `https://${appUrl}`}/login`
-    : undefined;
+  const redirectTo = portalInviteRedirectUrl();
 
   const { error } = await db.auth.admin.inviteUserByEmail(profile.email, {
     data: { full_name: profile.full_name, role: profile.role },
@@ -792,10 +787,7 @@ export async function saveClientRecord(formData: FormData) {
     const { error } = await db.from("profiles").update(payload).eq("id", id);
     if (error) redirect(`${backTo}?error=save`);
   } else {
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
-    const redirectTo = appUrl
-      ? `${appUrl.startsWith("http") ? appUrl : `https://${appUrl}`}/login`
-      : undefined;
+    const redirectTo = portalInviteRedirectUrl();
 
     const { data: invite, error: inviteError } = await db.auth.admin.inviteUserByEmail(email, {
       data: { full_name: fullName, role: "client" },
@@ -908,10 +900,7 @@ export async function saveCrewRecord(formData: FormData) {
     const { error } = await db.from("profiles").update(profilePayload).eq("id", id);
     if (error) redirect(`${backTo}?error=save`);
   } else {
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
-    const redirectTo = appUrl
-      ? `${appUrl.startsWith("http") ? appUrl : `https://${appUrl}`}/login`
-      : undefined;
+    const redirectTo = portalInviteRedirectUrl();
 
     const { data: invite, error: inviteError } = await db.auth.admin.inviteUserByEmail(email, {
       data: { full_name: fullName, role: "crew" },

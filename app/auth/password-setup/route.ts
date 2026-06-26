@@ -15,13 +15,13 @@ export async function GET(request: NextRequest) {
   await supabase.auth.signOut();
 
   if (error || !code) {
-    return NextResponse.redirect(new URL("/forgot-password?error=failed", url.origin));
+    return NextResponse.redirect(new URL("/auth/error", url.origin));
   }
 
   const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
   if (exchangeError) {
-    return NextResponse.redirect(new URL("/forgot-password?error=failed", url.origin));
+    return NextResponse.redirect(new URL("/auth/error", url.origin));
   }
 
   const {
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.redirect(new URL("/forgot-password?error=failed", url.origin));
+    return NextResponse.redirect(new URL("/auth/error", url.origin));
   }
 
   const response = NextResponse.redirect(new URL("/reset-password?mode=setup", url.origin));
