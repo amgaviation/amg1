@@ -73,38 +73,35 @@ function SectionIntro({ eyebrow, title, body }: { eyebrow: string; title: string
 export default function HomePage() {
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-[#050B14] pt-[calc(var(--public-header-height)+3.5rem)] text-white lg:pt-[calc(var(--public-header-height)+5rem)]">
+      <section className="relative isolate flex min-h-[100svh] overflow-hidden bg-[#050B14] pt-[calc(var(--public-header-height)+3.5rem)] text-white lg:pt-[calc(var(--public-header-height)+5rem)]">
         <Image
-          src="/images/hero-jet-poster.jpg"
+          src="/images/amg-custom/home-hero-amg-hangar-night-ramp.png"
           alt=""
           fill
           priority
           sizes="100vw"
-          className="absolute inset-0 -z-20 object-cover opacity-55"
+          className="absolute inset-0 -z-30 object-cover object-center opacity-95 md:object-[center_right]"
         />
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(5,11,20,0.98),rgba(5,11,20,0.82)_48%,rgba(5,11,20,0.66)),linear-gradient(180deg,rgba(5,11,20,0.22),#050B14_92%)]" />
-        <div className="oc-shell pb-20 lg:pb-28">
-          <div className="max-w-4xl">
-            <p className="oc-eyebrow oc-eyebrow-light text-[var(--oc-blue)]">Private aircraft support</p>
-            <h1 className="mt-5 max-w-4xl text-[clamp(3rem,8vw,6.7rem)] font-semibold leading-[1.03] tracking-[-0.02em] text-white">
-              Coordinated support for private aircraft.
+        <div className="absolute inset-0 -z-20 bg-[linear-gradient(90deg,rgba(5,11,20,0.95)_0%,rgba(5,11,20,0.70)_48%,rgba(5,11,20,0.20)_100%)]" />
+        <div className="absolute inset-x-0 top-0 -z-10 h-40 bg-[linear-gradient(180deg,rgba(5,11,20,0.82),rgba(5,11,20,0))]" />
+        <div className="absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-b from-transparent to-[#050B14]" />
+        <div className="oc-shell flex w-full items-center pb-20 lg:pb-28">
+          <div className="max-w-[43rem] py-12 sm:py-16 lg:py-20">
+            <p className="oc-eyebrow oc-eyebrow-light text-[var(--oc-blue)]">AMG AVIATION GROUP</p>
+            <h1 className="mt-5 max-w-3xl text-[clamp(2.75rem,7vw,5.4rem)] font-semibold leading-[1.03] text-white">
+              Global Aviation. Driven by Excellence.
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[var(--oc-aluminum)]">
-              AMG helps owners and flight departments secure qualified crew, coordinate aircraft movement, and manage maintenance repositioning from request through completion.
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-200 sm:text-lg">
+              Premium aviation operations, aircraft support, and crew solutions worldwide.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-light justify-center">
-                Request aircraft support
+              <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-primary justify-center">
+                Request Aircraft Support
                 <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link href="/services" prefetch={false} className="oc-btn oc-btn-ghost-dark justify-center">
-                Explore services
+              <Link href="/services" prefetch={false} className="oc-btn oc-btn-ghost-dark justify-center border-white/30 bg-white/10 backdrop-blur-md">
+                Explore Services
               </Link>
-            </div>
-            <div className="mt-8 flex flex-wrap gap-2 text-sm font-semibold text-white">
-              {["Crew coverage", "Aircraft movement", "Maintenance repositioning"].map((item) => (
-                <span key={item} className="rounded-full border border-white/15 bg-white/10 px-4 py-2">{item}</span>
-              ))}
             </div>
           </div>
         </div>

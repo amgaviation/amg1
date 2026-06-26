@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
@@ -21,9 +20,10 @@ export default async function PartnerRequestsPage() {
         <DataTable
           rows={assignments}
           getKey={(row) => row.id}
+          getHref={(row) => `/portal/partner/requests/${row.id}`}
           emptyLabel="No service requests assigned."
           columns={[
-            { header: "Request", cell: (row) => <Link href={`/portal/partner/requests/${row.id}`} className="font-mono text-xs text-accent hover:underline">{row.ref}</Link> },
+            { header: "Request", priority: "primary", cell: (row) => <span className="font-mono text-xs text-accent">{row.ref}</span> },
             { header: "Mission", cell: (row) => row.mission?.ref ?? "-" },
             { header: "Service", cell: (row) => row.service_type },
             { header: "Location", cell: (row) => row.location ?? "-" },

@@ -1,5 +1,6 @@
 import "server-only";
 
+import { absoluteSiteUrl, replyToAddress } from "@/lib/email/config";
 import { amgEmailLayout } from "@/lib/portal/email-templates";
 import { sendEmail } from "@/lib/portal/notification-delivery";
 import { createServiceClient } from "@/lib/supabase/server";
@@ -49,10 +50,6 @@ function extractPublicRequesterName(notes?: string | null) {
 
 function statusLabel(value?: string | null) {
   return value ? value.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase()) : "Not specified";
-}
-
-function appUrl() {
-  return process.env.NEXT_PUBLIC_APP_URL?.replace(/\/+$/, "") || null;
 }
 
 async function getMissionContact(mission: Mission): Promise<MissionContact | null> {
@@ -133,7 +130,7 @@ export async function notifyMissionContactByEmail(input: MissionClientNotificati
       .filter(Boolean)
       .join("\n\n");
 
-    const resolvedAppUrl = appUrl();
+    const resolvedAppUrl = absoluteSiteUrl("/");
 
     const result = await sendEmail({
       to: contact.email,
@@ -167,7 +164,7 @@ export async function notifyMissionContactByEmail(input: MissionClientNotificati
           input.footerNote ||
           "For urgent updates or corrections, reply to this email or contact AMG Aviation Group at information@amgaviationgroup.com.",
       }),
-      replyTo: process.env.EMAIL_REPLY_TO,
+      replyTo: replyToAddress(),
     });
 
     if (result.status !== "sent") {
