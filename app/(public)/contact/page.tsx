@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowRight, Mail } from "lucide-react";
@@ -31,12 +32,21 @@ export default async function ContactPage({
     title: "Send a general inquiry.",
     lead: "Use this page for general inquiries, plan questions, crew-network communication, vendor coordination, or administrative requests.",
     image: IMG.contactSupport,
+    imageAlt: "Aircraft support request coordination desk",
   });
 
   return (
     <>
       <section className="relative isolate overflow-hidden bg-[var(--oc-navy)] pb-12 pt-[calc(var(--public-header-height)+4rem)] lg:pb-16 lg:pt-[calc(var(--public-header-height)+5rem)]">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_80%_8%,rgba(47,107,174,0.12),transparent_28rem)]" />
+        <Image
+          src={hero.image}
+          alt={hero.imageAlt ?? "Aircraft support request coordination desk"}
+          fill
+          priority
+          sizes="100vw"
+          className="absolute inset-0 -z-20 object-cover opacity-48"
+        />
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(5,11,20,0.74),rgba(5,11,20,0.92)),radial-gradient(circle_at_80%_8%,rgba(47,107,174,0.16),transparent_28rem)]" />
         <div className="oc-shell">
           <div className="mx-auto max-w-4xl text-center">
             <p className="oc-eyebrow text-[var(--oc-blue)]">{hero.eyebrow}</p>

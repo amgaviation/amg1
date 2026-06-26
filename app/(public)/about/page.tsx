@@ -1,3 +1,13 @@
+import {
+  BookOpenCheck,
+  BriefcaseBusiness,
+  ClipboardCheck,
+  Headset,
+  Radar,
+  ShieldCheck,
+  TimerReset,
+  UsersRound,
+} from "lucide-react";
 import { PageHero, SectionHeading, CtaBand, Figure } from "@/components/site/oc/shared";
 import { COMPANY, VALUES, TEAM } from "@/lib/content";
 import { IMG } from "@/lib/site-media";
@@ -8,6 +18,9 @@ export const metadata = metadataForWebsiteContent("about", {
   description:
     "AMG Aviation Group provides structured aircraft support coordination for owner/operator and Part 91 environments — not charter, not an air carrier.",
 });
+
+const principleIcons = [BookOpenCheck, TimerReset, Radar, ShieldCheck] as const;
+const supportDeskIcons = [Headset, UsersRound, BriefcaseBusiness, ClipboardCheck] as const;
 
 export default function AboutPage() {
   const hero = heroForWebsiteContent("about", {
@@ -46,8 +59,8 @@ export default function AboutPage() {
           </div>
           <div data-scroll-animate>
             <Figure
-              src={IMG.runway}
-              alt="Aircraft positioned on a runway at dusk"
+              src={IMG.generatedDispatch}
+              alt="Aviation dispatcher reviewing aircraft support communication"
               sizes="(max-width: 1024px) 100vw, 45vw"
               className="aspect-[4/3] rounded-[1.25rem]"
             />
@@ -59,13 +72,22 @@ export default function AboutPage() {
         <div className="oc-shell">
           <SectionHeading eyebrow="How we operate" title="Four principles that hold every request." />
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
-            {VALUES.map((value, i) => (
-              <article key={value.title} data-stagger-item className="oc-card flex h-full flex-col p-6">
-                <span className="oc-mono text-sm text-[var(--oc-blue)]">{String(i + 1).padStart(2, "0")}</span>
-                <h3 className="oc-display mt-3 text-2xl text-[var(--oc-ink)]">{value.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--oc-muted)]">{value.body}</p>
-              </article>
-            ))}
+            {VALUES.map((value, i) => {
+              const Icon = principleIcons[i];
+
+              return (
+                <article key={value.title} data-stagger-item className="oc-card flex h-full flex-col p-6">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--oc-line)] bg-[var(--oc-ivory-2)] text-[var(--oc-blue)]">
+                      <Icon className="h-5 w-5" aria-hidden="true" />
+                    </span>
+                    <span className="oc-mono text-sm text-[var(--oc-blue)]">{String(i + 1).padStart(2, "0")}</span>
+                  </div>
+                  <h3 className="oc-display mt-3 text-2xl text-[var(--oc-ink)]">{value.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--oc-muted)]">{value.body}</p>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -78,14 +100,27 @@ export default function AboutPage() {
             lead="The team structure keeps the company story here and leaves full capability detail on the Capabilities page."
           />
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
-            {TEAM.map((member) => (
-              <article key={member.name} data-stagger-item className="oc-card flex h-full flex-col p-6">
-                <span className="oc-display text-3xl text-[var(--oc-aluminum-2)]">{member.initials}</span>
-                <h3 className="oc-display mt-4 text-xl text-[var(--oc-ink)]">{member.name}</h3>
-                <p className="oc-kicker mt-1 text-[var(--oc-blue)]">{member.title}</p>
-                <p className="mt-3 text-sm leading-relaxed text-[var(--oc-muted)]">{member.bio}</p>
-              </article>
-            ))}
+            {TEAM.map((member, i) => {
+              const Icon = supportDeskIcons[i];
+
+              return (
+                <article
+                  key={member.name}
+                  data-stagger-item
+                  className="oc-card flex h-full flex-col p-6 transition-colors hover:border-[var(--oc-blue)]"
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--oc-line)] bg-[var(--oc-ivory-2)] text-[var(--oc-blue)]">
+                      <Icon className="h-5 w-5" aria-hidden="true" />
+                    </span>
+                    <span className="oc-display text-3xl text-[var(--oc-aluminum-2)]">{member.initials}</span>
+                  </div>
+                  <h3 className="oc-display mt-4 text-xl text-[var(--oc-ink)]">{member.name}</h3>
+                  <p className="oc-kicker mt-1 text-[var(--oc-blue)]">{member.title}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-[var(--oc-muted)]">{member.bio}</p>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
