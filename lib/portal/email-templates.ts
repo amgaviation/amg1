@@ -1,5 +1,7 @@
 import "server-only";
 
+import { AMG_EMAIL_BRAND, SHARED_EMAIL_FOOTER, SITE_URL } from "@/lib/email/config";
+
 type EmailSection = {
   title?: string;
   rows?: Array<{
@@ -62,12 +64,12 @@ export type PortalNotificationEmailInput = {
 };
 
 const brand = {
-  midnight: "#050B14",
-  deepBlue: "#07111F",
-  accentBlue: "#3B82F6",
-  slateGray: "#9CA3AF",
-  lightGray: "#C0C7D1",
-  white: "#FFFFFF",
+  midnight: AMG_EMAIL_BRAND.primaryColor,
+  deepBlue: AMG_EMAIL_BRAND.secondaryDarkColor,
+  accentBlue: AMG_EMAIL_BRAND.accentBlue,
+  slateGray: AMG_EMAIL_BRAND.slateText,
+  lightGray: AMG_EMAIL_BRAND.lightGray,
+  white: AMG_EMAIL_BRAND.white,
   cardBorder: "#1E2A3C",
   softBlue: "#EFF6FF",
   offWhite: "#F8FAFC",
@@ -87,7 +89,7 @@ function formatMultiline(value?: string | null) {
 }
 
 function absoluteAppUrl() {
-  return process.env.NEXT_PUBLIC_APP_URL?.replace(/\/+$/, "") || null;
+  return SITE_URL;
 }
 
 function logoUrl() {
@@ -245,10 +247,13 @@ export function amgEmailLayout(input: BaseEmailTemplateInput) {
             <tr>
               <td style="padding: 24px 32px; background: ${brand.deepBlue}; border-top: 1px solid ${brand.cardBorder};">
                 <p style="margin: 0; color: ${brand.white}; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.65; font-weight: 700;">
-                  AMG Aviation Group LLC
+                  ${escapeHtml(AMG_EMAIL_BRAND.companyName)}
                 </p>
                 <p style="margin: 6px 0 0; color: ${brand.lightGray}; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.65;">
                   Operational support, crew coordination, aircraft movement, and flight department support.
+                </p>
+                <p style="margin: 10px 0 0; color: ${brand.lightGray}; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.65;">
+                  ${formatMultiline(SHARED_EMAIL_FOOTER)}
                 </p>
                 <p style="margin: 12px 0 0; color: ${brand.slateGray}; font-family: Arial, Helvetica, sans-serif; font-size: 11px; line-height: 1.65;">
                   This message may contain operationally sensitive information. If you received it in error, delete it and notify AMG Aviation Group.
@@ -258,7 +263,7 @@ export function amgEmailLayout(input: BaseEmailTemplateInput) {
           </table>
 
           <p style="margin: 18px 0 0; color: ${brand.slateGray}; font-family: Arial, Helvetica, sans-serif; font-size: 11px;">
-            © ${new Date().getFullYear()} AMG Aviation Group LLC
+            © ${new Date().getFullYear()} ${escapeHtml(AMG_EMAIL_BRAND.companyName)}
           </p>
         </td>
       </tr>

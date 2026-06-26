@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createServiceClient } from "@/lib/supabase/server";
+import { absolutePortalUrl, defaultSender, replyToAddress } from "@/lib/email/config";
 import { portalNotificationEmail } from "@/lib/portal/email-templates";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -25,20 +26,9 @@ type DeliveryResult = {
   error?: string;
 };
 
-function normalizeEnvEmail(value?: string | null) {
-  if (!value) return undefined;
-
-  return value
-    .trim()
-    .replace(/^EMAIL_FROM_ADDRESS=/, "")
-    .replace(/^EMAIL_REPLY_TO=/, "")
-    .replace(/^['"]|['"]$/g, "")
-    .trim();
-}
-
 function configured(channel: DeliveryChannel) {
   if (channel === "email") {
-    return Boolean(process.env.RESEND_API_KEY && normalizeEnvEmail(process.env.EMAIL_FROM_ADDRESS));
+    return Boolean(process.env.RESEND_API_KEY);
   }
 
   return Boolean(
@@ -65,9 +55,7 @@ function defaultEmailHtml(input: QueueDeliveryInput) {
     title: input.title,
     body: input.body,
     eventType: input.eventType,
-    portalUrl: process.env.NEXT_PUBLIC_APP_URL
-      ? `${process.env.NEXT_PUBLIC_APP_URL}/portal`
-      : undefined,
+    portalUrl: absolutePortalUrl("/portal"),
   });
 }
 
@@ -189,8 +177,8 @@ export async function sendEmail(params: {
     content_type?: string;
   }[];
 }): Promise<DeliveryResult> {
-  const from = normalizeEnvEmail(process.env.EMAIL_FROM_ADDRESS);
-  const replyTo = normalizeEnvEmail(params.replyTo || process.env.EMAIL_REPLY_TO);
+  const from = defaultSender("operations");
+  const replyTo = replyToAddress(params.replyTo);
 
   if (!process.env.RESEND_API_KEY || !from) {
     return { status: "suppressed", error: "Resend is not configured" };

@@ -80,7 +80,7 @@ export default async function AdminUsersPage({
 
       {params.error === "invite" ? (
         <Notice tone="danger">
-          Supabase could not send the invitation. Check Auth email settings and app URL configuration.
+          AMG could not send the invitation. Check auth email settings and AMG app URL configuration.
         </Notice>
       ) : null}
 
@@ -118,7 +118,7 @@ export default async function AdminUsersPage({
 
       {params.error === "auth-release" ? (
         <Notice tone="danger">
-          The email could not be released from Supabase Auth. Do not retry until the Auth user is checked.
+          The email could not be released from the authentication record. Do not retry until the portal account is checked.
         </Notice>
       ) : null}
 

@@ -15,11 +15,19 @@ function safeNextPath(value: string | null) {
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
+  const error = url.searchParams.get("error") || url.searchParams.get("error_code");
   const next = safeNextPath(url.searchParams.get("next"));
+
+  if (error) {
+    return NextResponse.redirect(new URL("/auth/error", url.origin));
+  }
 
   if (code) {
     const supabase = await createClient();
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+    if (exchangeError) {
+      return NextResponse.redirect(new URL("/auth/error", url.origin));
+    }
   }
 
   return NextResponse.redirect(new URL(next, url.origin));
