@@ -40,7 +40,7 @@ export const PUBLIC_NAV_GROUPS: PublicNavGroup[] = [
     items: [
       { label: "Support Plans", href: "/plans", description: "Compare on-demand, monthly owner, and fleet plans." },
       { label: "Plan Comparison", href: "/plans#plans-comparison", description: "Review included support areas and operational notes." },
-      { label: "Request Support Option Review", href: "/request-support?category=subscription-program-inquiry", description: "Start a scoped support-plan review." },
+      { label: "Request Support Option Review", href: "/contact?service=fleet-support&source=plans-page", description: "Start a scoped support-plan review." },
     ],
   },
   {
@@ -49,7 +49,7 @@ export const PUBLIC_NAV_GROUPS: PublicNavGroup[] = [
     items: [
       { label: "Member Login", href: "/login", description: "Access AMG Connect." },
       { label: "Request Portal Access", href: "/login?mode=request", description: "Request a portal account for an approved role." },
-      { label: "Start a Support Request", href: "/request-support", description: "Submit an aircraft support request." },
+      { label: "Start a Service Inquiry", href: "/contact?source=navigation", description: "Submit a short service inquiry." },
     ],
   },
 ];

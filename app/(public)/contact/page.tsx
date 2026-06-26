@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { ArrowRight, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ContactInquiryForm } from "@/components/site/contact-inquiry-form";
+import { ServiceInquiryForm } from "@/components/site/service-inquiry-form";
 import { COMPANY } from "@/lib/content";
 import { IMG } from "@/lib/site-media";
 import { heroForWebsiteContent, metadataForWebsiteContent } from "@/lib/website-editor/content";
+import { normalizeServiceInquirySearchParams } from "@/lib/public-inquiries";
 
 export const metadata = metadataForWebsiteContent("contact", {
   title: "Contact AMG Aviation Group | Aviation Support Capabilities",
@@ -15,13 +16,14 @@ export const metadata = metadataForWebsiteContent("contact", {
 export default async function ContactPage({
   searchParams,
 }: {
-  searchParams: Promise<{ success?: string; error?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
+  const context = normalizeServiceInquirySearchParams(params);
   const hero = heroForWebsiteContent("contact", {
     eyebrow: "AMG Contact",
-    title: "Contact AMG Aviation Group",
-    lead: "Use this page for general inquiries, plan questions, crew-network communication, vendor coordination, or administrative requests.",
+    title: "Start a Service Inquiry",
+    lead: "Choose the service path and send the minimum context AMG needs to qualify and route your inquiry.",
     image: IMG.contactSupport,
   });
 
@@ -39,24 +41,26 @@ export default async function ContactPage({
               {hero.lead}
             </p>
             <p className="mx-auto mt-5 max-w-3xl rounded-2xl border border-white/[0.14] bg-white/[0.08] p-4 text-sm leading-relaxed text-[var(--oc-aluminum)] backdrop-blur">
-              Submitting a contact inquiry does not confirm aircraft support, crew availability, aircraft movement, or operational acceptance.
+              Public inquiries are reviewed before any support path is accepted, quoted, scheduled, assigned, or operationally approved.
             </p>
           </div>
         </div>
       </section>
 
       <section className="oc-shell py-14 lg:py-20">
-        <div className="grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-start">
-          <aside className="grid gap-5">
+        <div className="grid gap-8 lg:grid-cols-[1.2fr_0.55fr] lg:items-start">
+          <ServiceInquiryForm context={context} />
+          <aside className="grid gap-5 lg:sticky lg:top-[calc(var(--public-header-height)+2rem)]">
             <div className="rounded-2xl border border-[var(--oc-line)] bg-white/[0.72] p-6 shadow-[var(--oc-shadow)] backdrop-blur-xl">
               <p className="oc-eyebrow text-[var(--oc-blue)]">AMG Contact</p>
-              <h2 className="mt-4 text-2xl font-semibold text-[var(--oc-ink)]">Inquiry routing</h2>
+              <h2 className="mt-4 text-2xl font-semibold text-[var(--oc-ink)]">What happens next</h2>
               <p className="mt-4 text-sm leading-relaxed text-[var(--oc-muted)]">
-                AMG routes inquiries based on request type, aircraft context when applicable, timing, and the appropriate support path.
+                AMG reviews the selected service, timing, aircraft context when relevant, and contact information. If the inquiry is within scope, AMG follows up for the next qualified step.
               </p>
+              <p className="mt-4 text-sm leading-relaxed text-[var(--oc-muted)]">{COMPANY.requestDisclaimer}</p>
               <div className="mt-5 rounded-xl border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-4">
                 <Mail className="h-5 w-5 text-[var(--oc-blue)]" />
-                <p className="mt-3 text-xs font-semibold uppercase text-[var(--oc-muted)]">General inquiries</p>
+                <p className="mt-3 text-xs font-semibold uppercase text-[var(--oc-muted)]">Direct contact</p>
                 <a href={`mailto:${COMPANY.email}`} className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-[var(--oc-ink)] hover:text-[var(--oc-blue)]">
                   {COMPANY.email}
                 </a>
@@ -64,21 +68,16 @@ export default async function ContactPage({
             </div>
 
             <div className="rounded-2xl border border-[var(--oc-line)] bg-[var(--oc-navy)] p-6 text-white shadow-[var(--oc-shadow)]">
-              <p className="oc-eyebrow oc-eyebrow-light">Need aircraft support?</p>
-              <h2 className="mt-4 text-2xl font-semibold text-[var(--oc-paper)]">Use the dedicated support request page.</h2>
+              <p className="oc-eyebrow oc-eyebrow-light">AMG Connect</p>
+              <h2 className="mt-4 text-2xl font-semibold text-[var(--oc-paper)]">Detailed trip work happens after qualification.</h2>
               <p className="mt-4 text-sm leading-relaxed text-[var(--oc-aluminum)]">
-                Aircraft movement, crew coordination, maintenance movement, and operational support requests need the structured intake flow.
+                Passenger, FBO, customs, baggage, catering, crew credential, and fulfillment details belong in the authenticated portal or direct AMG follow-up.
               </p>
               <Button asChild className="mt-6 min-h-11 rounded-full bg-white text-[var(--oc-navy)] hover:bg-white/90">
-                <Link href="/request-support" prefetch={false}>
-                  Request Support
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
+                <Link href="/login" prefetch={false}>Member Login</Link>
               </Button>
             </div>
           </aside>
-
-          <ContactInquiryForm success={params.success} error={params.error} />
         </div>
       </section>
     </>

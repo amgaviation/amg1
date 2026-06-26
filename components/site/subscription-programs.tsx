@@ -17,7 +17,7 @@ import {
 } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 
-const REQUEST_REVIEW_HREF = "/request-support?category=subscription-program-inquiry";
+const REQUEST_REVIEW_HREF = "/contact?service=fleet-support&source=plans-page";
 const CONTACT_HREF = "/contact";
 
 type PlansHeroContent = {

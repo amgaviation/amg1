@@ -140,7 +140,7 @@ export function SupportRequestForm({
             <h2 className="oc-display mt-3 text-3xl text-[var(--oc-ink)] sm:text-4xl">Submit operating details for review</h2>
           </div>
           <Badge variant="outline" className="border-[var(--oc-line)] bg-white/70 text-[var(--oc-ink)]">
-            Source: Start a Support Request
+            Source: Start a Service Inquiry
           </Badge>
         </div>
 

@@ -4,6 +4,15 @@ import { SERVICES } from "@/lib/content";
 import { SectionHeading } from "@/components/site/section-heading";
 import { Reveal, RevealGroup, RevealItem } from "@/components/site/reveal";
 
+const SERVICE_INQUIRY_HREF: Record<string, string> = {
+  "aircraft-management-support": "/contact?service=aircraft-management&source=services-page",
+  "contract-pilot-support": "/contact?service=contract-crew&source=services-page",
+  "ferry-repositioning": "/contact?service=ferry-repositioning&source=services-page",
+  "maintenance-flight-support": "/contact?service=maintenance-flight&source=services-page",
+  "flight-operations-coordination": "/contact?service=operations-coordination&source=services-page",
+  "fleet-support-programs": "/contact?service=fleet-support&source=services-page",
+};
+
 export function ServicesOverview() {
   const featuredService = SERVICES[0];
   const remainingServices = SERVICES.slice(1);
@@ -39,7 +48,7 @@ export function ServicesOverview() {
               <div className="p-6">
                 <p className="text-sm leading-relaxed text-slate-600">{featuredService.useCase}</p>
                 <Link
-                  href={`/request-support?service=`}
+                  href={SERVICE_INQUIRY_HREF[featuredService.id] ?? "/contact?source=services-page"}
                   className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 py-3 font-display text-xs font-semibold uppercase text-primary-foreground transition-colors hover:bg-primary/90"
                 >
                   Start with this path
@@ -53,7 +62,7 @@ export function ServicesOverview() {
             {remainingServices.map((service, index) => (
               <RevealItem key={service.id} data-stagger-item>
                 <Link
-                  href={`/request-support?service=`}
+                  href={SERVICE_INQUIRY_HREF[service.id] ?? "/contact?source=services-page"}
                   className="hover-lift group grid gap-5 rounded-lg border border-slate-200 bg-white p-5 shadow-[0_18px_50px_rgba(8,20,36,0.07)] transition-colors hover:border-primary/50 sm:grid-cols-[4.5rem_1fr_auto] sm:p-6"
                 >
                   <span className="font-display text-5xl font-extrabold leading-none text-primary/35">

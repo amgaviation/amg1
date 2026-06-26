@@ -36,11 +36,11 @@ export function HomeHero() {
 
           <div className="mt-10 flex flex-wrap items-center gap-4">
             <Link
-              href="/request-support"
+              href="/contact?source=homepage"
               prefetch={false}
               className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-8 py-4 font-display text-sm font-semibold uppercase text-primary-foreground shadow-[0_22px_45px_rgba(59,130,246,0.32)] transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
             >
-              Request Support
+              Start Inquiry
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link

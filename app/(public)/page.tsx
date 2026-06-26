@@ -53,8 +53,8 @@ export default function HomePage() {
         eyebrow="Start a Request"
         title="Have an aircraft support need?"
         body="Send the aircraft, location, timing, requested support, and known constraints. AMG will review feasibility and tell you the next step. Submitting a request does not mean it has been accepted."
-        primaryLabel="Start a Support Request"
-        primaryHref="/request-support"
+        primaryLabel="Start a Service Inquiry"
+        primaryHref="/contact?source=homepage"
         secondaryLabel="Contact AMG"
         secondaryHref="/contact"
       />

@@ -3,6 +3,10 @@ import {
   normalizeSupportSubmission,
   publicFormDatabaseRow,
 } from "../lib/public-form-normalization.ts";
+import {
+  normalizeServiceInquirySearchParams,
+  validateServiceInquiryFormData,
+} from "../lib/public-inquiries.ts";
 
 function fd(entries) {
   const formData = new FormData();
@@ -81,5 +85,55 @@ assert(!Object.hasOwn(row, "requested_service_category"), "database row must not
 assert(row.acknowledgement === true, "database row acknowledgement should be boolean");
 assert(row.marketing_consent === false, "missing marketing consent should store as false");
 assert(row.status === "new", "database row should use lowercase new status");
+
+const serviceContext = normalizeServiceInquirySearchParams({
+  service: "aircraft-management-support",
+  plan: "baseline",
+  aircraftCategory: "light-jet",
+  source: "services-page",
+});
+
+assert(serviceContext.service === "aircraft-management", "legacy service aliases should normalize to canonical services");
+assert(serviceContext.plan === "baseline", "plan context should remain separate from service");
+assert(serviceContext.aircraftCategory === "light-jet", "aircraft category context should remain separate from service");
+
+const managementInquiry = validateServiceInquiryFormData(fd({
+  service_type: "aircraft-management",
+  full_name: "Jane Owner",
+  email: "jane@example.com",
+  phone: "",
+  summary: "",
+  primary_support_need: "full-management",
+  idempotency_key: "verify-management",
+}));
+
+assert(managementInquiry.ok, "aircraft management should validate without route or date");
+assert(managementInquiry.inquiry.assignedTeam === "management", "aircraft management should route to management");
+assert(!Object.hasOwn(managementInquiry.inquiry.serviceDetails, "origin"), "management inquiry should not store route fields");
+
+const generalInquiry = validateServiceInquiryFormData(fd({
+  service_type: "general",
+  full_name: "Alex General",
+  email: "alex@example.com",
+  summary: "",
+  idempotency_key: "verify-general",
+}));
+
+assert(!generalInquiry.ok, "general inquiry should require brief details");
+assert(generalInquiry.fieldErrors.summary, "general inquiry summary error should be field-specific");
+
+const aogInquiry = validateServiceInquiryFormData(fd({
+  service_type: "maintenance-flight",
+  full_name: "Morgan Maintenance",
+  email: "morgan@example.com",
+  aircraft_identifier: "N123AB",
+  current_location: "KPMP",
+  maintenance_support_type: "aog-urgent",
+  requested_timeframe: "Today",
+  idempotency_key: "verify-aog",
+}));
+
+assert(!aogInquiry.ok, "AOG maintenance inquiry should require phone");
+assert(aogInquiry.fieldErrors.phone, "AOG phone error should be field-specific");
 
 console.log("Public form normalization verification passed.");
