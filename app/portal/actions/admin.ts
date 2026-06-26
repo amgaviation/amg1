@@ -43,6 +43,15 @@ function splitList(value: string): string[] {
     .filter(Boolean);
 }
 
+function bool(formData: FormData, key: string): boolean {
+  return ["true", "yes", "y", "1", "checked"].includes(str(formData, key).toLowerCase());
+}
+
+function dateOrNull(formData: FormData, key: string): string | null {
+  const value = str(formData, key);
+  return value ? value : null;
+}
+
 function controlledProfileStatus(value: string) {
   return PROFILE_STATUS.some((item) => item.value === value) ? value : "pending";
 }
@@ -938,14 +947,42 @@ export async function saveCrewRecord(formData: FormData) {
   const { error: crewError } = await db.from("crew_profiles").upsert({
     id: profileId,
     certificate_level: str(formData, "certificate_level") || null,
+    certificates_ratings: str(formData, "certificates_ratings") || str(formData, "certificate_level") || null,
+    display_name: fullName,
+    email,
+    phone: str(formData, "phone") || null,
+    address: str(formData, "address") || null,
+    city: str(formData, "city") || null,
+    state: str(formData, "state") || null,
+    zip: str(formData, "zip") || null,
+    country: str(formData, "country") || null,
+    company: str(formData, "company_name") || null,
     availability_status: availabilityStatus,
+    aircraft_type_experience: str(formData, "aircraft_type_experience") || null,
     preferred_aircraft: splitList(str(formData, "preferred_aircraft")),
     type_ratings: splitList(str(formData, "type_ratings")),
     preferred_regions: splitList(str(formData, "preferred_regions")),
     total_time: num(formData, "total_time"),
+    pic_time: num(formData, "pic_time"),
+    me_time: num(formData, "me_time"),
+    multi_time: num(formData, "me_time"),
     turbine_time: num(formData, "turbine_time"),
+    instrument_time: num(formData, "instrument_time"),
+    dual_given: num(formData, "dual_given"),
     jet_time: num(formData, "jet_time"),
     time_in_type: str(formData, "time_in_type") || null,
+    medical: str(formData, "medical") || null,
+    passport_mentioned: bool(formData, "passport_mentioned"),
+    resume_notes: str(formData, "resume_notes") || null,
+    needs_manual_review: bool(formData, "needs_manual_review"),
+    reviewed: bool(formData, "reviewed"),
+    approved: bool(formData, "approved"),
+    priority_candidate: bool(formData, "priority_candidate"),
+    last_contacted: dateOrNull(formData, "last_contacted"),
+    notes: str(formData, "notes") || null,
+    insurance_approved: bool(formData, "insurance_approved"),
+    crew_status: "candidate",
+    approval_status: bool(formData, "approved") ? "approved" : "pending_review",
     ops_notes: str(formData, "ops_notes") || null,
     updated_at: new Date().toISOString(),
   });

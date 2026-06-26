@@ -140,46 +140,110 @@ export type Database = {
       }
       crew_profiles: {
         Row: {
+          address: string | null
+          aircraft_type_experience: string | null
+          approval_status: string
+          approved: boolean
           availability_status: string
           certificate_level: string | null
+          certificates_ratings: string | null
+          city: string | null
+          company: string | null
+          country: string | null
+          crew_status: string
           day_rate: number | null
+          display_name: string | null
+          dual_given: number | null
+          email: string | null
+          first_name: string | null
           id: string
+          imported_at: string | null
+          import_batch_id: string | null
+          import_row_number: number | null
+          import_source: string | null
           international_experience: boolean
+          insurance_approved: boolean
+          instrument_time: number | null
           jet_time: number | null
+          last_contacted: string | null
+          last_name: string | null
           max_days_away: number | null
+          me_time: number | null
+          medical: string | null
           multi_time: number | null
+          needs_manual_review: boolean
+          notes: string | null
           ops_notes: string | null
+          passport_mentioned: boolean
+          phone: string | null
           pic_time: number | null
           preferred_aircraft: string[] | null
           preferred_regions: string[] | null
+          priority_candidate: boolean
+          resume_notes: string | null
+          reviewed: boolean
           short_notice_available: boolean
           sic_time: number | null
+          state: string | null
           time_in_type: string | null
           total_time: number | null
           turbine_time: number | null
           type_ratings: string[] | null
           updated_at: string
+          zip: string | null
         }
         Insert: {
+          address?: string | null
+          aircraft_type_experience?: string | null
+          approval_status?: string
+          approved?: boolean
           availability_status?: string
           certificate_level?: string | null
+          certificates_ratings?: string | null
+          city?: string | null
+          company?: string | null
+          country?: string | null
+          crew_status?: string
           day_rate?: number | null
+          display_name?: string | null
+          dual_given?: number | null
+          email?: string | null
+          first_name?: string | null
           id: string
+          imported_at?: string | null
+          import_batch_id?: string | null
+          import_row_number?: number | null
+          import_source?: string | null
           international_experience?: boolean
+          insurance_approved?: boolean
+          instrument_time?: number | null
           jet_time?: number | null
+          last_contacted?: string | null
+          last_name?: string | null
           max_days_away?: number | null
+          me_time?: number | null
+          medical?: string | null
           multi_time?: number | null
+          needs_manual_review?: boolean
+          notes?: string | null
           ops_notes?: string | null
+          passport_mentioned?: boolean
+          phone?: string | null
           pic_time?: number | null
           preferred_aircraft?: string[] | null
           preferred_regions?: string[] | null
+          priority_candidate?: boolean
+          resume_notes?: string | null
+          reviewed?: boolean
           short_notice_available?: boolean
           sic_time?: number | null
+          state?: string | null
           time_in_type?: string | null
           total_time?: number | null
           turbine_time?: number | null
           type_ratings?: string[] | null
           updated_at?: string
+          zip?: string | null
         }
         Update: Partial<Database["public"]["Tables"]["crew_profiles"]["Insert"]>
         Relationships: []
