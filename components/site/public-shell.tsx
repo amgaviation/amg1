@@ -8,6 +8,7 @@ import {
   SPLASH_COMPLETE_EVENT,
   SPLASH_DURATION_MS,
   SPLASH_SESSION_KEY,
+  SplashIntro,
 } from "@/components/site/splash-intro";
 
 function normalizePath(path: string) {
@@ -76,6 +77,7 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
       <a href="#main-content" className="skip-link">
         Skip to content
       </a>
+      {showSplash ? <SplashIntro /> : null}
       {showNav ? <SiteNav /> : null}
       <main id="main-content" className="flex-1">
         {children}
