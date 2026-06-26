@@ -1,5 +1,6 @@
-export const OPERATIONAL_EMAIL_FOOTER =
-  "AMG support is reviewed before acceptance. No request is considered accepted until applicable operational, aircraft, crew, approval, and condition items have been reviewed.";
+import { OPERATIONAL_EMAIL_DISCLAIMER } from "@/lib/email/config";
+
+export const OPERATIONAL_EMAIL_FOOTER = OPERATIONAL_EMAIL_DISCLAIMER;
 
 export function interpolateTemplate(template: string, variables: Record<string, string | number | null | undefined>) {
   return template.replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (_, key: string) => {

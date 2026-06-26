@@ -2,6 +2,7 @@ import "server-only";
 
 import { createServiceClient } from "@/lib/supabase/server";
 import type { SessionUser } from "@/lib/portal/session";
+import { replyToAddress } from "@/lib/email/config";
 import { getEmailProvider, emailProviderStatus } from "@/lib/email/provider";
 import { COMMUNICATION_ATTACHMENT_BUCKET, communicationAttachmentPath, validateAttachment } from "@/lib/email/attachments";
 import { normalizeEmailList, isValidEmailAddress, generateCommunicationPublicId, subjectWithThreadToken, extractThreadPublicId } from "@/lib/email/threading";
@@ -513,7 +514,7 @@ export async function sendCommunicationEmail(formData: FormData, user: SessionUs
       html,
       replyTo: process.env.EMAIL_INBOUND_DOMAIN
         ? `thread+${thread.public_id}@${process.env.EMAIL_INBOUND_DOMAIN}`
-        : process.env.EMAIL_REPLY_TO,
+        : replyToAddress(),
       headers: {
         "X-AMG-Thread-ID": thread.public_id,
       },

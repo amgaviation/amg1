@@ -25,7 +25,7 @@ export function AccountSecurityForm({
             type="email"
             required
             defaultValue={email}
-            hint="If secure email change is enabled in Supabase, confirmation may be required."
+            hint="If secure email change is enabled, confirmation may be required."
           />
           <SubmitButton className="rounded-full" pendingText="Saving email...">
             Update Email

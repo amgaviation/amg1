@@ -2,6 +2,7 @@ import "server-only";
 
 import { amgEmailLayout } from "@/lib/portal/email-templates";
 import { sendEmail } from "@/lib/portal/notification-delivery";
+import { passwordSetupRedirectUrl } from "@/lib/auth/urls";
 import { createServiceClient } from "@/lib/supabase/server";
 
 type PublicSupportRequest = {
@@ -18,7 +19,6 @@ type PublicSupportRequest = {
 };
 
 const EMAIL_RE = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i;
-const PORTAL_SETUP_REDIRECT = "https://amgaviationgroup.com/portal-setup";
 
 function extractFromNotes(notes?: string | null) {
   if (!notes) return null;
@@ -66,7 +66,7 @@ async function makeRecoveryLink(email: string) {
   const { data, error } = await db.auth.admin.generateLink({
     type: "recovery",
     email,
-    options: { redirectTo: PORTAL_SETUP_REDIRECT },
+    options: { redirectTo: passwordSetupRedirectUrl() },
   });
 
   if (error) {
@@ -123,7 +123,6 @@ async function sendPortalSetupEmail(params: {
       footerNote:
         "For urgent updates or corrections, reply to this email or contact AMG Aviation Group at information@amgaviationgroup.com.",
     }),
-    replyTo: process.env.EMAIL_REPLY_TO,
   });
 
   if (result.status !== "sent") {
