@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
-export const SPLASH_SESSION_KEY  = "amgHomeSplashSeen";
+export const SPLASH_SESSION_KEY   = "amgHomeSplashSeen";
 export const SPLASH_COMPLETE_EVENT = "amg:splash-complete";
-export const SPLASH_DURATION_MS  = 4800;
+export const SPLASH_DURATION_MS   = 4800;
 
 function markSplashComplete() {
   try { window.sessionStorage.setItem(SPLASH_SESSION_KEY, "true"); } catch { /* ignore */ }
@@ -15,34 +15,46 @@ function markSplashComplete() {
 /*
   Phase timeline
   ──────────────
-  idle    → nothing rendered yet
-  text    → dark screen, brand name + blurred tagline fade in
-  sharpen → tagline unblurs to crisp
-  window  → airplane window grows from center
-  expand  → window scales to fill viewport (site revealed underneath)
-  done    → overlay removed
+  idle    → dark screen visible, nothing animated yet
+  text    → brand name + blurred headline fade in
+  sharpen → headline sharpens from blur to crisp
+  window  → airplane porthole grows from center
+  expand  → porthole scales to fill viewport
+  done    → overlay removed from DOM
 */
 type Phase = "idle" | "text" | "sharpen" | "window" | "expand" | "done";
 
 export function SplashIntro() {
-  const [visible,  setVisible]  = useState(false);
-  const [phase,    setPhase]    = useState<Phase>("idle");
+  // Start visible=true so the dark overlay is on screen from first paint
+  // (no flash of content underneath). The effect will immediately hide it
+  // if the session key is already set (i.e. user has seen it this session).
+  const [visible, setVisible] = useState(true);
+  const [phase,   setPhase]   = useState<Phase>("idle");
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const push = (ms: number, fn: () => void) => {
-    const t = setTimeout(fn, ms);
-    timers.current.push(t);
-    return t;
+    const id = setTimeout(fn, ms);
+    timers.current.push(id);
+    return id;
   };
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    try {
-      if (window.sessionStorage.getItem(SPLASH_SESSION_KEY) === "true") return;
-    } catch { /* fall through */ }
+    // Bail immediately (hide overlay) if already seen this session in production
+    if (process.env.NODE_ENV === "production") {
+      try {
+        if (window.sessionStorage.getItem(SPLASH_SESSION_KEY) === "true") {
+          setVisible(false);
+          return;
+        }
+      } catch { /* fall through */ }
+    }
 
-    setVisible(true);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setVisible(false);
+      return;
+    }
+
+    // Run the animation sequence
     push(80,   () => setPhase("text"));
     push(1100, () => setPhase("sharpen"));
     push(2100, () => setPhase("window"));
@@ -64,28 +76,34 @@ export function SplashIntro() {
 
   const showText   = phase !== "idle";
   const sharpened  = phase === "sharpen" || phase === "window" || phase === "expand";
-  const showWindow = phase === "window" || phase === "expand";
+  const showWindow = phase === "window"  || phase === "expand";
   const expanding  = phase === "expand";
 
   return (
     <div className="amg-si-root" aria-label="AMG Aviation Group intro" role="status">
 
-      {/* ── Dark backdrop ── */}
+      {/* Dark backdrop — fades out during expand */}
       <div className={`amg-si-bg${expanding ? " amg-si-bg--fade" : ""}`} />
 
-      {/* ── Brand text (center, behind window) ── */}
-      <div className={`amg-si-text${showText ? " amg-si-text--in" : ""}${showWindow ? " amg-si-text--hidden" : ""}`}>
+      {/* Brand text — fades in, then hides before window appears */}
+      <div className={[
+        "amg-si-text",
+        showText   ? "amg-si-text--in"     : "",
+        showWindow ? "amg-si-text--hidden"  : "",
+      ].join(" ")}>
         <p className="amg-si-brand">AMG AVIATION GROUP</p>
         <p className={`amg-si-headline${sharpened ? " amg-si-headline--sharp" : ""}`}>
           Private aircraft support,<br />coordinated.
         </p>
       </div>
 
-      {/* ── Airplane window ── */}
-      <div className={`amg-si-window-wrap${showWindow ? " amg-si-window-wrap--in" : ""}${expanding ? " amg-si-window-wrap--expand" : ""}`}>
-        {/* Porthole frame */}
+      {/* Airplane porthole — grows from nothing to fill screen */}
+      <div className={[
+        "amg-si-window-wrap",
+        showWindow ? "amg-si-window-wrap--in"     : "",
+        expanding  ? "amg-si-window-wrap--expand" : "",
+      ].join(" ")}>
         <div className="amg-si-porthole">
-          {/* Inner glass — shows sky then logo */}
           <div className="amg-si-glass">
             <div className={`amg-si-glass-inner${sharpened ? " amg-si-glass-inner--sky" : ""}`}>
               <Image
@@ -98,7 +116,6 @@ export function SplashIntro() {
               />
             </div>
           </div>
-          {/* Porthole rim reflection */}
           <div className="amg-si-rim" aria-hidden="true" />
         </div>
       </div>

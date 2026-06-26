@@ -7,7 +7,6 @@ import { SiteNav } from "@/components/site/site-nav";
 import {
   SPLASH_COMPLETE_EVENT,
   SPLASH_DURATION_MS,
-  SPLASH_SESSION_KEY,
   SplashIntro,
 } from "@/components/site/splash-intro";
 
@@ -16,69 +15,44 @@ function normalizePath(path: string) {
   return normalized || "/";
 }
 
-function prefersReducedMotion() {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
 export function PublicShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isHome = normalizePath(pathname) === "/";
-  const [showSplash, setShowSplash] = useState(false);
-  const [showNav, setShowNav] = useState(!isHome);
+
+  // SplashIntro fully owns its own visibility logic (sessionStorage + iframe check).
+  // PublicShell only tracks whether the nav should be hidden while the splash plays.
+  const [navHidden, setNavHidden] = useState(isHome);
 
   useEffect(() => {
-    if (!isHome || prefersReducedMotion()) {
-      setShowSplash(false);
-      setShowNav(true);
+    if (!isHome) {
+      setNavHidden(false);
       return;
     }
 
-    try {
-      if (window.sessionStorage.getItem(SPLASH_SESSION_KEY) === "true") {
-        setShowSplash(false);
-        setShowNav(true);
-        return;
-      }
-    } catch {
-      // Fall through and show the intro once for this render.
-    }
+    // Show nav once splash finishes (or after its max duration as a fallback).
+    const finish = () => setNavHidden(false);
+    const timeout = window.setTimeout(finish, SPLASH_DURATION_MS + 350);
+    window.addEventListener(SPLASH_COMPLETE_EVENT, finish, { once: true });
 
-    setShowSplash(true);
-    setShowNav(false);
-  }, [isHome]);
-
-  useEffect(() => {
-    if (!showSplash) return;
-
+    // Lock scroll while splash is active.
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
-    const finish = () => {
-      try {
-        window.sessionStorage.setItem(SPLASH_SESSION_KEY, "true");
-      } catch {
-        // The splash can still finish if session storage is unavailable.
-      }
-      setShowSplash(false);
-      setShowNav(true);
-    };
-    const timeout = window.setTimeout(finish, SPLASH_DURATION_MS + 350);
-
-    window.addEventListener(SPLASH_COMPLETE_EVENT, finish);
     return () => {
       document.body.style.overflow = previousOverflow;
       window.clearTimeout(timeout);
       window.removeEventListener(SPLASH_COMPLETE_EVENT, finish);
     };
-  }, [showSplash]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isHome]);
 
   return (
     <div className="public-site amg-oc flex min-h-screen flex-col">
       <a href="#main-content" className="skip-link">
         Skip to content
       </a>
-      {showSplash ? <SplashIntro /> : null}
-      {showNav ? <SiteNav /> : null}
+      {isHome ? <SplashIntro /> : null}
+      {!navHidden ? <SiteNav /> : null}
       <main id="main-content" className="flex-1">
         {children}
       </main>
