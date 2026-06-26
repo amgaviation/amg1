@@ -3,110 +3,106 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
-export const SPLASH_SESSION_KEY = "amgHomeSplashSeen";
+export const SPLASH_SESSION_KEY  = "amgHomeSplashSeen";
 export const SPLASH_COMPLETE_EVENT = "amg:splash-complete";
-export const SPLASH_DURATION_MS = 4200;
-
-const LOGO_SRC = "/images/logo-white.png";
+export const SPLASH_DURATION_MS  = 4800;
 
 function markSplashComplete() {
-  try {
-    window.sessionStorage.setItem(SPLASH_SESSION_KEY, "true");
-  } catch {
-    /* storage unavailable */
-  }
+  try { window.sessionStorage.setItem(SPLASH_SESSION_KEY, "true"); } catch { /* ignore */ }
   window.dispatchEvent(new CustomEvent(SPLASH_COMPLETE_EVENT));
 }
 
 /*
-  Phases
-  ──────
-  idle      → nothing rendered
-  build     → letters animate in one by one
-  hold      → full logo sits still, tagline visible
-  exit      → logo scales up + fades, screen flips
+  Phase timeline
+  ──────────────
+  idle    → nothing rendered yet
+  text    → dark screen, brand name + blurred tagline fade in
+  sharpen → tagline unblurs to crisp
+  window  → airplane window grows from center
+  expand  → window scales to fill viewport (site revealed underneath)
+  done    → overlay removed
 */
-type Phase = "idle" | "build" | "hold" | "exit";
+type Phase = "idle" | "text" | "sharpen" | "window" | "expand" | "done";
 
 export function SplashIntro() {
-  const [visible, setVisible] = useState(false);
-  const [phase, setPhase] = useState<Phase>("idle");
+  const [visible,  setVisible]  = useState(false);
+  const [phase,    setPhase]    = useState<Phase>("idle");
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
+  const push = (ms: number, fn: () => void) => {
+    const t = setTimeout(fn, ms);
+    timers.current.push(t);
+    return t;
+  };
+
   useEffect(() => {
+    if (typeof window === "undefined") return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     try {
       if (window.sessionStorage.getItem(SPLASH_SESSION_KEY) === "true") return;
     } catch { /* fall through */ }
 
     setVisible(true);
-    // Small delay so the first paint is fully black before animation starts
-    const t = setTimeout(() => setPhase("build"), 120);
-    timers.current.push(t);
-  }, []);
-
-  useEffect(() => {
-    if (phase !== "build") return;
-
-    const push = (ms: number, fn: () => void) => {
-      const t = setTimeout(fn, ms);
-      timers.current.push(t);
-    };
-
-    push(1600, () => setPhase("hold"));
-    push(2800, () => setPhase("exit"));
-    push(4200, () => {
+    push(80,   () => setPhase("text"));
+    push(1100, () => setPhase("sharpen"));
+    push(2100, () => setPhase("window"));
+    push(3000, () => setPhase("expand"));
+    push(4400, () => {
       markSplashComplete();
-      setVisible(false);
+      setPhase("done");
     });
+    push(4800, () => setVisible(false));
 
     return () => {
       timers.current.forEach(clearTimeout);
       timers.current = [];
     };
-  }, [phase]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  if (!visible) return null;
+  if (!visible || phase === "done") return null;
 
-  const isBuilding = phase === "build" || phase === "hold" || phase === "exit";
-  const isHolding  = phase === "hold"  || phase === "exit";
-  const isExiting  = phase === "exit";
+  const showText   = phase !== "idle";
+  const sharpened  = phase === "sharpen" || phase === "window" || phase === "expand";
+  const showWindow = phase === "window" || phase === "expand";
+  const expanding  = phase === "expand";
 
   return (
-    <div
-      className="amg-si-root"
-      aria-label="AMG Aviation Group"
-      aria-live="polite"
-    >
-      {/* ── Core stage ── */}
-      <div className={`amg-si-stage${isExiting ? " amg-si-stage--exit" : ""}`}>
+    <div className="amg-si-root" aria-label="AMG Aviation Group intro" role="status">
 
-        {/* Logo image — the whole mark slides up and fades as one */}
-        <div className={`amg-si-logo-wrap${isBuilding ? " amg-si-logo-wrap--in" : ""}${isExiting ? " amg-si-logo-wrap--out" : ""}`}>
-          <Image
-            src={LOGO_SRC}
-            alt="AMG Aviation Group"
-            width={520}
-            height={120}
-            priority
-            className="amg-si-logo-img"
-          />
-          {/* Shimmer sweep fires once the logo is visible */}
-          {isBuilding && <div className="amg-si-shimmer" aria-hidden="true" />}
-        </div>
+      {/* ── Dark backdrop ── */}
+      <div className={`amg-si-bg${expanding ? " amg-si-bg--fade" : ""}`} />
 
-        {/* Divider line extends from center outward */}
-        <div className={`amg-si-divider${isHolding ? " amg-si-divider--visible" : ""}`} aria-hidden="true" />
-
-        {/* Tagline clips in left-to-right */}
-        <div className={`amg-si-tagline-wrap${isHolding ? " amg-si-tagline-wrap--visible" : ""}`}>
-          <p className="amg-si-tagline">AMG Aviation Group</p>
-        </div>
-
+      {/* ── Brand text (center, behind window) ── */}
+      <div className={`amg-si-text${showText ? " amg-si-text--in" : ""}${showWindow ? " amg-si-text--hidden" : ""}`}>
+        <p className="amg-si-brand">AMG AVIATION GROUP</p>
+        <p className={`amg-si-headline${sharpened ? " amg-si-headline--sharp" : ""}`}>
+          Private aircraft support,<br />coordinated.
+        </p>
       </div>
 
-      {/* Flash overlay — fires on exit, flips bright then clears */}
-      <div className={`amg-si-flash${isExiting ? " amg-si-flash--active" : ""}`} aria-hidden="true" />
+      {/* ── Airplane window ── */}
+      <div className={`amg-si-window-wrap${showWindow ? " amg-si-window-wrap--in" : ""}${expanding ? " amg-si-window-wrap--expand" : ""}`}>
+        {/* Porthole frame */}
+        <div className="amg-si-porthole">
+          {/* Inner glass — shows sky then logo */}
+          <div className="amg-si-glass">
+            <div className={`amg-si-glass-inner${sharpened ? " amg-si-glass-inner--sky" : ""}`}>
+              <Image
+                src="/images/logo-white.png"
+                alt="AMG Aviation Group"
+                width={340}
+                height={80}
+                priority
+                className={`amg-si-window-logo${showWindow ? " amg-si-window-logo--in" : ""}`}
+              />
+            </div>
+          </div>
+          {/* Porthole rim reflection */}
+          <div className="amg-si-rim" aria-hidden="true" />
+        </div>
+      </div>
+
     </div>
   );
 }
