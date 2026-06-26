@@ -4,7 +4,8 @@ const path = require("node:path");
 const crypto = require("node:crypto");
 const { createClient } = require("@supabase/supabase-js");
 
-const EXPECTED_VALID_ROWS = 40;
+const EXPECTED_VALID_ROWS = 39;
+const TARGET_TABLES = "public.profiles + public.crew_profiles";
 const REQUIRED_HEADERS = [
   "First Name",
   "Last Name",
@@ -54,6 +55,26 @@ function parseArgs(argv) {
     throw new Error("Usage: npm run import:crew-profiles -- /path/to/pilots.csv [--overwrite]");
   }
   return { csvPath, overwrite };
+}
+
+function loadEnvFile(filePath) {
+  if (!fs.existsSync(filePath)) return;
+  const body = fs.readFileSync(filePath, "utf8");
+  for (const line of body.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const match = trimmed.match(/^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/);
+    if (!match) continue;
+    const [, key, rawValue] = match;
+    if (process.env[key]) continue;
+    process.env[key] = rawValue.replace(/^['"]|['"]$/g, "");
+  }
+}
+
+function supabaseErrorText(error) {
+  if (!error) return "Unknown Supabase error";
+  if (typeof error === "object" && "message" in error && error.message) return error.message;
+  return JSON.stringify(error);
 }
 
 function parseCsv(input) {
@@ -299,6 +320,10 @@ async function findExistingProfile(db, row, sourceName, warnings) {
 }
 
 async function main() {
+  const { ADMIN_CREW_QUERY_SOURCE, listAdminCrewProfiles } = await import("../lib/portal/admin-crew-query");
+  loadEnvFile(path.resolve(process.cwd(), ".env.local"));
+  loadEnvFile(path.resolve(process.cwd(), ".env"));
+
   const { csvPath, overwrite } = parseArgs(process.argv);
   const sourceName = path.basename(csvPath);
   const batchId = `pilot-network-${new Date().toISOString().replace(/[:.]/g, "-")}-${crypto.randomUUID().slice(0, 8)}`;
@@ -326,13 +351,30 @@ async function main() {
     console.warn(`Warning: CSV contained ${normalizedRows.length} valid data rows, not ${EXPECTED_VALID_ROWS}.`);
   }
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !serviceKey) {
-    throw new Error("NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required to run the database import.");
+    throw new Error("NEXT_PUBLIC_SUPABASE_URL/SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required to run the database import.");
   }
 
   const db = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
+  console.log(`Supabase project host: ${new URL(url).host}`);
+  console.log(`Target tables: ${TARGET_TABLES}`);
+  console.log(`Admin crew query: ${ADMIN_CREW_QUERY_SOURCE}`);
+  console.log(`import_batch_id: ${batchId}`);
+
+  const { error: profilePreflightError } = await db.from("profiles").select("id", { count: "exact", head: true }).eq("role", "crew");
+  if (profilePreflightError) {
+    throw new Error(`Supabase preflight failed for public.profiles: ${supabaseErrorText(profilePreflightError)}`);
+  }
+
+  const { error: crewProfilePreflightError } = await db
+    .from("crew_profiles")
+    .select("id,import_source,import_batch_id,profile_status,crew_status,reviewed,approved,priority_candidate,insurance_approved", { head: true });
+  if (crewProfilePreflightError) {
+    throw new Error(`Supabase preflight failed for public.crew_profiles import columns: ${supabaseErrorText(crewProfilePreflightError)}`);
+  }
+
   const summary = { inserted: 0, updated: 0, skipped: 0, flagged: 0, errors: 0 };
   const warnings = [];
   const spotChecks = [];
@@ -447,6 +489,21 @@ async function main() {
     return acc;
   }, {});
 
+  const visibleRows = await listAdminCrewProfiles(db);
+  const visibleIds = new Set(visibleRows.map((profile) => profile.id));
+  const batchVisibleRows = visibleRows.filter((profile) => profile.crew_profile?.import_batch_id === batchId);
+  const batchInvisibleCount = (batchCount ?? 0) - batchVisibleRows.length;
+  const adminSpotChecks = Array.from(SPOT_CHECK_NAMES).map((name) => {
+    const row = visibleRows.find((profile) => (profile.crew_profile?.display_name ?? profile.full_name ?? "").toLowerCase() === name);
+    return {
+      name,
+      visible: Boolean(row),
+      email: row?.email ?? null,
+      status: row?.status ?? null,
+      import_batch_id: row?.crew_profile?.import_batch_id ?? null,
+    };
+  });
+
   console.log(JSON.stringify({
     importBatchId: batchId,
     rowsRead: physicalRows.length,
@@ -454,10 +511,19 @@ async function main() {
     ...summary,
     importedProfilesForBatch: batchCount ?? 0,
     totalCrewProfiles: totalCrewProfiles ?? 0,
+    adminCrewQuery: ADMIN_CREW_QUERY_SOURCE,
+    visibleThroughAdminCrewQuery: visibleRows.length,
+    visibleImportedProfilesForBatch: batchVisibleRows.length,
+    writtenButNotVisibleThroughAdminQuery: batchInvisibleCount,
     booleanCounts: boolCounts,
     warnings,
     spotChecks,
+    adminSpotChecks,
   }, null, 2));
+
+  if (summary.errors > 0 || batchInvisibleCount > 0 || adminSpotChecks.some((spot) => !spot.visible)) {
+    process.exitCode = 1;
+  }
 }
 
 main().catch((error) => {
