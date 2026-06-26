@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronDown, ClipboardCheck, Plane, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +25,8 @@ type PlansHeroContent = {
   eyebrow: string;
   title: string;
   lead?: string;
+  image?: string;
+  imageAlt?: string;
   primary?: { label: string; href: string };
   secondary?: { label: string; href: string };
 };
@@ -210,13 +213,28 @@ function PlansHero({ content }: { content?: PlansHeroContent }) {
             </div>
           </div>
 
-          <div className="grid gap-3 rounded-2xl border border-white/[0.12] bg-white/[0.08] p-5 backdrop-blur-xl">
-            {["Aircraft category", "Support frequency", "Maintenance movement", "Crew coordination"].map((item) => (
-              <div key={item} className="flex items-center gap-3 rounded-xl border border-white/[0.10] bg-white/[0.07] p-3">
-                <ShieldCheck className="h-4 w-4 shrink-0 text-[var(--oc-sky)]" />
-                <span className="text-sm font-medium text-[var(--oc-paper)]">{item}</span>
-              </div>
-            ))}
+          <div className="overflow-hidden rounded-2xl border border-white/[0.12] bg-white/[0.08] backdrop-blur-xl">
+            <div className="relative aspect-[4/3]">
+              {content?.image ? (
+                <Image
+                  src={content.image}
+                  alt={content.imageAlt ?? "Aircraft support plan review visual"}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 40vw"
+                  className="object-cover"
+                />
+              ) : null}
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--oc-navy)] via-[var(--oc-navy)]/18 to-transparent" />
+            </div>
+            <div className="grid gap-3 p-5">
+              {["Aircraft category", "Support frequency", "Maintenance movement", "Crew coordination"].map((item) => (
+                <div key={item} className="flex items-center gap-3 rounded-xl border border-white/[0.10] bg-white/[0.07] p-3">
+                  <ShieldCheck className="h-4 w-4 shrink-0 text-[var(--oc-sky)]" />
+                  <span className="text-sm font-medium text-[var(--oc-paper)]">{item}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

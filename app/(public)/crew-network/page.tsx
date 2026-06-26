@@ -1,3 +1,13 @@
+import {
+  BadgeCheck,
+  CalendarCheck,
+  ClipboardCheck,
+  FileBadge,
+  Handshake,
+  MessagesSquare,
+  ShieldCheck,
+  UserCheck,
+} from "lucide-react";
 import { PageHero, SectionHeading, CtaBand, Figure } from "@/components/site/oc/shared";
 import { CrewNetworkHeroGlobe } from "@/components/sections/crew-network-hero-globe";
 import { CrewNetworkSecondaryGlobe } from "@/components/sections/crew-network-secondary-globe";
@@ -10,6 +20,9 @@ export const metadata = metadataForWebsiteContent("crew-network", {
   description:
     "A credential-reviewed crew network organized by base airport, aircraft experience, documents, availability, and assignment suitability.",
 });
+
+const requirementIcons = [UserCheck, BadgeCheck, CalendarCheck, FileBadge, Handshake] as const;
+const benefitIcons = [ClipboardCheck, ShieldCheck, MessagesSquare, UserCheck] as const;
 
 export default function CrewNetworkPage() {
   const hero = heroForWebsiteContent("crew-network", {
@@ -45,12 +58,19 @@ export default function CrewNetworkPage() {
               lead="Profiles are organized around the details that actually determine whether a crew member can support a specific aircraft need."
             />
             <ol className="mt-8 grid gap-3" data-stagger-container>
-              {PILOT_REQUIREMENTS.map((req, i) => (
-                <li key={req} data-stagger-item className="oc-card flex items-center gap-4 p-5">
-                  <span className="oc-mono text-sm text-[var(--oc-blue)]">{String(i + 1).padStart(2, "0")}</span>
-                  <span className="text-[15px] leading-snug text-[var(--oc-ink)]/85">{req}</span>
-                </li>
-              ))}
+              {PILOT_REQUIREMENTS.map((req, i) => {
+              const Icon = requirementIcons[i];
+
+              return (
+                  <li key={req} data-stagger-item className="oc-card flex items-center gap-4 p-5">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--oc-line)] bg-[var(--oc-ivory-2)] text-[var(--oc-blue)]">
+                      <Icon className="h-5 w-5" aria-hidden="true" />
+                    </span>
+                    <span className="oc-mono text-sm text-[var(--oc-blue)]">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="text-[15px] leading-snug text-[var(--oc-ink)]/85">{req}</span>
+                  </li>
+                );
+              })}
             </ol>
           </div>
           <div data-scroll-animate>
@@ -72,12 +92,19 @@ export default function CrewNetworkPage() {
             lead="The network is built for credential organization, assignment context, and clear communication — not a casual job board or guaranteed placement system."
           />
           <div className="mt-12 grid gap-5 sm:grid-cols-2" data-stagger-container>
-            {PILOT_BENEFITS.map((b) => (
-              <article key={b.title} data-stagger-item className="oc-card h-full p-7">
-                <h3 className="oc-display text-2xl text-[var(--oc-ink)]">{b.title}</h3>
-                <p className="mt-3 text-[15px] leading-relaxed text-[var(--oc-muted)]">{b.body}</p>
-              </article>
-            ))}
+            {PILOT_BENEFITS.map((b, i) => {
+              const Icon = benefitIcons[i];
+
+              return (
+                <article key={b.title} data-stagger-item className="oc-card h-full p-7">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--oc-line)] bg-[var(--oc-ivory)] text-[var(--oc-blue)]">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <h3 className="oc-display text-2xl text-[var(--oc-ink)]">{b.title}</h3>
+                  <p className="mt-3 text-[15px] leading-relaxed text-[var(--oc-muted)]">{b.body}</p>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>

@@ -11,6 +11,7 @@
     "communications:verify": "node scripts/verify-communications-center.mjs",
     "compliance:verify": "node scripts/verify-compliance-foundation.mjs",
     "compliance:check": "node scripts/verify-compliance-foundation.mjs && node scripts/verify-compliance-hardening.mjs && node scripts/verify-website-editor.mjs",
+    "visuals:verify": "node scripts/verify-public-visual-enrichment.mjs",
     "website-editor:verify": "node scripts/verify-website-editor.mjs",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",

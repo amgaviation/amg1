@@ -6,6 +6,12 @@ import {
   CheckCircle2,
   ChevronDown,
   Compass,
+  ClipboardList,
+  Gauge,
+  Handshake,
+  MapPinned,
+  MessageSquareText,
+  SearchCheck,
   ShieldCheck,
 } from "lucide-react";
 import { PageHero, Figure } from "@/components/site/oc/shared";
@@ -51,10 +57,14 @@ const MODEL_STEPS = [
   },
 ];
 
+const modelStepIcons = [ClipboardList, SearchCheck, Gauge, MapPinned, MessageSquareText, Handshake] as const;
+
 const SUPPORT_PATHS = [
   {
     title: "Aircraft Management Support",
     summary: "For owners and operators who need administrative visibility around support requests, records context, and communication.",
+    visual: IMG.serviceAircraftManagement,
+    visualAlt: "Aircraft support administration documents reviewed near a private aircraft",
     details: [
       "Aircraft profile and support context review",
       "Document and owner/operator communication routing",
@@ -64,6 +74,8 @@ const SUPPORT_PATHS = [
   {
     title: "Contract Pilot Support",
     summary: "For aircraft-specific pilot coverage review where qualifications, currency, seat requirements, and timing all matter.",
+    visual: IMG.serviceContractPilot,
+    visualAlt: "Contract pilot support review with flight crew near an aircraft",
     details: [
       "Pilot suitability review by aircraft class and request type",
       "Availability and insurance-context coordination",
@@ -73,6 +85,8 @@ const SUPPORT_PATHS = [
   {
     title: "Ferry & Repositioning",
     summary: "For aircraft movement needs that require careful review of route, aircraft readiness, crew, documents, and approvals.",
+    visual: IMG.runway,
+    visualAlt: "Aircraft positioned for ferry and repositioning support",
     details: [
       "Departure, destination, and intermediate airport context",
       "Tail number, aircraft status, and timing review",
@@ -82,6 +96,8 @@ const SUPPORT_PATHS = [
   {
     title: "Maintenance Flight Support",
     summary: "For maintenance-related movement where aircraft status, records, facility timing, and crew fit drive the support path.",
+    visual: IMG.serviceMaintenance,
+    visualAlt: "Aircraft maintenance flight support review inside a hangar",
     details: [
       "Maintenance facility and return-to-service context",
       "Aircraft limitations and documentation review",
@@ -91,6 +107,8 @@ const SUPPORT_PATHS = [
   {
     title: "Flight Ops Coordination",
     summary: "For support requests that depend on aligned logistics, vendors, schedules, aircraft context, and stakeholder communication.",
+    visual: IMG.serviceFlightOps,
+    visualAlt: "Flight operations coordination desk with aircraft routing context",
     details: [
       "Schedule, airport, and vendor coordination inputs",
       "Operational document and communication routing",
@@ -100,6 +118,8 @@ const SUPPORT_PATHS = [
   {
     title: "Fleet Support",
     summary: "For operators coordinating recurring support needs across multiple aircraft, aircraft classes, and timing windows.",
+    visual: IMG.serviceFleet,
+    visualAlt: "Fleet support coordination for multiple private aircraft",
     details: [
       "Fleet-level support categorization",
       "Recurring request and plan review",
@@ -109,6 +129,8 @@ const SUPPORT_PATHS = [
   {
     title: "Plan Review",
     summary: "For owners and operators evaluating which AMG support plan fits aircraft class, flight volume, and coordination needs.",
+    visual: IMG.plansSelector,
+    visualAlt: "Aircraft support plan selector for plan review",
     details: [
       "Aircraft category and expected support-volume review",
       "Subscription fit based on movement, crew, and visibility needs",
@@ -183,13 +205,22 @@ export default function CapabilitiesPage() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2" data-stagger-container>
-            {MODEL_STEPS.map((step) => (
-              <article key={step.step} data-stagger-item className="rounded-2xl border border-[var(--oc-line-dark)] bg-white/[0.04] p-5">
-                <span className="oc-mono text-xs text-[var(--oc-blue-soft)]">{step.step}</span>
-                <h3 className="mt-5 text-xl font-semibold text-[var(--oc-paper)]">{step.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--oc-aluminum)]">{step.body}</p>
-              </article>
-            ))}
+            {MODEL_STEPS.map((step, index) => {
+              const Icon = modelStepIcons[index];
+
+              return (
+                <article key={step.step} data-stagger-item className="rounded-2xl border border-[var(--oc-line-dark)] bg-white/[0.04] p-5">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/12 bg-white/[0.07] text-[var(--oc-blue-soft)]">
+                      <Icon className="h-5 w-5" aria-hidden="true" />
+                    </span>
+                    <span className="oc-mono text-xs text-[var(--oc-blue-soft)]">{step.step}</span>
+                  </div>
+                  <h3 className="mt-5 text-xl font-semibold text-[var(--oc-paper)]">{step.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--oc-aluminum)]">{step.body}</p>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -227,15 +258,25 @@ export default function CapabilitiesPage() {
                   <ChevronDown className="h-5 w-5 shrink-0 text-[var(--oc-muted)] transition-transform group-open:rotate-180" aria-hidden="true" />
                 </summary>
                 <div className="border-t border-[var(--oc-line)] px-5 pb-5 pt-4">
-                  <p className="text-sm leading-relaxed text-[var(--oc-muted)]">{path.summary}</p>
-                  <ul className="mt-4 grid gap-2">
-                    {path.details.map((detail) => (
-                      <li key={detail} className="flex gap-2.5 text-sm leading-relaxed text-[var(--oc-ink)]/80">
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--oc-blue)]" aria-hidden="true" />
-                        <span>{detail}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="grid gap-5 md:grid-cols-[0.4fr_0.6fr] md:items-start">
+                    <Figure
+                      src={path.visual}
+                      alt={path.visualAlt}
+                      sizes="(max-width: 768px) 100vw, 24vw"
+                      className="aspect-[4/3] rounded-xl"
+                    />
+                    <div>
+                      <p className="text-sm leading-relaxed text-[var(--oc-muted)]">{path.summary}</p>
+                      <ul className="mt-4 grid gap-2">
+                        {path.details.map((detail) => (
+                          <li key={detail} className="flex gap-2.5 text-sm leading-relaxed text-[var(--oc-ink)]/80">
+                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--oc-blue)]" aria-hidden="true" />
+                            <span>{detail}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </details>
             ))}
