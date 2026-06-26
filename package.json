@@ -13,6 +13,7 @@
     "compliance:verify": "node scripts/verify-compliance-foundation.mjs",
     "compliance:check": "node scripts/verify-compliance-foundation.mjs && node scripts/verify-compliance-hardening.mjs && node scripts/verify-website-editor.mjs",
     "website-editor:verify": "node scripts/verify-website-editor.mjs",
+    "import:crew-profiles": "tsx scripts/import-crew-profiles-from-csv.ts",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "npm run typecheck"
@@ -59,6 +60,7 @@
     "@types/three": "^0.184.1",
     "postcss": "^8.4.49",
     "tailwindcss": "^4.0.0",
+    "tsx": "^4.20.6",
     "typescript": "^5.7.2"
   },
   "allowScripts": {
