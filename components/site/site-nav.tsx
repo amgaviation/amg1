@@ -1,11 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight, ChevronDown, Menu, X } from "lucide-react";
 import { PUBLIC_NAV_GROUPS, PUBLIC_NAV_LINKS } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
+import logoWhite from "../../public/images/logo-white.png";
+
+const HOME_NAV_LINKS = [
+  { label: "Fleet", href: "/aircraft" },
+  { label: "Private Jet", href: "/services" },
+  { label: "Business Aviation", href: "/plans" },
+  { label: "Empty Legs", href: "/booking-request?service=empty-legs" },
+  { label: "Inquire", href: "/booking-request" },
+] as const;
 
 function normalizePath(path: string) {
   const normalized = path.split(/[?#]/)[0].replace(/\/+$/, "");
@@ -34,7 +44,7 @@ export function SiteNav() {
       setAtTop(false);
       return;
     }
-    const update = () => setAtTop(window.scrollY < window.innerHeight - 88);
+    const update = () => setAtTop(window.scrollY <= window.innerHeight * 0.8);
     update();
     window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update, { passive: true });
@@ -91,18 +101,33 @@ export function SiteNav() {
           className="relative z-50 flex min-h-11 items-center"
           aria-label="AMG Aviation Group home"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/logo-white.png"
+          <Image
+            src={logoWhite}
             alt="AMG Aviation Group"
             width="1088"
             height="221"
+            priority={isHome}
             className="h-7 w-auto"
           />
         </Link>
 
-        <ul className="ml-auto hidden items-center gap-1 xl:flex">
-          {PUBLIC_NAV_GROUPS.map((group) => {
+        {isHome ? (
+          <ul className="ml-auto hidden items-center gap-2 xl:flex">
+            {HOME_NAV_LINKS.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  prefetch={false}
+                  className="relative inline-flex min-h-11 items-center px-3 text-[0.7rem] font-semibold uppercase leading-none tracking-[0.16em] text-white/[0.72] transition-colors after:absolute after:bottom-2.5 after:left-3 after:h-px after:w-[calc(100%-1.5rem)] after:origin-left after:scale-x-0 after:bg-[var(--oc-blue)] after:transition-transform hover:text-white hover:after:scale-x-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <ul className="ml-auto hidden items-center gap-1 xl:flex">
+            {PUBLIC_NAV_GROUPS.map((group) => {
             const active = isActivePath(pathname, group.href) || group.items.some((item) => isActivePath(pathname, item.href));
             return (
               <li key={group.label} className="group relative">
@@ -140,14 +165,15 @@ export function SiteNav() {
                 </div>
               </li>
             );
-          })}
-        </ul>
+            })}
+          </ul>
+        )}
 
         <div className="ml-auto flex items-center gap-2.5 xl:ml-5">
           <Link
             href="/booking-request"
             prefetch={false}
-            className="oc-btn oc-btn-ghost-dark !hidden sm:!inline-flex"
+            className={cn("oc-btn oc-btn-ghost-dark !hidden sm:!inline-flex", isHome && "sm:!hidden")}
           >
             Request support
             <ArrowUpRight className="h-4 w-4" />
@@ -155,7 +181,10 @@ export function SiteNav() {
           <Link
             href="/login"
             prefetch={false}
-            className="hidden min-h-11 items-center whitespace-nowrap px-2 text-[0.72rem] font-semibold uppercase leading-none text-white/[0.74] transition-colors hover:text-white sm:inline-flex"
+            className={cn(
+              "hidden min-h-11 items-center whitespace-nowrap px-2 text-[0.72rem] font-semibold uppercase leading-none text-white/[0.74] transition-colors hover:text-white sm:inline-flex",
+              isHome && "sm:hidden"
+            )}
           >
             Member login
           </Link>
@@ -182,7 +211,7 @@ export function SiteNav() {
         >
           <div className="oc-shell grid gap-7">
             <div className="grid gap-3 sm:grid-cols-2">
-              {PUBLIC_NAV_LINKS.map((link) => {
+              {(isHome ? HOME_NAV_LINKS : PUBLIC_NAV_LINKS).map((link) => {
                 const active = isActivePath(pathname, link.href);
                 return (
                   <Link
@@ -222,15 +251,17 @@ export function SiteNav() {
               ))}
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-light justify-center">
-                Request support
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-              <Link href="/login" prefetch={false} className="oc-btn oc-btn-ghost-dark justify-center">
-                Member login
-              </Link>
-            </div>
+            {!isHome ? (
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-light justify-center">
+                  Request support
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
+                <Link href="/login" prefetch={false} className="oc-btn oc-btn-ghost-dark justify-center">
+                  Member login
+                </Link>
+              </div>
+            ) : null}
           </div>
         </div>
       ) : null}
