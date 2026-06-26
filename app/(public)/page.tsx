@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { CtaBand } from "@/components/site/oc/shared";
+import { MovementIntro } from "@/components/site/home/movement-intro";
 import { metadataForWebsiteContent } from "@/lib/website-editor/content";
 
 export const metadata = metadataForWebsiteContent("home", {
@@ -73,40 +73,18 @@ function SectionIntro({ eyebrow, title, body }: { eyebrow: string; title: string
 export default function HomePage() {
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-[#050B14] pt-[calc(var(--public-header-height)+3.5rem)] text-white lg:pt-[calc(var(--public-header-height)+5rem)]">
-        <Image
-          src="/images/hero-jet-poster.jpg"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="absolute inset-0 -z-20 object-cover opacity-55"
-        />
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(5,11,20,0.98),rgba(5,11,20,0.82)_48%,rgba(5,11,20,0.66)),linear-gradient(180deg,rgba(5,11,20,0.22),#050B14_92%)]" />
-        <div className="oc-shell pb-20 lg:pb-28">
-          <div className="max-w-4xl">
-            <p className="oc-eyebrow oc-eyebrow-light text-[var(--oc-blue)]">Private aircraft support</p>
-            <h1 className="mt-5 max-w-4xl text-[clamp(3rem,8vw,6.7rem)] font-semibold leading-[1.03] tracking-[-0.02em] text-white">
-              Coordinated support for private aircraft.
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[var(--oc-aluminum)]">
-              AMG helps owners and flight departments secure qualified crew, coordinate aircraft movement, and manage maintenance repositioning from request through completion.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-light justify-center">
-                Request aircraft support
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link href="/services" prefetch={false} className="oc-btn oc-btn-ghost-dark justify-center">
-                Explore services
-              </Link>
-            </div>
-            <div className="mt-8 flex flex-wrap gap-2 text-sm font-semibold text-white">
-              {["Crew coverage", "Aircraft movement", "Maintenance repositioning"].map((item) => (
-                <span key={item} className="rounded-full border border-white/15 bg-white/10 px-4 py-2">{item}</span>
-              ))}
-            </div>
-          </div>
+      <MovementIntro />
+
+      <section className="relative isolate overflow-hidden bg-[#050B14] py-20 text-white lg:py-28">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_0%,rgba(59,130,246,0.16),transparent_34rem),linear-gradient(180deg,#050B14,#07111F_55%,#050B14)]" />
+        <div className="oc-shell mx-auto max-w-5xl text-center">
+          <p className="oc-eyebrow text-[var(--oc-blue)]">Reclaim the operating day</p>
+          <h2 className="oc-display mt-5 text-[clamp(2.4rem,6vw,5.6rem)] font-semibold leading-[0.98] text-white">
+            Time belongs to those who move differently
+          </h2>
+          <p className="mx-auto mt-6 max-w-3xl text-lg leading-relaxed text-[var(--oc-aluminum)]">
+            AMG coordinates the people, approvals, timing, and communication around private-aircraft support so owners and flight departments can move with fewer handoffs and clearer next steps.
+          </p>
         </div>
       </section>
 
