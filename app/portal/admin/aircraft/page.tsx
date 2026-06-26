@@ -82,6 +82,7 @@ export default async function AdminAircraftPage({
       cells: {
         tail: item.tail_number,
         client: clientName,
+        makeModel: aircraftName,
         make: item.make,
         model: item.model,
         category: item.aircraft_category,
@@ -188,13 +189,9 @@ export default async function AdminAircraftPage({
         columns={[
           { key: "tail", label: "Tail", sortable: true },
           { key: "client", label: "Client", sortable: true },
-          { key: "make", label: "Make", sortable: true },
-          { key: "model", label: "Model", sortable: true },
+          { key: "makeModel", label: "Make / Model", sortable: true },
           { key: "category", label: "Category", sortable: true },
           { key: "homeBase", label: "Home Base", sortable: true },
-          { key: "capacity", label: "Capacity", sortable: true },
-          { key: "requiredCrew", label: "Crew", sortable: true },
-          { key: "secondaryStatus", label: "Maintenance", sortable: true },
           { key: "status", label: "Status", sortable: true },
           { key: "updated", label: "Updated", sortable: true },
         ]}

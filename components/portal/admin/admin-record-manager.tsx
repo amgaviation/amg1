@@ -1,8 +1,9 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowDown, ArrowUp, Edit3, Filter, Plus, RefreshCw, Search, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Edit3, Eye, Filter, Plus, RefreshCw, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -75,7 +76,7 @@ type AdminRecordManagerProps = {
 };
 
 function valueText(value: RecordValue) {
-  if (value === undefined || value === null || value === "") return "-";
+  if (value === undefined || value === null || value === "" || value === "-") return "—";
   if (typeof value === "boolean") return value ? "Yes" : "No";
   return String(value);
 }
@@ -87,6 +88,20 @@ function inputValue(value: RecordValue) {
 
 function labelFor(options: { value: string; label: string }[], value: string) {
   return options.find((item) => item.value === value)?.label ?? value;
+}
+
+function cellClass(column: AdminRecordColumn, index: number) {
+  if (index === 0) return cn("min-w-0", column.className);
+  if (column.key === "updated") return cn("whitespace-nowrap text-slate-500", column.className);
+  if (column.key === "status" || column.key === "secondaryStatus") return cn("flex min-w-0 overflow-hidden justify-start", column.className);
+  return cn("min-w-0 truncate", column.className);
+}
+
+function gridTemplate(columnCount: number): CSSProperties {
+  const middle = Math.max(columnCount - 1, 0);
+  return {
+    gridTemplateColumns: `minmax(14rem, 1.8fr) repeat(${middle}, minmax(0, 1fr)) minmax(7.5rem, auto)`,
+  };
 }
 
 function fieldInput(field: AdminRecordField, values: Record<string, RecordValue>) {
@@ -154,9 +169,9 @@ export function AdminRecordManager({
     key: columns[0]?.key ?? "title",
     direction: "asc",
   });
-  const [selectedId, setSelectedId] = useState(rows[0]?.id ?? "");
+  const [selectedId, setSelectedId] = useState("");
   const [editor, setEditor] = useState<{ mode: "create" | "edit"; row?: AdminRecordRow } | null>(null);
-  const selected = rows.find((row) => row.id === selectedId) ?? rows[0] ?? null;
+  const selected = rows.find((row) => row.id === selectedId) ?? null;
 
   const visibleRows = useMemo(() => {
     const needle = search.trim().toLowerCase();
@@ -284,88 +299,115 @@ export function AdminRecordManager({
         ) : null}
       </header>
 
-      <div className="grid min-h-[34rem] xl:grid-cols-[minmax(0,1fr)_25rem]">
-        <div className="overflow-hidden border-b border-slate-200 xl:border-b-0 xl:border-r">
+      <div className="min-h-[34rem]">
+        <div className="overflow-hidden">
           {visibleRows.length ? (
-            <div className="max-h-[44rem] overflow-auto">
-              <table className="w-full border-collapse text-sm">
-                <thead className="sticky top-0 z-10 bg-slate-100 shadow-[0_1px_0_rgba(15,23,42,0.08)]">
-                  <tr>
-                    {columns.map((column) => (
-                      <th key={column.key} className={cn("whitespace-nowrap px-4 py-3 text-left text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500", column.className)}>
-                        {column.sortable ? (
-                          <button type="button" className="inline-flex items-center gap-1" onClick={() => toggleSort(column.key)}>
-                            {column.label}
-                            {sort.key === column.key ? (
-                              sort.direction === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
-                            ) : null}
-                          </button>
-                        ) : (
-                          column.label
-                        )}
-                      </th>
-                    ))}
-                    <th className="px-4 py-3 text-right text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {visibleRows.map((row) => (
-                    <tr
-                      key={row.id}
-                      className={cn(
-                        "cursor-pointer border-b border-slate-100 bg-white transition-colors hover:bg-slate-50",
-                        selected?.id === row.id && "bg-sky-50/70"
+            <div>
+              <div className="hidden xl:block">
+                <div
+                  className="sticky top-0 z-10 grid items-center gap-3 border-b border-slate-200 bg-slate-100 px-4 py-3 shadow-[0_1px_0_rgba(15,23,42,0.08)]"
+                  style={gridTemplate(columns.length)}
+                >
+                  {columns.map((column, index) => (
+                    <div key={column.key} className={cn("min-w-0 whitespace-nowrap text-left text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500", index === 0 && "pl-1")}>
+                      {column.sortable ? (
+                        <button type="button" className="inline-flex max-w-full items-center gap-1" onClick={() => toggleSort(column.key)}>
+                          <span className="truncate">{column.label}</span>
+                          {sort.key === column.key ? (
+                            sort.direction === "asc" ? <ArrowUp className="h-3 w-3 shrink-0" /> : <ArrowDown className="h-3 w-3 shrink-0" />
+                          ) : null}
+                        </button>
+                      ) : (
+                        column.label
                       )}
+                    </div>
+                  ))}
+                  <div className="text-right text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500">Actions</div>
+                </div>
+
+                <div className="max-h-[48rem] overflow-y-auto">
+                  {visibleRows.map((row) => (
+                    <div
+                      key={row.id}
+                      role="button"
+                      tabIndex={0}
+                      className="grid w-full cursor-pointer items-center gap-3 border-b border-slate-100 bg-white px-4 py-3 text-left text-sm transition-colors hover:bg-slate-50 focus:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary/35"
+                      style={gridTemplate(columns.length)}
                       onClick={() => setSelectedId(row.id)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          setSelectedId(row.id);
+                        }
+                      }}
                     >
                       {columns.map((column, index) => (
-                        <td key={column.key} className={cn("px-4 py-3 align-middle text-slate-700", column.className)}>
+                        <div key={column.key} className={cellClass(column, index)} title={valueText(row.cells[column.key])}>
                           {index === 0 ? (
-                            <div>
-                              <div className="font-semibold text-slate-950">{valueText(row.cells[column.key])}</div>
-                              {row.subtitle ? <div className="mt-0.5 text-xs text-slate-500">{row.subtitle}</div> : null}
+                            <div className="min-w-0">
+                              <div className="truncate font-semibold text-slate-950">{valueText(row.cells[column.key])}</div>
+                              {row.subtitle ? <div className="mt-0.5 truncate text-xs text-slate-500">{row.subtitle}</div> : null}
                             </div>
                           ) : column.key === "status" && row.status ? (
-                            <StatusBadge label={row.status.label} tone={row.status.tone} />
+                            <StatusBadge label={row.status.label} tone={row.status.tone} className="max-w-full overflow-hidden" />
                           ) : column.key === "secondaryStatus" && row.secondaryStatus ? (
-                            <StatusBadge label={row.secondaryStatus.label} tone={row.secondaryStatus.tone} />
+                            <StatusBadge label={row.secondaryStatus.label} tone={row.secondaryStatus.tone} className="max-w-full overflow-hidden" />
                           ) : (
-                            valueText(row.cells[column.key])
+                            <span className={cn(column.key === "updated" ? "whitespace-nowrap" : "truncate")}>{valueText(row.cells[column.key])}</span>
                           )}
-                        </td>
-                      ))}
-                      <td className="px-4 py-3 text-right" onClick={(event) => event.stopPropagation()}>
-                        <div className="flex justify-end gap-2">
-                          <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => setEditor({ mode: "edit", row })}>
-                            Edit
-                          </Button>
-                          {archiveAction ? (
-                            ["archived", "suspended", "inactive"].includes(row.status?.label.toLowerCase() ?? "") && archiveDisabledReason ? (
-                              <Button type="button" variant="ghost" size="sm" className="rounded-full" disabled title={archiveDisabledReason}>
-                                {row.status?.label ?? "Inactive"}
-                              </Button>
-                            ) : (
-                              <form action={archiveAction}>
-                                <input type="hidden" name={recordIdName} value={row.id} />
-                                <input type="hidden" name="back_to" value={backTo} />
-                                <SubmitButton
-                                  variant="ghost"
-                                  size="sm"
-                                  className="rounded-full text-slate-600"
-                                  confirm={archiveConfirm}
-                                  pendingText="Saving..."
-                                >
-                                  {archiveLabel}
-                                </SubmitButton>
-                              </form>
-                            )
-                          ) : null}
                         </div>
-                      </td>
-                    </tr>
+                      ))}
+                      <div className="flex justify-end gap-2" onClick={(event) => event.stopPropagation()}>
+                        <Button type="button" variant="outline" size="sm" className="gap-1 rounded-full" onClick={() => setSelectedId(row.id)}>
+                          <Eye className="h-3.5 w-3.5" />
+                          Details
+                        </Button>
+                        <Button type="button" variant="ghost" size="sm" className="rounded-full" onClick={() => setEditor({ mode: "edit", row })}>
+                          Edit
+                        </Button>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              </div>
+
+              <div className="grid gap-3 p-4 xl:hidden">
+                {visibleRows.map((row) => (
+                  <div
+                    key={row.id}
+                    role="button"
+                    tabIndex={0}
+                    className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 text-left shadow-[0_10px_28px_rgba(8,20,36,0.06)]"
+                    onClick={() => setSelectedId(row.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        setSelectedId(row.id);
+                      }
+                    }}
+                  >
+                    <div className="flex min-w-0 items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-base font-semibold text-slate-950">{row.title}</p>
+                        {row.subtitle ? <p className="mt-1 text-sm text-slate-500">{row.subtitle}</p> : null}
+                      </div>
+                      {row.status ? <StatusBadge label={row.status.label} tone={row.status.tone} /> : null}
+                    </div>
+                    <div className="grid gap-2 text-sm text-slate-600">
+                      {columns.slice(1, 5).map((column) => (
+                        <div key={column.key} className="grid grid-cols-[7rem_1fr] gap-3">
+                          <span className="text-xs font-semibold uppercase text-slate-500">{column.label}</span>
+                          <span className="min-w-0 break-words">{valueText(row.cells[column.key])}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
+                      {row.secondaryStatus ? <StatusBadge label={row.secondaryStatus.label} tone={row.secondaryStatus.tone} /> : <span />}
+                      <span className="text-xs font-semibold text-primary">View details</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             <div className="flex min-h-[28rem] flex-col items-center justify-center p-8 text-center">
@@ -377,25 +419,32 @@ export function AdminRecordManager({
             </div>
           )}
         </div>
+      </div>
 
-        <aside className="bg-slate-50/80">
-          {selected ? (
-            <div className="sticky top-4 p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-primary">Selected Record</p>
-                  <h3 className="mt-2 text-xl font-bold text-slate-950">{selected.title}</h3>
-                  {selected.subtitle ? <p className="mt-1 text-sm text-slate-500">{selected.subtitle}</p> : null}
-                </div>
-                {selected.status ? <StatusBadge label={selected.status.label} tone={selected.status.tone} /> : null}
+      {selected ? (
+        <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/55" role="dialog" aria-modal="true" aria-label={`${selected.title} details`}>
+          <button type="button" className="absolute inset-0 cursor-default" aria-label="Close details" onClick={() => setSelectedId("")} />
+          <aside className="relative flex h-full w-full max-w-[34rem] flex-col border-l border-slate-200 bg-slate-50 shadow-2xl sm:w-[min(34rem,calc(100vw-2rem))]">
+            <header className="flex items-start justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
+              <div className="min-w-0">
+                <p className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-primary">Record Detail</p>
+                <h3 className="mt-2 text-xl font-bold text-slate-950">{selected.title}</h3>
+                {selected.subtitle ? <p className="mt-1 text-sm text-slate-500">{selected.subtitle}</p> : null}
               </div>
-
-              <div className="mt-5 rounded-lg border border-slate-200 bg-white p-4">
+              <div className="flex shrink-0 items-start gap-2">
+                {selected.status ? <StatusBadge label={selected.status.label} tone={selected.status.tone} /> : null}
+                <Button type="button" variant="ghost" size="icon" onClick={() => setSelectedId("")} aria-label="Close details">
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </header>
+            <div className="min-h-0 flex-1 overflow-y-auto p-5">
+              <div className="rounded-lg border border-slate-200 bg-white p-4">
                 <dl>
                   {selected.details.map((detail) => (
-                    <div key={detail.label} className="grid grid-cols-[8rem_1fr] gap-3 border-b border-slate-100 py-2.5 last:border-0">
+                    <div key={detail.label} className="grid grid-cols-[8rem_minmax(0,1fr)] gap-3 border-b border-slate-100 py-2.5 last:border-0">
                       <dt className="text-[0.64rem] font-bold uppercase tracking-[0.12em] text-slate-500">{detail.label}</dt>
-                      <dd className="text-sm leading-5 text-slate-800">{valueText(detail.value)}</dd>
+                      <dd className="min-w-0 break-words text-sm leading-5 text-slate-800">{valueText(detail.value)}</dd>
                     </div>
                   ))}
                 </dl>
@@ -408,9 +457,9 @@ export function AdminRecordManager({
                     {tab.rows?.length ? (
                       <dl className="mt-3">
                         {tab.rows.map((item) => (
-                          <div key={`${tab.title}-${item.label}`} className="grid grid-cols-[8rem_1fr] gap-3 border-b border-slate-100 py-2 last:border-0">
-                            <dt className="text-xs text-slate-500">{item.label}</dt>
-                            <dd className="text-sm text-slate-800">{valueText(item.value)}</dd>
+                          <div key={`${tab.title}-${item.label}`} className="grid grid-cols-[8rem_minmax(0,1fr)] gap-3 border-b border-slate-100 py-2 last:border-0">
+                            <dt className="min-w-0 break-words text-xs text-slate-500">{item.label}</dt>
+                            <dd className="min-w-0 break-words text-sm text-slate-800">{valueText(item.value)}</dd>
                           </div>
                         ))}
                       </dl>
@@ -420,21 +469,39 @@ export function AdminRecordManager({
                   </div>
                 ))}
               </div>
-
-              <div className="mt-5 flex flex-wrap gap-2">
-                <Button type="button" className="gap-2 rounded-full" onClick={() => setEditor({ mode: "edit", row: selected })}>
-                  <Edit3 className="h-4 w-4" />
-                  {editLabel}
-                </Button>
-              </div>
             </div>
-          ) : (
-            <div className="flex min-h-[24rem] items-center justify-center p-8 text-center text-sm text-slate-500">
-              Select a record to view details.
-            </div>
-          )}
-        </aside>
-      </div>
+            <footer className="flex flex-wrap justify-end gap-2 border-t border-slate-200 bg-white px-5 py-4">
+              {archiveAction ? (
+                ["archived", "suspended", "inactive"].includes(selected.status?.label.toLowerCase() ?? "") && archiveDisabledReason ? (
+                  <Button type="button" variant="ghost" className="rounded-full" disabled title={archiveDisabledReason}>
+                    {selected.status?.label ?? "Inactive"}
+                  </Button>
+                ) : (
+                  <form action={archiveAction}>
+                    <input type="hidden" name={recordIdName} value={selected.id} />
+                    <input type="hidden" name="back_to" value={backTo} />
+                    <SubmitButton
+                      variant="ghost"
+                      className="rounded-full text-slate-600"
+                      confirm={archiveConfirm}
+                      pendingText="Saving..."
+                    >
+                      {archiveLabel}
+                    </SubmitButton>
+                  </form>
+                )
+              ) : null}
+              <Button type="button" variant="outline" className="rounded-full" onClick={() => setSelectedId("")}>
+                Close
+              </Button>
+              <Button type="button" className="gap-2 rounded-full" onClick={() => setEditor({ mode: "edit", row: selected })}>
+                <Edit3 className="h-4 w-4" />
+                {editLabel}
+              </Button>
+            </footer>
+          </aside>
+        </div>
+      ) : null}
 
       {editor ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4" role="dialog" aria-modal="true">

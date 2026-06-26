@@ -204,12 +204,9 @@ export default async function AdminCrewPage({
         columns={[
           { key: "name", label: "Name", sortable: true },
           { key: "email", label: "Email", sortable: true },
-          { key: "phone", label: "Phone", sortable: true },
           { key: "homeAirport", label: "Home Airport", sortable: true },
           { key: "roleType", label: "Role / Type", sortable: true },
           { key: "status", label: "Approval", sortable: true },
-          { key: "aircraftExperience", label: "Aircraft", sortable: true },
-          { key: "credentialStatus", label: "Credentials", sortable: true },
           { key: "secondaryStatus", label: "Availability", sortable: true },
           { key: "updated", label: "Updated", sortable: true },
         ]}
