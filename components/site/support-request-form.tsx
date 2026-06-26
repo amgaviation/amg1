@@ -95,7 +95,7 @@ function NativeSelect({
       aria-describedby={describedBy}
       className="support-field min-h-11 bg-white/80 px-3 text-sm"
     >
-      <option value="">Not sure</option>
+      <option value="Not sure">Not sure</option>
       {options.map((option) => (
         <option key={option.value} value={option.value}>{option.label}</option>
       ))}
