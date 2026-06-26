@@ -326,7 +326,7 @@ export function AdminRecordManager({
                 </thead>
                 <tbody>
                   {visibleRows.map((row) => (
-                    <div
+                    <tr
                       key={row.id}
                       className={cn(
                         "cursor-pointer border-b border-white/10 bg-transparent transition-colors hover:bg-white/[0.045]",
@@ -358,7 +358,11 @@ export function AdminRecordManager({
                       ))}
                       <td className="px-4 py-3 text-right" onClick={(event) => event.stopPropagation()}>
                         <div className="flex justify-end gap-2">
-                          <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => setEditor({ mode: "edit", row })}>
+                          <Button type="button" variant="outline" size="sm" className="gap-1 rounded-full" onClick={() => setSelectedId(row.id)}>
+                            <Eye className="h-3.5 w-3.5" />
+                            Details
+                          </Button>
+                          <Button type="button" variant="ghost" size="sm" className="rounded-full" onClick={() => setEditor({ mode: "edit", row })}>
                             Edit
                           </Button>
                           {archiveAction ? (
@@ -383,17 +387,8 @@ export function AdminRecordManager({
                             )
                           ) : null}
                         </div>
-                      ))}
-                      <div className="flex justify-end gap-2" onClick={(event) => event.stopPropagation()}>
-                        <Button type="button" variant="outline" size="sm" className="gap-1 rounded-full" onClick={() => setSelectedId(row.id)}>
-                          <Eye className="h-3.5 w-3.5" />
-                          Details
-                        </Button>
-                        <Button type="button" variant="ghost" size="sm" className="rounded-full" onClick={() => setEditor({ mode: "edit", row })}>
-                          Edit
-                        </Button>
-                      </div>
-                    </div>
+                      </td>
+                    </tr>
                   ))}
                 </tbody>
               </table>
@@ -439,7 +434,6 @@ export function AdminRecordManager({
             </div>
           )}
         </div>
-      </div>
 
         <aside className="bg-[#050B14]/45">
           {selected ? (
@@ -487,49 +481,43 @@ export function AdminRecordManager({
                 ))}
               </div>
 
-              <div className="mt-5 flex flex-wrap gap-2">
+              <footer className="mt-5 flex flex-wrap justify-end gap-2 border-t border-white/10 pt-4">
+                {archiveAction ? (
+                  ["archived", "suspended", "inactive"].includes(selected.status?.label.toLowerCase() ?? "") && archiveDisabledReason ? (
+                    <Button type="button" variant="ghost" className="rounded-full" disabled title={archiveDisabledReason}>
+                      {selected.status?.label ?? "Inactive"}
+                    </Button>
+                  ) : (
+                    <form action={archiveAction}>
+                      <input type="hidden" name={recordIdName} value={selected.id} />
+                      <input type="hidden" name="back_to" value={backTo} />
+                      <SubmitButton
+                        variant="ghost"
+                        className="rounded-full text-slate-400 hover:text-white"
+                        confirm={archiveConfirm}
+                        pendingText="Saving..."
+                      >
+                        {archiveLabel}
+                      </SubmitButton>
+                    </form>
+                  )
+                ) : null}
+                <Button type="button" variant="outline" className="rounded-full" onClick={() => setSelectedId("")}>
+                  Close
+                </Button>
                 <Button type="button" className="gap-2 rounded-full" onClick={() => setEditor({ mode: "edit", row: selected })}>
                   <Edit3 className="h-4 w-4" />
                   {editLabel}
                 </Button>
-              </div>
+              </footer>
             </div>
           ) : (
             <div className="flex min-h-[24rem] items-center justify-center p-8 text-center text-sm text-slate-400">
               Select a record to view details.
             </div>
-            <footer className="flex flex-wrap justify-end gap-2 border-t border-slate-200 bg-white px-5 py-4">
-              {archiveAction ? (
-                ["archived", "suspended", "inactive"].includes(selected.status?.label.toLowerCase() ?? "") && archiveDisabledReason ? (
-                  <Button type="button" variant="ghost" className="rounded-full" disabled title={archiveDisabledReason}>
-                    {selected.status?.label ?? "Inactive"}
-                  </Button>
-                ) : (
-                  <form action={archiveAction}>
-                    <input type="hidden" name={recordIdName} value={selected.id} />
-                    <input type="hidden" name="back_to" value={backTo} />
-                    <SubmitButton
-                      variant="ghost"
-                      className="rounded-full text-slate-600"
-                      confirm={archiveConfirm}
-                      pendingText="Saving..."
-                    >
-                      {archiveLabel}
-                    </SubmitButton>
-                  </form>
-                )
-              ) : null}
-              <Button type="button" variant="outline" className="rounded-full" onClick={() => setSelectedId("")}>
-                Close
-              </Button>
-              <Button type="button" className="gap-2 rounded-full" onClick={() => setEditor({ mode: "edit", row: selected })}>
-                <Edit3 className="h-4 w-4" />
-                {editLabel}
-              </Button>
-            </footer>
+          )}
           </aside>
         </div>
-      ) : null}
 
       {editor ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4" role="dialog" aria-modal="true">
