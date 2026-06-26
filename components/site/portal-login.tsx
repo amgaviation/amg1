@@ -22,7 +22,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   signup: "We could not create that account. The email may already be in use.",
   weakpassword: "Password must be at least 8 characters.",
   "missing-supabase-env":
-    "Portal authentication is not configured in this environment. Add the Supabase URL and anon key to enable portal access.",
+    "Portal authentication is not configured in this environment. Add the required authentication settings to enable portal access.",
   account_exists:
     "An AMG portal account already exists for that email. Sign in, use Forgot Password, or contact AMG if you used the wrong email.",
 };

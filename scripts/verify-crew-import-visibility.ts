@@ -47,7 +47,7 @@ async function main() {
   console.log(`Admin crew query/table-view: ${ADMIN_CREW_QUERY_SOURCE}`);
 
   const visibleRows = await listAdminCrewProfiles(db);
-  const importedRows = visibleRows.filter((row) => row.crew_profile?.source === "pilot_network_csv");
+  const importedRows = visibleRows.filter((row) => row.crew_profile?.import_source?.includes("Pilot Network"));
   const importedWithBatch = importedRows.filter((row) => row.crew_profile?.import_batch_id);
   const latestImported = importedRows
     .slice()
@@ -55,15 +55,15 @@ async function main() {
     .slice(0, 10);
 
   console.log(`Total crew count visible to admin query: ${visibleRows.length}`);
-  console.log(`Imported pilot_network_csv count visible to admin query: ${importedRows.length}`);
+  console.log(`Imported Pilot Network count visible to admin query: ${importedRows.length}`);
   console.log(`Imported rows with import_batch_id: ${importedWithBatch.length}`);
   console.log("Profile status counts:", countBy(importedRows.map((row) => row.crew_profile?.profile_status ?? "")));
-  console.log("Review status counts:", countBy(importedRows.map((row) => row.crew_profile?.review_status ?? "")));
+  console.log("Crew status counts:", countBy(importedRows.map((row) => row.crew_profile?.crew_status ?? "")));
   console.log("Account status counts:", countBy(importedRows.map((row) => row.status)));
 
   for (const name of SPOT_CHECK_NAMES) {
-    const found = visibleRows.find((row) => row.full_name?.toLowerCase() === name.toLowerCase());
-    console.log(`${found ? "FOUND" : "MISSING"} ${name}${found ? ` <${found.email}> status=${found.status} source=${found.crew_profile?.source ?? "(none)"}` : ""}`);
+    const found = visibleRows.find((row) => (row.crew_profile?.display_name ?? row.full_name)?.toLowerCase() === name.toLowerCase());
+    console.log(`${found ? "FOUND" : "MISSING"} ${name}${found ? ` <${found.email}> status=${found.status} source=${found.crew_profile?.import_source ?? "(none)"}` : ""}`);
     if (!found) process.exitCode = 1;
   }
 

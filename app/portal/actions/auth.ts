@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { emailChangeRedirectUrl, passwordSetupRedirectUrl } from "@/lib/auth/urls";
 import { requireUser } from "@/lib/portal/session";
 import { ROLE_HOME, isPortalRole, type PortalRole } from "@/lib/portal/constants";
 import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
@@ -325,17 +326,10 @@ export async function requestPasswordReset(formData: FormData) {
 
   if (!email) redirect("/forgot-password?error=missing");
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
-  const origin = appUrl
-    ? appUrl.startsWith("http")
-      ? appUrl
-      : `https://${appUrl}`
-    : "";
-
   const supabase = await createClient();
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: origin ? `${origin.replace(/\/+$/, "")}/auth/password-setup` : undefined,
+    redirectTo: passwordSetupRedirectUrl(),
   });
 
   if (error) redirect("/forgot-password?error=failed");
@@ -385,17 +379,12 @@ export async function updatePortalEmail(formData: FormData) {
   if (!nextEmail) redirect(`${backTo}?accountError=missing-email`);
   if (nextEmail === user.email.toLowerCase()) redirect(`${backTo}?accountError=same-email`);
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
-  const origin = appUrl
-    ? appUrl.startsWith("http")
-      ? appUrl
-      : `https://${appUrl}`
-    : "";
-
   const supabase = await createClient();
 
   const { error } = await supabase.auth.updateUser({
     email: nextEmail,
+  }, {
+    emailRedirectTo: emailChangeRedirectUrl(),
   });
 
   if (error) redirect(`${backTo}?accountError=email-failed`);
@@ -403,7 +392,7 @@ export async function updatePortalEmail(formData: FormData) {
   await logAuditEvent({
     actor: { id: user.id, email: user.email, role: user.role },
     action: "user_email_change_requested",
-    detail: `Requested email change to ${nextEmail}${origin ? ` via ${origin}` : ""}`,
+    detail: `Requested email change to ${nextEmail}`,
     entityType: "profile",
     entityId: user.id,
   });

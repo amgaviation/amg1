@@ -1,5 +1,6 @@
 import "server-only";
 
+import { AMG_EMAIL_BRAND } from "@/lib/email/config";
 import { amgEmailLayout } from "@/lib/portal/email-templates";
 import { sendEmail } from "@/lib/portal/notification-delivery";
 import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
@@ -19,7 +20,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 
 export { normalizeContactSubmission, normalizeSupportSubmission };
 
-export const FORM_SUBMISSION_INBOX = "information@amgaviationgroup.com";
+export const FORM_SUBMISSION_INBOX = AMG_EMAIL_BRAND.contactEmail;
 
 export type PublicFormRequestContext = {
   sourceUrl?: string | null;
