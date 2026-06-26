@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight, ChevronDown, Menu, X } from "lucide-react";
 import { PUBLIC_NAV_GROUPS, PUBLIC_NAV_LINKS } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
+import logoWhite from "../../public/images/logo-white.png";
 
 const HOME_NAV_LINKS = [
   { label: "Fleet", href: "/aircraft" },
@@ -42,7 +44,7 @@ export function SiteNav() {
       setAtTop(false);
       return;
     }
-    const update = () => setAtTop(window.scrollY < 24);
+    const update = () => setAtTop(window.scrollY <= window.innerHeight * 0.8);
     update();
     window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update, { passive: true });
@@ -99,12 +101,12 @@ export function SiteNav() {
           className="relative z-50 flex min-h-11 items-center"
           aria-label="AMG Aviation Group home"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/logo-white.png"
+          <Image
+            src={logoWhite}
             alt="AMG Aviation Group"
             width="1088"
             height="221"
+            priority={isHome}
             className="h-7 w-auto"
           />
         </Link>
