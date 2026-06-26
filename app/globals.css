@@ -12,7 +12,7 @@
     AMG Slate Gray    #9CA3AF (muted text)
     AMG Light Gray    #C0C7D1 (labels)
     AMG White         #FFFFFF (typography)
-  Display and body: Montserrat.
+  Display and body: Inter/system stack.
 */
 
 :root {
@@ -64,8 +64,8 @@
   --oc-line-strong: rgb(5 11 20 / 0.24);
   --oc-line-dark: rgb(192 199 209 / 0.22);
   --oc-shadow: 0 24px 70px rgb(5 11 20 / 0.14);
-  --oc-display: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
-  --oc-sans: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
+  --oc-display: var(--font-inter), -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+  --oc-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
 
   --amg-motion-fast: 160ms;
   --amg-motion-base: 240ms;
@@ -130,8 +130,8 @@
   --sidebar-border: oklch(0.93 0.018 248 / 16%);
   --sidebar-ring: oklch(0.62 0.19 258);
 
-  --font-sans: "Montserrat", system-ui, sans-serif;
-  --font-display: "Montserrat", system-ui, sans-serif;
+  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-inter), -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, monospace;
 }
 
@@ -210,9 +210,8 @@
   .display-heading {
     font-family: var(--font-display);
     font-weight: 800;
-    text-transform: uppercase;
     letter-spacing: 0;
-    line-height: 0.92;
+    line-height: 1.05;
   }
   .eyebrow {
     font-family: var(--font-display);

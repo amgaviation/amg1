@@ -49,8 +49,8 @@ export function HomeIntroSection() {
               coordinate qualified resources, and keep communication clear from request to completion.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Link href="/request-support" prefetch={false} className="oc-btn oc-btn-light justify-center">
-                Start a Support Request
+              <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-light justify-center">
+                Request aircraft support
                 <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
               </Link>
               <Link href="/capabilities" prefetch={false} className="oc-btn oc-btn-ghost-dark justify-center">

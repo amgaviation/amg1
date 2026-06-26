@@ -1,29 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
 import { CookieConsentBanner } from "@/components/compliance/cookie-consent";
 import { ConsentScriptLoader } from "@/components/compliance/consent-script-loader";
 import "./globals.css";
 
-const montserrat = localFont({
-  src: [
-    {
-      path: "./fonts/montserrat/montserrat-latin-wght-normal.woff2",
-      weight: "100 900",
-      style: "normal",
-    },
-    {
-      path: "./fonts/montserrat/montserrat-latin-wght-italic.woff2",
-      weight: "100 900",
-      style: "italic",
-    },
-  ],
-  display: "swap",
-  variable: "--font-montserrat",
-});
-
 export const metadata: Metadata = {
   title: {
-    default: "AMG Aviation Group - Aircraft Support Capabilities",
+    default: "AMG Aviation Group",
     template: "%s | AMG Aviation Group",
   },
   description:
@@ -59,15 +41,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={`bg-background ${montserrat.variable}`}
-    >
+    <html lang="en" className="bg-background">
       <body
         style={
           {
-            "--font-sans": "var(--font-montserrat)",
-            "--font-display": "var(--font-montserrat)",
+            "--font-inter": "Inter, -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Helvetica Neue\", Arial, sans-serif",
+            "--font-sans": "var(--font-inter)",
+            "--font-display": "var(--font-inter)",
           } as React.CSSProperties
         }
       >

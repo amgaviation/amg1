@@ -138,8 +138,8 @@ export function CommandHero() {
               className="amg-rise mt-8 flex flex-wrap items-center gap-3"
               style={{ animationDelay: "1.42s" }}
             >
-              <Link href="/request-support" prefetch={false} className="oc-btn oc-btn-light">
-                Request Support
+              <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-light">
+                Request support
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link href="/capabilities" prefetch={false} className="oc-btn oc-btn-ghost-dark">

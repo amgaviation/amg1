@@ -240,7 +240,6 @@ function validateCommon(submission: NormalizedPublicFormSubmission) {
   const errors: string[] = [];
   if (!submission.requesterName) errors.push("requester_name");
   if (!submission.email || !EMAIL_PATTERN.test(submission.email)) errors.push("email");
-  if (!submission.phone) errors.push("phone");
   if (!submission.acknowledgement) errors.push("acknowledgement");
   return errors;
 }
@@ -265,13 +264,8 @@ export function normalizeSupportSubmission(formData: FormData): PublicFormValida
   if (!submission.timing) errors.push("timing");
 
   if (isStructuredSupportForm) {
-    if (!submission.company) errors.push("company");
-    if (!field(formData, "requester_role")) errors.push("requester_role");
-    if (!field(formData, "preferred_contact_method")) errors.push("preferred_contact_method");
     if (!submission.aircraftCategory) errors.push("aircraft_category");
     if (!submission.aircraft) errors.push("aircraft");
-    if (!field(formData, "home_airport")) errors.push("home_airport");
-    if (!submission.aircraftStatus) errors.push("aircraft_status");
     if (!field(formData, "owner_operator_approval_status")) errors.push("owner_operator_approval_status");
   }
 

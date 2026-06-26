@@ -14,7 +14,7 @@ export default function PlansPage() {
     title: "Aircraft Support Plans Built Around Reality",
     lead: "AMG plans are structured around aircraft category, support frequency, crew coordination needs, maintenance movement requirements, and owner/operator visibility.",
     image: IMG.plansSelector,
-    primary: { label: "Request Plan Review", href: "/request-support?category=subscription-program-inquiry" },
+    primary: { label: "Request a plan review", href: "/booking-request?category=subscription-program-inquiry" },
     secondary: { label: "Compare Plans", href: "#plans-comparison" },
   });
 

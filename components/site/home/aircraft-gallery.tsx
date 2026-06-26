@@ -109,7 +109,7 @@ export function AircraftGallery({
                   <p className="mt-2 text-sm leading-relaxed text-[var(--oc-muted)]">{cat.crew}</p>
                 </div>
                 <Link
-                  href="/request-support"
+                  href="/booking-request"
                   prefetch={false}
                   className="oc-kicker mt-auto inline-flex min-h-11 items-center gap-2 pt-2 text-[var(--oc-blue)]"
                 >

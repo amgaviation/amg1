@@ -20,12 +20,12 @@ export function SiteFooter() {
               Private aircraft support coordination for crew coverage, aircraft movement, maintenance repositioning, and recurring owner or flight-department needs.
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
-              <Link href="/request-support" prefetch={false} className="oc-btn oc-btn-light">
-                Start a Support Request
+              <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-light">
+                Request aircraft support
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
               <Link href="/login" prefetch={false} className="oc-btn oc-btn-ghost-dark">
-                Member Login
+                Member login
               </Link>
             </div>
           </div>

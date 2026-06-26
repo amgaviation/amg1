@@ -36,7 +36,7 @@ export default function TeamPage() {
           </RevealGroup>
         </div>
       </section>
-      <CtaSection title="Bring the whole operation into view" primaryHref="/login" primaryLabel="Member Login" />
+      <CtaSection title="Bring the whole operation into view" primaryHref="/login" primaryLabel="Member login" />
     </>
   );
 }

@@ -1,24 +1,22 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { useFormStatus } from "react-dom";
-import { ArrowRight, CheckCircle2, Send } from "lucide-react";
+import { CheckCircle2, Send } from "lucide-react";
 import { submitContactInquiry } from "@/app/(public)/contact/actions";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SafeErrorMessage } from "@/components/ui/safe-error-message";
-import { contactInquiryTypes, preferredContactMethods } from "@/lib/public-form-options";
+import { contactInquiryTypes } from "@/lib/public-form-options";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="min-h-11 rounded-full bg-[var(--oc-blue)] px-6 text-white hover:bg-[var(--oc-navy)]">
-      {pending ? "Sending..." : "Submit Inquiry"}
+      {pending ? "Sending..." : "Send general inquiry"}
       <Send className="h-4 w-4" />
     </Button>
   );
@@ -26,16 +24,18 @@ function SubmitButton() {
 
 function Field({
   label,
+  id,
   children,
   required,
 }: {
   label: string;
+  id: string;
   children: React.ReactNode;
   required?: boolean;
 }) {
   return (
     <div className="grid gap-2">
-      <Label className="text-sm font-semibold text-[var(--oc-ink)]">
+      <Label htmlFor={id} className="text-sm font-semibold text-[var(--oc-ink)]">
         {label}
         {required ? <span className="text-[var(--oc-blue)]">*</span> : null}
       </Label>
@@ -51,19 +51,17 @@ export function ContactInquiryForm({
   success?: string;
   error?: string;
 }) {
-  const [inquiryType, setInquiryType] = useState("General Inquiry");
-
   return (
     <Card className="oc-card rounded-2xl border-[var(--oc-line)] p-0">
       <CardHeader className="px-6 pt-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="oc-eyebrow text-[var(--oc-blue)]">General Inquiry</p>
+            <p className="oc-eyebrow text-[var(--oc-blue)]">General inquiry</p>
             <CardTitle className="oc-display mt-3 text-3xl text-[var(--oc-ink)]">Send AMG a message</CardTitle>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--oc-muted)]">
+              AMG will route your message to the appropriate team. Aircraft support requests require the dedicated support form.
+            </p>
           </div>
-          <Badge variant="outline" className="border-[var(--oc-line)] bg-white/70 text-[var(--oc-ink)]">
-            Source: Contact
-          </Badge>
         </div>
       </CardHeader>
       <CardContent className="px-6 pb-6">
@@ -89,33 +87,25 @@ export function ContactInquiryForm({
           )
         ) : null}
         <form action={submitContactInquiry} className="grid gap-5 text-[var(--oc-ink)]">
-          <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+          <input id="contact-website" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
           <div className="grid gap-5 md:grid-cols-2">
-            <Field label="Full Name" required>
-              <Input name="full_name" required autoComplete="name" className="min-h-11 bg-white/80" />
+            <Field id="contact-full-name" label="Full name" required>
+              <Input id="contact-full-name" name="full_name" required autoComplete="name" className="min-h-11 bg-white/80" />
             </Field>
-            <Field label="Email" required>
-              <Input name="email" type="email" required autoComplete="email" className="min-h-11 bg-white/80" />
+            <Field id="contact-email" label="Email" required>
+              <Input id="contact-email" name="email" type="email" required autoComplete="email" className="min-h-11 bg-white/80" />
             </Field>
-            <Field label="Phone" required>
-              <Input name="phone" type="tel" required autoComplete="tel" className="min-h-11 bg-white/80" />
+            <Field id="contact-company" label="Company / operator">
+              <Input id="contact-company" name="company_operator" autoComplete="organization" className="min-h-11 bg-white/80" />
             </Field>
-            <Field label="Company / Operator">
-              <Input name="company_operator" autoComplete="organization" className="min-h-11 bg-white/80" />
+            <Field id="contact-phone" label="Phone">
+              <Input id="contact-phone" name="phone" type="tel" autoComplete="tel" className="min-h-11 bg-white/80" />
             </Field>
-            <Field label="Preferred Contact Method">
-              <select name="preferred_contact_method" className="support-field min-h-11 bg-white/80 px-3 text-sm">
-                {preferredContactMethods.map((method) => (
-                  <option key={method.value} value={method.value}>{method.label}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Inquiry Type" required>
+            <Field id="contact-inquiry-type" label="Inquiry type" required>
               <select
+                id="contact-inquiry-type"
                 name="inquiry_type"
                 required
-                value={inquiryType}
-                onChange={(event) => setInquiryType(event.target.value)}
                 className="support-field min-h-11 bg-white/80 px-3 text-sm"
               >
                 {contactInquiryTypes.map((type) => (
@@ -125,23 +115,8 @@ export function ContactInquiryForm({
             </Field>
           </div>
 
-          {inquiryType === "Aircraft Support Question" ? (
-            <div className="rounded-xl border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-4">
-              <p className="text-sm leading-relaxed text-[var(--oc-muted)]">
-                Need to request aircraft movement, crew coordination, maintenance repositioning, or mission-specific
-                support? Use the Request Support page so AMG receives the required operational context.
-              </p>
-              <Button asChild variant="outline" className="mt-4 min-h-11 rounded-full">
-                <Link href="/request-support" prefetch={false}>
-                  Request Support
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          ) : null}
-
-          <Field label="Message" required>
-            <Textarea name="message" required className="min-h-36 bg-white/80" />
+          <Field id="contact-message" label="Message" required>
+            <Textarea id="contact-message" name="message" required className="min-h-36 bg-white/80" />
           </Field>
           <p className="rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
             Do not enter full credit card numbers, CVV codes, bank account numbers, or routing numbers. AMG does not
@@ -151,30 +126,13 @@ export function ContactInquiryForm({
           <label className="flex items-start gap-3 rounded-xl border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
             <input name="acknowledgment" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
             <span>
-              I understand that submitting this contact form does not confirm support acceptance, crew availability,
-              aircraft movement, or operational approval. I have reviewed the <Link href="/privacy-policy" className="font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">Privacy Policy</Link> and <Link href="/terms" className="font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">Terms</Link>.
-            </span>
-          </label>
-
-          <label className="flex items-start gap-3 rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
-            <input name="marketing_consent" value="yes" type="checkbox" className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
-            <span>
-              I agree to receive optional AMG email updates. Transactional emails about this inquiry may still be sent
-              without marketing consent. See the <Link href="/legal/email-communications" className="font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">Email Communications Notice</Link>.
-            </span>
-          </label>
-
-          <label className="flex items-start gap-3 rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
-            <input name="sms_consent" value="yes" type="checkbox" className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
-            <span>
-              I agree to receive optional AMG text messages about this inquiry or related operational administration.
-              Message and data rates may apply. See the <Link href="/legal/sms-terms" className="font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">SMS Terms</Link>.
+              By submitting this form, I agree to AMG routing my message and contacting me about this inquiry. I have reviewed the <Link href="/privacy-policy" className="font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">Privacy Policy</Link> and <Link href="/terms" className="font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">Terms</Link>.
             </span>
           </label>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <SubmitButton />
-            <Link href="/request-support" prefetch={false} className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">
+            <Link href="/booking-request" prefetch={false} className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">
               Need aircraft support?
             </Link>
           </div>

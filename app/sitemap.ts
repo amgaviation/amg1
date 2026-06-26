@@ -10,6 +10,7 @@ const publicRoutes = [
   "/about",
   "/contact",
   "/request-support",
+  "/booking-request",
   "/login",
   "/signup",
   "/forgot-password",

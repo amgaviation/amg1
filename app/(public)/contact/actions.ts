@@ -11,7 +11,7 @@ import {
 import { detectProhibitedPaymentData } from "@/lib/compliance/payment-data-guard";
 import { recordComplianceEvidence } from "@/lib/compliance/evidence";
 
-function paymentGuardRedirect(formData: FormData, destination: "/contact" | "/request-support") {
+function paymentGuardRedirect(formData: FormData, destination: "/contact" | "/booking-request") {
   const findings = detectProhibitedPaymentData({
     message: String(formData.get("message") ?? ""),
     requested_support_summary: String(formData.get("requested_support_summary") ?? ""),
@@ -60,17 +60,17 @@ export async function submitContactInquiry(formData: FormData) {
 
 export async function submitSupportRequest(formData: FormData) {
   if (String(formData.get("website") ?? "").trim()) {
-    redirect("/request-support?success=1");
+    redirect("/booking-request?success=1");
   }
-  paymentGuardRedirect(formData, "/request-support");
+  paymentGuardRedirect(formData, "/booking-request");
 
   const normalized = normalizeSupportSubmission(formData);
-  if (!normalized.ok) redirect("/request-support?error=missing");
+  if (!normalized.ok) redirect("/booking-request?error=missing");
 
   const result = await saveAndEmailSubmission(normalized.submission, await requestContext());
-  if (!result.ok) redirect(`/request-support?error=${result.reason}`);
+  if (!result.ok) redirect(`/booking-request?error=${result.reason}`);
 
-  redirect("/request-support?success=1");
+  redirect("/booking-request?success=1");
 }
 
 // Backward-compatible export for the legacy public support form component.

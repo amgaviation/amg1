@@ -145,11 +145,11 @@ export function SiteNav() {
 
         <div className="ml-auto flex items-center gap-2.5 xl:ml-5">
           <Link
-            href="/request-support"
+            href="/booking-request"
             prefetch={false}
-            className="oc-btn oc-btn-light !hidden sm:!inline-flex"
+            className="oc-btn oc-btn-ghost-dark !hidden sm:!inline-flex"
           >
-            Start a Support Request
+            Request support
             <ArrowUpRight className="h-4 w-4" />
           </Link>
           <Link
@@ -157,7 +157,7 @@ export function SiteNav() {
             prefetch={false}
             className="hidden min-h-11 items-center whitespace-nowrap px-2 text-[0.72rem] font-semibold uppercase leading-none text-white/[0.74] transition-colors hover:text-white sm:inline-flex"
           >
-            Member Login
+            Member login
           </Link>
 
           <button
@@ -223,12 +223,12 @@ export function SiteNav() {
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <Link href="/request-support" prefetch={false} className="oc-btn oc-btn-light justify-center">
-                Start a Support Request
+              <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-light justify-center">
+                Request support
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
               <Link href="/login" prefetch={false} className="oc-btn oc-btn-ghost-dark justify-center">
-                Member Login
+                Member login
               </Link>
             </div>
           </div>

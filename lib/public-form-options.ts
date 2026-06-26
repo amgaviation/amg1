@@ -1,10 +1,9 @@
 export const contactInquiryTypes = [
-  { value: "General Inquiry", label: "General Inquiry" },
-  { value: "Plan Review Question", label: "Plan Review Question" },
-  { value: "Pilot Network Question", label: "Pilot Network Question" },
-  { value: "Vendor / Partner Inquiry", label: "Vendor / Partner Inquiry" },
-  { value: "Billing / Administrative Question", label: "Billing / Administrative Question" },
-  { value: "Aircraft Support Question", label: "Aircraft Support Question" },
+  { value: "General question", label: "General question" },
+  { value: "Support-plan question", label: "Support-plan question" },
+  { value: "Crew-network question", label: "Crew-network question" },
+  { value: "Vendor / partner question", label: "Vendor / partner question" },
+  { value: "Billing / administrative question", label: "Billing / administrative question" },
 ] as const;
 
 export const preferredContactMethods = [

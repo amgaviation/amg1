@@ -60,7 +60,7 @@ export function ConnectPreview() {
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link href={section.primaryCtaHref ?? "/login"} prefetch={false} className="oc-btn oc-btn-light">
-              {section.primaryCtaLabel ?? "Member Login"}
+              {section.primaryCtaLabel ?? "Member login"}
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link href={section.secondaryCtaHref ?? "/login?mode=request"} prefetch={false} className="oc-btn oc-btn-ghost-dark">

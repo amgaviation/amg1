@@ -18,13 +18,13 @@ export default function AmgConnectPage() {
   return (
     <>
       <PageHero
-        eyebrow={hero.eyebrow ?? "AMG Connect"}
-        title={hero.headline ?? "One support view for approved stakeholders."}
-        lead={hero.body}
+        eyebrow="AMG Connect"
+        title="One place to follow aircraft support."
+        lead="Approved owners, crew members, partners, and AMG administrators can view the requests, documents, messages, quotes, invoices, and status information relevant to their role."
         image={imageSrcForKey(hero.imageKey) ?? "/images/portal-screenshots/portal-client-dashboard-enhanced.webp"}
-        imageAlt="AMG client portal dashboard showing support requests and aircraft records"
-        primary={hero.primaryCtaLabel && hero.primaryCtaHref ? { label: hero.primaryCtaLabel, href: hero.primaryCtaHref } : undefined}
-        secondary={hero.secondaryCtaLabel && hero.secondaryCtaHref ? { label: hero.secondaryCtaLabel, href: hero.secondaryCtaHref } : undefined}
+        imageAlt="Portal preview showing support requests and aircraft records"
+        primary={{ label: "Member login", href: "/login" }}
+        secondary={{ label: "Request portal access", href: "/login?mode=request" }}
       />
 
       <ConnectPreview />
@@ -33,13 +33,13 @@ export default function AmgConnectPage() {
         <div className="oc-shell">
           <SectionHeading
             eyebrow="Role views"
-            title="Access scoped to the support role."
-            lead="Approved users receive only the request, document, communication, and status context their role requires."
+            title="Visibility scoped to each role."
+            lead="Portal access supports communication and record visibility. It does not confirm crew availability, aircraft movement, or operational acceptance."
           />
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
             {PORTAL_ROLES.map((role) => (
               <article key={role.id} data-stagger-item className="oc-card flex h-full flex-col p-6">
-                <h3 className="oc-display text-2xl text-[var(--oc-ink)]">{role.title}</h3>
+                <h3 className="oc-display text-2xl text-[var(--oc-ink)]">{role.id === "admin" ? "AMG Operations" : role.title.replace(" Portal", "")}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-[var(--oc-muted)]">{role.access}</p>
                 <ul className="mt-5 grid gap-2 border-t border-[var(--oc-line)] pt-5">
                   {role.actions.map((action) => (
@@ -54,7 +54,7 @@ export default function AmgConnectPage() {
           </div>
           <div className="mt-10">
             <Link href="/login" prefetch={false} className="oc-btn oc-btn-primary">
-              Member Login
+              Member login
               <ArrowUpRight className="h-4 w-4" />
             </Link>
           </div>
@@ -63,11 +63,11 @@ export default function AmgConnectPage() {
 
       <CtaBand
         eyebrow="AMG Connect"
-        title="Request access to the portal."
+        title="Request access to AMG Connect."
         body="Portal visibility supports communication; it does not replace crew confirmation, operational approval, or final support acceptance."
-        primaryLabel="Request Access"
+        primaryLabel="Request portal access"
         primaryHref="/login?mode=request"
-        secondaryLabel="Member Login"
+        secondaryLabel="Member login"
         secondaryHref="/login"
       />
     </>

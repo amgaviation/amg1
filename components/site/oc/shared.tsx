@@ -154,7 +154,7 @@ export function CtaBand({
   body = "Submit a Support Request for aircraft movement, crew coverage, maintenance repositioning, or support-specific coordination.",
   primaryLabel = "Submit a Support Request",
   primaryHref = "/contact",
-  secondaryLabel = "Member Login",
+  secondaryLabel = "Member login",
   secondaryHref = "/login",
 }: {
   eyebrow?: string;

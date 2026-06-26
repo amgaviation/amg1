@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ArrowRight, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ContactInquiryForm } from "@/components/site/contact-inquiry-form";
@@ -15,12 +16,19 @@ export const metadata = metadataForWebsiteContent("contact", {
 export default async function ContactPage({
   searchParams,
 }: {
-  searchParams: Promise<{ success?: string; error?: string }>;
+  searchParams: Promise<{ success?: string; error?: string; service?: string; aircraft?: string; plan?: string }>;
 }) {
   const params = await searchParams;
+  if (params.service || params.aircraft || params.plan) {
+    const query = new URLSearchParams();
+    if (params.service) query.set("service", params.service);
+    if (params.aircraft) query.set("aircraft", params.aircraft);
+    if (params.plan) query.set("plan", params.plan);
+    redirect(`/booking-request?${query.toString()}`);
+  }
   const hero = heroForWebsiteContent("contact", {
-    eyebrow: "AMG Contact",
-    title: "Contact AMG Aviation Group",
+    eyebrow: "Contact AMG",
+    title: "Send a general inquiry.",
     lead: "Use this page for general inquiries, plan questions, crew-network communication, vendor coordination, or administrative requests.",
     image: IMG.contactSupport,
   });
@@ -39,7 +47,7 @@ export default async function ContactPage({
               {hero.lead}
             </p>
             <p className="mx-auto mt-5 max-w-3xl rounded-2xl border border-white/[0.14] bg-white/[0.08] p-4 text-sm leading-relaxed text-[var(--oc-aluminum)] backdrop-blur">
-              Submitting a contact inquiry does not confirm aircraft support, crew availability, aircraft movement, or operational acceptance.
+              Aircraft support requests require the dedicated support form so AMG can review the aircraft, timing, location, and operating need.
             </p>
           </div>
         </div>
@@ -70,8 +78,8 @@ export default async function ContactPage({
                 Aircraft movement, crew coordination, maintenance movement, and operational support requests need the structured intake flow.
               </p>
               <Button asChild className="mt-6 min-h-11 rounded-full bg-white text-[var(--oc-navy)] hover:bg-white/90">
-                <Link href="/request-support" prefetch={false}>
-                  Request Support
+                <Link href="/booking-request" prefetch={false}>
+                  Request aircraft support
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>

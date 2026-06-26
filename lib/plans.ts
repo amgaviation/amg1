@@ -243,8 +243,8 @@ function planFromTemplate(
     supportScope: template.supportScope,
     highlights: template.highlights,
     featured: template.featured,
-    ctaLabel: "Request Plan Review",
-    ctaHref: `/request-support?category=subscription-program-inquiry&aircraft=${categoryId}&plan=${template.id}`,
+    ctaLabel: "Request a plan review",
+    ctaHref: `/booking-request?category=subscription-program-inquiry&aircraft=${categoryId}&plan=${template.id}`,
     details: {
       includedSupport: [
         template.supportScope,
@@ -299,8 +299,8 @@ function customPlan(aircraftLabel: string, categoryId: string, crewDayRate: stri
       "Multi-aircraft operating visibility",
       "Scope-based billing terms",
     ],
-    ctaLabel: "Request Plan Review",
-    ctaHref: `/request-support?category=subscription-program-inquiry&aircraft=${categoryId}&plan=custom-fleet`,
+    ctaLabel: "Request a plan review",
+    ctaHref: `/booking-request?category=subscription-program-inquiry&aircraft=${categoryId}&plan=custom-fleet`,
     details: {
       includedSupport: [
         `Custom ${aircraftLabel} support review for aircraft count, crew requirements, activity level, and maintenance movement.`,

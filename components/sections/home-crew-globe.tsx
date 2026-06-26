@@ -38,7 +38,7 @@ export function HomeCrewGlobe() {
             AMG reviews base location, aircraft experience, credentials, availability, and assignment fit before presenting a crew option. The map is a public geographic representation of operating regions, not real-time crew availability.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/request-support?category=contract-pilot-support" prefetch={false} className="oc-btn oc-btn-light">
+            <Link href="/booking-request?category=contract-pilot-support" prefetch={false} className="oc-btn oc-btn-light">
               Request Crew Coverage
               <ArrowUpRight className="h-4 w-4" />
             </Link>

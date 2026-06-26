@@ -476,7 +476,7 @@ export const FOOTER_COLS = [
       { label: "Capabilities", href: "/capabilities" },
       { label: "Crew Network", href: "/crew-network" },
       { label: "Contact", href: "/contact" },
-      { label: "Request Support", href: "/request-support" },
+      { label: "Request support", href: "/booking-request" },
     ],
   },
   {
@@ -492,10 +492,10 @@ export const FOOTER_COLS = [
   {
     heading: "AMG Connect",
     links: [
-      { label: "Member Login", href: "/login" },
-      { label: "Request Access", href: "/login?mode=request" },
-      { label: "Portal Overview", href: "/amg-connect" },
-      { label: "Support Plans", href: "/plans" },
+      { label: "Member login", href: "/login" },
+      { label: "Request access", href: "/login?mode=request" },
+      { label: "Portal overview", href: "/amg-connect" },
+      { label: "Support plans", href: "/plans" },
     ],
   },
   {
@@ -517,9 +517,9 @@ export const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
-  { label: "Capabilities", href: "/capabilities" },
-  { label: "Plans", href: "/plans" },
-  { label: "Aircraft Supported", href: "/aircraft-support" },
-  { label: "Crew Network", href: "/crew-network" },
+  { label: "Services", href: "/services" },
+  { label: "Support plans", href: "/plans" },
+  { label: "Aircraft support", href: "/aircraft" },
+  { label: "Crew network", href: "/pilot-network" },
   { label: "AMG Connect", href: "/amg-connect" },
 ] as const;

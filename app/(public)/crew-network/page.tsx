@@ -19,7 +19,7 @@ export default function CrewNetworkPage() {
     image: IMG.pilotNetwork,
     imageAlt: "Flight crew walking the ramp toward an aircraft",
     primary: { label: "Submit Credentials", href: "/credential-submission" },
-    secondary: { label: "Member Login", href: "/login" },
+    secondary: { label: "Member login", href: "/login" },
   });
 
   return (
@@ -90,7 +90,7 @@ export default function CrewNetworkPage() {
         body="Profile submission helps AMG review qualifications, aircraft experience, documents, base airport, and support suitability. Submission and approval do not guarantee assignment, compensation, or future engagement."
         primaryLabel="Submit Credentials"
         primaryHref="/credential-submission"
-        secondaryLabel="Member Login"
+        secondaryLabel="Member login"
         secondaryHref="/login"
       />
     </>

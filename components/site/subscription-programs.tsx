@@ -17,7 +17,7 @@ import {
 } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 
-const REQUEST_REVIEW_HREF = "/request-support?category=subscription-program-inquiry";
+const REQUEST_REVIEW_HREF = "/booking-request?category=subscription-program-inquiry";
 const CONTACT_HREF = "/contact";
 
 type PlansHeroContent = {
@@ -172,7 +172,7 @@ export function SubscriptionPrograms({ hero }: { hero?: PlansHeroContent }) {
 }
 
 function PlansHero({ content }: { content?: PlansHeroContent }) {
-  const primary = content?.primary ?? { label: "Request Plan Review", href: REQUEST_REVIEW_HREF };
+  const primary = content?.primary ?? { label: "Request a plan review", href: REQUEST_REVIEW_HREF };
   const secondary = content?.secondary ?? { label: "Compare Plans", href: "#plans-comparison" };
 
   return (
@@ -357,7 +357,7 @@ function PlanCard({
         </button>
         <Button asChild className="mt-3 min-h-11 w-full rounded-full bg-[var(--oc-navy)] text-white hover:bg-[var(--oc-blue)]">
           <Link href={plan.ctaHref ?? REQUEST_REVIEW_HREF} prefetch={false}>
-            {plan.ctaLabel ?? "Request Plan Review"}
+            {plan.ctaLabel ?? "Request a plan review"}
             <ArrowRight className="h-4 w-4" />
           </Link>
         </Button>
@@ -524,7 +524,7 @@ function PlansCTA() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button asChild className="min-h-11 rounded-full bg-white px-6 text-[var(--oc-navy)] hover:bg-white/90">
               <Link href={REQUEST_REVIEW_HREF} prefetch={false}>
-                Request Plan Review
+                Request a plan review
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>

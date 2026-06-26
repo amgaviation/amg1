@@ -1,5 +1,7 @@
-import { redirect } from "next/navigation";
+import RequestSupportPage, { metadata } from "@/app/(public)/request-support/page";
 
-export default function BookingRequestPage() {
-  redirect("/request-support");
+export { metadata };
+
+export default function BookingRequestPage(props: Parameters<typeof RequestSupportPage>[0]) {
+  return <RequestSupportPage {...props} />;
 }

@@ -136,7 +136,7 @@ export default function CapabilitiesPage() {
     image: IMG.heroOperations,
     imageAlt: "Business jet staged on the ramp for coordinated aircraft support",
     position: "center 42%",
-    primary: { label: "Request Support", href: "/request-support" },
+    primary: { label: "Request support", href: "/booking-request" },
     secondary: { label: "View Plans", href: "/plans" },
   });
 
@@ -205,8 +205,8 @@ export default function CapabilitiesPage() {
               These paths help route the right details to AMG. They do not replace review, approval, or final support
               acceptance.
             </p>
-            <Link href="/request-support" prefetch={false} className="oc-btn oc-btn-primary mt-8">
-              Request Support
+            <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-primary mt-8">
+              Request support
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -307,8 +307,8 @@ export default function CapabilitiesPage() {
             the appropriate support path.
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-3">
-            <Link href="/request-support" prefetch={false} className="oc-btn oc-btn-light">
-              Request Support
+            <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-light">
+              Request support
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link href="/plans" prefetch={false} className="oc-btn oc-btn-ghost-dark">
