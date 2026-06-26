@@ -5,174 +5,108 @@ import Image from "next/image";
 
 export const SPLASH_SESSION_KEY = "amgHomeSplashSeen";
 export const SPLASH_COMPLETE_EVENT = "amg:splash-complete";
-export const SPLASH_DURATION_MS = 5200;
+export const SPLASH_DURATION_MS = 4200;
 
 const LOGO_SRC = "/images/logo-white.png";
-const HANGAR_OPEN_SRC = "/animations/entrance/amg-hangar-entrance-poster.webp";
-const HANGAR_CLOSED_SRC = "/images/amg-generated/backgrounds/hangar-door-closed-realistic.jpg";
 
 function markSplashComplete() {
   try {
     window.sessionStorage.setItem(SPLASH_SESSION_KEY, "true");
   } catch {
-    // Storage unavailable; complete for this render.
+    /* storage unavailable */
   }
   window.dispatchEvent(new CustomEvent(SPLASH_COMPLETE_EVENT));
 }
 
+/*
+  Phases
+  ──────
+  idle      → nothing rendered
+  build     → letters animate in one by one
+  hold      → full logo sits still, tagline visible
+  exit      → logo scales up + fades, screen flips
+*/
+type Phase = "idle" | "build" | "hold" | "exit";
+
 export function SplashIntro() {
   const [visible, setVisible] = useState(false);
-  const [phase, setPhase] = useState<"idle" | "doors" | "zoom" | "logo" | "exit">("idle");
-  const timerRefs = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const [phase, setPhase] = useState<Phase>("idle");
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   useEffect(() => {
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduceMotion) return;
-
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     try {
       if (window.sessionStorage.getItem(SPLASH_SESSION_KEY) === "true") return;
-    } catch {
-      // Storage unavailable; show intro.
-    }
+    } catch { /* fall through */ }
 
     setVisible(true);
-    setPhase("doors");
+    // Small delay so the first paint is fully black before animation starts
+    const t = setTimeout(() => setPhase("build"), 120);
+    timers.current.push(t);
   }, []);
 
   useEffect(() => {
-    if (!visible) return;
+    if (phase !== "build") return;
 
-    const push = (delay: number, fn: () => void) => {
-      const t = setTimeout(fn, delay);
-      timerRefs.current.push(t);
-      return t;
+    const push = (ms: number, fn: () => void) => {
+      const t = setTimeout(fn, ms);
+      timers.current.push(t);
     };
 
-    // Phase progression
-    push(1400, () => setPhase("zoom"));
-    push(2800, () => setPhase("logo"));
-    push(4800, () => setPhase("exit"));
-    push(5200, () => {
+    push(1600, () => setPhase("hold"));
+    push(2800, () => setPhase("exit"));
+    push(4200, () => {
       markSplashComplete();
       setVisible(false);
     });
 
     return () => {
-      timerRefs.current.forEach(clearTimeout);
-      timerRefs.current = [];
+      timers.current.forEach(clearTimeout);
+      timers.current = [];
     };
-  }, [visible]);
+  }, [phase]);
 
   if (!visible) return null;
 
-  const isDoorsOpen = phase === "zoom" || phase === "logo" || phase === "exit";
-  const isLogoVisible = phase === "logo" || phase === "exit";
-  const isExiting = phase === "exit";
+  const isBuilding = phase === "build" || phase === "hold" || phase === "exit";
+  const isHolding  = phase === "hold"  || phase === "exit";
+  const isExiting  = phase === "exit";
 
   return (
     <div
-      className="amg-splash-root"
-      aria-label="AMG Aviation Group opening animation"
+      className="amg-si-root"
+      aria-label="AMG Aviation Group"
       aria-live="polite"
     >
-      {/* ── Cinematic letterbox bars ── */}
-      <div className="amg-splash-letterbox amg-splash-letterbox--top" />
-      <div className="amg-splash-letterbox amg-splash-letterbox--bottom" />
+      {/* ── Core stage ── */}
+      <div className={`amg-si-stage${isExiting ? " amg-si-stage--exit" : ""}`}>
 
-      {/* ── Hangar scene ── */}
-      <div className={`amg-splash-scene${isDoorsOpen ? " amg-splash-scene--zoomed" : ""}`}>
-        {/* Hangar background (closed / night exterior) */}
-        <div className="amg-splash-bg">
+        {/* Logo image — the whole mark slides up and fades as one */}
+        <div className={`amg-si-logo-wrap${isBuilding ? " amg-si-logo-wrap--in" : ""}${isExiting ? " amg-si-logo-wrap--out" : ""}`}>
           <Image
-            src={HANGAR_CLOSED_SRC}
-            alt=""
-            fill
+            src={LOGO_SRC}
+            alt="AMG Aviation Group"
+            width={520}
+            height={120}
             priority
-            sizes="100vw"
-            className="object-cover"
+            className="amg-si-logo-img"
           />
-          <div className="amg-splash-bg-overlay" />
+          {/* Shimmer sweep fires once the logo is visible */}
+          {isBuilding && <div className="amg-si-shimmer" aria-hidden="true" />}
         </div>
 
-        {/* Door panel LEFT */}
-        <div
-          className={`amg-splash-door amg-splash-door--left${isDoorsOpen ? " amg-splash-door--open" : ""}`}
-        >
-          <Image
-            src={HANGAR_CLOSED_SRC}
-            alt=""
-            fill
-            priority
-            sizes="50vw"
-            className="object-cover object-right"
-          />
-          <div className="amg-splash-door-edge amg-splash-door-edge--right" />
+        {/* Divider line extends from center outward */}
+        <div className={`amg-si-divider${isHolding ? " amg-si-divider--visible" : ""}`} aria-hidden="true" />
+
+        {/* Tagline clips in left-to-right */}
+        <div className={`amg-si-tagline-wrap${isHolding ? " amg-si-tagline-wrap--visible" : ""}`}>
+          <p className="amg-si-tagline">AMG Aviation Group</p>
         </div>
 
-        {/* Door panel RIGHT */}
-        <div
-          className={`amg-splash-door amg-splash-door--right${isDoorsOpen ? " amg-splash-door--open" : ""}`}
-        >
-          <Image
-            src={HANGAR_CLOSED_SRC}
-            alt=""
-            fill
-            priority
-            sizes="50vw"
-            className="object-cover object-left"
-          />
-          <div className="amg-splash-door-edge amg-splash-door-edge--left" />
-        </div>
-
-        {/* Hangar interior / jet revealed */}
-        <div className={`amg-splash-interior${isDoorsOpen ? " amg-splash-interior--visible" : ""}`}>
-          <Image
-            src={HANGAR_OPEN_SRC}
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-          {/* Blue accent light spill from interior */}
-          <div className="amg-splash-light-spill" />
-        </div>
       </div>
 
-      {/* ── Runway perspective grid ── */}
-      <div className="amg-splash-runway-grid" />
-
-      {/* ── Logo overlay ── */}
-      <div className={`amg-splash-logo-panel${isLogoVisible ? " amg-splash-logo-panel--visible" : ""}`}>
-        {/* Vignette */}
-        <div className="amg-splash-vignette" />
-
-        <div className="amg-splash-mark">
-          {/* AMG wordmark */}
-          <div className={`amg-splash-logo${isLogoVisible ? " amg-splash-logo--reveal" : ""}`}>
-            <Image
-              src={LOGO_SRC}
-              alt="AMG Aviation Group"
-              fill
-              priority
-              sizes="(max-width: 640px) 72vw, 28rem"
-              className="object-contain"
-            />
-            <div className="amg-splash-logo-beam" />
-          </div>
-
-          {/* Tagline */}
-          <p className={`amg-splash-tagline${isLogoVisible ? " amg-splash-tagline--visible" : ""}`}>
-            Private aircraft support, coordinated.
-          </p>
-
-          {/* Subtle divider line */}
-          <div className={`amg-splash-line${isLogoVisible ? " amg-splash-line--visible" : ""}`} />
-        </div>
-      </div>
-
-      {/* ── Exit wipe ── */}
-      <div className={`amg-splash-wipe${isExiting ? " amg-splash-wipe--active" : ""}`} />
+      {/* Flash overlay — fires on exit, flips bright then clears */}
+      <div className={`amg-si-flash${isExiting ? " amg-si-flash--active" : ""}`} aria-hidden="true" />
     </div>
   );
 }
