@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
+import { WindowScrollIntro } from "@/components/site/home/window-scroll-intro";
 import { CtaBand } from "@/components/site/oc/shared";
 import { metadataForWebsiteContent } from "@/lib/website-editor/content";
 
@@ -73,44 +73,9 @@ function SectionIntro({ eyebrow, title, body }: { eyebrow: string; title: string
 export default function HomePage() {
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-[#050B14] pt-[calc(var(--public-header-height)+3.5rem)] text-white lg:pt-[calc(var(--public-header-height)+5rem)]">
-        <Image
-          src="/images/hero-jet-poster.jpg"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="absolute inset-0 -z-20 object-cover opacity-55"
-        />
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(5,11,20,0.98),rgba(5,11,20,0.82)_48%,rgba(5,11,20,0.66)),linear-gradient(180deg,rgba(5,11,20,0.22),#050B14_92%)]" />
-        <div className="oc-shell pb-20 lg:pb-28">
-          <div className="max-w-4xl">
-            <p className="oc-eyebrow oc-eyebrow-light text-[var(--oc-blue)]">Private aircraft support</p>
-            <h1 className="mt-5 max-w-4xl text-[clamp(3rem,8vw,6.7rem)] font-semibold leading-[1.03] tracking-[-0.02em] text-white">
-              Coordinated support for private aircraft.
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[var(--oc-aluminum)]">
-              AMG helps owners and flight departments secure qualified crew, coordinate aircraft movement, and manage maintenance repositioning from request through completion.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-light justify-center">
-                Request aircraft support
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link href="/services" prefetch={false} className="oc-btn oc-btn-ghost-dark justify-center">
-                Explore services
-              </Link>
-            </div>
-            <div className="mt-8 flex flex-wrap gap-2 text-sm font-semibold text-white">
-              {["Crew coverage", "Aircraft movement", "Maintenance repositioning"].map((item) => (
-                <span key={item} className="rounded-full border border-white/15 bg-white/10 px-4 py-2">{item}</span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      <WindowScrollIntro />
 
-      <section className="bg-[#050B14] py-16 lg:py-24">
+      <section id="home-after-intro" className="bg-[#050B14] py-16 lg:py-24">
         <div className="oc-shell">
           <SectionIntro eyebrow="Core support" title="Start with the need. AMG reviews the path." />
           <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">

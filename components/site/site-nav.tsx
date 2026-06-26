@@ -34,7 +34,7 @@ export function SiteNav() {
       setAtTop(false);
       return;
     }
-    const update = () => setAtTop(window.scrollY < window.innerHeight - 88);
+    const update = () => setAtTop(window.scrollY < window.innerHeight * 1.38);
     update();
     window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update, { passive: true });
