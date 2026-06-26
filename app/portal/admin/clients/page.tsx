@@ -216,11 +216,8 @@ export default async function AdminClientsPage({
           { key: "name", label: "Name", sortable: true },
           { key: "company", label: "Company", sortable: true },
           { key: "email", label: "Email", sortable: true },
-          { key: "phone", label: "Phone", sortable: true },
           { key: "status", label: "Status", sortable: true },
-          { key: "homeAirport", label: "Home Airport", sortable: true },
           { key: "aircraftCount", label: "Aircraft", sortable: true },
-          { key: "subscriptionStatus", label: "Subscription", sortable: true },
           { key: "updated", label: "Updated", sortable: true },
         ]}
         filters={filters}

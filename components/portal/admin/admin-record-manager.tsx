@@ -1,8 +1,9 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowDown, ArrowUp, Edit3, Filter, Plus, RefreshCw, Search, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Edit3, Eye, Filter, Plus, RefreshCw, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -89,6 +90,20 @@ function labelFor(options: { value: string; label: string }[], value: string) {
   return options.find((item) => item.value === value)?.label ?? value;
 }
 
+function cellClass(column: AdminRecordColumn, index: number) {
+  if (index === 0) return cn("min-w-0", column.className);
+  if (column.key === "updated") return cn("whitespace-nowrap text-slate-500", column.className);
+  if (column.key === "status" || column.key === "secondaryStatus") return cn("flex min-w-0 overflow-hidden justify-start", column.className);
+  return cn("min-w-0 truncate", column.className);
+}
+
+function gridTemplate(columnCount: number): CSSProperties {
+  const middle = Math.max(columnCount - 1, 0);
+  return {
+    gridTemplateColumns: `minmax(14rem, 1.8fr) repeat(${middle}, minmax(0, 1fr)) minmax(7.5rem, auto)`,
+  };
+}
+
 function fieldInput(field: AdminRecordField, values: Record<string, RecordValue>) {
   const common = {
     id: field.name,
@@ -154,9 +169,9 @@ export function AdminRecordManager({
     key: columns[0]?.key ?? "title",
     direction: "asc",
   });
-  const [selectedId, setSelectedId] = useState(rows[0]?.id ?? "");
+  const [selectedId, setSelectedId] = useState("");
   const [editor, setEditor] = useState<{ mode: "create" | "edit"; row?: AdminRecordRow } | null>(null);
-  const selected = rows.find((row) => row.id === selectedId) ?? rows[0] ?? null;
+  const selected = rows.find((row) => row.id === selectedId) ?? null;
 
   const visibleRows = useMemo(() => {
     const needle = search.trim().toLowerCase();
@@ -311,13 +326,19 @@ export function AdminRecordManager({
                 </thead>
                 <tbody>
                   {visibleRows.map((row) => (
-                    <tr
+                    <div
                       key={row.id}
                       className={cn(
                         "cursor-pointer border-b border-white/10 bg-transparent transition-colors hover:bg-white/[0.045]",
                         selected?.id === row.id && "bg-primary/10"
                       )}
                       onClick={() => setSelectedId(row.id)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          setSelectedId(row.id);
+                        }
+                      }}
                     >
                       {columns.map((column, index) => (
                         <td key={column.key} className={cn("min-w-0 px-4 py-3 align-middle text-slate-300", column.className)}>
@@ -327,11 +348,11 @@ export function AdminRecordManager({
                               {row.subtitle ? <div className="mt-0.5 truncate text-xs text-slate-500">{row.subtitle}</div> : null}
                             </div>
                           ) : column.key === "status" && row.status ? (
-                            <StatusBadge label={row.status.label} tone={row.status.tone} />
+                            <StatusBadge label={row.status.label} tone={row.status.tone} className="max-w-full overflow-hidden" />
                           ) : column.key === "secondaryStatus" && row.secondaryStatus ? (
-                            <StatusBadge label={row.secondaryStatus.label} tone={row.secondaryStatus.tone} />
+                            <StatusBadge label={row.secondaryStatus.label} tone={row.secondaryStatus.tone} className="max-w-full overflow-hidden" />
                           ) : (
-                            valueText(row.cells[column.key])
+                            <span className={cn(column.key === "updated" ? "whitespace-nowrap" : "truncate")}>{valueText(row.cells[column.key])}</span>
                           )}
                         </td>
                       ))}
@@ -362,8 +383,17 @@ export function AdminRecordManager({
                             )
                           ) : null}
                         </div>
-                      </td>
-                    </tr>
+                      ))}
+                      <div className="flex justify-end gap-2" onClick={(event) => event.stopPropagation()}>
+                        <Button type="button" variant="outline" size="sm" className="gap-1 rounded-full" onClick={() => setSelectedId(row.id)}>
+                          <Eye className="h-3.5 w-3.5" />
+                          Details
+                        </Button>
+                        <Button type="button" variant="ghost" size="sm" className="rounded-full" onClick={() => setEditor({ mode: "edit", row })}>
+                          Edit
+                        </Button>
+                      </div>
+                    </div>
                   ))}
                 </tbody>
               </table>
@@ -409,6 +439,7 @@ export function AdminRecordManager({
             </div>
           )}
         </div>
+      </div>
 
         <aside className="bg-[#050B14]/45">
           {selected ? (
@@ -420,6 +451,9 @@ export function AdminRecordManager({
                   {selected.subtitle ? <p className="mt-1 text-sm text-slate-400">{selected.subtitle}</p> : null}
                 </div>
                 {selected.status ? <StatusBadge label={selected.status.label} tone={selected.status.tone} /> : null}
+                <Button type="button" variant="ghost" size="icon" onClick={() => setSelectedId("")} aria-label="Close details">
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
 
               <div className="mt-5 rounded-lg border border-white/10 bg-white/[0.04] p-4">
@@ -464,9 +498,38 @@ export function AdminRecordManager({
             <div className="flex min-h-[24rem] items-center justify-center p-8 text-center text-sm text-slate-400">
               Select a record to view details.
             </div>
-          )}
-        </aside>
-      </div>
+            <footer className="flex flex-wrap justify-end gap-2 border-t border-slate-200 bg-white px-5 py-4">
+              {archiveAction ? (
+                ["archived", "suspended", "inactive"].includes(selected.status?.label.toLowerCase() ?? "") && archiveDisabledReason ? (
+                  <Button type="button" variant="ghost" className="rounded-full" disabled title={archiveDisabledReason}>
+                    {selected.status?.label ?? "Inactive"}
+                  </Button>
+                ) : (
+                  <form action={archiveAction}>
+                    <input type="hidden" name={recordIdName} value={selected.id} />
+                    <input type="hidden" name="back_to" value={backTo} />
+                    <SubmitButton
+                      variant="ghost"
+                      className="rounded-full text-slate-600"
+                      confirm={archiveConfirm}
+                      pendingText="Saving..."
+                    >
+                      {archiveLabel}
+                    </SubmitButton>
+                  </form>
+                )
+              ) : null}
+              <Button type="button" variant="outline" className="rounded-full" onClick={() => setSelectedId("")}>
+                Close
+              </Button>
+              <Button type="button" className="gap-2 rounded-full" onClick={() => setEditor({ mode: "edit", row: selected })}>
+                <Edit3 className="h-4 w-4" />
+                {editLabel}
+              </Button>
+            </footer>
+          </aside>
+        </div>
+      ) : null}
 
       {editor ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4" role="dialog" aria-modal="true">
