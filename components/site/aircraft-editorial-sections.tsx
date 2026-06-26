@@ -93,7 +93,7 @@ export function AircraftEditorialSections() {
                     </div>
                   </dl>
                   <div className="mt-8">
-                    <Link href={`/request-support?aircraft=`} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 py-3 font-display text-xs font-semibold uppercase text-primary-foreground transition-colors hover:bg-primary/90">
+                    <Link href={`/contact?aircraftCategory=${aircraft.id}&source=aircraft-page`} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 py-3 font-display text-xs font-semibold uppercase text-primary-foreground transition-colors hover:bg-primary/90">
                       Request support for this category
                       <ArrowRight className="h-4 w-4" />
                     </Link>

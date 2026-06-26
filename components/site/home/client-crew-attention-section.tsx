@@ -6,7 +6,7 @@ const AUDIENCE_CARDS = [
     label: "Aircraft Owners & Operators",
     headline: "Visibility into what is moving, what is pending, and who is involved.",
     body: "For owners and operators who need structured support around aircraft movement, maintenance timing, crew coordination, and a clearer view of request status and operating context.",
-    cta: { label: "Request Support", href: "/request-support", primary: true },
+    cta: { label: "Start Inquiry", href: "/contact?source=homepage", primary: true },
     secondary: { label: "View Plans", href: "/plans" },
   },
   {
@@ -72,8 +72,8 @@ export function ClientCrewAttentionSection() {
         </div>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3" data-scroll-animate>
-          <Link href="/request-support" prefetch={false} className="oc-btn oc-btn-light">
-            Request Support
+          <Link href="/contact?source=homepage" prefetch={false} className="oc-btn oc-btn-light">
+            Start Inquiry
             <ArrowRight className="h-4 w-4" />
           </Link>
           <Link href="/crew-network" prefetch={false} className="oc-btn oc-btn-ghost-dark">

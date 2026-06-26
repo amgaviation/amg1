@@ -31,8 +31,8 @@ export function HomeHangarEntry({
   headline = "Crew coverage, aircraft movement, and maintenance repositioning—coordinated in one place.",
   body = "AMG helps private aircraft owners, owner representatives, and flight departments define the need, review feasibility, and coordinate the next step. Start with the aircraft, location, timing, and requested support.",
   imageSrc = IMG.generatedHeroPoster,
-  primaryCtaLabel = "Start a Support Request",
-  primaryCtaHref = "/request-support",
+  primaryCtaLabel = "Start a Service Inquiry",
+  primaryCtaHref = "/contact?source=homepage",
   secondaryCtaLabel = "Speak With AMG",
   secondaryCtaHref = "/contact",
 }: HomeHangarEntryProps) {

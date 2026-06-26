@@ -129,11 +129,11 @@ export function ContactInquiryForm({
             <div className="rounded-xl border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-4">
               <p className="text-sm leading-relaxed text-[var(--oc-muted)]">
                 Need to request aircraft movement, crew coordination, maintenance repositioning, or mission-specific
-                support? Use the Request Support page so AMG receives the required operational context.
+                support? Use the Start Inquiry page so AMG receives the required operational context.
               </p>
               <Button asChild variant="outline" className="mt-4 min-h-11 rounded-full">
-                <Link href="/request-support" prefetch={false}>
-                  Request Support
+                <Link href="/contact?source=homepage" prefetch={false}>
+                  Start Inquiry
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
@@ -174,7 +174,7 @@ export function ContactInquiryForm({
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <SubmitButton />
-            <Link href="/request-support" prefetch={false} className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">
+            <Link href="/contact?source=homepage" prefetch={false} className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">
               Need aircraft support?
             </Link>
           </div>

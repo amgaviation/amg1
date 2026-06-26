@@ -31,7 +31,7 @@ export default function AircraftSupportPage() {
     lead: "From owner-flown pistons to heavy-cabin jets, AMG reviews support around the aircraft class, crew requirement, route, timing, status, and airport context.",
     image: IMG.aircraftSupportMain,
     imageAlt: "Business jet prepared for an aircraft support movement",
-    primary: { label: "Request Support", href: "/request-support" },
+    primary: { label: "Start Inquiry", href: "/contact?source=aircraft-page" },
     secondary: { label: "View Plans", href: "/plans" },
   });
 
@@ -99,8 +99,8 @@ export default function AircraftSupportPage() {
       <CtaBand
         title="Tell us about the aircraft."
         body="Share the aircraft, movement or coverage need, timing, and known constraints. AMG will review the support path before anything is accepted."
-        primaryLabel="Request Support"
-        primaryHref="/request-support"
+        primaryLabel="Start Inquiry"
+        primaryHref="/contact?source=aircraft-page"
       />
     </>
   );

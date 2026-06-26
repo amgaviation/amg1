@@ -476,7 +476,7 @@ export const FOOTER_COLS = [
       { label: "Capabilities", href: "/capabilities" },
       { label: "Crew Network", href: "/crew-network" },
       { label: "Contact", href: "/contact" },
-      { label: "Request Support", href: "/request-support" },
+      { label: "Start Inquiry", href: "/contact?source=site-cta" },
     ],
   },
   {

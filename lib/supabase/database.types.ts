@@ -488,6 +488,62 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["mission_passengers"]["Insert"]>
         Relationships: []
       }
+      service_inquiries: {
+        Row: {
+          aircraft_identifier: string | null
+          assigned_team: string
+          context: Json
+          converted_mission_id: string | null
+          created_at: string
+          destination: string | null
+          email: string
+          id: string
+          idempotency_key: string
+          organization: string | null
+          origin: string | null
+          payload_hash: string | null
+          phone: string | null
+          reference: string
+          requested_date: string | null
+          requester_name: string
+          service_details: Json
+          service_type: string
+          source: string | null
+          status: string
+          summary: string | null
+          timeframe: string | null
+          updated_at: string
+          urgency: string
+        }
+        Insert: {
+          aircraft_identifier?: string | null
+          assigned_team: string
+          context?: Json
+          converted_mission_id?: string | null
+          created_at?: string
+          destination?: string | null
+          email: string
+          id?: string
+          idempotency_key: string
+          organization?: string | null
+          origin?: string | null
+          payload_hash?: string | null
+          phone?: string | null
+          reference: string
+          requested_date?: string | null
+          requester_name: string
+          service_details?: Json
+          service_type: string
+          source?: string | null
+          status?: string
+          summary?: string | null
+          timeframe?: string | null
+          updated_at?: string
+          urgency?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["service_inquiries"]["Insert"]>
+        Relationships: []
+      }
       missions: {
         Row: {
           additional_notes: string | null

@@ -254,3 +254,43 @@ create index assignments_support_request_idx on assignments(support_request_id);
 create index documents_support_request_idx on documents(support_request_id);
 create index audit_events_entity_idx on audit_events(entity_type, entity_id);
 create index audit_events_actor_idx on audit_events(actor_account_id, created_at desc);
+
+-- Public service inquiries are anonymous website qualification records.
+-- They are not operational missions and should be converted only after AMG review.
+create table service_inquiries (
+  id uuid primary key default gen_random_uuid(),
+  reference text not null unique,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  status text not null default 'new',
+  service_type text not null,
+  assigned_team text not null,
+  source text,
+  requester_name text not null,
+  email text not null,
+  phone text,
+  organization text,
+  urgency text not null default 'standard',
+  aircraft_identifier text,
+  origin text,
+  destination text,
+  requested_date date,
+  timeframe text,
+  summary text,
+  service_details jsonb not null default '{}',
+  context jsonb not null default '{}',
+  idempotency_key text not null unique,
+  payload_hash text,
+  converted_mission_id uuid references missions(id),
+  constraint service_inquiries_status_check check (status in ('new', 'reviewing', 'contacted', 'qualified', 'converted', 'closed')),
+  constraint service_inquiries_service_type_check check (service_type in ('aircraft-management', 'contract-crew', 'ferry-repositioning', 'maintenance-flight', 'operations-coordination', 'fleet-support', 'general')),
+  constraint service_inquiries_assigned_team_check check (assigned_team in ('management', 'operations', 'general')),
+  constraint service_inquiries_urgency_check check (urgency in ('standard', 'urgent', 'aog'))
+);
+
+create index service_inquiries_created_at_idx on service_inquiries(created_at desc);
+create index service_inquiries_status_idx on service_inquiries(status);
+create index service_inquiries_service_type_idx on service_inquiries(service_type);
+create index service_inquiries_assigned_team_idx on service_inquiries(assigned_team);
+create index service_inquiries_email_lower_idx on service_inquiries(lower(email));
+create index service_inquiries_converted_mission_id_idx on service_inquiries(converted_mission_id);

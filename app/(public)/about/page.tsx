@@ -16,7 +16,7 @@ export default function AboutPage() {
     lead: "AMG Aviation Group provides structured coordination for aircraft owners, flight departments, crews, and approved representatives while keeping operating authority, aircraft approval, and pilot-in-command responsibility clearly assigned.",
     image: IMG.aboutOperations,
     imageAlt: "AMG operations environment",
-    primary: { label: "Request Support", href: "/request-support" },
+    primary: { label: "Start Inquiry", href: "/contact?source=site-cta" },
     secondary: { label: "Crew Network", href: "/crew-network" },
   });
 

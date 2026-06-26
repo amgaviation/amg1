@@ -37,7 +37,7 @@ export default function FaqsPage() {
     lead: "Answers about request acceptance, crew availability, AMG Connect access, quotes, plans, and service limits.",
     image: IMG.generatedDispatch,
     imageAlt: "AMG dispatch and operations coordination environment",
-    primary: { label: "Request Support", href: "/request-support" },
+    primary: { label: "Start Inquiry", href: "/contact?source=site-cta" },
     secondary: { label: "Contact AMG Aviation", href: "/contact" },
   });
 
@@ -76,8 +76,8 @@ export default function FaqsPage() {
         body="Send the aircraft context, timing, and requested support path so AMG can route the inquiry to the right review workflow."
         primaryLabel="Contact AMG"
         primaryHref="/contact"
-        secondaryLabel="Request Support"
-        secondaryHref="/request-support"
+        secondaryLabel="Start Inquiry"
+        secondaryHref="/contact?source=site-cta"
       />
     </>
   );
