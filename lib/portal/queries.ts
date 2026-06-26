@@ -1,5 +1,6 @@
 import "server-only";
 
+import { listAdminCrewProfiles, type AdminCrewProfile } from "@/lib/portal/admin-crew-query";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { BillingDocumentRow } from "@/lib/portal/billing-documents";
 import type { Tables } from "@/lib/supabase/database.types";
@@ -632,21 +633,9 @@ export async function listAvailability(crewId: string): Promise<CrewAvailability
   return data ?? [];
 }
 
-export async function listAllCrew(): Promise<
-  (Profile & { crew_profile: CrewProfile | null })[]
-> {
+export async function listAllCrew(): Promise<AdminCrewProfile[]> {
   const db = await createServiceClient();
-  const { data: profiles } = await db
-    .from("profiles")
-    .select("*")
-    .eq("role", "crew")
-    .order("full_name");
-  const ids = (profiles ?? []).map((p) => p.id);
-  const { data: crewProfiles } = ids.length
-    ? await db.from("crew_profiles").select("*").in("id", ids)
-    : { data: [] as CrewProfile[] };
-  const byId = new Map((crewProfiles ?? []).map((c) => [c.id, c]));
-  return (profiles ?? []).map((p) => ({ ...p, crew_profile: byId.get(p.id) ?? null }));
+  return listAdminCrewProfiles(db);
 }
 
 export async function listAllCredentials(): Promise<

@@ -141,9 +141,13 @@ export type Database = {
       crew_profiles: {
         Row: {
           availability_status: string
+          approved: boolean
           certificate_level: string | null
           day_rate: number | null
           id: string
+          import_batch_id: string | null
+          imported_at: string | null
+          insurance_approved: boolean
           international_experience: boolean
           jet_time: number | null
           max_days_away: number | null
@@ -152,8 +156,13 @@ export type Database = {
           pic_time: number | null
           preferred_aircraft: string[] | null
           preferred_regions: string[] | null
+          priority_candidate: boolean
+          profile_status: string
+          review_status: string
+          reviewed: boolean
           short_notice_available: boolean
           sic_time: number | null
+          source: string | null
           time_in_type: string | null
           total_time: number | null
           turbine_time: number | null
@@ -162,9 +171,13 @@ export type Database = {
         }
         Insert: {
           availability_status?: string
+          approved?: boolean
           certificate_level?: string | null
           day_rate?: number | null
           id: string
+          import_batch_id?: string | null
+          imported_at?: string | null
+          insurance_approved?: boolean
           international_experience?: boolean
           jet_time?: number | null
           max_days_away?: number | null
@@ -173,8 +186,13 @@ export type Database = {
           pic_time?: number | null
           preferred_aircraft?: string[] | null
           preferred_regions?: string[] | null
+          priority_candidate?: boolean
+          profile_status?: string
+          review_status?: string
+          reviewed?: boolean
           short_notice_available?: boolean
           sic_time?: number | null
+          source?: string | null
           time_in_type?: string | null
           total_time?: number | null
           turbine_time?: number | null
