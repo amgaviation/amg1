@@ -14,7 +14,7 @@ type RecordValue = string | number | boolean | null | undefined;
 export type AdminRecordField = {
   name: string;
   label: string;
-  type?: "text" | "email" | "tel" | "number" | "textarea" | "select";
+  type?: "text" | "email" | "tel" | "number" | "date" | "textarea" | "select";
   required?: boolean;
   placeholder?: string;
   options?: { value: string; label: string }[];
