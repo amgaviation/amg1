@@ -100,9 +100,19 @@ function SuccessNotice({ success }: { success?: string }) {
   return <Notice tone="success">{copy[success] ?? "Communication action completed."}</Notice>;
 }
 
+function hrefWith(query: URLSearchParams, updates: Record<string, string | null>) {
+  const next = new URLSearchParams(query);
+  for (const [key, value] of Object.entries(updates)) {
+    if (value) next.set(key, value);
+    else next.delete(key);
+  }
+  return `/portal/admin/messages?${next.toString()}`;
+}
+
 function ThreadRow({ thread, selectedId, query }: { thread: ThreadSummary; selectedId?: string; query: URLSearchParams }) {
   const next = new URLSearchParams(query);
   next.set("thread", thread.id);
+  next.delete("compose");
 
   return (
     <Link
@@ -257,7 +267,7 @@ function ComposeForm({
       ) : null}
       <div className="flex justify-end">
         <SubmitButton disabled={!providerConfigured} className="rounded-full" pendingText="Sending...">
-          Send Email
+          Send email
         </SubmitButton>
       </div>
     </form>
@@ -404,7 +414,7 @@ function ThreadDetail({
 export default async function AdminMessagesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ thread?: string; view?: string; q?: string; status?: string; priority?: string; success?: string; error?: string; ref?: string }>;
+  searchParams: Promise<{ thread?: string; view?: string; q?: string; status?: string; priority?: string; compose?: string; success?: string; error?: string; ref?: string }>;
 }) {
   const user = await requireRole("admin");
   const params = await searchParams;
@@ -422,6 +432,7 @@ export default async function AdminMessagesPage({
   ]);
 
   const activeView = params.view ?? "";
+  const providerConfigured = provider.configured || provider.mockEnabled;
 
   return (
     <PortalShell role="admin" user={user}>
@@ -435,58 +446,86 @@ export default async function AdminMessagesPage({
       <SuccessNotice success={params.success} />
 
       <SectionCard
-        title="Operational Inbox"
-        description={provider.configured || provider.mockEnabled ? "Email sending is available for admins." : "Email sending is disabled until provider configuration is completed."}
-        icon="messageSquare"
+        className="overflow-hidden"
         bodyClassName="p-0"
       >
-        <div className="grid min-h-[44rem] lg:grid-cols-[13rem_minmax(18rem,22rem)_1fr]">
-          <aside className="border-b border-slate-200 bg-slate-50 p-4 lg:border-b-0 lg:border-r">
-            <div className="grid gap-1">
+        <div className="border-b border-slate-200 bg-slate-50/80 px-5 py-4">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h2 className="font-display text-xl font-bold uppercase text-slate-950">Operational Inbox</h2>
+                <StatusBadge label={providerConfigured ? "Sending enabled" : "Sending disabled"} tone={providerConfigured ? "success" : "warn"} />
+              </div>
+              <p className="mt-1 text-sm leading-6 text-slate-500">
+                Email threads, internal notes, linked records, delivery status, and AMG support review communications.
+              </p>
+            </div>
+            <Link
+              href={hrefWith(query, { compose: "1", thread: null })}
+              className="inline-flex min-h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(59,130,246,0.25)] hover:bg-blue-500"
+            >
+              Compose
+            </Link>
+          </div>
+
+          <form className="mt-4 grid gap-3 lg:grid-cols-[minmax(12rem,1fr)_11rem_11rem_auto]">
+            <input type="hidden" name="view" value={activeView} />
+            {params.thread ? <input type="hidden" name="thread" value={params.thread} /> : null}
+            <input name="q" defaultValue={params.q ?? ""} placeholder="Search messages" className="min-h-10 rounded-md border border-slate-200 bg-white px-3 text-sm" />
+            <select name="status" defaultValue={params.status ?? ""} className="min-h-10 rounded-md border border-slate-200 bg-white px-3 text-sm">
+              <option value="">All statuses</option>
+              {STATUS_OPTIONS.map((status) => <option key={status} value={status}>{label(status)}</option>)}
+            </select>
+            <select name="priority" defaultValue={params.priority ?? ""} className="min-h-10 rounded-md border border-slate-200 bg-white px-3 text-sm">
+              <option value="">All priorities</option>
+              {PRIORITY_OPTIONS.map((priority) => <option key={priority} value={priority}>{label(priority)}</option>)}
+            </select>
+            <button className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:border-primary/40">
+              Apply Filters
+            </button>
+          </form>
+
+          <div className="mt-4 flex flex-wrap gap-2">
               {VIEWS.map((view) => {
                 const next = new URLSearchParams(query);
                 next.delete("thread");
+                next.delete("compose");
                 if (view.value) next.set("view", view.value);
                 else next.delete("view");
                 return (
                   <Link
                     key={view.value || "attention"}
                     href={`/portal/admin/messages?${next.toString()}`}
-                    className={`rounded-md px-3 py-2 text-sm ${activeView === view.value ? "bg-white font-semibold text-slate-950 shadow-sm" : "text-slate-600 hover:bg-white"}`}
+                    className={`shrink-0 rounded-full border px-3 py-2 text-sm ${activeView === view.value ? "border-primary/40 bg-primary/10 font-semibold text-slate-950" : "border-slate-200 bg-white text-slate-600 hover:border-primary/30"}`}
                   >
                     {view.label}
                   </Link>
                 );
               })}
-            </div>
-            <form className="mt-5 grid gap-3">
-              <input type="hidden" name="view" value={activeView} />
-              <input name="q" defaultValue={params.q ?? ""} placeholder="Search messages" className="min-h-10 rounded-md border border-slate-200 bg-white px-3 text-sm" />
-              <select name="status" defaultValue={params.status ?? ""} className="min-h-10 rounded-md border border-slate-200 bg-white px-3 text-sm">
-                <option value="">All statuses</option>
-                {STATUS_OPTIONS.map((status) => <option key={status} value={status}>{label(status)}</option>)}
-              </select>
-              <select name="priority" defaultValue={params.priority ?? ""} className="min-h-10 rounded-md border border-slate-200 bg-white px-3 text-sm">
-                <option value="">All priorities</option>
-                {PRIORITY_OPTIONS.map((priority) => <option key={priority} value={priority}>{label(priority)}</option>)}
-              </select>
-              <button className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:border-primary/40">
-                Apply
-              </button>
-            </form>
-          </aside>
+          </div>
+        </div>
 
-          <section className="border-b border-slate-200 lg:border-b-0 lg:border-r">
+        <div className="grid min-h-[42rem] xl:grid-cols-[minmax(20rem,28rem)_minmax(0,1fr)]">
+          <section className="border-b border-slate-200 xl:border-b-0 xl:border-r">
             <div className="border-b border-slate-200 p-4">
               <p className="text-sm font-semibold text-slate-950">{threads.length} thread{threads.length === 1 ? "" : "s"}</p>
               <p className="mt-1 text-xs text-slate-500">Unread, failed, and linked operational messages surface here.</p>
             </div>
-            <div>
+            <div className="max-h-[42rem] overflow-y-auto">
               {threads.length ? (
                 threads.map((thread) => <ThreadRow key={thread.id} thread={thread} selectedId={params.thread} query={query} />)
               ) : (
-                <div className="p-4">
-                  <EmptyState icon="messageSquare" title="No matching threads" description="Adjust filters or create a new email thread." />
+                <div className="p-6">
+                  <EmptyState
+                    icon="messageSquare"
+                    title="No matching threads"
+                    description="Adjust filters or compose a new operational email when outreach is needed."
+                    action={
+                      <Link href={hrefWith(query, { compose: "1", thread: null })} className="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white">
+                        Compose
+                      </Link>
+                    }
+                  />
                 </div>
               )}
             </div>
@@ -494,16 +533,42 @@ export default async function AdminMessagesPage({
 
           <section className="min-w-0 p-5">
             {params.thread || detail ? (
-              <ThreadDetail detail={detail} templates={templates} records={records} providerConfigured={provider.configured || provider.mockEnabled} />
+              <ThreadDetail detail={detail} templates={templates} records={records} providerConfigured={providerConfigured} />
             ) : (
-              <div className="space-y-5">
-                <EmptyState icon="messageSquare" title="No thread selected" description="Select a conversation or compose a new operational email." />
-                <ComposeForm templates={templates} records={records} providerConfigured={provider.configured || provider.mockEnabled} />
-              </div>
+              <EmptyState
+                icon="messageSquare"
+                title="No thread selected"
+                description="Select a conversation from the inbox to review the message history, update status, or link operational records."
+                action={
+                  <Link href={hrefWith(query, { compose: "1", thread: null })} className="inline-flex rounded-full border border-primary/40 px-4 py-2 text-sm font-semibold text-primary">
+                    Compose email
+                  </Link>
+                }
+              />
             )}
           </section>
         </div>
       </SectionCard>
+
+      {params.compose ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/65 p-4" role="dialog" aria-modal="true" aria-label="Compose email">
+          <div className="max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl">
+            <header className="flex items-start justify-between gap-4 border-b border-slate-200 bg-slate-50 px-5 py-4">
+              <div>
+                <p className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-primary">Admin Email</p>
+                <h3 className="mt-1 text-xl font-bold text-slate-950">Compose Operational Message</h3>
+                <p className="mt-1 text-sm text-slate-500">Email sending is available to AMG admins when provider configuration is enabled.</p>
+              </div>
+              <Link href={hrefWith(query, { compose: null })} className="rounded-md p-2 text-slate-500 hover:bg-slate-100" aria-label="Close compose">
+                X
+              </Link>
+            </header>
+            <div className="max-h-[calc(92vh-6rem)] overflow-y-auto p-5">
+              <ComposeForm templates={templates} records={records} providerConfigured={providerConfigured} />
+            </div>
+          </div>
+        </div>
+      ) : null}
     </PortalShell>
   );
 }

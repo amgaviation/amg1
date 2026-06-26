@@ -7,7 +7,6 @@ import {
   AVAILABILITY_STATUS_LABEL,
   AVAILABILITY_STATUS_TONE,
   CREDENTIAL_STATUS_LABEL,
-  CREDENTIAL_STATUS_TONE,
   PROFILE_STATUS,
   PROFILE_STATUS_LABEL,
   PROFILE_STATUS_TONE,
@@ -30,10 +29,17 @@ const certificateOptions = [
   { value: "Maintenance Pilot", label: "Maintenance Pilot" },
 ];
 
-const booleanOptions = [
+const yesNoOptions = [
   { value: "false", label: "No" },
   { value: "true", label: "Yes" },
 ];
+
+type CrewProfileForLocation = {
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  location_display?: string | null;
+};
 
 function profileTone(status: string): Tone {
   return toneFor(PROFILE_STATUS_TONE, status);
@@ -47,8 +53,12 @@ function listText(value?: string[] | null) {
   return value?.length ? value.join(", ") : "";
 }
 
-function locationText(profile: { city?: string | null; state?: string | null; country?: string | null } | null | undefined, fallback?: string | null) {
-  return [profile?.city, profile?.state].filter(Boolean).join(", ") || profile?.country || fallback || null;
+function boolFilter(value?: boolean | null) {
+  return value ? "true" : "false";
+}
+
+function locationText(profile?: CrewProfileForLocation | null, fallback?: string | null) {
+  return profile?.location_display || [profile?.city, profile?.state, profile?.country].filter(Boolean).join(", ") || fallback || null;
 }
 
 function aircraftSummary(value?: string | null, fallback?: string[] | null) {
@@ -58,10 +68,6 @@ function aircraftSummary(value?: string | null, fallback?: string[] | null) {
   if (!items.length) return null;
   if (items.length <= 2) return items.join(", ");
   return `${items.slice(0, 2).join(", ")} +${items.length - 2} more`;
-}
-
-function yesNo(value?: boolean | null) {
-  return Boolean(value);
 }
 
 function uniqueOptions(values: Array<string | null | undefined>) {
@@ -91,8 +97,9 @@ export default async function AdminCrewPage({
     const memberDocuments = documents.filter((document) => document.scope_id === member.id || document.uploaded_by === member.id);
     const name = profile?.display_name ?? member.full_name ?? member.email;
     const availability = profile?.availability_status ?? "available";
-    const aircraft = aircraftSummary(profile?.aircraft_type_experience ?? profile?.time_in_type, profile?.preferred_aircraft);
     const location = locationText(profile, member.home_base);
+    const aircraftExperience = aircraftSummary(profile?.aircraft_type_experience ?? profile?.time_in_type, profile?.preferred_aircraft);
+    const certificatesRatings = profile?.certificates_ratings || listText(profile?.type_ratings) || profile?.certificate_level;
     const credentialStatus = memberCredentials.some((credential) => credential.status === "expired")
       ? "expired"
       : memberCredentials.some((credential) => credential.status === "pending_review")
@@ -104,108 +111,103 @@ export default async function AdminCrewPage({
     return {
       id: member.id,
       title: name,
-      subtitle: [location, profile?.certificates_ratings ?? profile?.certificate_level].filter(Boolean).join(" - "),
+      subtitle: [location, certificatesRatings].filter(Boolean).join(" - "),
       status: { label: PROFILE_STATUS_LABEL[member.status] ?? member.status, tone: profileTone(member.status) },
       secondaryStatus: { label: AVAILABILITY_STATUS_LABEL[availability] ?? availability, tone: availabilityTone(availability) },
       cells: {
         name,
-        email: member.email?.endsWith("@import.amg.invalid") ? null : member.email,
-        phone: member.phone ?? profile?.phone,
+        email: member.email,
+        phone: member.phone,
         location,
-        aircraftExperience: aircraft,
+        aircraftExperience,
         totalTime: profile?.total_time,
-        reviewed: yesNo(profile?.reviewed),
-        approved: yesNo(profile?.approved),
-        priority: yesNo(profile?.priority_candidate),
-        insurance: yesNo(profile?.insurance_approved),
+        reviewed: Boolean(profile?.reviewed),
+        approved: Boolean(profile?.approved),
+        priority: Boolean(profile?.priority_candidate),
+        insurance: Boolean(profile?.insurance_approved),
         lastContacted: profile?.last_contacted ? formatDate(profile.last_contacted) : null,
-        status: member.status,
-        secondaryStatus: availability,
-        credentialStatus: CREDENTIAL_STATUS_LABEL[credentialStatus] ?? credentialStatus,
-        updated: member.updated_at ? formatDateTime(member.updated_at) : "-",
       },
       searchText: [
         name,
         member.email,
-        profile?.email,
+        profile?.source_email,
         member.phone,
-        profile?.phone,
         member.home_base,
-        profile?.city,
-        profile?.state,
+        location,
         profile?.company,
-        profile?.certificates_ratings,
+        certificatesRatings,
         profile?.aircraft_type_experience,
         profile?.medical,
+        profile?.resume_notes,
         profile?.notes,
-        profile?.certificate_level,
-        profile?.time_in_type,
-        listText(profile?.preferred_aircraft),
-        listText(profile?.type_ratings),
         profile?.ops_notes,
+        profile?.searchable_text,
       ].filter(Boolean).join(" "),
       filters: {
-        reviewed: String(Boolean(profile?.reviewed)),
-        approved: String(Boolean(profile?.approved)),
-        priority: String(Boolean(profile?.priority_candidate)),
-        insurance: String(Boolean(profile?.insurance_approved)),
-        needsManualReview: String(Boolean(profile?.needs_manual_review)),
+        reviewed: boolFilter(profile?.reviewed),
+        approved: boolFilter(profile?.approved),
+        priority: boolFilter(profile?.priority_candidate),
+        insurance: boolFilter(profile?.insurance_approved),
+        needsManualReview: boolFilter(profile?.needs_manual_review),
         state: profile?.state ?? "",
         aircraftKeyword: [profile?.aircraft_type_experience, listText(profile?.preferred_aircraft), profile?.time_in_type].filter(Boolean).join(" "),
       },
       formValues: {
         full_name: member.full_name,
-        email: member.email?.endsWith("@import.amg.invalid") ? "" : member.email,
-        phone: member.phone ?? profile?.phone,
+        email: member.email,
+        phone: member.phone,
         company_name: member.company_name ?? profile?.company,
         home_base: member.home_base,
-        certificate_level: profile?.certificate_level ?? profile?.certificates_ratings ?? "",
-        first_name: profile?.first_name,
-        last_name: profile?.last_name,
-        address: profile?.address,
-        city: profile?.city,
-        state: profile?.state,
-        zip: profile?.zip,
-        country: profile?.country,
-        certificates_ratings: profile?.certificates_ratings,
-        aircraft_type_experience: profile?.aircraft_type_experience,
+        first_name: profile?.first_name ?? "",
+        last_name: profile?.last_name ?? "",
+        address: profile?.address ?? "",
+        city: profile?.city ?? "",
+        state: profile?.state ?? "",
+        zip: profile?.zip ?? "",
+        country: profile?.country ?? "",
+        certificates_ratings: profile?.certificates_ratings ?? "",
+        aircraft_type_experience: profile?.aircraft_type_experience ?? "",
+        certificate_level: profile?.certificate_level ?? "",
         preferred_aircraft: listText(profile?.preferred_aircraft),
         type_ratings: listText(profile?.type_ratings),
         preferred_regions: listText(profile?.preferred_regions),
         total_time: profile?.total_time,
         pic_time: profile?.pic_time,
-        me_time: profile?.me_time,
+        me_time: profile?.me_time ?? profile?.multi_time,
         turbine_time: profile?.turbine_time,
         instrument_time: profile?.instrument_time,
-        dual_given: profile?.dual_given,
+        dual_given_time: profile?.dual_given_time,
         jet_time: profile?.jet_time,
         time_in_type: profile?.time_in_type,
-        medical: profile?.medical,
-        passport_mentioned: profile?.passport_mentioned ? "true" : "false",
-        resume_notes: profile?.resume_notes,
-        notes: profile?.notes,
-        needs_manual_review: profile?.needs_manual_review ? "true" : "false",
-        reviewed: profile?.reviewed ? "true" : "false",
-        approved: profile?.approved ? "true" : "false",
-        priority_candidate: profile?.priority_candidate ? "true" : "false",
-        insurance_approved: profile?.insurance_approved ? "true" : "false",
-        last_contacted: profile?.last_contacted,
+        medical: profile?.medical ?? "",
+        passport_mentioned: boolFilter(profile?.passport_mentioned),
+        resume_notes: profile?.resume_notes ?? "",
+        needs_manual_review: boolFilter(profile?.needs_manual_review),
+        reviewed: boolFilter(profile?.reviewed),
+        approved: boolFilter(profile?.approved),
+        priority_candidate: boolFilter(profile?.priority_candidate),
+        last_contacted: profile?.last_contacted ?? "",
+        notes: profile?.notes ?? "",
+        insurance_approved: boolFilter(profile?.insurance_approved),
+        profile_status: profile?.profile_status ?? "under_review",
+        crew_status: profile?.crew_status ?? "candidate",
         availability_status: availability,
         ops_notes: profile?.ops_notes,
         status: member.status,
       },
       details: [
         { label: "Email", value: member.email },
-        { label: "Phone", value: member.phone ?? profile?.phone },
+        { label: "Phone", value: member.phone },
         { label: "Location", value: location },
-        { label: "Aircraft", value: profile?.aircraft_type_experience ?? listText(profile?.preferred_aircraft) },
+        { label: "Aircraft", value: aircraftExperience },
       ],
       detailSections: [
         {
           title: "Contact",
           rows: [
-            { label: "Email", value: member.email?.endsWith("@import.amg.invalid") ? null : member.email },
-            { label: "Phone", value: member.phone ?? profile?.phone },
+            { label: "Email", value: member.email },
+            { label: "Source Email", value: profile?.source_email },
+            { label: "Phone", value: member.phone },
             { label: "Address", value: profile?.address },
             { label: "City / State / Zip", value: [profile?.city, profile?.state, profile?.zip].filter(Boolean).join(", ") },
             { label: "Country", value: profile?.country },
@@ -215,7 +217,7 @@ export default async function AdminCrewPage({
         {
           title: "Qualifications",
           rows: [
-            { label: "Certificates / Ratings", value: profile?.certificates_ratings ?? profile?.certificate_level },
+            { label: "Certificates / Ratings", value: certificatesRatings },
             { label: "Aircraft / Type Experience", value: profile?.aircraft_type_experience ?? listText(profile?.preferred_aircraft) },
             { label: "Type Ratings", value: listText(profile?.type_ratings) },
             { label: "Medical", value: profile?.medical },
@@ -230,7 +232,7 @@ export default async function AdminCrewPage({
             { label: "Multi-Engine Time", value: profile?.me_time ?? profile?.multi_time },
             { label: "Turbine Time", value: profile?.turbine_time },
             { label: "Instrument Time", value: profile?.instrument_time },
-            { label: "Dual Given", value: profile?.dual_given },
+            { label: "Dual Given", value: profile?.dual_given_time },
           ],
         },
         {
@@ -242,6 +244,8 @@ export default async function AdminCrewPage({
             { label: "Priority Candidate", value: profile?.priority_candidate },
             { label: "Insurance Approved", value: profile?.insurance_approved },
             { label: "Last Contacted", value: profile?.last_contacted ? formatDate(profile.last_contacted) : null },
+            { label: "Profile Status", value: profile?.profile_status },
+            { label: "Crew Status", value: profile?.crew_status },
           ],
         },
         {
@@ -288,12 +292,11 @@ export default async function AdminCrewPage({
   });
 
   const filters: AdminRecordFilter[] = [
-    { key: "status", label: "Approval Status", options: PROFILE_STATUS.map(({ value, label }) => ({ value, label })) },
-    { key: "reviewed", label: "Reviewed", options: [{ value: "true", label: "Yes" }, { value: "false", label: "No" }] },
-    { key: "approved", label: "Approved", options: [{ value: "true", label: "Yes" }, { value: "false", label: "No" }] },
-    { key: "priority", label: "Priority Candidate", options: [{ value: "true", label: "Yes" }, { value: "false", label: "No" }] },
-    { key: "insurance", label: "Insurance Approved", options: [{ value: "true", label: "Yes" }, { value: "false", label: "No" }] },
-    { key: "needsManualReview", label: "Needs Review", options: [{ value: "true", label: "Yes" }, { value: "false", label: "No" }] },
+    { key: "reviewed", label: "Reviewed", options: yesNoOptions },
+    { key: "approved", label: "Approved", options: yesNoOptions },
+    { key: "priority", label: "Priority Candidate", options: yesNoOptions },
+    { key: "insurance", label: "Insurance Approved", options: yesNoOptions },
+    { key: "needsManualReview", label: "Needs Review", options: yesNoOptions },
     { key: "state", label: "State", options: uniqueOptions(crew.map((member) => member.crew_profile?.state)) },
     { key: "aircraftKeyword", label: "Aircraft / Type Keyword", type: "text" },
   ];
@@ -338,6 +341,8 @@ export default async function AdminCrewPage({
           { name: "phone", label: "Phone", type: "tel" },
           { name: "company_name", label: "Company" },
           { name: "home_base", label: "Home Airport" },
+          { name: "first_name", label: "First Name" },
+          { name: "last_name", label: "Last Name" },
           { name: "address", label: "Address" },
           { name: "city", label: "City" },
           { name: "state", label: "State" },
@@ -356,17 +361,19 @@ export default async function AdminCrewPage({
           { name: "me_time", label: "Multi-Engine Time", type: "number" },
           { name: "turbine_time", label: "Turbine Time", type: "number" },
           { name: "instrument_time", label: "Instrument Time", type: "number" },
-          { name: "dual_given", label: "Dual Given", type: "number" },
+          { name: "dual_given_time", label: "Dual Given", type: "number" },
           { name: "jet_time", label: "Jet Time", type: "number" },
           { name: "time_in_type", label: "Time In Type" },
-          { name: "medical", label: "Medical" },
-          { name: "passport_mentioned", label: "Passport Mentioned", type: "select", options: booleanOptions },
-          { name: "needs_manual_review", label: "Needs Manual Review", type: "select", options: booleanOptions },
-          { name: "reviewed", label: "Reviewed", type: "select", options: booleanOptions },
-          { name: "approved", label: "Approved", type: "select", options: booleanOptions },
-          { name: "priority_candidate", label: "Priority Candidate", type: "select", options: booleanOptions },
-          { name: "insurance_approved", label: "Insurance Approved", type: "select", options: booleanOptions },
+          { name: "medical", label: "Medical", type: "textarea", fullWidth: true },
+          { name: "passport_mentioned", label: "Passport Mentioned", type: "select", options: yesNoOptions },
+          { name: "needs_manual_review", label: "Needs Manual Review", type: "select", options: yesNoOptions },
+          { name: "reviewed", label: "Reviewed", type: "select", options: yesNoOptions },
+          { name: "approved", label: "Approved", type: "select", options: yesNoOptions },
+          { name: "priority_candidate", label: "Priority Candidate", type: "select", options: yesNoOptions },
+          { name: "insurance_approved", label: "Insurance Approved", type: "select", options: yesNoOptions },
           { name: "last_contacted", label: "Last Contacted", type: "date" },
+          { name: "profile_status", label: "Profile Status" },
+          { name: "crew_status", label: "Crew Status" },
           { name: "resume_notes", label: "Resume Notes", type: "textarea", fullWidth: true },
           { name: "notes", label: "Internal Notes", type: "textarea", fullWidth: true },
           { name: "ops_notes", label: "Qualifications / Internal Notes", type: "textarea", fullWidth: true },

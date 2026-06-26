@@ -80,7 +80,7 @@ export function PortalDashboard({
         <div className="mt-10 rounded-xl border border-border bg-card p-6">
           <p className="eyebrow text-accent">{role} Portal Preview</p>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            This screen is ready for backend authentication and live data. The route structure is in place now so Supabase, Wix CMS exports, or another data source can be connected without redesigning the experience.
+            This screen is ready for backend authentication and live data. The route structure is in place now so production data sources can be connected without redesigning the experience.
           </p>
         </div>
       </section>

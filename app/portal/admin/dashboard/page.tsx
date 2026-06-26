@@ -35,20 +35,20 @@ export default async function AdminDashboardPage() {
         <SectionCard title="Items Requiring Attention" icon="shield" bodyClassName="grid gap-3 sm:grid-cols-3">
           {metrics.pendingUsers > 0 && (
             <Link href="/portal/admin/user-approvals" className="flex items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3 transition-colors hover:border-amber-500/60">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-xs font-bold text-amber-700">{metrics.pendingUsers}</span>
-              <span className="text-sm font-medium text-amber-900">Pending user approval{metrics.pendingUsers !== 1 ? "s" : ""}</span>
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-xs font-bold text-amber-100">{metrics.pendingUsers}</span>
+              <span className="text-sm font-medium text-amber-100">Pending user approval{metrics.pendingUsers !== 1 ? "s" : ""}</span>
             </Link>
           )}
           {metrics.newFormSubmissions > 0 && (
             <Link href="/portal/admin/form-submissions" className="flex items-center gap-3 rounded-lg border border-sky-500/30 bg-sky-500/5 px-4 py-3 transition-colors hover:border-sky-500/60">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sky-500/15 text-xs font-bold text-sky-700">{metrics.newFormSubmissions}</span>
-              <span className="text-sm font-medium text-sky-900">New form submission{metrics.newFormSubmissions !== 1 ? "s" : ""}</span>
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sky-500/15 text-xs font-bold text-sky-100">{metrics.newFormSubmissions}</span>
+              <span className="text-sm font-medium text-sky-100">New form submission{metrics.newFormSubmissions !== 1 ? "s" : ""}</span>
             </Link>
           )}
           {metrics.submittedMissions > 0 && (
             <Link href="/portal/admin/trips" className="flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 transition-colors hover:border-primary/60">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">{metrics.submittedMissions}</span>
-              <span className="text-sm font-medium text-slate-900">Unreviewed support request{metrics.submittedMissions !== 1 ? "s" : ""}</span>
+              <span className="text-sm font-medium text-blue-100">Unreviewed support request{metrics.submittedMissions !== 1 ? "s" : ""}</span>
             </Link>
           )}
         </SectionCard>
@@ -174,7 +174,7 @@ export default async function AdminDashboardPage() {
             {recentSubmissions.slice(0, 5).map((sub) => (
               <div key={sub.id} className="grid gap-3 rounded-lg border border-sky-500/20 bg-sky-500/5 p-4 sm:grid-cols-[1fr_auto]">
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">{sub.full_name}</p>
+                  <p className="text-sm font-semibold text-white">{sub.full_name}</p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     {sub.email} &nbsp;·&nbsp; {sub.source_page} &nbsp;·&nbsp; {sub.support_path ?? sub.inquiry_type ?? "General"}
                   </p>

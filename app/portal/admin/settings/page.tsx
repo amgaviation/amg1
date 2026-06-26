@@ -43,8 +43,8 @@ export default async function AdminSettingsPage({
       </SectionCard>
       <SectionCard title="Operational Configuration" icon="clipboard">
         <div className="grid gap-3 text-sm text-muted-foreground">
-          <p>Supabase Auth, profile approval, portal role routing, document storage, audit logging, notifications, and server actions are wired in this build.</p>
-          <p>Before production launch, confirm Supabase storage buckets exist for documents and crew-credentials, then set the required Supabase environment variables in Vercel.</p>
+          <p>Authentication, profile approval, portal role routing, document storage, audit logging, notifications, and server actions are wired in this build.</p>
+          <p>Before production launch, confirm protected storage buckets exist for documents and crew-credentials, then set the required production environment variables.</p>
           <p>
             <Link href="/portal/admin/settings/billing" className="text-accent hover:underline">
               Manage protected billing settings

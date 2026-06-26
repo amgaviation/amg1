@@ -1,27 +1,8 @@
 import "server-only";
 
 import { createHmac, timingSafeEqual } from "crypto";
+import { AMG_EMAIL_FROM, defaultSender, replyToAddress } from "@/lib/email/config";
 import type { EmailProvider, SendEmailInput, SendEmailResult } from "@/lib/email/types";
-
-function normalizeEnvEmail(value?: string | null) {
-  if (!value) return undefined;
-
-  return value
-    .trim()
-    .replace(/^EMAIL_FROM_ADDRESS=/, "")
-    .replace(/^EMAIL_DEFAULT_FROM=/, "")
-    .replace(/^EMAIL_REPLY_TO=/, "")
-    .replace(/^['"]|['"]$/g, "")
-    .trim();
-}
-
-function configuredFromAddress() {
-  return (
-    normalizeEnvEmail(process.env.EMAIL_DEFAULT_FROM) ??
-    normalizeEnvEmail(process.env.EMAIL_OPS_FROM) ??
-    normalizeEnvEmail(process.env.EMAIL_FROM_ADDRESS)
-  );
-}
 
 function mockEnabled() {
   return process.env.COMMUNICATIONS_EMAIL_MOCK === "true" && process.env.NODE_ENV !== "production";
@@ -30,9 +11,9 @@ function mockEnabled() {
 export function emailProviderStatus() {
   return {
     provider: "resend",
-    configured: Boolean(process.env.RESEND_API_KEY && configuredFromAddress()),
+    configured: Boolean(process.env.RESEND_API_KEY && AMG_EMAIL_FROM),
     mockEnabled: mockEnabled(),
-    defaultFrom: configuredFromAddress() ?? "AMG Operations <information@amgaviationgroup.com>",
+    defaultFrom: AMG_EMAIL_FROM,
   };
 }
 
@@ -65,11 +46,11 @@ export const resendProvider: EmailProvider = {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: input.from ?? status.defaultFrom,
+        from: input.from ?? defaultSender("notification"),
         to: input.to,
         cc: input.cc?.length ? input.cc : undefined,
         bcc: input.bcc?.length ? input.bcc : undefined,
-        reply_to: input.replyTo,
+        reply_to: replyToAddress(input.replyTo),
         subject: input.subject,
         html: input.html ?? undefined,
         text: input.text,

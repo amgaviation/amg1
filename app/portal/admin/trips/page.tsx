@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
@@ -54,12 +53,12 @@ export default async function AdminTripsPage({
       {/* Filters */}
       <SectionCard title="Filters" icon="plane">
         <form className="grid gap-3 md:grid-cols-[1fr_2fr_auto] md:items-end">
-          <label className="grid gap-2 text-sm font-semibold text-slate-900">
+          <label className="grid gap-2 text-sm font-semibold text-slate-100">
             Status
             <select
               name="status"
               defaultValue={params.status ?? ""}
-              className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm"
+              className="h-11 rounded-md border border-white/12 bg-[#050B14] px-3 text-sm text-white"
             >
               <option value="">All Statuses</option>
               {MISSION_STATUS.map((s) => (
@@ -67,12 +66,12 @@ export default async function AdminTripsPage({
               ))}
             </select>
           </label>
-          <label className="grid gap-2 text-sm font-semibold text-slate-900">
+          <label className="grid gap-2 text-sm font-semibold text-slate-100">
             Search
             <input
               name="q"
               defaultValue={params.q ?? ""}
-              className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm"
+              className="h-11 rounded-md border border-white/12 bg-[#050B14] px-3 text-sm text-white placeholder:text-slate-500"
               placeholder="Ref, route, tail number, client…"
             />
           </label>
@@ -92,18 +91,13 @@ export default async function AdminTripsPage({
           <DataTable
             rows={filtered}
             getKey={(row) => row.id}
+            getHref={(row) => `/portal/admin/trips/${row.id}`}
             emptyLabel="No support requests submitted."
             columns={[
               {
                 header: "Ref",
-                cell: (row) => (
-                  <Link
-                    href={`/portal/admin/trips/${row.id}`}
-                    className="font-mono text-xs text-accent hover:underline"
-                  >
-                    {row.ref}
-                  </Link>
-                ),
+                priority: "primary",
+                cell: (row) => <span className="font-mono text-xs text-accent">{row.ref}</span>,
               },
               { header: "Route", cell: (row) => formatRoute(row.departure_airport, row.arrival_airport) },
               { header: "Type", cell: (row) => MISSION_TYPE_LABEL[row.mission_type] ?? row.mission_type },

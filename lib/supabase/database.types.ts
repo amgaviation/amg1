@@ -142,8 +142,6 @@ export type Database = {
         Row: {
           address: string | null
           aircraft_type_experience: string | null
-          approval_status: string
-          approved: boolean
           availability_status: string
           certificate_level: string | null
           certificates_ratings: string | null
@@ -153,20 +151,20 @@ export type Database = {
           crew_status: string
           day_rate: number | null
           display_name: string | null
-          dual_given: number | null
-          email: string | null
+          dual_given_time: number | null
           first_name: string | null
           id: string
-          imported_at: string | null
           import_batch_id: string | null
           import_row_number: number | null
           import_source: string | null
-          international_experience: boolean
+          imported_at: string | null
           insurance_approved: boolean
           instrument_time: number | null
+          international_experience: boolean
           jet_time: number | null
           last_contacted: string | null
           last_name: string | null
+          location_display: string | null
           max_days_away: number | null
           me_time: number | null
           medical: string | null
@@ -175,15 +173,18 @@ export type Database = {
           notes: string | null
           ops_notes: string | null
           passport_mentioned: boolean
-          phone: string | null
           pic_time: number | null
+          priority_candidate: boolean
           preferred_aircraft: string[] | null
           preferred_regions: string[] | null
-          priority_candidate: boolean
+          profile_status: string
           resume_notes: string | null
           reviewed: boolean
+          approved: boolean
+          searchable_text: string | null
           short_notice_available: boolean
           sic_time: number | null
+          source_email: string | null
           state: string | null
           time_in_type: string | null
           total_time: number | null
@@ -195,8 +196,6 @@ export type Database = {
         Insert: {
           address?: string | null
           aircraft_type_experience?: string | null
-          approval_status?: string
-          approved?: boolean
           availability_status?: string
           certificate_level?: string | null
           certificates_ratings?: string | null
@@ -206,20 +205,20 @@ export type Database = {
           crew_status?: string
           day_rate?: number | null
           display_name?: string | null
-          dual_given?: number | null
-          email?: string | null
+          dual_given_time?: number | null
           first_name?: string | null
           id: string
-          imported_at?: string | null
           import_batch_id?: string | null
           import_row_number?: number | null
           import_source?: string | null
-          international_experience?: boolean
+          imported_at?: string | null
           insurance_approved?: boolean
           instrument_time?: number | null
+          international_experience?: boolean
           jet_time?: number | null
           last_contacted?: string | null
           last_name?: string | null
+          location_display?: string | null
           max_days_away?: number | null
           me_time?: number | null
           medical?: string | null
@@ -228,15 +227,18 @@ export type Database = {
           notes?: string | null
           ops_notes?: string | null
           passport_mentioned?: boolean
-          phone?: string | null
           pic_time?: number | null
+          priority_candidate?: boolean
           preferred_aircraft?: string[] | null
           preferred_regions?: string[] | null
-          priority_candidate?: boolean
+          profile_status?: string
           resume_notes?: string | null
           reviewed?: boolean
+          approved?: boolean
+          searchable_text?: string | null
           short_notice_available?: boolean
           sic_time?: number | null
+          source_email?: string | null
           state?: string | null
           time_in_type?: string | null
           total_time?: number | null
