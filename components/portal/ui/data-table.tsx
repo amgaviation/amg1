@@ -39,7 +39,7 @@ export function DataTable<T>({
     );
   }
   return (
-    <div className="rounded-lg border border-border bg-white shadow-[0_14px_36px_rgba(15,23,42,0.06)]">
+    <div className="rounded-lg overflow-hidden border border-border bg-white shadow-[0_14px_36px_rgba(15,23,42,0.06)]">
       <div className="grid gap-3 p-3 md:hidden">
         {rows.map((row) => {
           const href = getHref?.(row);
@@ -73,7 +73,7 @@ export function DataTable<T>({
         })}
       </div>
 
-      <div className="hidden overflow-hidden md:block">
+      <div className="hidden max-w-full overflow-hidden bg-white md:block">
       <Table className="border-0">
         <TableHeader>
           <TableRow className="bg-slate-50 hover:bg-slate-50">
