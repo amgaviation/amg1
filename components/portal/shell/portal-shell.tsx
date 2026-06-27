@@ -72,6 +72,7 @@ const ADMIN_NAV_GROUPS: ShellNavGroup[] = [
     label: "Financial",
     icon: "receipt",
     items: [
+      { label: "Analytics", href: "/portal/admin/financial/analytics", icon: "gauge" },
       { label: "Quotes", href: "/portal/admin/quotes", icon: "receipt" },
       { label: "Invoices", href: "/portal/admin/invoices", icon: "wallet" },
       { label: "Subscriptions", href: "/portal/admin/subscriptions", icon: "clipboard" },
