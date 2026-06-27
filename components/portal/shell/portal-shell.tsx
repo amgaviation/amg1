@@ -63,7 +63,7 @@ export function PortalShell({
       : PORTAL_NAV[role];
 
   return (
-    <div className="amg-portal relative min-h-screen text-foreground lg:grid lg:grid-cols-[17.5rem_1fr]">
+    <div className="amg-portal relative min-h-screen bg-slate-50 text-slate-950 overflow-hidden lg:grid lg:grid-cols-[17.5rem_1fr]">
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-screen flex-col border-r border-border bg-white text-foreground shadow-[4px_0_24px_rgba(15,23,42,0.05)] lg:flex">
         <SidebarContent role={role} nav={nav} />
@@ -89,7 +89,7 @@ export function PortalShell({
         </div>
       )}
 
-      <div className="flex min-h-screen flex-col">
+      <div className="flex min-h-screen min-w-0 flex-col bg-slate-50">
         {/* Topbar */}
         <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-border bg-white/95 px-5 py-3 shadow-[0_12px_34px_rgba(15,23,42,0.06)] backdrop-blur-xl lg:px-8">
           {/* Left: mobile menu + role label */}
@@ -164,8 +164,8 @@ export function PortalShell({
         </header>
 
         {/* Main content */}
-        <main className="min-w-0 flex-1 px-4 py-6 sm:px-5 lg:px-7 lg:py-8 2xl:px-8">
-          <div className="mx-auto w-full max-w-[96rem] space-y-6">{children}</div>
+        <main className="w-full max-w-full min-w-0 flex-1 overflow-hidden bg-slate-50 px-4 py-6 sm:px-5 lg:px-7 lg:py-8 2xl:px-8">
+          <div className="mx-auto w-full max-w-[96rem] min-w-0 space-y-6 overflow-hidden">{children}</div>
         </main>
       </div>
     </div>

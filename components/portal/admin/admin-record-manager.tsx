@@ -234,7 +234,7 @@ export function AdminRecordManager({
   }
 
   return (
-    <section className="overflow-hidden rounded-lg border border-slate-200 bg-white text-slate-950 shadow-[0_18px_44px_rgba(8,20,36,0.07)]">
+    <section className="w-full max-w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-slate-950 shadow-[0_18px_44px_rgba(8,20,36,0.07)]">
       <header className="border-b border-slate-200 bg-slate-50/80 px-5 py-4">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
@@ -340,16 +340,17 @@ export function AdminRecordManager({
         </p>
       </div>
 
-      <div className="min-h-[34rem]">
-        <div className="overflow-hidden">
+      <div className="min-h-[34rem] w-full max-w-full bg-white">
+        <div className="w-full max-w-full overflow-hidden bg-white">
           {visibleRows.length ? (
             <>
-            <div className="hidden md:block">
-              <table className="w-full table-fixed border-collapse text-sm">
+            <div className="hidden bg-white md:block">
+              <div data-admin-record-table-scroller className="w-full max-w-full overflow-x-auto bg-white">
+              <table className="min-w-[88rem] w-full table-fixed border-collapse bg-white text-sm">
                 <thead className="sticky top-0 z-10 bg-slate-50 shadow-[0_1px_0_rgba(15,23,42,0.08)]">
-                  <tr>
+                  <tr className="bg-slate-50">
                     {columns.map((column) => (
-                      <th key={column.key} className={cn("whitespace-nowrap px-4 py-3 text-left text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500", column.className)}>
+                      <th key={column.key} className={cn("whitespace-nowrap bg-slate-50 px-4 py-3 text-left text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500", column.className)}>
                         {column.sortable ? (
                           <button type="button" className="inline-flex items-center gap-1 rounded-sm outline-none transition-colors hover:text-slate-950 focus-visible:ring-2 focus-visible:ring-primary/60" onClick={() => toggleSort(column.key)}>
                             {column.label}
@@ -362,10 +363,10 @@ export function AdminRecordManager({
                         )}
                       </th>
                     ))}
-                    <th className="px-4 py-3 text-right text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500">Actions</th>
+                    <th className="bg-slate-50 px-4 py-3 text-right text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="bg-white">
                   {pagedRows.map((row) => (
                     <tr
                       key={row.id}
@@ -385,7 +386,7 @@ export function AdminRecordManager({
                       }}
                     >
                       {columns.map((column, index) => (
-                        <td key={column.key} className={cn("px-4 py-3 align-middle text-slate-700", column.className)}>
+                        <td key={column.key} className={cn("bg-inherit px-4 py-3 align-middle text-slate-700", column.className)}>
                           {index === 0 ? (
                             <div className="min-w-0">
                               <div className="truncate font-semibold text-slate-950" title={valueText(row.cells[column.key])}>{valueText(row.cells[column.key])}</div>
@@ -407,7 +408,7 @@ export function AdminRecordManager({
                           )}
                         </td>
                       ))}
-                      <td className="px-4 py-3 text-right" onClick={(event) => event.stopPropagation()}>
+                      <td className="bg-inherit px-4 py-3 text-right" onClick={(event) => event.stopPropagation()}>
                         <div className="flex justify-end gap-2">
                           <Button type="button" variant="outline" size="sm" className="rounded-full gap-1" onClick={() => openRecord(row)}>
                             <Eye className="h-3.5 w-3.5" />
@@ -440,6 +441,7 @@ export function AdminRecordManager({
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
             <div className="grid gap-3 p-4 md:hidden">
               {pagedRows.map((row) => (

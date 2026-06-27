@@ -8,11 +8,11 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto rounded-lg border border-border bg-card"
+      className="relative w-full overflow-x-auto rounded-lg border border-border bg-white"
     >
       <table
         data-slot="table"
-        className={cn("w-full caption-bottom text-sm text-card-foreground", className)}
+        className={cn("w-full caption-bottom bg-white text-sm text-slate-950", className)}
         {...props}
       />
     </div>
@@ -33,7 +33,7 @@ function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
   return (
     <tbody
       data-slot="table-body"
-      className={cn("[&_tr:last-child]:border-0", className)}
+      className={cn("bg-white [&_tr:last-child]:border-0", className)}
       {...props}
     />
   )
@@ -56,7 +56,7 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
   return (
     <tr
       data-slot="table-row"
-      className={cn("border-b border-border transition-colors hover:bg-primary/8 has-aria-expanded:bg-primary/8 data-[state=selected]:bg-primary/10", className)}
+      className={cn("border-b border-border bg-white transition-colors hover:bg-blue-50/60 has-aria-expanded:bg-blue-50/60 data-[state=selected]:bg-blue-50", className)}
       {...props}
     />
   )
@@ -67,7 +67,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "h-11 px-3 text-left align-middle text-[0.68rem] font-bold uppercase whitespace-nowrap text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "h-11 bg-slate-50 px-3 text-left align-middle text-[0.68rem] font-bold uppercase whitespace-nowrap text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
         className
       )}
       {...props}
@@ -80,7 +80,7 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
     <td
       data-slot="table-cell"
       className={cn(
-        "px-3 py-3 align-middle whitespace-nowrap text-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "bg-inherit px-3 py-3 align-middle whitespace-nowrap text-slate-700 [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
         className
       )}
       {...props}
