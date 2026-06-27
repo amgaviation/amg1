@@ -171,7 +171,7 @@ export default async function AdminDashboardPage() {
         <SectionCard
           title="New Website Submissions"
           icon="clipboard"
-          description="Unreviewed Contact and Request Support submissions from the public site."
+          description="Unreviewed generic Contact submissions from the public site."
           actions={
             <Link href="/portal/admin/form-submissions?status=new" className="text-xs text-accent hover:underline">
               View all

@@ -16,6 +16,11 @@ import {
   type NormalizedPublicFormSubmission,
   type PublicFormPayload,
 } from "@/lib/public-form-normalization";
+import {
+  createSupportRequestFromFormSubmission,
+  isOperationalSupportRequest,
+} from "@/lib/public-support-request-routing";
+import { notifyAdmins } from "@/lib/portal/audit";
 import { createServiceClient } from "@/lib/supabase/server";
 
 export { normalizeContactSubmission, normalizeSupportSubmission };
@@ -476,7 +481,46 @@ export async function saveAndEmailSubmission(
   }
 
   const id = data.id as string;
-  if (submission.submissionType === "support_request") {
+  let routedSupportRequest: { missionId: string; missionRef: string | null } | null = null;
+
+  if (isOperationalSupportRequest(submission)) {
+    const routing = await createSupportRequestFromFormSubmission(db as any, submission, id);
+
+    if (!routing.ok) {
+      console.error("Public support request routing failed", {
+        id,
+        sourcePage: submission.sourcePage,
+        submissionType: submission.submissionType,
+        stage: routing.stage,
+        error: errorSummary(routing.error),
+      });
+
+      await updateWithSchemaDriftRetry(
+        (db as any).from("contact_form_submissions"),
+        {
+          admin_notes: `Support request routing failed at ${routing.stage}. Review this submission before contacting the requester.`,
+          updated_at: new Date().toISOString(),
+        },
+        id,
+      );
+
+      return { ok: false, reason: "database", message: "Support request routing failed" };
+    }
+
+    routedSupportRequest = {
+      missionId: routing.missionId,
+      missionRef: routing.missionRef,
+    };
+
+    await notifyAdmins({
+      title: "New support request",
+      body: `${submission.requesterName} submitted ${routing.missionRef ?? "a new support request"}${submission.supportType ? ` (${submission.supportType})` : ""}.`,
+      type: "mission_submitted",
+      entityType: "mission",
+      entityId: routing.missionId,
+      replyTo: submission.email,
+    });
+
     await recordSupportRequestDisclaimerAcknowledgment({
       actorEmail: submission.email,
       actorRole: "public",
@@ -509,10 +553,15 @@ export async function saveAndEmailSubmission(
     audience: "public_form_submitter",
     eventType: submission.submissionType === "support_request" ? "support_request_submitted" : "privacy_acknowledged",
     eventArea: submission.submissionType === "support_request" ? "request_support" : "public_site",
-    relatedRecordType: "contact_form_submission",
-    relatedRecordId: id,
+    relatedRecordType: routedSupportRequest ? "mission" : "contact_form_submission",
+    relatedRecordId: routedSupportRequest?.missionId ?? id,
     policyVersion: COMPLIANCE_POLICY_VERSION,
-    metadata: { sourcePage: submission.sourcePage, submissionType: submission.submissionType },
+    metadata: {
+      sourcePage: submission.sourcePage,
+      submissionType: submission.submissionType,
+      sourceSubmissionId: routedSupportRequest ? id : undefined,
+      missionRef: routedSupportRequest?.missionRef ?? undefined,
+    },
   });
   await recordPublicFormConsents(db as any, submission, id, context);
   const internalEmail = buildInternalEmail(submission, id);

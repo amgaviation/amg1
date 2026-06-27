@@ -882,7 +882,11 @@ export async function getAdminMetrics() {
     db.from("profiles").select("id", { count: "exact", head: true }).eq("role", "crew"),
     (db as any).from("client_subscriptions").select("id", { count: "exact", head: true }).eq("status", "active"),
     (db as any).from("subscription_usage_events").select("id", { count: "exact", head: true }).gt("overage_amount", 0),
-    (db as any).from("contact_form_submissions").select("id", { count: "exact", head: true }).eq("status", "new"),
+    (db as any)
+      .from("contact_form_submissions")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "new")
+      .neq("submission_type", "support_request"),
     db.from("invoices").select("id", { count: "exact", head: true }).in("status", ["sent", "viewed", "overdue", "partially_paid"]),
   ]);
 

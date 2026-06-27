@@ -16,6 +16,12 @@ import { formatDateTime, formatMoney, formatRoute } from "@/lib/portal/format";
 
 export const metadata = { title: "Mission Detail - Admin Portal" };
 
+function publicRequestValue(value: string | boolean | string[] | null | undefined) {
+  if (Array.isArray(value)) return value.filter(Boolean).join(", ") || "-";
+  if (typeof value === "boolean") return value ? "Yes" : "No";
+  return value?.trim() || "-";
+}
+
 export default async function AdminTripDetailPage({
   params,
   searchParams,
@@ -36,6 +42,9 @@ export default async function AdminTripDetailPage({
 
   const publicDetails = publicRequest?.category_details
     ? Object.entries(publicRequest.category_details).filter(([, value]) => Boolean(value))
+    : [];
+  const rawSubmissionDetails = publicRequest?.raw_form
+    ? Object.entries(publicRequest.raw_form).filter(([, value]) => Boolean(publicRequestValue(value)))
     : [];
 
   return (
@@ -73,6 +82,8 @@ export default async function AdminTripDetailPage({
                 <DetailRow label="Aircraft Base">{publicRequest.aircraft_base ?? "-"}</DetailRow>
                 <DetailRow label="Requested Timing">{publicRequest.requested_timing ?? "-"}</DetailRow>
                 <DetailRow label="Route Submitted">{publicRequest.route ?? "-"}</DetailRow>
+                <DetailRow label="Source Form">{publicRequest.source_form_type ?? "-"}</DetailRow>
+                <DetailRow label="Source Submission">{publicRequest.source_submission_id ?? "-"}</DetailRow>
                 <DetailRow label="Portal Account">{publicRequest.portal_account_status ?? "not created"}</DetailRow>
               </dl>
               {publicDetails.length ? (
@@ -85,6 +96,20 @@ export default async function AdminTripDetailPage({
                         <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">{value}</p>
                       </div>
                     ))}
+                  </div>
+                </div>
+              ) : null}
+              {rawSubmissionDetails.length ? (
+                <div className="mt-5 grid gap-3">
+                  <p className="eyebrow text-[0.65rem] text-muted-foreground">Original Form Submission</p>
+                  <div className="max-h-96 overflow-auto rounded-lg border border-border bg-background/50 p-3">
+                    <dl>
+                      {rawSubmissionDetails.map(([key, value]) => (
+                        <DetailRow key={key} label={publicSupportLabel(key)}>
+                          {publicRequestValue(value)}
+                        </DetailRow>
+                      ))}
+                    </dl>
                   </div>
                 </div>
               ) : null}
