@@ -91,7 +91,7 @@ export default async function AdminSecurityReviewPage({
           "Pending users reviewed",
           "Invalid imported emails resolved",
         ].map((item) => (
-          <div key={item} className="rounded-lg border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
+          <div key={item} className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
             {item}
           </div>
         ))}
@@ -110,7 +110,7 @@ export default async function AdminSecurityReviewPage({
               Apply Filters
             </button>
             {hasFilters ? (
-              <Link href="/portal/admin/security-review" className="rounded-full border border-white/12 px-4 py-2 text-xs font-semibold text-slate-100 hover:border-primary/50">
+              <Link href="/portal/admin/security-review" className="rounded-full border border-border bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:border-primary/50 hover:bg-blue-50">
                 Clear filters
               </Link>
             ) : null}
@@ -136,20 +136,20 @@ export default async function AdminSecurityReviewPage({
         />
       </SectionCard>
       {filtered.length > PAGE_SIZE ? (
-        <div className="flex flex-col gap-3 rounded-lg border border-white/10 bg-[#07111F]/70 px-5 py-4 text-sm text-[var(--amg-text-muted)] sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white px-5 py-4 text-sm text-slate-500 shadow-[0_10px_30px_rgba(15,23,42,0.04)] sm:flex-row sm:items-center sm:justify-between">
           <span>Page {safePage} of {pageCount}</span>
           <div className="flex gap-2">
             <Link
               aria-disabled={safePage <= 1}
               href={safePage <= 1 ? "#" : hrefWith({ ...sharedParams, page: safePage - 1 })}
-              className={`rounded-full border border-white/12 px-4 py-2 text-xs font-semibold ${safePage <= 1 ? "pointer-events-none opacity-50" : "hover:border-primary/50 hover:text-white"}`}
+              className={`rounded-full border border-border px-4 py-2 text-xs font-semibold ${safePage <= 1 ? "pointer-events-none opacity-50" : "text-slate-700 hover:border-primary/50 hover:bg-blue-50"}`}
             >
               Previous
             </Link>
             <Link
               aria-disabled={safePage >= pageCount}
               href={safePage >= pageCount ? "#" : hrefWith({ ...sharedParams, page: safePage + 1 })}
-              className={`rounded-full border border-white/12 px-4 py-2 text-xs font-semibold ${safePage >= pageCount ? "pointer-events-none opacity-50" : "hover:border-primary/50 hover:text-white"}`}
+              className={`rounded-full border border-border px-4 py-2 text-xs font-semibold ${safePage >= pageCount ? "pointer-events-none opacity-50" : "text-slate-700 hover:border-primary/50 hover:bg-blue-50"}`}
             >
               Next
             </Link>

@@ -31,7 +31,7 @@ export default async function AdminDashboardPage() {
         actions={
           <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--amg-text-muted)]">
             <span>Last updated {formatDateTime(new Date().toISOString())}</span>
-            <Link href="/portal/admin/dashboard" className="rounded-full border border-white/12 px-4 py-2 font-semibold text-slate-100 hover:border-primary/50">
+            <Link href="/portal/admin/dashboard" className="rounded-full border border-border bg-white px-4 py-2 font-semibold text-slate-700 hover:border-primary/50 hover:bg-blue-50">
               Refresh
             </Link>
           </div>
@@ -42,21 +42,21 @@ export default async function AdminDashboardPage() {
       {(metrics.pendingUsers > 0 || metrics.newFormSubmissions > 0 || metrics.submittedMissions > 0) && (
         <SectionCard title="Items Requiring Attention" icon="shield" bodyClassName="grid gap-3 sm:grid-cols-3">
           {metrics.pendingUsers > 0 && (
-            <Link href="/portal/admin/user-approvals" className="flex items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3 transition-colors hover:border-amber-500/60">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-xs font-bold text-amber-100">{metrics.pendingUsers}</span>
-              <span className="text-sm font-medium text-amber-100">Pending user approval{metrics.pendingUsers !== 1 ? "s" : ""}</span>
+            <Link href="/portal/admin/user-approvals" className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 transition-colors hover:border-amber-300">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-xs font-bold text-amber-800">{metrics.pendingUsers}</span>
+              <span className="text-sm font-medium text-amber-950">Pending user approval{metrics.pendingUsers !== 1 ? "s" : ""}</span>
             </Link>
           )}
           {metrics.newFormSubmissions > 0 && (
-            <Link href="/portal/admin/form-submissions?status=new" className="flex items-center gap-3 rounded-lg border border-sky-500/30 bg-sky-500/5 px-4 py-3 transition-colors hover:border-sky-500/60">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sky-500/15 text-xs font-bold text-sky-100">{metrics.newFormSubmissions}</span>
-              <span className="text-sm font-medium text-sky-100">New form submission{metrics.newFormSubmissions !== 1 ? "s" : ""}</span>
+            <Link href="/portal/admin/form-submissions?status=new" className="flex items-center gap-3 rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 transition-colors hover:border-sky-300">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sky-100 text-xs font-bold text-sky-800">{metrics.newFormSubmissions}</span>
+              <span className="text-sm font-medium text-sky-950">New form submission{metrics.newFormSubmissions !== 1 ? "s" : ""}</span>
             </Link>
           )}
           {metrics.submittedMissions > 0 && (
-            <Link href="/portal/admin/trips?status=submitted" className="flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 transition-colors hover:border-primary/60">
+            <Link href="/portal/admin/trips?status=submitted" className="flex items-center gap-3 rounded-lg border border-primary/20 bg-blue-50 px-4 py-3 transition-colors hover:border-primary/40">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">{metrics.submittedMissions}</span>
-              <span className="text-sm font-medium text-blue-100">Unreviewed support request{metrics.submittedMissions !== 1 ? "s" : ""}</span>
+              <span className="text-sm font-medium text-slate-950">Unreviewed support request{metrics.submittedMissions !== 1 ? "s" : ""}</span>
             </Link>
           )}
         </SectionCard>
@@ -119,7 +119,7 @@ export default async function AdminDashboardPage() {
                 <Link
                   key={mission.id}
                   href={`/portal/admin/trips/${mission.id}`}
-                  className="grid gap-3 rounded-lg border border-border bg-background/50 p-4 hover:border-accent/60 sm:grid-cols-[1fr_auto]"
+                  className="grid gap-3 rounded-lg border border-border bg-white p-4 hover:border-accent/60 sm:grid-cols-[1fr_auto]"
                 >
                   <div>
                     <p className="font-mono text-xs text-accent">{mission.ref}</p>
@@ -153,7 +153,7 @@ export default async function AdminDashboardPage() {
                 <Link
                   key={profile.id}
                   href="/portal/admin/user-approvals"
-                  className="block rounded-lg border border-border bg-background/50 p-4 hover:border-accent/60"
+                  className="block rounded-lg border border-border bg-white p-4 hover:border-accent/60"
                 >
                   <p className="text-sm font-semibold">{profile.full_name ?? profile.email}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
@@ -182,7 +182,7 @@ export default async function AdminDashboardPage() {
             {recentSubmissions.slice(0, 5).map((sub) => (
               <div key={sub.id} className="grid gap-3 rounded-lg border border-sky-500/20 bg-sky-500/5 p-4 sm:grid-cols-[1fr_auto]">
                 <div>
-                  <p className="text-sm font-semibold text-white">{sub.full_name}</p>
+                  <p className="text-sm font-semibold text-slate-950">{sub.full_name}</p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     {sub.email} &nbsp;·&nbsp; {sub.source_page} &nbsp;·&nbsp; {sub.support_path ?? sub.inquiry_type ?? "General"}
                   </p>

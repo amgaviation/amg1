@@ -110,12 +110,12 @@ export default async function AdminTripsPage({
       {/* Filters */}
       <SectionCard title="Filters" icon="plane">
         <form className="grid gap-3 md:grid-cols-2 xl:grid-cols-[1fr_1fr_1fr_2fr_1fr_1fr_auto] md:items-end">
-          <label className="grid gap-2 text-sm font-semibold text-slate-100">
+          <label className="grid gap-2 text-sm font-semibold text-slate-700">
             Status
             <select
               name="status"
               defaultValue={params.status ?? ""}
-              className="h-11 rounded-md border border-white/12 bg-[#050B14] px-3 text-sm text-white"
+              className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.14)]"
             >
               <option value="">All Statuses</option>
               <option value="active">Active Requests</option>
@@ -124,12 +124,12 @@ export default async function AdminTripsPage({
               ))}
             </select>
           </label>
-          <label className="grid gap-2 text-sm font-semibold text-slate-100">
+          <label className="grid gap-2 text-sm font-semibold text-slate-700">
             Type
             <select
               name="type"
               defaultValue={params.type ?? ""}
-              className="h-11 rounded-md border border-white/12 bg-[#050B14] px-3 text-sm text-white"
+              className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.14)]"
             >
               <option value="">All Types</option>
               {MISSION_TYPE.map((s) => (
@@ -137,12 +137,12 @@ export default async function AdminTripsPage({
               ))}
             </select>
           </label>
-          <label className="grid gap-2 text-sm font-semibold text-slate-100">
+          <label className="grid gap-2 text-sm font-semibold text-slate-700">
             Urgency
             <select
               name="urgency"
               defaultValue={params.urgency ?? ""}
-              className="h-11 rounded-md border border-white/12 bg-[#050B14] px-3 text-sm text-white"
+              className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.14)]"
             >
               <option value="">All Urgency</option>
               {URGENCY.map((s) => (
@@ -150,18 +150,18 @@ export default async function AdminTripsPage({
               ))}
             </select>
           </label>
-          <label className="grid gap-2 text-sm font-semibold text-slate-100">
+          <label className="grid gap-2 text-sm font-semibold text-slate-700">
             Search
             <input
               name="q"
               defaultValue={params.q ?? ""}
-              className="h-11 rounded-md border border-white/12 bg-[#050B14] px-3 text-sm text-white placeholder:text-slate-500"
+              className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none placeholder:text-slate-400 focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.14)]"
               placeholder="Ref, route, tail number, client…"
             />
           </label>
-          <label className="grid gap-2 text-sm font-semibold text-slate-100">
+          <label className="grid gap-2 text-sm font-semibold text-slate-700">
             Sort
-            <select name="sort" defaultValue={sortKey} className="h-11 rounded-md border border-white/12 bg-[#050B14] px-3 text-sm text-white">
+            <select name="sort" defaultValue={sortKey} className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.14)]">
               <option value="created">Created</option>
               <option value="departure">Requested Departure</option>
               <option value="ref">Reference</option>
@@ -170,9 +170,9 @@ export default async function AdminTripsPage({
               <option value="status">Status</option>
             </select>
           </label>
-          <label className="grid gap-2 text-sm font-semibold text-slate-100">
+          <label className="grid gap-2 text-sm font-semibold text-slate-700">
             Direction
-            <select name="dir" defaultValue={direction} className="h-11 rounded-md border border-white/12 bg-[#050B14] px-3 text-sm text-white">
+            <select name="dir" defaultValue={direction} className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.14)]">
               <option value="desc">Descending</option>
               <option value="asc">Ascending</option>
             </select>
@@ -185,7 +185,7 @@ export default async function AdminTripsPage({
           </button>
           <div className="flex flex-wrap items-center gap-3 md:col-span-2 xl:col-span-7">
             {hasFilters ? (
-              <Link href="/portal/admin/trips" className="rounded-full border border-white/12 px-4 py-2 text-xs font-semibold text-slate-100 hover:border-primary/50">
+              <Link href="/portal/admin/trips" className="rounded-full border border-border bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:border-primary/50 hover:bg-blue-50">
                 Clear filters
               </Link>
             ) : null}
@@ -242,20 +242,20 @@ export default async function AdminTripsPage({
         )}
       </SectionCard>
       {filtered.length > PAGE_SIZE ? (
-        <div className="flex flex-col gap-3 rounded-lg border border-white/10 bg-[#07111F]/70 px-5 py-4 text-sm text-[var(--amg-text-muted)] sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white px-5 py-4 text-sm text-slate-500 shadow-[0_10px_30px_rgba(15,23,42,0.04)] sm:flex-row sm:items-center sm:justify-between">
           <span>Page {safePage} of {pageCount}</span>
           <div className="flex gap-2">
             <Link
               aria-disabled={safePage <= 1}
               href={safePage <= 1 ? "#" : hrefWith("/portal/admin/trips", { ...sharedParams, page: safePage - 1 })}
-              className={`rounded-full border border-white/12 px-4 py-2 text-xs font-semibold ${safePage <= 1 ? "pointer-events-none opacity-50" : "hover:border-primary/50 hover:text-white"}`}
+              className={`rounded-full border border-border px-4 py-2 text-xs font-semibold ${safePage <= 1 ? "pointer-events-none opacity-50" : "text-slate-700 hover:border-primary/50 hover:bg-blue-50"}`}
             >
               Previous
             </Link>
             <Link
               aria-disabled={safePage >= pageCount}
               href={safePage >= pageCount ? "#" : hrefWith("/portal/admin/trips", { ...sharedParams, page: safePage + 1 })}
-              className={`rounded-full border border-white/12 px-4 py-2 text-xs font-semibold ${safePage >= pageCount ? "pointer-events-none opacity-50" : "hover:border-primary/50 hover:text-white"}`}
+              className={`rounded-full border border-border px-4 py-2 text-xs font-semibold ${safePage >= pageCount ? "pointer-events-none opacity-50" : "text-slate-700 hover:border-primary/50 hover:bg-blue-50"}`}
             >
               Next
             </Link>

@@ -98,7 +98,7 @@ function labelFor(options: { value: string; label: string }[], value: string) {
 }
 
 const inputClassName =
-  "min-h-11 w-full rounded-md border border-white/14 bg-[#050B14]/78 px-3 text-sm text-white outline-none transition-colors placeholder:text-[var(--amg-text-muted)] focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]";
+  "min-h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.14)]";
 
 function fieldInput(field: AdminRecordField, values: Record<string, RecordValue>) {
   const common = {
@@ -234,12 +234,12 @@ export function AdminRecordManager({
   }
 
   return (
-    <section className="overflow-hidden rounded-lg border border-white/10 bg-[#07111F]/92 text-white shadow-[0_18px_58px_rgba(0,0,0,0.24)] backdrop-blur">
-      <header className="border-b border-white/10 bg-[#050B14]/72 px-5 py-4">
+    <section className="overflow-hidden rounded-lg border border-slate-200 bg-white text-slate-950 shadow-[0_18px_44px_rgba(8,20,36,0.07)]">
+      <header className="border-b border-slate-200 bg-slate-50/80 px-5 py-4">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
-            <h2 className="font-display text-xl font-bold uppercase text-white">{title}</h2>
-            <p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--amg-text-muted)]">{description}</p>
+            <h2 className="font-display text-xl font-bold uppercase text-slate-950">{title}</h2>
+            <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500">{description}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button
@@ -261,7 +261,7 @@ export function AdminRecordManager({
 
         <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center">
           <label className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--amg-text-muted)]" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -276,10 +276,10 @@ export function AdminRecordManager({
         </div>
 
         {filterOpen ? (
-          <div className="mt-4 grid gap-3 rounded-lg border border-white/10 bg-[#050B14]/72 p-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-4 grid gap-3 rounded-lg border border-slate-200 bg-white p-4 md:grid-cols-2 xl:grid-cols-4">
             {filters.map((filter) => (
               <label key={filter.key} className="grid gap-2">
-                <span className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-[var(--amg-text-muted)]">{filter.label}</span>
+                <span className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-slate-500">{filter.label}</span>
                 {filter.type === "text" ? (
                   <input
                     value={activeFilters[filter.key] ?? ""}
@@ -320,7 +320,7 @@ export function AdminRecordManager({
                   key={key}
                   type="button"
                   onClick={() => updateFilter(key, "")}
-                  className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-blue-100 transition-colors hover:border-primary/60"
+                  className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-blue-50 px-3 py-1 text-xs font-semibold text-primary transition-colors hover:border-primary/60"
                 >
                   {filter?.label ?? key}: {filter?.options ? labelFor(filter.options, value) : value}
                   <X className="h-3 w-3" />
@@ -331,7 +331,7 @@ export function AdminRecordManager({
         ) : null}
       </header>
 
-      <div className="flex flex-col gap-2 border-b border-white/10 bg-[#050B14]/44 px-5 py-3 text-xs text-[var(--amg-text-muted)] sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-2 border-b border-slate-200 bg-slate-50/70 px-5 py-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
         <p>
           Showing {firstRow}-{lastRow} of {visibleRows.length} record{visibleRows.length === 1 ? "" : "s"}
         </p>
@@ -344,14 +344,14 @@ export function AdminRecordManager({
         <div className="overflow-hidden">
           {visibleRows.length ? (
             <>
-            <div className="hidden max-h-[44rem] overflow-y-auto md:block">
+            <div className="hidden md:block">
               <table className="w-full table-fixed border-collapse text-sm">
-                <thead className="sticky top-0 z-10 bg-[#07111F] shadow-[0_1px_0_rgba(255,255,255,0.08)]">
+                <thead className="sticky top-0 z-10 bg-slate-50 shadow-[0_1px_0_rgba(15,23,42,0.08)]">
                   <tr>
                     {columns.map((column) => (
-                      <th key={column.key} className={cn("whitespace-nowrap px-4 py-3 text-left text-[0.66rem] font-bold uppercase tracking-[0.16em] text-[var(--amg-text-muted)]", column.className)}>
+                      <th key={column.key} className={cn("whitespace-nowrap px-4 py-3 text-left text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500", column.className)}>
                         {column.sortable ? (
-                          <button type="button" className="inline-flex items-center gap-1 rounded-sm outline-none transition-colors hover:text-white focus-visible:ring-2 focus-visible:ring-primary/60" onClick={() => toggleSort(column.key)}>
+                          <button type="button" className="inline-flex items-center gap-1 rounded-sm outline-none transition-colors hover:text-slate-950 focus-visible:ring-2 focus-visible:ring-primary/60" onClick={() => toggleSort(column.key)}>
                             {column.label}
                             {sort.key === column.key ? (
                               sort.direction === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
@@ -362,7 +362,7 @@ export function AdminRecordManager({
                         )}
                       </th>
                     ))}
-                    <th className="px-4 py-3 text-right text-[0.66rem] font-bold uppercase tracking-[0.16em] text-[var(--amg-text-muted)]">Actions</th>
+                    <th className="px-4 py-3 text-right text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -373,8 +373,8 @@ export function AdminRecordManager({
                       tabIndex={0}
                       aria-label={`${detailHrefBase ? "Open" : "View"} ${row.title}`}
                       className={cn(
-                        "cursor-pointer border-b border-white/10 bg-[#07111F]/35 outline-none transition-colors hover:bg-white/[0.05] focus-visible:bg-white/[0.07] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/60",
-                        selected?.id === row.id && "bg-primary/10"
+                        "cursor-pointer border-b border-slate-100 bg-white outline-none transition-colors hover:bg-slate-50 focus-visible:bg-blue-50 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/60",
+                        selected?.id === row.id && "bg-blue-50"
                       )}
                       onClick={() => openRecord(row)}
                       onKeyDown={(event) => {
@@ -385,11 +385,11 @@ export function AdminRecordManager({
                       }}
                     >
                       {columns.map((column, index) => (
-                        <td key={column.key} className={cn("px-4 py-3 align-middle text-slate-200", column.className)}>
+                        <td key={column.key} className={cn("px-4 py-3 align-middle text-slate-700", column.className)}>
                           {index === 0 ? (
                             <div className="min-w-0">
-                              <div className="truncate font-semibold text-white" title={valueText(row.cells[column.key])}>{valueText(row.cells[column.key])}</div>
-                              {row.subtitle ? <div className="mt-0.5 truncate text-xs text-[var(--amg-text-muted)]" title={row.subtitle}>{row.subtitle}</div> : null}
+                              <div className="truncate font-semibold text-slate-950" title={valueText(row.cells[column.key])}>{valueText(row.cells[column.key])}</div>
+                              {row.subtitle ? <div className="mt-0.5 truncate text-xs text-slate-500" title={row.subtitle}>{row.subtitle}</div> : null}
                             </div>
                           ) : column.key === "status" && row.status ? (
                             <StatusBadge label={row.status.label} tone={row.status.tone} />
@@ -398,12 +398,12 @@ export function AdminRecordManager({
                           ) : typeof row.cells[column.key] === "boolean" ? (
                             <span className={cn(
                               "inline-flex rounded-full border px-2 py-0.5 text-xs font-semibold",
-                              row.cells[column.key] ? "border-emerald-400/32 bg-emerald-400/10 text-emerald-100" : "border-slate-400/28 bg-slate-400/10 text-slate-200"
+                              row.cells[column.key] ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-slate-50 text-slate-600"
                             )}>
                               {valueText(row.cells[column.key])}
                             </span>
                           ) : (
-                            <span className="block truncate text-[var(--amg-text-secondary)]" title={valueText(row.cells[column.key])}>{valueText(row.cells[column.key])}</span>
+                            <span className="block truncate text-slate-700" title={valueText(row.cells[column.key])}>{valueText(row.cells[column.key])}</span>
                           )}
                         </td>
                       ))}
@@ -425,7 +425,7 @@ export function AdminRecordManager({
                                 <SubmitButton
                                   variant="ghost"
                                   size="sm"
-                                  className="rounded-full text-[var(--amg-text-muted)] hover:text-red-100"
+                                  className="rounded-full text-slate-600 hover:text-red-700"
                                   confirm={archiveConfirm}
                                   pendingText="Saving..."
                                 >
@@ -447,19 +447,19 @@ export function AdminRecordManager({
                   key={row.id}
                   type="button"
                   onClick={() => openRecord(row)}
-                  className="rounded-lg border border-white/10 bg-white/[0.04] p-4 text-left shadow-sm outline-none transition-colors hover:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/60"
+                  className="rounded-lg border border-slate-200 bg-white p-4 text-left shadow-sm outline-none transition-colors hover:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/60"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="truncate font-semibold text-white">{row.title}</p>
-                      <p className="mt-1 truncate text-sm text-[var(--amg-text-muted)]">{valueText(row.cells.email)}</p>
+                      <p className="truncate font-semibold text-slate-950">{row.title}</p>
+                      <p className="mt-1 truncate text-sm text-slate-500">{valueText(row.cells.email)}</p>
                     </div>
                     {row.status ? <StatusBadge label={row.status.label} tone={row.status.tone} /> : null}
                   </div>
-                  <dl className="mt-3 grid gap-2 text-sm text-[var(--amg-text-secondary)]">
+                  <dl className="mt-3 grid gap-2 text-sm text-slate-700">
                     {columns.slice(2, 6).map((column) => (
                       <div key={column.key} className="grid grid-cols-[7rem_1fr] gap-2">
-                        <dt className="text-xs font-semibold uppercase text-[var(--amg-text-muted)]">{column.label}</dt>
+                        <dt className="text-xs font-semibold uppercase text-slate-500">{column.label}</dt>
                         <dd className="min-w-0 truncate">{valueText(row.cells[column.key])}</dd>
                       </div>
                     ))}
@@ -470,18 +470,18 @@ export function AdminRecordManager({
             </>
           ) : (
             <div className="flex min-h-[28rem] flex-col items-center justify-center p-8 text-center">
-              <div className="rounded-full border border-dashed border-white/15 p-4">
-                <Search className="h-6 w-6 text-[var(--amg-text-muted)]" />
+              <div className="rounded-full border border-dashed border-slate-300 p-4">
+                <Search className="h-6 w-6 text-slate-400" />
               </div>
-              <h3 className="mt-4 font-display text-lg font-bold uppercase text-white">{emptyTitle}</h3>
-              <p className="mt-2 max-w-sm text-sm leading-6 text-[var(--amg-text-muted)]">{emptyDescription}</p>
+              <h3 className="mt-4 font-display text-lg font-bold uppercase text-slate-950">{emptyTitle}</h3>
+              <p className="mt-2 max-w-sm text-sm leading-6 text-slate-500">{emptyDescription}</p>
             </div>
           )}
         </div>
       </div>
 
       {visibleRows.length > pageSize ? (
-        <div className="flex flex-col gap-3 border-t border-white/10 bg-[#050B14]/44 px-5 py-4 text-sm text-[var(--amg-text-muted)] sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 border-t border-slate-200 bg-slate-50/70 px-5 py-4 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
           <span>
             Page {safePage} of {pageCount}
           </span>
@@ -511,17 +511,17 @@ export function AdminRecordManager({
       ) : null}
 
       {selected ? (
-        <div className="fixed inset-0 z-40 flex justify-end bg-[#020711]/72 backdrop-blur-sm" role="dialog" aria-modal="true" onClick={() => setSelectedId("")}>
+        <div className="fixed inset-0 z-40 flex justify-end bg-slate-950/45 backdrop-blur-sm" role="dialog" aria-modal="true" onClick={() => setSelectedId("")}>
           <aside
-            className="h-full w-full overflow-y-auto border-l border-white/10 bg-[#07111F] text-white shadow-2xl sm:max-w-[42rem]"
+            className="h-full w-full overflow-y-auto border-l border-slate-200 bg-white text-slate-950 shadow-2xl sm:max-w-[42rem]"
             onClick={(event) => event.stopPropagation()}
           >
-            <header className="sticky top-0 z-10 border-b border-white/10 bg-[#050B14]/95 px-5 py-4 backdrop-blur">
+            <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-primary">{detailEyebrow}</p>
-                  <h3 className="mt-2 truncate text-2xl font-bold text-white">{selected.title}</h3>
-                  {selected.subtitle ? <p className="mt-1 truncate text-sm text-[var(--amg-text-muted)]">{selected.subtitle}</p> : null}
+                  <h3 className="mt-2 truncate text-2xl font-bold text-slate-950">{selected.title}</h3>
+                  {selected.subtitle ? <p className="mt-1 truncate text-sm text-slate-500">{selected.subtitle}</p> : null}
                 </div>
                 <Button type="button" variant="ghost" size="icon" onClick={() => setSelectedId("")} aria-label="Close details">
                   <X className="h-4 w-4" />
@@ -539,13 +539,13 @@ export function AdminRecordManager({
 
             <div className="grid gap-4 p-5">
               {(selected.detailSections?.length ? selected.detailSections : [{ title: "Details", rows: selected.details }]).map((section) => (
-                <section key={section.title} className="rounded-lg border border-white/10 bg-[#050B14]/60 p-4">
-                  <h4 className="text-[0.66rem] font-bold uppercase tracking-[0.16em] text-[var(--amg-text-muted)]">{section.title}</h4>
+                <section key={section.title} className="rounded-lg border border-slate-200 bg-slate-50/70 p-4">
+                  <h4 className="text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500">{section.title}</h4>
                   <dl className="mt-3">
                     {section.rows.map((detail) => (
-                      <div key={`${section.title}-${detail.label}`} className="grid gap-1 border-b border-white/10 py-2.5 last:border-0 sm:grid-cols-[10rem_1fr] sm:gap-4">
-                        <dt className="text-[0.64rem] font-bold uppercase tracking-[0.12em] text-[var(--amg-text-muted)]">{detail.label}</dt>
-                        <dd className="min-w-0 break-words text-sm leading-5 text-slate-100">{valueText(detail.value)}</dd>
+                      <div key={`${section.title}-${detail.label}`} className="grid gap-1 border-b border-slate-200/80 py-2.5 last:border-0 sm:grid-cols-[10rem_1fr] sm:gap-4">
+                        <dt className="text-[0.64rem] font-bold uppercase tracking-[0.12em] text-slate-500">{detail.label}</dt>
+                        <dd className="min-w-0 break-words text-sm leading-5 text-slate-800">{valueText(detail.value)}</dd>
                       </div>
                     ))}
                   </dl>
@@ -553,19 +553,19 @@ export function AdminRecordManager({
               ))}
 
               {selected.tabs?.map((tab) => (
-                <section key={tab.title} className="rounded-lg border border-white/10 bg-[#050B14]/60 p-4">
-                  <h4 className="text-[0.66rem] font-bold uppercase tracking-[0.16em] text-[var(--amg-text-muted)]">{tab.title}</h4>
+                <section key={tab.title} className="rounded-lg border border-slate-200 bg-slate-50/70 p-4">
+                  <h4 className="text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500">{tab.title}</h4>
                   {tab.rows?.length ? (
                     <dl className="mt-3">
                       {tab.rows.map((item) => (
-                        <div key={`${tab.title}-${item.label}`} className="grid gap-1 border-b border-white/10 py-2 last:border-0 sm:grid-cols-[10rem_1fr] sm:gap-4">
-                          <dt className="text-xs text-[var(--amg-text-muted)]">{item.label}</dt>
-                          <dd className="min-w-0 break-words text-sm text-slate-100">{valueText(item.value)}</dd>
+                        <div key={`${tab.title}-${item.label}`} className="grid gap-1 border-b border-slate-200/80 py-2 last:border-0 sm:grid-cols-[10rem_1fr] sm:gap-4">
+                          <dt className="text-xs text-slate-500">{item.label}</dt>
+                          <dd className="min-w-0 break-words text-sm text-slate-800">{valueText(item.value)}</dd>
                         </div>
                       ))}
                     </dl>
                   ) : (
-                    <p className="mt-3 text-sm leading-6 text-[var(--amg-text-muted)]">{tab.empty ?? "No related records yet."}</p>
+                    <p className="mt-3 text-sm leading-6 text-slate-500">{tab.empty ?? "No related records yet."}</p>
                   )}
                 </section>
               ))}
@@ -575,14 +575,14 @@ export function AdminRecordManager({
       ) : null}
 
       {editor ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#020711]/76 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
-          <div className="max-h-[92vh] w-full max-w-4xl overflow-hidden rounded-lg border border-white/10 bg-[#07111F] text-white shadow-2xl">
-            <header className="flex items-start justify-between gap-4 border-b border-white/10 bg-[#050B14]/92 px-5 py-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
+          <div className="max-h-[92vh] w-full max-w-4xl overflow-hidden rounded-lg border border-slate-200 bg-white text-slate-950 shadow-2xl">
+            <header className="flex items-start justify-between gap-4 border-b border-slate-200 bg-slate-50 px-5 py-4">
               <div>
                 <p className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-primary">
                   {editor.mode === "create" ? "Create Record" : "Edit Record"}
                 </p>
-                <h3 className="mt-1 text-xl font-bold text-white">
+                <h3 className="mt-1 text-xl font-bold text-slate-950">
                   {editor.mode === "create" ? createLabel : editor.row?.title}
                 </h3>
               </div>
@@ -600,7 +600,7 @@ export function AdminRecordManager({
               <div className="grid gap-4 md:grid-cols-2">
                 {fields.map((field) => (
                   <div key={field.name} className={cn("grid gap-2", field.fullWidth && "md:col-span-2", field.className)}>
-                    <label htmlFor={field.name} className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-[var(--amg-text-muted)]">
+                    <label htmlFor={field.name} className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-slate-500">
                       {field.label}
                       {field.required ? <span className="ml-1 text-primary">*</span> : null}
                     </label>
@@ -608,7 +608,7 @@ export function AdminRecordManager({
                   </div>
                 ))}
               </div>
-              <footer className="mt-6 flex flex-col-reverse gap-2 border-t border-white/10 pt-4 sm:flex-row sm:justify-end">
+              <footer className="mt-6 flex flex-col-reverse gap-2 border-t border-slate-200 pt-4 sm:flex-row sm:justify-end">
                 <Button type="button" variant="outline" className="rounded-full" onClick={() => setEditor(null)}>
                   Cancel
                 </Button>

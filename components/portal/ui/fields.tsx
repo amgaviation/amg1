@@ -4,7 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 const baseInput =
-  "h-11 w-full rounded-md border border-white/14 bg-[#050B14]/74 px-3 text-sm text-white outline-none transition-colors placeholder:text-[var(--amg-text-muted)] focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]";
+  "h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.14)]";
 
 export function Field({
   label,
@@ -52,7 +52,7 @@ export function TextAreaField(
           {...rest}
           required={required}
           className={cn(
-          "min-h-24 w-full rounded-md border border-white/14 bg-[#050B14]/74 px-3 py-2 text-sm text-white outline-none transition-colors placeholder:text-[var(--amg-text-muted)] focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]",
+          "min-h-24 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.14)]",
           className
         )}
       />
@@ -128,7 +128,7 @@ export function CheckboxField({
   defaultChecked?: boolean;
 }) {
   return (
-    <label className="flex items-center gap-3 rounded-md border border-white/12 bg-[#050B14]/72 px-3 py-2.5 text-sm">
+    <label className="flex items-center gap-3 rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm">
       <input
         type="checkbox"
         name={name}
@@ -136,7 +136,7 @@ export function CheckboxField({
         value="true"
         className="h-4 w-4 accent-[var(--primary)]"
       />
-      <span className="text-slate-100">{label}</span>
+      <span className="text-slate-950">{label}</span>
     </label>
   );
 }
@@ -158,7 +158,7 @@ export function FileField({
   return (
     <Field label={label} hint={hint} required={required}>
       <div className="flex items-center gap-3">
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-white/12 bg-[#050B14]/72 px-3 py-2 text-sm text-white hover:border-primary">
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-950 transition-colors hover:border-primary">
           Choose file
           <input
             type="file"

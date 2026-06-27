@@ -28,7 +28,7 @@ type MissionOption = {
 };
 
 const inputClassName =
-  "min-h-11 w-full rounded-md border border-white/14 bg-[#050B14]/78 px-3 text-sm text-white outline-none transition-colors placeholder:text-[var(--amg-text-muted)] focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]";
+  "min-h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.14)]";
 
 export function CrewEmailComposer({
   crewId,
@@ -87,7 +87,7 @@ export function CrewEmailComposer({
           Send Email
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[92vh] overflow-y-auto border-white/10 bg-[#07111F] text-white sm:max-w-4xl">
+      <DialogContent className="max-h-[92vh] overflow-y-auto border-slate-200 bg-white text-slate-950 sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl uppercase">Send Email</DialogTitle>
           <DialogDescription className="text-[var(--amg-text-muted)]">
@@ -106,11 +106,11 @@ export function CrewEmailComposer({
           <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
             <div className="grid gap-4">
               <label className="grid gap-2">
-                <span className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-[var(--amg-text-muted)]">Recipient</span>
+                <span className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-slate-500">Recipient</span>
                 <input value={crewEmail} disabled className={`${inputClassName} text-[var(--amg-text-secondary)]`} />
               </label>
 
-              <label className="flex items-center gap-3 rounded-md border border-white/12 bg-[#050B14]/72 px-3 py-2.5 text-sm">
+              <label className="flex items-center gap-3 rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm">
                 <input
                   type="checkbox"
                   checked={overrideRecipient}
@@ -122,7 +122,7 @@ export function CrewEmailComposer({
 
               {overrideRecipient ? (
                 <label className="grid gap-2">
-                  <span className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-[var(--amg-text-muted)]">Override Email</span>
+                  <span className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-slate-500">Override Email</span>
                   <input
                     type="email"
                     value={recipientEmail}
@@ -133,7 +133,7 @@ export function CrewEmailComposer({
               ) : null}
 
               <label className="grid gap-2">
-                <span className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-[var(--amg-text-muted)]">Template</span>
+                <span className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-slate-500">Template</span>
                 <select
                   value={templateKey}
                   onChange={(event) => selectTemplate(event.target.value as CrewEmailTemplateKey)}
@@ -148,7 +148,7 @@ export function CrewEmailComposer({
               </label>
 
               <label className="grid gap-2">
-                <span className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-[var(--amg-text-muted)]">Related Mission</span>
+                <span className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-slate-500">Related Mission</span>
                 <select value={missionId} onChange={(event) => setMissionId(event.target.value)} className={inputClassName}>
                   <option value="">None selected</option>
                   {missionOptions.map((mission) => (
@@ -160,7 +160,7 @@ export function CrewEmailComposer({
               </label>
 
               <label className="grid gap-2">
-                <span className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-[var(--amg-text-muted)]">Requested Documents</span>
+                <span className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-slate-500">Requested Documents</span>
                 <textarea
                   value={requestedDocuments}
                   onChange={(event) => setRequestedDocuments(event.target.value)}
@@ -172,12 +172,12 @@ export function CrewEmailComposer({
 
             <div className="grid gap-4">
               <label className="grid gap-2">
-                <span className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-[var(--amg-text-muted)]">Subject</span>
+                <span className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-slate-500">Subject</span>
                 <input name="subject" value={subject} onChange={(event) => setSubject(event.target.value)} className={inputClassName} />
               </label>
 
               <label className="grid gap-2">
-                <span className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-[var(--amg-text-muted)]">Body</span>
+                <span className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-slate-500">Body</span>
                 <textarea
                   name="body"
                   value={body}
@@ -189,9 +189,9 @@ export function CrewEmailComposer({
             </div>
           </div>
 
-          <section className="rounded-lg border border-white/10 bg-[#050B14]/72 p-4">
+          <section className="rounded-lg border border-slate-200 bg-slate-50/80 p-4">
             <p className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-primary">Preview</p>
-            <p className="mt-3 text-sm font-semibold text-white">{previewSubject}</p>
+            <p className="mt-3 text-sm font-semibold text-slate-950">{previewSubject}</p>
             <div className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[var(--amg-text-secondary)]">{previewBody}</div>
           </section>
 

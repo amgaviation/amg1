@@ -1,20 +1,20 @@
 import type { Tone } from "@/lib/portal/constants";
 
 export const STATUS_TONE_CLASSES: Record<Tone, string> = {
-  neutral: "border-slate-400/28 bg-slate-400/10 text-slate-200",
-  info: "border-primary/38 bg-primary/12 text-blue-100",
-  warn: "border-amber-400/32 bg-amber-400/10 text-amber-100",
-  success: "border-emerald-400/32 bg-emerald-400/10 text-emerald-100",
-  danger: "border-red-400/34 bg-red-400/10 text-red-100",
-  accent: "border-primary/45 bg-primary/14 text-blue-100",
+  neutral: "border-slate-200 bg-slate-50 text-slate-700",
+  info: "border-blue-200 bg-blue-50 text-blue-700",
+  warn: "border-amber-200 bg-amber-50 text-amber-800",
+  success: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  danger: "border-red-200 bg-red-50 text-red-700",
+  accent: "border-primary/25 bg-blue-50 text-primary",
 };
 
 export const STATUS_DOT_CLASSES: Record<Tone, string> = {
-  neutral: "bg-slate-300",
+  neutral: "bg-slate-400",
   info: "bg-primary",
-  warn: "bg-amber-300",
-  success: "bg-emerald-300",
-  danger: "bg-red-300",
+  warn: "bg-amber-500",
+  success: "bg-emerald-500",
+  danger: "bg-red-500",
   accent: "bg-primary",
 };
 

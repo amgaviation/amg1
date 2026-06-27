@@ -33,29 +33,29 @@ export function DataTable<T>({
 }) {
   if (!rows.length) {
     return (
-      <div className="rounded-lg border border-dashed border-white/16 bg-white/[0.04] px-4 py-8 text-center text-sm text-slate-400">
+      <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50/80 px-4 py-8 text-center text-sm text-muted-foreground">
         {emptyLabel}
       </div>
     );
   }
   return (
-    <div className="rounded-lg border border-white/10 bg-[#07111F]/88 shadow-[0_18px_58px_rgba(0,0,0,0.2)]">
+    <div className="rounded-lg border border-border bg-white shadow-[0_14px_36px_rgba(15,23,42,0.06)]">
       <div className="grid gap-3 p-3 md:hidden">
         {rows.map((row) => {
           const href = getHref?.(row);
           const primary = columns.find((column) => column.priority === "primary") ?? columns[0];
           const visible = columns.filter((column) => column !== primary && !column.hideOnMobile).slice(0, 4);
           const card = (
-            <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4 transition-colors hover:border-primary/45">
-              <div className="text-sm font-semibold text-white">{primary.cell(row)}</div>
+            <div className="rounded-lg border border-border bg-white p-4 transition-colors hover:border-primary/45 hover:bg-blue-50/45">
+              <div className="text-sm font-semibold text-foreground">{primary.cell(row)}</div>
               {visible.length ? (
                 <dl className="mt-3 grid gap-2">
                   {visible.map((column, index) => (
-                    <div key={index} className="flex items-start justify-between gap-3 border-t border-white/10 pt-2">
-                      <dt className="text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    <div key={index} className="flex items-start justify-between gap-3 border-t border-border pt-2">
+                      <dt className="text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                         {column.header}
                       </dt>
-                      <dd className="min-w-0 text-right text-xs text-slate-200">{column.cell(row)}</dd>
+                      <dd className="min-w-0 text-right text-xs text-foreground">{column.cell(row)}</dd>
                     </div>
                   ))}
                 </dl>
@@ -76,7 +76,7 @@ export function DataTable<T>({
       <div className="hidden overflow-hidden md:block">
       <Table className="border-0">
         <TableHeader>
-          <TableRow className="bg-white/[0.045] hover:bg-white/[0.045]">
+          <TableRow className="bg-slate-50 hover:bg-slate-50">
             {columns.map((c, i) => (
               <TableHead
                 key={i}
@@ -97,7 +97,7 @@ export function DataTable<T>({
             return (
               <TableRow
                 key={getKey(row)}
-                className={cn("border-white/10", href && "cursor-pointer hover:bg-white/[0.045]")}
+                className={cn("border-border", href && "cursor-pointer hover:bg-blue-50/45")}
               >
                 {columns.map((c, i) => (
                   <TableCell
