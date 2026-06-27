@@ -223,6 +223,7 @@ export default async function AdminAircraftPage({
         backTo="/portal/admin/aircraft"
         emptyTitle="No aircraft match"
         emptyDescription="Adjust search or filters, or create a new aircraft record."
+        detailEyebrow="Aircraft Detail"
       />
     </PortalShell>
   );

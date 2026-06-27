@@ -126,3 +126,5 @@ export function DataTable<T>({
     </div>
   );
 }
+
+export const PortalTable = DataTable;

@@ -250,6 +250,7 @@ export default async function AdminClientsPage({
         backTo="/portal/admin/clients"
         emptyTitle="No clients match"
         emptyDescription="Adjust search or filters, or create a new client record."
+        detailEyebrow="Client Detail"
       />
     </PortalShell>
   );
