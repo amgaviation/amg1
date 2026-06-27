@@ -319,7 +319,7 @@ export default async function AdminCrewPage({
 
       <AdminRecordManager
         title="Crew Roster"
-        description="Searchable crew operations table with approval, availability, credentials, and selected-record detail workflow."
+        description="Crew records by approval status, availability, credentials, aircraft experience, and home base."
         rows={rows}
         columns={[
           { key: "name", label: "Name", sortable: true, className: "w-[15rem]" },
@@ -391,6 +391,7 @@ export default async function AdminCrewPage({
         emptyTitle="No crew match"
         emptyDescription="Adjust search or filters, or create a new crew member."
         detailEyebrow="Crew Detail"
+        detailHrefBase="/portal/admin/crew"
       />
     </PortalShell>
   );

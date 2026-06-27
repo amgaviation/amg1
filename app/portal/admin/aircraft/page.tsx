@@ -179,12 +179,12 @@ export default async function AdminAircraftPage({
       <PageHeader
         eyebrow="AMG Operations"
         title="Aircraft Management"
-        description="Search, filter, create, edit, and archive aircraft records without exposing bulky per-record edit forms."
+        description="Fleet records across ownership, operating base, maintenance state, and mission readiness."
       />
 
       <AdminRecordManager
         title="Fleet Register"
-        description="Compact operational table with selectable aircraft records, detail review, controlled edit flow, and archive workflow."
+        description="Aircraft records by tail number, client, status, maintenance window, location, and mission history."
         rows={rows}
         columns={[
           { key: "tail", label: "Tail", sortable: true },
@@ -224,6 +224,7 @@ export default async function AdminAircraftPage({
         emptyTitle="No aircraft match"
         emptyDescription="Adjust search or filters, or create a new aircraft record."
         detailEyebrow="Aircraft Detail"
+        detailHrefBase="/portal/admin/aircraft"
       />
     </PortalShell>
   );

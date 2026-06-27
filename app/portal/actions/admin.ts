@@ -1039,6 +1039,135 @@ export async function archiveCrewRecord(formData: FormData) {
   redirect(`${backTo}?success=archived`);
 }
 
+// ─── Partner record management ─────────────────────────────────────
+export async function savePartnerRecord(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = (await createServiceClient()) as any;
+  const id = str(formData, "profile_id");
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/partners");
+  const email = normalizeEmail(formData, "email");
+  const fullName = str(formData, "full_name");
+  const status = controlledProfileStatus(str(formData, "status"));
+
+  if (!email || !validEmail(email) || !fullName) redirect(`${backTo}?error=missing`);
+  await ensureUniqueProfileEmail(db, email, id || null, backTo);
+
+  const profilePayload = {
+    email,
+    full_name: fullName,
+    phone: str(formData, "phone") || null,
+    company_name: str(formData, "company_name") || null,
+    role: "partner",
+    status,
+    is_active: status === "approved",
+    updated_at: new Date().toISOString(),
+  };
+
+  let profileId = id;
+
+  if (id) {
+    const { data: existing } = await db
+      .from("profiles")
+      .select("email, role")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (!existing || existing.role !== "partner") redirect(`${backTo}?error=profile`);
+
+    if (existing.email !== email) {
+      const { error: authError } = await db.auth.admin.updateUserById(id, { email, email_confirm: true });
+      if (authError) redirect(`${backTo}?error=email`);
+    }
+
+    const { error } = await db.from("profiles").update(profilePayload).eq("id", id);
+    if (error) redirect(`${backTo}?error=save`);
+  } else {
+    const redirectTo = portalInviteRedirectUrl();
+
+    const { data: invite, error: inviteError } = await db.auth.admin.inviteUserByEmail(email, {
+      data: { full_name: fullName, role: "partner" },
+      redirectTo,
+    });
+
+    if (inviteError || !invite.user) redirect(`${backTo}?error=invite`);
+    profileId = invite.user.id;
+
+    const { error } = await db.from("profiles").upsert({
+      ...profilePayload,
+      id: profileId,
+      invitation_status: "sent",
+      invitation_channel: "email",
+      invitation_sent_at: new Date().toISOString(),
+      invited_by: admin.id,
+    });
+
+    if (error) redirect(`${backTo}?error=save`);
+  }
+
+  if (!profileId) redirect(`${backTo}?error=save`);
+
+  const { error: partnerError } = await db.from("partner_profiles").upsert({
+    id: profileId,
+    company_name: str(formData, "partner_company_name") || str(formData, "company_name") || null,
+    primary_contact: str(formData, "primary_contact") || fullName,
+    contact_email: str(formData, "contact_email") || email,
+    phone: str(formData, "partner_phone") || str(formData, "phone") || null,
+    partner_type: str(formData, "partner_type") || null,
+    service_type: str(formData, "service_type") || null,
+    service_area: str(formData, "service_area") || null,
+    service_categories: splitList(str(formData, "service_categories")),
+    airports_served: splitList(str(formData, "airports_served")),
+    hours_of_operation: str(formData, "hours_of_operation") || null,
+    after_hours_support: boolValue(formData, "after_hours_support"),
+    notes: str(formData, "notes") || null,
+  });
+
+  if (partnerError) redirect(`${backTo}?error=partner-profile`);
+
+  await logAuditEvent({
+    actor: admin,
+    action: id ? "partner_record_updated" : "partner_record_created",
+    detail: `${id ? "Updated" : "Created"} partner ${email}`,
+    entityType: "profile",
+    entityId: profileId,
+  });
+
+  revalidatePath("/portal/admin/partners");
+  revalidatePath("/portal/admin/users");
+  redirect(`${backTo}?success=partner`);
+}
+
+export async function archivePartnerRecord(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const id = str(formData, "profile_id");
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/partners");
+
+  if (!id) redirect(`${backTo}?error=profile`);
+
+  const { data, error } = await db
+    .from("profiles")
+    .update({ status: "suspended", is_active: false, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("role", "partner")
+    .select("id, email")
+    .maybeSingle();
+
+  if (error || !data) redirect(`${backTo}?error=save`);
+
+  await logAuditEvent({
+    actor: admin,
+    action: "partner_record_archived",
+    detail: `Archived partner ${data.email}`,
+    entityType: "profile",
+    entityId: id,
+  });
+
+  revalidatePath("/portal/admin/partners");
+  revalidatePath("/portal/admin/users");
+  redirect(`${backTo}?success=archived`);
+}
+
 // ─── Document review ────────────────────────────────────────────────
 export async function reviewDocument(formData: FormData) {
   const admin = await actor(["admin"]);
