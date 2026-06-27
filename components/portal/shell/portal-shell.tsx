@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, LogOut } from "lucide-react";
+import { ChevronDown, Menu, X, LogOut } from "lucide-react";
 import { signOut } from "@/app/portal/actions/auth";
 import { PortalIcon } from "@/components/portal/ui/icon";
 import { RoleBadge } from "@/components/portal/ui/status-badge";
@@ -45,6 +45,68 @@ const WEBSITE_EDITOR_NAV = {
   icon: "fileText",
 };
 
+type ShellNavItem = { label: string; href: string; icon: string };
+
+type ShellNavGroup = {
+  label: string;
+  icon: string;
+  items: ShellNavItem[];
+};
+
+const ADMIN_NAV_GROUPS: ShellNavGroup[] = [
+  {
+    label: "Operations",
+    icon: "radar",
+    items: [
+      { label: "Mission Control", href: "/portal/admin/mission-control", icon: "radar" },
+      { label: "Support Requests", href: "/portal/admin/trips", icon: "plane" },
+      { label: "Form Submissions", href: "/portal/admin/form-submissions", icon: "clipboard" },
+      { label: "Clients", href: "/portal/admin/clients", icon: "building" },
+      { label: "Crew", href: "/portal/admin/crew", icon: "users" },
+      { label: "Aircraft", href: "/portal/admin/aircraft", icon: "planeTakeoff" },
+      { label: "Partners", href: "/portal/admin/partners", icon: "handshake" },
+      { label: "Documents", href: "/portal/admin/documents", icon: "fileText" },
+    ],
+  },
+  {
+    label: "Financial",
+    icon: "receipt",
+    items: [
+      { label: "Quotes", href: "/portal/admin/quotes", icon: "receipt" },
+      { label: "Invoices", href: "/portal/admin/invoices", icon: "wallet" },
+      { label: "Subscriptions", href: "/portal/admin/subscriptions", icon: "clipboard" },
+      { label: "Expenses", href: "/portal/admin/expenses", icon: "wallet" },
+    ],
+  },
+  {
+    label: "Communications",
+    icon: "messageSquare",
+    items: [
+      { label: "Messages", href: "/portal/admin/messages", icon: "messageSquare" },
+      { label: "Emails", href: "/portal/admin/communications/emails", icon: "messageSquare" },
+    ],
+  },
+  {
+    label: "Users",
+    icon: "userCheck",
+    items: [
+      { label: "User Approvals", href: "/portal/admin/user-approvals", icon: "userCheck" },
+      { label: "All Users", href: "/portal/admin/users", icon: "users" },
+    ],
+  },
+  {
+    label: "Settings",
+    icon: "settings",
+    items: [
+      { label: "Settings", href: "/portal/admin/settings", icon: "settings" },
+      { label: "Compliance", href: "/portal/admin/compliance", icon: "shield" },
+      { label: "Security Review", href: "/portal/admin/security-review", icon: "shield" },
+      { label: "System Health", href: "/portal/admin/system-health", icon: "shield" },
+      WEBSITE_EDITOR_NAV,
+    ],
+  },
+];
+
 export function PortalShell({
   role,
   user,
@@ -61,12 +123,13 @@ export function PortalShell({
     user.role === "super_admin" && role === "admin"
       ? [WEBSITE_EDITOR_NAV, ...PORTAL_NAV.admin]
       : PORTAL_NAV[role];
+  const navGroups = role === "admin" ? ADMIN_NAV_GROUPS : null;
 
   return (
     <div className="amg-portal relative min-h-screen bg-slate-50 text-slate-950 overflow-hidden lg:grid lg:grid-cols-[17.5rem_1fr]">
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-screen flex-col border-r border-border bg-white text-foreground shadow-[4px_0_24px_rgba(15,23,42,0.05)] lg:flex">
-        <SidebarContent role={role} nav={nav} />
+        <SidebarContent role={role} nav={nav} navGroups={navGroups} />
       </aside>
 
       {/* Mobile drawer overlay */}
@@ -84,7 +147,7 @@ export function PortalShell({
             >
               <X className="h-5 w-5" />
             </button>
-            <SidebarContent role={role} nav={nav} onNavigate={() => setOpen(false)} />
+            <SidebarContent role={role} nav={nav} navGroups={navGroups} onNavigate={() => setOpen(false)} />
           </aside>
         </div>
       )}
@@ -175,13 +238,24 @@ export function PortalShell({
 function SidebarContent({
   role,
   nav,
+  navGroups,
   onNavigate,
 }: {
   role: PortalRole;
-  nav: { label: string; href: string; icon: string }[];
+  nav: ShellNavItem[];
+  navGroups?: ShellNavGroup[] | null;
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(
+    () => Object.fromEntries((navGroups ?? []).map((group) => [group.label, true])),
+  );
+
+  function isActive(item: ShellNavItem) {
+    const base = item.href.split("?")[0];
+    const isOverview = base === `/portal/${role}/dashboard`;
+    return pathname === base || (!isOverview && pathname.startsWith(base));
+  }
 
   return (
     <>
@@ -207,31 +281,77 @@ function SidebarContent({
 
       {/* Nav links */}
       <nav className="flex-1 overflow-y-auto px-3 py-4">
-        <div className="space-y-0.5">
-          {nav.map((item) => {
-            const base = item.href.split("?")[0];
-            const isOverview = base === `/portal/${role}/dashboard`;
-            const active =
-              pathname === base ||
-              (!isOverview && pathname.startsWith(base));
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={onNavigate}
-                className={cn(
-                  "flex min-h-10 items-center gap-3 rounded-md border border-transparent px-3 py-2 text-sm transition-colors",
-                  active
-                    ? "border-primary/20 bg-blue-50 font-semibold text-primary shadow-[inset_3px_0_0_var(--amg-accent-blue)]"
-                    : "text-slate-600 hover:border-slate-200 hover:bg-slate-50 hover:text-foreground"
-                )}
-              >
-                <PortalIcon name={item.icon} className="h-4 w-4 shrink-0" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </div>
+        {navGroups ? (
+          <div className="space-y-2">
+            {navGroups.map((group) => {
+              const activeGroup = group.items.some(isActive);
+              const expanded = openGroups[group.label] || activeGroup;
+
+              return (
+                <div key={group.label} className="rounded-lg border border-slate-200/70 bg-white">
+                  <button
+                    type="button"
+                    aria-expanded={expanded}
+                    onClick={() => setOpenGroups((current) => ({ ...current, [group.label]: !expanded }))}
+                    className={cn(
+                      "flex min-h-10 w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/60",
+                      activeGroup ? "bg-blue-50 text-primary" : "text-slate-700 hover:bg-slate-50 hover:text-slate-950",
+                    )}
+                  >
+                    <PortalIcon name={group.icon} className="h-4 w-4 shrink-0" />
+                    <span className="min-w-0 flex-1">{group.label}</span>
+                    <ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform", expanded && "rotate-180")} />
+                  </button>
+                  {expanded ? (
+                    <div className="space-y-0.5 px-2 pb-2">
+                      {group.items.map((item) => {
+                        const active = isActive(item);
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={onNavigate}
+                            className={cn(
+                              "flex min-h-9 items-center gap-3 rounded-md border border-transparent px-3 py-2 text-sm transition-colors",
+                              active
+                                ? "border-primary/20 bg-blue-50 font-semibold text-primary shadow-[inset_3px_0_0_var(--amg-accent-blue)]"
+                                : "text-slate-600 hover:border-slate-200 hover:bg-slate-50 hover:text-foreground"
+                            )}
+                          >
+                            <PortalIcon name={item.icon} className="h-4 w-4 shrink-0" />
+                            {item.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="space-y-0.5">
+            {nav.map((item) => {
+              const active = isActive(item);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={onNavigate}
+                  className={cn(
+                    "flex min-h-10 items-center gap-3 rounded-md border border-transparent px-3 py-2 text-sm transition-colors",
+                    active
+                      ? "border-primary/20 bg-blue-50 font-semibold text-primary shadow-[inset_3px_0_0_var(--amg-accent-blue)]"
+                      : "text-slate-600 hover:border-slate-200 hover:bg-slate-50 hover:text-foreground"
+                  )}
+                >
+                  <PortalIcon name={item.icon} className="h-4 w-4 shrink-0" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </nav>
 
       {/* Footer */}

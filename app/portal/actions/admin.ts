@@ -3,11 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
-import { portalInviteRedirectUrl } from "@/lib/auth/urls";
 import type { Database } from "@/lib/supabase/database.types";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
 import { isPortalRole, PORTAL_PERMISSIONS, PROFILE_STATUS } from "@/lib/portal/constants";
 import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
+import {
+  ensurePortalAuthUserForProfile,
+  generatePortalPasswordSetupLink,
+  sendPortalPasswordResetEmail,
+} from "@/lib/portal/account-setup";
 import { COMPLIANCE_POLICY_VERSION } from "@/lib/compliance/config";
 import { recordComplianceEvidence } from "@/lib/compliance/evidence";
 import { actor, num, safeRedirectPath, str } from "./_helpers";
@@ -167,30 +171,42 @@ export async function approveUser(formData: FormData) {
   const db = await createServiceClient();
   const userId = str(formData, "user_id");
 
-  await db.from("profiles").update({ status: "approved", is_active: true }).eq("id", userId);
+  const { data: profile } = await db
+    .from("profiles")
+    .select("id, email, full_name, role, status, company_name, phone, home_base, permissions")
+    .eq("id", userId)
+    .maybeSingle();
 
-  try {
-    await db.auth.admin.updateUserById(userId, { email_confirm: true });
-  } catch {
-    // non-fatal
+  if (!profile) redirect("/portal/admin/user-approvals?error=user");
+
+  const provisioned = await ensurePortalAuthUserForProfile({
+    db,
+    profile,
+    invitedBy: admin.id,
+    sendSetupEmail: true,
+  });
+
+  if (!provisioned.ok) {
+    redirect("/portal/admin/user-approvals?error=invite");
   }
 
   await logAuditEvent({
     actor: admin,
     action: "user_approved",
-    detail: `Approved user ${userId}`,
+    detail: `Approved user ${profile.email}`,
     entityType: "profile",
-    entityId: userId,
+    entityId: provisioned.profileId,
   });
 
   await notifyUser({
-    userId,
+    userId: provisioned.profileId,
     title: "Access approved",
-    body: "Your AMG Connect portal access has been approved. You can sign in now.",
+    body: "Your AMG Connect portal access has been approved. Check your email for the secure setup link.",
     type: "access_approved",
   });
 
   revalidatePath("/portal/admin/user-approvals");
+  revalidatePath("/portal/admin/users");
   redirect("/portal/admin/user-approvals?success=approved");
 }
 
@@ -206,17 +222,39 @@ export async function setUserStatus(formData: FormData) {
     await preventAdminSelfOrLastAdminAction(db, admin.id, userId, backTo);
   }
 
-  await db
-    .from("profiles")
-    .update({ status, is_active: status === "approved" })
-    .eq("id", userId);
+  let entityId = userId;
+
+  if (status === "approved") {
+    const { data: profile } = await db
+      .from("profiles")
+      .select("id, email, full_name, role, status, company_name, phone, home_base, permissions")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (!profile) redirect(`${backTo}?error=user`);
+
+    const provisioned = await ensurePortalAuthUserForProfile({
+      db,
+      profile,
+      invitedBy: admin.id,
+      sendSetupEmail: true,
+    });
+
+    if (!provisioned.ok) redirect(`${backTo}?error=invite`);
+    entityId = provisioned.profileId;
+  } else {
+    await db
+      .from("profiles")
+      .update({ status, is_active: false })
+      .eq("id", userId);
+  }
 
   await logAuditEvent({
     actor: admin,
     action: status === "suspended" ? "user_suspended" : "user_status_changed",
-    detail: `Set ${userId} to ${status}`,
+    detail: `Set ${entityId} to ${status}`,
     entityType: "profile",
-    entityId: userId,
+    entityId,
   });
   revalidatePath("/portal/admin/user-approvals");
   revalidatePath("/portal/admin/users");
@@ -411,20 +449,8 @@ export async function createPortalUser(formData: FormData) {
 
   if (duplicate) redirect(`${backTo}?error=duplicate`);
 
-  const redirectTo = portalInviteRedirectUrl();
-
-  const { data: invite, error: inviteError } = await db.auth.admin.inviteUserByEmail(
-    email,
-    {
-      data: { full_name: fullName, role },
-      redirectTo,
-    }
-  );
-
-  if (inviteError || !invite.user) redirect(`${backTo}?error=invite`);
-
-  const { error: profileError } = await db.from("profiles").upsert({
-    id: invite.user.id,
+  const { data: createdProfile, error: profileError } = await db.from("profiles").insert({
+    id: crypto.randomUUID(),
     email,
     full_name: fullName,
     role,
@@ -438,16 +464,25 @@ export async function createPortalUser(formData: FormData) {
     invitation_sent_at: new Date().toISOString(),
     invited_by: admin.id,
     permissions: role === "admin" ? PORTAL_PERMISSIONS : selectedPermissions(formData),
+  }).select("id, email, full_name, role, status, company_name, phone, home_base, permissions").single();
+
+  if (profileError || !createdProfile) redirect(`${backTo}?error=profile`);
+
+  const provisioned = await ensurePortalAuthUserForProfile({
+    db,
+    profile: createdProfile,
+    invitedBy: admin.id,
+    sendSetupEmail: true,
   });
 
-  if (profileError) redirect(`${backTo}?error=profile`);
+  if (!provisioned.ok) redirect(`${backTo}?error=invite`);
 
   await logAuditEvent({
     actor: admin,
-    action: "user_invited",
-    detail: `Invited ${email} as ${role} via ${invitationChannel}`,
+    action: "user_setup_email_sent",
+    detail: `Created ${email} as ${role} via ${invitationChannel}`,
     entityType: "profile",
-    entityId: invite.user.id,
+    entityId: provisioned.profileId,
   });
 
   revalidatePath("/portal/admin/users");
@@ -463,42 +498,174 @@ export async function resendPortalInvitation(formData: FormData) {
 
   const { data: profile } = await db
     .from("profiles")
-    .select("id, email, full_name, role")
+    .select("id, email, full_name, role, status, company_name, phone, home_base, permissions")
     .eq("id", userId)
     .maybeSingle();
 
   if (!profile?.email) redirect(`${backTo}?error=missing`);
   if (isReleasedEmail(profile.email)) redirect(`${backTo}?error=released`);
 
-  const redirectTo = portalInviteRedirectUrl();
-
-  const { error } = await db.auth.admin.inviteUserByEmail(profile.email, {
-    data: { full_name: profile.full_name, role: profile.role },
-    redirectTo,
+  const provisioned = await ensurePortalAuthUserForProfile({
+    db,
+    profile,
+    invitedBy: admin.id,
+    sendSetupEmail: true,
   });
 
-  if (error) redirect(`${backTo}?error=invite`);
-
-  await db
-    .from("profiles")
-    .update({
-      invitation_status: "resent",
-      invitation_channel: "email",
-      invitation_sent_at: new Date().toISOString(),
-      invited_by: admin.id,
-    })
-    .eq("id", userId);
+  if (!provisioned.ok) redirect(`${backTo}?error=invite`);
 
   await logAuditEvent({
     actor: admin,
-    action: "invitation_resent",
-    detail: `Resent invitation to ${profile.email}`,
+    action: "portal_setup_email_resent",
+    detail: `Resent portal setup email to ${profile.email}`,
     entityType: "profile",
-    entityId: userId,
+    entityId: provisioned.profileId,
   });
 
   revalidatePath("/portal/admin/users");
   redirect(`${backTo}?success=resent`);
+}
+
+export async function sendPortalPasswordReset(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const userId = str(formData, "user_id");
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/users");
+
+  const { data: profile } = await db
+    .from("profiles")
+    .select("id, email, full_name")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (!profile?.email || isReleasedEmail(profile.email)) redirect(`${backTo}?error=user`);
+
+  const setupLink = await generatePortalPasswordSetupLink(profile.email);
+  if (!setupLink) redirect(`${backTo}?error=reset`);
+
+  const result = await sendPortalPasswordResetEmail({
+    email: profile.email,
+    name: profile.full_name ?? profile.email,
+    setupLink,
+  });
+
+  if (result.status !== "sent") redirect(`${backTo}?error=reset`);
+
+  await logAuditEvent({
+    actor: admin,
+    action: "password_reset_sent_by_admin",
+    detail: `Sent password reset email to ${profile.email}`,
+    entityType: "profile",
+    entityId: profile.id,
+  });
+
+  revalidatePath("/portal/admin/users");
+  redirect(`${backTo}?success=reset`);
+}
+
+export async function changePortalUserPassword(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const userId = str(formData, "user_id");
+  const password = str(formData, "password");
+  const confirm = str(formData, "confirm_password");
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/users");
+
+  if (!password || password.length < 12) redirect(`${backTo}?error=weakpassword`);
+  if (password !== confirm) redirect(`${backTo}?error=mismatch`);
+
+  const { data: profile } = await db
+    .from("profiles")
+    .select("id, email, full_name, role")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (!profile?.email || isReleasedEmail(profile.email)) redirect(`${backTo}?error=user`);
+  if (profile.role === "super_admin" && admin.role !== "super_admin") redirect(`${backTo}?error=role`);
+
+  const { error } = await db.auth.admin.updateUserById(userId, { password });
+  if (error) redirect(`${backTo}?error=password`);
+
+  await logAuditEvent({
+    actor: admin,
+    action: "password_changed_by_admin",
+    detail: `Changed portal password for ${profile.email}`,
+    entityType: "profile",
+    entityId: profile.id,
+  });
+
+  revalidatePath("/portal/admin/users");
+  redirect(`${backTo}?success=password`);
+}
+
+export async function updatePortalUser(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const userId = str(formData, "profile_id");
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/users");
+  const email = normalizeEmail(formData, "email");
+  const fullName = str(formData, "full_name");
+  const role = str(formData, "role");
+  const status = str(formData, "status");
+  const phone = normalizePhone(str(formData, "phone"));
+
+  if (!userId || !email || !fullName || !isPortalRole(role)) redirect(`${backTo}?error=missing`);
+  if (!PROFILE_STATUS.some((item) => item.value === status)) redirect(`${backTo}?error=status`);
+  if (phone && !/^\+[1-9]\d{7,14}$/.test(phone)) redirect(`${backTo}?error=phone`);
+  await ensureUniqueProfileEmail(db, email, userId, backTo);
+
+  if (status !== "approved" || role !== "admin") {
+    await preventAdminSelfOrLastAdminAction(db, admin.id, userId, backTo);
+  }
+
+  const { data: existing } = await db
+    .from("profiles")
+    .select("id, email, full_name, role, status, company_name, phone, home_base, permissions")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (!existing) redirect(`${backTo}?error=user`);
+
+  const patch = {
+    email,
+    full_name: fullName,
+    role,
+    status,
+    is_active: status === "approved",
+    company_name: str(formData, "company_name") || null,
+    phone,
+    home_base: str(formData, "home_base").toUpperCase() || null,
+    permissions: role === "admin" ? PORTAL_PERMISSIONS : selectedPermissions(formData),
+    updated_at: new Date().toISOString(),
+  };
+
+  const { error } = await db.from("profiles").update(patch).eq("id", userId);
+  if (error) redirect(`${backTo}?error=save`);
+
+  let entityId = userId;
+
+  if (status === "approved") {
+    const provisioned = await ensurePortalAuthUserForProfile({
+      db,
+      profile: { ...existing, ...patch },
+      invitedBy: admin.id,
+      sendSetupEmail: existing.status !== "approved",
+    });
+    if (!provisioned.ok) redirect(`${backTo}?error=invite`);
+    entityId = provisioned.profileId;
+  }
+
+  await logAuditEvent({
+    actor: admin,
+    action: "user_profile_updated",
+    detail: `Updated portal user ${email}`,
+    entityType: "profile",
+    entityId,
+  });
+
+  revalidatePath("/portal/admin/users");
+  revalidatePath("/portal/admin/user-approvals");
+  redirect(`${backTo}?success=status`);
 }
 
 // ─── Crew & partner assignment ──────────────────────────────────────
@@ -799,26 +966,28 @@ export async function saveClientRecord(formData: FormData) {
     const { error } = await db.from("profiles").update(payload).eq("id", id);
     if (error) redirect(`${backTo}?error=save`);
   } else {
-    const redirectTo = portalInviteRedirectUrl();
-
-    const { data: invite, error: inviteError } = await db.auth.admin.inviteUserByEmail(email, {
-      data: { full_name: fullName, role: "client" },
-      redirectTo,
-    });
-
-    if (inviteError || !invite.user) redirect(`${backTo}?error=invite`);
-    profileId = invite.user.id;
-
-    const { error } = await db.from("profiles").upsert({
+    const { data: createdProfile, error } = await db.from("profiles").insert({
       ...payload,
-      id: profileId,
-      invitation_status: "sent",
-      invitation_channel: "email",
-      invitation_sent_at: new Date().toISOString(),
+      id: crypto.randomUUID(),
+      invitation_status: status === "approved" ? "portal_setup_pending" : "profile_created",
+      invitation_channel: status === "approved" ? "email" : null,
+      invitation_sent_at: null,
       invited_by: admin.id,
-    });
+    }).select("id, email, full_name, role, status, company_name, phone, home_base, permissions").single();
 
-    if (error) redirect(`${backTo}?error=save`);
+    if (error || !createdProfile) redirect(`${backTo}?error=save`);
+    profileId = createdProfile.id;
+
+    if (status === "approved") {
+      const provisioned = await ensurePortalAuthUserForProfile({
+        db,
+        profile: createdProfile,
+        invitedBy: admin.id,
+        sendSetupEmail: true,
+      });
+      if (!provisioned.ok) redirect(`${backTo}?error=invite`);
+      profileId = provisioned.profileId;
+    }
   }
 
   await logAuditEvent({
@@ -912,26 +1081,28 @@ export async function saveCrewRecord(formData: FormData) {
     const { error } = await db.from("profiles").update(profilePayload).eq("id", id);
     if (error) redirect(`${backTo}?error=save`);
   } else {
-    const redirectTo = portalInviteRedirectUrl();
-
-    const { data: invite, error: inviteError } = await db.auth.admin.inviteUserByEmail(email, {
-      data: { full_name: fullName, role: "crew" },
-      redirectTo,
-    });
-
-    if (inviteError || !invite.user) redirect(`${backTo}?error=invite`);
-    profileId = invite.user.id;
-
-    const { error } = await db.from("profiles").upsert({
+    const { data: createdProfile, error } = await db.from("profiles").insert({
       ...profilePayload,
-      id: profileId,
-      invitation_status: "sent",
-      invitation_channel: "email",
-      invitation_sent_at: new Date().toISOString(),
+      id: crypto.randomUUID(),
+      invitation_status: status === "approved" ? "portal_setup_pending" : "profile_created",
+      invitation_channel: status === "approved" ? "email" : null,
+      invitation_sent_at: null,
       invited_by: admin.id,
-    });
+    }).select("id, email, full_name, role, status, company_name, phone, home_base, permissions").single();
 
-    if (error) redirect(`${backTo}?error=save`);
+    if (error || !createdProfile) redirect(`${backTo}?error=save`);
+    profileId = createdProfile.id;
+
+    if (status === "approved") {
+      const provisioned = await ensurePortalAuthUserForProfile({
+        db,
+        profile: createdProfile,
+        invitedBy: admin.id,
+        sendSetupEmail: true,
+      });
+      if (!provisioned.ok) redirect(`${backTo}?error=invite`);
+      profileId = provisioned.profileId;
+    }
   }
 
   if (!profileId) redirect(`${backTo}?error=save`);
@@ -1082,26 +1253,28 @@ export async function savePartnerRecord(formData: FormData) {
     const { error } = await db.from("profiles").update(profilePayload).eq("id", id);
     if (error) redirect(`${backTo}?error=save`);
   } else {
-    const redirectTo = portalInviteRedirectUrl();
-
-    const { data: invite, error: inviteError } = await db.auth.admin.inviteUserByEmail(email, {
-      data: { full_name: fullName, role: "partner" },
-      redirectTo,
-    });
-
-    if (inviteError || !invite.user) redirect(`${backTo}?error=invite`);
-    profileId = invite.user.id;
-
-    const { error } = await db.from("profiles").upsert({
+    const { data: createdProfile, error } = await db.from("profiles").insert({
       ...profilePayload,
-      id: profileId,
-      invitation_status: "sent",
-      invitation_channel: "email",
-      invitation_sent_at: new Date().toISOString(),
+      id: crypto.randomUUID(),
+      invitation_status: status === "approved" ? "portal_setup_pending" : "profile_created",
+      invitation_channel: status === "approved" ? "email" : null,
+      invitation_sent_at: null,
       invited_by: admin.id,
-    });
+    }).select("id, email, full_name, role, status, company_name, phone, home_base, permissions").single();
 
-    if (error) redirect(`${backTo}?error=save`);
+    if (error || !createdProfile) redirect(`${backTo}?error=save`);
+    profileId = createdProfile.id;
+
+    if (status === "approved") {
+      const provisioned = await ensurePortalAuthUserForProfile({
+        db,
+        profile: createdProfile,
+        invitedBy: admin.id,
+        sendSetupEmail: true,
+      });
+      if (!provisioned.ok) redirect(`${backTo}?error=invite`);
+      profileId = provisioned.profileId;
+    }
   }
 
   if (!profileId) redirect(`${backTo}?error=save`);

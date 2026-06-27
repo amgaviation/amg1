@@ -91,6 +91,7 @@ export const PORTAL_NAV: Record<PortalRole, NavItem[]> = {
     { label: "Aircraft", href: "/portal/admin/aircraft", icon: "planeTakeoff" },
     { label: "Partners", href: "/portal/admin/partners", icon: "handshake" },
     { label: "Messages", href: "/portal/admin/messages", icon: "messageSquare" },
+    { label: "Emails", href: "/portal/admin/communications/emails", icon: "messageSquare" },
     { label: "Quotes", href: "/portal/admin/quotes", icon: "receipt" },
     { label: "Invoices", href: "/portal/admin/invoices", icon: "wallet" },
     { label: "Subscriptions", href: "/portal/admin/subscriptions", icon: "clipboard" },

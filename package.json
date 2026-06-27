@@ -9,6 +9,7 @@
     "media:audit": "node scripts/audit-media-uniqueness.ts",
     "forms:verify": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-public-form-normalization.mjs",
     "communications:verify": "node scripts/verify-communications-center.mjs",
+    "admin-access:verify": "node scripts/verify-admin-access-communications.mjs",
     "crew-email:verify": "tsx scripts/verify-crew-email-workflow.ts",
     "portal-overflow:verify": "node scripts/verify-portal-overflow-layout.mjs",
     "compliance:verify": "node scripts/verify-compliance-foundation.mjs",

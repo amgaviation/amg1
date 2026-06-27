@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { randomUUID } from "node:crypto";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { emailChangeRedirectUrl, passwordSetupRedirectUrl } from "@/lib/auth/urls";
 import { requireUser } from "@/lib/portal/session";
@@ -45,7 +46,6 @@ function isReusableReleasedProfile(profile: {
 async function requestAccessUsingExistingAuthUser({
   userId,
   email,
-  password,
   fullName,
   roleValue,
   company,
@@ -53,44 +53,12 @@ async function requestAccessUsingExistingAuthUser({
 }: {
   userId: string;
   email: string;
-  password: string;
   fullName: string;
   roleValue: PortalRole;
   company: string;
   phone: string;
 }) {
   const svc = await createServiceClient();
-
-  const fullAuthUpdate = await svc.auth.admin.updateUserById(userId, {
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: {
-      full_name: fullName,
-      role: roleValue,
-    },
-  });
-
-  if (fullAuthUpdate.error) {
-    const message = fullAuthUpdate.error.message ?? "";
-
-    if (/already|registered|exists/i.test(message)) {
-      const passwordOnlyUpdate = await svc.auth.admin.updateUserById(userId, {
-        password,
-        email_confirm: true,
-        user_metadata: {
-          full_name: fullName,
-          role: roleValue,
-        },
-      });
-
-      if (passwordOnlyUpdate.error) {
-        redirect("/login?mode=request&error=signup");
-      }
-    } else {
-      redirect("/login?mode=request&error=signup");
-    }
-  }
 
   const { error: profileError } = await svc
     .from("profiles")
@@ -102,7 +70,7 @@ async function requestAccessUsingExistingAuthUser({
       phone: phone || null,
       status: "pending",
       is_active: false,
-      invitation_status: "access_requested_after_release",
+      invitation_status: "access_request_received",
       invitation_channel: "portal_request",
       invitation_sent_at: null,
       last_login_at: null,
@@ -204,18 +172,13 @@ export async function signIn(formData: FormData) {
 
 export async function signUp(formData: FormData) {
   const email = field(formData, "email").toLowerCase();
-  const password = field(formData, "password");
   const fullName = field(formData, "full_name");
   const roleValue = field(formData, "role");
   const company = field(formData, "company_name");
   const phone = field(formData, "phone");
 
-  if (!email || !password || !fullName || !isPortalRole(roleValue) || roleValue === "admin" || roleValue === "super_admin") {
+  if (!email || !fullName || !isPortalRole(roleValue) || roleValue === "admin" || roleValue === "super_admin") {
     redirect("/login?mode=request&error=missing");
-  }
-
-  if (password.length < 8) {
-    redirect("/login?mode=request&error=weakpassword");
   }
 
   const svc = await createServiceClient();
@@ -231,7 +194,6 @@ export async function signUp(formData: FormData) {
       await requestAccessUsingExistingAuthUser({
         userId: existingProfile.id,
         email,
-        password,
         fullName,
         roleValue,
         company,
@@ -242,57 +204,37 @@ export async function signUp(formData: FormData) {
     redirect(`/login?mode=request&error=account_exists&email=${encodeURIComponent(email)}`);
   }
 
-  const supabase = await createClient();
+  const releasedProfile = await findReleasedProfileForEmail(email);
 
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        full_name: fullName,
-        role: roleValue,
-      },
-    },
-  });
-
-  if (error || !data.user) {
-    if (error?.message && /already|registered|exists/i.test(error.message)) {
-      const releasedProfile = await findReleasedProfileForEmail(email);
-
-      if (releasedProfile && isReusableReleasedProfile(releasedProfile)) {
-        await requestAccessUsingExistingAuthUser({
-          userId: releasedProfile.id,
-          email,
-          password,
-          fullName,
-          roleValue,
-          company,
-          phone,
-        });
-      }
-
-      redirect(`/login?mode=request&error=account_exists&email=${encodeURIComponent(email)}`);
-    }
-
-    redirect("/login?mode=request&error=signup");
+  if (releasedProfile && isReusableReleasedProfile(releasedProfile)) {
+    await requestAccessUsingExistingAuthUser({
+      userId: releasedProfile.id,
+      email,
+      fullName,
+      roleValue,
+      company,
+      phone,
+    });
   }
 
-  try {
-    await svc
-      .from("profiles")
-      .update({
-        email,
-        full_name: fullName,
-        role: roleValue,
-        company_name: company || null,
-        phone: phone || null,
-        status: "pending",
-        is_active: false,
-        invitation_status: "access_requested",
-      })
-      .eq("id", data.user.id);
-  } catch {
-    // non-fatal
+  const profileId = randomUUID();
+
+  const { error } = await svc.from("profiles").insert({
+    id: profileId,
+    email,
+    full_name: fullName,
+    role: roleValue,
+    company_name: company || null,
+    phone: phone || null,
+    status: "pending",
+    is_active: false,
+    invitation_status: "access_request_received",
+    invitation_channel: "portal_request",
+    invitation_sent_at: null,
+  });
+
+  if (error) {
+    redirect("/login?mode=request&error=signup");
   }
 
   await notifyAdmins({
@@ -300,18 +242,17 @@ export async function signUp(formData: FormData) {
     body: `${fullName} (${email}) requested ${roleValue} access.`,
     type: "access_request",
     entityType: "profile",
-    entityId: data.user.id,
+    entityId: profileId,
   });
 
   await logAuditEvent({
-    actor: { id: data.user.id, email, role: roleValue },
+    actor: { id: profileId, email, role: roleValue },
     action: "access_requested",
     detail: `${fullName} requested ${roleValue} access`,
     entityType: "profile",
-    entityId: data.user.id,
+    entityId: profileId,
   });
 
-  await supabase.auth.signOut();
   redirect("/login?success=requested");
 }
 
