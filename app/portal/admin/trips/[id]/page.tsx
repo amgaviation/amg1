@@ -91,7 +91,7 @@ export default async function AdminTripDetailPage({
                   <p className="eyebrow text-[0.65rem] text-muted-foreground">Category Details</p>
                   <div className="grid gap-2">
                     {publicDetails.map(([key, value]) => (
-                      <div key={key} className="rounded-lg border border-border bg-background/50 p-3">
+                      <div key={key} className="rounded-lg border border-border bg-slate-50/70 p-3">
                         <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-muted-foreground">{publicSupportLabel(key)}</p>
                         <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">{value}</p>
                       </div>
@@ -102,7 +102,7 @@ export default async function AdminTripDetailPage({
               {rawSubmissionDetails.length ? (
                 <div className="mt-5 grid gap-3">
                   <p className="eyebrow text-[0.65rem] text-muted-foreground">Original Form Submission</p>
-                  <div className="max-h-96 overflow-auto rounded-lg border border-border bg-background/50 p-3">
+                  <div className="rounded-lg border border-border bg-slate-50/70 p-3">
                     <dl>
                       {rawSubmissionDetails.map(([key, value]) => (
                         <DetailRow key={key} label={publicSupportLabel(key)}>
@@ -119,7 +119,7 @@ export default async function AdminTripDetailPage({
           <SectionCard title="Crew Assignments" icon="users">
             {mission.crew.length === 0 ? <EmptyState icon="users" title="No crew assigned" /> : (
               <div className="space-y-3">{mission.crew.map((item) => (
-                <div key={item.id} className="rounded-lg border border-border bg-background/50 p-4">
+                <div key={item.id} className="rounded-lg border border-border bg-slate-50/70 p-4">
                   <p className="text-sm font-semibold">{item.crew?.full_name ?? item.crew?.email ?? item.crew_id}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{item.crew_role} | {item.status}</p>
                 </div>
@@ -130,7 +130,7 @@ export default async function AdminTripDetailPage({
           <SectionCard title="Partner Assignments" icon="handshake">
             {mission.partners.length === 0 ? <EmptyState icon="handshake" title="No partners assigned" /> : (
               <div className="space-y-3">{mission.partners.map((item) => (
-                <div key={item.id} className="rounded-lg border border-border bg-background/50 p-4">
+                <div key={item.id} className="rounded-lg border border-border bg-slate-50/70 p-4">
                   <p className="text-sm font-semibold">{item.service_type} - {item.partner?.full_name ?? item.partner?.email ?? item.partner_id}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{item.status} | {item.location ?? "Location TBD"} | {formatMoney(item.quote_amount)}</p>
                 </div>
@@ -152,7 +152,7 @@ export default async function AdminTripDetailPage({
             <form action={assignCrew} className="space-y-5">
               <input type="hidden" name="mission_id" value={mission.id} />
               {[0, 1, 2].map((index) => (
-                <div key={index} className="rounded-lg border border-border bg-background/40 p-3 space-y-3">
+                <div key={index} className="rounded-lg border border-border bg-slate-50/70 p-3 space-y-3">
                   <p className="eyebrow text-[0.6rem] text-muted-foreground">Crew Slot {index + 1}</p>
                   <SelectField label="Crew Member" name="crew_id[]" defaultValue="" options={[{ value: "", label: "Select crew..." }, ...crew.map((c) => ({ value: c.id, label: c.full_name ?? c.email }))]} />
                   <SelectField label="Crew Role" name="crew_role[]" defaultValue={index === 0 ? "pic" : index === 1 ? "sic" : "relief"} options={CREW_ROLE.map((r) => ({ value: r.value, label: r.label }))} />
@@ -176,7 +176,7 @@ export default async function AdminTripDetailPage({
             <form action={createQuote} className="space-y-5">
               <input type="hidden" name="mission_id" value={mission.id} />
               {[0, 1, 2, 3, 4].map((index) => (
-                <div key={index} className="rounded-lg border border-border bg-background/40 p-3 space-y-3">
+                <div key={index} className="rounded-lg border border-border bg-slate-50/70 p-3 space-y-3">
                   <p className="eyebrow text-[0.6rem] text-muted-foreground">Quote Line {index + 1}</p>
                   <SelectField label="Category" name="category[]" defaultValue={index === 0 ? "Admin coordination" : ""} options={[{ value: "", label: "Select category..." }, ...QUOTE_CATEGORIES.map((c) => ({ value: c, label: c }))]} />
                   <TextField label="Description" name="description[]" defaultValue={index === 0 ? `Operations support for ${mission.ref}` : ""} />

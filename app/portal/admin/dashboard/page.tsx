@@ -93,7 +93,7 @@ export default async function AdminDashboardPage() {
           <Link
             key={item.href}
             href={item.href}
-            className="rounded-lg border border-border bg-background/50 px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:border-accent/60 hover:text-accent"
+            className="rounded-lg border border-border bg-slate-50/70 px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:border-accent/60 hover:text-accent"
           >
             {item.label}
           </Link>
