@@ -201,3 +201,11 @@ export function Notice({
     <div className={cn("rounded-lg border px-4 py-3 text-sm", cls)}>{children}</div>
   );
 }
+
+export const PortalPageHeader = PageHeader;
+export const PortalSection = SectionCard;
+export const PortalCard = SectionCard;
+export const PortalMetricCard = StatCard;
+export const PortalEmptyState = EmptyState;
+export const PortalErrorState = Notice;
+export const PortalLoadingState = EmptyState;

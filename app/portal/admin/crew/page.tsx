@@ -390,6 +390,7 @@ export default async function AdminCrewPage({
         backTo="/portal/admin/crew"
         emptyTitle="No crew match"
         emptyDescription="Adjust search or filters, or create a new crew member."
+        detailEyebrow="Crew Detail"
       />
     </PortalShell>
   );

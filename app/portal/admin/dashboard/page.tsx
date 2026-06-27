@@ -19,7 +19,7 @@ export default async function AdminDashboardPage() {
     listFormSubmissions({ status: "new" }),
   ]);
   const active = missions.filter((m) =>
-    ["submitted", "under_review", "approved", "crew_assigned", "scheduled", "in_progress"].includes(m.status)
+    ["submitted", "under_review", "awaiting_client_info", "quoted", "approved", "crew_assigned", "scheduled", "in_progress"].includes(m.status)
   );
 
   return (
@@ -28,6 +28,14 @@ export default async function AdminDashboardPage() {
         eyebrow="AMG Operations"
         title="Command Center"
         description="Operational oversight for support requests, owners, crew, documents, and approvals."
+        actions={
+          <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--amg-text-muted)]">
+            <span>Last updated {formatDateTime(new Date().toISOString())}</span>
+            <Link href="/portal/admin/dashboard" className="rounded-full border border-white/12 px-4 py-2 font-semibold text-slate-100 hover:border-primary/50">
+              Refresh
+            </Link>
+          </div>
+        }
       />
 
       {/* Attention items */}
@@ -40,13 +48,13 @@ export default async function AdminDashboardPage() {
             </Link>
           )}
           {metrics.newFormSubmissions > 0 && (
-            <Link href="/portal/admin/form-submissions" className="flex items-center gap-3 rounded-lg border border-sky-500/30 bg-sky-500/5 px-4 py-3 transition-colors hover:border-sky-500/60">
+            <Link href="/portal/admin/form-submissions?status=new" className="flex items-center gap-3 rounded-lg border border-sky-500/30 bg-sky-500/5 px-4 py-3 transition-colors hover:border-sky-500/60">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sky-500/15 text-xs font-bold text-sky-100">{metrics.newFormSubmissions}</span>
               <span className="text-sm font-medium text-sky-100">New form submission{metrics.newFormSubmissions !== 1 ? "s" : ""}</span>
             </Link>
           )}
           {metrics.submittedMissions > 0 && (
-            <Link href="/portal/admin/trips" className="flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 transition-colors hover:border-primary/60">
+            <Link href="/portal/admin/trips?status=submitted" className="flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 transition-colors hover:border-primary/60">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">{metrics.submittedMissions}</span>
               <span className="text-sm font-medium text-blue-100">Unreviewed support request{metrics.submittedMissions !== 1 ? "s" : ""}</span>
             </Link>
@@ -56,18 +64,18 @@ export default async function AdminDashboardPage() {
 
       {/* KPI metrics */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <StatCard label="Active missions" value={metrics.activeMissions} href="/portal/admin/mission-control" tone={metrics.activeMissions ? "accent" : "default"} />
-        <StatCard label="New requests" value={metrics.submittedMissions} href="/portal/admin/trips" tone={metrics.submittedMissions ? "warn" : "default"} />
+        <StatCard label="Active missions" value={metrics.activeMissions} href="/portal/admin/trips?status=active" tone={metrics.activeMissions ? "accent" : "default"} />
+        <StatCard label="New requests" value={metrics.submittedMissions} href="/portal/admin/trips?status=submitted" tone={metrics.submittedMissions ? "warn" : "default"} />
         <StatCard label="Pending users" value={metrics.pendingUsers} href="/portal/admin/user-approvals" tone={metrics.pendingUsers ? "warn" : "default"} />
-        <StatCard label="Document reviews" value={metrics.pendingDocuments} href="/portal/admin/documents" tone={metrics.pendingDocuments ? "warn" : "default"} />
-        <StatCard label="Open invoices" value={metrics.openInvoices} href="/portal/admin/invoices" tone={metrics.openInvoices ? "accent" : "default"} />
+        <StatCard label="Document reviews" value={metrics.pendingDocuments} href="/portal/admin/documents?status=pending_review" tone={metrics.pendingDocuments ? "warn" : "default"} />
+        <StatCard label="Open invoices" value={metrics.openInvoices} href="/portal/admin/invoices?status=sent" tone={metrics.openInvoices ? "accent" : "default"} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Form submissions" value={metrics.newFormSubmissions} href="/portal/admin/form-submissions" tone={metrics.newFormSubmissions ? "info" : "default"} detail="Unreviewed" />
+        <StatCard label="Form submissions" value={metrics.newFormSubmissions} href="/portal/admin/form-submissions?status=new" tone={metrics.newFormSubmissions ? "info" : "default"} detail="Unreviewed" />
         <StatCard label="Subscriptions" value={metrics.activeSubscriptions} href="/portal/admin/subscriptions" tone={metrics.activeSubscriptions ? "accent" : "default"} />
-        <StatCard label="Subscription overages" value={metrics.subscriptionOverages} href="/portal/admin/subscriptions" tone={metrics.subscriptionOverages ? "warn" : "default"} />
-        <StatCard label="Expense reviews" value={metrics.pendingExpenses} href="/portal/admin/expenses" tone={metrics.pendingExpenses ? "warn" : "default"} />
+        <StatCard label="Subscription overages" value={metrics.subscriptionOverages} href="/portal/admin/subscriptions?view=overages" tone={metrics.subscriptionOverages ? "warn" : "default"} />
+        <StatCard label="Expense reviews" value={metrics.pendingExpenses} href="/portal/admin/expenses?status=submitted" tone={metrics.pendingExpenses ? "warn" : "default"} />
       </div>
 
       {/* Quick actions */}
@@ -98,7 +106,7 @@ export default async function AdminDashboardPage() {
           title="Active Support Requests"
           icon="radar"
           actions={
-            <Link href="/portal/admin/trips" className="text-xs text-accent hover:underline">
+            <Link href="/portal/admin/trips?status=active" className="text-xs text-accent hover:underline">
               View all
             </Link>
           }
@@ -165,7 +173,7 @@ export default async function AdminDashboardPage() {
           icon="clipboard"
           description="Unreviewed Contact and Request Support submissions from the public site."
           actions={
-            <Link href="/portal/admin/form-submissions" className="text-xs text-accent hover:underline">
+            <Link href="/portal/admin/form-submissions?status=new" className="text-xs text-accent hover:underline">
               View all
             </Link>
           }

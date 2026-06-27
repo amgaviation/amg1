@@ -45,3 +45,5 @@ export function RoleBadge({ role }: { role: string }) {
   };
   return <StatusBadge label={labels[role] ?? role} tone={tones[role] ?? "neutral"} />;
 }
+
+export const PortalStatusBadge = StatusBadge;

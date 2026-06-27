@@ -176,3 +176,9 @@ export function FileField({
     </Field>
   );
 }
+
+export const PortalFormField = Field;
+export const PortalSearchInput = TextField;
+export const PortalTextarea = TextAreaField;
+export const PortalSelect = SelectField;
+export const PortalDateField = TextField;
