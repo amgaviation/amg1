@@ -49,8 +49,8 @@ async function createLegacyCrewEmailDraft(client: Db, input: PersistCrewEmailDra
   const { data: thread, error: threadError } = await client
     .from("message_threads")
     .insert({
-      scope_type: "crew",
-      scope_id: input.crewId,
+      scope_type: input.missionId ? "mission" : "general",
+      scope_id: input.missionId || input.crewId,
       mission_id: input.missionId || null,
       title: input.subject,
       last_message_at: input.timestamp,
