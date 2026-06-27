@@ -6,6 +6,7 @@ import React from "react";
 import {
   Document,
   Image,
+  Link,
   Page,
   StyleSheet,
   Text,
@@ -45,6 +46,7 @@ export type BillingPdfInput = {
   total: number;
   terms?: string | null;
   paymentInstructions?: string | null;
+  payOnlineUrl?: string | null;
   disclaimer?: string | null;
   payment?: {
     amount: number;
@@ -122,6 +124,7 @@ const styles = StyleSheet.create({
   grandTotal: { fontSize: 13, fontWeight: 700, color: "#0c2242" },
   section: { marginTop: 18 },
   paragraph: { color: "#526070" },
+  payLink: { color: "#0c2242", fontWeight: 700, textDecoration: "underline" },
   footer: {
     position: "absolute",
     left: 36,
@@ -304,6 +307,11 @@ function BillingPdfDocument({ input }: { input: BillingPdfInput }) {
           <View style={styles.section}>
             <Text style={styles.panelTitle}>Payment Instructions</Text>
             <Text style={styles.paragraph}>{input.paymentInstructions}</Text>
+            {input.payOnlineUrl ? (
+              <Text style={styles.paragraph}>
+                Pay online: <Link src={input.payOnlineUrl} style={styles.payLink}>{input.payOnlineUrl}</Link>
+              </Text>
+            ) : null}
           </View>
         ) : null}
 

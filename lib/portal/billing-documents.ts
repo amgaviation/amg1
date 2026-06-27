@@ -252,6 +252,7 @@ export async function buildInvoicePdfInput(invoiceId: string): Promise<BillingPd
     total: dollars(invoice.total),
     terms: invoice.terms ?? settingsTerms(settings, "invoice"),
     paymentInstructions: invoice.payment_instructions ?? combinedPaymentInstructions(settings),
+    payOnlineUrl: invoice.stripe_payment_url ?? invoice.payment_link_url ?? null,
     disclaimer: settingsDisclaimer(settings, "invoice"),
   };
 }

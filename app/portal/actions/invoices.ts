@@ -92,7 +92,7 @@ export async function createInvoiceFromQuote(formData: FormData) {
     entityType: "invoice",
     entityId: invoiceId,
   });
-  if (quote.client_id) {
+  if (quote.client_id && str(formData, "intent") !== "send") {
     await notifyUser({
       userId: quote.client_id,
       title: str(formData, "intent") === "send" ? "Invoice issued" : "Invoice drafted",
@@ -164,14 +164,6 @@ export async function createStandaloneInvoice(formData: FormData) {
   if (status === "sent") {
     await emailInvoicePdf(invoice.id, admin.id).catch((error) => {
       console.error("[billing] failed to email standalone invoice PDF", invoice.id, error);
-    });
-    await notifyUser({
-      userId: clientId,
-      title: "Invoice issued",
-      body: `${invoice.invoice_number} is available in your billing portal.`,
-      type: "invoice_issued",
-      entityType: "invoice",
-      entityId: invoice.id,
     });
   }
   revalidatePath("/portal/admin/invoices");
@@ -370,16 +362,6 @@ export async function sendInvoicePdf(formData: FormData) {
     entityType: "invoice",
     entityId: invoiceId,
   });
-  if (invoice.client_id) {
-    await notifyUser({
-      userId: invoice.client_id,
-      title: "Invoice issued",
-      body: `${invoice.invoice_number} is available in your billing portal.`,
-      type: "invoice_issued",
-      entityType: "invoice",
-      entityId: invoiceId,
-    });
-  }
   revalidatePath(`/portal/admin/invoices/${invoiceId}`);
   revalidatePath("/portal/admin/invoices");
   revalidatePath("/portal/client/billing");
@@ -518,14 +500,6 @@ export async function updateInvoiceStatus(formData: FormData) {
   if (invoice.client_id && status === "sent") {
     await emailInvoicePdf(invoiceId, admin.id).catch((error) => {
       console.error("[billing] failed to email invoice PDF after status update", invoiceId, error);
-    });
-    await notifyUser({
-      userId: invoice.client_id,
-      title: "Invoice issued",
-      body: `${invoice.invoice_number} is available in your billing portal.`,
-      type: "invoice_issued",
-      entityType: "invoice",
-      entityId: invoiceId,
     });
   }
   if (invoice.client_id && status === "paid" && Number(invoice.amount_due ?? 0) > 0) {
