@@ -12,9 +12,11 @@ import {
   type CrewEmailTemplateKey,
   type CrewEmailVariables,
 } from "@/lib/portal/crew-email-templates";
+import { persistCrewEmailDraft, type CrewEmailDraftMode } from "@/lib/portal/crew-email-storage";
 import type { SessionUser } from "@/lib/portal/session";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logServerError } from "@/lib/errors/user-facing-errors";
+import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
 
 type Db = Awaited<ReturnType<typeof createServiceClient>> & {
   from: (table: string) => any;
@@ -279,85 +281,55 @@ export async function sendCrewEmail(input: CrewEmailSendInput, user: SessionUser
 
   let threadId: string | undefined;
   let messageId: string | undefined;
+  let draftMode: CrewEmailDraftMode | undefined;
 
   try {
-    const threadPublicId = generateCommunicationPublicId("THR");
-    const { data: thread, error: threadError } = await client
-      .from("communication_threads")
-      .insert({
-        public_id: threadPublicId,
-        subject,
-        status: "new",
-        priority: "normal",
-        channel: "email",
-        created_by_user_id: user.id,
-        related_request_id: input.missionId || null,
-        last_message_at: now(),
-      })
-      .select("id,public_id")
-      .single();
-
-    if (threadError || !thread) throw threadError ?? new Error("Unable to create crew communication thread");
-    threadId = thread.id;
-
-    await client.from("communication_participants").insert({
-      thread_id: thread.id,
-      participant_type: "crew",
-      user_id: input.crewId,
-      crew_id: input.crewId,
-      email: recipientEmail,
-      name: context.variables.crew_full_name,
-      role_label: "Crew",
-      is_primary: true,
-    });
-
-    const subjectWithToken = subjectWithThreadToken(subject, thread.public_id);
     const text = operationalEmailText(body);
     const html = operationalEmailHtml(body);
     const providerConfigured = provider.configured();
+    const draft = await persistCrewEmailDraft(client, {
+      user,
+      crewId: input.crewId,
+      recipientEmail,
+      recipientName: context.variables.crew_full_name,
+      missionId: input.missionId,
+      subject,
+      bodyText: text,
+      bodyHtml: html,
+      providerName: provider.name,
+      providerConfigured,
+      templateKey: template.key,
+      variables: context.variables,
+      threadPublicId: generateCommunicationPublicId("THR"),
+      messagePublicId: generateCommunicationPublicId("MSG"),
+      timestamp: now(),
+    });
 
-    const { data: message, error: messageError } = await client
-      .from("communication_messages")
-      .insert({
-        thread_id: thread.id,
-        public_id: generateCommunicationPublicId("MSG"),
-        message_type: "email",
-        direction: "outbound",
-        visibility: "internal",
-        status: providerConfigured ? "queued" : "failed",
-        provider: provider.name,
-        from_name: "AMG Operations",
-        to_emails: [recipientEmail],
-        subject: subjectWithToken,
-        body_text: text,
-        body_html: html,
-        sent_by_user_id: user.id,
-        created_by_user_id: user.id,
-        failed_at: providerConfigured ? null : now(),
-        failure_reason: providerConfigured ? null : "Email provider is not configured",
-        raw_payload: {
-          template_key: template.key,
-          variables: context.variables,
-          recipient_type: "crew",
-          recipient_id: input.crewId,
-        },
-      })
-      .select("id")
-      .single();
-
-    if (messageError || !message) throw messageError ?? new Error("Unable to create crew communication message");
-    messageId = message.id;
+    threadId = draft.threadId;
+    messageId = draft.messageId;
+    draftMode = draft.mode;
+    const subjectWithToken = subjectWithThreadToken(subject, draft.threadToken);
 
     if (!providerConfigured) {
-      await client.from("communication_threads").update({ status: "action_required", updated_at: now() }).eq("id", thread.id);
-      await client.from("communication_audit_log").insert({
-        thread_id: thread.id,
-        message_id: message.id,
-        actor_user_id: user.id,
-        event_type: "send_failed",
-        metadata: { reason: "configuration_missing", template_key: template.key, recipient_type: "crew", recipient_id: input.crewId },
-      });
-      return { ok: false, reason: "configuration", threadId: thread.id, messageId: message.id };
+      if (draft.mode === "communication") {
+        await client.from("communication_threads").update({ status: "action_required", updated_at: now() }).eq("id", draft.threadId);
+        await client.from("communication_audit_log").insert({
+          thread_id: draft.threadId,
+          message_id: draft.messageId,
+          actor_user_id: user.id,
+          event_type: "send_failed",
+          metadata: { reason: "configuration_missing", template_key: template.key, recipient_type: "crew", recipient_id: input.crewId },
+        });
+      } else {
+        await logAuditEvent({
+          actor: user,
+          action: "crew_email_send_failed",
+          detail: "Crew email provider is not configured",
+          entityType: "thread",
+          entityId: draft.threadId,
+        });
+      }
+      return { ok: false, reason: "configuration", threadId: draft.threadId, messageId: draft.messageId };
     }
 
     const result = await provider.sendEmail({
@@ -366,47 +338,77 @@ export async function sendCrewEmail(input: CrewEmailSendInput, user: SessionUser
       text,
       html,
       replyTo: process.env.EMAIL_INBOUND_DOMAIN
-        ? `thread+${thread.public_id}@${process.env.EMAIL_INBOUND_DOMAIN}`
+        ? `thread+${draft.threadToken}@${process.env.EMAIL_INBOUND_DOMAIN}`
         : replyToAddress(),
       headers: {
-        "X-AMG-Thread-ID": thread.public_id,
+        "X-AMG-Thread-ID": draft.threadToken,
         "X-AMG-Recipient-Type": "crew",
       },
     });
 
     if (!result.ok) {
-      await client.from("communication_messages").update({
-        status: "failed",
-        failed_at: now(),
-        failure_reason: result.error,
-      }).eq("id", message.id);
-      await client.from("communication_threads").update({ status: "action_required", updated_at: now(), last_message_at: now() }).eq("id", thread.id);
-      await client.from("communication_audit_log").insert({
-        thread_id: thread.id,
-        message_id: message.id,
-        actor_user_id: user.id,
-        event_type: "send_failed",
-        metadata: { provider: result.provider, template_key: template.key, recipient_type: "crew", recipient_id: input.crewId },
-      });
-      return { ok: false, reason: "provider", threadId: thread.id, messageId: message.id };
+      if (draft.mode === "communication") {
+        await client.from("communication_messages").update({
+          status: "failed",
+          failed_at: now(),
+          failure_reason: result.error,
+        }).eq("id", draft.messageId);
+        await client.from("communication_threads").update({ status: "action_required", updated_at: now(), last_message_at: now() }).eq("id", draft.threadId);
+        await client.from("communication_audit_log").insert({
+          thread_id: draft.threadId,
+          message_id: draft.messageId,
+          actor_user_id: user.id,
+          event_type: "send_failed",
+          metadata: { provider: result.provider, template_key: template.key, recipient_type: "crew", recipient_id: input.crewId },
+        });
+      } else {
+        await logAuditEvent({
+          actor: user,
+          action: "crew_email_send_failed",
+          detail: result.error ?? "Crew email provider send failed",
+          entityType: "thread",
+          entityId: draft.threadId,
+        });
+      }
+      return { ok: false, reason: "provider", threadId: draft.threadId, messageId: draft.messageId };
     }
 
-    await client.from("communication_messages").update({
-      status: result.status === "sent" ? "sent" : "queued",
-      provider: result.provider,
-      provider_message_id: result.providerMessageId,
-      sent_at: now(),
-    }).eq("id", message.id);
-    await client.from("communication_threads").update({ status: "waiting_on_crew", updated_at: now(), last_message_at: now() }).eq("id", thread.id);
-    await client.from("communication_audit_log").insert({
-      thread_id: thread.id,
-      message_id: message.id,
-      actor_user_id: user.id,
-      event_type: "message_sent",
-      metadata: { provider: result.provider, template_key: template.key, recipient_type: "crew", recipient_id: input.crewId },
-    });
+    if (draft.mode === "communication") {
+      await client.from("communication_messages").update({
+        status: result.status === "sent" ? "sent" : "queued",
+        provider: result.provider,
+        provider_message_id: result.providerMessageId,
+        sent_at: now(),
+      }).eq("id", draft.messageId);
+      await client.from("communication_threads").update({ status: "waiting_on_crew", updated_at: now(), last_message_at: now() }).eq("id", draft.threadId);
+      await client.from("communication_audit_log").insert({
+        thread_id: draft.threadId,
+        message_id: draft.messageId,
+        actor_user_id: user.id,
+        event_type: "message_sent",
+        metadata: { provider: result.provider, template_key: template.key, recipient_type: "crew", recipient_id: input.crewId },
+      });
+    } else {
+      await Promise.all([
+        notifyUser({
+          userId: input.crewId,
+          title: "New AMG Operations message",
+          body: subject,
+          type: "message",
+          entityType: "thread",
+          entityId: draft.threadId,
+        }),
+        logAuditEvent({
+          actor: user,
+          action: "crew_email_sent",
+          detail: `Crew email sent to ${recipientEmail}`,
+          entityType: "thread",
+          entityId: draft.threadId,
+        }),
+      ]);
+    }
 
-    return { ok: true, threadId: thread.id, messageId: message.id };
+    return { ok: true, threadId: draft.threadId, messageId: draft.messageId };
   } catch (error) {
     const referenceId = logServerError("Crew email send failed", error, {
       userId: user.id,
@@ -414,8 +416,10 @@ export async function sendCrewEmail(input: CrewEmailSendInput, user: SessionUser
       threadId,
       messageId,
     });
-    if (threadId) await client.from("communication_threads").update({ status: "action_required", updated_at: now() }).eq("id", threadId);
-    if (messageId) await client.from("communication_messages").update({ status: "failed", failed_at: now(), failure_reason: "Server-side send failure" }).eq("id", messageId);
+    if (draftMode === "communication") {
+      if (threadId) await client.from("communication_threads").update({ status: "action_required", updated_at: now() }).eq("id", threadId);
+      if (messageId) await client.from("communication_messages").update({ status: "failed", failed_at: now(), failure_reason: "Server-side send failure" }).eq("id", messageId);
+    }
     return { ok: false, reason: "unknown", threadId, messageId, referenceId };
   }
 }
