@@ -43,6 +43,15 @@ class FakeQuery {
       return Promise.resolve({ data: null, error: missingCommunicationThread });
     }
     if (this.table === "message_threads") {
+      if ((this.payload as { scope_type?: string })?.scope_type === "crew") {
+        return Promise.resolve({
+          data: null,
+          error: {
+            code: "23514",
+            message: 'new row for relation "message_threads" violates check constraint "message_threads_scope_type_check"',
+          },
+        });
+      }
       return Promise.resolve({ data: { id: "legacy-thread-id" }, error: null });
     }
     if (this.table === "messages") {
@@ -102,6 +111,15 @@ async function main() {
 
   assert.equal(calls.some((call) => call.table === "communication_threads" && call.operation === "insert"), true);
   assert.equal(calls.some((call) => call.table === "message_threads" && call.operation === "insert"), true);
+  assert.equal(
+    calls.some(
+      (call) =>
+        call.table === "message_threads" &&
+        call.operation === "insert" &&
+        (call.payload as { scope_type?: string }).scope_type === "crew"
+    ),
+    false
+  );
   assert.equal(calls.some((call) => call.table === "thread_members" && call.operation === "insert"), true);
   assert.equal(calls.some((call) => call.table === "messages" && call.operation === "insert"), true);
   assert.equal(calls.some((call) => call.table === "communication_messages" && call.operation === "insert"), false);
