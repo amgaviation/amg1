@@ -36,7 +36,7 @@ export default async function AdminMissionControlPage({
               ) : (
                 <div className="space-y-3">
                   {rows.map((mission) => (
-                    <div key={mission.id} className="rounded-lg border border-border bg-background/50 p-4">
+                    <div key={mission.id} className="rounded-lg border border-border bg-slate-50/70 p-4">
                       <Link href={`/portal/admin/trips/${mission.id}`} className="font-mono text-xs text-accent hover:underline">{mission.ref}</Link>
                       <p className="mt-1 text-sm font-semibold">{formatRoute(mission.departure_airport, mission.arrival_airport)}</p>
                       <p className="mt-1 text-xs text-muted-foreground">{formatDateTime(mission.requested_departure)}</p>

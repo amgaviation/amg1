@@ -505,13 +505,13 @@ export default async function AdminMessagesPage({
           </div>
         </div>
 
-        <div className="grid min-h-[42rem] xl:grid-cols-[minmax(20rem,28rem)_minmax(0,1fr)]">
+        <div className="grid xl:grid-cols-[minmax(20rem,28rem)_minmax(0,1fr)]">
           <section className="border-b border-slate-200 xl:border-b-0 xl:border-r">
             <div className="border-b border-slate-200 p-4">
               <p className="text-sm font-semibold text-slate-950">{threads.length} thread{threads.length === 1 ? "" : "s"}</p>
               <p className="mt-1 text-xs text-slate-500">Unread, failed, and linked operational messages surface here.</p>
             </div>
-            <div className="max-h-[42rem] overflow-y-auto">
+            <div>
               {threads.length ? (
                 threads.map((thread) => <ThreadRow key={thread.id} thread={thread} selectedId={params.thread} query={query} />)
               ) : (

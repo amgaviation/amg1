@@ -1043,50 +1043,11 @@ html {
 }
 
 .amg-portal {
-  --portal-panel: rgba(7, 17, 31, 0.88);
-  --portal-panel-strong: rgba(7, 17, 31, 0.96);
-  --portal-line: rgba(192, 199, 209, 0.15);
-  --portal-muted: #9CA3AF;
-  --portal-soft: #C0C7D1;
-  background:
-    radial-gradient(circle at 82% 0%, rgba(59, 130, 246, 0.14), transparent 28rem),
-    linear-gradient(180deg, #050B14, #07111F 46%, #050B14);
-}
-
-.amg-portal .bg-white {
-  background-color: var(--portal-panel) !important;
-}
-
-.amg-portal [class*="bg-white/"] {
-  background-color: rgba(7, 17, 31, 0.72) !important;
-}
-
-.amg-portal .bg-slate-50,
-.amg-portal .bg-slate-100,
-.amg-portal .bg-sky-50,
-.amg-portal .bg-blue-50 {
-  background-color: rgba(192, 199, 209, 0.08) !important;
-}
-
-.amg-portal .border-slate-200,
-.amg-portal .border-slate-300,
-.amg-portal .border-slate-100,
-.amg-portal .border-white\/10 {
-  border-color: var(--portal-line) !important;
-}
-
-.amg-portal .text-slate-950,
-.amg-portal .text-slate-900,
-.amg-portal .text-slate-800 {
-  color: #FFFFFF !important;
-}
-
-.amg-portal .text-slate-700,
-.amg-portal .text-slate-600,
-.amg-portal .text-slate-500,
-.amg-portal .text-slate-400,
-.amg-portal .text-slate-300 {
-  color: var(--portal-muted) !important;
+  --portal-panel: #FFFFFF;
+  --portal-panel-strong: #FFFFFF;
+  --portal-line: #E5E7EB;
+  --portal-muted: #4B5563;
+  --portal-soft: #9CA3AF;
 }
 
 .amg-portal table {
@@ -1094,7 +1055,7 @@ html {
 }
 
 .amg-portal thead {
-  background-color: rgba(192, 199, 209, 0.08);
+  background-color: #F8FAFC;
 }
 
 .amg-portal tr:hover {
@@ -1102,27 +1063,8 @@ html {
 }
 
 .amg-portal option {
-  background: #07111F;
-  color: #FFFFFF;
-}
-
-.amg-portal .shadow-sm,
-.amg-portal .shadow-lg,
-.amg-portal .shadow-xl {
-  box-shadow: 0 18px 58px rgba(0, 0, 0, 0.22) !important;
-}
-
-.amg-portal input,
-.amg-portal textarea,
-.amg-portal select {
-  background-color: rgba(5, 11, 20, 0.72);
-  border-color: var(--portal-line);
-  color: #FFFFFF;
-}
-
-.amg-portal input::placeholder,
-.amg-portal textarea::placeholder {
-  color: rgba(192, 199, 209, 0.55);
+  background: #FFFFFF;
+  color: #050B14;
 }
 
 /* ==========================================================================
