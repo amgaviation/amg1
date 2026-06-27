@@ -164,10 +164,13 @@ export async function createQuote(formData: FormData) {
     entityType: "quote",
     entityId: quote?.id ?? null,
   });
+  let quoteEmailSent = false;
   if (sendNow && quote) {
-    await emailQuotePdf(quote.id, admin.id).catch((error) => {
+    const quoteEmail = await emailQuotePdf(quote.id, admin.id).catch((error) => {
       console.error("[billing] failed to email quote PDF", quote.id, error);
+      return null;
     });
+    quoteEmailSent = quoteEmail?.result.status === "sent";
   }
   if (clientId && sendNow) {
     await notifyUser({
@@ -177,9 +180,10 @@ export async function createQuote(formData: FormData) {
       type: "quote_sent",
       entityType: "quote",
       entityId: quote?.id ?? null,
+      sendEmail: false,
     });
   }
-  if (quote && sendNow && missionId) {
+  if (quote && sendNow && missionId && !quoteEmailSent) {
     await notifyMissionContactByEmail({
       missionId,
       title: "Quote ready for review",
@@ -365,6 +369,7 @@ export async function sendQuote(formData: FormData) {
       type: "quote_sent",
       entityType: "quote",
       entityId: quoteId,
+      sendEmail: false,
     });
   }
   revalidatePath(`/portal/admin/quotes/${quoteId}`);

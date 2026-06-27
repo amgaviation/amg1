@@ -10,8 +10,11 @@ export function generateCommunicationPublicId(prefix: string) {
 }
 
 export function subjectWithThreadToken(subject: string, threadPublicId: string) {
-  if (subject.includes(`[AMG-${threadPublicId}]`)) return subject;
-  return `[AMG-${threadPublicId}] ${subject}`.trim();
+  return subject
+    .replace(/\s*\[AMG-[^\]]+\]\s*/gi, " ")
+    .replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 export function extractThreadPublicId(input?: string | null) {

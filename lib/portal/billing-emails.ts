@@ -1,5 +1,7 @@
 import "server-only";
 
+import { absolutePortalUrl } from "@/lib/email/config";
+import { renderOperationalEmail } from "@/lib/email/templates";
 import { createServiceClient } from "@/lib/supabase/server";
 import { sendEmail } from "@/lib/portal/notification-delivery";
 import {
@@ -54,12 +56,22 @@ export async function emailQuotePdf(quoteId: string, actorId?: string | null) {
   const email = await clientEmailFor("quotes", quoteId);
   if (!email.to) return null;
   const pdf = await generateAndStoreQuotePdf(quoteId, actorId);
+  const subject = `Quote ${pdf.document.document_number} from AMG Aviation Group`;
+  const rendered = renderOperationalEmail({
+    title: subject,
+    preheader: `Your AMG Aviation Group quote ${pdf.document.document_number} is attached for review.`,
+    body:
+      "AMG Aviation Group has prepared a quote for your review. The quote PDF is attached to this email and remains subject to AMG operational review, availability, and final acceptance.",
+    details: [{ label: "Quote", value: pdf.document.document_number }],
+    portalUrl: absolutePortalUrl("/portal/client/quotes"),
+    showPortalCta: true,
+  });
   const result = await sendEmail({
     to: email.to,
     cc: email.cc,
-    subject: `AMG Aviation Group quote ${pdf.document.document_number}`,
-    text: `Your AMG Aviation Group quote ${pdf.document.document_number} is attached for review.`,
-    html: `<p>Your AMG Aviation Group quote <strong>${pdf.document.document_number}</strong> is attached for review.</p>`,
+    subject,
+    text: rendered.text,
+    html: rendered.html,
     attachments: [attachment(pdf)],
   });
   if (result.status === "sent") {
@@ -72,12 +84,22 @@ export async function emailInvoicePdf(invoiceId: string, actorId?: string | null
   const email = await clientEmailFor("invoices", invoiceId);
   if (!email.to) return null;
   const pdf = await generateAndStoreInvoicePdf(invoiceId, actorId);
+  const subject = `Invoice ${pdf.document.document_number} from AMG Aviation Group`;
+  const rendered = renderOperationalEmail({
+    title: subject,
+    preheader: `Your AMG Aviation Group invoice ${pdf.document.document_number} is attached.`,
+    body:
+      "AMG Aviation Group has issued an invoice for your review. The invoice PDF is attached to this email and includes the current billing details and payment instructions.",
+    details: [{ label: "Invoice", value: pdf.document.document_number }],
+    portalUrl: absolutePortalUrl("/portal/client/billing"),
+    showPortalCta: true,
+  });
   const result = await sendEmail({
     to: email.to,
     cc: email.cc,
-    subject: `AMG Aviation Group invoice ${pdf.document.document_number}`,
-    text: `Your AMG Aviation Group invoice ${pdf.document.document_number} is attached.`,
-    html: `<p>Your AMG Aviation Group invoice <strong>${pdf.document.document_number}</strong> is attached.</p>`,
+    subject,
+    text: rendered.text,
+    html: rendered.html,
     attachments: [attachment(pdf)],
   });
   if (result.status === "sent") {
@@ -90,12 +112,22 @@ export async function emailReceiptPdf(paymentId: string, actorId?: string | null
   const email = await paymentClientEmail(paymentId);
   if (!email.to) return null;
   const pdf = await generateAndStoreReceiptPdf(paymentId, actorId);
+  const subject = `Receipt ${pdf.document.document_number} from AMG Aviation Group`;
+  const rendered = renderOperationalEmail({
+    title: subject,
+    preheader: `Your AMG Aviation Group payment receipt ${pdf.document.document_number} is attached.`,
+    body:
+      "AMG Aviation Group has recorded a payment update. The receipt PDF is attached to this email for your records.",
+    details: [{ label: "Receipt", value: pdf.document.document_number }],
+    portalUrl: absolutePortalUrl("/portal/client/billing"),
+    showPortalCta: true,
+  });
   const result = await sendEmail({
     to: email.to,
     cc: email.cc,
-    subject: `AMG Aviation Group receipt ${pdf.document.document_number}`,
-    text: `Your AMG Aviation Group payment receipt ${pdf.document.document_number} is attached.`,
-    html: `<p>Your AMG Aviation Group payment receipt <strong>${pdf.document.document_number}</strong> is attached.</p>`,
+    subject,
+    text: rendered.text,
+    html: rendered.html,
     attachments: [attachment(pdf)],
   });
   if (result.status === "sent") {

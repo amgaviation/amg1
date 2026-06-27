@@ -46,6 +46,7 @@ export async function notifyUser(params: {
   entityType?: string;
   entityId?: string | null;
   replyTo?: string;
+  sendEmail?: boolean;
 }): Promise<void> {
   try {
     const supabase = await createServiceClient();
@@ -62,15 +63,17 @@ export async function notifyUser(params: {
       .select("id")
       .single();
 
-    await queueNotificationDeliveries({
-      userId: params.userId,
-      notificationId: data?.id ?? null,
-      title: params.title,
-      body: params.body ?? null,
-      html: params.html ?? null,
-      eventType: params.type ?? null,
-      replyTo: params.replyTo ?? null,
-    });
+    if (params.sendEmail !== false) {
+      await queueNotificationDeliveries({
+        userId: params.userId,
+        notificationId: data?.id ?? null,
+        title: params.title,
+        body: params.body ?? null,
+        html: params.html ?? null,
+        eventType: params.type ?? null,
+        replyTo: params.replyTo ?? null,
+      });
+    }
   } catch (error) {
     console.error("[notify] failed to create notification", params.title, error);
   }
@@ -88,6 +91,7 @@ export async function notifyAdmins(params: {
   entityType?: string;
   entityId?: string | null;
   replyTo?: string;
+  sendEmail?: boolean;
 }): Promise<void> {
   try {
     const supabase = await createServiceClient();
@@ -109,6 +113,7 @@ export async function notifyAdmins(params: {
         entityType: params.entityType,
         entityId: params.entityId,
         replyTo: params.replyTo,
+        sendEmail: params.sendEmail,
       });
     }
   } catch (error) {

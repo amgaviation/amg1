@@ -61,9 +61,9 @@ export const CREW_EMAIL_TEMPLATES: CrewEmailTemplateSeed[] = [
     subject: "Accepted into the AMG Crew Network",
     body: `Hello {{crew_first_name}},
 
-AMG has accepted you into the AMG Crew Network.
+You have been accepted into the AMG Crew Network.
 
-This means AMG may contact you for mission opportunities when your qualifications, aircraft experience, location, availability, and operational fit align with a request. Mission contact is based on operational need and does not guarantee an assignment.
+AMG may contact you for mission opportunities when your qualifications, aircraft experience, location, availability, and operational fit align with a request. Mission contact is based on operational need and does not guarantee an assignment.
 
 Please keep your AMG portal profile, aircraft experience, credentials, contact details, and availability current.
 

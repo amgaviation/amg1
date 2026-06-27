@@ -2,7 +2,7 @@ import "server-only";
 
 import { AMG_EMAIL_BRAND, absolutePortalUrl, replyToAddress } from "@/lib/email/config";
 import { getEmailProvider, emailProviderStatus } from "@/lib/email/provider";
-import { operationalEmailHtml, operationalEmailText } from "@/lib/email/templates";
+import { renderOperationalEmail } from "@/lib/email/templates";
 import { generateCommunicationPublicId, isValidEmailAddress, subjectWithThreadToken } from "@/lib/email/threading";
 import {
   CREW_EMAIL_TEMPLATE_KEYS,
@@ -312,8 +312,16 @@ export async function sendCrewEmail(input: CrewEmailSendInput, user: SessionUser
     });
 
     const subjectWithToken = subjectWithThreadToken(subject, thread.public_id);
-    const text = operationalEmailText(body);
-    const html = operationalEmailHtml(body);
+    const renderedEmail = renderOperationalEmail({
+      title: subject,
+      preheader: body.split(/\n+/).find(Boolean) ?? subject,
+      body,
+      eyebrow: "Crew Network",
+      portalUrl: context.variables.portal_link,
+      showPortalCta: true,
+    });
+    const text = renderedEmail.text;
+    const html = renderedEmail.html;
     const providerConfigured = provider.configured();
 
     const { data: message, error: messageError } = await client

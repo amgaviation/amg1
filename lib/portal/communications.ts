@@ -2,11 +2,11 @@ import "server-only";
 
 import { createServiceClient } from "@/lib/supabase/server";
 import type { SessionUser } from "@/lib/portal/session";
-import { replyToAddress } from "@/lib/email/config";
+import { absolutePortalUrl, replyToAddress } from "@/lib/email/config";
 import { getEmailProvider, emailProviderStatus } from "@/lib/email/provider";
 import { COMMUNICATION_ATTACHMENT_BUCKET, communicationAttachmentPath, validateAttachment } from "@/lib/email/attachments";
 import { normalizeEmailList, isValidEmailAddress, generateCommunicationPublicId, subjectWithThreadToken, extractThreadPublicId } from "@/lib/email/threading";
-import { operationalEmailHtml, operationalEmailText, stripHtml, interpolateTemplate } from "@/lib/email/templates";
+import { renderOperationalEmail, stripHtml, interpolateTemplate } from "@/lib/email/templates";
 import type { NormalizedInboundMessage, SendEmailInput } from "@/lib/email/types";
 import { logServerError } from "@/lib/errors/user-facing-errors";
 
@@ -459,8 +459,16 @@ export async function sendCommunicationEmail(formData: FormData, user: SessionUs
 
     const messagePublicId = generateCommunicationPublicId("MSG");
     const subjectWithToken = subjectWithThreadToken(interpolateTemplate(subject, { threadPublicId: thread.public_id }), thread.public_id);
-    const text = operationalEmailText(interpolateTemplate(body, { threadPublicId: thread.public_id }));
-    const html = operationalEmailHtml(interpolateTemplate(body, { threadPublicId: thread.public_id }));
+    const renderedEmail = renderOperationalEmail({
+      title: subjectWithToken,
+      preheader: "New AMG Operations message",
+      body: interpolateTemplate(body, { threadPublicId: thread.public_id }),
+      eyebrow: "AMG Operations Message",
+      portalUrl: absolutePortalUrl("/portal"),
+      showPortalCta: true,
+    });
+    const text = renderedEmail.text;
+    const html = renderedEmail.html;
 
     const { data, error } = await client
       .from("communication_messages")

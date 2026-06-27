@@ -288,6 +288,7 @@ export async function updateMissionStatus(formData: FormData) {
       type: "mission_status",
       entityType: "mission",
       entityId: missionId,
+      sendEmail: false,
     });
   }
 

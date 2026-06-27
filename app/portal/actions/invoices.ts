@@ -103,6 +103,7 @@ export async function createInvoiceFromQuote(formData: FormData) {
       type: "invoice_issued",
       entityType: "invoice",
       entityId: invoiceId,
+      sendEmail: str(formData, "intent") === "send" ? false : undefined,
     });
   }
   revalidatePath("/portal/admin/invoices");
@@ -172,6 +173,7 @@ export async function createStandaloneInvoice(formData: FormData) {
       type: "invoice_issued",
       entityType: "invoice",
       entityId: invoice.id,
+      sendEmail: false,
     });
   }
   revalidatePath("/portal/admin/invoices");
@@ -378,6 +380,7 @@ export async function sendInvoicePdf(formData: FormData) {
       type: "invoice_issued",
       entityType: "invoice",
       entityId: invoiceId,
+      sendEmail: false,
     });
   }
   revalidatePath(`/portal/admin/invoices/${invoiceId}`);
@@ -482,6 +485,7 @@ export async function recordInvoicePayment(formData: FormData) {
       type: "invoice_payment",
       entityType: "invoice",
       entityId: invoiceId,
+      sendEmail: bool(formData, "send_receipt") ? false : undefined,
     });
   }
   revalidatePath(`/portal/admin/invoices/${invoiceId}`);
@@ -526,6 +530,7 @@ export async function updateInvoiceStatus(formData: FormData) {
       type: "invoice_issued",
       entityType: "invoice",
       entityId: invoiceId,
+      sendEmail: false,
     });
   }
   if (invoice.client_id && status === "paid" && Number(invoice.amount_due ?? 0) > 0) {
