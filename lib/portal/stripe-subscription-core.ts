@@ -79,6 +79,23 @@ export function buildSubscriptionCheckoutSummary(input: SubscriptionCheckoutSumm
   };
 }
 
+export function portalSubscriptionIdFromStripeSubscriptionLike(subscription: {
+  metadata?: Record<string, unknown> | null;
+  latest_invoice?: unknown;
+}) {
+  const direct = subscription.metadata?.portal_subscription_id;
+  if (typeof direct === "string" && direct.trim()) return direct;
+
+  const invoice = subscription.latest_invoice;
+  if (invoice && typeof invoice === "object" && "subscription_details" in invoice) {
+    const details = (invoice as { subscription_details?: { metadata?: Record<string, unknown> | null } | null }).subscription_details;
+    const fromInvoice = details?.metadata?.portal_subscription_id;
+    if (typeof fromInvoice === "string" && fromInvoice.trim()) return fromInvoice;
+  }
+
+  return null;
+}
+
 export function idempotencyKeyForSubscriptionAction(portalSubscriptionId: string, action: string) {
   return `amg-subscription-${portalSubscriptionId}-${action}`;
 }

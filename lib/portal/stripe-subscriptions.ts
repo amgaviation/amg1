@@ -14,6 +14,7 @@ import {
   idempotencyKeyForSubscriptionAction,
   mapStripeSubscriptionStatus,
   normalizedSubscriptionCurrency,
+  portalSubscriptionIdFromStripeSubscriptionLike,
   subscriptionSyncWarning,
   validateSubscriptionPriceMapping,
   type SubscriptionPriceMapping,
@@ -351,10 +352,12 @@ async function syncSubscription(
   const stripeStatus = mapStripeSubscriptionStatus(subscription.status);
   const interval = price?.recurring?.interval === "year" ? "annual" : "monthly";
   const eventAt = new Date(event.created * 1000).toISOString();
+  const metadataPortalSubscriptionId =
+    preferredPortalSubscriptionId ?? portalSubscriptionIdFromStripeSubscriptionLike(subscription);
 
   let portalSubscription: any = null;
-  if (preferredPortalSubscriptionId) {
-    const { data } = await db.from("client_subscriptions").select("*").eq("id", preferredPortalSubscriptionId).maybeSingle();
+  if (metadataPortalSubscriptionId) {
+    const { data } = await db.from("client_subscriptions").select("*").eq("id", metadataPortalSubscriptionId).maybeSingle();
     portalSubscription = data;
   }
   if (!portalSubscription) {
