@@ -6,7 +6,6 @@ import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fi
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { listAllAircraft, listClients, listSubscriptionPlans } from "@/lib/portal/queries";
-import { SUBSCRIPTION_STATUS } from "@/lib/portal/constants";
 
 export const metadata = { title: "New Subscription - Admin Portal" };
 
@@ -27,11 +26,17 @@ export default async function NewSubscriptionPage({
 
   return (
     <PortalShell role="admin" user={user}>
-      {params.error ? <Notice tone="danger">Subscription could not be created. Check required fields.</Notice> : null}
+      {params.error === "missing-price" ? (
+        <Notice tone="danger">This plan is not connected to a Stripe price yet.</Notice>
+      ) : params.error === "configuration" ? (
+        <Notice tone="danger">Stripe is not configured. Add STRIPE_SECRET_KEY before creating billing subscriptions.</Notice>
+      ) : params.error ? (
+        <Notice tone="danger">Subscription could not be created. Check required fields.</Notice>
+      ) : null}
       <PageHeader
         eyebrow="AMG Billing"
-        title="Create Subscription"
-        description="Assign an AMG support plan to a client, optionally tied to an aircraft."
+        title="Create Stripe Subscription Setup"
+        description="Create a pending portal mirror and send a Stripe-hosted subscription setup link to the client."
         actions={<Link href="/portal/admin/subscriptions" className="text-xs text-muted-foreground hover:text-accent">Back to subscriptions</Link>}
       />
 
@@ -64,7 +69,6 @@ export default async function NewSubscriptionPage({
               defaultValue=""
               options={[{ value: "", label: "Custom / no tier" }, ...tierOptions]}
             />
-            <SelectField label="Status" name="status" defaultValue="active" options={SUBSCRIPTION_STATUS.map((status) => ({ value: status.value, label: status.label }))} />
             <SelectField label="Billing Cadence" name="billing_cadence" defaultValue="monthly" options={[{ value: "monthly", label: "Monthly" }, { value: "annual", label: "Annual" }]} />
           </div>
         </SectionCard>
@@ -92,7 +96,7 @@ export default async function NewSubscriptionPage({
           </div>
         </SectionCard>
 
-        <SubmitButton className="rounded-full" pendingText="Creating...">Create Subscription</SubmitButton>
+        <SubmitButton className="rounded-full" pendingText="Creating...">Create Setup Link</SubmitButton>
       </form>
     </PortalShell>
   );

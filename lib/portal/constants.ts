@@ -251,15 +251,38 @@ export const PARTNER_TYPES = [
 // ─── Subscriptions ─────────────────────────────────────────────────
 export const SUBSCRIPTION_STATUS: Choice[] = [
   { value: "draft", label: "Draft", tone: "neutral" },
+  { value: "pending_checkout", label: "Pending Checkout", tone: "warn" },
+  { value: "trialing", label: "Trialing", tone: "accent" },
   { value: "active", label: "Active", tone: "success" },
   { value: "paused", label: "Paused", tone: "warn" },
   { value: "past_due", label: "Past Due", tone: "danger" },
+  { value: "unpaid", label: "Unpaid", tone: "danger" },
+  { value: "canceled", label: "Canceled", tone: "neutral" },
   { value: "cancelled", label: "Cancelled", tone: "neutral" },
+  { value: "incomplete", label: "Incomplete", tone: "warn" },
+  { value: "incomplete_expired", label: "Incomplete Expired", tone: "danger" },
   { value: "expired", label: "Expired", tone: "danger" },
   { value: "renewal_pending", label: "Renewal Pending", tone: "warn" },
+  { value: "needs_review", label: "Needs Review", tone: "danger" },
+  { value: "sync_error", label: "Sync Error", tone: "danger" },
 ];
 export const SUBSCRIPTION_STATUS_LABEL = buildLabelMap(SUBSCRIPTION_STATUS);
 export const SUBSCRIPTION_STATUS_TONE = buildToneMap(SUBSCRIPTION_STATUS);
+
+export const SUBSCRIPTION_SYNC_STATUS: Choice[] = [
+  { value: "manual", label: "Manual", tone: "neutral" },
+  { value: "pending_checkout", label: "Pending Checkout", tone: "warn" },
+  { value: "webhook_pending", label: "Webhook Pending", tone: "warn" },
+  { value: "synced", label: "Synced", tone: "success" },
+  { value: "needs_review", label: "Needs Review", tone: "danger" },
+  { value: "sync_error", label: "Sync Error", tone: "danger" },
+  { value: "price_mismatch", label: "Price Mismatch", tone: "danger" },
+  { value: "disconnected", label: "Disconnected", tone: "danger" },
+  { value: "stale", label: "Stale", tone: "warn" },
+  { value: "ignored", label: "Ignored", tone: "neutral" },
+];
+export const SUBSCRIPTION_SYNC_STATUS_LABEL = buildLabelMap(SUBSCRIPTION_SYNC_STATUS);
+export const SUBSCRIPTION_SYNC_STATUS_TONE = buildToneMap(SUBSCRIPTION_SYNC_STATUS);
 
 export const SUBSCRIPTION_PLAN_STATUS: Choice[] = [
   { value: "draft", label: "Draft", tone: "neutral" },

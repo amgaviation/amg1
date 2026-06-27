@@ -5,6 +5,14 @@ import { redirect } from "next/navigation";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
 import { createServiceClient } from "@/lib/supabase/server";
 import { actor, num, str } from "./_helpers";
+import {
+  cancelSubscriptionAtPeriodEnd,
+  createCustomerPortalSessionForUser,
+  createSubscriptionCheckoutSession,
+  linkStripeSubscriptionToClient,
+  markStripeSubscriptionIgnored,
+  refreshSubscriptionFromStripe,
+} from "@/lib/portal/stripe-subscriptions";
 
 function money(formData: FormData, key: string) {
   return num(formData, key) ?? 0;
@@ -28,6 +36,8 @@ export async function createSubscriptionPlan(formData: FormData) {
       base_admin_fee_annual: money(formData, "base_admin_fee_annual"),
       annual_discount_percent: num(formData, "annual_discount_percent") ?? 0,
       default_terms: str(formData, "default_terms") || null,
+      plan_code: str(formData, "plan_code") || null,
+      stripe_product_id: str(formData, "stripe_product_id") || null,
     })
     .select("id, name")
     .single();
@@ -45,6 +55,9 @@ export async function createSubscriptionPlan(formData: FormData) {
     priority_level: str(formData, "priority_level") || null,
     monthly_price: money(formData, "monthly_price"),
     annual_price: money(formData, "annual_price"),
+    stripe_monthly_price_id: str(formData, "stripe_monthly_price_id") || null,
+    stripe_annual_price_id: str(formData, "stripe_annual_price_id") || null,
+    stripe_product_id: str(formData, "stripe_product_id") || null,
   });
 
   await logAuditEvent({
@@ -64,11 +77,19 @@ export async function createClientSubscription(formData: FormData) {
   const clientId = str(formData, "client_id");
   const planId = str(formData, "plan_id");
   const tierId = str(formData, "tier_id");
-  if (!clientId || !planId) redirect("/portal/admin/subscriptions/new?error=missing");
+  const cadence = str(formData, "billing_cadence") || "monthly";
+  if (!clientId || !planId || !tierId) redirect("/portal/admin/subscriptions/new?error=missing");
+  if (!process.env.STRIPE_SECRET_KEY) redirect("/portal/admin/subscriptions/new?error=configuration");
 
-  const { data: tier } = tierId
-    ? await db.from("subscription_plan_tiers").select("*").eq("id", tierId).maybeSingle()
-    : { data: null };
+  const { data: tier } = await db
+    .from("subscription_plan_tiers")
+    .select("*, plan:plan_id(*)")
+    .eq("id", tierId)
+    .maybeSingle();
+  if (!tier) redirect("/portal/admin/subscriptions/new?error=missing");
+  const stripePriceId = cadence === "annual" ? tier.stripe_annual_price_id : tier.stripe_monthly_price_id;
+  if (!stripePriceId) redirect("/portal/admin/subscriptions/new?error=missing-price");
+
   const { data: subscription, error } = await db
     .from("client_subscriptions")
     .insert({
@@ -76,8 +97,8 @@ export async function createClientSubscription(formData: FormData) {
       aircraft_id: str(formData, "aircraft_id") || null,
       plan_id: planId,
       tier_id: tierId || null,
-      status: str(formData, "status") || "active",
-      billing_cadence: str(formData, "billing_cadence") || "monthly",
+      status: "pending_checkout",
+      billing_cadence: cadence,
       start_date: str(formData, "start_date") || new Date().toISOString().slice(0, 10),
       end_date: str(formData, "end_date") || null,
       renewal_date: str(formData, "renewal_date") || null,
@@ -90,23 +111,28 @@ export async function createClientSubscription(formData: FormData) {
       credit_balance: money(formData, "credit_balance"),
       notes: str(formData, "notes") || null,
       created_by: admin.id,
+      plan_name: tier.plan?.name ?? null,
+      plan_code: tier.plan?.plan_code ?? null,
+      tier_key: tier.name ?? null,
+      amount_cents: Math.round(Number((cadence === "annual" ? tier.annual_price : tier.monthly_price) ?? 0) * 100),
+      currency: "usd",
+      stripe_price_id: stripePriceId,
+      stripe_product_id: tier.stripe_product_id ?? tier.plan?.stripe_product_id ?? null,
+      stripe_sync_status: "pending_checkout",
+      stripe_sync_warning: "Checkout session created but not completed.",
+      source: "portal",
     })
     .select("id")
     .single();
   if (error || !subscription) redirect("/portal/admin/subscriptions/new?error=save");
 
+  const checkout = await createSubscriptionCheckoutSession(subscription.id, admin);
+  if (!checkout.ok) redirect(`/portal/admin/subscriptions/${subscription.id}?error=${checkout.reason}`);
+
   await logAuditEvent({
     actor: admin,
-    action: "client_subscription_created",
-    detail: `Created subscription for client ${clientId}`,
-    entityType: "client_subscription",
-    entityId: subscription.id,
-  });
-  await notifyUser({
-    userId: clientId,
-    title: "Subscription activated",
-    body: "Your AMG subscription is now available in the client portal.",
-    type: "subscription_updated",
+    action: "subscription_created_from_portal",
+    detail: `Created pending Stripe subscription setup for client ${clientId}`,
     entityType: "client_subscription",
     entityId: subscription.id,
   });
@@ -154,6 +180,64 @@ export async function updateSubscriptionStatus(formData: FormData) {
   revalidatePath(`/portal/admin/subscriptions/${subscriptionId}`);
   revalidatePath("/portal/client/subscriptions");
   redirect(`/portal/admin/subscriptions/${subscriptionId}?success=status`);
+}
+
+export async function refreshStripeSubscription(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const subscriptionId = str(formData, "subscription_id");
+  if (!subscriptionId) redirect("/portal/admin/subscriptions?error=missing");
+  const result = await refreshSubscriptionFromStripe(subscriptionId, admin);
+  revalidatePath(`/portal/admin/subscriptions/${subscriptionId}`);
+  revalidatePath("/portal/admin/subscriptions");
+  redirect(`/portal/admin/subscriptions/${subscriptionId}?${result.ok ? "success=refresh" : `error=${result.reason}`}`);
+}
+
+export async function cancelStripeSubscriptionAtPeriodEnd(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const subscriptionId = str(formData, "subscription_id");
+  if (!subscriptionId) redirect("/portal/admin/subscriptions?error=missing");
+  const result = await cancelSubscriptionAtPeriodEnd(subscriptionId, admin);
+  revalidatePath(`/portal/admin/subscriptions/${subscriptionId}`);
+  redirect(`/portal/admin/subscriptions/${subscriptionId}?${result.ok ? "success=cancel" : `error=${result.reason}`}`);
+}
+
+export async function resendSubscriptionSetupLink(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const subscriptionId = str(formData, "subscription_id");
+  if (!subscriptionId) redirect("/portal/admin/subscriptions?error=missing");
+  const result = await createSubscriptionCheckoutSession(subscriptionId, admin);
+  revalidatePath(`/portal/admin/subscriptions/${subscriptionId}`);
+  redirect(`/portal/admin/subscriptions/${subscriptionId}?${result.ok ? "success=setup" : `error=${result.reason}`}`);
+}
+
+export async function linkNeedsReviewSubscription(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const subscriptionId = str(formData, "subscription_id");
+  const clientId = str(formData, "client_id");
+  if (!subscriptionId || !clientId) redirect("/portal/admin/subscriptions?error=missing");
+  const result = await linkStripeSubscriptionToClient(subscriptionId, clientId, admin);
+  revalidatePath(`/portal/admin/subscriptions/${subscriptionId}`);
+  revalidatePath("/portal/admin/subscriptions");
+  redirect(`/portal/admin/subscriptions/${subscriptionId}?${result.ok ? "success=link" : `error=${result.reason}`}`);
+}
+
+export async function ignoreNeedsReviewSubscription(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const subscriptionId = str(formData, "subscription_id");
+  if (!subscriptionId) redirect("/portal/admin/subscriptions?error=missing");
+  const result = await markStripeSubscriptionIgnored(subscriptionId, admin);
+  revalidatePath(`/portal/admin/subscriptions/${subscriptionId}`);
+  revalidatePath("/portal/admin/subscriptions");
+  redirect(`/portal/admin/subscriptions/${subscriptionId}?${result.ok ? "success=ignored" : `error=${result.reason}`}`);
+}
+
+export async function manageSubscriptionBilling(formData: FormData) {
+  const user = await actor(["client", "admin"]);
+  const returnPath = str(formData, "return_to") || "/portal/client/subscriptions";
+  const result = await createCustomerPortalSessionForUser(user.id, returnPath);
+  if (!result.ok) redirect(`${returnPath}?error=${result.reason}`);
+  if (!result.url) redirect(`${returnPath}?error=portal`);
+  redirect(result.url);
 }
 
 export async function addSubscriptionUsage(formData: FormData) {

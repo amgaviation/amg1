@@ -1,16 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/portal/session";
-import { addSubscriptionCredit, addSubscriptionUsage, updateSubscriptionStatus } from "@/app/portal/actions/subscriptions";
+import { addSubscriptionCredit, addSubscriptionUsage, cancelStripeSubscriptionAtPeriodEnd, ignoreNeedsReviewSubscription, linkNeedsReviewSubscription, refreshStripeSubscription, resendSubscriptionSetupLink, updateSubscriptionStatus } from "@/app/portal/actions/subscriptions";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { DetailRow, Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
-import { getSubscriptionDetail, listAllMissions } from "@/lib/portal/queries";
-import { SUBSCRIPTION_CREDIT_TYPES, SUBSCRIPTION_STATUS, SUBSCRIPTION_STATUS_LABEL, SUBSCRIPTION_STATUS_TONE, SUBSCRIPTION_USAGE_TYPE_LABEL, SUBSCRIPTION_USAGE_TYPES, toneFor } from "@/lib/portal/constants";
+import { getSubscriptionDetail, listAllMissions, listClients } from "@/lib/portal/queries";
+import { SUBSCRIPTION_CREDIT_TYPES, SUBSCRIPTION_STATUS, SUBSCRIPTION_STATUS_LABEL, SUBSCRIPTION_STATUS_TONE, SUBSCRIPTION_SYNC_STATUS_LABEL, SUBSCRIPTION_SYNC_STATUS_TONE, SUBSCRIPTION_USAGE_TYPE_LABEL, SUBSCRIPTION_USAGE_TYPES, toneFor } from "@/lib/portal/constants";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/portal/format";
+import { stripeDashboardSubscriptionUrl } from "@/lib/portal/stripe-subscriptions";
 
 export const metadata = { title: "Subscription Detail - Admin Portal" };
 
@@ -24,7 +25,7 @@ export default async function AdminSubscriptionDetailPage({
   const user = await requireRole("admin");
   const { id } = await params;
   const flash = await searchParams;
-  const [subscription, missions] = await Promise.all([getSubscriptionDetail(id), listAllMissions()]);
+  const [subscription, missions, clients] = await Promise.all([getSubscriptionDetail(id), listAllMissions(), listClients()]);
   if (!subscription) notFound();
   const clientMissions = missions.filter((mission) => mission.client_id === subscription.client_id);
   const usageTotals = subscription.usage.reduce(
@@ -35,11 +36,13 @@ export default async function AdminSubscriptionDetailPage({
     { quantity: 0, overage: 0 },
   );
   const creditTotal = subscription.credits.reduce((sum, credit) => sum + Number(credit.amount ?? 0), 0);
+  const dashboardUrl = stripeDashboardSubscriptionUrl(subscription.stripe_subscription_id);
 
   return (
     <PortalShell role="admin" user={user}>
       {flash.success ? <Notice tone="success">Subscription updated.</Notice> : null}
       {flash.error ? <Notice tone="danger">Subscription action could not be completed.</Notice> : null}
+      {subscription.stripe_sync_warning ? <Notice tone={subscription.stripe_sync_status === "pending_checkout" ? "warn" : "danger"}>{subscription.stripe_sync_warning}</Notice> : null}
       <PageHeader
         eyebrow="Client Subscription"
         title={subscription.plan?.name ?? "Custom Subscription"}
@@ -48,9 +51,9 @@ export default async function AdminSubscriptionDetailPage({
       />
 
       <div className="grid gap-4 sm:grid-cols-4">
-        <StatCard label="Status" value={SUBSCRIPTION_STATUS_LABEL[subscription.status] ?? subscription.status} />
+        <StatCard label="Stripe Status" value={SUBSCRIPTION_STATUS_LABEL[subscription.status] ?? subscription.status} />
+        <StatCard label="Sync" value={SUBSCRIPTION_SYNC_STATUS_LABEL[subscription.stripe_sync_status ?? "manual"] ?? subscription.stripe_sync_status ?? "manual"} />
         <StatCard label="Usage Units" value={usageTotals.quantity} />
-        <StatCard label="Overages" value={formatMoney(usageTotals.overage)} tone={usageTotals.overage > 0 ? "warn" : "default"} />
         <StatCard label="Credits" value={formatMoney(subscription.credit_balance ?? creditTotal)} />
       </div>
 
@@ -58,7 +61,8 @@ export default async function AdminSubscriptionDetailPage({
         <div className="space-y-6">
           <SectionCard title="Subscription Summary" icon="clipboard">
             <dl>
-              <DetailRow label="Status"><StatusBadge label={SUBSCRIPTION_STATUS_LABEL[subscription.status] ?? subscription.status} tone={toneFor(SUBSCRIPTION_STATUS_TONE, subscription.status)} /></DetailRow>
+              <DetailRow label="Stripe Status"><StatusBadge label={SUBSCRIPTION_STATUS_LABEL[subscription.status] ?? subscription.status} tone={toneFor(SUBSCRIPTION_STATUS_TONE, subscription.status)} /></DetailRow>
+              <DetailRow label="Sync Status"><StatusBadge label={SUBSCRIPTION_SYNC_STATUS_LABEL[subscription.stripe_sync_status ?? "manual"] ?? subscription.stripe_sync_status ?? "manual"} tone={toneFor(SUBSCRIPTION_SYNC_STATUS_TONE, subscription.stripe_sync_status ?? "manual")} /></DetailRow>
               <DetailRow label="Client">{subscription.client?.company_name ?? subscription.client?.full_name ?? subscription.client?.email ?? "-"}</DetailRow>
               <DetailRow label="Aircraft">{subscription.aircraft?.tail_number ?? "-"}</DetailRow>
               <DetailRow label="Plan">{subscription.plan?.name ?? "-"}</DetailRow>
@@ -66,8 +70,18 @@ export default async function AdminSubscriptionDetailPage({
               <DetailRow label="Cadence">{subscription.billing_cadence}</DetailRow>
               <DetailRow label="Start">{formatDate(subscription.start_date)}</DetailRow>
               <DetailRow label="Renewal">{formatDate(subscription.renewal_date)}</DetailRow>
+              <DetailRow label="Current Period">{[formatDate(subscription.current_period_start), formatDate(subscription.current_period_end)].join(" - ")}</DetailRow>
+              <DetailRow label="Cancel At Period End">{subscription.cancel_at_period_end ? "Yes" : "No"}</DetailRow>
               <DetailRow label="Monthly">{formatMoney(subscription.custom_price ?? subscription.monthly_price)}</DetailRow>
               <DetailRow label="Annual">{formatMoney(subscription.annual_price)}</DetailRow>
+              <DetailRow label="Stripe Customer">{subscription.stripe_customer_id ?? "-"}</DetailRow>
+              <DetailRow label="Stripe Subscription">{subscription.stripe_subscription_id ?? "-"}</DetailRow>
+              <DetailRow label="Stripe Price">{subscription.stripe_price_id ?? "-"}</DetailRow>
+              <DetailRow label="Latest Invoice">{subscription.stripe_latest_invoice_id ?? "-"}</DetailRow>
+              <DetailRow label="Payment Status">{subscription.stripe_payment_status ?? "-"}</DetailRow>
+              <DetailRow label="Source">{subscription.source ?? "manual"}</DetailRow>
+              <DetailRow label="Last Event">{subscription.stripe_last_event_type ?? "-"}</DetailRow>
+              <DetailRow label="Last Synced">{formatDateTime(subscription.stripe_last_synced_at)}</DetailRow>
               <DetailRow label="Allowances">{`${subscription.included_flights} flights / ${subscription.included_mx_repositions} MX repositions / ${subscription.included_admin_hours} admin hrs`}</DetailRow>
               <DetailRow label="Notes">{subscription.notes ?? "-"}</DetailRow>
             </dl>
@@ -103,9 +117,77 @@ export default async function AdminSubscriptionDetailPage({
               ]}
             />
           </SectionCard>
+
+          <SectionCard title="Subscription Billing History" icon="wallet">
+            <DataTable
+              rows={subscription.billingInvoices}
+              getKey={(row) => row.id}
+              emptyLabel="No Stripe subscription invoices recorded."
+              columns={[
+                { header: "Invoice", cell: (row) => row.hosted_invoice_url ? <Link href={row.hosted_invoice_url} className="text-accent hover:underline">{row.stripe_invoice_number ?? row.stripe_invoice_id}</Link> : row.stripe_invoice_number ?? row.stripe_invoice_id },
+                { header: "Status", cell: (row) => row.status ?? "-" },
+                { header: "Payment", cell: (row) => row.payment_status ?? "-" },
+                { header: "Period", cell: (row) => `${formatDate(row.period_start)} - ${formatDate(row.period_end)}` },
+                { header: "Due", cell: (row) => formatMoney(row.amount_due), align: "right" },
+                { header: "Paid", cell: (row) => formatMoney(row.amount_paid), align: "right" },
+                { header: "PDF", cell: (row) => row.invoice_pdf_url ? <Link href={row.invoice_pdf_url} className="text-accent hover:underline">PDF</Link> : "-" },
+              ]}
+            />
+          </SectionCard>
+
+          <SectionCard title="Stripe Event History" icon="history">
+            <DataTable
+              rows={subscription.stripeEvents}
+              getKey={(row) => row.id}
+              emptyLabel="No Stripe events linked to this subscription."
+              columns={[
+                { header: "Event", cell: (row) => row.event_type ?? row.type },
+                { header: "Received", cell: (row) => formatDateTime(row.received_at ?? row.created_at) },
+                { header: "Processed", cell: (row) => formatDateTime(row.processed_at) },
+                { header: "Status", cell: (row) => row.status },
+                { header: "Error", cell: (row) => row.error ?? "-" },
+              ]}
+            />
+          </SectionCard>
         </div>
 
         <div className="space-y-6">
+          <SectionCard title="Stripe Recovery" icon="settings">
+            <div className="space-y-3">
+              <form action={refreshStripeSubscription}>
+                <input type="hidden" name="subscription_id" value={subscription.id} />
+                <SubmitButton className="w-full rounded-full" pendingText="Refreshing...">Refresh From Stripe</SubmitButton>
+              </form>
+              {subscription.stripe_checkout_url && subscription.stripe_sync_status === "pending_checkout" ? (
+                <form action={resendSubscriptionSetupLink}>
+                  <input type="hidden" name="subscription_id" value={subscription.id} />
+                  <SubmitButton className="w-full rounded-full" pendingText="Resending...">Resend Setup Link</SubmitButton>
+                </form>
+              ) : null}
+              {subscription.stripe_subscription_id ? (
+                <form action={cancelStripeSubscriptionAtPeriodEnd}>
+                  <input type="hidden" name="subscription_id" value={subscription.id} />
+                  <SubmitButton className="w-full rounded-full" variant="outline" confirm="Cancel this Stripe subscription at the end of the current period?" pendingText="Canceling...">Cancel At Period End</SubmitButton>
+                </form>
+              ) : null}
+              {dashboardUrl ? <Link href={dashboardUrl} className="block text-xs text-accent hover:underline">Open Stripe Dashboard</Link> : null}
+            </div>
+          </SectionCard>
+
+          {subscription.stripe_sync_status === "needs_review" || !subscription.client_id ? (
+            <SectionCard title="Needs Review" icon="building">
+              <form action={linkNeedsReviewSubscription} className="space-y-4">
+                <input type="hidden" name="subscription_id" value={subscription.id} />
+                <SelectField label="Link to Client" name="client_id" defaultValue="" options={[{ value: "", label: "Select client..." }, ...clients.map((client) => ({ value: client.id, label: client.company_name ?? client.full_name ?? client.email }))]} />
+                <SubmitButton className="rounded-full" pendingText="Linking...">Link Subscription</SubmitButton>
+              </form>
+              <form action={ignoreNeedsReviewSubscription} className="mt-3">
+                <input type="hidden" name="subscription_id" value={subscription.id} />
+                <SubmitButton variant="outline" className="rounded-full" confirm="Mark this Stripe subscription ignored/not AMG-related?" pendingText="Ignoring...">Mark Ignored</SubmitButton>
+              </form>
+            </SectionCard>
+          ) : null}
+
           <SectionCard title="Status" icon="settings">
             <form action={updateSubscriptionStatus} className="space-y-4">
               <input type="hidden" name="subscription_id" value={subscription.id} />
@@ -118,6 +200,7 @@ export default async function AdminSubscriptionDetailPage({
           </SectionCard>
 
           <SectionCard title="Add Usage" icon="radar">
+            {subscription.client_id ? (
             <form action={addSubscriptionUsage} className="space-y-4">
               <input type="hidden" name="subscription_id" value={subscription.id} />
               <input type="hidden" name="client_id" value={subscription.client_id} />
@@ -133,9 +216,11 @@ export default async function AdminSubscriptionDetailPage({
               <TextAreaField label="Notes" name="notes" />
               <SubmitButton className="rounded-full" pendingText="Adding...">Add Usage</SubmitButton>
             </form>
+            ) : <Notice tone="warn">Link this Stripe subscription to a client before recording operational usage.</Notice>}
           </SectionCard>
 
           <SectionCard title="Add Credit" icon="wallet">
+            {subscription.client_id ? (
             <form action={addSubscriptionCredit} className="space-y-4">
               <input type="hidden" name="subscription_id" value={subscription.id} />
               <input type="hidden" name="client_id" value={subscription.client_id} />
@@ -145,6 +230,7 @@ export default async function AdminSubscriptionDetailPage({
               <TextAreaField label="Description" name="description" />
               <SubmitButton className="rounded-full" pendingText="Adding...">Add Credit</SubmitButton>
             </form>
+            ) : <Notice tone="warn">Link this Stripe subscription to a client before adding credits.</Notice>}
           </SectionCard>
         </div>
       </div>

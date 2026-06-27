@@ -30,6 +30,7 @@ Open `http://localhost:3000`.
 npm run lint
 npm run typecheck
 npm run stripe:verify
+npm run stripe:subscriptions:verify
 npm run test
 npm run build
 ```
@@ -58,6 +59,30 @@ Local test flow:
 3. Create and send a test invoice.
 4. Click Pay Invoice and use a Stripe test card.
 5. Confirm the webhook marks the invoice paid and sends one receipt email.
+
+## Stripe Subscription Billing
+
+Stripe Billing is the source of truth for recurring AMG subscriptions. The portal stores a local mirror for operational/admin visibility and updates it from Stripe webhooks.
+
+Required setup:
+
+1. Add `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`.
+2. Create Stripe Products/Prices for AMG subscription plans and tiers.
+3. Add Stripe Price IDs to AMG portal plan tiers.
+4. Configure webhook endpoint `https://YOUR_DOMAIN/api/webhooks/stripe`.
+5. Subscribe to `checkout.session.completed`, `checkout.session.expired`, `customer.created`, `customer.updated`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.created`, `invoice.finalized`, `invoice.paid`, `invoice.payment_failed`, and `payment_method.attached`.
+6. Configure Stripe Customer Portal if clients should manage payment methods or view invoices.
+7. Configure Stripe branding and test in Stripe test mode before production.
+
+Manual test flow:
+
+1. Create a Stripe test product/price.
+2. Add the test price ID to an AMG subscription tier.
+3. Create a portal subscription setup link as an admin.
+4. Complete Stripe Checkout with a test card.
+5. Confirm webhook updates portal status to `active` or `trialing`.
+6. Create or change a subscription directly in Stripe and verify it syncs or appears as `needs_review`.
+7. Test payment failure/cancellation and confirm admin warnings/event history update.
 
 ## Production Setup
 
