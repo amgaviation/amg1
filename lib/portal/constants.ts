@@ -132,7 +132,7 @@ function buildToneMap(choices: Choice[]): Record<string, Tone> {
 // ─── Mission lifecycle ──────────────────────────────────────────────
 export const MISSION_STATUS: Choice[] = [
   { value: "draft", label: "Draft", tone: "neutral" },
-  { value: "submitted", label: "Submitted", tone: "info" },
+  { value: "submitted", label: "New", tone: "info" },
   { value: "under_review", label: "Under Review", tone: "info" },
   { value: "awaiting_client_info", label: "Awaiting Client Info", tone: "warn" },
   { value: "quoted", label: "Quoted", tone: "accent" },

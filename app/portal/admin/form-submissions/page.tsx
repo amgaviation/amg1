@@ -133,7 +133,7 @@ export default async function AdminFormSubmissionsPage({
       <PageHeader
         eyebrow="AMG Operations"
         title="Form Submissions"
-        description="Review public Contact and Request Support submissions from the website."
+        description="Review generic public website inquiries that do not require operational support tracking."
       />
 
       <SectionCard title="Filters" icon="clipboard">
@@ -143,7 +143,6 @@ export default async function AdminFormSubmissionsPage({
             <select name="source" defaultValue={params.source || "All"} className="h-11 rounded-md border border-white/12 bg-[#050B14] px-3 text-sm text-white">
               <option>All</option>
               <option>Contact</option>
-              <option>Request Support</option>
             </select>
           </label>
           <label className="grid gap-2 text-sm font-semibold text-slate-100">
@@ -167,7 +166,7 @@ export default async function AdminFormSubmissionsPage({
 
       <SectionCard title="Website Inquiries" icon="clipboard">
         {submissions.length === 0 ? (
-          <EmptyState icon="clipboard" title="No form submissions" description="New Contact and Request Support submissions will appear here." />
+          <EmptyState icon="clipboard" title="No form submissions" description="New generic Contact submissions will appear here." />
         ) : (
           <div className="space-y-3">
             {submissions.map((row) => (

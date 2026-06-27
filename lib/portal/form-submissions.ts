@@ -61,13 +61,20 @@ export async function listFormSubmissions(filter?: {
   source?: string;
   status?: string;
   search?: string;
+  includeSupportRequests?: boolean;
 }) {
   const db = await createServiceClient();
-  const { data, error } = await (db as any)
+  let query = (db as any)
     .from("contact_form_submissions")
     .select("*")
     .order("created_at", { ascending: false })
     .limit(250);
+
+  if (!filter?.includeSupportRequests) {
+    query = query.neq("submission_type", "support_request");
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error("Failed to list form submissions", error);

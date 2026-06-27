@@ -23,6 +23,9 @@ export type PublicSupportRequestDetail = {
   arrival_airport: string | null;
   operational_summary: string | null;
   category_details: Record<string, string> | null;
+  raw_form: Record<string, string | boolean | string[]> | null;
+  source_form_type: string | null;
+  source_submission_id: string | null;
   portal_account_status: string | null;
   portal_account_user_id: string | null;
   portal_invitation_sent_at: string | null;
