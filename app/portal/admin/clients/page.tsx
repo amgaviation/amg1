@@ -205,12 +205,12 @@ export default async function AdminClientsPage({
       <PageHeader
         eyebrow="AMG Operations"
         title="Client Management"
-        description="Manage client identities, company records, billing contacts, linked aircraft, missions, documents, and billing activity."
+        description="Client identities, company records, billing contacts, linked aircraft, missions, documents, and account activity."
       />
 
       <AdminRecordManager
         title="Client Directory"
-        description="Searchable client operations table with advanced filters, detail review, and controlled create/edit workflow."
+        description="Client records by account status, authorized requesters, aircraft, billing context, and mission history."
         rows={rows}
         columns={[
           { key: "name", label: "Name", sortable: true },
@@ -251,6 +251,7 @@ export default async function AdminClientsPage({
         emptyTitle="No clients match"
         emptyDescription="Adjust search or filters, or create a new client record."
         detailEyebrow="Client Detail"
+        detailHrefBase="/portal/admin/clients"
       />
     </PortalShell>
   );

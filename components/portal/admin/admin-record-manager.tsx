@@ -79,6 +79,7 @@ type AdminRecordManagerProps = {
   emptyDescription: string;
   detailEyebrow?: string;
   pageSize?: number;
+  detailHrefBase?: string;
 };
 
 function valueText(value: RecordValue) {
@@ -155,6 +156,7 @@ export function AdminRecordManager({
   emptyDescription,
   detailEyebrow = "Record Detail",
   pageSize = 12,
+  detailHrefBase,
 }: AdminRecordManagerProps) {
   const router = useRouter();
   const [isRefreshing, startRefresh] = useTransition();
@@ -216,6 +218,19 @@ export function AdminRecordManager({
       key,
       direction: current.key === key && current.direction === "asc" ? "desc" : "asc",
     }));
+  }
+
+  function detailHref(row: AdminRecordRow) {
+    return detailHrefBase ? `${detailHrefBase.replace(/\/$/, "")}/${row.id}` : null;
+  }
+
+  function openRecord(row: AdminRecordRow) {
+    const href = detailHref(row);
+    if (href) {
+      router.push(href);
+      return;
+    }
+    setSelectedId(row.id);
   }
 
   return (
@@ -354,16 +369,18 @@ export function AdminRecordManager({
                   {pagedRows.map((row) => (
                     <tr
                       key={row.id}
+                      role="button"
                       tabIndex={0}
+                      aria-label={`${detailHrefBase ? "Open" : "View"} ${row.title}`}
                       className={cn(
                         "cursor-pointer border-b border-white/10 bg-[#07111F]/35 outline-none transition-colors hover:bg-white/[0.05] focus-visible:bg-white/[0.07] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/60",
                         selected?.id === row.id && "bg-primary/10"
                       )}
-                      onClick={() => setSelectedId(row.id)}
+                      onClick={() => openRecord(row)}
                       onKeyDown={(event) => {
                         if (event.key === "Enter" || event.key === " ") {
                           event.preventDefault();
-                          setSelectedId(row.id);
+                          openRecord(row);
                         }
                       }}
                     >
@@ -392,9 +409,9 @@ export function AdminRecordManager({
                       ))}
                       <td className="px-4 py-3 text-right" onClick={(event) => event.stopPropagation()}>
                         <div className="flex justify-end gap-2">
-                          <Button type="button" variant="outline" size="sm" className="rounded-full gap-1" onClick={() => setSelectedId(row.id)}>
+                          <Button type="button" variant="outline" size="sm" className="rounded-full gap-1" onClick={() => openRecord(row)}>
                             <Eye className="h-3.5 w-3.5" />
-                            View
+                            {detailHrefBase ? "Open" : "View"}
                           </Button>
                           {archiveAction ? (
                             ["archived", "suspended", "inactive"].includes(row.status?.label.toLowerCase() ?? "") && archiveDisabledReason ? (
@@ -429,7 +446,7 @@ export function AdminRecordManager({
                 <button
                   key={row.id}
                   type="button"
-                  onClick={() => setSelectedId(row.id)}
+                  onClick={() => openRecord(row)}
                   className="rounded-lg border border-white/10 bg-white/[0.04] p-4 text-left shadow-sm outline-none transition-colors hover:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/60"
                 >
                   <div className="flex items-start justify-between gap-3">
