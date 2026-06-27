@@ -8,6 +8,7 @@ import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { createInvoiceRevision, previewInvoicePdf, recordInvoicePayment, sendInvoicePdf, updateInvoiceStatus } from "@/app/portal/actions/invoices";
+import { payInvoiceWithStripe } from "@/app/portal/actions/invoice-payments";
 import { getInvoiceDetail } from "@/lib/portal/queries";
 import { INVOICE_STATUS, INVOICE_STATUS_LABEL, INVOICE_STATUS_TONE, PAYMENT_METHODS, toneFor } from "@/lib/portal/constants";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/portal/format";
@@ -33,6 +34,7 @@ export default async function AdminInvoiceDetailPage({
   const editableInvoice = ["draft", "ready_to_send"].includes(invoice.status);
   const lockedInvoice = ["paid", "void", "written_off"].includes(invoice.status);
   const canRevise = !editableInvoice && !lockedInvoice;
+  const canPay = ["sent", "viewed", "overdue", "partially_paid"].includes(invoice.status) && Number(invoice.amount_due ?? 0) > 0;
   const activityItems = [
     ...invoice.documents.map((document) => ({
       at: document.created_at,
@@ -75,6 +77,8 @@ export default async function AdminInvoiceDetailPage({
       {flash.error === "payment-data" ? <Notice tone="danger">Remove full card numbers, CVV codes, bank account numbers, or routing numbers before recording payment details.</Notice> : null}
       {flash.error === "locked" ? <Notice tone="danger">This invoice is locked because it is paid, void, or written off.</Notice> : null}
       {flash.error === "revision" ? <Notice tone="danger">An invoice revision could not be created.</Notice> : null}
+      {flash.error === "configuration" ? <Notice tone="danger">Stripe is not configured. Add STRIPE_SECRET_KEY before generating payment links.</Notice> : null}
+      {flash.error === "stripe" ? <Notice tone="danger">Stripe could not create a payment session for this invoice.</Notice> : null}
       <PageHeader
         eyebrow="Invoice"
         title={invoice.invoice_number}
@@ -114,6 +118,8 @@ export default async function AdminInvoiceDetailPage({
               <DetailRow label="Deposit">{formatMoney((invoice as any).deposit_amount ?? 0)}</DetailRow>
               <DetailRow label="Paid">{formatMoney(invoice.amount_paid)}</DetailRow>
               <DetailRow label="Amount Due">{formatMoney(invoice.amount_due)}</DetailRow>
+              <DetailRow label="Stripe Status">{(invoice as any).stripe_payment_status ?? (invoice as any).payment_status ?? "-"}</DetailRow>
+              <DetailRow label="Stripe Session">{(invoice as any).stripe_checkout_session_id ?? (invoice as any).payment_provider_session_id ?? "-"}</DetailRow>
               <DetailRow label="Terms">{invoice.terms ?? "-"}</DetailRow>
               <DetailRow label="Payment Instructions">{(invoice as any).payment_instructions ?? "-"}</DetailRow>
             </dl>
@@ -190,6 +196,27 @@ export default async function AdminInvoiceDetailPage({
               ) : null}
             </div>
           </SectionCard>
+
+          {!lockedInvoice ? (
+            <SectionCard title="Stripe Payment Link" icon="wallet">
+              <div className="space-y-3">
+                <DetailRow label="Provider">{(invoice as any).payment_provider ?? "-"}</DetailRow>
+                <DetailRow label="Status">{(invoice as any).stripe_payment_status ?? (invoice as any).payment_status ?? "-"}</DetailRow>
+                <DetailRow label="Payment Intent">{(invoice as any).stripe_payment_intent_id ?? "-"}</DetailRow>
+                {canPay ? (
+                  <form action={payInvoiceWithStripe}>
+                    <input type="hidden" name="invoice_id" value={invoice.id} />
+                    <input type="hidden" name="return_to" value={`/portal/admin/invoices/${invoice.id}`} />
+                    <SubmitButton className="w-full rounded-full" pendingText="Opening Stripe...">
+                      Generate / Open Pay Invoice
+                    </SubmitButton>
+                  </form>
+                ) : (
+                  <Notice tone="info">Stripe payment links are available for sent, open invoices with an amount due.</Notice>
+                )}
+              </div>
+            </SectionCard>
+          ) : null}
 
           {!lockedInvoice ? (
             <SectionCard title="Update Status" icon="settings">

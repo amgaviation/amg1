@@ -15,6 +15,7 @@
     "website-editor:verify": "node scripts/verify-website-editor.mjs",
     "import:crew-profiles": "tsx scripts/import-crew-profiles-from-csv.ts",
     "verify:crew-import": "tsx scripts/verify-crew-import-visibility.ts",
+    "stripe:verify": "tsx scripts/verify-stripe-invoice-payments.ts",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "npm run typecheck"
@@ -50,6 +51,7 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "sonner": "^2.0.7",
+    "stripe": "^22.3.0",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.184.0"

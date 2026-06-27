@@ -1,28 +1,43 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
+import { payInvoiceWithStripe } from "@/app/portal/actions/invoice-payments";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
-import { DetailRow, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
+import { DetailRow, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
+import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { getInvoiceDetail } from "@/lib/portal/queries";
 import { INVOICE_STATUS_LABEL, INVOICE_STATUS_TONE, toneFor } from "@/lib/portal/constants";
 import { formatDate, formatMoney } from "@/lib/portal/format";
 
 export const metadata = { title: "Invoice - Client Portal" };
 
-export default async function ClientInvoicePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ClientInvoicePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ success?: string; error?: string }>;
+}) {
   const user = await requireRole("client");
   const { id } = await params;
+  const flash = await searchParams;
   const invoice = await getInvoiceDetail(id);
   if (!invoice || invoice.client_id !== user.id) notFound();
   const latestInvoiceDocument = invoice.documents[0];
   const receiptByPayment = new Map(
     invoice.receiptDocuments.map((document) => [document.payment_id, document]),
   );
+  const canPay = ["sent", "viewed", "overdue", "partially_paid"].includes(invoice.status) && Number(invoice.amount_due ?? 0) > 0;
 
   return (
     <PortalShell role="client" user={user}>
+      {flash.success === "payment" ? (
+        <Notice tone="success">Payment received. AMG is finalizing the invoice status. Refresh this page for the latest details.</Notice>
+      ) : null}
+      {flash.error === "configuration" ? <Notice tone="danger">Online card payment is not available right now. Use the payment instructions below or contact AMG Operations.</Notice> : null}
+      {flash.error === "status" || flash.error === "amount" ? <Notice tone="danger">This invoice is not currently eligible for online card payment.</Notice> : null}
       <PageHeader
         eyebrow="Billing"
         title={invoice.invoice_number}
@@ -94,10 +109,23 @@ export default async function ClientInvoicePage({ params }: { params: Promise<{ 
             <DetailRow label="Terms">{invoice.terms ?? "-"}</DetailRow>
             <DetailRow label="Payment Instructions">{(invoice as any).payment_instructions ?? "-"}</DetailRow>
           </dl>
-          <p className="mt-4 rounded-md border border-border bg-background/60 p-3 text-xs leading-5 text-muted-foreground">
-            AMG does not process payment card or bank account payments through this website or portal. Use only the
-            payment instructions provided by AMG or contact AMG for additional payment coordination.
-          </p>
+          {canPay ? (
+            <form action={payInvoiceWithStripe} className="mt-5">
+              <input type="hidden" name="invoice_id" value={invoice.id} />
+              <input type="hidden" name="return_to" value={`/portal/client/billing/${invoice.id}`} />
+              <SubmitButton className="w-full rounded-full" pendingText="Opening Stripe...">
+                Pay Invoice
+              </SubmitButton>
+            </form>
+          ) : invoice.status === "paid" ? (
+            <p className="mt-4 rounded-md border border-border bg-background/60 p-3 text-xs leading-5 text-muted-foreground">
+              This invoice is paid{invoice.paid_at ? ` as of ${formatDate(invoice.paid_at)}` : ""}.
+            </p>
+          ) : (
+            <p className="mt-4 rounded-md border border-border bg-background/60 p-3 text-xs leading-5 text-muted-foreground">
+              Online card payment is available after AMG issues an open invoice.
+            </p>
+          )}
         </SectionCard>
       </div>
     </PortalShell>
