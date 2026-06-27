@@ -77,6 +77,7 @@ export default async function AdminSubscriptionDetailPage({
               <DetailRow label="Stripe Customer">{subscription.stripe_customer_id ?? "-"}</DetailRow>
               <DetailRow label="Stripe Subscription">{subscription.stripe_subscription_id ?? "-"}</DetailRow>
               <DetailRow label="Stripe Price">{subscription.stripe_price_id ?? "-"}</DetailRow>
+              <DetailRow label="Stripe Mode">{subscription.stripe_mode ?? "-"}</DetailRow>
               <DetailRow label="Latest Invoice">{subscription.stripe_latest_invoice_id ?? "-"}</DetailRow>
               <DetailRow label="Payment Status">{subscription.stripe_payment_status ?? "-"}</DetailRow>
               <DetailRow label="Source">{subscription.source ?? "manual"}</DetailRow>

@@ -31,6 +31,7 @@ npm run lint
 npm run typecheck
 npm run stripe:verify
 npm run stripe:subscriptions:verify
+npm run stripe:live-readiness:verify
 npm run test
 npm run build
 ```
@@ -39,15 +40,15 @@ npm run build
 
 Invoice emails and portal invoice detail pages can create server-side Stripe Checkout Sessions for open invoices. Configure these variables locally and in Vercel:
 
-- `STRIPE_SECRET_KEY`
-- `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_SECRET_KEY` (`sk_test_...` locally/preview, `sk_live_...` in Vercel Production)
+- `STRIPE_WEBHOOK_SECRET` (matching the current Stripe mode webhook endpoint)
 - `NEXT_PUBLIC_SITE_URL` or `NEXT_PUBLIC_APP_URL`
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` only if a future client-side Stripe.js flow is added
 
 Stripe dashboard setup:
 
 1. Add the webhook endpoint `https://YOUR_DOMAIN/api/webhooks/stripe`.
-2. Subscribe to `checkout.session.completed`, `checkout.session.expired`, `payment_intent.succeeded`, and `payment_intent.payment_failed`.
+2. Subscribe to `checkout.session.completed`, `checkout.session.expired`, `payment_intent.succeeded`, `payment_intent.payment_failed`, and `payment_intent.canceled`.
 3. Enable the desired payment methods in Stripe Checkout.
 4. Configure Stripe branding/logo/color to match AMG.
 5. Test in Stripe test mode before production.
@@ -68,7 +69,7 @@ Required setup:
 
 1. Add `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`.
 2. Create Stripe Products/Prices for AMG subscription plans and tiers.
-3. Add Stripe Price IDs to AMG portal plan tiers.
+3. Add test Price IDs to AMG plan tiers for local/preview and live Price IDs for production.
 4. Configure webhook endpoint `https://YOUR_DOMAIN/api/webhooks/stripe`.
 5. Subscribe to `checkout.session.completed`, `checkout.session.expired`, `customer.created`, `customer.updated`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.created`, `invoice.finalized`, `invoice.paid`, `invoice.payment_failed`, and `payment_method.attached`.
 6. Configure Stripe Customer Portal if clients should manage payment methods or view invoices.
@@ -93,3 +94,20 @@ Manual test flow:
 5. Add Resend/Twilio credentials when external delivery is ready.
 
 Detailed setup lives in `docs/DEPLOYMENT.md`, `docs/NOTIFICATIONS.md`, and `docs/BILLING.md`.
+
+## Stripe Live Account Readiness
+
+Production Stripe mode is inferred from `STRIPE_SECRET_KEY`: `sk_test_...` is test mode and `sk_live_...` is live mode. The app does not require `STRIPE_MODE` and never sends Stripe secret values to the browser.
+
+Vercel Production must use:
+
+- `STRIPE_SECRET_KEY=sk_live_...`
+- `STRIPE_WEBHOOK_SECRET=whsec_...` from the live webhook endpoint
+- `NEXT_PUBLIC_SITE_URL=https://www.amgaviationgroup.com`
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...` only if client-side Stripe.js is used
+
+Vercel Preview/local should use Stripe test keys unless AMG intentionally wants live billing there.
+
+Subscription tiers support separate test and live Stripe Price IDs. Live mode blocks subscription checkout unless the selected tier/cadence has a live Price ID. Test mode uses a test Price ID, or the legacy Price ID fields for backwards-compatible local testing, and rejects live-only configuration.
+
+Admins can review Stripe mode, configured-key presence, webhook status, missing Price ID counts, and last webhook status at `/portal/admin/settings/billing`. The page only displays yes/no status and counts; it never displays secret values.

@@ -291,6 +291,8 @@ async function handleStripeEvent(event: Stripe.Event): Promise<WebhookResult> {
       return markInvoiceStripePaymentIntent(event.data.object as Stripe.PaymentIntent, "succeeded");
     case "payment_intent.payment_failed":
       return markInvoiceStripePaymentIntent(event.data.object as Stripe.PaymentIntent, "failed");
+    case "payment_intent.canceled":
+      return markInvoiceStripePaymentIntent(event.data.object as Stripe.PaymentIntent, "canceled");
     default:
       return { ok: true, ignored: true };
   }
@@ -313,7 +315,7 @@ async function markInvoiceStripeStatus(session: Stripe.Checkout.Session, status:
 
 async function markInvoiceStripePaymentIntent(
   intent: Stripe.PaymentIntent,
-  status: "succeeded" | "failed",
+  status: "succeeded" | "failed" | "canceled",
 ): Promise<WebhookResult> {
   const invoiceId = intent.metadata?.invoice_id;
   if (!invoiceId) return { ok: true, ignored: true };

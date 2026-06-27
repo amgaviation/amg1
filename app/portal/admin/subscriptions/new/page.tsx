@@ -28,6 +28,16 @@ export default async function NewSubscriptionPage({
     <PortalShell role="admin" user={user}>
       {params.error === "missing-price" ? (
         <Notice tone="danger">This plan is not connected to a Stripe price yet.</Notice>
+      ) : params.error === "missing-live-price" ? (
+        <Notice tone="danger">Stripe is running in live mode, but this plan is missing a live Stripe Price ID.</Notice>
+      ) : params.error === "missing-test-price" ? (
+        <Notice tone="danger">Stripe is running in test mode, but this plan is configured only with a live Price ID.</Notice>
+      ) : params.error === "test-price-live-mode" ? (
+        <Notice tone="danger">Stripe is running in live mode, but a test Stripe Price ID was selected.</Notice>
+      ) : params.error === "live-price-test-mode" ? (
+        <Notice tone="danger">Stripe is running in test mode, but a live Stripe Price ID was selected.</Notice>
+      ) : params.error === "stripe-mode" ? (
+        <Notice tone="danger">Stripe secret key prefix is not recognized. Use a valid test or live Stripe secret key.</Notice>
       ) : params.error === "configuration" ? (
         <Notice tone="danger">Stripe is not configured. Add STRIPE_SECRET_KEY before creating billing subscriptions.</Notice>
       ) : params.error ? (

@@ -50,6 +50,8 @@ export type SubscriptionPlan = {
   default_terms: string | null;
   plan_code?: string | null;
   stripe_product_id?: string | null;
+  stripe_test_product_id?: string | null;
+  stripe_live_product_id?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -70,6 +72,12 @@ export type SubscriptionPlanTier = {
   stripe_monthly_price_id?: string | null;
   stripe_annual_price_id?: string | null;
   stripe_product_id?: string | null;
+  stripe_test_monthly_price_id?: string | null;
+  stripe_test_annual_price_id?: string | null;
+  stripe_live_monthly_price_id?: string | null;
+  stripe_live_annual_price_id?: string | null;
+  stripe_test_product_id?: string | null;
+  stripe_live_product_id?: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -111,6 +119,7 @@ export type ClientSubscription = {
   stripe_subscription_id?: string | null;
   stripe_price_id?: string | null;
   stripe_product_id?: string | null;
+  stripe_mode?: string | null;
   stripe_checkout_session_id?: string | null;
   stripe_checkout_url?: string | null;
   stripe_latest_invoice_id?: string | null;

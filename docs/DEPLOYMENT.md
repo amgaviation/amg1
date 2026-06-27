@@ -14,6 +14,9 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 NEXT_PUBLIC_APP_URL=
+NEXT_PUBLIC_SITE_URL=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
 ```
 
 ## Optional Notification Variables
@@ -29,6 +32,23 @@ NOTIFICATION_WEBHOOK_SECRET=
 ```
 
 If notification provider credentials are missing, the app records delivery rows as `suppressed` instead of faking successful delivery.
+
+## Stripe Environments
+
+Use Stripe test keys for local development and Vercel Preview. Use live keys only in Vercel Production unless AMG intentionally wants live billing in another environment.
+
+Vercel Production:
+
+```text
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+NEXT_PUBLIC_SITE_URL=https://www.amgaviationgroup.com
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
+```
+
+`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` is only required if client-side Stripe.js is used. The app infers Stripe mode from `STRIPE_SECRET_KEY`; `STRIPE_MODE` is not required.
+
+Configure the live Stripe webhook endpoint as `https://www.amgaviationgroup.com/api/webhooks/stripe` and subscribe to the invoice/payment and subscription events listed in `docs/BILLING.md`.
 
 ## Supabase Setup
 

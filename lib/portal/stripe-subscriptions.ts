@@ -6,6 +6,8 @@ import { absolutePortalUrl } from "@/lib/email/config";
 import { OPERATIONAL_EMAIL_FOOTER } from "@/lib/email/templates";
 import { sendEmail } from "@/lib/portal/notification-delivery";
 import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
+import { currentStripeMode } from "@/lib/portal/stripe-mode";
+import { resolveSubscriptionPriceForStripeMode } from "@/lib/portal/stripe-mode-core";
 import {
   buildSubscriptionCheckoutSummary,
   centsFromMoney,
@@ -76,10 +78,16 @@ async function loadSubscription(subscriptionId: string) {
 
 async function loadPriceMapping(subscription: any): Promise<SubscriptionPriceMapping> {
   const cadence = subscription.billing_cadence === "annual" ? "annual" : "monthly";
-  const stripePriceId =
-    cadence === "annual"
-      ? subscription.tier?.stripe_annual_price_id
-      : subscription.tier?.stripe_monthly_price_id;
+  const resolvedPrice = resolveSubscriptionPriceForStripeMode({
+    mode: currentStripeMode(),
+    billingInterval: cadence,
+    stripeTestMonthlyPriceId: subscription.tier?.stripe_test_monthly_price_id,
+    stripeTestAnnualPriceId: subscription.tier?.stripe_test_annual_price_id,
+    stripeLiveMonthlyPriceId: subscription.tier?.stripe_live_monthly_price_id,
+    stripeLiveAnnualPriceId: subscription.tier?.stripe_live_annual_price_id,
+    legacyMonthlyPriceId: subscription.tier?.stripe_monthly_price_id,
+    legacyAnnualPriceId: subscription.tier?.stripe_annual_price_id,
+  });
   const amount =
     subscription.custom_price ??
     (cadence === "annual" ? subscription.annual_price : subscription.monthly_price) ??
@@ -95,7 +103,8 @@ async function loadPriceMapping(subscription: any): Promise<SubscriptionPriceMap
     billingInterval: cadence,
     amountCents: centsFromMoney(amount),
     currency: subscription.currency ?? "usd",
-    stripePriceId,
+    stripePriceId: resolvedPrice.ok ? resolvedPrice.priceId : null,
+    stripePriceSource: resolvedPrice.ok ? resolvedPrice.source : resolvedPrice.reason,
   };
 }
 
@@ -126,7 +135,7 @@ export async function createSubscriptionCheckoutSession(
 
   const price = await loadPriceMapping(subscription);
   const validation = validateSubscriptionPriceMapping(price);
-  if (!validation.ok) return { ok: false, reason: validation.reason ?? "missing_price" };
+  if (!validation.ok) return { ok: false, reason: price.stripePriceSource ?? validation.reason ?? "missing_price" };
 
   const customerId = await findOrCreateCustomer(stripe, subscription.client);
   const checkout = buildSubscriptionCheckoutSummary({
@@ -162,6 +171,7 @@ export async function createSubscriptionCheckoutSession(
       status: "pending_checkout",
       stripe_customer_id: customerId,
       stripe_price_id: checkout.priceId,
+      stripe_mode: currentStripeMode(),
       stripe_checkout_session_id: session.id,
       stripe_checkout_url: session.url,
       stripe_sync_status: "pending_checkout",
@@ -388,6 +398,7 @@ async function syncSubscription(
     stripe_subscription_id: subscription.id,
     stripe_price_id: price?.id ?? null,
     stripe_product_id: productId,
+    stripe_mode: currentStripeMode(),
     stripe_latest_invoice_id: latestInvoiceId,
     stripe_payment_status: subscription.status,
     stripe_sync_status: syncStatus,

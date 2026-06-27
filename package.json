@@ -17,6 +17,7 @@
     "verify:crew-import": "tsx scripts/verify-crew-import-visibility.ts",
     "stripe:verify": "tsx scripts/verify-stripe-invoice-payments.ts",
     "stripe:subscriptions:verify": "tsx scripts/verify-stripe-subscriptions.ts",
+    "stripe:live-readiness:verify": "tsx scripts/verify-stripe-live-readiness.ts",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "npm run typecheck"

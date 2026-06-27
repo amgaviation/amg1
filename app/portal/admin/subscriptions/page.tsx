@@ -128,8 +128,10 @@ export default async function AdminSubscriptionsPage({
                         <p className="font-semibold text-foreground">{tier.name}</p>
                         <p>{tier.included_flights} flights · {tier.included_mx_repositions} MX repositions · {tier.included_admin_hours} admin hrs</p>
                         <p>{formatMoney(tier.monthly_price)} monthly · {formatMoney(tier.annual_price)} annual</p>
-                        <p>Stripe monthly: {tier.stripe_monthly_price_id ?? "not mapped"}</p>
-                        <p>Stripe annual: {tier.stripe_annual_price_id ?? "not mapped"}</p>
+                        <p>Test monthly: {tier.stripe_test_monthly_price_id ?? tier.stripe_monthly_price_id ?? "not mapped"}</p>
+                        <p>Test annual: {tier.stripe_test_annual_price_id ?? tier.stripe_annual_price_id ?? "not mapped"}</p>
+                        <p>Live monthly: {tier.stripe_live_monthly_price_id ?? "not mapped"}</p>
+                        <p>Live annual: {tier.stripe_live_annual_price_id ?? "not mapped"}</p>
                       </div>
                     ))}
                   </div>
@@ -143,7 +145,9 @@ export default async function AdminSubscriptionsPage({
           <form action={createSubscriptionPlan} className="space-y-4">
             <TextField label="Plan Name" name="name" required placeholder="Managed Owner Support" />
             <TextField label="Plan Code" name="plan_code" placeholder="managed-owner-support" />
-            <TextField label="Stripe Product ID" name="stripe_product_id" placeholder="prod_..." />
+            <TextField label="Legacy/Test Stripe Product ID" name="stripe_product_id" placeholder="prod_..." />
+            <TextField label="Test Stripe Product ID" name="stripe_test_product_id" placeholder="prod_..." />
+            <TextField label="Live Stripe Product ID" name="stripe_live_product_id" placeholder="prod_..." />
             <TextField label="Aircraft Category" name="aircraft_category" placeholder="Light Jet, Mid, Heavy..." />
             <SelectField label="Plan Status" name="status" defaultValue="active" options={SUBSCRIPTION_PLAN_STATUS.map((status) => ({ value: status.value, label: status.label }))} />
             <TextAreaField label="Description" name="description" />
@@ -155,8 +159,12 @@ export default async function AdminSubscriptionsPage({
               <TextField label="Crew Day Rate" name="crew_day_rate" type="number" min="0" step="0.01" />
               <TextField label="Monthly Price" name="monthly_price" type="number" min="0" step="0.01" />
               <TextField label="Annual Price" name="annual_price" type="number" min="0" step="0.01" />
-              <TextField label="Stripe Monthly Price ID" name="stripe_monthly_price_id" placeholder="price_..." />
-              <TextField label="Stripe Annual Price ID" name="stripe_annual_price_id" placeholder="price_..." />
+              <TextField label="Legacy/Test Monthly Price ID" name="stripe_monthly_price_id" placeholder="price_..." />
+              <TextField label="Legacy/Test Annual Price ID" name="stripe_annual_price_id" placeholder="price_..." />
+              <TextField label="Test Monthly Price ID" name="stripe_test_monthly_price_id" placeholder="price_..." />
+              <TextField label="Test Annual Price ID" name="stripe_test_annual_price_id" placeholder="price_..." />
+              <TextField label="Live Monthly Price ID" name="stripe_live_monthly_price_id" placeholder="price_..." />
+              <TextField label="Live Annual Price ID" name="stripe_live_annual_price_id" placeholder="price_..." />
             </div>
             <TextAreaField label="Travel Policy" name="travel_policy" />
             <TextAreaField label="Lodging Policy" name="lodging_policy" />
