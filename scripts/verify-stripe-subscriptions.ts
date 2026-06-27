@@ -3,6 +3,7 @@ import {
   buildSubscriptionCheckoutSummary,
   idempotencyKeyForSubscriptionAction,
   mapStripeSubscriptionStatus,
+  portalSubscriptionIdFromStripeSubscriptionLike,
   subscriptionSyncWarning,
   validateSubscriptionPriceMapping,
 } from "../lib/portal/stripe-subscription-core";
@@ -53,5 +54,21 @@ assert.equal(subscriptionSyncWarning({ stripeStatus: "active", syncStatus: "stal
 assert.equal(subscriptionSyncWarning({ stripeStatus: "past_due", syncStatus: "synced" }), "Payment failed. Customer action required.");
 assert.equal(subscriptionSyncWarning({ stripeStatus: null, syncStatus: "pending_checkout" }), "Checkout session created but not completed.");
 assert.equal(subscriptionSyncWarning({ stripeStatus: "active", syncStatus: "needs_review" }), "Stripe subscription exists but is not linked to a portal client.");
+
+assert.equal(
+  portalSubscriptionIdFromStripeSubscriptionLike({
+    metadata: { portal_subscription_id: "sub_portal_123" },
+  }),
+  "sub_portal_123",
+);
+assert.equal(
+  portalSubscriptionIdFromStripeSubscriptionLike({
+    metadata: {},
+    latest_invoice: {
+      subscription_details: { metadata: { portal_subscription_id: "sub_from_invoice" } },
+    },
+  }),
+  "sub_from_invoice",
+);
 
 console.log("Stripe subscription sync verification passed.");
