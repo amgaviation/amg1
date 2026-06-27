@@ -7,9 +7,9 @@ import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fi
 import { EmptyState, Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
-import { getSubscriptionOverageTotal, listAllSubscriptions, listSubscriptionPlans } from "@/lib/portal/queries";
-import { SUBSCRIPTION_PLAN_STATUS, SUBSCRIPTION_PLAN_STATUS_LABEL, SUBSCRIPTION_PLAN_STATUS_TONE, SUBSCRIPTION_STATUS_LABEL, SUBSCRIPTION_STATUS_TONE, toneFor } from "@/lib/portal/constants";
-import { formatDate, formatMoney } from "@/lib/portal/format";
+import { getSubscriptionOverageTotal, listAllSubscriptions, listStripeSubscriptionEvents, listSubscriptionPlans } from "@/lib/portal/queries";
+import { SUBSCRIPTION_PLAN_STATUS, SUBSCRIPTION_PLAN_STATUS_LABEL, SUBSCRIPTION_PLAN_STATUS_TONE, SUBSCRIPTION_STATUS_LABEL, SUBSCRIPTION_STATUS_TONE, SUBSCRIPTION_SYNC_STATUS_LABEL, SUBSCRIPTION_SYNC_STATUS_TONE, toneFor } from "@/lib/portal/constants";
+import { formatDate, formatDateTime, formatMoney } from "@/lib/portal/format";
 
 export const metadata = { title: "Subscriptions - Admin Portal" };
 
@@ -20,13 +20,17 @@ export default async function AdminSubscriptionsPage({
 }) {
   const user = await requireRole("admin");
   const params = await searchParams;
-  const [subscriptions, plans, overageTotal] = await Promise.all([
+  const [subscriptions, plans, overageTotal, stripeEvents] = await Promise.all([
     listAllSubscriptions(),
     listSubscriptionPlans(),
     getSubscriptionOverageTotal(),
+    listStripeSubscriptionEvents(),
   ]);
   const activeCount = subscriptions.filter((subscription) => subscription.status === "active").length;
-  const renewalCount = subscriptions.filter((subscription) => subscription.status === "renewal_pending").length;
+  const trialingCount = subscriptions.filter((subscription) => subscription.status === "trialing").length;
+  const pendingCheckoutCount = subscriptions.filter((subscription) => subscription.stripe_sync_status === "pending_checkout").length;
+  const needsReviewCount = subscriptions.filter((subscription) => subscription.stripe_sync_status === "needs_review" || subscription.status === "needs_review").length;
+  const syncErrorCount = subscriptions.filter((subscription) => ["sync_error", "price_mismatch", "disconnected"].includes(subscription.stripe_sync_status ?? "")).length;
 
   return (
     <PortalShell role="admin" user={user}>
@@ -39,11 +43,22 @@ export default async function AdminSubscriptionsPage({
         actions={<Link href="/portal/admin/subscriptions/new" className="text-xs text-accent hover:underline">Create Client Subscription</Link>}
       />
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-6">
         <StatCard label="Active subscriptions" value={activeCount} href="/portal/admin/subscriptions" tone={activeCount ? "accent" : "default"} />
-        <StatCard label="Renewal pending" value={renewalCount} href="/portal/admin/subscriptions" tone={renewalCount ? "warn" : "default"} />
+        <StatCard label="Trialing" value={trialingCount} href="/portal/admin/subscriptions" />
+        <StatCard label="Pending checkout" value={pendingCheckoutCount} href="/portal/admin/subscriptions" tone={pendingCheckoutCount ? "warn" : "default"} />
+        <StatCard label="Needs review" value={needsReviewCount} href="/portal/admin/subscriptions" tone={needsReviewCount ? "danger" : "default"} />
+        <StatCard label="Sync issues" value={syncErrorCount} href="/portal/admin/subscriptions" tone={syncErrorCount ? "danger" : "default"} />
         <StatCard label="Tracked overages" value={formatMoney(overageTotal)} href="/portal/admin/subscriptions" />
       </div>
+
+      {needsReviewCount || syncErrorCount || pendingCheckoutCount ? (
+        <Notice tone={syncErrorCount || needsReviewCount ? "danger" : "warn"}>
+          {needsReviewCount ? "Stripe subscription exists but is not linked to a portal client. " : ""}
+          {syncErrorCount ? "Webhook failed, price mismatch, or disconnected record needs review. " : ""}
+          {pendingCheckoutCount ? "Checkout session created but not completed." : ""}
+        </Notice>
+      ) : null}
 
       <SectionCard title="Client Subscriptions" icon="clipboard">
         {subscriptions.length === 0 ? (
@@ -63,12 +78,33 @@ export default async function AdminSubscriptionsPage({
               { header: "Plan", cell: (row) => <Link href={`/portal/admin/subscriptions/${row.id}`} className="text-accent hover:underline">{row.plan?.name ?? "Custom subscription"}</Link> },
               { header: "Tier", cell: (row) => row.tier?.name ?? "-" },
               { header: "Aircraft", cell: (row) => row.aircraft?.tail_number ?? "-" },
-              { header: "Status", cell: (row) => <StatusBadge label={SUBSCRIPTION_STATUS_LABEL[row.status] ?? row.status} tone={toneFor(SUBSCRIPTION_STATUS_TONE, row.status)} /> },
+              { header: "Stripe", cell: (row) => <StatusBadge label={SUBSCRIPTION_STATUS_LABEL[row.status] ?? row.status} tone={toneFor(SUBSCRIPTION_STATUS_TONE, row.status)} /> },
+              { header: "Sync", cell: (row) => <StatusBadge label={SUBSCRIPTION_SYNC_STATUS_LABEL[row.stripe_sync_status ?? "manual"] ?? row.stripe_sync_status ?? "manual"} tone={toneFor(SUBSCRIPTION_SYNC_STATUS_TONE, row.stripe_sync_status ?? "manual")} /> },
+              { header: "Source", cell: (row) => row.source ?? "manual" },
+              { header: "Last Sync", cell: (row) => formatDateTime(row.stripe_last_synced_at ?? row.updated_at) },
               { header: "Renewal", cell: (row) => formatDate(row.renewal_date) },
-              { header: "Credit", cell: (row) => formatMoney(row.credit_balance), align: "right" },
+              { header: "Warning", cell: (row) => row.stripe_sync_warning ?? "-" },
             ]}
           />
         )}
+      </SectionCard>
+
+      <SectionCard title="Stripe Event History" icon="history">
+        <DataTable
+          rows={stripeEvents}
+          getKey={(row) => row.id}
+          emptyLabel="No Stripe subscription events recorded."
+          columns={[
+            { header: "Event", cell: (row) => row.event_type ?? row.type },
+            { header: "Stripe Event ID", cell: (row) => <span className="font-mono text-xs">{row.stripe_event_id}</span> },
+            { header: "Received", cell: (row) => formatDateTime(row.received_at ?? row.created_at) },
+            { header: "Processed", cell: (row) => formatDateTime(row.processed_at) },
+            { header: "Status", cell: (row) => <StatusBadge label={row.status} tone={row.status === "failed" || row.status === "retry_needed" ? "danger" : row.status === "processed" ? "success" : "neutral"} /> },
+            { header: "Subscription", cell: (row) => row.portal_subscription_id ? <Link href={`/portal/admin/subscriptions/${row.portal_subscription_id}`} className="text-accent hover:underline">Open</Link> : row.stripe_subscription_id ?? "-" },
+            { header: "Invoice", cell: (row) => row.stripe_invoice_id ?? "-" },
+            { header: "Error", cell: (row) => row.error ?? "-" },
+          ]}
+        />
       </SectionCard>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_26rem]">
@@ -92,6 +128,8 @@ export default async function AdminSubscriptionsPage({
                         <p className="font-semibold text-foreground">{tier.name}</p>
                         <p>{tier.included_flights} flights · {tier.included_mx_repositions} MX repositions · {tier.included_admin_hours} admin hrs</p>
                         <p>{formatMoney(tier.monthly_price)} monthly · {formatMoney(tier.annual_price)} annual</p>
+                        <p>Stripe monthly: {tier.stripe_monthly_price_id ?? "not mapped"}</p>
+                        <p>Stripe annual: {tier.stripe_annual_price_id ?? "not mapped"}</p>
                       </div>
                     ))}
                   </div>
@@ -104,6 +142,8 @@ export default async function AdminSubscriptionsPage({
         <SectionCard title="Create Plan" icon="settings">
           <form action={createSubscriptionPlan} className="space-y-4">
             <TextField label="Plan Name" name="name" required placeholder="Managed Owner Support" />
+            <TextField label="Plan Code" name="plan_code" placeholder="managed-owner-support" />
+            <TextField label="Stripe Product ID" name="stripe_product_id" placeholder="prod_..." />
             <TextField label="Aircraft Category" name="aircraft_category" placeholder="Light Jet, Mid, Heavy..." />
             <SelectField label="Plan Status" name="status" defaultValue="active" options={SUBSCRIPTION_PLAN_STATUS.map((status) => ({ value: status.value, label: status.label }))} />
             <TextAreaField label="Description" name="description" />
@@ -115,6 +155,8 @@ export default async function AdminSubscriptionsPage({
               <TextField label="Crew Day Rate" name="crew_day_rate" type="number" min="0" step="0.01" />
               <TextField label="Monthly Price" name="monthly_price" type="number" min="0" step="0.01" />
               <TextField label="Annual Price" name="annual_price" type="number" min="0" step="0.01" />
+              <TextField label="Stripe Monthly Price ID" name="stripe_monthly_price_id" placeholder="price_..." />
+              <TextField label="Stripe Annual Price ID" name="stripe_annual_price_id" placeholder="price_..." />
             </div>
             <TextAreaField label="Travel Policy" name="travel_policy" />
             <TextAreaField label="Lodging Policy" name="lodging_policy" />

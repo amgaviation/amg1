@@ -7,6 +7,10 @@ import { nextBillingDocumentNumber } from "@/lib/portal/billing-numbering";
 import type { SessionUser } from "@/lib/portal/session";
 import { isAdminRole } from "@/lib/portal/constants";
 import {
+  extractStripeEventLinks,
+  handleStripeSubscriptionEvent,
+} from "@/lib/portal/stripe-subscriptions";
+import {
   buildInvoiceCheckoutSummary,
   canInvoiceReceiveStripePayment,
   invoiceAmountDueCents,
@@ -24,6 +28,7 @@ type WebhookResult = {
   duplicate?: boolean;
   ignored?: boolean;
   error?: string;
+  portalSubscriptionId?: string | null;
 };
 
 function stripeClient() {
@@ -223,9 +228,15 @@ export async function processStripeWebhook(rawBody: string, signature: string | 
   }
 
   const db = (await createServiceClient()) as any;
+  const links = extractStripeEventLinks(event);
   const { error: insertError } = await db.from("stripe_webhook_events").insert({
     stripe_event_id: event.id,
     type: event.type,
+    event_type: event.type,
+    stripe_customer_id: links.customerId,
+    stripe_subscription_id: links.subscriptionId,
+    stripe_invoice_id: links.invoiceId,
+    portal_subscription_id: links.portalSubscriptionId,
     status: "processing",
   });
   if (insertError?.code === "23505") return { ok: true, duplicate: true };
@@ -238,6 +249,7 @@ export async function processStripeWebhook(rawBody: string, signature: string | 
       .update({
         status: result.ok ? (result.ignored ? "ignored" : "processed") : "failed",
         error: result.error ?? null,
+        portal_subscription_id: result.portalSubscriptionId ?? links.portalSubscriptionId,
         processed_at: new Date().toISOString(),
       })
       .eq("stripe_event_id", event.id);
@@ -255,9 +267,26 @@ export async function processStripeWebhook(rawBody: string, signature: string | 
 async function handleStripeEvent(event: Stripe.Event): Promise<WebhookResult> {
   switch (event.type) {
     case "checkout.session.completed":
+      if ((event.data.object as Stripe.Checkout.Session).mode === "subscription") {
+        return handleStripeSubscriptionEvent(event);
+      }
       return markInvoicePaidFromCheckoutSession(event.data.object as Stripe.Checkout.Session, event.id);
     case "checkout.session.expired":
+      if ((event.data.object as Stripe.Checkout.Session).mode === "subscription") {
+        return handleStripeSubscriptionEvent(event);
+      }
       return markInvoiceStripeStatus(event.data.object as Stripe.Checkout.Session, "expired");
+    case "customer.created":
+    case "customer.updated":
+    case "customer.subscription.created":
+    case "customer.subscription.updated":
+    case "customer.subscription.deleted":
+    case "invoice.created":
+    case "invoice.finalized":
+    case "invoice.paid":
+    case "invoice.payment_failed":
+    case "payment_method.attached":
+      return handleStripeSubscriptionEvent(event);
     case "payment_intent.succeeded":
       return markInvoiceStripePaymentIntent(event.data.object as Stripe.PaymentIntent, "succeeded");
     case "payment_intent.payment_failed":

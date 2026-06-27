@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
+import { manageSubscriptionBilling } from "@/app/portal/actions/subscriptions";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
-import { EmptyState, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
+import { EmptyState, Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
+import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { listSubscriptionsForClient } from "@/lib/portal/queries";
 import { SUBSCRIPTION_STATUS_LABEL, SUBSCRIPTION_STATUS_TONE, toneFor } from "@/lib/portal/constants";
 import { formatDate, formatMoney } from "@/lib/portal/format";
@@ -12,8 +14,9 @@ export const metadata = { title: "Subscriptions - Client Portal" };
 export default async function ClientSubscriptionsPage() {
   const user = await requireRole("client");
   const subscriptions = await listSubscriptionsForClient(user.id);
-  const active = subscriptions.filter((subscription) => ["active", "renewal_pending"].includes(subscription.status));
+  const active = subscriptions.filter((subscription) => ["active", "trialing", "renewal_pending"].includes(subscription.status));
   const creditBalance = subscriptions.reduce((sum, subscription) => sum + Number(subscription.credit_balance ?? 0), 0);
+  const paymentIssue = subscriptions.some((subscription) => ["past_due", "unpaid"].includes(subscription.status) || subscription.stripe_payment_status === "failed");
 
   return (
     <PortalShell role="client" user={user}>
@@ -22,6 +25,10 @@ export default async function ClientSubscriptionsPage() {
         title="Subscriptions"
         description="View active AMG support subscriptions, allowances, usage, renewal dates, and available credits."
       />
+
+      {paymentIssue ? (
+        <Notice tone="danger">Action required: update your subscription payment method through Stripe billing management.</Notice>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Active subscriptions" value={active.length} />
@@ -53,14 +60,24 @@ export default async function ClientSubscriptionsPage() {
                   <span>{subscription.included_admin_hours} admin hrs</span>
                 </div>
                 <div className="mt-4 flex flex-wrap justify-between gap-3 text-xs">
-                  <span className="text-muted-foreground">Renews {formatDate(subscription.renewal_date)}</span>
-                  <span className="font-semibold text-accent">Credit {formatMoney(subscription.credit_balance)}</span>
+                  <span className="text-muted-foreground">Renews {formatDate(subscription.current_period_end ?? subscription.renewal_date)}</span>
+                  <span className="font-semibold text-accent">
+                    {formatMoney(Number(subscription.amount_cents ?? 0) > 0 ? Number(subscription.amount_cents) / 100 : Number(subscription.custom_price ?? subscription.monthly_price))} {subscription.billing_cadence}
+                  </span>
                 </div>
+                {subscription.stripe_payment_status ? <p className="mt-2 text-xs text-muted-foreground">Payment status: {subscription.stripe_payment_status}</p> : null}
               </Link>
             ))}
           </div>
         )}
       </SectionCard>
+
+      {subscriptions.some((subscription) => subscription.stripe_customer_id) ? (
+        <form action={manageSubscriptionBilling}>
+          <input type="hidden" name="return_to" value="/portal/client/subscriptions" />
+          <SubmitButton className="rounded-full" pendingText="Opening Stripe...">Manage Billing</SubmitButton>
+        </form>
+      ) : null}
     </PortalShell>
   );
 }

@@ -48,6 +48,8 @@ export type SubscriptionPlan = {
   base_admin_fee_annual: number;
   annual_discount_percent: number;
   default_terms: string | null;
+  plan_code?: string | null;
+  stripe_product_id?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -65,6 +67,9 @@ export type SubscriptionPlanTier = {
   priority_level: string | null;
   monthly_price: number;
   annual_price: number;
+  stripe_monthly_price_id?: string | null;
+  stripe_annual_price_id?: string | null;
+  stripe_product_id?: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -72,7 +77,7 @@ export type SubscriptionPlanTier = {
 
 export type ClientSubscription = {
   id: string;
-  client_id: string;
+  client_id: string | null;
   aircraft_id: string | null;
   plan_id: string | null;
   tier_id: string | null;
@@ -90,6 +95,34 @@ export type ClientSubscription = {
   credit_balance: number;
   notes: string | null;
   created_by: string | null;
+  plan_name?: string | null;
+  plan_code?: string | null;
+  tier_key?: string | null;
+  amount_cents?: number | null;
+  currency?: string | null;
+  current_period_start?: string | null;
+  current_period_end?: string | null;
+  trial_start?: string | null;
+  trial_end?: string | null;
+  cancel_at_period_end?: boolean | null;
+  canceled_at?: string | null;
+  ended_at?: string | null;
+  stripe_customer_id?: string | null;
+  stripe_subscription_id?: string | null;
+  stripe_price_id?: string | null;
+  stripe_product_id?: string | null;
+  stripe_checkout_session_id?: string | null;
+  stripe_checkout_url?: string | null;
+  stripe_latest_invoice_id?: string | null;
+  stripe_payment_status?: string | null;
+  stripe_sync_status?: string | null;
+  stripe_last_event_id?: string | null;
+  stripe_last_event_type?: string | null;
+  stripe_last_event_at?: string | null;
+  stripe_last_synced_at?: string | null;
+  stripe_sync_warning?: string | null;
+  source?: string | null;
+  ignored_at?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -125,6 +158,44 @@ export type SubscriptionCredit = {
   created_at: string;
 };
 
+export type SubscriptionBillingInvoice = {
+  id: string;
+  subscription_id: string | null;
+  client_id: string | null;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  stripe_invoice_id: string;
+  stripe_invoice_number: string | null;
+  amount_due: number;
+  amount_paid: number;
+  currency: string;
+  status: string | null;
+  payment_status: string | null;
+  hosted_invoice_url: string | null;
+  invoice_pdf_url: string | null;
+  period_start: string | null;
+  period_end: string | null;
+  paid_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type StripeWebhookEventRow = {
+  id: string;
+  stripe_event_id: string;
+  type: string;
+  event_type?: string | null;
+  stripe_customer_id?: string | null;
+  stripe_subscription_id?: string | null;
+  stripe_invoice_id?: string | null;
+  portal_subscription_id?: string | null;
+  received_at?: string | null;
+  processed_at: string | null;
+  status: string;
+  error: string | null;
+  created_at: string;
+};
+
 export type MissionListItem = Mission & {
   aircraft: MiniAircraft | null;
   client: MiniProfile | null;
@@ -146,6 +217,8 @@ export type SubscriptionDetail = ClientSubscription & {
   tier: SubscriptionPlanTier | null;
   usage: (SubscriptionUsageEvent & { mission: { id: string; ref: string } | null })[];
   credits: SubscriptionCredit[];
+  billingInvoices: SubscriptionBillingInvoice[];
+  stripeEvents: StripeWebhookEventRow[];
 };
 
 // ─── Aircraft ───────────────────────────────────────────────────────
@@ -506,7 +579,7 @@ export async function getSubscriptionDetail(id: string): Promise<SubscriptionDet
     .eq("id", id)
     .maybeSingle();
   if (!subscription) return null;
-  const [usage, credits] = await Promise.all([
+  const [usage, credits, billingInvoices, stripeEvents] = await Promise.all([
     db
       .from("subscription_usage_events")
       .select("*, mission:mission_id(id,ref)")
@@ -517,12 +590,35 @@ export async function getSubscriptionDetail(id: string): Promise<SubscriptionDet
       .select("*")
       .eq("subscription_id", id)
       .order("created_at", { ascending: false }),
+    db
+      .from("subscription_billing_invoices")
+      .select("*")
+      .eq("subscription_id", id)
+      .order("created_at", { ascending: false }),
+    db
+      .from("stripe_webhook_events")
+      .select("*")
+      .eq("portal_subscription_id", id)
+      .order("created_at", { ascending: false }),
   ]);
   return {
     ...subscription,
     usage: usage.data ?? [],
     credits: credits.data ?? [],
+    billingInvoices: billingInvoices.data ?? [],
+    stripeEvents: stripeEvents.data ?? [],
   };
+}
+
+export async function listStripeSubscriptionEvents(): Promise<StripeWebhookEventRow[]> {
+  const db = (await createServiceClient()) as any;
+  const { data } = await db
+    .from("stripe_webhook_events")
+    .select("*")
+    .or("stripe_subscription_id.not.is.null,portal_subscription_id.not.is.null")
+    .order("created_at", { ascending: false })
+    .limit(50);
+  return data ?? [];
 }
 
 export async function getSubscriptionOverageTotal(): Promise<number> {

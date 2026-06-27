@@ -1,19 +1,28 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { requireRole } from "@/lib/portal/session";
+import { manageSubscriptionBilling } from "@/app/portal/actions/subscriptions";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
-import { DetailRow, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
+import { DetailRow, Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
+import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { getSubscriptionDetail } from "@/lib/portal/queries";
 import { SUBSCRIPTION_STATUS_LABEL, SUBSCRIPTION_STATUS_TONE, SUBSCRIPTION_USAGE_TYPE_LABEL, toneFor } from "@/lib/portal/constants";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/portal/format";
 
 export const metadata = { title: "Subscription Detail - Client Portal" };
 
-export default async function ClientSubscriptionDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ClientSubscriptionDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ success?: string; error?: string }>;
+}) {
   const user = await requireRole("client");
   const { id } = await params;
+  const flash = await searchParams;
   const subscription = await getSubscriptionDetail(id);
   if (!subscription) notFound();
   if (subscription.client_id !== user.id) redirect("/access-denied");
@@ -28,6 +37,11 @@ export default async function ClientSubscriptionDetailPage({ params }: { params:
 
   return (
     <PortalShell role="client" user={user}>
+      {flash.success === "checkout" ? <Notice tone="success">Subscription setup was completed. AMG is finalizing billing status from Stripe.</Notice> : null}
+      {flash.error === "checkout_cancelled" ? <Notice tone="warn">Subscription setup was not completed. You can use the setup link from AMG or contact Operations.</Notice> : null}
+      {["past_due", "unpaid"].includes(subscription.status) || subscription.stripe_payment_status === "failed" ? (
+        <Notice tone="danger">Action required: update your payment method through Stripe billing management.</Notice>
+      ) : null}
       <PageHeader
         eyebrow="Subscription"
         title={subscription.plan?.name ?? "AMG Support Subscription"}
@@ -37,9 +51,9 @@ export default async function ClientSubscriptionDetailPage({ params }: { params:
 
       <div className="grid gap-4 sm:grid-cols-4">
         <StatCard label="Status" value={SUBSCRIPTION_STATUS_LABEL[subscription.status] ?? subscription.status} />
+        <StatCard label="Payment" value={subscription.stripe_payment_status ?? "pending"} />
         <StatCard label="Usage Units" value={usageTotals.quantity} />
-        <StatCard label="Overages" value={formatMoney(usageTotals.overage)} tone={usageTotals.overage > 0 ? "warn" : "default"} />
-        <StatCard label="Credits" value={formatMoney(subscription.credit_balance)} />
+        <StatCard label="Renews" value={formatDate(subscription.current_period_end ?? subscription.renewal_date)} />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[24rem_1fr]">
@@ -48,11 +62,19 @@ export default async function ClientSubscriptionDetailPage({ params }: { params:
             <DetailRow label="Status"><StatusBadge label={SUBSCRIPTION_STATUS_LABEL[subscription.status] ?? subscription.status} tone={toneFor(SUBSCRIPTION_STATUS_TONE, subscription.status)} /></DetailRow>
             <DetailRow label="Aircraft">{subscription.aircraft?.tail_number ?? "Account-level"}</DetailRow>
             <DetailRow label="Cadence">{subscription.billing_cadence}</DetailRow>
+            <DetailRow label="Amount">{formatMoney(Number(subscription.amount_cents ?? 0) > 0 ? Number(subscription.amount_cents) / 100 : Number(subscription.custom_price ?? subscription.monthly_price))}</DetailRow>
             <DetailRow label="Start">{formatDate(subscription.start_date)}</DetailRow>
-            <DetailRow label="Renewal">{formatDate(subscription.renewal_date)}</DetailRow>
+            <DetailRow label="Renewal">{formatDate(subscription.current_period_end ?? subscription.renewal_date)}</DetailRow>
+            <DetailRow label="Payment Status">{subscription.stripe_payment_status ?? "-"}</DetailRow>
             <DetailRow label="Included">{`${subscription.included_flights} flights / ${subscription.included_mx_repositions} MX repositions / ${subscription.included_admin_hours} admin hrs`}</DetailRow>
             <DetailRow label="Credit Balance">{formatMoney(subscription.credit_balance)}</DetailRow>
           </dl>
+          {subscription.stripe_customer_id ? (
+            <form action={manageSubscriptionBilling} className="mt-5">
+              <input type="hidden" name="return_to" value={`/portal/client/subscriptions/${subscription.id}`} />
+              <SubmitButton className="w-full rounded-full" pendingText="Opening Stripe...">Manage Billing</SubmitButton>
+            </form>
+          ) : null}
         </SectionCard>
 
         <div className="space-y-6">
@@ -83,6 +105,22 @@ export default async function ClientSubscriptionDetailPage({ params }: { params:
                 { header: "Description", cell: (row) => row.description ?? "-" },
                 { header: "Expires", cell: (row) => formatDate(row.expires_at) },
                 { header: "Amount", cell: (row) => formatMoney(row.amount), align: "right" },
+              ]}
+            />
+          </SectionCard>
+
+          <SectionCard title="Billing History" icon="wallet">
+            <DataTable
+              rows={subscription.billingInvoices}
+              getKey={(row) => row.id}
+              emptyLabel="No Stripe billing invoices are available yet."
+              columns={[
+                { header: "Invoice", cell: (row) => row.hosted_invoice_url ? <Link href={row.hosted_invoice_url} className="text-accent hover:underline">{row.stripe_invoice_number ?? row.stripe_invoice_id}</Link> : row.stripe_invoice_number ?? row.stripe_invoice_id },
+                { header: "Status", cell: (row) => row.status ?? "-" },
+                { header: "Period", cell: (row) => `${formatDate(row.period_start)} - ${formatDate(row.period_end)}` },
+                { header: "Due", cell: (row) => formatMoney(row.amount_due), align: "right" },
+                { header: "Paid", cell: (row) => formatMoney(row.amount_paid), align: "right" },
+                { header: "PDF", cell: (row) => row.invoice_pdf_url ? <Link href={row.invoice_pdf_url} className="text-accent hover:underline">PDF</Link> : "-" },
               ]}
             />
           </SectionCard>
