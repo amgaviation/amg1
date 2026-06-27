@@ -304,6 +304,37 @@
       rgb(7 17 31 / 82%);
     backdrop-filter: blur(18px);
   }
+  .amg-portal {
+    --background: #F8FAFC;
+    --foreground: #050B14;
+    --card: #FFFFFF;
+    --card-foreground: #050B14;
+    --popover: #FFFFFF;
+    --popover-foreground: #050B14;
+    --secondary: #F1F5F9;
+    --secondary-foreground: #050B14;
+    --muted: #F1F5F9;
+    --muted-foreground: #4B5563;
+    --border: #E5E7EB;
+    --input: #CBD5E1;
+    --ring: #3B82F6;
+    --amg-bg-portal: #F8FAFC;
+    --amg-bg-elevated: #FFFFFF;
+    --amg-text-primary: #050B14;
+    --amg-text-secondary: #4B5563;
+    --amg-text-muted: #6B7280;
+    --amg-text-subtle: #64748B;
+    --amg-border-default: #E5E7EB;
+    --amg-border-muted: #EEF2F7;
+    --amg-border-strong: #CBD5E1;
+    background:
+      linear-gradient(180deg, #F8FAFC 0%, #F9FAFB 52%, #FFFFFF 100%);
+    color: #050B14;
+  }
+  .amg-portal ::selection {
+    background-color: rgb(59 130 246 / 20%);
+    color: #050B14;
+  }
   .hover-lift {
     transition:
       transform 220ms cubic-bezier(0.22, 1, 0.36, 1),

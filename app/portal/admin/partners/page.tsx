@@ -19,6 +19,7 @@ export default async function AdminPartnersPage() {
         <DataTable
           rows={partners}
           getKey={(row) => row.id}
+          getHref={(row) => `/portal/admin/partners/${row.id}`}
           emptyLabel="No partners on file."
           columns={[
             { header: "Company", cell: (row) => row.partner_profile?.company_name ?? row.company_name ?? row.full_name ?? row.email },

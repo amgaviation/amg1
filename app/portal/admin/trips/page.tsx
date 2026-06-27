@@ -53,12 +53,12 @@ export default async function AdminTripsPage({
       {/* Filters */}
       <SectionCard title="Filters" icon="plane">
         <form className="grid gap-3 md:grid-cols-[1fr_2fr_auto] md:items-end">
-          <label className="grid gap-2 text-sm font-semibold text-slate-100">
+          <label className="grid gap-2 text-sm font-semibold text-slate-700">
             Status
             <select
               name="status"
               defaultValue={params.status ?? ""}
-              className="h-11 rounded-md border border-white/12 bg-[#050B14] px-3 text-sm text-white"
+              className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.14)]"
             >
               <option value="">All Statuses</option>
               {MISSION_STATUS.map((s) => (
@@ -66,12 +66,12 @@ export default async function AdminTripsPage({
               ))}
             </select>
           </label>
-          <label className="grid gap-2 text-sm font-semibold text-slate-100">
+          <label className="grid gap-2 text-sm font-semibold text-slate-700">
             Search
             <input
               name="q"
               defaultValue={params.q ?? ""}
-              className="h-11 rounded-md border border-white/12 bg-[#050B14] px-3 text-sm text-white placeholder:text-slate-500"
+              className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none placeholder:text-slate-400 focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.14)]"
               placeholder="Ref, route, tail number, client…"
             />
           </label>
