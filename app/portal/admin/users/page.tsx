@@ -1,16 +1,19 @@
 import { requireRole } from "@/lib/portal/session";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
-import { DataTable } from "@/components/portal/ui/data-table";
-import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
-import { StatusBadge } from "@/components/portal/ui/status-badge";
-import { SubmitButton } from "@/components/portal/ui/submit-button";
-import { SelectField, TextField } from "@/components/portal/ui/fields";
 import {
+  AdminRecordManager,
+  type AdminRecordField,
+  type AdminRecordFilter,
+  type AdminRecordRow,
+} from "@/components/portal/admin/admin-record-manager";
+import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
+import { SubmitButton } from "@/components/portal/ui/submit-button";
+import {
+  changePortalUserPassword,
   createPortalUser,
   deactivatePortalUser,
-  deletePortalUser,
-  resendPortalInvitation,
-  setUserStatus,
+  sendPortalPasswordReset,
+  updatePortalUser,
 } from "@/app/portal/actions/admin";
 import { listAllUsers } from "@/lib/portal/queries";
 import {
@@ -29,6 +32,188 @@ function isReleasedEmail(email: string) {
   return email.includes("+released-") || email.includes("__released__");
 }
 
+function noticeFor(success?: string, error?: string) {
+  if (success === "invited") return <Notice tone="success">User created and AMG setup email sent.</Notice>;
+  if (success === "resent") return <Notice tone="success">AMG setup email resent.</Notice>;
+  if (success === "status") return <Notice tone="success">User profile updated.</Notice>;
+  if (success === "reset") return <Notice tone="success">Password reset email sent.</Notice>;
+  if (success === "password") return <Notice tone="success">Password changed.</Notice>;
+  if (success === "deactivated") return <Notice tone="success">User deactivated and email released.</Notice>;
+  if (success === "deleted") return <Notice tone="success">User deleted and email released.</Notice>;
+
+  const errors: Record<string, string> = {
+    missing: "Full name, email, role, and status are required.",
+    duplicate: "A portal user with that email already exists.",
+    phone: "Mobile phone must use E.164 format, such as +15551234567.",
+    invite: "AMG could not provision portal access or send the setup email.",
+    profile: "Profile metadata could not be saved.",
+    self: "You cannot deactivate, delete, or demote your own admin account.",
+    "last-admin": "You cannot remove the last active admin account.",
+    user: "User could not be found.",
+    deactivate: "User could not be deactivated.",
+    delete: "User was archived instead of fully deleted because related operational records exist.",
+    "auth-release": "The email could not be released from the authentication record.",
+    "already-released": "This user's email has already been released.",
+    released: "This user has a released email and cannot receive another setup email from this record.",
+    reset: "Password reset email could not be sent.",
+    weakpassword: "Password must be at least 12 characters.",
+    mismatch: "Password confirmation does not match.",
+    password: "Password could not be changed.",
+    role: "You do not have permission to change that account.",
+    status: "Invalid status selected.",
+    save: "User profile could not be saved.",
+  };
+
+  return error && errors[error] ? <Notice tone="danger">{errors[error]}</Notice> : null;
+}
+
+const userFields: AdminRecordField[] = [
+  { name: "full_name", label: "Full Name", required: true },
+  { name: "email", label: "Email", type: "email", required: true },
+  { name: "phone", label: "Mobile Phone", type: "tel", placeholder: "+15551234567" },
+  {
+    name: "role",
+    label: "Role",
+    type: "select",
+    required: true,
+    options: PORTAL_ROLES.map((role) => ({ value: role, label: role })),
+  },
+  {
+    name: "status",
+    label: "Status",
+    type: "select",
+    required: true,
+    options: PROFILE_STATUS.map((status) => ({ value: status.value, label: status.label })),
+  },
+  { name: "company_name", label: "Company" },
+  { name: "home_base", label: "Home Airport", placeholder: "KTEB" },
+  {
+    name: "invitation_channel",
+    label: "Invitation Method",
+    type: "select",
+    options: [
+      { value: "email", label: "Email" },
+      { value: "sms", label: "SMS record only" },
+      { value: "email_sms", label: "Email + SMS record" },
+    ],
+  },
+];
+
+const filters: AdminRecordFilter[] = [
+  {
+    key: "role",
+    label: "Role",
+    type: "select",
+    options: PORTAL_ROLES.map((role) => ({ value: role, label: role })),
+  },
+  {
+    key: "status",
+    label: "Status",
+    type: "select",
+    options: PROFILE_STATUS.map((status) => ({ value: status.value, label: status.label })),
+  },
+  { key: "company", label: "Company", type: "text" },
+  {
+    key: "invitation",
+    label: "Invitation",
+    type: "select",
+    options: [
+      { value: "access_request_received", label: "Access request" },
+      { value: "portal_setup_sent", label: "Setup sent" },
+      { value: "portal_setup_failed", label: "Setup failed" },
+      { value: "profile_created", label: "Profile created" },
+    ],
+  },
+];
+
+function userRows(users: Awaited<ReturnType<typeof listAllUsers>>): AdminRecordRow[] {
+  return users.map((row) => {
+    const released = isReleasedEmail(row.email);
+    const name = row.full_name ?? row.email;
+    const statusLabel = PROFILE_STATUS_LABEL[row.status] ?? row.status;
+
+    return {
+      id: row.id,
+      title: name,
+      subtitle: released ? "Email released for future access request" : row.email,
+      status: { label: statusLabel, tone: toneFor(PROFILE_STATUS_TONE, row.status) },
+      secondaryStatus: row.invitation_status
+        ? { label: row.invitation_status.replace(/_/g, " "), tone: row.invitation_status.includes("failed") ? "danger" : "info" }
+        : undefined,
+      cells: {
+        name,
+        email: row.email,
+        role: row.role,
+        company: row.company_name ?? "-",
+        phone: row.phone ?? "-",
+        status: statusLabel,
+        invite: row.invitation_status ?? "-",
+        lastLogin: formatDateTime(row.last_login_at),
+      },
+      searchText: [
+        row.full_name,
+        row.email,
+        row.phone,
+        row.role,
+        row.status,
+        row.company_name,
+        row.home_base,
+        row.invitation_status,
+        row.created_at,
+      ]
+        .filter(Boolean)
+        .join(" "),
+      filters: {
+        role: row.role,
+        status: row.status,
+        company: row.company_name,
+        invitation: row.invitation_status,
+      },
+      formValues: {
+        full_name: row.full_name ?? "",
+        email: row.email,
+        phone: row.phone ?? "",
+        role: row.role,
+        status: row.status,
+        company_name: row.company_name ?? "",
+        home_base: row.home_base ?? "",
+        invitation_channel: row.invitation_channel ?? "email",
+      },
+      details: [
+        { label: "Full Name", value: name },
+        { label: "Email", value: released ? "Released for future access request" : row.email },
+        { label: "Role", value: row.role },
+        { label: "Status", value: statusLabel },
+        { label: "Phone", value: row.phone },
+        { label: "Company", value: row.company_name },
+        { label: "Home Airport", value: row.home_base },
+      ],
+      detailSections: [
+        {
+          title: "Account",
+          rows: [
+            { label: "Role", value: row.role },
+            { label: "Status", value: statusLabel },
+            { label: "Active", value: row.is_active ? "Yes" : "No" },
+            { label: "Created", value: formatDateTime(row.created_at) },
+            { label: "Updated", value: formatDateTime(row.updated_at) },
+            { label: "Last Login", value: formatDateTime(row.last_login_at) },
+          ],
+        },
+        {
+          title: "Onboarding",
+          rows: [
+            { label: "Invitation Status", value: row.invitation_status },
+            { label: "Invitation Channel", value: row.invitation_channel },
+            { label: "Invitation Sent", value: formatDateTime(row.invitation_sent_at) },
+            { label: "Email History", value: `/portal/admin/communications/emails?user=${row.id}` },
+          ],
+        },
+      ],
+    };
+  });
+}
+
 export default async function AdminUsersPage({
   searchParams,
 }: {
@@ -37,310 +222,119 @@ export default async function AdminUsersPage({
   const user = await requireRole("admin");
   const params = await searchParams;
   const users = await listAllUsers();
+  const rows = userRows(users);
 
   return (
     <PortalShell role="admin" user={user}>
-      {params.success === "invited" ? (
-        <Notice tone="success">User created and invitation sent.</Notice>
-      ) : null}
-
-      {params.success === "resent" ? (
-        <Notice tone="success">Invitation resent.</Notice>
-      ) : null}
-
-      {params.success === "status" ? (
-        <Notice tone="success">User status updated.</Notice>
-      ) : null}
-
-      {params.success === "deactivated" ? (
-        <Notice tone="success">
-          User deactivated. The email has been released for a new access request.
-        </Notice>
-      ) : null}
-
-      {params.success === "deleted" ? (
-        <Notice tone="success">
-          User deleted. The email has been released for a new access request.
-        </Notice>
-      ) : null}
-
-      {params.error === "missing" ? (
-        <Notice tone="danger">Full name, email, and role are required.</Notice>
-      ) : null}
-
-      {params.error === "duplicate" ? (
-        <Notice tone="danger">A portal user with that email already exists.</Notice>
-      ) : null}
-
-      {params.error === "phone" ? (
-        <Notice tone="danger">
-          Mobile phone must use E.164 format, such as +15551234567.
-        </Notice>
-      ) : null}
-
-      {params.error === "invite" ? (
-        <Notice tone="danger">
-          AMG could not send the invitation. Check auth email settings and AMG app URL configuration.
-        </Notice>
-      ) : null}
-
-      {params.error === "profile" ? (
-        <Notice tone="danger">
-          Invitation was created but profile metadata could not be saved. Apply the production database patch and retry.
-        </Notice>
-      ) : null}
-
-      {params.error === "self" ? (
-        <Notice tone="danger">
-          You cannot deactivate or delete your own admin account.
-        </Notice>
-      ) : null}
-
-      {params.error === "last-admin" ? (
-        <Notice tone="danger">
-          You cannot deactivate or delete the last active admin account.
-        </Notice>
-      ) : null}
-
-      {params.error === "user" ? (
-        <Notice tone="danger">User could not be found.</Notice>
-      ) : null}
-
-      {params.error === "deactivate" ? (
-        <Notice tone="danger">User could not be deactivated.</Notice>
-      ) : null}
-
-      {params.error === "delete" ? (
-        <Notice tone="success">
-          User was archived instead of fully deleted because related operational records exist. The email has still been released for a new access request.
-        </Notice>
-      ) : null}
-
-      {params.error === "auth-release" ? (
-        <Notice tone="danger">
-          The email could not be released from the authentication record. Do not retry until the portal account is checked.
-        </Notice>
-      ) : null}
-
-      {params.error === "already-released" ? (
-        <Notice tone="danger">This user's email has already been released.</Notice>
-      ) : null}
-
-      {params.error === "released" ? (
-        <Notice tone="danger">
-          This user has a released email and cannot receive another invite from this record.
-        </Notice>
-      ) : null}
+      {noticeFor(params.success, params.error)}
 
       <PageHeader
         eyebrow="AMG Operations"
-        title="Users"
-        description="Create portal users, send invitations, manage role/status, deactivate accounts, archive records, and release emails for new access requests."
+        title="All Users"
+        description="Search, filter, create, edit, approve, deactivate, and manage secure portal account access."
       />
 
-      <SectionCard title="Create User & Send Invitation" icon="userCheck">
-        <form action={createPortalUser} className="grid gap-4 lg:grid-cols-4">
-          <TextField label="Full Name" name="full_name" required />
-          <TextField label="Email" name="email" type="email" required />
-          <TextField label="Mobile Phone" name="phone" placeholder="+15551234567" />
+      <AdminRecordManager
+        title="User Directory"
+        description="Use the same record-management pattern as Crew: searchable rows, filters, detail drawer, edit modal, status pills, and compact actions."
+        rows={rows}
+        columns={[
+          { key: "name", label: "User", sortable: true },
+          { key: "role", label: "Role", sortable: true },
+          { key: "company", label: "Company", sortable: true },
+          { key: "phone", label: "Phone" },
+          { key: "status", label: "Status", sortable: true },
+          { key: "invite", label: "Setup", sortable: true },
+          { key: "lastLogin", label: "Last Login", sortable: true },
+        ]}
+        filters={filters}
+        fields={userFields}
+        createAction={createPortalUser}
+        updateAction={updatePortalUser}
+        archiveAction={deactivatePortalUser}
+        createLabel="Create User"
+        editLabel="Edit User"
+        archiveLabel="Deactivate"
+        archiveConfirm="Deactivate this portal account and release the email?"
+        recordIdName="profile_id"
+        backTo="/portal/admin/users"
+        emptyTitle="No Users Found"
+        emptyDescription="No portal users match the current search and filters."
+        detailEyebrow="User Detail"
+      />
 
-          <SelectField
-            label="Role"
-            name="role"
-            defaultValue="client"
-            options={PORTAL_ROLES.map((role) => ({
-              value: role,
-              label: role,
-            }))}
-          />
-
-          <TextField label="Company" name="company_name" />
-          <TextField label="Home Airport" name="home_base" placeholder="KTEB" />
-
-          <SelectField
-            label="Initial Status"
-            name="status"
-            defaultValue="pending"
-            options={PROFILE_STATUS.map((status) => ({
-              value: status.value,
-              label: status.label,
-            }))}
-          />
-
-          <SelectField
-            label="Invitation Method"
-            name="invitation_channel"
-            defaultValue="email"
-            options={[
-              { value: "email", label: "Email" },
-              { value: "sms", label: "SMS record only" },
-              { value: "email_sms", label: "Email + SMS record" },
-            ]}
-          />
-
-          <div className="lg:col-span-4">
-            <p className="eyebrow mb-2 text-[0.6rem] text-muted-foreground">
-              Permissions
-            </p>
-
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-              {PORTAL_PERMISSIONS.map((permission) => (
-                <label
-                  key={permission}
-                  className="flex min-h-11 items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
-                  <input
-                    type="checkbox"
-                    name="permissions"
-                    value={permission}
-                    className="h-4 w-4 accent-[var(--accent)]"
-                  />
-                  <span>{permission}</span>
-                </label>
-              ))}
+      <SectionCard title="Security Center" icon="shield">
+        <div className="grid gap-4 lg:grid-cols-2">
+          <form action={sendPortalPasswordReset} className="grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <div>
+              <h3 className="text-sm font-semibold text-slate-950">Send Password Reset Link</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Preferred account-help action. AMG sends a branded reset email and never exposes the setup link in the browser.
+              </p>
             </div>
-          </div>
-
-          <div className="lg:col-span-4">
-            <SubmitButton className="rounded-full" pendingText="Creating...">
-              Create User & Send Invite
+            <input type="hidden" name="back_to" value="/portal/admin/users" />
+            <select name="user_id" required className="min-h-11 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-950">
+              <option value="">Select user</option>
+              {users.filter((row) => !isReleasedEmail(row.email)).map((row) => (
+                <option key={row.id} value={row.id}>
+                  {row.full_name ?? row.email} - {row.email}
+                </option>
+              ))}
+            </select>
+            <SubmitButton className="rounded-full" pendingText="Sending...">
+              Send Password Reset Link
             </SubmitButton>
-          </div>
-        </form>
-      </SectionCard>
+          </form>
 
-      <SectionCard title="User Directory" icon="users">
-        <DataTable
-          rows={users}
-          getKey={(row) => row.id}
-          emptyLabel="No portal users found."
-          columns={[
-            {
-              header: "User",
-              cell: (row) => (
-                <div>
-                  <p className="text-sm font-semibold">
-                    {row.full_name ?? row.email}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {isReleasedEmail(row.email)
-                      ? "Email released for future access request"
-                      : row.email}
-                  </p>
-                </div>
-              ),
-            },
-            {
-              header: "Role",
-              cell: (row) => row.role,
-            },
-            {
-              header: "Company",
-              cell: (row) => row.company_name ?? "-",
-            },
-            {
-              header: "Phone",
-              cell: (row) => row.phone ?? "-",
-            },
-            {
-              header: "Status",
-              cell: (row) => (
-                <StatusBadge
-                  label={PROFILE_STATUS_LABEL[row.status] ?? row.status}
-                  tone={toneFor(PROFILE_STATUS_TONE, row.status)}
-                />
-              ),
-            },
-            {
-              header: "Invite",
-              cell: (row) => (
-                <div className="text-xs text-muted-foreground">
-                  {row.invitation_status ?? "-"}
-                  <br />
-                  {formatDateTime(row.invitation_sent_at)}
-                </div>
-              ),
-            },
-            {
-              header: "Last Login",
-              cell: (row) => formatDateTime(row.last_login_at),
-            },
-            {
-              header: "Actions",
-              cell: (row) => {
-                const released = isReleasedEmail(row.email);
+          <form action={changePortalUserPassword} className="grid gap-3 rounded-lg border border-amber-200 bg-amber-50/70 p-4">
+            <div>
+              <h3 className="text-sm font-semibold text-slate-950">Change Password</h3>
+              <p className="mt-1 text-xs leading-5 text-amber-800">
+                Admin override. Use direct password changes only when necessary; reset links are preferred.
+              </p>
+            </div>
+            <input type="hidden" name="back_to" value="/portal/admin/users" />
+            <select name="user_id" required className="min-h-11 rounded-md border border-amber-200 bg-white px-3 text-sm text-slate-950">
+              <option value="">Select user</option>
+              {users.filter((row) => !isReleasedEmail(row.email)).map((row) => (
+                <option key={row.id} value={row.id}>
+                  {row.full_name ?? row.email} - {row.email}
+                </option>
+              ))}
+            </select>
+            <input
+              name="password"
+              type="password"
+              minLength={12}
+              required
+              autoComplete="new-password"
+              placeholder="New password"
+              className="min-h-11 rounded-md border border-amber-200 bg-white px-3 text-sm text-slate-950"
+            />
+            <input
+              name="confirm_password"
+              type="password"
+              minLength={12}
+              required
+              autoComplete="new-password"
+              placeholder="Confirm new password"
+              className="min-h-11 rounded-md border border-amber-200 bg-white px-3 text-sm text-slate-950"
+            />
+            <SubmitButton
+              variant="outline"
+              className="rounded-full border-amber-400/70 text-amber-800 hover:border-amber-500"
+              confirm="Change this user's password? Password reset links are preferred."
+              pendingText="Changing..."
+            >
+              Change Password
+            </SubmitButton>
+          </form>
+        </div>
 
-                return (
-                  <div className="grid min-w-56 gap-2">
-                    {!released ? (
-                      <form action={resendPortalInvitation}>
-                        <input type="hidden" name="user_id" value={row.id} />
-                        <SubmitButton
-                          variant="outline"
-                          className="rounded-full"
-                          pendingText="Sending..."
-                        >
-                          Resend Invite
-                        </SubmitButton>
-                      </form>
-                    ) : null}
-
-                    <form action={setUserStatus} className="grid gap-2">
-                      <input type="hidden" name="user_id" value={row.id} />
-                      <input
-                        type="hidden"
-                        name="back_to"
-                        value="/portal/admin/users"
-                      />
-
-                      <SelectField
-                        label="Status"
-                        name="status"
-                        defaultValue={row.status}
-                        options={PROFILE_STATUS.map((status) => ({
-                          value: status.value,
-                          label: status.label,
-                        }))}
-                      />
-
-                      <SubmitButton
-                        variant="outline"
-                        className="rounded-full"
-                        pendingText="Saving..."
-                      >
-                        Save Status
-                      </SubmitButton>
-                    </form>
-
-                    {!released ? (
-                      <form action={deactivatePortalUser}>
-                        <input type="hidden" name="user_id" value={row.id} />
-                        <SubmitButton
-                          variant="outline"
-                          className="rounded-full border-amber-400/60 text-amber-700 hover:border-amber-500"
-                          pendingText="Deactivating..."
-                        >
-                          Deactivate & Release Email
-                        </SubmitButton>
-                      </form>
-                    ) : null}
-
-                    <form action={deletePortalUser}>
-                      <input type="hidden" name="user_id" value={row.id} />
-                      <SubmitButton
-                        variant="outline"
-                        className="rounded-full border-red-500/60 text-red-700 hover:border-red-600"
-                        pendingText="Archiving..."
-                      >
-                        Archive/Delete & Release Email
-                      </SubmitButton>
-                    </form>
-                  </div>
-                );
-              },
-            },
-          ]}
-        />
+        <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Permissions Available on Create/Edit</p>
+          <p className="mt-2 text-sm leading-6 text-slate-600">{PORTAL_PERMISSIONS.join(", ")}</p>
+        </div>
       </SectionCard>
     </PortalShell>
   );

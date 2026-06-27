@@ -255,18 +255,6 @@ export function PortalLogin({
                     />
                   </label>
 
-                  <label className="grid gap-2 text-sm font-medium text-white/80">
-                    Create password
-                    <input
-                      name="password"
-                      type="password"
-                      required
-                      minLength={8}
-                      autoComplete="new-password"
-                      className="h-12 rounded-lg border border-white/[0.10] bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-[var(--oc-aluminum-2)] focus:border-primary"
-                    />
-                  </label>
-
                   <input type="hidden" name="role" value="client" />
 
                   <label className="grid gap-2 text-sm font-medium text-white/80">

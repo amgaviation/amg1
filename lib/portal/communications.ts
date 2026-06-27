@@ -59,6 +59,10 @@ export type CommunicationMessage = {
   subject: string | null;
   body_html: string | null;
   body_text: string | null;
+  email_category?: string | null;
+  template_id?: string | null;
+  template_name?: string | null;
+  body_preview?: string | null;
   sent_by_user_id: string | null;
   created_by_user_id: string | null;
   received_at: string | null;
@@ -326,6 +330,99 @@ export async function getCommunicationThreadDetail(threadId: string): Promise<Co
   };
 }
 
+export type EmailCommunicationLogRow = CommunicationMessage & {
+  sender_name: string | null;
+  recipient_name: string | null;
+  recipient_user_id: string | null;
+};
+
+export async function listEmailCommunicationLogs(input: {
+  q?: string | null;
+  user?: string | null;
+  dateFrom?: string | null;
+  dateTo?: string | null;
+  time?: string | null;
+  category?: string | null;
+  template?: string | null;
+  status?: string | null;
+  sender?: string | null;
+} = {}): Promise<EmailCommunicationLogRow[]> {
+  const client = await db();
+  let query = client
+    .from("communication_messages")
+    .select("*")
+    .eq("message_type", "email")
+    .order("created_at", { ascending: false })
+    .limit(150);
+
+  if (input.status) query = query.eq("status", input.status);
+  if (input.category) query = query.eq("email_category", input.category);
+  if (input.template) query = query.eq("template_id", input.template);
+  if (input.sender) query = query.eq("sent_by_user_id", input.sender);
+  if (input.dateFrom) query = query.gte("created_at", `${input.dateFrom}T00:00:00.000Z`);
+  if (input.dateTo) query = query.lte("created_at", `${input.dateTo}T23:59:59.999Z`);
+
+  const { data } = await query;
+  let userEmailFilter = input.user?.trim().toLowerCase() ?? "";
+  if (userEmailFilter && /^[0-9a-f-]{32,}$/i.test(userEmailFilter)) {
+    const { data: profile } = await client
+      .from("profiles")
+      .select("email")
+      .eq("id", userEmailFilter)
+      .maybeSingle();
+    userEmailFilter = profile?.email?.toLowerCase() ?? userEmailFilter;
+  }
+
+  const rows = ((data ?? []) as CommunicationMessage[]).filter((message) => {
+    const q = input.q?.trim().toLowerCase();
+    const time = input.time?.trim();
+    const created = new Date(message.created_at);
+    const timeText = Number.isNaN(created.getTime()) ? "" : created.toISOString().slice(11, 16);
+
+    if (time && !timeText.startsWith(time)) return false;
+    if (userEmailFilter && !message.to_emails.some((email) => email.toLowerCase().includes(userEmailFilter))) return false;
+    if (!q) return true;
+
+    return [
+      message.subject,
+      message.email_category,
+      message.template_name,
+      message.status,
+      message.provider,
+      message.provider_message_id,
+      message.body_preview,
+      message.to_emails.join(" "),
+    ]
+      .filter(Boolean)
+      .some((value) => String(value).toLowerCase().includes(q));
+  });
+
+  const senderIds = compact(rows.map((message) => message.sent_by_user_id));
+  const recipientEmails = Array.from(new Set(rows.flatMap((message) => message.to_emails).map((email) => email.toLowerCase())));
+
+  const [{ data: senders }, { data: recipients }] = await Promise.all([
+    senderIds.length
+      ? client.from("profiles").select("id,email,full_name").in("id", senderIds)
+      : { data: [] },
+    recipientEmails.length
+      ? client.from("profiles").select("id,email,full_name").in("email", recipientEmails)
+      : { data: [] },
+  ]);
+
+  const senderById = new Map((senders ?? []).map((row: any) => [row.id, row.full_name ?? row.email]));
+  const recipientByEmail = new Map((recipients ?? []).map((row: any) => [String(row.email).toLowerCase(), row]));
+
+  return rows.map((message) => {
+    const firstRecipient = recipientByEmail.get(message.to_emails[0]?.toLowerCase());
+    return {
+      ...message,
+      sender_name: message.sent_by_user_id ? senderById.get(message.sent_by_user_id) ?? null : null,
+      recipient_name: firstRecipient?.full_name ?? firstRecipient?.email ?? null,
+      recipient_user_id: firstRecipient?.id ?? null,
+    };
+  });
+}
+
 async function getOrCreateThread(client: Db, input: {
   threadId?: string | null;
   subject: string;
@@ -419,13 +516,14 @@ async function uploadMessageAttachments(input: {
 export async function sendCommunicationEmail(formData: FormData, user: SessionUser): Promise<CommunicationActionResult> {
   const client = await db();
   const provider = getEmailProvider();
-  const to = normalizeEmailList(String(formData.get("to") ?? ""));
+  const to = Array.from(new Set(normalizeEmailList(formData.getAll("to").map((value) => String(value)).join(","))));
   const cc = normalizeEmailList(String(formData.get("cc") ?? ""));
   const bcc = normalizeEmailList(String(formData.get("bcc") ?? ""));
   const threadId = String(formData.get("thread_id") ?? "").trim() || null;
   const subjectInput = String(formData.get("subject") ?? "").trim();
   const bodyInput = String(formData.get("body") ?? "").trim();
   const template = await getCommunicationTemplate(String(formData.get("template_id") ?? "").trim() || null);
+  const category = String(formData.get("category") ?? "General").trim() || "General";
   const subject = subjectInput || template?.subject_template || "";
   const body = bodyInput || template?.body_template_text || "";
   const explicitGeneral = String(formData.get("general_thread") ?? "") === "on";
@@ -479,6 +577,10 @@ export async function sendCommunicationEmail(formData: FormData, user: SessionUs
         subject: subjectWithToken,
         body_text: text,
         body_html: html,
+        email_category: category,
+        template_id: template?.id ?? null,
+        template_name: template?.name ?? (template ? null : "Custom Email"),
+        body_preview: stripHtml(body).slice(0, 240),
         sent_by_user_id: user.id,
         created_by_user_id: user.id,
         failed_at: provider.configured() ? null : now(),
