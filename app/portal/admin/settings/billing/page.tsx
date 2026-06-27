@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
+import { logAuditEvent } from "@/lib/portal/audit";
 import { getBillingSettings } from "@/lib/portal/billing-config";
+import { getStripeBillingDiagnostics } from "@/lib/portal/stripe-mode";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
-import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
+import { DetailRow, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
+import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { CheckboxField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import {
@@ -21,7 +24,17 @@ export default async function AdminBillingSettingsPage({
   const user = await requireRole("admin");
   const params = await searchParams;
   const confirmed = await billingSettingsConfirmed();
-  const settings = await getBillingSettings();
+  const [settings, stripeDiagnostics] = await Promise.all([
+    getBillingSettings(),
+    getStripeBillingDiagnostics(),
+  ]);
+  await logAuditEvent({
+    actor: user,
+    action: "stripe_config_checked",
+    detail: `Checked Stripe billing configuration: mode=${stripeDiagnostics.mode}, live_ready=${stripeDiagnostics.liveReady ? "yes" : "no"}`,
+    entityType: "billing_settings",
+    entityId: "global",
+  });
 
   return (
     <PortalShell role="admin" user={user}>
@@ -36,6 +49,33 @@ export default async function AdminBillingSettingsPage({
         description="Company identity, payment instructions, document terms, and quote-to-invoice behavior."
         actions={<Link href="/portal/admin/settings" className="text-xs text-muted-foreground hover:text-accent">Back to settings</Link>}
       />
+
+      <SectionCard title="Stripe Live Readiness" icon="wallet">
+        <div className="grid gap-4 md:grid-cols-2">
+          <DetailRow label="Detected Mode">
+            <StatusBadge
+              label={stripeDiagnostics.mode}
+              tone={stripeDiagnostics.mode === "live" ? "success" : stripeDiagnostics.mode === "test" ? "warn" : "danger"}
+            />
+          </DetailRow>
+          <DetailRow label="Live Ready">
+            <StatusBadge label={stripeDiagnostics.liveReady ? "Yes" : "No"} tone={stripeDiagnostics.liveReady ? "success" : "danger"} />
+          </DetailRow>
+          <DetailRow label="Secret Key Present">{stripeDiagnostics.secretKeyPresent ? "Yes" : "No"}</DetailRow>
+          <DetailRow label="Webhook Secret Present">{stripeDiagnostics.webhookSecretPresent ? "Yes" : "No"}</DetailRow>
+          <DetailRow label="Publishable Key Present">{stripeDiagnostics.publishableKeyPresent ? "Yes" : "No"}</DetailRow>
+          <DetailRow label="Site URL">{stripeDiagnostics.siteUrlPresent ? stripeDiagnostics.siteUrl : "Missing"}</DetailRow>
+          <DetailRow label="Plans Missing Live Prices">{String(stripeDiagnostics.missingLivePriceCount)}</DetailRow>
+          <DetailRow label="Plans Missing Test Prices">{String(stripeDiagnostics.missingTestPriceCount)}</DetailRow>
+          <DetailRow label="Last Webhook">{stripeDiagnostics.lastWebhookReceivedAt ?? "None recorded"}</DetailRow>
+          <DetailRow label="Last Webhook Status">{stripeDiagnostics.lastWebhookStatus ?? "-"}</DetailRow>
+          <DetailRow label="Last Webhook Type">{stripeDiagnostics.lastWebhookType ?? "-"}</DetailRow>
+          <DetailRow label="Webhook Endpoint">/api/webhooks/stripe</DetailRow>
+        </div>
+        <Notice tone={stripeDiagnostics.mode === "live" ? "success" : "warn"}>
+          Production must use live Stripe keys, the live webhook secret, the production site URL, and live Price IDs for every active subscription tier.
+        </Notice>
+      </SectionCard>
 
       {!confirmed ? (
         <SectionCard title="Protected Access" icon="settings">

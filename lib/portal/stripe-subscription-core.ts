@@ -8,6 +8,7 @@ export type SubscriptionPriceMapping = {
   amountCents: number;
   currency?: string | null;
   stripePriceId?: string | null;
+  stripePriceSource?: string | null;
 };
 
 export type SubscriptionCheckoutSummaryInput = {

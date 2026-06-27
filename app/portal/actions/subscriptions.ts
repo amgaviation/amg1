@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
 import { createServiceClient } from "@/lib/supabase/server";
+import { currentStripeMode } from "@/lib/portal/stripe-mode";
+import { resolveSubscriptionPriceForStripeMode, stripePriceErrorToQuery } from "@/lib/portal/stripe-mode-core";
 import { actor, num, str } from "./_helpers";
 import {
   cancelSubscriptionAtPeriodEnd,
@@ -38,6 +40,8 @@ export async function createSubscriptionPlan(formData: FormData) {
       default_terms: str(formData, "default_terms") || null,
       plan_code: str(formData, "plan_code") || null,
       stripe_product_id: str(formData, "stripe_product_id") || null,
+      stripe_test_product_id: str(formData, "stripe_test_product_id") || null,
+      stripe_live_product_id: str(formData, "stripe_live_product_id") || null,
     })
     .select("id, name")
     .single();
@@ -57,6 +61,12 @@ export async function createSubscriptionPlan(formData: FormData) {
     annual_price: money(formData, "annual_price"),
     stripe_monthly_price_id: str(formData, "stripe_monthly_price_id") || null,
     stripe_annual_price_id: str(formData, "stripe_annual_price_id") || null,
+    stripe_test_monthly_price_id: str(formData, "stripe_test_monthly_price_id") || null,
+    stripe_test_annual_price_id: str(formData, "stripe_test_annual_price_id") || null,
+    stripe_live_monthly_price_id: str(formData, "stripe_live_monthly_price_id") || null,
+    stripe_live_annual_price_id: str(formData, "stripe_live_annual_price_id") || null,
+    stripe_test_product_id: str(formData, "stripe_test_product_id") || null,
+    stripe_live_product_id: str(formData, "stripe_live_product_id") || null,
     stripe_product_id: str(formData, "stripe_product_id") || null,
   });
 
@@ -87,8 +97,22 @@ export async function createClientSubscription(formData: FormData) {
     .eq("id", tierId)
     .maybeSingle();
   if (!tier) redirect("/portal/admin/subscriptions/new?error=missing");
-  const stripePriceId = cadence === "annual" ? tier.stripe_annual_price_id : tier.stripe_monthly_price_id;
-  if (!stripePriceId) redirect("/portal/admin/subscriptions/new?error=missing-price");
+  const resolvedPrice = resolveSubscriptionPriceForStripeMode({
+    mode: currentStripeMode(),
+    billingInterval: cadence,
+    stripeTestMonthlyPriceId: tier.stripe_test_monthly_price_id,
+    stripeTestAnnualPriceId: tier.stripe_test_annual_price_id,
+    stripeLiveMonthlyPriceId: tier.stripe_live_monthly_price_id,
+    stripeLiveAnnualPriceId: tier.stripe_live_annual_price_id,
+    legacyMonthlyPriceId: tier.stripe_monthly_price_id,
+    legacyAnnualPriceId: tier.stripe_annual_price_id,
+  });
+  if (!resolvedPrice.ok) redirect(`/portal/admin/subscriptions/new?error=${stripePriceErrorToQuery(resolvedPrice.reason)}`);
+  const stripePriceId = resolvedPrice.priceId;
+  const stripeProductId =
+    resolvedPrice.source === "live"
+      ? tier.stripe_live_product_id ?? tier.plan?.stripe_live_product_id ?? tier.stripe_product_id ?? tier.plan?.stripe_product_id ?? null
+      : tier.stripe_test_product_id ?? tier.plan?.stripe_test_product_id ?? tier.stripe_product_id ?? tier.plan?.stripe_product_id ?? null;
 
   const { data: subscription, error } = await db
     .from("client_subscriptions")
@@ -117,7 +141,8 @@ export async function createClientSubscription(formData: FormData) {
       amount_cents: Math.round(Number((cadence === "annual" ? tier.annual_price : tier.monthly_price) ?? 0) * 100),
       currency: "usd",
       stripe_price_id: stripePriceId,
-      stripe_product_id: tier.stripe_product_id ?? tier.plan?.stripe_product_id ?? null,
+      stripe_product_id: stripeProductId,
+      stripe_mode: currentStripeMode(),
       stripe_sync_status: "pending_checkout",
       stripe_sync_warning: "Checkout session created but not completed.",
       source: "portal",
