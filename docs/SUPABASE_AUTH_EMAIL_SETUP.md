@@ -112,6 +112,12 @@ must point users to `/verify-email` or `/verify-email?email={{ .Email }}`.
 The button must never use a confirmation URL, magic link, token hash, or any
 URL that automatically verifies or consumes the token.
 
+If users do not receive a code, confirm this dashboard template is published.
+Application code cannot change hosted Supabase Auth email templates by itself.
+The `/verify-email` page can request another signup OTP through
+`supabase.auth.resend()`, but Supabase will still render whatever template is
+currently configured in the project dashboard.
+
 ## Optional Management API Curl
 
 Use this only from a secure local shell or CI environment with protected

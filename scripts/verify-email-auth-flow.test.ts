@@ -49,6 +49,7 @@ assert.match(
 );
 assert.match(authActions, /verifyOtp\(\{[\s\S]*email,[\s\S]*token,[\s\S]*type:\s*"email"/);
 assert.match(authActions, /await supabase\.auth\.signOut\(\);[\s\S]*redirect\("\/pending-approval\?verified=1"\);/);
+assert.match(authActions, /auth\.resend\(\{[\s\S]*type:\s*"signup"[\s\S]*email,[\s\S]*emailRedirectTo:/);
 
 const setupDoc = fs.readFileSync("docs/SUPABASE_AUTH_EMAIL_SETUP.md", "utf8");
 const templateMatch = setupDoc.match(/HTML template:\n\n```html\n([\s\S]*?)\n```/);
@@ -66,5 +67,6 @@ const verifyPage = fs.readFileSync("app/(public)/verify-email/page.tsx", "utf8")
 assert.match(verifyPage, /Email Address/);
 assert.match(verifyPage, /6-digit Verification Code/);
 assert.match(verifyPage, /Verify Email/);
+assert.match(verifyPage, /Resend Verification Code/);
 
 console.log("verify-email-auth-flow checks passed");

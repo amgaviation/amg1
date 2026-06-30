@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, MailCheck, ShieldCheck } from "lucide-react";
 
-import { verifyPortalEmail } from "@/app/portal/actions/auth";
+import { resendPortalVerificationCode, verifyPortalEmail } from "@/app/portal/actions/auth";
 
 export const metadata: Metadata = {
   title: "Verify AMG Connect Email",
@@ -80,6 +80,13 @@ export default async function VerifyEmailPage({
               </div>
             ) : null}
 
+            {params.success === "resent" ? (
+              <div className="mb-4 rounded-xl border border-[#3B82F6]/30 bg-[#3B82F6]/10 px-4 py-3 text-sm leading-6 text-white">
+                If a pending AMG Connect verification exists for that email, a
+                new code has been sent.
+              </div>
+            ) : null}
+
             {errorMessage ? (
               <div className="mb-4 rounded-xl border border-red-400/25 bg-red-500/10 px-4 py-3 text-sm leading-6 text-red-100">
                 {errorMessage}
@@ -116,6 +123,14 @@ export default async function VerifyEmailPage({
               <button className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#3B82F6] px-6 py-4 font-display text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2 focus:ring-offset-[#050B14]">
                 Verify Email
                 <ArrowRight className="h-4 w-4" />
+              </button>
+
+              <button
+                formAction={resendPortalVerificationCode}
+                formNoValidate
+                className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-white/[0.14] px-6 py-4 font-display text-sm font-semibold uppercase tracking-widest text-white/85 transition hover:border-[#3B82F6] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2 focus:ring-offset-[#050B14]"
+              >
+                Resend Verification Code
               </button>
             </form>
 
