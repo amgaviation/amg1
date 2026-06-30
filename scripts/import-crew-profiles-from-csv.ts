@@ -137,6 +137,8 @@ function parseNumber(value) {
   return Number.isFinite(numeric) ? numeric : null;
 }
 
+const parseFlightTime = parseNumber;
+
 function parseBoolean(value) {
   const normalized = String(value ?? "").trim().toLowerCase();
   if (TRUE_VALUES.has(normalized)) return true;
@@ -176,6 +178,15 @@ function mergePreservingExisting(existing, incoming, overwrite) {
 
 function rowObject(headers, row) {
   return Object.fromEntries(headers.map((header, index) => [header, row[index] ?? ""]));
+}
+
+function parseCsvObjects(input) {
+  const rows = parseCsv(input);
+  const headers = rows[0] ?? [];
+  return rows
+    .slice(1)
+    .filter((row) => row.some((value) => clean(value)))
+    .map((row) => rowObject(headers, row));
 }
 
 function locationDisplay(row) {
@@ -288,6 +299,39 @@ function normalizeRow(raw, rowNumber, batchId, sourceName) {
     approved: crewProfile.approved,
     qualityFlags,
     crewProfile,
+  };
+}
+
+function normalizeCrewCsvRow(raw, options) {
+  const row = normalizeRow(raw, options.rowNumber, options.importBatchId, options.importSource);
+
+  if (!row.firstName && !row.lastName && !row.email && !row.phone) {
+    return {
+      valid: false,
+      flagged: false,
+      profile: null,
+      crewProfile: null,
+      qualityFlags: row.qualityFlags,
+    };
+  }
+
+  const profile = {
+    email: row.email ?? syntheticEmailFor(row, options.importSource),
+    full_name: row.displayName,
+    phone: row.phone,
+    company_name: row.company,
+    home_base: [row.city, row.state].filter(Boolean).join(", ") || null,
+    role: "crew",
+    status: row.approved ? "approved" : "pending",
+    is_active: row.approved,
+  };
+
+  return {
+    valid: true,
+    flagged: row.qualityFlags.length > 0,
+    profile,
+    crewProfile: row.crewProfile,
+    qualityFlags: row.qualityFlags,
   };
 }
 
@@ -526,7 +570,17 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(error.message);
-  process.exit(1);
-});
+module.exports = {
+  CSV_HEADERS: REQUIRED_HEADERS,
+  normalizeCrewCsvRow,
+  parseBoolean,
+  parseCsv: parseCsvObjects,
+  parseFlightTime,
+};
+
+if (require.main === module) {
+  main().catch((error) => {
+    console.error(error.message);
+    process.exit(1);
+  });
+}

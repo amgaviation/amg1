@@ -5,9 +5,11 @@ import { redirect } from "next/navigation";
 import { randomUUID } from "node:crypto";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { emailChangeRedirectUrl, passwordSetupRedirectUrl } from "@/lib/auth/urls";
+import { normalizeEmailVerificationToken } from "@/lib/auth/email-verification";
 import { requireUser } from "@/lib/portal/session";
 import { ROLE_HOME, isPortalRole, type PortalRole } from "@/lib/portal/constants";
 import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
+import { getSiteUrl } from "@/lib/site-url";
 import { safeRedirectPath } from "./_helpers";
 
 const PASSWORD_SETUP_COOKIE = "amg_password_setup_user";
@@ -217,9 +219,28 @@ export async function signUp(formData: FormData) {
     });
   }
 
-  const profileId = randomUUID();
+  const supabase = await createClient();
+  const temporaryPassword = `${randomUUID()}-${randomUUID()}`;
 
-  const { error } = await svc.from("profiles").insert({
+  const { data, error: signUpError } = await supabase.auth.signUp({
+    email,
+    password: temporaryPassword,
+    options: {
+      data: {
+        full_name: fullName,
+        role: roleValue,
+      },
+      emailRedirectTo: `${getSiteUrl()}/verify-email?email=${encodeURIComponent(email)}`,
+    },
+  });
+
+  if (signUpError || !data.user) {
+    redirect("/login?mode=request&error=signup");
+  }
+
+  const profileId = data.user.id;
+
+  const { error } = await svc.from("profiles").upsert({
     id: profileId,
     email,
     full_name: fullName,
@@ -231,7 +252,7 @@ export async function signUp(formData: FormData) {
     invitation_status: "access_request_received",
     invitation_channel: "portal_request",
     invitation_sent_at: null,
-  });
+  }, { onConflict: "id" });
 
   if (error) {
     redirect("/login?mode=request&error=signup");
@@ -253,7 +274,69 @@ export async function signUp(formData: FormData) {
     entityId: profileId,
   });
 
-  redirect("/login?success=requested");
+  await supabase.auth.signOut();
+  redirect(`/verify-email?email=${encodeURIComponent(email)}&success=requested`);
+}
+
+export async function verifyPortalEmail(formData: FormData) {
+  const email = field(formData, "email").toLowerCase();
+  const token = normalizeEmailVerificationToken(field(formData, "token"));
+  const emailParam = encodeURIComponent(email);
+
+  if (!email || !token) {
+    redirect(`/verify-email?email=${emailParam}&error=missing`);
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.verifyOtp({
+    email,
+    token,
+    type: "email",
+  });
+
+  if (error) {
+    const message = error.message ?? "";
+    const reason = /expired/i.test(message) ? "expired" : "invalid";
+    redirect(`/verify-email?email=${emailParam}&error=${reason}`);
+  }
+
+  if (!data.user) {
+    redirect(`/verify-email?email=${emailParam}&error=failed`);
+  }
+
+  const metadataRole = data.user.user_metadata?.role;
+  const role: PortalRole = isPortalRole(metadataRole) ? metadataRole : "client";
+
+  await logAuditEvent({
+    actor: { id: data.user.id, email, role },
+    action: "user_email_verified",
+    detail: "Verified AMG Connect email address",
+    entityType: "profile",
+    entityId: data.user.id,
+  });
+
+  await supabase.auth.signOut();
+  redirect("/pending-approval?verified=1");
+}
+
+export async function resendPortalVerificationCode(formData: FormData) {
+  const email = field(formData, "email").toLowerCase();
+  const emailParam = encodeURIComponent(email);
+
+  if (!email) {
+    redirect("/verify-email?error=missing");
+  }
+
+  const supabase = await createClient();
+  await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: {
+      emailRedirectTo: `${getSiteUrl()}/verify-email?email=${emailParam}`,
+    },
+  });
+
+  redirect(`/verify-email?email=${emailParam}&success=resent`);
 }
 
 export async function signOut() {

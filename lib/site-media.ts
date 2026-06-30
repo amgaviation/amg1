@@ -16,6 +16,8 @@ export const IMG = {
   homeIntroCockpitDesktopWebp: "/images/home-intro/amg-cockpit-desktop.webp",
   homeIntroCockpitMobileAvif: "/images/home-intro/amg-cockpit-mobile.avif",
   homeIntroCockpitMobileWebp: "/images/home-intro/amg-cockpit-mobile.webp",
+  homeIntroCockpitShellDesktopWebp: "/images/home-intro/amg-cockpit-shell-desktop.webp",
+  homeIntroCockpitShellMobileWebp: "/images/home-intro/amg-cockpit-shell-mobile.webp",
   homeIntroSkyDesktopAvif: "/images/home-intro/amg-sky-desktop.avif",
   homeIntroSkyDesktopWebp: "/images/home-intro/amg-sky-desktop.webp",
   homeIntroSkyMobileAvif: "/images/home-intro/amg-sky-mobile.avif",
