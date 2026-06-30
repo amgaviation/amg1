@@ -59,6 +59,29 @@ operational requirement and compensating monitoring.
 
 Supabase Dashboard > Authentication > Email Templates > Confirm signup.
 
+To apply the full AMG-branded set for all six authentication templates, run:
+
+```bash
+SUPABASE_ACCESS_TOKEN="..." \
+SUPABASE_PROJECT_REF="vsynqnqlouvphiniqaiy" \
+node scripts/apply-supabase-auth-email-templates.mjs
+```
+
+The script updates:
+
+- Confirm sign up
+- Invite user
+- Magic link or OTP
+- Change email address
+- Reset password
+- Reauthentication
+
+To inspect the payload without updating the hosted project:
+
+```bash
+node scripts/apply-supabase-auth-email-templates.mjs --print
+```
+
 Subject:
 
 ```text

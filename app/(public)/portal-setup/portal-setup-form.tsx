@@ -47,9 +47,6 @@ export function PortalSetupForm() {
           const { error } = await supabase.auth.exchangeCodeForSession(code);
           if (error) throw error;
           window.history.replaceState(null, "", "/portal-setup");
-        } else {
-          setErr("invalid");
-          return;
         }
 
         const { data, error } = await supabase.auth.getUser();
