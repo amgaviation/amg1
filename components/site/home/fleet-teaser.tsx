@@ -22,7 +22,7 @@ export function FleetTeaser() {
             description="AMG reviews each request around aircraft category, aircraft status, crew needs, route, and approval requirements."
           />
           <Link
-            href="/aircraft"
+            href="/aircraft-support"
             className="inline-flex min-h-12 w-fit items-center gap-2 rounded-full border border-slate-300 bg-white px-7 py-4 font-display text-xs font-semibold uppercase text-slate-800 shadow-[0_12px_30px_rgba(8,20,36,0.08)] transition-colors hover:border-primary hover:text-primary"
           >
             View all categories
@@ -33,7 +33,7 @@ export function FleetTeaser() {
           {cards.map(([name, image, description], index) => (
             <RevealItem key={name}>
               <Link
-                href="/aircraft"
+                href="/aircraft-support"
                 className="hover-lift group grid h-full overflow-hidden rounded-lg border border-slate-200 bg-slate-950 shadow-[0_24px_70px_rgba(8,20,36,0.12)] hover:border-primary/50 sm:grid-cols-[0.94fr_1.06fr]"
               >
                 <div className="relative min-h-64 overflow-hidden bg-slate-100">

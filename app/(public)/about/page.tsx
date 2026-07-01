@@ -32,7 +32,7 @@ export default function AboutPage() {
         secondary={hero.secondary}
       />
 
-      <section className="oc-section bg-[var(--oc-ivory)]">
+      <section id="what-amg-does" className="oc-section bg-[var(--oc-ivory)]">
         <div className="oc-shell grid gap-12 lg:grid-cols-[1fr_0.9fr] lg:items-center">
           <div data-scroll-animate>
             <SectionHeading
@@ -55,7 +55,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="oc-section bg-[var(--oc-ivory-2)]">
+      <section id="operating-principles" className="oc-section bg-[var(--oc-ivory-2)]">
         <div className="oc-shell">
           <SectionHeading eyebrow="How we operate" title="Four principles that hold every request." />
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
@@ -70,7 +70,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="oc-section bg-[var(--oc-ivory)]">
+      <section id="support-desk" className="oc-section bg-[var(--oc-ivory)]">
         <div className="oc-shell">
           <SectionHeading
             eyebrow="Support desk"

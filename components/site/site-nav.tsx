@@ -26,6 +26,7 @@ export function SiteNav() {
   const menuRef = useRef<HTMLDivElement>(null);
   const isHome = normalizePath(pathname) === "/";
   const transparent = isHome && atTop && !open;
+  const closeMenu = () => setOpen(false);
 
   useEffect(() => setOpen(false), [pathname]);
 
@@ -88,6 +89,7 @@ export function SiteNav() {
         <Link
           href="/"
           prefetch={false}
+          onClick={closeMenu}
           className="relative z-50 flex min-h-11 items-center"
           aria-label="AMG Aviation Group home"
         >
@@ -109,6 +111,7 @@ export function SiteNav() {
                 <Link
                   href={group.href}
                   prefetch={false}
+                  onClick={closeMenu}
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-[0.72rem] font-semibold uppercase leading-none text-white/[0.70] transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white",
@@ -118,13 +121,14 @@ export function SiteNav() {
                   {group.label}
                   <ChevronDown className="h-3.5 w-3.5 opacity-70" />
                 </Link>
-                <div className="invisible absolute left-1/2 top-[calc(100%+0.7rem)] w-[24rem] -translate-x-1/2 opacity-0 transition duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
-                  <div className="rounded-lg border border-[var(--oc-line-dark)] bg-[#07111F]/96 p-2 shadow-[0_26px_90px_rgba(0,0,0,0.36)] backdrop-blur-xl">
+                <div className="invisible absolute left-1/2 top-[calc(100%+0.7rem)] w-[26rem] -translate-x-1/2 opacity-0 transition duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
+                  <div className="max-h-[calc(100svh-var(--public-header-height)-2rem)] overflow-y-auto rounded-lg border border-[var(--oc-line-dark)] bg-[#07111F]/96 p-2 shadow-[0_26px_90px_rgba(0,0,0,0.36)] backdrop-blur-xl">
                     {group.items.map((item) => (
                       <Link
                         key={`${group.label}-${item.href}-${item.label}`}
                         href={item.href}
                         prefetch={false}
+                        onClick={closeMenu}
                         className="group/item block rounded-md px-4 py-3 transition hover:bg-white/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                       >
                         <span className="flex items-center justify-between gap-3 text-sm font-semibold text-white">
@@ -147,6 +151,7 @@ export function SiteNav() {
           <Link
             href="/booking-request"
             prefetch={false}
+            onClick={closeMenu}
             className="oc-btn oc-btn-ghost-dark !hidden sm:!inline-flex"
           >
             Request support
@@ -155,6 +160,7 @@ export function SiteNav() {
           <Link
             href="/login"
             prefetch={false}
+            onClick={closeMenu}
             className="hidden min-h-11 items-center whitespace-nowrap px-2 text-[0.72rem] font-semibold uppercase leading-none text-white/[0.74] transition-colors hover:text-white sm:inline-flex"
           >
             Member login
@@ -189,6 +195,7 @@ export function SiteNav() {
                     key={link.href}
                     href={link.href}
                     prefetch={false}
+                    onClick={closeMenu}
                     aria-current={active ? "page" : undefined}
                     className={cn(
                       "flex min-h-12 items-center justify-between rounded-lg border border-[var(--oc-line-dark)] px-4 text-sm font-semibold uppercase text-white/[0.78] transition hover:border-[var(--oc-blue)] hover:text-white",
@@ -212,6 +219,7 @@ export function SiteNav() {
                         key={`${group.label}-mobile-${item.href}-${item.label}`}
                         href={item.href}
                         prefetch={false}
+                        onClick={closeMenu}
                         className="rounded-md px-2 py-2 text-sm text-[var(--oc-aluminum)] transition hover:bg-white/[0.06] hover:text-white"
                       >
                         {item.label}
@@ -223,11 +231,11 @@ export function SiteNav() {
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-light justify-center">
+              <Link href="/booking-request" prefetch={false} onClick={closeMenu} className="oc-btn oc-btn-light justify-center">
                 Request support
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
-              <Link href="/login" prefetch={false} className="oc-btn oc-btn-ghost-dark justify-center">
+              <Link href="/login" prefetch={false} onClick={closeMenu} className="oc-btn oc-btn-ghost-dark justify-center">
                 Member login
               </Link>
             </div>
