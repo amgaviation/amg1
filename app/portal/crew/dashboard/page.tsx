@@ -28,12 +28,13 @@ export const metadata = { title: "Dashboard — Crew Portal" };
 
 export default async function CrewDashboardPage() {
   const user = await requireRole("crew");
-  const [missions, crewProfile, credentials, unread] = await Promise.all([
+  const [missions, crewProfileRaw, credentials, unread] = await Promise.all([
     listMissionsForCrew(user.id),
     getCrewProfile(user.id),
     listCredentials(user.id),
     countUnread(user.id),
   ]);
+  const crewProfile = crewProfileRaw as any;
 
   const offered = missions.filter((m) => m.assignment_status === "offered");
   const active = missions.filter((m) => m.assignment_status === "accepted");
@@ -51,12 +52,20 @@ export default async function CrewDashboardPage() {
         ) : null}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard label="Pending offers" value={offered.length} tone={offered.length > 0 ? "warn" : "default"} href="/portal/crew/missions" detail={offered.length > 0 ? "Review in Assignments" : undefined} />
         <StatCard label="Active assignments" value={active.length} href="/portal/crew/missions" />
         <StatCard label="Credential alerts" value={expiringCreds.length} tone={expiringCreds.length > 0 ? "danger" : "default"} href="/portal/crew/credentials" />
         <StatCard label="Unread messages" value={unread} tone={unread > 0 ? "warn" : "default"} href="/portal/crew/messages" />
+        <StatCard label="Profile complete" value={`${crewProfile?.profile_completion_percent ?? 0}%`} tone={(crewProfile?.profile_completion_percent ?? 0) >= 100 ? "accent" : "warn"} href="/portal/crew/settings" />
       </div>
+
+      {(crewProfile?.profile_completion_percent ?? 0) < 100 ? (
+        <Notice tone="warn">
+          Complete your AMG crew profile before assignment review. Update contact details, airport coverage,
+          certificates/ratings, medical status, documents, and structured availability.
+        </Notice>
+      ) : null}
 
       <SectionCard title="Quick Actions" icon="gauge" bodyClassName="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {[
