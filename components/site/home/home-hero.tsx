@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Plane, RadioTower } from "lucide-react";
 
@@ -5,11 +6,15 @@ export function HomeHero() {
   return (
     <section id="top" className="relative isolate flex min-h-[78svh] overflow-hidden border-b border-slate-950/20 pb-10 pt-28 text-white lg:items-end lg:pb-14 lg:pt-32">
       <div className="absolute inset-0 -z-10 bg-slate-950">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src="/images/amg-custom/hero-aircraft-operations.jpg"
           alt=""
-          className="h-full w-full scale-105 object-cover opacity-[0.82]"
+          fill
+          priority
+          loading="eager"
+          fetchPriority="high"
+          sizes="100vw"
+          className="scale-105 object-cover opacity-[0.82]"
         />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,11,20,0.92)_0%,rgba(5,11,20,0.72)_42%,rgba(5,11,20,0.2)_100%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,11,20,0.44)_0%,rgba(5,11,20,0.14)_38%,rgba(5,11,20,0.88)_100%)]" />

@@ -63,6 +63,7 @@ function noticeFor(success?: string, error?: string) {
     role: "You do not have permission to change that account.",
     status: "Invalid status selected.",
     save: "User profile could not be saved.",
+    stale: "This user was updated, deleted, or removed by another admin. Refresh the directory and try again.",
   };
 
   return error && errors[error] ? <Notice tone="danger">{errors[error]}</Notice> : null;
@@ -194,6 +195,8 @@ function userRows(users: Awaited<ReturnType<typeof listAllUsers>>): AdminRecordR
         { label: "Company", value: row.company_name },
         { label: "Home Airport", value: row.home_base },
       ],
+      archiveConfirm:
+        "Soft delete this portal account and release the email for future access review? Operational records, messages, approvals, documents, and audit history will be preserved.",
       detailSections: [
         {
           title: "Account",

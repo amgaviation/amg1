@@ -26,15 +26,7 @@ export function StatusReviewForm({
   const [status, setStatus] = useState<NetworkApplicationStatus>(currentStatus);
 
   return (
-    <form
-      action={saveNetworkApplicationStatus}
-      onSubmit={(event) => {
-        if (!window.confirm("Save this status and send the matching AMG status email?")) {
-          event.preventDefault();
-        }
-      }}
-      className="grid gap-4"
-    >
+    <form action={saveNetworkApplicationStatus} className="grid gap-4">
       <input type="hidden" name="application_id" value={applicationId} />
       <input type="hidden" name="back_to" value={backTo} />
       <SelectField
@@ -61,7 +53,9 @@ export function StatusReviewForm({
         />
       ) : null}
       <TextAreaField label="Status note" name="note" placeholder="Optional internal event note" />
-      <SubmitButton className="w-fit rounded-full" pendingText="Saving...">Save and Send Email</SubmitButton>
+      <SubmitButton className="w-fit rounded-full" pendingText="Saving..." confirm="Save this status and send the matching AMG status email?">
+        Save and Send Email
+      </SubmitButton>
     </form>
   );
 }

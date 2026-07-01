@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Reveal } from "./reveal";
 import { cn } from "@/lib/utils";
 
@@ -23,11 +24,15 @@ export function PageHero({
     >
       {image && (
         <div className="absolute inset-0 z-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={image}
             alt=""
-            className="h-full w-full scale-105 object-cover opacity-[0.76]"
+            fill
+            priority
+            loading="eager"
+            fetchPriority="high"
+            sizes="100vw"
+            className="scale-105 object-cover opacity-[0.76]"
           />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,11,20,0.92)_0%,rgba(5,11,20,0.72)_45%,rgba(5,11,20,0.22)_100%)]" />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,11,20,0.5)_0%,rgba(5,11,20,0.12)_40%,rgba(5,11,20,0.9)_100%)]" />

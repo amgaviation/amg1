@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, FileText } from "lucide-react";
 
@@ -14,8 +15,7 @@ export function LegalPage({
   return (
     <section className="cinematic-band relative isolate min-h-screen overflow-hidden px-6 pb-24 pt-36 lg:px-10">
       <div className="absolute inset-0 -z-10 opacity-20" aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/jet-interior.png" alt="" className="h-full w-full object-cover" />
+        <Image src="/images/jet-interior.png" alt="" fill sizes="100vw" className="object-cover" />
       </div>
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.42fr_0.58fr]">
         <aside className="lg:sticky lg:top-32 lg:self-start" data-scroll-animate>

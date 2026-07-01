@@ -39,6 +39,8 @@ export default async function RequestSupportPage({
           alt=""
           fill
           priority
+          loading="eager"
+          fetchPriority="high"
           sizes="100vw"
           className="absolute inset-0 -z-20 object-cover opacity-[0.36]"
         />

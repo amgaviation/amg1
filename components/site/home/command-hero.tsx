@@ -54,6 +54,8 @@ export function CommandHero() {
           alt="Business jet staged for operational support on the ramp at dusk"
           fill
           priority
+          loading="eager"
+          fetchPriority="high"
           sizes="100vw"
           className="object-cover"
           style={{ objectPosition: "center 45%" }}

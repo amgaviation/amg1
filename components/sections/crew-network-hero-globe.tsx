@@ -21,6 +21,8 @@ export function CrewNetworkHeroGlobe() {
         src={IMG.generatedCrewMap}
         alt=""
         fill
+        loading="eager"
+        fetchPriority="high"
         sizes="100vw"
         className="absolute inset-0 -z-20 object-cover opacity-[0.34]"
       />

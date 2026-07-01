@@ -33,6 +33,8 @@ export function Figure({
         alt={alt}
         fill
         priority={priority}
+        loading={priority ? "eager" : undefined}
+        fetchPriority={priority ? "high" : undefined}
         sizes={sizes}
         className={cn("object-cover", imgClassName)}
         style={{ objectPosition: position }}

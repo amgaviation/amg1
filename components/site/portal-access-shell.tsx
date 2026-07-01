@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { ReactNode } from "react";
 import { ArrowUpRight, ShieldCheck } from "lucide-react";
 
@@ -20,8 +21,7 @@ export function PortalAccessShell({
   return (
     <section className="access-cinema cinematic-band relative isolate min-h-[100svh] overflow-hidden px-6 pb-16 pt-[calc(var(--public-header-height)+3rem)] lg:px-10">
       <div className="absolute inset-0 -z-10" aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/site/map-operations.jpg" alt="" className="h-full w-full scale-105 object-cover opacity-[0.35]" />
+        <Image src="/images/site/map-operations.jpg" alt="" fill priority loading="eager" fetchPriority="high" sizes="100vw" className="scale-105 object-cover opacity-[0.35]" />
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/40" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/55 to-background/40" />
       </div>

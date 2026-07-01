@@ -10,17 +10,25 @@ import { formatDateTime, formatRoute } from "@/lib/portal/format";
 
 export const metadata = { title: "Operations Dashboard - AMG Operations" };
 
+const ACTIVE_MISSION_STATUSES = [
+  "submitted",
+  "under_review",
+  "awaiting_client_info",
+  "quoted",
+  "approved",
+  "crew_assigned",
+  "scheduled",
+  "in_progress",
+];
+
 export default async function AdminDashboardPage() {
   const user = await requireRole("admin");
-  const [metrics, missions, pendingUsers, recentSubmissions] = await Promise.all([
+  const [metrics, active, pendingUsers, recentSubmissions] = await Promise.all([
     getAdminMetrics(),
-    listAllMissions(),
+    listAllMissions({ statusIn: ACTIVE_MISSION_STATUSES, limit: 6 }),
     listPendingUsers(),
     listFormSubmissions({ status: "new" }),
   ]);
-  const active = missions.filter((m) =>
-    ["submitted", "under_review", "awaiting_client_info", "quoted", "approved", "crew_assigned", "scheduled", "in_progress"].includes(m.status)
-  );
 
   return (
     <PortalShell role="admin" user={user}>
@@ -115,7 +123,7 @@ export default async function AdminDashboardPage() {
             <EmptyState icon="radar" title="No active requests" description="Submitted and scheduled support requests will appear here." />
           ) : (
             <div className="space-y-3">
-              {active.slice(0, 6).map((mission) => (
+              {active.map((mission) => (
                 <Link
                   key={mission.id}
                   href={`/portal/admin/trips/${mission.id}`}

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { SERVICES } from "@/lib/content";
@@ -22,11 +23,12 @@ export function ServicesOverview() {
             />
             <Reveal className="mt-9 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-[0_24px_70px_rgba(8,20,36,0.12)]" data-scroll-animate>
               <div className="relative aspect-[16/11] overflow-hidden bg-slate-900">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src="/images/amg-custom/service-aircraft-management-support.jpg"
                   alt="Aircraft management support coordination for AMG Aviation Group clients"
-                  className="h-full w-full scale-105 object-cover opacity-90"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 42vw"
+                  className="scale-105 object-cover opacity-90"
                 />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_34%,rgba(5,11,20,0.86)_100%)]" />
                 <div className="absolute bottom-6 left-6 right-6">

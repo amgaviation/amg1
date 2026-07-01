@@ -47,6 +47,7 @@ export type AdminRecordRow = {
   filters: Record<string, string | null | undefined>;
   formValues: Record<string, RecordValue>;
   details: { label: string; value: RecordValue }[];
+  archiveConfirm?: string;
   detailSections?: {
     title: string;
     rows: { label: string; value: RecordValue }[];
@@ -440,7 +441,7 @@ export function AdminRecordManager({
                                   variant="ghost"
                                   size="sm"
                                   className="rounded-full text-slate-600 hover:text-red-700"
-                                  confirm={archiveConfirm}
+                                  confirm={row.archiveConfirm ?? archiveConfirm}
                                   pendingText="Saving..."
                                 >
                                   {archiveLabel}

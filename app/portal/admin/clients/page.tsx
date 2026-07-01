@@ -13,6 +13,7 @@ import {
   listAllSubscriptions,
   listClients,
 } from "@/lib/portal/queries";
+import { dependencyConfirmMessage } from "@/lib/portal/record-safety";
 import { requireRole } from "@/lib/portal/session";
 
 export const metadata = { title: "Clients - Admin Portal" };
@@ -80,6 +81,14 @@ export default async function AdminClientsPage({
     const clientInvoices = invoices.filter((invoice) => invoice.client_id === client.id);
     const clientDocuments = documents.filter((document) => document.scope_id === client.id || document.uploaded_by === client.id);
     const clientSubscriptions = subscriptions.filter((subscription) => subscription.client_id === client.id);
+    const dependencies = [
+      { label: "aircraft", count: clientAircraft.length },
+      { label: "mission", count: clientMissions.length },
+      { label: "quote", count: clientQuotes.length },
+      { label: "invoice", count: clientInvoices.length },
+      { label: "subscription", count: clientSubscriptions.length },
+      { label: "document", count: clientDocuments.length },
+    ];
     const name = client.full_name ?? client.email;
     const company = client.company_name ?? "-";
     const statusLabel = PROFILE_STATUS_LABEL[client.status] ?? client.status;
@@ -150,6 +159,12 @@ export default async function AdminClientsPage({
         { label: "Updated", value: client.updated_at ? formatDateTime(client.updated_at) : null },
         { label: "Internal Notes", value: row.internal_notes },
       ],
+      archiveConfirm: dependencyConfirmMessage({
+        action: "Deactivate",
+        entity: "client profile",
+        dependencies,
+        fallback: "Deactivate this client profile? Historical records remain visible to admins.",
+      }),
       tabs: [
         {
           title: "Linked Aircraft",
@@ -195,11 +210,13 @@ export default async function AdminClientsPage({
 
   return (
     <PortalShell role="admin" user={user}>
-      {params.success ? <Notice tone="success">Client record saved.</Notice> : null}
+      {params.success === "archived-linked" ? <Notice tone="success">Client deactivated. Linked operational and financial records were preserved.</Notice> : null}
+      {params.success && params.success !== "archived-linked" ? <Notice tone="success">Client record saved.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Client name and valid email are required.</Notice> : null}
       {params.error === "duplicate" ? <Notice tone="danger">A profile already exists for that email.</Notice> : null}
       {params.error === "email" ? <Notice tone="danger">Email update could not be completed.</Notice> : null}
       {params.error === "invite" ? <Notice tone="danger">Portal invitation could not be sent.</Notice> : null}
+      {params.error === "stale" ? <Notice tone="danger">This client was updated, archived, or removed by another admin. Refresh the list and try again.</Notice> : null}
       {params.error === "save" ? <Notice tone="danger">Client record could not be saved.</Notice> : null}
 
       <PageHeader

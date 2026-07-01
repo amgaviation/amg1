@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Handshake, RadioTower, ShieldCheck, Users } from "lucide-react";
 import { COMPANY, PORTAL_ROLES } from "@/lib/content";
@@ -14,8 +15,7 @@ export function PortalEcosystem() {
   return (
     <section id="portal-ecosystem" className="cinematic-section relative isolate overflow-hidden bg-slate-50 py-24 lg:py-32">
       <div className="absolute inset-0 -z-10 opacity-10" aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/jet-interior.png" alt="" className="h-full w-full object-cover" />
+        <Image src="/images/jet-interior.png" alt="" fill sizes="100vw" className="object-cover" />
       </div>
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_76%_24%,rgba(59,130,246,0.16),transparent_28rem)]" />
 
@@ -49,11 +49,12 @@ export function PortalEcosystem() {
 
         <div>
           <div className="relative mb-5 aspect-[16/9] overflow-hidden rounded-lg border border-slate-200 bg-slate-900 shadow-[0_24px_70px_rgba(8,20,36,0.16)]" data-scroll-animate>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src="/images/heavy-jet.png"
               alt="AMG Aviation Group operations support platform visual"
-              className="h-full w-full scale-105 object-cover"
+              fill
+              sizes="(max-width: 1024px) 100vw, 55vw"
+              className="scale-105 object-cover"
             />
             <div className="absolute inset-x-6 bottom-6 flex items-center justify-between gap-4 border-t border-white/15 pt-4">
               <p className="eyebrow text-[0.68rem] text-white/80">Role-based access</p>

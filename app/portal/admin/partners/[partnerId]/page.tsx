@@ -74,6 +74,7 @@ export default async function AdminPartnerDetailPage({
       {query.error === "duplicate" ? <Notice tone="danger">A profile already exists for that email.</Notice> : null}
       {query.error === "email" ? <Notice tone="danger">Email update could not be completed.</Notice> : null}
       {query.error === "partner-profile" ? <Notice tone="danger">Partner profile details could not be saved.</Notice> : null}
+      {query.error === "stale" ? <Notice tone="danger">This partner was updated, archived, or removed by another admin. Return to the partner directory and refresh the record.</Notice> : null}
       {query.error === "save" ? <Notice tone="danger">Partner record could not be saved.</Notice> : null}
 
       <PageHeader

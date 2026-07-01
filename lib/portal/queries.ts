@@ -279,12 +279,16 @@ export async function listMissionsForClient(clientId: string): Promise<MissionLi
 
 export async function listAllMissions(filter?: {
   status?: string;
+  statusIn?: string[];
   type?: string;
+  limit?: number;
 }): Promise<MissionListItem[]> {
   const db = await createServiceClient();
   let q = db.from("missions").select(MISSION_LIST_SELECT).order("created_at", { ascending: false });
   if (filter?.status) q = q.eq("status", filter.status);
+  if (filter?.statusIn?.length) q = q.in("status", filter.statusIn);
   if (filter?.type) q = q.eq("mission_type", filter.type);
+  if (filter?.limit) q = q.limit(filter.limit);
   const { data } = await q.returns<MissionListItem[]>();
   return data ?? [];
 }
