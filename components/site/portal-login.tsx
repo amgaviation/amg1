@@ -18,13 +18,15 @@ const ERROR_MESSAGES: Record<string, string> = {
   missing: "Enter your email and password.",
   invalid: "Email or password is incorrect.",
   pending: "Your access request is awaiting AMG approval.",
-  suspended: "This account has been suspended. Contact AMG Operations.",
+  suspended: "Portal access for this email is currently suspended. Please contact AMG Operations for more information.",
   signup: "We could not create that account. The email may already be in use.",
   weakpassword: "Password must be at least 8 characters.",
   "missing-supabase-env":
     "Portal authentication is not configured in this environment. Add the required authentication settings to enable portal access.",
   account_exists:
-    "An AMG portal account already exists for that email. Sign in, use Forgot Password, or contact AMG if you used the wrong email.",
+    "An AMG portal account already exists for this email. Please sign in or contact AMG Operations.",
+  pending_request: "AMG already has a pending portal access request for this email.",
+  waitlisted: "This portal access request is currently under AMG review. Please contact AMG Operations for more information.",
 };
 
 const accessPanels = [
@@ -255,7 +257,30 @@ export function PortalLogin({
                     />
                   </label>
 
-                  <input type="hidden" name="role" value="client" />
+                  <label className="grid gap-2 text-sm font-medium text-white/80 md:col-span-2">
+                    Business purpose
+                    <select
+                      name="business_purpose"
+                      required
+                      defaultValue=""
+                      className="h-12 rounded-lg border border-white/[0.10] bg-white/[0.08] px-4 text-base text-white outline-none transition focus:border-primary"
+                    >
+                      <option value="" disabled className="text-slate-950">
+                        Select business purpose
+                      </option>
+                      {[
+                        ["client", "Client"],
+                        ["crew", "Crew"],
+                        ["vendor", "Vendor"],
+                        ["broker", "Broker"],
+                        ["other", "Other"],
+                      ].map(([value, label]) => (
+                        <option key={value} value={value} className="text-slate-950">
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
 
                   <label className="grid gap-2 text-sm font-medium text-white/80">
                     Organization
@@ -283,8 +308,7 @@ export function PortalLogin({
                 </button>
 
                 <p className="mt-4 text-center text-xs leading-relaxed text-[var(--oc-aluminum-2)]">
-                  AMG Operations reviews and approves every account before
-                  activation.
+                  AMG reviews portal access requests before activation. Select the business purpose that best describes why you are requesting access.
                 </p>
               </form>
             )}

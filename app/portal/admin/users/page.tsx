@@ -11,7 +11,7 @@ import { SubmitButton } from "@/components/portal/ui/submit-button";
 import {
   changePortalUserPassword,
   createPortalUser,
-  deactivatePortalUser,
+  deletePortalUser,
   sendPortalPasswordReset,
   updatePortalUser,
 } from "@/app/portal/actions/admin";
@@ -27,6 +27,7 @@ import {
 import { formatDateTime } from "@/lib/portal/format";
 
 export const metadata = { title: "Users - Admin Portal" };
+export const dynamic = "force-dynamic";
 
 function isReleasedEmail(email: string) {
   return email.includes("+released-") || email.includes("__released__");
@@ -38,8 +39,8 @@ function noticeFor(success?: string, error?: string) {
   if (success === "status") return <Notice tone="success">User profile updated.</Notice>;
   if (success === "reset") return <Notice tone="success">Password reset email sent.</Notice>;
   if (success === "password") return <Notice tone="success">Password changed.</Notice>;
-  if (success === "deactivated") return <Notice tone="success">User deactivated and email released.</Notice>;
-  if (success === "deleted") return <Notice tone="success">User deleted and email released.</Notice>;
+  if (success === "deactivated") return <Notice tone="success">User access suspended.</Notice>;
+  if (success === "deleted") return <Notice tone="success">User record soft deleted and email released for future access review.</Notice>;
 
   const errors: Record<string, string> = {
     missing: "Full name, email, role, and status are required.",
@@ -145,8 +146,11 @@ function userRows(users: Awaited<ReturnType<typeof listAllUsers>>): AdminRecordR
         email: row.email,
         role: row.role,
         company: row.company_name ?? "-",
+        businessPurpose: row.business_purpose ?? "-",
         phone: row.phone ?? "-",
         status: statusLabel,
+        requested: formatDateTime(row.created_at),
+        updated: formatDateTime(row.status_updated_at ?? row.updated_at),
         invite: row.invitation_status ?? "-",
         lastLogin: formatDateTime(row.last_login_at),
       },
@@ -157,6 +161,7 @@ function userRows(users: Awaited<ReturnType<typeof listAllUsers>>): AdminRecordR
         row.role,
         row.status,
         row.company_name,
+        row.business_purpose,
         row.home_base,
         row.invitation_status,
         row.created_at,
@@ -184,6 +189,7 @@ function userRows(users: Awaited<ReturnType<typeof listAllUsers>>): AdminRecordR
         { label: "Email", value: released ? "Released for future access request" : row.email },
         { label: "Role", value: row.role },
         { label: "Status", value: statusLabel },
+        { label: "Business Purpose", value: row.business_purpose },
         { label: "Phone", value: row.phone },
         { label: "Company", value: row.company_name },
         { label: "Home Airport", value: row.home_base },
@@ -194,6 +200,9 @@ function userRows(users: Awaited<ReturnType<typeof listAllUsers>>): AdminRecordR
           rows: [
             { label: "Role", value: row.role },
             { label: "Status", value: statusLabel },
+            { label: "Business Purpose", value: row.business_purpose },
+            { label: "Requested", value: formatDateTime(row.created_at) },
+            { label: "Last Status Update", value: formatDateTime(row.status_updated_at ?? row.updated_at) },
             { label: "Active", value: row.is_active ? "Yes" : "No" },
             { label: "Created", value: formatDateTime(row.created_at) },
             { label: "Updated", value: formatDateTime(row.updated_at) },
@@ -217,11 +226,14 @@ function userRows(users: Awaited<ReturnType<typeof listAllUsers>>): AdminRecordR
 export default async function AdminUsersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ success?: string; error?: string }>;
+  searchParams: Promise<{ success?: string; error?: string; status?: string }>;
 }) {
   const user = await requireRole("admin");
   const params = await searchParams;
-  const users = await listAllUsers();
+  const allowedStatuses = ["approved", "pending_approval", "denied", "suspended", "deleted"];
+  const currentStatus = params.status ?? "approved";
+  const statusFilter = allowedStatuses.includes(currentStatus) ? currentStatus : "approved";
+  const users = await listAllUsers({ status: statusFilter });
   const rows = userRows(users);
 
   return (
@@ -234,32 +246,56 @@ export default async function AdminUsersPage({
         description="Search, filter, create, edit, approve, deactivate, and manage secure portal account access."
       />
 
+      <div className="mb-5 flex flex-wrap gap-2">
+        {[
+          ["approved", "Approved"],
+          ["pending_approval", "Pending Approval"],
+          ["denied", "Denied"],
+          ["suspended", "Suspended"],
+          ["deleted", "Deleted"],
+        ].map(([value, label]) => (
+          <a
+            key={value}
+            href={`/portal/admin/users?status=${value}`}
+            className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+              statusFilter === value
+                ? "border-slate-950 bg-slate-950 text-white"
+                : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+            }`}
+          >
+            {label}
+          </a>
+        ))}
+      </div>
+
       <AdminRecordManager
         title="User Directory"
-        description="Use the same record-management pattern as Crew: searchable rows, filters, detail drawer, edit modal, status pills, and compact actions."
+        description={`Showing ${PROFILE_STATUS_LABEL[statusFilter] ?? statusFilter} portal users. Data refreshes from Supabase each time this tab is opened.`}
         rows={rows}
         columns={[
           { key: "name", label: "User", sortable: true },
           { key: "role", label: "Role", sortable: true },
-          { key: "company", label: "Company", sortable: true },
-          { key: "phone", label: "Phone" },
           { key: "status", label: "Status", sortable: true },
-          { key: "invite", label: "Setup", sortable: true },
+          { key: "businessPurpose", label: "Business Purpose", sortable: true },
+          { key: "requested", label: "Created / Requested", sortable: true },
+          { key: "updated", label: "Last Status Update", sortable: true },
           { key: "lastLogin", label: "Last Login", sortable: true },
+          { key: "company", label: "Company", sortable: true },
         ]}
         filters={filters}
         fields={userFields}
         createAction={createPortalUser}
         updateAction={updatePortalUser}
-        archiveAction={deactivatePortalUser}
+        archiveAction={deletePortalUser}
         createLabel="Create User"
         editLabel="Edit User"
-        archiveLabel="Deactivate"
-        archiveConfirm="Deactivate this portal account and release the email?"
+        archiveLabel="Delete"
+        archiveConfirm="Soft delete this portal account and release the email for future access review?"
+        archiveDisabledReason="This record is already inactive."
         recordIdName="profile_id"
         backTo="/portal/admin/users"
-        emptyTitle="No Users Found"
-        emptyDescription="No portal users match the current search and filters."
+        emptyTitle={`No ${PROFILE_STATUS_LABEL[statusFilter] ?? statusFilter} Users`}
+        emptyDescription="No portal users match this status filter."
         detailEyebrow="User Detail"
       />
 

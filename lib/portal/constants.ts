@@ -100,6 +100,7 @@ export const PORTAL_NAV: Record<PortalRole, NavItem[]> = {
     { label: "Compliance", href: "/portal/admin/compliance", icon: "shield" },
     { label: "Security Review", href: "/portal/admin/security-review", icon: "shield" },
     { label: "User Approvals", href: "/portal/admin/user-approvals", icon: "userCheck" },
+    { label: "Waitlist", href: "/portal/admin/waitlist", icon: "userCheck" },
     { label: "All Users", href: "/portal/admin/users", icon: "userCheck" },
     { label: "Audit Log", href: "/portal/admin/audit-log", icon: "history" },
     { label: "System Health", href: "/portal/admin/system-health", icon: "shield" },
@@ -449,18 +450,36 @@ export const DOCUMENT_VISIBILITY_LABEL = buildLabelMap(DOCUMENT_VISIBILITY);
 
 // ─── Profile / account status ───────────────────────────────────────
 export const PROFILE_STATUS: Choice[] = [
-  { value: "pending", label: "Pending", tone: "warn" },
+  { value: "pending_approval", label: "Pending Approval", tone: "warn" },
   { value: "approved", label: "Approved", tone: "success" },
+  { value: "denied", label: "Denied", tone: "danger" },
+  { value: "waitlisted", label: "Waitlisted", tone: "warn" },
   { value: "suspended", label: "Suspended", tone: "danger" },
+  { value: "deleted", label: "Deleted", tone: "neutral" },
 ];
 export const PROFILE_STATUS_LABEL = buildLabelMap(PROFILE_STATUS);
 export const PROFILE_STATUS_TONE = buildToneMap(PROFILE_STATUS);
 
-/** Roles that may be self-selected when requesting access (admin is internal-only). */
-export const REQUESTABLE_ROLES: { value: PortalRole; label: string }[] = [
-  { value: "client", label: "Client / Owner Representative" },
-  { value: "crew", label: "Crew / Pilot" },
+export const BUSINESS_PURPOSES = [
+  { value: "client", label: "Client" },
+  { value: "crew", label: "Crew" },
+  { value: "vendor", label: "Vendor" },
+  { value: "broker", label: "Broker" },
+  { value: "other", label: "Other" },
+] as const;
+
+export type BusinessPurpose = (typeof BUSINESS_PURPOSES)[number]["value"];
+
+export function isBusinessPurpose(value: unknown): value is BusinessPurpose {
+  return BUSINESS_PURPOSES.some((purpose) => purpose.value === value);
+}
+
+/** Roles an AMG Operations admin can assign during access review. */
+export const ASSIGNABLE_PORTAL_ROLES: { value: PortalRole; label: string }[] = [
+  { value: "client", label: "Client" },
+  { value: "crew", label: "Crew" },
   { value: "partner", label: "Partner / Vendor" },
+  { value: "admin", label: "AMG Operations" },
 ];
 
 export const PORTAL_PERMISSIONS = [

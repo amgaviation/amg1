@@ -92,6 +92,7 @@ const ADMIN_NAV_GROUPS: ShellNavGroup[] = [
     icon: "userCheck",
     items: [
       { label: "User Approvals", href: "/portal/admin/user-approvals", icon: "userCheck" },
+      { label: "Waitlist", href: "/portal/admin/waitlist", icon: "userCheck" },
       { label: "All Users", href: "/portal/admin/users", icon: "users" },
     ],
   },

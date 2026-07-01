@@ -788,6 +788,13 @@ export type Database = {
         Row: {
           company_name: string | null
           created_at: string
+          admin_notes: string | null
+          assigned_role: string | null
+          business_purpose: string
+          deleted_at: string | null
+          deleted_by: string | null
+          denied_at: string | null
+          denied_by: string | null
           email: string
           full_name: string | null
           home_base: string | null
@@ -796,18 +803,34 @@ export type Database = {
           invitation_sent_at: string | null
           invitation_status: string | null
           invited_by: string | null
+          is_deleted: boolean
           is_active: boolean
+          last_waitlist_email_sent_at: string | null
           last_login_at: string | null
           organization_id: string | null
           permissions: string[] | null
           phone: string | null
+          requested_role: string | null
           role: string
           status: string
+          status_updated_at: string | null
+          status_updated_by: string | null
+          suspended_at: string | null
+          suspended_by: string | null
           updated_at: string
+          waitlisted_at: string | null
+          waitlisted_by: string | null
         }
         Insert: {
+          admin_notes?: string | null
+          assigned_role?: string | null
+          business_purpose?: string
           company_name?: string | null
           created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
+          denied_at?: string | null
+          denied_by?: string | null
           email: string
           full_name?: string | null
           home_base?: string | null
@@ -816,14 +839,23 @@ export type Database = {
           invitation_sent_at?: string | null
           invitation_status?: string | null
           invited_by?: string | null
+          is_deleted?: boolean
           is_active?: boolean
+          last_waitlist_email_sent_at?: string | null
           last_login_at?: string | null
           organization_id?: string | null
           permissions?: string[] | null
           phone?: string | null
+          requested_role?: string | null
           role?: string
           status?: string
+          status_updated_at?: string | null
+          status_updated_by?: string | null
+          suspended_at?: string | null
+          suspended_by?: string | null
           updated_at?: string
+          waitlisted_at?: string | null
+          waitlisted_by?: string | null
         }
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>
         Relationships: []
