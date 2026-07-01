@@ -66,7 +66,7 @@ type AdminRecordManagerProps = {
   filters: AdminRecordFilter[];
   fields: AdminRecordField[];
   createAction?: (formData: FormData) => void | Promise<void>;
-  updateAction: (formData: FormData) => void | Promise<void>;
+  updateAction?: (formData: FormData) => void | Promise<void>;
   archiveAction?: (formData: FormData) => void | Promise<void>;
   recordActions?: {
     label: string;
@@ -561,10 +561,12 @@ export function AdminRecordManager({
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 {selected.status ? <StatusBadge label={selected.status.label} tone={selected.status.tone} /> : null}
                 {selected.secondaryStatus ? <StatusBadge label={selected.secondaryStatus.label} tone={selected.secondaryStatus.tone} /> : null}
-                <Button type="button" className="ml-auto gap-2 rounded-full" onClick={() => setEditor({ mode: "edit", row: selected })}>
-                  <Edit3 className="h-4 w-4" />
-                  {editLabel}
-                </Button>
+                {updateAction ? (
+                  <Button type="button" className="ml-auto gap-2 rounded-full" onClick={() => setEditor({ mode: "edit", row: selected })}>
+                    <Edit3 className="h-4 w-4" />
+                    {editLabel}
+                  </Button>
+                ) : null}
               </div>
             </header>
 
@@ -645,7 +647,7 @@ export function AdminRecordManager({
             </header>
             <form
               key={`${editor.mode}-${editor.row?.id ?? "new"}`}
-              action={editor.mode === "create" ? createAction! : updateAction}
+              action={editor.mode === "create" ? createAction! : updateAction!}
               className="max-h-[calc(92vh-5rem)] overflow-y-auto p-5"
             >
               {editor.mode === "edit" && editor.row ? <input type="hidden" name={recordIdName} value={editor.row.id} /> : null}
