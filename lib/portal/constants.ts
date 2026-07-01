@@ -51,7 +51,7 @@ export const ROLE_HOME: Record<PortalRole, string> = {
   crew: "/portal/crew/dashboard",
   admin: "/portal/admin/dashboard",
   partner: "/portal/partner/dashboard",
-  super_admin: "/portal/super-admin/website-editor",
+  super_admin: "/portal/admin/dashboard",
 };
 
 export type NavItem = { label: string; href: string; icon: string };
@@ -116,9 +116,9 @@ export const PORTAL_NAV: Record<PortalRole, NavItem[]> = {
     { label: "Settings", href: "/portal/partner/settings", icon: "settings" },
   ],
   super_admin: [
+    { label: "Operations Admin", href: "/portal/admin/dashboard", icon: "shield" },
     { label: "Website Editor", href: "/portal/super-admin/website-editor", icon: "fileText" },
     { label: "Preview History", href: "/portal/super-admin/website-editor?panel=history", icon: "history" },
-    { label: "Operations Admin", href: "/portal/admin/dashboard", icon: "shield" },
     { label: "Settings", href: "/portal/admin/settings", icon: "settings" },
   ],
 };

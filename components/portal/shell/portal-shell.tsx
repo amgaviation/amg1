@@ -105,7 +105,18 @@ const ADMIN_NAV_GROUPS: ShellNavGroup[] = [
       { label: "Compliance", href: "/portal/admin/compliance", icon: "shield" },
       { label: "Security Review", href: "/portal/admin/security-review", icon: "shield" },
       { label: "System Health", href: "/portal/admin/system-health", icon: "shield" },
+    ],
+  },
+];
+
+const SUPER_ADMIN_OPERATIONS_NAV_GROUPS: ShellNavGroup[] = [
+  ...ADMIN_NAV_GROUPS,
+  {
+    label: "Website",
+    icon: "fileText",
+    items: [
       WEBSITE_EDITOR_NAV,
+      { label: "Preview History", href: "/portal/super-admin/website-editor?panel=history", icon: "history" },
     ],
   },
 ];
@@ -126,7 +137,7 @@ export function PortalShell({
     user.role === "super_admin" && role === "admin"
       ? [WEBSITE_EDITOR_NAV, ...PORTAL_NAV.admin]
       : PORTAL_NAV[role];
-  const navGroups = role === "admin" ? ADMIN_NAV_GROUPS : null;
+  const navGroups = role === "admin" ? (user.role === "super_admin" ? SUPER_ADMIN_OPERATIONS_NAV_GROUPS : ADMIN_NAV_GROUPS) : null;
 
   return (
     <div className="amg-portal relative min-h-screen bg-slate-50 text-slate-950 overflow-hidden lg:grid lg:grid-cols-[17.5rem_1fr]">
