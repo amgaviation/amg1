@@ -65,9 +65,17 @@ type AdminRecordManagerProps = {
   columns: AdminRecordColumn[];
   filters: AdminRecordFilter[];
   fields: AdminRecordField[];
-  createAction: (formData: FormData) => void | Promise<void>;
+  createAction?: (formData: FormData) => void | Promise<void>;
   updateAction: (formData: FormData) => void | Promise<void>;
   archiveAction?: (formData: FormData) => void | Promise<void>;
+  recordActions?: {
+    label: string;
+    action: (formData: FormData) => void | Promise<void>;
+    confirm?: string;
+    pendingText?: string;
+    variant?: "outline" | "ghost" | "default";
+    className?: string;
+  }[];
   createLabel: string;
   editLabel: string;
   archiveLabel?: string;
@@ -80,6 +88,7 @@ type AdminRecordManagerProps = {
   detailEyebrow?: string;
   pageSize?: number;
   detailHrefBase?: string;
+  allowCreate?: boolean;
 };
 
 function valueText(value: RecordValue) {
@@ -145,6 +154,7 @@ export function AdminRecordManager({
   createAction,
   updateAction,
   archiveAction,
+  recordActions = [],
   createLabel,
   editLabel,
   archiveLabel = "Archive",
@@ -157,6 +167,7 @@ export function AdminRecordManager({
   detailEyebrow = "Record Detail",
   pageSize = 12,
   detailHrefBase,
+  allowCreate = true,
 }: AdminRecordManagerProps) {
   const router = useRouter();
   const [isRefreshing, startRefresh] = useTransition();
@@ -252,10 +263,12 @@ export function AdminRecordManager({
               <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
               Refresh
             </Button>
-            <Button type="button" className="gap-2 rounded-full" onClick={() => setEditor({ mode: "create" })}>
-              <Plus className="h-4 w-4" />
-              {createLabel}
-            </Button>
+            {allowCreate && createAction ? (
+              <Button type="button" className="gap-2 rounded-full" onClick={() => setEditor({ mode: "create" })}>
+                <Plus className="h-4 w-4" />
+                {createLabel}
+              </Button>
+            ) : null}
           </div>
         </div>
 
@@ -435,6 +448,22 @@ export function AdminRecordManager({
                               </form>
                             )
                           ) : null}
+                          {recordActions.map((action) => (
+                            <form key={`${row.id}-${action.label}`} action={action.action}>
+                              <input type="hidden" name={recordIdName} value={row.id} />
+                              <input type="hidden" name="user_id" value={row.id} />
+                              <input type="hidden" name="back_to" value={backTo} />
+                              <SubmitButton
+                                variant={action.variant ?? "outline"}
+                                size="sm"
+                                className={cn("rounded-full", action.className)}
+                                confirm={action.confirm}
+                                pendingText={action.pendingText ?? "Saving..."}
+                              >
+                                {action.label}
+                              </SubmitButton>
+                            </form>
+                          ))}
                         </div>
                       </td>
                     </tr>
@@ -540,6 +569,28 @@ export function AdminRecordManager({
             </header>
 
             <div className="grid gap-4 p-5">
+              {recordActions.length ? (
+                <section className="rounded-lg border border-slate-200 bg-white p-4">
+                  <h4 className="text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500">Review Actions</h4>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {recordActions.map((action) => (
+                      <form key={`${selected.id}-detail-${action.label}`} action={action.action}>
+                        <input type="hidden" name={recordIdName} value={selected.id} />
+                        <input type="hidden" name="user_id" value={selected.id} />
+                        <input type="hidden" name="back_to" value={backTo} />
+                        <SubmitButton
+                          variant={action.variant ?? "outline"}
+                          className={cn("rounded-full", action.className)}
+                          confirm={action.confirm}
+                          pendingText={action.pendingText ?? "Saving..."}
+                        >
+                          {action.label}
+                        </SubmitButton>
+                      </form>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
               {(selected.detailSections?.length ? selected.detailSections : [{ title: "Details", rows: selected.details }]).map((section) => (
                 <section key={section.title} className="rounded-lg border border-slate-200 bg-slate-50/70 p-4">
                   <h4 className="text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500">{section.title}</h4>
@@ -594,7 +645,7 @@ export function AdminRecordManager({
             </header>
             <form
               key={`${editor.mode}-${editor.row?.id ?? "new"}`}
-              action={editor.mode === "create" ? createAction : updateAction}
+              action={editor.mode === "create" ? createAction! : updateAction}
               className="max-h-[calc(92vh-5rem)] overflow-y-auto p-5"
             >
               {editor.mode === "edit" && editor.row ? <input type="hidden" name={recordIdName} value={editor.row.id} /> : null}
