@@ -66,7 +66,7 @@ export function PortalLogin({
     <main className="grid min-h-svh bg-[#07111f] text-white lg:grid-cols-2">
       <section className="flex min-h-svh flex-col px-6 py-16 md:px-10 lg:py-20">
         <div className="flex flex-1 items-center justify-center py-12">
-          <div className="w-full max-w-md">
+          <div className={cn("w-full", isSignIn ? "max-w-md" : "max-w-xl")}>
             <div className="mb-8">
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/[0.10] bg-white/[0.06] px-3 py-1 text-xs uppercase tracking-[0.22em] text-[var(--oc-aluminum)]">
                 <ShieldCheck className="h-3.5 w-3.5 text-primary" />
@@ -235,27 +235,35 @@ export function PortalLogin({
                 action={signUp}
                 className="rounded-2xl border border-white/[0.10] bg-white/[0.06] p-6 shadow-2xl backdrop-blur-xl sm:p-8"
               >
-                <div className="grid gap-4">
-                  <label className="grid gap-2 text-sm font-medium text-white/80">
-                    Full name
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid gap-2 sm:col-span-2">
+                    <label htmlFor="request-full-name" className="text-sm font-medium text-white/80">
+                      Full name
+                    </label>
                     <input
+                      id="request-full-name"
                       name="full_name"
                       required
                       autoComplete="name"
-                      className="h-12 rounded-lg border border-white/[0.10] bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-[var(--oc-aluminum-2)] focus:border-primary"
+                      placeholder="Jane Smith"
+                      className="h-12 min-w-0 rounded-lg border border-white/[0.10] bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-[var(--oc-aluminum-2)] focus:border-primary"
                     />
-                  </label>
+                  </div>
 
-                  <label className="grid gap-2 text-sm font-medium text-white/80">
-                    Email
+                  <div className="grid gap-2 sm:col-span-2">
+                    <label htmlFor="request-email" className="text-sm font-medium text-white/80">
+                      Email
+                    </label>
                     <input
+                      id="request-email"
                       name="email"
                       type="email"
                       required
                       autoComplete="email"
-                      className="h-12 rounded-lg border border-white/[0.10] bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-[var(--oc-aluminum-2)] focus:border-primary"
+                      placeholder="name@company.com"
+                      className="h-12 min-w-0 rounded-lg border border-white/[0.10] bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-[var(--oc-aluminum-2)] focus:border-primary"
                     />
-                  </label>
+                  </div>
 
                   <label className="grid gap-2 text-sm font-medium text-white/80 md:col-span-2">
                     Business purpose
@@ -282,24 +290,32 @@ export function PortalLogin({
                     </select>
                   </label>
 
-                  <label className="grid gap-2 text-sm font-medium text-white/80">
-                    Organization
+                  <div className="grid gap-2">
+                    <label htmlFor="request-organization" className="text-sm font-medium text-white/80">
+                      Organization
+                    </label>
                     <input
+                      id="request-organization"
                       name="company_name"
                       autoComplete="organization"
-                      className="h-12 rounded-lg border border-white/[0.10] bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-[var(--oc-aluminum-2)] focus:border-primary"
+                      placeholder="Company or operator"
+                      className="h-12 min-w-0 rounded-lg border border-white/[0.10] bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-[var(--oc-aluminum-2)] focus:border-primary"
                     />
-                  </label>
+                  </div>
 
-                  <label className="grid gap-2 text-sm font-medium text-white/80">
-                    Phone
+                  <div className="grid gap-2">
+                    <label htmlFor="request-phone" className="text-sm font-medium text-white/80">
+                      Phone
+                    </label>
                     <input
+                      id="request-phone"
                       name="phone"
                       type="tel"
                       autoComplete="tel"
-                      className="h-12 rounded-lg border border-white/[0.10] bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-[var(--oc-aluminum-2)] focus:border-primary"
+                      placeholder="Optional"
+                      className="h-12 min-w-0 rounded-lg border border-white/[0.10] bg-white/[0.08] px-4 text-base text-white outline-none transition placeholder:text-[var(--oc-aluminum-2)] focus:border-primary"
                     />
-                  </label>
+                  </div>
                 </div>
 
                 <button className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-4 font-display text-sm font-semibold uppercase text-[#07111f] transition hover:bg-white/90">
