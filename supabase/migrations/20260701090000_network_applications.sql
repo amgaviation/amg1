@@ -231,8 +231,14 @@ alter table public.crew_profiles
   add column if not exists profile_completion_percent integer not null default 0,
   add column if not exists profile_completed_at timestamptz;
 
+grant usage on schema public to anon, authenticated;
+grant select, insert, update on public.network_applications to authenticated;
+grant select on public.network_application_files to authenticated;
+grant select on public.network_application_status_events to authenticated;
 grant select, insert, update, delete on
   public.network_applications,
   public.network_application_files,
   public.network_application_status_events
 to service_role;
+
+select pg_notify('pgrst', 'reload schema');
