@@ -434,7 +434,22 @@ export async function submitNetworkApplication(formData: FormData) {
     .insert(parsed.payload)
     .select("*")
     .single();
-  if (error || !application) return { ok: false as const, errors: { form: "Application could not be submitted." } };
+  if (error || !application) {
+    console.error("[network-applications] insert failed", {
+      code: error?.code,
+      message: error?.message,
+      hint: error?.hint,
+    });
+    return {
+      ok: false as const,
+      errors: {
+        form:
+          error?.code === "PGRST205"
+            ? "Application storage is being prepared. Please try again in a few minutes."
+            : "Application could not be submitted.",
+      },
+    };
+  }
 
   try {
     if (!parsed.files.resume) throw new Error("missing_resume");
