@@ -44,7 +44,9 @@ export function safeRedirectPath(value: string | null | undefined, fallback: str
 export async function actor(roles?: PortalRole[]): Promise<SessionUser> {
   const user = await getSessionUser();
   if (!user) redirect("/login");
-  if (user.status !== "approved") redirect(user.status === "suspended" ? "/access-denied" : "/pending-approval");
+  if (user.status !== "approved") {
+    redirect(user.status === "suspended" || user.status === "deleted" ? "/access-denied" : "/pending-approval");
+  }
   if (roles && !isAdminRole(user.role) && !roles.includes(user.role)) {
     redirect("/access-denied");
   }

@@ -382,13 +382,13 @@ function ThreadDetail({
           <p className="text-sm font-semibold text-slate-950">Attachments</p>
           <div className="mt-3 grid gap-2">
             {detail.attachments.map((attachment) => (
-              <a
+              <Link
                 key={attachment.id}
-                href={`/api/communications/attachments/${attachment.id}`}
+                href={`/portal/admin/communications/attachments/${attachment.id}/view`}
                 className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-primary hover:border-primary/40"
               >
                 {attachment.file_name}
-              </a>
+              </Link>
             ))}
           </div>
         </div>

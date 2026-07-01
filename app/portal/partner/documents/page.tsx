@@ -59,7 +59,7 @@ export default async function PartnerDocumentsPage({
             <div key={doc.id} className="grid gap-3 rounded-lg border border-border bg-background/50 p-4 sm:grid-cols-[1fr_auto_auto]">
               <div><p className="text-sm font-semibold">{doc.name}</p><p className="mt-1 text-xs text-muted-foreground">{doc.doc_type} | Uploaded {formatDate(doc.created_at)}</p></div>
               <StatusBadge label={DOCUMENT_STATUS_LABEL[doc.status] ?? doc.status} tone={toneFor(DOCUMENT_STATUS_TONE, doc.status)} />
-              <Link href={`/api/portal/documents/${doc.id}/download`} className="text-sm text-accent hover:underline">Download</Link>
+              <Link href={`/portal/documents/${doc.id}/view`} className="text-sm text-accent hover:underline">View</Link>
             </div>
           ))}</div>
         )}

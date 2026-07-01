@@ -20,7 +20,8 @@ export const PUBLIC_NAV_GROUPS: PublicNavGroup[] = [
     href: "/about",
     items: [
       { label: "About AMG", href: "/about", description: "Company overview, values, and AMG support structure." },
-      { label: "Team / support structure", href: "/about#support-desk", description: "The roles behind AMG support requests." },
+      { label: "Team / support structure", href: "/team", description: "The roles behind AMG support requests." },
+      { label: "Pilot Application", href: "/crew-network/apply", description: "Apply for AMG Crew Network review." },
       { label: "Contact", href: "/contact", description: "Send a general inquiry to AMG." },
     ],
   },

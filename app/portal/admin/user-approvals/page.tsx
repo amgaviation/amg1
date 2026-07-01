@@ -4,10 +4,10 @@ import { DataTable } from "@/components/portal/ui/data-table";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
-import { SelectField } from "@/components/portal/ui/fields";
-import { approveUser, setUserRole, setUserStatus } from "@/app/portal/actions/admin";
-import { listAllUsers, listPendingUsers } from "@/lib/portal/queries";
-import { PORTAL_ROLES, PROFILE_STATUS, PROFILE_STATUS_LABEL, PROFILE_STATUS_TONE, toneFor } from "@/lib/portal/constants";
+import { SelectField, TextAreaField } from "@/components/portal/ui/fields";
+import { approveUser, denyUser, waitlistUser } from "@/app/portal/actions/admin";
+import { listPendingUsers } from "@/lib/portal/queries";
+import { ASSIGNABLE_PORTAL_ROLES, PROFILE_STATUS_LABEL, PROFILE_STATUS_TONE, toneFor } from "@/lib/portal/constants";
 import { formatDateTime } from "@/lib/portal/format";
 
 export const metadata = { title: "User Approvals - Admin Portal" };
@@ -19,7 +19,7 @@ export default async function AdminUserApprovalsPage({
 }) {
   const user = await requireRole("admin");
   const params = await searchParams;
-  const [pendingUsers, users] = await Promise.all([listPendingUsers(), listAllUsers()]);
+  const pendingUsers = await listPendingUsers();
 
   return (
     <PortalShell role="admin" user={user}>
@@ -33,34 +33,31 @@ export default async function AdminUserApprovalsPage({
           emptyLabel="No pending access requests."
           columns={[
             { header: "User", cell: (row) => <div><p className="text-sm font-semibold">{row.full_name ?? row.email}</p><p className="text-xs text-muted-foreground">{row.email}</p></div> },
-            { header: "Company", cell: (row) => row.company_name ?? "-" },
-            { header: "Role", cell: (row) => row.role },
+            { header: "Business Purpose", cell: (row) => row.business_purpose ?? "other" },
             { header: "Requested", cell: (row) => formatDateTime(row.created_at) },
-            { header: "Approve", cell: (row) => <form action={approveUser}><input type="hidden" name="user_id" value={row.id} /><SubmitButton className="rounded-full" pendingText="Approving...">Approve</SubmitButton></form> },
-          ]}
-        />
-      </SectionCard>
-      <SectionCard title="All Portal Users" icon="users">
-        <DataTable
-          rows={users}
-          getKey={(row) => row.id}
-          emptyLabel="No users found."
-          columns={[
-            { header: "User", cell: (row) => <div><p className="text-sm font-semibold">{row.full_name ?? row.email}</p><p className="text-xs text-muted-foreground">{row.email}</p></div> },
-            { header: "Role", cell: (row) => (
-              <form action={setUserRole} className="flex min-w-40 gap-2">
+            { header: "Status", cell: (row) => <StatusBadge label={PROFILE_STATUS_LABEL[row.status] ?? row.status} tone={toneFor(PROFILE_STATUS_TONE, row.status)} /> },
+            { header: "Role Assignment", cell: (row) => (
+              <form action={approveUser} className="grid min-w-64 gap-2">
                 <input type="hidden" name="user_id" value={row.id} />
-                <SelectField label="Role" name="role" defaultValue={row.role} options={PORTAL_ROLES.map((role) => ({ value: role, label: role }))} />
-                <SubmitButton variant="outline" className="rounded-full" pendingText="Saving...">Save</SubmitButton>
+                <input type="hidden" name="back_to" value="/portal/admin/user-approvals" />
+                <SelectField label="Portal role" name="role" required placeholder="Select role" defaultValue="" options={ASSIGNABLE_PORTAL_ROLES.map((role) => ({ value: role.value, label: role.label }))} />
+                <TextAreaField label="Admin notes" name="admin_notes" defaultValue={row.admin_notes ?? ""} />
+                <SubmitButton className="rounded-full" pendingText="Approving...">Approve</SubmitButton>
               </form>
             ) },
-            { header: "Status", cell: (row) => <StatusBadge label={PROFILE_STATUS_LABEL[row.status] ?? row.status} tone={toneFor(PROFILE_STATUS_TONE, row.status)} /> },
-            { header: "Change Status", cell: (row) => (
-              <form action={setUserStatus} className="flex min-w-48 gap-2">
-                <input type="hidden" name="user_id" value={row.id} />
-                <SelectField label="Status" name="status" defaultValue={row.status} options={PROFILE_STATUS.map((s) => ({ value: s.value, label: s.label }))} />
-                <SubmitButton variant="outline" className="rounded-full" pendingText="Saving...">Save</SubmitButton>
-              </form>
+            { header: "Review", cell: (row) => (
+              <div className="grid min-w-44 gap-2">
+                <form action={waitlistUser}>
+                  <input type="hidden" name="user_id" value={row.id} />
+                  <input type="hidden" name="back_to" value="/portal/admin/user-approvals" />
+                  <SubmitButton variant="outline" className="w-full rounded-full" confirm="Move this portal access request to the waitlist?" pendingText="Waitlisting...">Waitlist</SubmitButton>
+                </form>
+                <form action={denyUser}>
+                  <input type="hidden" name="user_id" value={row.id} />
+                  <input type="hidden" name="back_to" value="/portal/admin/user-approvals" />
+                  <SubmitButton variant="outline" className="w-full rounded-full border-red-200 text-red-700 hover:border-red-300" confirm="Deny this portal access request?" pendingText="Denying...">Deny</SubmitButton>
+                </form>
+              </div>
             ) },
           ]}
         />

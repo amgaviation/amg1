@@ -61,6 +61,7 @@ const ADMIN_NAV_GROUPS: ShellNavGroup[] = [
       { label: "Mission Control", href: "/portal/admin/mission-control", icon: "radar" },
       { label: "Support Requests", href: "/portal/admin/trips", icon: "plane" },
       { label: "Form Submissions", href: "/portal/admin/form-submissions", icon: "clipboard" },
+      { label: "Network Applications", href: "/portal/admin/network-applications", icon: "userCheck" },
       { label: "Clients", href: "/portal/admin/clients", icon: "building" },
       { label: "Crew", href: "/portal/admin/crew", icon: "users" },
       { label: "Aircraft", href: "/portal/admin/aircraft", icon: "planeTakeoff" },
@@ -92,6 +93,7 @@ const ADMIN_NAV_GROUPS: ShellNavGroup[] = [
     icon: "userCheck",
     items: [
       { label: "User Approvals", href: "/portal/admin/user-approvals", icon: "userCheck" },
+      { label: "Waitlist", href: "/portal/admin/waitlist", icon: "userCheck" },
       { label: "All Users", href: "/portal/admin/users", icon: "users" },
     ],
   },

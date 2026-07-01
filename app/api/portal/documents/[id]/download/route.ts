@@ -4,6 +4,7 @@ import { isPortalRole } from "@/lib/portal/constants";
 import { createSafeErrorResponse, logServerError } from "@/lib/errors/user-facing-errors";
 import { isSensitiveDocumentCategory } from "@/lib/compliance/document-classification";
 import { recordSensitiveAccessEvent } from "@/lib/compliance/evidence";
+import { fileResponse } from "@/lib/portal/file-response";
 
 export async function GET(
   _req: NextRequest,
@@ -38,7 +39,7 @@ export async function GET(
 
   const { data: doc, error } = await db
     .from("documents")
-    .select("storage_path, storage_bucket, name, visibility, uploaded_by, scope_id, compliance_category, doc_type, access_level")
+    .select("storage_path, storage_bucket, name, original_file_name, mime_type, visibility, uploaded_by, scope_id, compliance_category, doc_type, access_level")
     .eq("id", id)
     .maybeSingle();
 
@@ -61,20 +62,19 @@ export async function GET(
     );
   }
 
-  // Generate a signed URL (60 second expiry)
-  let { data: signed, error: signedError } = await supabase.storage
+  let { data: file, error: downloadError } = await db.storage
     .from((doc as any).storage_bucket || "documents")
-    .createSignedUrl(doc.storage_path, 60);
-  if (signedError || !signed) {
-    const fallback = await supabase.storage
+    .download(doc.storage_path);
+  if (downloadError || !file) {
+    const fallback = await db.storage
       .from("crew-credentials")
-      .createSignedUrl(doc.storage_path, 60);
-    signed = fallback.data;
-    signedError = fallback.error;
+      .download(doc.storage_path);
+    file = fallback.data;
+    downloadError = fallback.error;
   }
 
-  if (signedError || !signed) {
-    const referenceId = signedError ? logServerError("Portal document signed URL failed", signedError, { userId: user.id, documentId: id }) : undefined;
+  if (downloadError || !file) {
+    const referenceId = downloadError ? logServerError("Portal document download failed", downloadError, { userId: user.id, documentId: id }) : undefined;
     return NextResponse.json(
       createSafeErrorResponse({ audience: profile.role === "admin" ? "admin" : profile.role === "crew" ? "crew" : profile.role === "partner" ? "vendor" : "client", area: "documents", action: "download", category: "unavailable", correlationId: referenceId }),
       { status: 500 },
@@ -94,5 +94,10 @@ export async function GET(
     },
   });
 
-  return NextResponse.redirect(signed.signedUrl);
+  return fileResponse({
+    file,
+    filename: doc.original_file_name ?? doc.name ?? "document",
+    contentType: doc.mime_type,
+    disposition: "attachment",
+  });
 }

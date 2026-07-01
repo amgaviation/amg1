@@ -153,7 +153,7 @@ export default async function AdminDocumentsPage({
             { header: "Uploaded", cell: (row) => formatDate(row.created_at) },
             { header: "Expires", cell: (row) => formatDate(row.expiration_date) },
             { header: "Status", cell: (row) => <StatusBadge label={DOCUMENT_STATUS_LABEL[row.status] ?? row.status} tone={toneFor(DOCUMENT_STATUS_TONE, row.status)} /> },
-            { header: "File", cell: (row) => <Link href={`/api/portal/documents/${row.id}/download`} className="text-accent hover:underline">Download</Link> },
+            { header: "File", cell: (row) => <Link href={`/portal/documents/${row.id}/view`} className="text-accent hover:underline">View</Link> },
             { header: "Review", cell: (row) => (
               <form action={reviewDocument} className="grid min-w-56 gap-2">
                 <input type="hidden" name="document_id" value={row.id} />

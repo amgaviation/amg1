@@ -50,8 +50,8 @@ export async function getSessionUser(): Promise<SessionUser | null> {
 export async function requireUser(): Promise<SessionUser> {
   const user = await getSessionUser();
   if (!user) redirect("/login");
-  if (user.status === "suspended") redirect("/access-denied");
-  if (user.status === "pending") redirect("/pending-approval");
+  if (user.status === "suspended" || user.status === "deleted") redirect("/access-denied");
+  if (user.status === "pending" || user.status === "pending_approval" || user.status === "waitlisted" || user.status === "denied") redirect("/pending-approval");
   return user;
 }
 

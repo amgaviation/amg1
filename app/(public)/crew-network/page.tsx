@@ -18,7 +18,7 @@ export default function CrewNetworkPage() {
     lead: "AMG organizes pilots and aviation professionals around base airport, aircraft experience, documents, and suitability — so crew support is reviewed against the aircraft need, not treated as an automatic placement.",
     image: IMG.pilotNetwork,
     imageAlt: "Flight crew walking the ramp toward an aircraft",
-    primary: { label: "Submit Credentials", href: "/credential-submission" },
+    primary: { label: "Submit Credentials", href: "/crew-network/apply" },
     secondary: { label: "Member login", href: "/login" },
   });
 
@@ -89,7 +89,7 @@ export default function CrewNetworkPage() {
         title="Submit credentials for crew network review."
         body="Profile submission helps AMG review qualifications, aircraft experience, documents, base airport, and support suitability. Submission and approval do not guarantee assignment, compensation, or future engagement."
         primaryLabel="Submit Credentials"
-        primaryHref="/credential-submission"
+        primaryHref="/crew-network/apply"
         secondaryLabel="Member login"
         secondaryHref="/login"
       />

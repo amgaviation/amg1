@@ -120,7 +120,7 @@ export default async function ClientSubscriptionDetailPage({
                 { header: "Period", cell: (row) => `${formatDate(row.period_start)} - ${formatDate(row.period_end)}` },
                 { header: "Due", cell: (row) => formatMoney(row.amount_due), align: "right" },
                 { header: "Paid", cell: (row) => formatMoney(row.amount_paid), align: "right" },
-                { header: "PDF", cell: (row) => row.invoice_pdf_url ? <Link href={row.invoice_pdf_url} className="text-accent hover:underline">PDF</Link> : "-" },
+                { header: "PDF", cell: (row) => row.invoice_pdf_url ? <Link href={`/portal/subscription-invoices/${row.id}/view`} className="text-accent hover:underline">PDF</Link> : "-" },
               ]}
             />
           </SectionCard>

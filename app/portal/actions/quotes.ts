@@ -332,7 +332,7 @@ export async function previewQuotePdf(formData: FormData) {
   const quoteId = str(formData, "quote_id");
   if (!quoteId) redirect("/portal/admin/quotes?error=missing");
   const pdf = await generateAndStoreQuotePdf(quoteId, admin.id);
-  redirect(`/api/portal/billing-documents/${pdf.document.id}/download`);
+  redirect(`/portal/billing-documents/${pdf.document.id}/view`);
 }
 
 export async function sendQuote(formData: FormData) {

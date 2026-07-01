@@ -415,7 +415,7 @@ export function AdminRecordManager({
                             {detailHrefBase ? "Open" : "View"}
                           </Button>
                           {archiveAction ? (
-                            ["archived", "suspended", "inactive"].includes(row.status?.label.toLowerCase() ?? "") && archiveDisabledReason ? (
+                            ["archived", "suspended", "inactive", "deleted"].includes(row.status?.label.toLowerCase() ?? "") && archiveDisabledReason ? (
                               <Button type="button" variant="ghost" size="sm" className="rounded-full" disabled title={archiveDisabledReason}>
                                 {row.status?.label ?? "Inactive"}
                               </Button>

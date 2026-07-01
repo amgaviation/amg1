@@ -7,12 +7,18 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { emailChangeRedirectUrl, passwordSetupRedirectUrl } from "@/lib/auth/urls";
 import { normalizeEmailVerificationToken } from "@/lib/auth/email-verification";
 import { requireUser } from "@/lib/portal/session";
-import { ROLE_HOME, isPortalRole, type PortalRole } from "@/lib/portal/constants";
+import { ROLE_HOME, isBusinessPurpose, isPortalRole, type BusinessPurpose, type PortalRole } from "@/lib/portal/constants";
 import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
 import { getSiteUrl } from "@/lib/site-url";
 import { safeRedirectPath } from "./_helpers";
 
 const PASSWORD_SETUP_COOKIE = "amg_password_setup_user";
+const PUBLIC_ACCESS_REQUEST_MESSAGES = {
+  approved: "An AMG portal account already exists for this email. Please sign in or contact AMG Operations.",
+  pending: "AMG already has a pending portal access request for this email.",
+  waitlisted: "This portal access request is currently under AMG review. Please contact AMG Operations for more information.",
+  suspended: "Portal access for this email is currently suspended. Please contact AMG Operations for more information.",
+};
 
 function field(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -20,6 +26,11 @@ function field(formData: FormData, key: string) {
 
 function temporaryAccessRequestPassword() {
   return `AMG-${randomUUID()}!`;
+}
+
+function normalizeBusinessPurpose(value: string): BusinessPurpose {
+  const normalized = value.toLowerCase().trim();
+  return isBusinessPurpose(normalized) ? normalized : "other";
 }
 
 function isMissingProfileInvitationColumnError(error: { message?: string | null; code?: string | null } | null) {
@@ -31,7 +42,7 @@ function accessRequestProfilePayload({
   id,
   email,
   fullName,
-  roleValue,
+  businessPurpose,
   company,
   phone,
   includeInvitationMetadata,
@@ -39,7 +50,7 @@ function accessRequestProfilePayload({
   id?: string;
   email: string;
   fullName: string;
-  roleValue: PortalRole;
+  businessPurpose: BusinessPurpose;
   company: string;
   phone: string;
   includeInvitationMetadata: boolean;
@@ -48,11 +59,15 @@ function accessRequestProfilePayload({
     ...(id ? { id } : {}),
     email,
     full_name: fullName,
-    role: roleValue,
+    role: "client",
     company_name: company || null,
     phone: phone || null,
-    status: "pending",
+    status: "pending_approval",
     is_active: false,
+    business_purpose: businessPurpose,
+    requested_role: null,
+    assigned_role: null,
+    status_updated_at: new Date().toISOString(),
     ...(includeInvitationMetadata
       ? {
           invitation_status: "access_request_received",
@@ -81,13 +96,15 @@ function isReusableReleasedProfile(profile: {
   email: string;
   status: string | null;
   is_active: boolean | null;
+  is_deleted?: boolean | null;
   invitation_status?: string | null;
 }) {
   return (
+    profile.status === "deleted" ||
+    profile.is_deleted === true ||
     isReleasedEmail(profile.email) ||
     profile.invitation_status === "deactivated_email_released" ||
-    profile.invitation_status === "deleted_email_released" ||
-    (profile.status === "suspended" && profile.is_active === false)
+    profile.invitation_status === "deleted_email_released"
   );
 }
 
@@ -95,14 +112,14 @@ async function requestAccessUsingExistingAuthUser({
   userId,
   email,
   fullName,
-  roleValue,
+  businessPurpose,
   company,
   phone,
 }: {
   userId: string;
   email: string;
   fullName: string;
-  roleValue: PortalRole;
+  businessPurpose: BusinessPurpose;
   company: string;
   phone: string;
 }) {
@@ -113,7 +130,7 @@ async function requestAccessUsingExistingAuthUser({
     .update(accessRequestProfilePayload({
       email,
       fullName,
-      roleValue,
+      businessPurpose,
       company,
       phone,
       includeInvitationMetadata: true,
@@ -130,7 +147,7 @@ async function requestAccessUsingExistingAuthUser({
       .update(accessRequestProfilePayload({
         email,
         fullName,
-        roleValue,
+        businessPurpose,
         company,
         phone,
         includeInvitationMetadata: false,
@@ -144,16 +161,16 @@ async function requestAccessUsingExistingAuthUser({
 
   await notifyAdmins({
     title: "New portal access request",
-    body: `${fullName} (${email}) requested ${roleValue} access after a released account record.`,
+    body: `${fullName} (${email}) submitted a portal access request for ${businessPurpose}.`,
     type: "access_request",
     entityType: "profile",
     entityId: userId,
   });
 
   await logAuditEvent({
-    actor: { id: userId, email, role: roleValue },
+    actor: { id: userId, email, role: "client" },
     action: "access_requested_after_release",
-    detail: `${fullName} requested ${roleValue} access after account release`,
+    detail: `${fullName} submitted a portal access request after account release`,
     entityType: "profile",
     entityId: userId,
   });
@@ -169,7 +186,7 @@ async function findReleasedProfileForEmail(email: string) {
 
   const { data } = await svc
     .from("profiles")
-    .select("id, email, status, is_active, invitation_status")
+    .select("id, email, status, is_active, is_deleted, invitation_status")
     .ilike("email", pattern)
     .order("updated_at", { ascending: false })
     .limit(1)
@@ -200,12 +217,12 @@ export async function signIn(formData: FormData) {
     redirect("/login?error=invalid");
   }
 
-  if (profile.status === "pending") {
+  if (profile.status === "pending" || profile.status === "pending_approval" || profile.status === "waitlisted" || profile.status === "denied") {
     await supabase.auth.signOut();
     redirect("/pending-approval");
   }
 
-  if (profile.status === "suspended") {
+  if (profile.status === "suspended" || profile.status === "deleted") {
     await supabase.auth.signOut();
     redirect("/access-denied");
   }
@@ -234,11 +251,11 @@ export async function signIn(formData: FormData) {
 export async function signUp(formData: FormData) {
   const email = field(formData, "email").toLowerCase();
   const fullName = field(formData, "full_name");
-  const roleValue = field(formData, "role");
+  const businessPurpose = normalizeBusinessPurpose(field(formData, "business_purpose"));
   const company = field(formData, "company_name");
   const phone = field(formData, "phone");
 
-  if (!email || !fullName || !isPortalRole(roleValue) || roleValue === "admin" || roleValue === "super_admin") {
+  if (!email || !fullName || !businessPurpose) {
     redirect("/login?mode=request&error=missing");
   }
 
@@ -246,17 +263,53 @@ export async function signUp(formData: FormData) {
 
   const { data: existingProfile } = await svc
     .from("profiles")
-    .select("id, email, status, is_active")
+    .select("id, email, status, is_active, is_deleted, invitation_status")
     .ilike("email", email)
+    .neq("status", "deleted")
+    .neq("is_deleted", true)
     .maybeSingle();
 
   if (existingProfile) {
+    if (existingProfile.status === "deleted" || existingProfile.is_deleted === true) {
+      await requestAccessUsingExistingAuthUser({
+        userId: existingProfile.id,
+        email,
+        fullName,
+        businessPurpose,
+        company,
+        phone,
+      });
+    }
+
     if (isReusableReleasedProfile(existingProfile)) {
       await requestAccessUsingExistingAuthUser({
         userId: existingProfile.id,
         email,
         fullName,
-        roleValue,
+        businessPurpose,
+        company,
+        phone,
+      });
+    }
+
+    if (existingProfile.status === "suspended") {
+      redirect("/login?mode=request&error=suspended");
+    }
+
+    if (existingProfile.status === "pending_approval" || existingProfile.status === "pending") {
+      redirect("/login?mode=request&error=pending_request");
+    }
+
+    if (existingProfile.status === "waitlisted") {
+      redirect("/login?mode=request&error=waitlisted");
+    }
+
+    if (existingProfile.status === "denied") {
+      await requestAccessUsingExistingAuthUser({
+        userId: existingProfile.id,
+        email,
+        fullName,
+        businessPurpose,
         company,
         phone,
       });
@@ -272,7 +325,7 @@ export async function signUp(formData: FormData) {
       userId: releasedProfile.id,
       email,
       fullName,
-      roleValue,
+      businessPurpose,
       company,
       phone,
     });
@@ -287,7 +340,7 @@ export async function signUp(formData: FormData) {
     options: {
       data: {
         full_name: fullName,
-        role: roleValue,
+        business_purpose: businessPurpose,
       },
       emailRedirectTo: `${getSiteUrl()}/verify-email?email=${encodeURIComponent(email)}`,
     },
@@ -303,7 +356,7 @@ export async function signUp(formData: FormData) {
     id: profileId,
     email,
     fullName,
-    roleValue,
+    businessPurpose,
     company,
     phone,
     includeInvitationMetadata: true,
@@ -318,7 +371,7 @@ export async function signUp(formData: FormData) {
       id: profileId,
       email,
       fullName,
-      roleValue,
+      businessPurpose,
       company,
       phone,
       includeInvitationMetadata: false,
@@ -331,16 +384,16 @@ export async function signUp(formData: FormData) {
 
   await notifyAdmins({
     title: "New portal access request",
-    body: `${fullName} (${email}) requested ${roleValue} access.`,
+    body: `${fullName} (${email}) submitted a portal access request for ${businessPurpose}.`,
     type: "access_request",
     entityType: "profile",
     entityId: profileId,
   });
 
   await logAuditEvent({
-    actor: { id: profileId, email, role: roleValue },
+    actor: { id: profileId, email, role: "client" },
     action: "access_requested",
-    detail: `${fullName} requested ${roleValue} access`,
+    detail: `${fullName} submitted a portal access request for ${businessPurpose}`,
     entityType: "profile",
     entityId: profileId,
   });
