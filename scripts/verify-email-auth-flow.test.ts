@@ -37,9 +37,9 @@ withEnv({ NEXT_PUBLIC_APP_URL: "", VERCEL_URL: "" }, () => {
 });
 
 assert.equal(normalizeEmailVerificationToken(" 123 456 "), "123456");
+assert.equal(normalizeEmailVerificationToken("abcDEF123456_-"), "abcDEF123456_-");
 assert.equal(normalizeEmailVerificationToken("12345"), null);
-assert.equal(normalizeEmailVerificationToken("1234567"), null);
-assert.equal(normalizeEmailVerificationToken("12A456"), null);
+assert.equal(normalizeEmailVerificationToken("abc+123"), null);
 
 const authActions = fs.readFileSync("app/portal/actions/auth.ts", "utf8");
 assert.match(
@@ -72,7 +72,8 @@ assert.doesNotMatch(template, /ConfirmationURL|TokenHash|token_hash|access_token
 
 const verifyPage = fs.readFileSync("app/(public)/verify-email/page.tsx", "utf8");
 assert.match(verifyPage, /Email Address/);
-assert.match(verifyPage, /6-digit Verification Code/);
+assert.match(verifyPage, /Verification Code/);
+assert.doesNotMatch(verifyPage, /6-digit/);
 assert.match(verifyPage, /Verify Email/);
 assert.match(verifyPage, /Resend Verification Code/);
 

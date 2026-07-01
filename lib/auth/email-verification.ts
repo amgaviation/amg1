@@ -1,4 +1,4 @@
 export function normalizeEmailVerificationToken(value: string) {
   const token = value.replace(/\s/g, "");
-  return /^\d{6}$/.test(token) ? token : null;
+  return /^[A-Za-z0-9_-]{6,128}$/.test(token) ? token : null;
 }

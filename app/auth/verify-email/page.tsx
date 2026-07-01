@@ -11,7 +11,7 @@ export default function VerifyEmailPage() {
     <PortalAccessShell
       eyebrow="AMG Connect"
       title="Verify your AMG Connect email."
-      description="Open the latest AMG Aviation Group email, copy the 6-digit verification code, and enter it on the AMG verification page."
+      description="Open the latest AMG Aviation Group email, copy the verification code, and enter it on the AMG verification page."
       backHref="/login"
       backLabel="Return to login"
     >

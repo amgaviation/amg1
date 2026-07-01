@@ -6,11 +6,11 @@ import { resendPortalVerificationCode, verifyPortalEmail } from "@/app/portal/ac
 
 export const metadata: Metadata = {
   title: "Verify AMG Connect Email",
-  description: "Verify your AMG Connect portal access request with a 6-digit code.",
+  description: "Verify your AMG Connect portal access request with the code from your email.",
 };
 
 const ERROR_MESSAGES: Record<string, string> = {
-  missing: "Enter your email address and the 6-digit verification code.",
+  missing: "Enter your email address and the verification code from your AMG email.",
   invalid: "That verification code is invalid. Check the email from AMG and try again.",
   expired: "That verification code has expired. Submit a new access request or contact AMG Operations.",
   failed: "We could not verify that code. Please try again or contact AMG Operations.",
@@ -48,7 +48,7 @@ export default async function VerifyEmailPage({
             Verify portal access
           </h1>
           <p className="mt-6 max-w-xl text-base leading-7 text-[#C0C7D1]">
-            Use the 6-digit code from your AMG Connect email. The email button
+            Use the verification code from your AMG Connect email. The email button
             only opens this page; verification happens after you submit the code.
           </p>
         </div>
@@ -108,15 +108,15 @@ export default async function VerifyEmailPage({
               </label>
 
               <label className="grid gap-2 text-sm font-medium text-white/80">
-                6-digit Verification Code
+                Verification Code
                 <input
                   name="token"
-                  inputMode="numeric"
-                  pattern="[0-9 ]{6,11}"
+                  inputMode="text"
+                  pattern="[A-Za-z0-9_\\- ]{6,160}"
                   required
                   autoComplete="one-time-code"
-                  placeholder="123456"
-                  className="h-12 rounded-lg border border-white/[0.10] bg-[#07111F]/75 px-4 text-center font-mono text-xl tracking-[0.24em] text-white outline-none transition placeholder:text-[#9CA3AF] focus:border-[#3B82F6]"
+                  placeholder="Paste code from email"
+                  className="h-12 rounded-lg border border-white/[0.10] bg-[#07111F]/75 px-4 text-center font-mono text-base tracking-[0.08em] text-white outline-none transition placeholder:font-sans placeholder:tracking-normal placeholder:text-[#9CA3AF] focus:border-[#3B82F6]"
                 />
               </label>
 
