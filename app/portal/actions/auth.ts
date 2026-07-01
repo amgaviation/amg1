@@ -18,6 +18,52 @@ function field(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
 
+function temporaryAccessRequestPassword() {
+  return `AMG-${randomUUID()}!`;
+}
+
+function isMissingProfileInvitationColumnError(error: { message?: string | null; code?: string | null } | null) {
+  const message = error?.message ?? "";
+  return error?.code === "PGRST204" || /invitation_|schema cache|column .* does not exist/i.test(message);
+}
+
+function accessRequestProfilePayload({
+  id,
+  email,
+  fullName,
+  roleValue,
+  company,
+  phone,
+  includeInvitationMetadata,
+}: {
+  id?: string;
+  email: string;
+  fullName: string;
+  roleValue: PortalRole;
+  company: string;
+  phone: string;
+  includeInvitationMetadata: boolean;
+}) {
+  return {
+    ...(id ? { id } : {}),
+    email,
+    full_name: fullName,
+    role: roleValue,
+    company_name: company || null,
+    phone: phone || null,
+    status: "pending",
+    is_active: false,
+    ...(includeInvitationMetadata
+      ? {
+          invitation_status: "access_request_received",
+          invitation_channel: "portal_request",
+          invitation_sent_at: null,
+          last_login_at: null,
+        }
+      : {}),
+  };
+}
+
 function isReleasedEmail(email: string) {
   return email.includes("+released-") || email.includes("__released__");
 }
@@ -35,7 +81,7 @@ function isReusableReleasedProfile(profile: {
   email: string;
   status: string | null;
   is_active: boolean | null;
-  invitation_status: string | null;
+  invitation_status?: string | null;
 }) {
   return (
     isReleasedEmail(profile.email) ||
@@ -64,23 +110,36 @@ async function requestAccessUsingExistingAuthUser({
 
   const { error: profileError } = await svc
     .from("profiles")
-    .update({
+    .update(accessRequestProfilePayload({
       email,
-      full_name: fullName,
-      role: roleValue,
-      company_name: company || null,
-      phone: phone || null,
-      status: "pending",
-      is_active: false,
-      invitation_status: "access_request_received",
-      invitation_channel: "portal_request",
-      invitation_sent_at: null,
-      last_login_at: null,
-    })
+      fullName,
+      roleValue,
+      company,
+      phone,
+      includeInvitationMetadata: true,
+    }) as any)
     .eq("id", userId);
 
   if (profileError) {
-    redirect("/login?mode=request&error=signup");
+    if (!isMissingProfileInvitationColumnError(profileError)) {
+      redirect("/login?mode=request&error=signup");
+    }
+
+    const { error: fallbackProfileError } = await svc
+      .from("profiles")
+      .update(accessRequestProfilePayload({
+        email,
+        fullName,
+        roleValue,
+        company,
+        phone,
+        includeInvitationMetadata: false,
+      }) as any)
+      .eq("id", userId);
+
+    if (fallbackProfileError) {
+      redirect("/login?mode=request&error=signup");
+    }
   }
 
   await notifyAdmins({
@@ -187,7 +246,7 @@ export async function signUp(formData: FormData) {
 
   const { data: existingProfile } = await svc
     .from("profiles")
-    .select("id, email, status, is_active, invitation_status")
+    .select("id, email, status, is_active")
     .ilike("email", email)
     .maybeSingle();
 
@@ -220,7 +279,7 @@ export async function signUp(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const temporaryPassword = `${randomUUID()}-${randomUUID()}`;
+  const temporaryPassword = temporaryAccessRequestPassword();
 
   const { data, error: signUpError } = await supabase.auth.signUp({
     email,
@@ -240,22 +299,34 @@ export async function signUp(formData: FormData) {
 
   const profileId = data.user.id;
 
-  const { error } = await svc.from("profiles").upsert({
+  const { error } = await svc.from("profiles").upsert(accessRequestProfilePayload({
     id: profileId,
     email,
-    full_name: fullName,
-    role: roleValue,
-    company_name: company || null,
-    phone: phone || null,
-    status: "pending",
-    is_active: false,
-    invitation_status: "access_request_received",
-    invitation_channel: "portal_request",
-    invitation_sent_at: null,
-  }, { onConflict: "id" });
+    fullName,
+    roleValue,
+    company,
+    phone,
+    includeInvitationMetadata: true,
+  }) as any, { onConflict: "id" });
 
   if (error) {
-    redirect("/login?mode=request&error=signup");
+    if (!isMissingProfileInvitationColumnError(error)) {
+      redirect("/login?mode=request&error=signup");
+    }
+
+    const { error: fallbackError } = await svc.from("profiles").upsert(accessRequestProfilePayload({
+      id: profileId,
+      email,
+      fullName,
+      roleValue,
+      company,
+      phone,
+      includeInvitationMetadata: false,
+    }) as any, { onConflict: "id" });
+
+    if (fallbackError) {
+      redirect("/login?mode=request&error=signup");
+    }
   }
 
   await notifyAdmins({

@@ -50,6 +50,13 @@ assert.match(
 assert.match(authActions, /verifyOtp\(\{[\s\S]*email,[\s\S]*token,[\s\S]*type:\s*"email"/);
 assert.match(authActions, /await supabase\.auth\.signOut\(\);[\s\S]*redirect\("\/pending-approval\?verified=1"\);/);
 assert.match(authActions, /auth\.resend\(\{[\s\S]*type:\s*"signup"[\s\S]*email,[\s\S]*emailRedirectTo:/);
+assert.match(authActions, /temporaryAccessRequestPassword\(\)/);
+assert.match(authActions, /isMissingProfileInvitationColumnError/);
+assert.doesNotMatch(
+  authActions,
+  /randomUUID\(\)\}-\$\{randomUUID\(\)/,
+  "temporary access-request passwords must stay under Supabase Auth's 72-character limit"
+);
 
 const setupDoc = fs.readFileSync("docs/SUPABASE_AUTH_EMAIL_SETUP.md", "utf8");
 const templateMatch = setupDoc.match(/HTML template:\n\n```html\n([\s\S]*?)\n```/);
