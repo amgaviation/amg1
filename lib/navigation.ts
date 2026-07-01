@@ -1,4 +1,4 @@
-import { FOOTER_COLS, NAV_LINKS } from "@/lib/content";
+import { NAV_LINKS } from "@/lib/content";
 
 export type PublicNavItem = {
   label: string;
@@ -20,17 +20,23 @@ export const PUBLIC_NAV_GROUPS: PublicNavGroup[] = [
     href: "/about",
     items: [
       { label: "About AMG", href: "/about", description: "Company overview, values, and AMG support structure." },
-      { label: "Team / support structure", href: "/team", description: "The roles behind AMG support requests." },
+      { label: "Team / support structure", href: "/about#support-desk", description: "The roles behind AMG support requests." },
       { label: "Contact", href: "/contact", description: "Send a general inquiry to AMG." },
     ],
   },
   {
     label: "Services",
-    href: "/services",
+    href: "/capabilities",
     items: [
-      { label: "Services overview", href: "/services", description: "Crew coverage, aircraft movement, maintenance repositioning, and recurring support." },
-      { label: "Aircraft support", href: "/aircraft", description: "Aircraft categories and support context." },
-      { label: "Crew network", href: "/pilot-network", description: "Crew-related support and credential review context." },
+      { label: "Services overview", href: "/capabilities", description: "Crew coverage, aircraft movement, maintenance repositioning, and recurring support." },
+      { label: "Aircraft support", href: "/aircraft-support", description: "Aircraft categories and support context." },
+      { label: "Aircraft management support", href: "/capabilities#aircraft-management-support", description: "Administrative visibility around aircraft, records, and communication." },
+      { label: "Contract pilot support", href: "/capabilities#contract-pilot-support", description: "Aircraft-specific pilot coverage and suitability review." },
+      { label: "Ferry & repositioning", href: "/capabilities#ferry-repositioning", description: "Aircraft movement review for delivery, maintenance, and repositioning." },
+      { label: "Maintenance flight support", href: "/capabilities#maintenance-flight-support", description: "Maintenance-related movement, records, and facility timing coordination." },
+      { label: "Flight ops coordination", href: "/capabilities#flight-ops-coordination", description: "Logistics, vendors, schedules, and stakeholder communication." },
+      { label: "Fleet support", href: "/capabilities#fleet-support", description: "Recurring support across multiple aircraft and timing windows." },
+      { label: "Crew network", href: "/crew-network", description: "Crew-related support and credential review context." },
     ],
   },
   {
@@ -53,4 +59,22 @@ export const PUBLIC_NAV_GROUPS: PublicNavGroup[] = [
   },
 ];
 
-export const PUBLIC_FOOTER_GROUPS = FOOTER_COLS;
+export const PUBLIC_LEGAL_FOOTER_LINKS: PublicNavItem[] = [
+  { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Privacy Choices", href: "/privacy-choices" },
+  { label: "Cookie Policy", href: "/cookie-policy" },
+  { label: "Terms & Conditions", href: "/terms" },
+  { label: "Mission Acceptance Policy", href: "/mission-acceptance" },
+  { label: "Credential Submission Notice", href: "/credential-submission" },
+  { label: "Accessibility", href: "/accessibility" },
+  { label: "All Legal Notices", href: "/legal" },
+];
+
+export const PUBLIC_FOOTER_GROUPS: PublicNavGroup[] = [
+  ...PUBLIC_NAV_GROUPS,
+  {
+    label: "Legal",
+    href: "/legal",
+    items: PUBLIC_LEGAL_FOOTER_LINKS,
+  },
+];

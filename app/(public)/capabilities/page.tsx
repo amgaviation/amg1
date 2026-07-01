@@ -53,6 +53,7 @@ const MODEL_STEPS = [
 
 const SUPPORT_PATHS = [
   {
+    id: "aircraft-management-support",
     title: "Aircraft Management Support",
     summary: "For owners and operators who need administrative visibility around support requests, records context, and communication.",
     details: [
@@ -62,6 +63,7 @@ const SUPPORT_PATHS = [
     ],
   },
   {
+    id: "contract-pilot-support",
     title: "Contract Pilot Support",
     summary: "For aircraft-specific pilot coverage review where qualifications, currency, seat requirements, and timing all matter.",
     details: [
@@ -71,6 +73,7 @@ const SUPPORT_PATHS = [
     ],
   },
   {
+    id: "ferry-repositioning",
     title: "Ferry & Repositioning",
     summary: "For aircraft movement needs that require careful review of route, aircraft readiness, crew, documents, and approvals.",
     details: [
@@ -80,6 +83,7 @@ const SUPPORT_PATHS = [
     ],
   },
   {
+    id: "maintenance-flight-support",
     title: "Maintenance Flight Support",
     summary: "For maintenance-related movement where aircraft status, records, facility timing, and crew fit drive the support path.",
     details: [
@@ -89,6 +93,7 @@ const SUPPORT_PATHS = [
     ],
   },
   {
+    id: "flight-ops-coordination",
     title: "Flight Ops Coordination",
     summary: "For support requests that depend on aligned logistics, vendors, schedules, aircraft context, and stakeholder communication.",
     details: [
@@ -98,6 +103,7 @@ const SUPPORT_PATHS = [
     ],
   },
   {
+    id: "fleet-support",
     title: "Fleet Support",
     summary: "For operators coordinating recurring support needs across multiple aircraft, aircraft classes, and timing windows.",
     details: [
@@ -107,6 +113,7 @@ const SUPPORT_PATHS = [
     ],
   },
   {
+    id: "plan-review",
     title: "Plan Review",
     summary: "For owners and operators evaluating which AMG support plan fits aircraft class, flight volume, and coordination needs.",
     details: [
@@ -169,7 +176,7 @@ export default function CapabilitiesPage() {
         </div>
       </section>
 
-      <section className="oc-section bg-[var(--oc-graphite)] text-[var(--oc-paper)]">
+      <section id="operating-model" className="oc-section bg-[var(--oc-graphite)] text-[var(--oc-paper)]">
         <div className="oc-shell grid gap-12 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
           <div data-scroll-animate>
             <p className="oc-eyebrow oc-eyebrow-light">Operating Model</p>
@@ -194,7 +201,7 @@ export default function CapabilitiesPage() {
         </div>
       </section>
 
-      <section className="oc-section bg-[var(--oc-ivory-2)]">
+      <section id="support-paths" className="oc-section bg-[var(--oc-ivory-2)]">
         <div className="oc-shell grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
           <div data-scroll-animate>
             <p className="oc-eyebrow text-[var(--oc-blue)]">Support Paths</p>
@@ -214,7 +221,8 @@ export default function CapabilitiesPage() {
           <div className="grid gap-3" data-stagger-container>
             {SUPPORT_PATHS.map((path, index) => (
               <details
-                key={path.title}
+                key={path.id}
+                id={path.id}
                 data-stagger-item
                 className="group rounded-2xl border border-[var(--oc-line)] bg-[var(--oc-ivory-2)] transition-colors open:border-[var(--oc-blue)]"
                 open={index === 0}
@@ -243,7 +251,7 @@ export default function CapabilitiesPage() {
         </div>
       </section>
 
-      <section className="oc-section bg-[var(--oc-ivory)]">
+      <section id="support-details" className="oc-section bg-[var(--oc-ivory)]">
         <div className="oc-shell grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
           <div data-scroll-animate>
             <p className="oc-eyebrow text-[var(--oc-blue)]">Support Details</p>
@@ -272,7 +280,7 @@ export default function CapabilitiesPage() {
         </div>
       </section>
 
-      <section className="bg-[var(--oc-ivory)] pb-16">
+      <section id="support-limitations" className="bg-[var(--oc-ivory)] pb-16">
         <div className="oc-shell">
           <div className="oc-panel-navy rounded-[1.25rem] p-6 text-[var(--oc-paper)] md:p-8 lg:p-10">
             <div className="flex flex-col gap-5 md:flex-row md:items-start">

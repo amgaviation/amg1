@@ -30,13 +30,19 @@ export function SiteFooter() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-7 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-7 sm:grid-cols-3 lg:grid-cols-5">
             {PUBLIC_FOOTER_GROUPS.map((col) => (
-              <div key={col.heading}>
-                <h2 className="oc-kicker text-[var(--oc-aluminum-2)]">{col.heading}</h2>
+              <div key={col.label}>
+                <Link
+                  href={col.href}
+                  prefetch={false}
+                  className="oc-kicker inline-flex min-h-8 items-center text-[var(--oc-aluminum-2)] transition-colors hover:text-white"
+                >
+                  {col.label}
+                </Link>
                 <ul className="mt-4 flex flex-col gap-1.5">
-                  {col.links.map((link) => (
-                    <li key={`${col.heading}-${link.label}`}>
+                  {col.items.map((link) => (
+                    <li key={`${col.label}-${link.label}`}>
                       <Link
                         href={link.href}
                         prefetch={false}

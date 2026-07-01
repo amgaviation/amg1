@@ -3,7 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 
 const SERVICES = [
   { n: "01", title: "Crew Coverage", body: "AMG reviews location, aircraft experience, credentials, availability, and assignment fit before presenting a crew option.", href: "/crew-network", cta: "Explore Crew Coverage" },
-  { n: "02", title: "Aircraft Movement", body: "Coordinate support requirements for repositioning and other approved aircraft movement needs.", href: "/capabilities#what-amg-supports", cta: "Explore Aircraft Movement" },
+  { n: "02", title: "Aircraft Movement", body: "Coordinate support requirements for repositioning and other approved aircraft movement needs.", href: "/capabilities#ferry-repositioning", cta: "Explore Aircraft Movement" },
   { n: "03", title: "Maintenance Repositioning", body: "Coordinate the aircraft, crew, timing, and documentation requirements surrounding a maintenance-related repositioning.", href: "/aircraft-support", cta: "Explore Maintenance Support" },
   { n: "04", title: "Recurring Support", body: "Use a defined support structure for one aircraft, multiple aircraft, or changing crew requirements.", href: "/plans", cta: "Compare Support Options" },
 ];

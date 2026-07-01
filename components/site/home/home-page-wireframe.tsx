@@ -112,19 +112,19 @@ const supportPlans = [
     title: "On-demand support",
     body: "For one aircraft movement, crew coverage need, or maintenance repositioning request.",
     cta: "See on-demand details",
-    href: "/plans#on-demand",
+    href: "/plans#plans-comparison",
   },
   {
     title: "Recurring owner support",
     body: "For owners who want a defined support structure around repeated aircraft needs.",
     cta: "Review recurring support",
-    href: "/plans#recurring-owner-support",
+    href: "/plans#plans-comparison",
   },
   {
     title: "Fleet/department support",
     body: "For teams managing multiple aircraft, frequent activity, or variable crew requirements.",
     cta: "Explore department support",
-    href: "/plans#fleet-department-support",
+    href: "/plans#plans-comparison",
   },
 ] as const;
 
@@ -178,7 +178,7 @@ function Hero() {
               <p className="mt-3 text-sm text-[var(--amg-light-gray)]">We respond within 24 hours.</p>
             </div>
             <Link
-              href="/services"
+              href="/capabilities"
               prefetch={false}
               className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-white underline decoration-[var(--amg-accent-blue)] decoration-2 underline-offset-8 transition-colors hover:text-[var(--amg-light-gray)]"
             >

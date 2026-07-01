@@ -675,7 +675,11 @@
 }
 
 html {
-  scroll-behavior: auto;
+  scroll-behavior: smooth;
+}
+
+[id] {
+  scroll-margin-top: calc(var(--public-header-height) + 28px);
 }
 
 .skip-link {

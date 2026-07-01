@@ -517,9 +517,9 @@ export const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
-  { label: "Services", href: "/services" },
+  { label: "Capabilities", href: "/capabilities" },
   { label: "Support plans", href: "/plans" },
-  { label: "Aircraft support", href: "/aircraft" },
-  { label: "Crew network", href: "/pilot-network" },
+  { label: "Aircraft support", href: "/aircraft-support" },
+  { label: "Crew network", href: "/crew-network" },
   { label: "AMG Connect", href: "/amg-connect" },
 ] as const;
