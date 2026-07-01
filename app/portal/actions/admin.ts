@@ -5,8 +5,11 @@ import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
-import { isPortalRole, PORTAL_PERMISSIONS, PROFILE_STATUS } from "@/lib/portal/constants";
+import { ASSIGNABLE_PORTAL_ROLES, isPortalRole, PORTAL_PERMISSIONS, PROFILE_STATUS, type PortalRole } from "@/lib/portal/constants";
 import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
+import { getEmailProvider } from "@/lib/email/provider";
+import { defaultSender, replyToAddress } from "@/lib/email/config";
+import { waitlistContactRequestTemplate } from "@/lib/email/templates/access-management";
 import {
   ensurePortalAuthUserForProfile,
   generatePortalPasswordSetupLink,
@@ -61,11 +64,50 @@ function dateValue(formData: FormData, key: string): string | null {
 }
 
 function controlledProfileStatus(value: string) {
-  return PROFILE_STATUS.some((item) => item.value === value) ? value : "pending";
+  return PROFILE_STATUS.some((item) => item.value === value) ? value : "pending_approval";
 }
 
 function canAssignSuperAdmin(actingRole: string, targetEmail: string) {
   return actingRole === "super_admin" && targetEmail.toLowerCase() === INITIAL_SUPER_ADMIN_EMAIL;
+}
+
+function isAssignablePortalRole(value: string, actingRole: string): value is PortalRole {
+  if (!isPortalRole(value) || value === "super_admin") return false;
+  if (value === "admin") return actingRole === "admin" || actingRole === "super_admin";
+  return ASSIGNABLE_PORTAL_ROLES.some((role) => role.value === value);
+}
+
+async function recordProfileStatusEvent({
+  db,
+  profileId,
+  previousStatus,
+  newStatus,
+  previousRole,
+  newRole,
+  businessPurpose,
+  note,
+  changedBy,
+}: {
+  db: Awaited<ReturnType<typeof createServiceClient>>;
+  profileId: string;
+  previousStatus: string | null;
+  newStatus: string;
+  previousRole?: string | null;
+  newRole?: string | null;
+  businessPurpose?: string | null;
+  note?: string | null;
+  changedBy: string;
+}) {
+  await (db as any).from("portal_user_status_events").insert({
+    portal_user_id: profileId,
+    previous_status: previousStatus,
+    new_status: newStatus,
+    previous_role: previousRole ?? null,
+    new_role: newRole ?? null,
+    business_purpose: businessPurpose ?? null,
+    note: note || null,
+    changed_by: changedBy,
+  });
 }
 
 async function ensureUniqueProfileEmail(
@@ -78,6 +120,8 @@ async function ensureUniqueProfileEmail(
     .from("profiles")
     .select("id")
     .ilike("email", email)
+    .neq("status", "deleted")
+    .neq("is_deleted", true)
     .maybeSingle();
 
   if (duplicate && duplicate.id !== currentId) redirect(`${backTo}?error=duplicate`);
@@ -170,25 +214,61 @@ export async function approveUser(formData: FormData) {
   const admin = await actor(["admin"]);
   const db = await createServiceClient();
   const userId = str(formData, "user_id");
+  const role = str(formData, "role");
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/user-approvals");
+  const note = str(formData, "admin_notes");
+
+  if (!isAssignablePortalRole(role, admin.role)) redirect(`${backTo}?error=role`);
 
   const { data: profile } = await db
     .from("profiles")
-    .select("id, email, full_name, role, status, company_name, phone, home_base, permissions")
+    .select("id, email, full_name, role, status, business_purpose, company_name, phone, home_base, permissions")
     .eq("id", userId)
     .maybeSingle();
 
-  if (!profile) redirect("/portal/admin/user-approvals?error=user");
+  if (!profile) redirect(`${backTo}?error=user`);
+
+  const now = new Date().toISOString();
+
+  const { error: updateError } = await db
+    .from("profiles")
+    .update({
+      role,
+      assigned_role: role,
+      status: "approved",
+      is_active: true,
+      is_deleted: false,
+      admin_notes: note || null,
+      status_updated_at: now,
+      status_updated_by: admin.id,
+      updated_at: now,
+    } as any)
+    .eq("id", userId);
+
+  if (updateError) redirect(`${backTo}?error=save`);
 
   const provisioned = await ensurePortalAuthUserForProfile({
     db,
-    profile,
+    profile: { ...profile, role, status: "approved" },
     invitedBy: admin.id,
     sendSetupEmail: true,
   });
 
   if (!provisioned.ok) {
-    redirect("/portal/admin/user-approvals?error=invite");
+    redirect(`${backTo}?error=invite`);
   }
+
+  await recordProfileStatusEvent({
+    db,
+    profileId: provisioned.profileId,
+    previousStatus: profile.status,
+    newStatus: "approved",
+    previousRole: profile.role,
+    newRole: role,
+    businessPurpose: profile.business_purpose,
+    note,
+    changedBy: admin.id,
+  });
 
   await logAuditEvent({
     actor: admin,
@@ -206,8 +286,9 @@ export async function approveUser(formData: FormData) {
   });
 
   revalidatePath("/portal/admin/user-approvals");
+  revalidatePath("/portal/admin/waitlist");
   revalidatePath("/portal/admin/users");
-  redirect("/portal/admin/user-approvals?success=approved");
+  redirect(`${backTo}?success=approved`);
 }
 
 export async function setUserStatus(formData: FormData) {
@@ -216,6 +297,7 @@ export async function setUserStatus(formData: FormData) {
   const userId = str(formData, "user_id");
   const status = str(formData, "status");
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/user-approvals");
+  const note = str(formData, "admin_notes");
 
   if (!PROFILE_STATUS.some((item) => item.value === status)) redirect(`${backTo}?error=status`);
   if (status !== "approved") {
@@ -227,7 +309,7 @@ export async function setUserStatus(formData: FormData) {
   if (status === "approved") {
     const { data: profile } = await db
       .from("profiles")
-      .select("id, email, full_name, role, status, company_name, phone, home_base, permissions")
+      .select("id, email, full_name, role, status, business_purpose, company_name, phone, home_base, permissions")
       .eq("id", userId)
       .maybeSingle();
 
@@ -243,11 +325,48 @@ export async function setUserStatus(formData: FormData) {
     if (!provisioned.ok) redirect(`${backTo}?error=invite`);
     entityId = provisioned.profileId;
   } else {
+    const now = new Date().toISOString();
+    const statusPatch: Record<string, unknown> = {
+      status,
+      is_active: false,
+      admin_notes: note || null,
+      status_updated_at: now,
+      status_updated_by: admin.id,
+      updated_at: now,
+    };
+
+    if (status === "waitlisted") {
+      statusPatch.waitlisted_at = now;
+      statusPatch.waitlisted_by = admin.id;
+    }
+    if (status === "denied") {
+      statusPatch.denied_at = now;
+      statusPatch.denied_by = admin.id;
+    }
+    if (status === "suspended") {
+      statusPatch.suspended_at = now;
+      statusPatch.suspended_by = admin.id;
+    }
+    if (status === "deleted") {
+      statusPatch.deleted_at = now;
+      statusPatch.deleted_by = admin.id;
+      statusPatch.is_deleted = true;
+    }
+
     await db
       .from("profiles")
-      .update({ status, is_active: false })
+      .update(statusPatch as any)
       .eq("id", userId);
   }
+
+  await recordProfileStatusEvent({
+    db,
+    profileId: entityId,
+    previousStatus: null,
+    newStatus: status,
+    note,
+    changedBy: admin.id,
+  });
 
   await logAuditEvent({
     actor: admin,
@@ -257,9 +376,146 @@ export async function setUserStatus(formData: FormData) {
     entityId,
   });
   revalidatePath("/portal/admin/user-approvals");
+  revalidatePath("/portal/admin/waitlist");
   revalidatePath("/portal/admin/users");
   revalidatePath("/portal/admin/clients");
   redirect(`${backTo}?success=status`);
+}
+
+export async function waitlistUser(formData: FormData) {
+  formData.set("status", "waitlisted");
+  await setUserStatus(formData);
+}
+
+export async function denyUser(formData: FormData) {
+  formData.set("status", "denied");
+  await setUserStatus(formData);
+}
+
+export async function approveWaitlistedUser(formData: FormData) {
+  await approveUser(formData);
+}
+
+export async function denyWaitlistedUser(formData: FormData) {
+  formData.set("status", "denied");
+  formData.set("back_to", safeRedirectPath(str(formData, "back_to"), "/portal/admin/waitlist"));
+  await setUserStatus(formData);
+}
+
+export async function sendWaitlistContactEmail(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const userId = str(formData, "user_id");
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/waitlist");
+
+  const { data: profile } = await db
+    .from("profiles")
+    .select("id, email, full_name, status, business_purpose")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (!profile?.email || profile.status !== "waitlisted") redirect(`${backTo}?error=user`);
+
+  const template = waitlistContactRequestTemplate({ fullName: profile.full_name, email: profile.email });
+  const provider = getEmailProvider();
+  const result = await provider.sendEmail({
+    from: defaultSender("operations"),
+    to: [profile.email],
+    replyTo: replyToAddress(),
+    subject: template.subject,
+    text: template.text,
+    html: template.html,
+  });
+
+  const now = new Date().toISOString();
+
+  if (!result.ok || result.status !== "sent") {
+    await recordProfileStatusEvent({
+      db,
+      profileId: profile.id,
+      previousStatus: profile.status,
+      newStatus: profile.status,
+      businessPurpose: profile.business_purpose,
+      note: `waitlist_contact_request email failed: ${"error" in result ? result.error : result.status}`,
+      changedBy: admin.id,
+    });
+    redirect(`${backTo}?error=email`);
+  }
+
+  await db
+    .from("profiles")
+    .update({
+      last_waitlist_email_sent_at: now,
+      status_updated_at: now,
+      status_updated_by: admin.id,
+      updated_at: now,
+    } as any)
+    .eq("id", profile.id);
+
+  try {
+    const threadPublicId = `waitlist-${profile.id}-${Date.now()}`;
+    const messagePublicId = `${threadPublicId}-message`;
+    const { data: thread } = await (db as any)
+      .from("communication_threads")
+      .insert({
+        public_id: threadPublicId,
+        subject: template.subject,
+        status: "waiting_on_client",
+        priority: "normal",
+        channel: "email",
+        created_by_user_id: admin.id,
+        related_client_id: profile.id,
+        last_message_at: now,
+      })
+      .select("id")
+      .maybeSingle();
+
+    if (thread?.id) {
+      await (db as any).from("communication_messages").insert({
+        thread_id: thread.id,
+        public_id: messagePublicId,
+        message_type: "email",
+        direction: "outbound",
+        visibility: "admin_only",
+        status: "sent",
+        provider: result.provider,
+        provider_message_id: result.providerMessageId,
+        from_email: "operations@amgaviationgroup.com",
+        to_emails: [profile.email],
+        reply_to_email: replyToAddress(),
+        subject: template.subject,
+        body_html: template.html,
+        body_text: template.text,
+        sent_by_user_id: admin.id,
+        created_by_user_id: admin.id,
+        sent_at: now,
+        email_category: template.templateName,
+      });
+    }
+  } catch {
+    // Email delivery succeeded; communications logging should not block the admin workflow.
+  }
+
+  await recordProfileStatusEvent({
+    db,
+    profileId: profile.id,
+    previousStatus: profile.status,
+    newStatus: profile.status,
+    businessPurpose: profile.business_purpose,
+    note: `${template.templateName} email sent to ${profile.email}`,
+    changedBy: admin.id,
+  });
+
+  await logAuditEvent({
+    actor: admin,
+    action: "waitlist_contact_email_sent",
+    detail: `Sent waitlist contact request to ${profile.email}`,
+    entityType: "profile",
+    entityId: profile.id,
+  });
+
+  revalidatePath("/portal/admin/waitlist");
+  redirect(`${backTo}?success=email`);
 }
 
 export async function setUserRole(formData: FormData) {
@@ -278,7 +534,10 @@ export async function setUserRole(formData: FormData) {
     }
   }
 
-  await db.from("profiles").update({ role }).eq("id", userId);
+  await db
+    .from("profiles")
+    .update({ role, assigned_role: role, status_updated_at: new Date().toISOString(), status_updated_by: admin.id } as any)
+    .eq("id", userId);
 
   await logAuditEvent({
     actor: admin,
@@ -318,34 +577,36 @@ export async function deactivatePortalUser(formData: FormData) {
     backTo
   );
 
-  if (isReleasedEmail(target.email)) {
-    redirect(`${backTo}?error=already-released`);
-  }
-
-  const archivedEmail = releasedEmail(target.email, userId);
-  const authReleased = await releaseAuthEmail(db, userId, archivedEmail);
-
-  if (!authReleased) {
-    redirect(`${backTo}?error=auth-release`);
-  }
+  const now = new Date().toISOString();
 
   const { error } = await db
     .from("profiles")
     .update({
-      email: archivedEmail,
       status: "suspended",
       is_active: false,
-      invitation_status: "deactivated_email_released",
+      suspended_at: now,
+      suspended_by: admin.id,
+      status_updated_at: now,
+      status_updated_by: admin.id,
       last_login_at: null,
-    })
+      updated_at: now,
+    } as any)
     .eq("id", userId);
 
   if (error) redirect(`${backTo}?error=deactivate`);
 
+  await recordProfileStatusEvent({
+    db,
+    profileId: userId,
+    previousStatus: target.status,
+    newStatus: "suspended",
+    changedBy: admin.id,
+  });
+
   await logAuditEvent({
     actor: admin,
-    action: "user_deactivated_email_released",
-    detail: `Deactivated ${target.email} and released email for future access requests`,
+    action: "user_suspended",
+    detail: `Suspended portal access for ${target.email}`,
     entityType: "profile",
     entityId: userId,
   });
@@ -380,26 +641,25 @@ export async function deletePortalUser(formData: FormData) {
     if (!authReleased) {
       redirect(`${backTo}?error=auth-release`);
     }
-
-    await db
-      .from("profiles")
-      .update({
-        email: archivedEmail,
-        status: "suspended",
-        is_active: false,
-        invitation_status: "deleted_email_released",
-        last_login_at: null,
-      })
-      .eq("id", userId);
   }
 
-  try {
-    await db.auth.admin.deleteUser(userId);
-  } catch {
-    // Non-fatal. Auth user may already be gone or email may already be released.
-  }
-
-  const { error } = await db.from("profiles").delete().eq("id", userId);
+  const now = new Date().toISOString();
+  const { error } = await db
+    .from("profiles")
+    .update({
+      email: archivedEmail,
+      status: "deleted",
+      is_active: false,
+      is_deleted: true,
+      invitation_status: "deleted_email_released",
+      deleted_at: now,
+      deleted_by: admin.id,
+      status_updated_at: now,
+      status_updated_by: admin.id,
+      last_login_at: null,
+      updated_at: now,
+    } as any)
+    .eq("id", userId);
 
   if (error) {
     await logAuditEvent({
@@ -413,10 +673,18 @@ export async function deletePortalUser(formData: FormData) {
     redirect(`${backTo}?error=delete`);
   }
 
+  await recordProfileStatusEvent({
+    db,
+    profileId: userId,
+    previousStatus: target.status,
+    newStatus: "deleted",
+    changedBy: admin.id,
+  });
+
   await logAuditEvent({
     actor: admin,
-    action: "user_deleted_email_released",
-    detail: `Deleted ${target.email} and released email for future access requests`,
+    action: "user_soft_deleted_email_released",
+    detail: `Soft deleted ${target.email} and released email for future access requests`,
     entityType: "profile",
     entityId: userId,
   });
@@ -432,7 +700,7 @@ export async function createPortalUser(formData: FormData) {
   const email = normalizeEmail(formData, "email");
   const fullName = str(formData, "full_name");
   const role = str(formData, "role");
-  const status = str(formData, "status") || "pending";
+  const status = str(formData, "status") || "pending_approval";
   const phone = normalizePhone(str(formData, "phone"));
   const invitationChannel = str(formData, "invitation_channel") || "email";
   const backTo = "/portal/admin/users";
@@ -445,6 +713,8 @@ export async function createPortalUser(formData: FormData) {
     .from("profiles")
     .select("id")
     .ilike("email", email)
+    .neq("status", "deleted")
+    .neq("is_deleted", true)
     .maybeSingle();
 
   if (duplicate) redirect(`${backTo}?error=duplicate`);

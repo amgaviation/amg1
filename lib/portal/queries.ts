@@ -837,17 +837,32 @@ export async function listPendingUsers(): Promise<Profile[]> {
   const { data } = await db
     .from("profiles")
     .select("*")
-    .eq("status", "pending")
+    .eq("status", "pending_approval")
     .order("created_at", { ascending: false });
   return data ?? [];
 }
 
-export async function listAllUsers(): Promise<Profile[]> {
+export async function listWaitlistedUsers(): Promise<Profile[]> {
   const db = await createServiceClient();
   const { data } = await db
     .from("profiles")
     .select("*")
+    .eq("status", "waitlisted")
+    .order("status_updated_at", { ascending: false })
     .order("created_at", { ascending: false });
+  return data ?? [];
+}
+
+export async function listAllUsers(filter?: { status?: string }): Promise<Profile[]> {
+  const db = await createServiceClient();
+  let query = db
+    .from("profiles")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (filter?.status) query = query.eq("status", filter.status);
+
+  const { data } = await query;
   return data ?? [];
 }
 
@@ -981,7 +996,7 @@ export async function getAdminMetrics() {
       .select("id", { count: "exact", head: true })
       .in("status", ["approved", "crew_assigned", "scheduled", "in_progress"]),
     db.from("missions").select("id", { count: "exact", head: true }).eq("status", "submitted"),
-    db.from("profiles").select("id", { count: "exact", head: true }).eq("status", "pending"),
+    db.from("profiles").select("id", { count: "exact", head: true }).eq("status", "pending_approval"),
     db.from("documents").select("id", { count: "exact", head: true }).eq("status", "pending_review"),
     db.from("expenses").select("id", { count: "exact", head: true }).eq("status", "submitted"),
     db.from("profiles").select("id", { count: "exact", head: true }).eq("role", "crew"),
