@@ -1,29 +1,113 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
-import { PageHeader, SectionCard, Notice } from "@/components/portal/ui/primitives";
-import { DataTable } from "@/components/portal/ui/data-table";
-import { StatusBadge } from "@/components/portal/ui/status-badge";
-import { SelectField, TextField } from "@/components/portal/ui/fields";
+import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import {
   listNetworkApplications,
   NETWORK_APPLICATION_STATUSES,
   NETWORK_STATUS_LABELS,
   NETWORK_STATUS_TONES,
-  type NetworkApplication,
 } from "@/lib/portal/network-applications";
 import { formatDate } from "@/lib/portal/format";
+import { requireRole } from "@/lib/portal/session";
 
 export const metadata = { title: "Network Applications - Admin" };
+
+function listText(value?: string[] | null) {
+  return value?.length ? value.join(", ") : "";
+}
+
+function airportText(value?: string | null) {
+  return value || "Not provided";
+}
 
 export default async function NetworkApplicationsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string; airport?: string; sort?: string; success?: string; error?: string }>;
+  searchParams: Promise<{ success?: string; error?: string }>;
 }) {
   const user = await requireRole("admin");
   const params = await searchParams;
-  const applications = await listNetworkApplications(params);
+  const applications = await listNetworkApplications();
+
+  const rows: AdminRecordRow[] = applications.map((application) => {
+    const certificates = listText(application.certificates_held);
+    const ratings = listText(application.ratings_held);
+    const airports = [application.home_airport, application.closest_major_airport].filter(Boolean).join(" / ");
+    const submitted = application.submitted_at ? formatDate(application.submitted_at) : null;
+    const updated = application.updated_at ? formatDate(application.updated_at) : null;
+
+    return {
+      id: application.id,
+      title: application.full_name,
+      subtitle: [application.email, airports].filter(Boolean).join(" - "),
+      status: {
+        label: NETWORK_STATUS_LABELS[application.status],
+        tone: NETWORK_STATUS_TONES[application.status],
+      },
+      cells: {
+        name: application.full_name,
+        email: application.email,
+        homeAirport: airportText(application.home_airport),
+        majorAirport: airportText(application.closest_major_airport),
+        totalTime: application.total_time,
+        certificates: certificates || "Not provided",
+        status: NETWORK_STATUS_LABELS[application.status],
+        submitted,
+        updated,
+      },
+      searchText: [
+        application.full_name,
+        application.email,
+        application.phone,
+        application.home_airport,
+        application.closest_major_airport,
+        application.type_ratings,
+        certificates,
+        ratings,
+        application.medical_certificate,
+        application.preferred_assignment_types.join(" "),
+        application.additional_notes,
+        application.internal_notes,
+      ].filter(Boolean).join(" "),
+      filters: {
+        status: application.status,
+        airport: [application.home_airport, application.closest_major_airport].filter(Boolean).join(" "),
+        certificate: certificates,
+        assignment: application.preferred_assignment_types.join(" "),
+      },
+      formValues: {},
+      details: [
+        { label: "Email", value: application.email },
+        { label: "Home Airport", value: application.home_airport },
+        { label: "Closest Major Airport", value: application.closest_major_airport },
+        { label: "Submitted", value: submitted },
+      ],
+      detailSections: [
+        {
+          title: "Applicant",
+          rows: [
+            { label: "Name", value: application.full_name },
+            { label: "Email", value: application.email },
+            { label: "Phone", value: application.phone },
+            { label: "Home Airport", value: application.home_airport },
+            { label: "Closest Major Airport", value: application.closest_major_airport },
+          ],
+        },
+      ],
+    };
+  });
+
+  const filters: AdminRecordFilter[] = [
+    {
+      key: "status",
+      label: "Status",
+      options: NETWORK_APPLICATION_STATUSES.map((status) => ({ value: status, label: NETWORK_STATUS_LABELS[status] })),
+    },
+    { key: "airport", label: "Airport Keyword", type: "text" },
+    { key: "certificate", label: "Certificate Keyword", type: "text" },
+    { key: "assignment", label: "Assignment Keyword", type: "text" },
+  ];
 
   return (
     <PortalShell role="admin" user={user}>
@@ -32,70 +116,42 @@ export default async function NetworkApplicationsPage({
       <PageHeader
         eyebrow="AMG Operations"
         title="Network Applications"
-        description="Review public AMG Crew Network submissions, qualification data, documents, and status history."
+        description="Review public AMG Crew Network submissions with the same list, search, filter, and row-opening behavior as Crew Management."
+        actions={
+          <Link href="/portal/admin/crew" className="rounded-full border border-border bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:border-primary/50 hover:bg-blue-50">
+            Crew Directory
+          </Link>
+        }
       />
 
-      <SectionCard title="Review Queue" icon="clipboard">
-        <form className="mb-5 grid gap-3 lg:grid-cols-[1.4fr_1fr_1fr_1fr_auto] lg:items-end">
-          <TextField label="Search" name="q" defaultValue={params.q ?? ""} placeholder="Name, email, airport, type rating" />
-          <SelectField
-            label="Status"
-            name="status"
-            defaultValue={params.status ?? ""}
-            options={[
-              { value: "", label: "All statuses" },
-              ...NETWORK_APPLICATION_STATUSES.map((status) => ({ value: status, label: NETWORK_STATUS_LABELS[status] })),
-            ]}
-          />
-          <TextField label="Airport" name="airport" defaultValue={params.airport ?? ""} placeholder="KTEB or TEB" />
-          <SelectField
-            label="Sort"
-            name="sort"
-            defaultValue={params.sort ?? "submitted"}
-            options={[
-              { value: "submitted", label: "Submitted date" },
-              { value: "updated", label: "Last updated" },
-              { value: "total_time", label: "Total time" },
-            ]}
-          />
-          <button className="h-11 rounded-md bg-primary px-4 text-sm font-semibold text-white" type="submit">Apply</button>
-        </form>
-
-        <DataTable<NetworkApplication>
-          rows={applications}
-          getKey={(row) => row.id}
-          getHref={(row) => `/portal/admin/network-applications/${row.id}`}
-          emptyLabel="No network applications yet."
-          columns={[
-            {
-              header: "Applicant",
-              priority: "primary",
-              cell: (row) => (
-                <div>
-                  <p className="font-semibold">{row.full_name}</p>
-                  <p className="text-xs text-muted-foreground">{row.email}</p>
-                </div>
-              ),
-            },
-            { header: "Home", cell: (row) => row.home_airport },
-            { header: "Major Airport", cell: (row) => row.closest_major_airport },
-            { header: "Total Time", cell: (row) => row.total_time?.toLocaleString() ?? "-" },
-            { header: "Certificates", cell: (row) => row.certificates_held.slice(0, 2).join(", ") || "-" },
-            {
-              header: "Status",
-              cell: (row) => <StatusBadge label={NETWORK_STATUS_LABELS[row.status]} tone={NETWORK_STATUS_TONES[row.status]} />,
-            },
-            { header: "Submitted", cell: (row) => formatDate(row.submitted_at), hideOnMobile: true },
-            { header: "Updated", cell: (row) => formatDate(row.updated_at), hideOnMobile: true },
-          ]}
-        />
-      </SectionCard>
-
-      <div className="text-right">
-        <Link href="/portal/admin/crew" className="text-sm font-medium text-accent hover:underline">
-          Crew Directory
-        </Link>
-      </div>
+      <AdminRecordManager
+        title="Review Queue"
+        description="Crew network submissions by applicant, airport, total time, certificates, status, and submission date."
+        rows={rows}
+        columns={[
+          { key: "name", label: "Applicant", sortable: true, className: "w-[15rem]" },
+          { key: "email", label: "Email", sortable: true, className: "w-[18rem]" },
+          { key: "homeAirport", label: "Home", sortable: true, className: "w-[8rem]" },
+          { key: "majorAirport", label: "Major Airport", sortable: true, className: "w-[10rem]" },
+          { key: "totalTime", label: "Total Time", sortable: true, className: "w-[8rem]" },
+          { key: "certificates", label: "Certificates", sortable: true, className: "w-[13rem]" },
+          { key: "status", label: "Status", sortable: true, className: "w-[12rem]" },
+          { key: "submitted", label: "Submitted", sortable: true, className: "w-[9rem]" },
+          { key: "updated", label: "Updated", sortable: true, className: "w-[9rem]" },
+        ]}
+        filters={filters}
+        fields={[]}
+        allowCreate={false}
+        createLabel="New Application"
+        editLabel="Review Application"
+        recordIdName="application_id"
+        backTo="/portal/admin/network-applications"
+        emptyTitle="No network applications"
+        emptyDescription="Public crew network applications will appear here after submission."
+        detailEyebrow="Network Application"
+        detailHrefBase="/portal/admin/network-applications"
+        pageSize={12}
+      />
     </PortalShell>
   );
 }
