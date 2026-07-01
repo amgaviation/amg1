@@ -1,0 +1,30 @@
+import { notFound } from "next/navigation";
+import { requireRole } from "@/lib/portal/session";
+import { createServiceClient } from "@/lib/supabase/server";
+import { PortalShell } from "@/components/portal/shell/portal-shell";
+import { PortalDocumentViewer } from "@/components/portal/document-viewer";
+
+export default async function CommunicationAttachmentViewPage({ params }: { params: Promise<{ id: string }> }) {
+  const user = await requireRole("admin");
+  const { id } = await params;
+  const db = (await createServiceClient()) as any;
+  const { data: attachment } = await db
+    .from("communication_attachments")
+    .select("id, thread_id, file_name, content_type")
+    .eq("id", id)
+    .maybeSingle();
+  if (!attachment) notFound();
+
+  return (
+    <PortalShell role="admin" user={user}>
+      <PortalDocumentViewer
+        title={attachment.file_name}
+        description="Communication attachment"
+        contentHref={`/api/communications/attachments/${id}/content`}
+        downloadHref={`/api/communications/attachments/${id}`}
+        backHref={`/portal/admin/messages/${attachment.thread_id}`}
+        contentType={attachment.content_type}
+      />
+    </PortalShell>
+  );
+}

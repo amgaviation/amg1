@@ -45,10 +45,10 @@ export default async function ClientInvoicePage({
           <div className="flex items-center gap-3">
             {latestInvoiceDocument ? (
               <Link
-                href={`/api/portal/billing-documents/${latestInvoiceDocument.id}/download`}
+                href={`/portal/billing-documents/${latestInvoiceDocument.id}/view`}
                 className="text-xs text-accent hover:underline"
               >
-                Download PDF
+                View PDF
               </Link>
             ) : null}
             <Link href="/portal/client/billing" className="text-xs text-muted-foreground hover:text-accent">Back to billing</Link>
@@ -86,8 +86,8 @@ export default async function ClientInvoicePage({
                   cell: (row) => {
                     const document = receiptByPayment.get(row.id);
                     return document ? (
-                      <Link href={`/api/portal/billing-documents/${document.id}/download`} className="text-accent hover:underline">
-                        Download
+                      <Link href={`/portal/billing-documents/${document.id}/view`} className="text-accent hover:underline">
+                        View
                       </Link>
                     ) : "-";
                   },

@@ -68,7 +68,7 @@ export default async function AdminQuoteDetailPage({
           <div className="flex flex-wrap items-center gap-3 text-xs">
             {canEdit ? <Link href={`/portal/admin/quotes/${quote.id}/edit`} className="text-accent hover:underline">Edit Draft</Link> : null}
             {latestDocument ? (
-              <Link href={`/api/portal/billing-documents/${latestDocument.id}/download`} className="text-accent hover:underline">Download PDF</Link>
+              <Link href={`/portal/billing-documents/${latestDocument.id}/view`} className="text-accent hover:underline">View PDF</Link>
             ) : null}
             <Link href="/portal/admin/quotes" className="text-muted-foreground hover:text-accent">Back to quotes</Link>
           </div>
@@ -104,8 +104,8 @@ export default async function AdminQuoteDetailPage({
                 { header: "Sent", cell: (row) => formatDateTime(row.emailed_at) },
                 { header: "Recipients", cell: (row) => row.emailed_to?.join(", ") || "-" },
                 {
-                  header: "Download",
-                  cell: (row) => <Link href={`/api/portal/billing-documents/${row.id}/download`} className="text-accent hover:underline">PDF</Link>,
+                  header: "File",
+                  cell: (row) => <Link href={`/portal/billing-documents/${row.id}/view`} className="text-accent hover:underline">PDF</Link>,
                 },
               ]}
             />

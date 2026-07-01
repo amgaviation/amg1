@@ -3,7 +3,6 @@
 import { redirect } from "next/navigation";
 import { actor, safeRedirectPath, str } from "@/app/portal/actions/_helpers";
 import {
-  getNetworkApplicationFileSignedUrl,
   updateNetworkApplicationInternalNotes,
   updateNetworkApplicationStatus,
   NETWORK_APPLICATION_STATUSES,
@@ -50,12 +49,9 @@ export async function saveNetworkApplicationNotes(formData: FormData) {
 }
 
 export async function openNetworkApplicationFile(formData: FormData) {
-  const admin = await actor(["admin"]);
+  await actor(["admin"]);
+  const fileId = str(formData, "file_id");
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/network-applications");
-  const result = await getNetworkApplicationFileSignedUrl({
-    actor: admin,
-    fileId: str(formData, "file_id"),
-  });
-  if (!result.ok) redirect(`${backTo}?error=file`);
-  redirect(result.url);
+  if (!fileId) redirect(`${backTo}?error=file`);
+  redirect(`/portal/admin/network-application-files/${fileId}/view`);
 }

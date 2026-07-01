@@ -328,7 +328,7 @@ export async function previewInvoicePdf(formData: FormData) {
   const invoiceId = str(formData, "invoice_id");
   if (!invoiceId) redirect("/portal/admin/invoices?error=missing");
   const pdf = await generateAndStoreInvoicePdf(invoiceId, admin.id);
-  redirect(`/api/portal/billing-documents/${pdf.document.id}/download`);
+  redirect(`/portal/billing-documents/${pdf.document.id}/view`);
 }
 
 export async function sendInvoicePdf(formData: FormData) {
