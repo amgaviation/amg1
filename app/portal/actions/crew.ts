@@ -77,11 +77,43 @@ export async function respondToAssignment(formData: FormData) {
 
 export async function saveCrewProfile(formData: FormData) {
   const user = await actor(["crew"]);
-  const db = await createServiceClient();
+  const db = (await createServiceClient()) as any;
+  const weeklyAvailability = {
+    monday: formData.getAll("weekly_monday"),
+    tuesday: formData.getAll("weekly_tuesday"),
+    wednesday: formData.getAll("weekly_wednesday"),
+    thursday: formData.getAll("weekly_thursday"),
+    friday: formData.getAll("weekly_friday"),
+    saturday: formData.getAll("weekly_saturday"),
+    sunday: formData.getAll("weekly_sunday"),
+  };
+  const completionChecks = [
+    Boolean(user.phone || str(formData, "phone")),
+    Boolean(str(formData, "home_airport") && str(formData, "closest_major_airport")),
+    num(formData, "total_time") !== null,
+    Boolean(arr(formData, "certificates_held").length && arr(formData, "ratings_held").length),
+    Boolean(str(formData, "medical_certificate")),
+    Object.values(weeklyAvailability).some((value) => value.length > 0),
+  ];
+  const profileCompletionPercent = Math.round((completionChecks.filter(Boolean).length / completionChecks.length) * 100);
 
   await db.from("crew_profiles").upsert({
     id: user.id,
     certificate_level: str(formData, "certificate_level") || null,
+    home_airport: str(formData, "home_airport") || null,
+    closest_major_airport: str(formData, "closest_major_airport") || null,
+    emergency_contact_name: str(formData, "emergency_contact_name") || null,
+    emergency_contact_phone: str(formData, "emergency_contact_phone") || null,
+    minimum_call_time: str(formData, "minimum_call_time") || null,
+    willing_to_travel: bool(formData, "willing_to_travel"),
+    generally_short_notice: bool(formData, "generally_short_notice"),
+    minimum_notice_required: str(formData, "minimum_notice_required") || null,
+    availability_notes: str(formData, "availability_notes") || null,
+    weekly_availability: weeklyAvailability,
+    certificates_held: arr(formData, "certificates_held"),
+    ratings_held: arr(formData, "ratings_held"),
+    medical_certificate: str(formData, "medical_certificate") || null,
+    medical_expiration_date: str(formData, "medical_expiration_date") || null,
     type_ratings: arr(formData, "type_ratings"),
     total_time: num(formData, "total_time"),
     pic_time: num(formData, "pic_time"),
@@ -96,8 +128,11 @@ export async function saveCrewProfile(formData: FormData) {
     max_days_away: num(formData, "max_days_away"),
     short_notice_available: bool(formData, "short_notice_available"),
     day_rate: num(formData, "day_rate"),
+    desired_day_rate: num(formData, "day_rate"),
     availability_status: str(formData, "availability_status") || "available",
     ops_notes: str(formData, "ops_notes") || null,
+    profile_completion_percent: profileCompletionPercent,
+    profile_completed_at: profileCompletionPercent >= 100 ? new Date().toISOString() : null,
   });
 
   await logAuditEvent({
