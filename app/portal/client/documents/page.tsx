@@ -83,7 +83,7 @@ export default async function ClientDocumentsPage({
                   ) : null}
                 </div>
                 <StatusBadge label={DOCUMENT_STATUS_LABEL[doc.status] ?? doc.status} tone={toneFor(DOCUMENT_STATUS_TONE, doc.status)} />
-                <Link href={`/api/portal/documents/${doc.id}/download`} className="text-sm text-accent hover:underline">Download</Link>
+                <Link href={`/portal/documents/${doc.id}/view`} className="text-sm text-accent hover:underline">View</Link>
                 {doc.review_notes ? (
                   <p className="text-xs text-amber-300">{doc.review_notes}</p>
                 ) : null}

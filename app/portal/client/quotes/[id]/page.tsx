@@ -42,10 +42,10 @@ export default async function ClientQuoteDetailPage({
           <div className="flex items-center gap-3">
             {latestQuoteDocument ? (
               <Link
-                href={`/api/portal/billing-documents/${latestQuoteDocument.id}/download`}
+                href={`/portal/billing-documents/${latestQuoteDocument.id}/view`}
                 className="text-xs text-accent hover:underline"
               >
-                Download PDF
+                View PDF
               </Link>
             ) : null}
             <StatusBadge label={QUOTE_STATUS_LABEL[quote.status] ?? quote.status} tone={toneFor(QUOTE_STATUS_TONE, quote.status)} />

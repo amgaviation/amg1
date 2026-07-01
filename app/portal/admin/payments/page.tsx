@@ -33,7 +33,7 @@ export default async function AdminPaymentsPage() {
             { header: "Status", cell: (row) => <StatusBadge label={row.status} tone="success" /> },
             {
               header: "Receipt PDF",
-              cell: (row) => row.receipt_document ? <Link href={`/api/portal/billing-documents/${row.receipt_document.id}/download`} className="text-accent hover:underline">Download</Link> : "-",
+              cell: (row) => row.receipt_document ? <Link href={`/portal/billing-documents/${row.receipt_document.id}/view`} className="text-accent hover:underline">View</Link> : "-",
             },
           ]}
         />

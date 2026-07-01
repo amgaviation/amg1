@@ -73,7 +73,7 @@ export default async function CrewCredentialsPage({
                   </div>
                   <StatusBadge label={CREDENTIAL_STATUS_LABEL[credential.status] ?? credential.status} tone={toneFor(CREDENTIAL_STATUS_TONE, credential.status)} />
                   {credential.document_id ? (
-                    <Link href={`/api/portal/documents/${credential.document_id}/download`} className="text-sm text-accent hover:underline">Download</Link>
+                    <Link href={`/portal/documents/${credential.document_id}/view`} className="text-sm text-accent hover:underline">View</Link>
                   ) : null}
                 </div>
               );

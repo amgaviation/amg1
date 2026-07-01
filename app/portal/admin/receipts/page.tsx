@@ -38,7 +38,7 @@ export default async function AdminReceiptsPage({
             { header: "Generated", cell: (row) => formatDateTime(row.created_at) },
             { header: "Sent", cell: (row) => formatDateTime(row.emailed_at) },
             { header: "Recipients", cell: (row) => row.emailed_to?.join(", ") || "-" },
-            { header: "PDF", cell: (row) => <Link href={`/api/portal/billing-documents/${row.id}/download`} className="text-accent hover:underline">Download</Link> },
+            { header: "PDF", cell: (row) => <Link href={`/portal/billing-documents/${row.id}/view`} className="text-accent hover:underline">View</Link> },
             {
               header: "Actions",
               cell: (row) =>

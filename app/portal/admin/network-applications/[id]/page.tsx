@@ -6,7 +6,7 @@ import { DetailRow, EmptyState, Notice, PageHeader, SectionCard, Timeline } from
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { TextAreaField } from "@/components/portal/ui/fields";
-import { openNetworkApplicationFile, saveNetworkApplicationNotes } from "@/app/portal/actions/network-applications";
+import { saveNetworkApplicationNotes } from "@/app/portal/actions/network-applications";
 import {
   getNetworkApplicationDetails,
   NETWORK_STATUS_LABELS,
@@ -44,11 +44,9 @@ function FileList({
             <p className="truncate text-sm font-semibold">{file.original_filename}</p>
             <p className="text-xs text-muted-foreground">{file.content_type ?? "File"} · {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : "Size unavailable"}</p>
           </div>
-          <form action={openNetworkApplicationFile}>
-            <input type="hidden" name="file_id" value={file.id} />
-            <input type="hidden" name="back_to" value={backTo} />
-            <SubmitButton variant="outline" className="rounded-full" pendingText="Opening...">View</SubmitButton>
-          </form>
+          <Link href={`/portal/admin/network-application-files/${file.id}/view`} className="rounded-full border border-border px-3 py-2 text-xs font-semibold text-foreground hover:border-primary">
+            View
+          </Link>
         </div>
       ))}
     </div>
