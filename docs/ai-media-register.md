@@ -29,13 +29,13 @@ Generated or edited AI media must be tracked with prompt, model or vendor when k
   - `public/brand/amg-connect-logo-white.png`
   - `public/brand/amg-connect-logo-white.svg`
 - Source tool or model:
-  - Higgsfield Cinematic Studio Video 3.5 for the 5-second intro MP4.
-  - Higgsfield GPT Image 2 for the 16:9 fallback poster.
+  - Higgsfield GPT Image 2 for the corrected 16:9 Collins Pro Line-style FMS/CDU cockpit frame and fallback poster.
+  - Local FFmpeg motion pass for the shipped 5-second MP4/WebM, using the corrected GPT Image 2 frame as the source, with a slow cockpit push-in and subtle avionics scan sweep.
   - Local production derivative for the transparent AMG Connect logo asset using the provided AMG Connect logo reference and the existing AMG wordmark.
 - Date generated: July 2, 2026.
 - Intended page or component: authenticated AMG Connect portal shell via `components/portal/PortalIntro.tsx`.
-- Production brief: premium, minimal, dark corporate aviation cockpit/FMS-style opening with AMG Connect integrated into avionics, then resolved into a clean dark portal loading state.
-- Depicted aircraft class or operational scenario: generic private/corporate jet cockpit display; no tail number, airport identifier, airline branding, or specific aircraft registration.
+- Production brief: premium, minimal, dark corporate aviation cockpit/FMS-style opening anchored on a Collins Pro Line-style business aviation FMS/CDU, with AMG CONNECT highlighted as an active fix, then resolved into a clean dark portal loading state.
+- Depicted aircraft class or operational scenario: generic private/corporate jet cockpit with physical FMS/CDU line-select keys, alphanumeric keypad, PFD/MFD avionics in the background, yoke, and throttle quadrant; no tail number, airport identifier, airline branding, or specific aircraft registration.
 - Reviewer: AMG Aviation Group / product owner.
 - Approval status: pending final brand review in portal context.
-- Notes: No sound by default. Generated video text is visually de-emphasized by a crossfade to the cleaned AMG Connect logo asset to protect brand fidelity.
+- Notes: No sound by default. Earlier free-form Higgsfield video renders were rejected because they drifted toward automotive/infotainment styling. The shipped motion asset intentionally uses a controlled source frame to preserve credible cockpit avionics/FMS hardware and avoid car-screen drift.
