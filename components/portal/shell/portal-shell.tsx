@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, Menu, X, LogOut } from "lucide-react";
 import { signOut } from "@/app/portal/actions/auth";
+import { PortalIntro } from "@/components/portal/PortalIntro";
 import { PortalIcon } from "@/components/portal/ui/icon";
 import { RoleBadge } from "@/components/portal/ui/status-badge";
 import { cn } from "@/lib/utils";
@@ -141,6 +142,8 @@ export function PortalShell({
 
   return (
     <div className="amg-portal relative min-h-screen bg-slate-50 text-slate-950 overflow-hidden lg:grid lg:grid-cols-[17.5rem_1fr]">
+      <PortalIntro />
+
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-screen flex-col border-r border-border bg-white text-foreground shadow-[4px_0_24px_rgba(15,23,42,0.05)] lg:flex">
         <SidebarContent role={role} nav={nav} navGroups={navGroups} />
@@ -241,7 +244,7 @@ export function PortalShell({
         </header>
 
         {/* Main content */}
-        <main className="w-full max-w-full min-w-0 flex-1 overflow-hidden bg-slate-50 px-4 py-6 sm:px-5 lg:px-7 lg:py-8 2xl:px-8">
+        <main id="portal-main-content" className="w-full max-w-full min-w-0 flex-1 overflow-hidden bg-slate-50 px-4 py-6 sm:px-5 lg:px-7 lg:py-8 2xl:px-8">
           <div className="mx-auto w-full max-w-[96rem] min-w-0 space-y-6 overflow-hidden">{children}</div>
         </main>
       </div>
