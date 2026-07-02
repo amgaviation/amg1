@@ -1071,6 +1071,28 @@ html {
   color: #050B14;
 }
 
+.amg-portal [data-portal-action-bar] {
+  min-width: 0;
+  align-items: center;
+}
+
+.amg-portal [data-portal-action-bar] > form,
+.amg-portal [data-portal-action-bar] > a,
+.amg-portal [data-portal-action-bar] > button,
+.amg-portal [data-portal-action-bar] [data-slot="button"] {
+  max-width: 100%;
+  flex: 0 0 auto;
+}
+
+.amg-portal [data-portal-table-actions] {
+  min-width: 17rem;
+  width: 17rem;
+}
+
+.amg-portal td[data-portal-table-actions] [data-portal-action-bar] {
+  justify-content: flex-end;
+}
+
 /* ==========================================================================
    CINEMATIC HOME ENTRY — hangar-door reveal + mission-control layer.
    All motion is pure CSS so it runs without JS, never hides content if the

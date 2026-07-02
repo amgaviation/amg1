@@ -25,6 +25,7 @@ import {
   summarizePartnerDependencies,
   summarizeProfileDependencies,
 } from "@/lib/portal/record-safety";
+import { updateAuthEmailIfPresent } from "@/lib/portal/auth-email-sync";
 import { actor, num, safeRedirectPath, str } from "./_helpers";
 
 const INITIAL_SUPER_ADMIN_EMAIL = "tony@amgaviationgroup.com";
@@ -907,6 +908,11 @@ export async function updatePortalUser(formData: FormData) {
 
   if (!existing) redirect(`${backTo}?error=user`);
 
+  if (existing.email !== email) {
+    const authEmailSync = await updateAuthEmailIfPresent(db, userId, email);
+    if (!authEmailSync.ok) redirect(`${backTo}?error=email`);
+  }
+
   const patch = {
     email,
     full_name: fullName,
@@ -1242,8 +1248,8 @@ export async function saveClientRecord(formData: FormData) {
     if (!existing || existing.role !== "client") redirect(`${backTo}?error=profile`);
 
     if (existing.email !== email) {
-      const { error: authError } = await db.auth.admin.updateUserById(id, { email, email_confirm: true });
-      if (authError) redirect(`${backTo}?error=email`);
+      const authEmailSync = await updateAuthEmailIfPresent(db, id, email);
+      if (!authEmailSync.ok) redirect(`${backTo}?error=email`);
     }
 
     const { data: updatedProfile, error } = await db.from("profiles").update(payload).eq("id", id).select("id").maybeSingle();
@@ -1359,8 +1365,8 @@ export async function saveCrewRecord(formData: FormData) {
     if (!existing || existing.role !== "crew") redirect(`${backTo}?error=profile`);
 
     if (existing.email !== email) {
-      const { error: authError } = await db.auth.admin.updateUserById(id, { email, email_confirm: true });
-      if (authError) redirect(`${backTo}?error=email`);
+      const authEmailSync = await updateAuthEmailIfPresent(db, id, email);
+      if (!authEmailSync.ok) redirect(`${backTo}?error=email`);
     }
 
     const { data: updatedProfile, error } = await db.from("profiles").update(profilePayload).eq("id", id).select("id").maybeSingle();
@@ -1533,8 +1539,8 @@ export async function savePartnerRecord(formData: FormData) {
     if (!existing || existing.role !== "partner") redirect(`${backTo}?error=profile`);
 
     if (existing.email !== email) {
-      const { error: authError } = await db.auth.admin.updateUserById(id, { email, email_confirm: true });
-      if (authError) redirect(`${backTo}?error=email`);
+      const authEmailSync = await updateAuthEmailIfPresent(db, id, email);
+      if (!authEmailSync.ok) redirect(`${backTo}?error=email`);
     }
 
     const { data: updatedProfile, error } = await db.from("profiles").update(profilePayload).eq("id", id).select("id").maybeSingle();

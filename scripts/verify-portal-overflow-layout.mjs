@@ -37,6 +37,18 @@ assert.match(
 
 assert.match(
   adminRecordManager,
+  /data-portal-table-actions[^>]*className="[^"]*min-w-\[17rem\]/,
+  "AdminRecordManager action cells must reserve enough width for multiple row actions",
+);
+
+assert.match(
+  adminRecordManager,
+  /data-portal-action-bar[^>]*className="[^"]*flex[^"]*flex-wrap[^"]*justify-end/,
+  "AdminRecordManager row actions must wrap instead of overlapping",
+);
+
+assert.match(
+  adminRecordManager,
   /<table className="[^"]*min-w-\[[^\]]+\][^"]*bg-white/,
   "AdminRecordManager table must have an explicit scroll width and white background",
 );
@@ -69,6 +81,18 @@ assert.match(
   globals,
   /\.amg-portal table\s*{\s*color:\s*#334155;/,
   "Portal tables must use readable slate text instead of inheriting dark public-site text tokens",
+);
+
+assert.match(
+  globals,
+  /\.amg-portal \[data-portal-action-bar\]\s*{\s*min-width:\s*0;/,
+  "Portal must provide a global action-bar layout rule for future buttons",
+);
+
+assert.match(
+  globals,
+  /\.amg-portal \[data-portal-table-actions\]\s*{\s*min-width:\s*17rem;/,
+  "Portal table action columns must have a global minimum width",
 );
 
 console.log("portal overflow layout verification passed");
