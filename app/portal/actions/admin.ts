@@ -17,6 +17,14 @@ import {
 } from "@/lib/portal/account-setup";
 import { COMPLIANCE_POLICY_VERSION } from "@/lib/compliance/config";
 import { recordComplianceEvidence } from "@/lib/compliance/evidence";
+import {
+  dependencyAuditDetail,
+  summarizeAircraftDependencies,
+  summarizeClientDependencies,
+  summarizeCrewDependencies,
+  summarizePartnerDependencies,
+  summarizeProfileDependencies,
+} from "@/lib/portal/record-safety";
 import { actor, num, safeRedirectPath, str } from "./_helpers";
 
 const INITIAL_SUPER_ADMIN_EMAIL = "tony@amgaviationgroup.com";
@@ -619,8 +627,8 @@ export async function deactivatePortalUser(formData: FormData) {
 export async function deletePortalUser(formData: FormData) {
   const admin = await actor(["admin"]);
   const db = await createServiceClient();
-  const backTo = "/portal/admin/users";
-  const userId = str(formData, "user_id");
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/users");
+  const userId = str(formData, "user_id") || str(formData, "profile_id");
 
   if (!userId) redirect(`${backTo}?error=user`);
 
@@ -634,6 +642,7 @@ export async function deletePortalUser(formData: FormData) {
   const archivedEmail = isReleasedEmail(target.email)
     ? target.email
     : releasedEmail(target.email, userId);
+  const dependencies = await summarizeProfileDependencies(db, userId, target.role);
 
   if (!isReleasedEmail(target.email)) {
     const authReleased = await releaseAuthEmail(db, userId, archivedEmail);
@@ -644,7 +653,7 @@ export async function deletePortalUser(formData: FormData) {
   }
 
   const now = new Date().toISOString();
-  const { error } = await db
+  const { data: deletedProfile, error } = await db
     .from("profiles")
     .update({
       email: archivedEmail,
@@ -659,9 +668,11 @@ export async function deletePortalUser(formData: FormData) {
       last_login_at: null,
       updated_at: now,
     } as any)
-    .eq("id", userId);
+    .eq("id", userId)
+    .select("id")
+    .maybeSingle();
 
-  if (error) {
+  if (error || !deletedProfile) {
     await logAuditEvent({
       actor: admin,
       action: "user_delete_failed_email_released",
@@ -670,7 +681,7 @@ export async function deletePortalUser(formData: FormData) {
       entityId: userId,
     });
 
-    redirect(`${backTo}?error=delete`);
+    redirect(`${backTo}?error=${error ? "delete" : "stale"}`);
   }
 
   await recordProfileStatusEvent({
@@ -684,7 +695,7 @@ export async function deletePortalUser(formData: FormData) {
   await logAuditEvent({
     actor: admin,
     action: "user_soft_deleted_email_released",
-    detail: `Soft deleted ${target.email} and released email for future access requests`,
+    detail: `Soft deleted ${target.email} and released email for future access requests. ${dependencyAuditDetail(dependencies)}`,
     entityType: "profile",
     entityId: userId,
   });
@@ -1113,8 +1124,8 @@ export async function saveAircraft(formData: FormData) {
   let savedId = id;
 
   if (id) {
-    const { data, error } = await db.from("aircraft").update(payload).eq("id", id).select("id").single();
-    if (error || !data) redirect(`${backTo}?error=save`);
+    const { data, error } = await db.from("aircraft").update(payload).eq("id", id).select("id").maybeSingle();
+    if (error || !data) redirect(`${backTo}?error=${error ? "save" : "stale"}`);
     savedId = data.id;
   } else {
     const { data, error } = await db.from("aircraft").insert(payload).select("id").single();
@@ -1155,6 +1166,7 @@ export async function archiveAircraft(formData: FormData) {
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/aircraft");
 
   if (!id) redirect(`${backTo}?error=missing`);
+  const dependencies = await summarizeAircraftDependencies(db, id);
 
   const { data, error } = await db
     .from("aircraft")
@@ -1163,20 +1175,21 @@ export async function archiveAircraft(formData: FormData) {
     .select("id, tail_number")
     .maybeSingle();
 
-  if (error || !data) redirect(`${backTo}?error=save`);
+  if (error || !data) redirect(`${backTo}?error=${error ? "save" : "stale"}`);
 
   await logAuditEvent({
     actor: admin,
     action: "aircraft_archived",
-    detail: `Archived ${data.tail_number}`,
+    detail: `Archived ${data.tail_number}. ${dependencyAuditDetail(dependencies)}`,
     entityType: "aircraft",
     entityId: id,
   });
 
   revalidatePath("/portal/admin/aircraft");
+  revalidatePath(`/portal/admin/aircraft/${id}`);
   revalidatePath("/portal/client/aircraft");
   revalidatePath("/portal/client/trips/new");
-  redirect(`${backTo}?success=archived`);
+  redirect(`${backTo}?success=${dependencies.some((item) => item.count > 0) ? "archived-linked" : "archived"}`);
 }
 
 // ─── Client record management ──────────────────────────────────────
@@ -1233,8 +1246,8 @@ export async function saveClientRecord(formData: FormData) {
       if (authError) redirect(`${backTo}?error=email`);
     }
 
-    const { error } = await db.from("profiles").update(payload).eq("id", id);
-    if (error) redirect(`${backTo}?error=save`);
+    const { data: updatedProfile, error } = await db.from("profiles").update(payload).eq("id", id).select("id").maybeSingle();
+    if (error || !updatedProfile) redirect(`${backTo}?error=${error ? "save" : "stale"}`);
   } else {
     const { data: createdProfile, error } = await db.from("profiles").insert({
       ...payload,
@@ -1280,6 +1293,7 @@ export async function archiveClientRecord(formData: FormData) {
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/clients");
 
   if (!id) redirect(`${backTo}?error=profile`);
+  const dependencies = await summarizeClientDependencies(db, id);
 
   const { data, error } = await db
     .from("profiles")
@@ -1289,19 +1303,20 @@ export async function archiveClientRecord(formData: FormData) {
     .select("id, email")
     .maybeSingle();
 
-  if (error || !data) redirect(`${backTo}?error=save`);
+  if (error || !data) redirect(`${backTo}?error=${error ? "save" : "stale"}`);
 
   await logAuditEvent({
     actor: admin,
     action: "client_record_archived",
-    detail: `Archived client ${data.email}`,
+    detail: `Archived client ${data.email}. ${dependencyAuditDetail(dependencies)}`,
     entityType: "profile",
     entityId: id,
   });
 
   revalidatePath("/portal/admin/clients");
+  revalidatePath(`/portal/admin/clients/${id}`);
   revalidatePath("/portal/admin/users");
-  redirect(`${backTo}?success=archived`);
+  redirect(`${backTo}?success=${dependencies.some((item) => item.count > 0) ? "archived-linked" : "archived"}`);
 }
 
 // ─── Crew record management ────────────────────────────────────────
@@ -1348,8 +1363,8 @@ export async function saveCrewRecord(formData: FormData) {
       if (authError) redirect(`${backTo}?error=email`);
     }
 
-    const { error } = await db.from("profiles").update(profilePayload).eq("id", id);
-    if (error) redirect(`${backTo}?error=save`);
+    const { data: updatedProfile, error } = await db.from("profiles").update(profilePayload).eq("id", id).select("id").maybeSingle();
+    if (error || !updatedProfile) redirect(`${backTo}?error=${error ? "save" : "stale"}`);
   } else {
     const { data: createdProfile, error } = await db.from("profiles").insert({
       ...profilePayload,
@@ -1456,6 +1471,7 @@ export async function archiveCrewRecord(formData: FormData) {
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/crew");
 
   if (!id) redirect(`${backTo}?error=profile`);
+  const dependencies = await summarizeCrewDependencies(db, id);
 
   const { data, error } = await db
     .from("profiles")
@@ -1465,19 +1481,20 @@ export async function archiveCrewRecord(formData: FormData) {
     .select("id, email")
     .maybeSingle();
 
-  if (error || !data) redirect(`${backTo}?error=save`);
+  if (error || !data) redirect(`${backTo}?error=${error ? "save" : "stale"}`);
 
   await logAuditEvent({
     actor: admin,
     action: "crew_record_archived",
-    detail: `Archived crew ${data.email}`,
+    detail: `Archived crew ${data.email}. ${dependencyAuditDetail(dependencies)}`,
     entityType: "profile",
     entityId: id,
   });
 
   revalidatePath("/portal/admin/crew");
+  revalidatePath(`/portal/admin/crew/${id}`);
   revalidatePath("/portal/admin/users");
-  redirect(`${backTo}?success=archived`);
+  redirect(`${backTo}?success=${dependencies.some((item) => item.count > 0) ? "archived-linked" : "archived"}`);
 }
 
 // ─── Partner record management ─────────────────────────────────────
@@ -1520,8 +1537,8 @@ export async function savePartnerRecord(formData: FormData) {
       if (authError) redirect(`${backTo}?error=email`);
     }
 
-    const { error } = await db.from("profiles").update(profilePayload).eq("id", id);
-    if (error) redirect(`${backTo}?error=save`);
+    const { data: updatedProfile, error } = await db.from("profiles").update(profilePayload).eq("id", id).select("id").maybeSingle();
+    if (error || !updatedProfile) redirect(`${backTo}?error=${error ? "save" : "stale"}`);
   } else {
     const { data: createdProfile, error } = await db.from("profiles").insert({
       ...profilePayload,
@@ -1587,6 +1604,7 @@ export async function archivePartnerRecord(formData: FormData) {
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/partners");
 
   if (!id) redirect(`${backTo}?error=profile`);
+  const dependencies = await summarizePartnerDependencies(db, id);
 
   const { data, error } = await db
     .from("profiles")
@@ -1596,19 +1614,20 @@ export async function archivePartnerRecord(formData: FormData) {
     .select("id, email")
     .maybeSingle();
 
-  if (error || !data) redirect(`${backTo}?error=save`);
+  if (error || !data) redirect(`${backTo}?error=${error ? "save" : "stale"}`);
 
   await logAuditEvent({
     actor: admin,
     action: "partner_record_archived",
-    detail: `Archived partner ${data.email}`,
+    detail: `Archived partner ${data.email}. ${dependencyAuditDetail(dependencies)}`,
     entityType: "profile",
     entityId: id,
   });
 
   revalidatePath("/portal/admin/partners");
+  revalidatePath(`/portal/admin/partners/${id}`);
   revalidatePath("/portal/admin/users");
-  redirect(`${backTo}?success=archived`);
+  redirect(`${backTo}?success=${dependencies.some((item) => item.count > 0) ? "archived-linked" : "archived"}`);
 }
 
 // ─── Document review ────────────────────────────────────────────────

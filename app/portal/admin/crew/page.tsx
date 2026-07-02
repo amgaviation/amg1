@@ -15,6 +15,7 @@ import {
 } from "@/lib/portal/constants";
 import { formatDate, formatDateTime } from "@/lib/portal/format";
 import { listAllCredentials, listAllCrew, listAllDocuments, listAllMissions } from "@/lib/portal/queries";
+import { dependencyConfirmMessage } from "@/lib/portal/record-safety";
 import { requireRole } from "@/lib/portal/session";
 
 export const metadata = { title: "Crew - Admin Portal" };
@@ -95,6 +96,11 @@ export default async function AdminCrewPage({
     const memberCredentials = credentials.filter((credential) => credential.crew_id === member.id);
     const assignedMissions = missions.filter((mission) => mission.assigned_crew_id === member.id);
     const memberDocuments = documents.filter((document) => document.scope_id === member.id || document.uploaded_by === member.id);
+    const dependencies = [
+      { label: "credential", count: memberCredentials.length },
+      { label: "mission", count: assignedMissions.length },
+      { label: "document", count: memberDocuments.length },
+    ];
     const name = profile?.display_name ?? member.full_name ?? member.email;
     const availability = profile?.availability_status ?? "available";
     const location = locationText(profile, member.home_base);
@@ -265,6 +271,12 @@ export default async function AdminCrewPage({
           ],
         },
       ],
+      archiveConfirm: dependencyConfirmMessage({
+        action: "Deactivate",
+        entity: "crew profile",
+        dependencies,
+        fallback: "Deactivate this crew profile? Historical credentials and assignments remain visible to admins.",
+      }),
       tabs: [
         {
           title: "Credentials",
@@ -303,12 +315,14 @@ export default async function AdminCrewPage({
 
   return (
     <PortalShell role="admin" user={user}>
-      {params.success ? <Notice tone="success">Crew record saved.</Notice> : null}
+      {params.success === "archived-linked" ? <Notice tone="success">Crew profile deactivated. Credentials, assignments, and documents were preserved.</Notice> : null}
+      {params.success && params.success !== "archived-linked" ? <Notice tone="success">Crew record saved.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Crew name and valid email are required.</Notice> : null}
       {params.error === "duplicate" ? <Notice tone="danger">A profile already exists for that email.</Notice> : null}
       {params.error === "invite" ? <Notice tone="danger">Portal invitation could not be sent.</Notice> : null}
       {params.error === "email" ? <Notice tone="danger">Email update could not be completed.</Notice> : null}
       {params.error === "crew-profile" ? <Notice tone="danger">Crew profile details could not be saved.</Notice> : null}
+      {params.error === "stale" ? <Notice tone="danger">This crew profile was updated, archived, or removed by another admin. Refresh the roster and try again.</Notice> : null}
       {params.error === "save" ? <Notice tone="danger">Crew record could not be saved.</Notice> : null}
 
       <PageHeader

@@ -106,6 +106,7 @@ export default async function AdminClientDetailPage({
       {query.error === "missing" ? <Notice tone="danger">Client name and valid email are required.</Notice> : null}
       {query.error === "duplicate" ? <Notice tone="danger">A profile already exists for that email.</Notice> : null}
       {query.error === "email" ? <Notice tone="danger">Email update could not be completed.</Notice> : null}
+      {query.error === "stale" ? <Notice tone="danger">This client was updated, archived, or removed by another admin. Return to the client directory and refresh the record.</Notice> : null}
       {query.error === "save" ? <Notice tone="danger">Client record could not be saved.</Notice> : null}
 
       <PageHeader

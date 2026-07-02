@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -338,11 +339,15 @@ export function PortalLogin({
       </section>
 
       <section className="relative hidden overflow-hidden bg-black lg:block">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src="/images/site/map-operations.jpg"
           alt="Private aviation operations support"
-          className="h-full w-full object-cover opacity-80"
+          fill
+          priority
+          loading="eager"
+          fetchPriority="high"
+          sizes="50vw"
+          className="object-cover opacity-80"
         />
 
         <div className="absolute inset-0 bg-gradient-to-t from-[#07111f] via-[#07111f]/45 to-[#07111f]/10" />

@@ -6,6 +6,7 @@ import { DataTable } from "@/components/portal/ui/data-table";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { listAllPartnerAssignments, listAllPartners } from "@/lib/portal/queries";
+import { dependencyConfirmMessage } from "@/lib/portal/record-safety";
 import { PARTNER_STATUS_LABEL, PARTNER_STATUS_TONE, PROFILE_STATUS, PROFILE_STATUS_LABEL, PROFILE_STATUS_TONE, toneFor } from "@/lib/portal/constants";
 import { formatMoney } from "@/lib/portal/format";
 
@@ -42,6 +43,7 @@ export default async function AdminPartnersPage({
   const rows: AdminRecordRow[] = partners.map((partner) => {
     const profile = partner.partner_profile;
     const partnerAssignments = assignments.filter((assignment) => assignment.partner_id === partner.id);
+    const dependencies = [{ label: "partner assignment", count: partnerAssignments.length }];
     const company = profile?.company_name ?? partner.company_name ?? partner.full_name ?? partner.email;
     const contactEmail = profile?.contact_email ?? partner.email;
     const partnerType = profile?.partner_type ?? profile?.service_type ?? "";
@@ -100,6 +102,12 @@ export default async function AdminPartnersPage({
         { label: "Email", value: contactEmail },
         { label: "Service Area", value: profile?.service_area },
       ],
+      archiveConfirm: dependencyConfirmMessage({
+        action: "Deactivate",
+        entity: "partner profile",
+        dependencies,
+        fallback: "Deactivate this partner profile? Historical assignments remain visible to admins.",
+      }),
     };
   });
 
@@ -112,12 +120,14 @@ export default async function AdminPartnersPage({
 
   return (
     <PortalShell role="admin" user={user}>
-      {params.success ? <Notice tone="success">Partner record saved.</Notice> : null}
+      {params.success === "archived-linked" ? <Notice tone="success">Partner deactivated. Assignment history was preserved.</Notice> : null}
+      {params.success && params.success !== "archived-linked" ? <Notice tone="success">Partner record saved.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Partner contact name and valid email are required.</Notice> : null}
       {params.error === "duplicate" ? <Notice tone="danger">A profile already exists for that email.</Notice> : null}
       {params.error === "email" ? <Notice tone="danger">Email update could not be completed.</Notice> : null}
       {params.error === "invite" ? <Notice tone="danger">Portal invitation could not be sent.</Notice> : null}
       {params.error === "partner-profile" ? <Notice tone="danger">Partner profile details could not be saved.</Notice> : null}
+      {params.error === "stale" ? <Notice tone="danger">This partner was updated, archived, or removed by another admin. Refresh the directory and try again.</Notice> : null}
       {params.error === "save" ? <Notice tone="danger">Partner record could not be saved.</Notice> : null}
 
       <PageHeader eyebrow="AMG Operations" title="Partners" description="Vendor and service partner records, capabilities, contacts, and service request history." />

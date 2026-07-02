@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { DESTINATIONS } from "@/lib/content";
 import { Reveal, RevealGroup, RevealItem } from "@/components/site/reveal";
 
@@ -5,8 +6,7 @@ export function DestinationsSection() {
   return (
     <section className="cinematic-band relative overflow-hidden border-y border-white/[0.10] py-28">
       <div className="absolute inset-0 -z-10 opacity-20" aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/site/map-operations.jpg" alt="" className="h-full w-full object-cover" />
+        <Image src="/images/site/map-operations.jpg" alt="" fill sizes="100vw" className="object-cover" />
       </div>
       <div className="mx-auto grid max-w-7xl gap-14 px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-10">
         <Reveal data-scroll-animate>

@@ -1,6 +1,7 @@
+import Image from "next/image";
+import Link from "next/link";
 import { ArrowRight, RadioTower, ShieldCheck } from "lucide-react";
 import { Reveal } from "@/components/site/reveal";
-import Link from "next/link";
 
 export function CtaSection({
   eyebrow = "Support Request",
@@ -22,11 +23,12 @@ export function CtaSection({
   return (
     <section className="relative isolate overflow-hidden border-t border-slate-900/10 bg-[var(--amg-ink)] py-24 text-white lg:py-32">
       <div className="absolute inset-0 z-0">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src="/images/amg-custom/global-cta-runway.jpg"
           alt=""
-          className="h-full w-full scale-105 object-cover opacity-25"
+          fill
+          sizes="100vw"
+          className="scale-105 object-cover opacity-25"
         />
         <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(5,11,20,0.98)_0%,rgba(5,11,20,0.9)_44%,rgba(5,11,20,0.52)_100%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_28%,rgba(59,130,246,0.18),transparent_28rem)]" />

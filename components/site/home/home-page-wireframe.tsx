@@ -154,6 +154,8 @@ function Hero() {
         alt=""
         fill
         priority
+        loading="eager"
+        fetchPriority="high"
         sizes="100vw"
         className="absolute inset-0 -z-30 object-cover object-center opacity-95 md:object-[center_right]"
       />

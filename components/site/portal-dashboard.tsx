@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, CalendarDays, CheckCircle2, FileText, Plane, ShieldCheck, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -32,8 +33,7 @@ export function PortalDashboard({
     <main className="min-h-screen bg-background text-foreground">
       <section className="relative overflow-hidden border-b border-border px-6 pb-16 pt-8 lg:px-10">
         <div className="absolute inset-0 -z-10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={image} alt="" className="h-full w-full object-cover opacity-25" />
+          <Image src={image} alt="" fill priority loading="eager" fetchPriority="high" sizes="100vw" className="object-cover opacity-25" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/60" />
         </div>
         <div className="mx-auto max-w-7xl">

@@ -102,6 +102,7 @@ export default async function AdminAircraftDetailPage({
       {query.error === "missing" ? <Notice tone="danger">Tail number is required.</Notice> : null}
       {query.error === "duplicate" ? <Notice tone="danger">That tail number already exists.</Notice> : null}
       {query.error === "client" ? <Notice tone="danger">Choose a valid client before linking aircraft.</Notice> : null}
+      {query.error === "stale" ? <Notice tone="danger">This aircraft was updated, archived, or removed by another admin. Return to the fleet register and refresh the record.</Notice> : null}
       {query.error === "save" ? <Notice tone="danger">Aircraft could not be saved.</Notice> : null}
 
       <PageHeader

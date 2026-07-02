@@ -222,6 +222,7 @@ export default async function AdminCrewDetailPage({
       {query.email_error === "validation" ? <Notice tone="danger">Crew email could not be sent. Check the recipient, template, subject, and body.</Notice> : null}
       {query.email_error === "provider" ? <Notice tone="danger">Crew email was logged but Resend rejected the message.</Notice> : null}
       {query.email_error === "failed" ? <Notice tone="danger">Crew email could not be completed{query.ref ? ` (${query.ref})` : ""}.</Notice> : null}
+      {query.error === "stale" ? <Notice tone="danger">This crew profile was updated, archived, or removed by another admin. Return to the roster and refresh the record.</Notice> : null}
 
       <PageHeader
         eyebrow="Crew Detail"

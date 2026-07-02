@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/site/reveal";
@@ -7,12 +8,13 @@ export function AboutTeaser() {
     <section className="cinematic-section cinematic-band border-y border-slate-200 py-28">
       <div className="mx-auto grid max-w-7xl items-center gap-14 px-6 lg:grid-cols-2 lg:px-10">
         <Reveal data-scroll-animate>
-          <div className="media-vignette relative overflow-hidden rounded-lg border border-slate-200 shadow-[0_24px_70px_rgba(8,20,36,0.12)]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+          <div className="media-vignette relative aspect-[4/3] overflow-hidden rounded-lg border border-slate-200 shadow-[0_24px_70px_rgba(8,20,36,0.12)]">
+            <Image
               src="/images/site/cirrus.webp"
               alt="Single-engine aircraft representing owner-operated aircraft support"
-              className="h-full w-full scale-105 object-cover opacity-90"
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="scale-105 object-cover opacity-90"
             />
           </div>
         </Reveal>

@@ -4,6 +4,7 @@ import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import { formatDateTime } from "@/lib/portal/format";
 import { listAllAircraft, listAllDocuments, listAllMissions, listClients } from "@/lib/portal/queries";
+import { dependencyConfirmMessage } from "@/lib/portal/record-safety";
 import { requireRole } from "@/lib/portal/session";
 import type { Tone } from "@/lib/portal/constants";
 
@@ -71,6 +72,10 @@ export default async function AdminAircraftPage({
     const clientName = item.client?.company_name ?? item.client?.full_name ?? item.client?.email ?? "Unassigned";
     const relatedMissions = missions.filter((mission) => mission.aircraft_id === item.id);
     const relatedDocuments = documents.filter((document) => document.scope_id === item.id || document.name.includes(item.tail_number));
+    const dependencies = [
+      { label: "mission", count: relatedMissions.length },
+      { label: "document", count: relatedDocuments.length },
+    ];
     const aircraftName = [item.make, item.model].filter(Boolean).join(" ") || "Aircraft";
 
     return {
@@ -138,6 +143,12 @@ export default async function AdminAircraftPage({
         { label: "Updated", value: item.updated_at ? formatDateTime(item.updated_at) : null },
         { label: "Notes", value: item.notes },
       ],
+      archiveConfirm: dependencyConfirmMessage({
+        action: "Archive",
+        entity: "aircraft",
+        dependencies,
+        fallback: "Archive this aircraft? It remains visible to admins but is removed from active selectors.",
+      }),
       tabs: [
         {
           title: "Related Missions",
@@ -170,10 +181,12 @@ export default async function AdminAircraftPage({
 
   return (
     <PortalShell role="admin" user={user}>
-      {params.success ? <Notice tone="success">Aircraft record saved.</Notice> : null}
+      {params.success === "archived-linked" ? <Notice tone="success">Aircraft archived. Linked missions, documents, and history were preserved.</Notice> : null}
+      {params.success && params.success !== "archived-linked" ? <Notice tone="success">Aircraft record saved.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Tail number is required.</Notice> : null}
       {params.error === "duplicate" ? <Notice tone="danger">That tail number already exists.</Notice> : null}
       {params.error === "client" ? <Notice tone="danger">Choose a valid client profile before linking aircraft.</Notice> : null}
+      {params.error === "stale" ? <Notice tone="danger">This aircraft was updated, archived, or removed by another admin. Refresh the fleet register and try again.</Notice> : null}
       {params.error === "save" ? <Notice tone="danger">Aircraft could not be saved.</Notice> : null}
 
       <PageHeader

@@ -39,7 +39,7 @@ export function HomeHangarEntry({
   return (
     <section id="top" className="relative isolate flex min-h-[100svh] overflow-hidden bg-[var(--oc-navy)] text-[var(--oc-paper)]">
       <div className="absolute inset-0 -z-20">
-        <Image src={imageSrc} alt="" fill priority sizes="100vw" className="object-cover" style={{ objectPosition: "center 52%" }} />
+        <Image src={imageSrc} alt="" fill priority loading="eager" fetchPriority="high" sizes="100vw" className="object-cover" style={{ objectPosition: "center 52%" }} />
       </div>
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_72%_52%,rgba(59,130,246,0.18),transparent_26rem),linear-gradient(90deg,rgba(5,11,20,0.96),rgba(5,11,20,0.83)_48%,rgba(5,11,20,0.66)),linear-gradient(180deg,rgba(5,11,20,0.34),rgba(5,11,20,0.96))]" />
       <div className="pointer-events-none absolute inset-0 z-0 opacity-[0.13] [background-image:linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:92px_92px]" />
