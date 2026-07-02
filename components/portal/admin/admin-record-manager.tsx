@@ -253,7 +253,7 @@ export function AdminRecordManager({
             <h2 className="font-display text-xl font-bold uppercase text-slate-950">{title}</h2>
             <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500">{description}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div data-portal-action-bar className="flex flex-wrap items-center gap-2">
             <Button
               type="button"
               variant="outline"
@@ -377,7 +377,7 @@ export function AdminRecordManager({
                         )}
                       </th>
                     ))}
-                    <th className="bg-slate-50 px-4 py-3 text-right text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500">Actions</th>
+                    <th data-portal-table-actions className="min-w-[17rem] bg-slate-50 px-4 py-3 text-right text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white">
@@ -422,8 +422,8 @@ export function AdminRecordManager({
                           )}
                         </td>
                       ))}
-                      <td className="bg-inherit px-4 py-3 text-right" onClick={(event) => event.stopPropagation()}>
-                        <div className="flex justify-end gap-2">
+                      <td data-portal-table-actions className="min-w-[17rem] bg-inherit px-4 py-3 text-right" onClick={(event) => event.stopPropagation()}>
+                        <div data-portal-action-bar className="flex flex-wrap justify-end gap-2">
                           <Button type="button" variant="outline" size="sm" className="rounded-full gap-1" onClick={() => openRecord(row)}>
                             <Eye className="h-3.5 w-3.5" />
                             {detailHrefBase ? "Open" : "View"}
@@ -559,7 +559,7 @@ export function AdminRecordManager({
                   <X className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="mt-4 flex flex-wrap items-center gap-2">
+              <div data-portal-action-bar className="mt-4 flex flex-wrap items-center gap-2">
                 {selected.status ? <StatusBadge label={selected.status.label} tone={selected.status.tone} /> : null}
                 {selected.secondaryStatus ? <StatusBadge label={selected.secondaryStatus.label} tone={selected.secondaryStatus.tone} /> : null}
                 {updateAction ? (
@@ -575,7 +575,7 @@ export function AdminRecordManager({
               {recordActions.length ? (
                 <section className="rounded-lg border border-slate-200 bg-white p-4">
                   <h4 className="text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500">Review Actions</h4>
-                  <div className="mt-3 flex flex-wrap gap-2">
+                  <div data-portal-action-bar className="mt-3 flex flex-wrap gap-2">
                     {recordActions.map((action) => (
                       <form key={`${selected.id}-detail-${action.label}`} action={action.action}>
                         <input type="hidden" name={recordIdName} value={selected.id} />
@@ -664,7 +664,7 @@ export function AdminRecordManager({
                   </div>
                 ))}
               </div>
-              <footer className="mt-6 flex flex-col-reverse gap-2 border-t border-slate-200 pt-4 sm:flex-row sm:justify-end">
+              <footer data-portal-action-bar className="mt-6 flex flex-col-reverse gap-2 border-t border-slate-200 pt-4 sm:flex-row sm:justify-end">
                 <Button type="button" variant="outline" className="rounded-full" onClick={() => setEditor(null)}>
                   Cancel
                 </Button>

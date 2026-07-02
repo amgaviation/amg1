@@ -29,7 +29,7 @@ export function PageHeader({
           </p>
         ) : null}
       </div>
-      {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+      {actions ? <div data-portal-action-bar className="flex flex-wrap items-center gap-2">{actions}</div> : null}
     </div>
   );
 }
@@ -71,7 +71,7 @@ export function SectionCard({
               ) : null}
             </div>
           </div>
-          {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
+          {actions ? <div data-portal-action-bar className="flex flex-wrap items-center justify-end gap-2">{actions}</div> : null}
         </header>
       ) : null}
       <div className={cn("p-5", bodyClassName)}>{children}</div>
@@ -140,7 +140,7 @@ export function EmptyState({
       {description ? (
         <p className="mt-2 max-w-sm text-sm leading-6 text-[var(--amg-text-muted)]">{description}</p>
       ) : null}
-      {action ? <div className="mt-5">{action}</div> : null}
+      {action ? <div data-portal-action-bar className="mt-5 flex flex-wrap justify-center gap-2">{action}</div> : null}
     </div>
   );
 }
