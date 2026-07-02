@@ -1,5 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  PORTAL_INTRO_PENDING_COOKIE,
+  PORTAL_INTRO_PENDING_COOKIE_MAX_AGE_SECONDS,
+  isApprovedPortalIntroStatus,
+} from "@/lib/portal/intro";
 
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -40,7 +45,35 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (user) return supabaseResponse;
+  if (user) {
+    if (request.nextUrl.searchParams.get("intro") === "1") {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("status")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (isApprovedPortalIntroStatus(profile?.status)) {
+        const url = request.nextUrl.clone();
+        url.searchParams.delete("intro");
+        const redirectResponse = NextResponse.redirect(url);
+
+        supabaseResponse.cookies.getAll().forEach((cookie) => {
+          redirectResponse.cookies.set(cookie);
+        });
+        redirectResponse.cookies.set(PORTAL_INTRO_PENDING_COOKIE, "1", {
+          path: "/portal",
+          maxAge: PORTAL_INTRO_PENDING_COOKIE_MAX_AGE_SECONDS,
+          sameSite: "lax",
+          secure: process.env.NODE_ENV === "production",
+        });
+
+        return redirectResponse;
+      }
+    }
+
+    return supabaseResponse;
+  }
 
   if (request.nextUrl.pathname.startsWith("/portal")) {
     const url = request.nextUrl.clone();

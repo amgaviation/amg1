@@ -9,6 +9,7 @@ import { PortalIcon } from "@/components/portal/ui/icon";
 import { RoleBadge } from "@/components/portal/ui/status-badge";
 import { cn } from "@/lib/utils";
 import { initials } from "@/lib/portal/format";
+import { clearPortalIntroBrowserState } from "@/lib/portal/intro";
 import {
   PORTAL_NAV,
   ROLE_LABELS,
@@ -230,6 +231,7 @@ export function PortalShell({
             <form action={signOut}>
               <button
                 type="submit"
+                onClick={clearPortalIntroBrowserState}
                 className="inline-flex items-center gap-2 rounded-md border border-border bg-white px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:bg-blue-50 hover:text-foreground"
                 aria-label="Sign out"
               >
