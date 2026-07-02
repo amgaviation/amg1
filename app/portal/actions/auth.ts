@@ -8,6 +8,8 @@ import { emailChangeRedirectUrl, passwordSetupRedirectUrl } from "@/lib/auth/url
 import { normalizeEmailVerificationToken } from "@/lib/auth/email-verification";
 import { requireUser } from "@/lib/portal/session";
 import { ROLE_HOME, isBusinessPurpose, isPortalRole, type BusinessPurpose, type PortalRole } from "@/lib/portal/constants";
+import { isApprovedPortalIntroStatus } from "@/lib/portal/intro";
+import { clearPortalIntroPending, markPortalIntroPending } from "@/lib/portal/intro-server";
 import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
 import { getSiteUrl } from "@/lib/site-url";
 import { safeRedirectPath } from "./_helpers";
@@ -199,6 +201,8 @@ export async function signIn(formData: FormData) {
   const email = field(formData, "email").toLowerCase();
   const password = field(formData, "password");
 
+  await clearPortalIntroPending();
+
   if (!email || !password) redirect("/login?error=missing");
 
   const supabase = await createClient();
@@ -244,6 +248,10 @@ export async function signIn(formData: FormData) {
     action: "user_login",
     detail: "Signed in to portal",
   });
+
+  if (isApprovedPortalIntroStatus(profile.status)) {
+    await markPortalIntroPending();
+  }
 
   redirect(ROLE_HOME[role]);
 }
@@ -466,6 +474,7 @@ export async function resendPortalVerificationCode(formData: FormData) {
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
+  await clearPortalIntroPending();
   redirect("/login");
 }
 
