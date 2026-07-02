@@ -14,12 +14,17 @@ export type PublicNavGroup = {
 
 export const PUBLIC_NAV_LINKS = NAV_LINKS;
 
+export const PUBLIC_DIRECT_NAV_LINKS: PublicNavItem[] = [
+  { label: "Tarmac", href: "/tarmac" },
+];
+
 export const PUBLIC_NAV_GROUPS: PublicNavGroup[] = [
   {
     label: "Company",
     href: "/about",
     items: [
       { label: "About AMG", href: "/about", description: "Company overview, values, and AMG support structure." },
+      { label: "Tarmac", href: "/tarmac", description: "Brand architecture preview for Tarmac and Stark Aviation under AMG." },
       { label: "Team / support structure", href: "/team", description: "The roles behind AMG support requests." },
       { label: "Pilot Application", href: "/crew-network/apply", description: "Apply for AMG Crew Network review." },
       { label: "Contact", href: "/contact", description: "Send a general inquiry to AMG." },

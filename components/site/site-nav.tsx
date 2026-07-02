@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight, ChevronDown, Menu, X } from "lucide-react";
-import { PUBLIC_NAV_GROUPS, PUBLIC_NAV_LINKS } from "@/lib/navigation";
+import { PUBLIC_DIRECT_NAV_LINKS, PUBLIC_NAV_GROUPS, PUBLIC_NAV_LINKS } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 function normalizePath(path: string) {
@@ -104,6 +104,24 @@ export function SiteNav() {
         </Link>
 
         <ul className="ml-auto hidden items-center gap-1 xl:flex">
+          {PUBLIC_DIRECT_NAV_LINKS.map((link) => {
+            const active = isActivePath(pathname, link.href);
+            return (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  prefetch={false}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "inline-flex min-h-11 items-center rounded-full px-3 text-[0.72rem] font-semibold uppercase leading-none text-white/[0.70] transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white",
+                    active && "bg-white/[0.08] text-white"
+                  )}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            );
+          })}
           {PUBLIC_NAV_GROUPS.map((group) => {
             const active = isActivePath(pathname, group.href) || group.items.some((item) => isActivePath(pathname, item.href));
             return (
