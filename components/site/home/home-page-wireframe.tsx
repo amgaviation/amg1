@@ -166,10 +166,12 @@ function Hero() {
         <div className="max-w-[48rem] py-12 sm:py-16 lg:py-20">
           <p className="oc-eyebrow oc-eyebrow-light text-[var(--amg-accent-blue)]">AMG Aviation Group</p>
           <h1 className="mt-5 max-w-4xl text-[clamp(2.55rem,6.5vw,5.15rem)] font-semibold leading-[1.04] text-white">
-            Reliable private-aircraft support, coordinated by experts.
+            Aircraft Support.
+            <br />
+            Your Way.
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-[var(--amg-light-gray)] sm:text-lg">
-            Crew coverage, aircraft movement &amp; maintenance solutions for owners and flight departments.
+            Crew coverage, aircraft movement &amp; management solutions for owners and flight departments.
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
             <div>
