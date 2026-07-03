@@ -11,10 +11,10 @@
       "eyebrow": "Support Plans",
       "headline": "Support plans reviewed around the operating need.",
       "body": "AMG Aviation reviews support requirements before plan acceptance, quote creation, or billing activity.",
-      "primaryCtaLabel": "Request Support",
-      "primaryCtaHref": "/request-support",
-      "secondaryCtaLabel": "Contact AMG Aviation",
-      "secondaryCtaHref": "/contact",
+      "primaryCtaLabel": "Request Plan Review",
+      "primaryCtaHref": "/booking-request?category=subscription-program-inquiry",
+      "secondaryCtaLabel": "Request Aircraft Support",
+      "secondaryCtaHref": "/booking-request",
       "imageKey": "plansSelector"
     }
   }

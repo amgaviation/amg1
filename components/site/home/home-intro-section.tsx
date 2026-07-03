@@ -54,7 +54,7 @@ export function HomeIntroSection() {
                 <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
               </Link>
               <Link href="/capabilities" prefetch={false} className="oc-btn oc-btn-ghost-dark justify-center">
-                View Capabilities
+                Services
               </Link>
             </div>
           </div>

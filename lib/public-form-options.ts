@@ -1,7 +1,7 @@
 export const contactInquiryTypes = [
   { value: "General question", label: "General question" },
   { value: "Support-plan question", label: "Support-plan question" },
-  { value: "Crew-network question", label: "Crew-network question" },
+  { value: "Pilot-network question", label: "Pilot-network question" },
   { value: "Vendor / partner question", label: "Vendor / partner question" },
   { value: "Billing / administrative question", label: "Billing / administrative question" },
 ] as const;

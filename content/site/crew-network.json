@@ -2,19 +2,19 @@
   "page": "crew-network",
   "version": 1,
   "seo": {
-    "title": "Crew Network",
-    "description": "Crew sourcing and coordination support organized by airport region, aircraft experience, role, credential readiness, and assignment review."
+    "title": "Pilot Network",
+    "description": "Pilot and crew profile review organized by airport region, aircraft experience, credential readiness, and assignment suitability."
   },
   "sections": {
     "hero": {
       "enabled": true,
-      "eyebrow": "Crew Network",
+      "eyebrow": "Pilot Network",
       "headline": "Crew coverage reviewed by aircraft, role, and assignment.",
       "body": "AMG Aviation organizes crew support by region, aircraft experience, credential readiness, and support scope. Coverage indicators do not guarantee immediate assignment.",
-      "primaryCtaLabel": "Request Crew Support",
-      "primaryCtaHref": "/request-support",
-      "secondaryCtaLabel": "Submit Credentials",
-      "secondaryCtaHref": "/credential-submission",
+      "primaryCtaLabel": "Join Pilot Network",
+      "primaryCtaHref": "/crew-network/apply",
+      "secondaryCtaLabel": "Member Login",
+      "secondaryCtaHref": "/login",
       "imageKey": "generatedCrewMap"
     }
   }

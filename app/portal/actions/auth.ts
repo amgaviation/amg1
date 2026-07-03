@@ -262,6 +262,11 @@ export async function signUp(formData: FormData) {
   const businessPurpose = normalizeBusinessPurpose(field(formData, "business_purpose"));
   const company = field(formData, "company_name");
   const phone = field(formData, "phone");
+  const roleValue = field(formData, "role").toLowerCase();
+
+  if (roleValue === "super_admin") {
+    redirect("/login?mode=request&error=invalid_role");
+  }
 
   if (!email || !fullName || !businessPurpose) {
     redirect("/login?mode=request&error=missing");

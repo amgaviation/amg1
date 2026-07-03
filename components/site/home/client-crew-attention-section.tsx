@@ -6,22 +6,22 @@ const AUDIENCE_CARDS = [
     label: "Aircraft Owners & Operators",
     headline: "Visibility into what is moving, what is pending, and who is involved.",
     body: "For owners and operators who need structured support around aircraft movement, maintenance timing, crew coordination, and a clearer view of request status and operating context.",
-    cta: { label: "Request support", href: "/booking-request", primary: true },
+    cta: { label: "Request Aircraft Support", href: "/booking-request", primary: true },
     secondary: { label: "View Plans", href: "/plans" },
   },
   {
     label: "Flight Departments",
     headline: "Practical support around crew coordination, aircraft movement, and recurring operational needs.",
     body: "For teams managing ongoing coordination, multiple support events, or recurring crew and logistics needs across an aircraft or small fleet.",
-    cta: { label: "Explore Capabilities", href: "/capabilities", primary: true },
+    cta: { label: "Services", href: "/services", primary: true },
     secondary: { label: "View Plans", href: "/plans" },
   },
   {
     label: "Crew",
     headline: "Clearer assignment context, credential organization, and availability visibility.",
     body: "For pilots and crew who need a structured way to manage availability, credentials, aircraft type context, and communication with AMG Operations.",
-    cta: { label: "View Crew Network", href: "/crew-network", primary: true },
-    secondary: { label: "Member login", href: "/login" },
+    cta: { label: "Join Pilot Network", href: "/pilot-network", primary: true },
+    secondary: { label: "Member Login", href: "/login" },
   },
 ] as const;
 
@@ -73,15 +73,15 @@ export function ClientCrewAttentionSection() {
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3" data-scroll-animate>
           <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-light">
-            Request support
+            Request Aircraft Support
             <ArrowRight className="h-4 w-4" />
           </Link>
           <Link href="/crew-network" prefetch={false} className="oc-btn oc-btn-ghost-dark">
-            View Crew Network
+            Join Pilot Network
             <ArrowUpRight className="h-4 w-4" />
           </Link>
           <Link href="/login" prefetch={false} className="oc-btn oc-btn-ghost-dark">
-            Member login
+            Member Login
             <ArrowUpRight className="h-4 w-4" />
           </Link>
         </div>

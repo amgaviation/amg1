@@ -16,8 +16,8 @@ export default function AboutPage() {
     lead: "AMG Aviation Group provides structured coordination for aircraft owners, flight departments, crews, and approved representatives while keeping operating authority, aircraft approval, and pilot-in-command responsibility clearly assigned.",
     image: IMG.aboutOperations,
     imageAlt: "AMG operations environment",
-    primary: { label: "Request support", href: "/booking-request" },
-    secondary: { label: "Crew Network", href: "/crew-network" },
+    primary: { label: "Request Aircraft Support", href: "/booking-request" },
+    secondary: { label: "Pilot Network", href: "/pilot-network" },
   });
 
   return (
@@ -75,7 +75,7 @@ export default function AboutPage() {
           <SectionHeading
             eyebrow="Support desk"
             title="Four functions behind the support desk."
-            lead="The team structure keeps the company story here and leaves full capability detail on the Capabilities page."
+            lead="The support structure keeps the company story here and leaves service detail on the Services page."
           />
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
             {TEAM.map((member) => (

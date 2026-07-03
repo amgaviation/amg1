@@ -42,7 +42,7 @@ export function PortalEcosystem() {
               href="/signup"
               className="inline-flex min-h-12 items-center gap-2 rounded-full border border-slate-300 bg-white px-7 py-4 font-display text-sm font-semibold uppercase text-slate-800 backdrop-blur transition-colors hover:border-primary hover:text-primary"
             >
-              Request Access
+              Request AMG Connect Access
             </Link>
           </div>
         </Reveal>

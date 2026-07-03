@@ -11,10 +11,10 @@
       "eyebrow": "About AMG Aviation",
       "headline": "Operational support built around clear communication.",
       "body": "AMG Aviation coordinates the communication, documentation, and review work around aircraft support while keeping operating authority and aircraft approvals clearly assigned.",
-      "primaryCtaLabel": "Request Support",
-      "primaryCtaHref": "/request-support",
-      "secondaryCtaLabel": "Contact AMG Aviation",
-      "secondaryCtaHref": "/contact",
+      "primaryCtaLabel": "Request Aircraft Support",
+      "primaryCtaHref": "/booking-request",
+      "secondaryCtaLabel": "Pilot Network",
+      "secondaryCtaHref": "/pilot-network",
       "imageKey": "aboutOperations"
     }
   }

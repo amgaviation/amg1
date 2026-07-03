@@ -3,129 +3,63 @@ import Link from "next/link";
 import {
   ArrowRight,
   CheckCircle2,
-  CircleDot,
-  ClipboardCheck,
   FileText,
-  Info,
+  MessageSquareText,
   PlaneTakeoff,
-  Radar,
-  Repeat,
-  SearchCheck,
+  ShieldCheck,
   UsersRound,
   Wrench,
 } from "lucide-react";
+import { PortalScreenshotFrame } from "@/components/site/portal-screenshot-frame";
+import { IMG } from "@/lib/site-media";
 
-const services = [
+const supportCards = [
   {
-    title: "Crew coverage",
-    body: "Qualified crew options reviewed against aircraft fit, timing, location, and operational constraints.",
-    cta: "Find a qualified crew",
-    href: "/booking-request?service=contract-pilot-support",
-    icon: UsersRound,
-  },
-  {
-    title: "Aircraft movement",
-    body: "Ferry and repositioning support coordinated around routing, approvals, and mission readiness.",
-    cta: "Coordinate a movement",
-    href: "/booking-request?service=ferry-and-repositioning",
+    title: "Aircraft Movement",
+    body: "Ferry flights, relocation support, repositioning, delivery, and aircraft movement coordination.",
     icon: PlaneTakeoff,
   },
   {
-    title: "Maintenance repositioning",
-    body: "Crew, documents, timing, and facility coordination aligned before the aircraft moves.",
-    cta: "Plan maintenance repositioning",
-    href: "/booking-request?service=maintenance-flight-support",
+    title: "Maintenance Repositioning",
+    body: "Support for moving aircraft to and from maintenance facilities.",
     icon: Wrench,
   },
   {
-    title: "Recurring support",
-    body: "A defined support rhythm for owners, aircraft programs, and flight departments with repeat needs.",
-    cta: "Review recurring support",
-    href: "/plans",
-    icon: Repeat,
-  },
-] as const;
-
-const processSteps = [
-  {
-    title: "Submit mission details",
-    body: "Share the aircraft, location, timing, support need, and known constraints.",
-    icon: FileText,
+    title: "Crew Support",
+    body: "Contract pilot and crew sourcing assistance based on aircraft, role, timing, and location.",
+    icon: UsersRound,
   },
   {
-    title: "We assess feasibility",
-    body: "AMG reviews aircraft status, crew fit, approvals, route factors, and availability.",
-    icon: SearchCheck,
-  },
-  {
-    title: "Receive a clear proposal",
-    body: "You get the applicable scope, requirements, quote, or plan-review path.",
-    icon: ClipboardCheck,
-  },
-  {
-    title: "Track progress in real-time",
-    body: "Approved users follow messages, documents, quotes, invoices, and status in AMG Connect.",
-    icon: Radar,
+    title: "Owner & Flight Department Support",
+    body: "Recurring coordination, fleet support, documentation routing, vendor communication, and AMG Connect visibility.",
+    icon: ShieldCheck,
   },
 ] as const;
 
 const audiences = [
-  {
-    title: "Owners & Representatives",
-    points: ["Centralise requests, documents, and communications.", "Keep aircraft support moving through one accountable workflow."],
-  },
-  {
-    title: "Flight Departments",
-    points: ["Add coordination capacity without adding fixed overhead.", "Support crew coverage, movement, maintenance, and recurring tasks."],
-  },
-  {
-    title: "Approved Operators",
-    points: ["Route aircraft-specific needs through feasibility review.", "Clarify scope before support is accepted."],
-  },
-  {
-    title: "Crew Members & Partners",
-    points: ["Receive assignment context and credential requests.", "Keep support communication tied to the mission record."],
-  },
+  ["Aircraft Owners", "A clearer support path before the aircraft moves."],
+  ["Part 91 Operators", "Coordination aligned with owner/operator approval and operating fit."],
+  ["Flight Departments", "Extra support capacity for crew, movement, documents, and vendors."],
+  ["Brokers & Aviation Partners", "A professional channel for aircraft support coordination."],
+  ["Maintenance Providers", "Movement timing, facility context, and communication support."],
+  ["Pilots & Crew", "Profile and assignment review tied to aircraft need."],
 ] as const;
 
-const whyChoose = [
-  {
-    title: "Unified workflow",
-    body: "Requests, review, communication, documents, and status stay connected.",
-  },
-  {
-    title: "Feasibility first",
-    body: "Support is reviewed against aircraft status, approvals, crew fit, and operating conditions.",
-  },
-  {
-    title: "Role-based visibility",
-    body: "Owners, departments, partners, crew, and admins see the context relevant to them.",
-  },
-  {
-    title: "Flexible engagement",
-    body: "Use AMG for one mission, repeated owner support, or broader fleet coordination.",
-  },
+const steps = [
+  "Submit the aircraft support need",
+  "AMG reviews aircraft, timing, crew, and operating fit",
+  "AMG coordinates the next step",
+  "Approved users can track communication and status through AMG Connect where applicable",
 ] as const;
 
-const supportPlans = [
-  {
-    title: "On-demand support",
-    body: "For one aircraft movement, crew coverage need, or maintenance repositioning request.",
-    cta: "See on-demand details",
-    href: "/plans#plans-comparison",
-  },
-  {
-    title: "Recurring owner support",
-    body: "For owners who want a defined support structure around repeated aircraft needs.",
-    cta: "Review recurring support",
-    href: "/plans#plans-comparison",
-  },
-  {
-    title: "Fleet/department support",
-    body: "For teams managing multiple aircraft, frequent activity, or variable crew requirements.",
-    cta: "Explore department support",
-    href: "/plans#plans-comparison",
-  },
+const connectFeatures = [
+  "Status tracking",
+  "Documents",
+  "Messages",
+  "Quotes",
+  "Invoices",
+  "Role-based access",
+  "Operational visibility for approved users",
 ] as const;
 
 function SectionIntro({
@@ -146,12 +80,12 @@ function SectionIntro({
   );
 }
 
-function Hero() {
+function HomeHero() {
   return (
-    <section className="relative isolate flex min-h-[100svh] overflow-hidden bg-[var(--amg-midnight-navy)] pt-[calc(var(--public-header-height)+3.5rem)] text-white lg:pt-[calc(var(--public-header-height)+5rem)]">
+    <section className="relative isolate flex min-h-[88svh] overflow-hidden bg-[var(--amg-midnight-navy)] pt-[calc(var(--public-header-height)+3.5rem)] text-white lg:pt-[calc(var(--public-header-height)+5rem)]">
       <Image
         src="/images/amg-custom/home-hero-amg-hangar-night-ramp.png"
-        alt=""
+        alt="Private jet in a hangar at night representing AMG aircraft support coordination"
         fill
         priority
         loading="eager"
@@ -159,33 +93,24 @@ function Hero() {
         sizes="100vw"
         className="absolute inset-0 -z-30 object-cover object-center opacity-95 md:object-[center_right]"
       />
-      <div className="absolute inset-0 -z-20 bg-[linear-gradient(90deg,rgba(5,11,20,0.98)_0%,rgba(5,11,20,0.76)_50%,rgba(5,11,20,0.26)_100%)]" />
-      <div className="absolute inset-x-0 top-0 -z-10 h-40 bg-[linear-gradient(180deg,rgba(5,11,20,0.86),rgba(5,11,20,0))]" />
+      <div className="absolute inset-0 -z-20 bg-[linear-gradient(90deg,rgba(5,11,20,0.98)_0%,rgba(5,11,20,0.78)_50%,rgba(5,11,20,0.28)_100%)]" />
       <div className="absolute inset-x-0 bottom-0 -z-10 h-48 bg-gradient-to-b from-transparent to-[var(--amg-midnight-navy)]" />
-      <div className="oc-shell flex w-full items-center pb-20 lg:pb-28">
-        <div className="max-w-[48rem] py-12 sm:py-16 lg:py-20">
+      <div className="oc-shell flex w-full items-center pb-16 lg:pb-24">
+        <div className="max-w-[52rem] py-12 sm:py-16">
           <p className="oc-eyebrow oc-eyebrow-light text-[var(--amg-accent-blue)]">AMG Aviation Group</p>
-          <h1 className="mt-5 max-w-4xl text-[clamp(2.55rem,6.5vw,5.15rem)] font-semibold leading-[1.04] text-white">
-            Reliable private-aircraft support, coordinated by experts.
+          <h1 className="mt-5 max-w-4xl text-[clamp(2.65rem,6.6vw,5.35rem)] font-semibold leading-[1.04] text-white">
+            Private aircraft support, coordinated.
           </h1>
-          <p className="mt-6 max-w-2xl text-base leading-relaxed text-[var(--amg-light-gray)] sm:text-lg">
-            Crew coverage, aircraft movement &amp; maintenance solutions for owners and flight departments.
+          <p className="mt-6 max-w-3xl text-base leading-relaxed text-[var(--amg-light-gray)] sm:text-lg">
+            AMG Aviation Group helps aircraft owners, Part 91 operators, flight departments, brokers, crews, and aviation partners coordinate aircraft movement, crew coverage, maintenance repositioning, and recurring operational support.
           </p>
-          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div>
-              <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-primary justify-center">
-                Request Aircraft Support
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <p className="mt-3 text-sm text-[var(--amg-light-gray)]">We respond within 24 hours.</p>
-            </div>
-            <Link
-              href="/capabilities"
-              prefetch={false}
-              className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-white underline decoration-[var(--amg-accent-blue)] decoration-2 underline-offset-8 transition-colors hover:text-[var(--amg-light-gray)]"
-            >
-              Explore Our Services
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-light justify-center">
+              Request Aircraft Support
               <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link href="/pilot-network" prefetch={false} className="oc-btn oc-btn-ghost-dark justify-center">
+              Join Pilot Network
             </Link>
           </div>
         </div>
@@ -194,27 +119,23 @@ function Hero() {
   );
 }
 
-function ServicesOverview() {
+function WhatAmgSupports() {
   return (
     <section className="bg-[var(--amg-midnight-navy)] py-16 lg:py-24">
       <div className="oc-shell">
         <SectionIntro
-          eyebrow="Services"
-          title="Aircraft support organized by the outcome you need."
-          body="Start with the mission requirement. AMG reviews the path, confirms feasibility, and coordinates the next step."
+          eyebrow="What AMG Supports"
+          title="The core support paths behind private aviation."
+          body="From one aircraft movement to recurring operational coordination, AMG keeps the next step clear and professionally routed."
         />
         <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {services.map((item) => {
+          {supportCards.map((item) => {
             const Icon = item.icon;
             return (
               <article key={item.title} className="rounded-lg border border-[var(--amg-border-muted)] bg-[var(--amg-deep-blue)] p-6">
                 <Icon className="h-6 w-6 text-[var(--amg-accent-blue)]" aria-hidden="true" />
                 <h3 className="mt-5 text-xl font-semibold text-white">{item.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-[var(--amg-light-gray)]">{item.body}</p>
-                <Link href={item.href} prefetch={false} className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[var(--amg-accent-blue)]">
-                  {item.cta}
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
               </article>
             );
           })}
@@ -224,119 +145,131 @@ function ServicesOverview() {
   );
 }
 
-function ProcessSteps() {
+function WhoAmgSupports() {
   return (
     <section className="bg-[var(--amg-deep-blue)] py-16 lg:py-24">
       <div className="oc-shell">
-        <SectionIntro eyebrow="Process" title="A concise path from request to coordinated support." />
-        <ol className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {processSteps.map((step, index) => {
-            const Icon = step.icon;
-            return (
-              <li key={step.title} className="relative rounded-lg border border-[var(--amg-border-muted)] bg-[var(--amg-midnight-navy)] p-6">
-                <div className="flex items-center justify-between gap-4">
-                  <span className="text-sm font-semibold text-[var(--amg-accent-blue)]">0{index + 1}</span>
-                  <Icon className="h-5 w-5 text-[var(--amg-light-gray)]" aria-hidden="true" />
+        <SectionIntro eyebrow="Who AMG Supports" title="Built for the people responsible for the aircraft." />
+        <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {audiences.map(([title, body]) => (
+            <article key={title} className="rounded-lg border border-[var(--amg-border-muted)] bg-[var(--amg-midnight-navy)] p-5">
+              <h3 className="text-lg font-semibold text-white">{title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-[var(--amg-light-gray)]">{body}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HowItWorks() {
+  return (
+    <section className="bg-[var(--amg-midnight-navy)] py-16 lg:py-24">
+      <div className="oc-shell grid gap-10 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
+        <SectionIntro
+          eyebrow="How It Works"
+          title="A simple review path before support proceeds."
+          body="AMG keeps requests practical: the aircraft, timing, crew need, approval path, and operating fit are reviewed before the next step is represented as available."
+        />
+        <div>
+          <ol className="grid gap-4">
+            {steps.map((step, index) => (
+              <li key={step} className="rounded-lg border border-[var(--amg-border-muted)] bg-[var(--amg-deep-blue)] p-5">
+                <div className="flex gap-4">
+                  <span className="oc-mono mt-0.5 text-sm text-[var(--amg-accent-blue)]">{String(index + 1).padStart(2, "0")}</span>
+                  <p className="text-base font-semibold leading-relaxed text-white">{step}</p>
                 </div>
-                <h3 className="mt-5 text-lg font-semibold text-white">{step.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-[var(--amg-light-gray)]">{step.body}</p>
               </li>
-            );
-          })}
-        </ol>
-      </div>
-    </section>
-  );
-}
-
-function Audience() {
-  return (
-    <section className="bg-[var(--amg-midnight-navy)] py-16 lg:py-24">
-      <div className="oc-shell">
-        <SectionIntro eyebrow="Audience" title="Built for every role involved in private-aircraft support." />
-        <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {audiences.map((audience) => (
-            <article key={audience.title} className="rounded-lg border border-[var(--amg-border-muted)] bg-[var(--amg-deep-blue)] p-6">
-              <h3 className="text-lg font-semibold text-white">{audience.title}</h3>
-              <ul className="mt-5 space-y-3">
-                {audience.points.map((point) => (
-                  <li key={point} className="flex gap-3 text-sm leading-relaxed text-[var(--amg-light-gray)]">
-                    <CircleDot className="mt-1 h-3.5 w-3.5 shrink-0 text-[var(--amg-accent-blue)]" aria-hidden="true" />
-                    <span>{point}</span>
-                  </li>
-                ))}
-              </ul>
-            </article>
-          ))}
+            ))}
+          </ol>
+          <p className="mt-5 rounded-lg border border-[var(--amg-border-muted)] bg-white/[0.045] p-4 text-xs leading-relaxed text-[var(--amg-slate-gray)]">
+            Support requests are reviewed for aircraft status, crew availability, timing, owner/operator approval, and operational fit before acceptance.
+          </p>
         </div>
       </div>
     </section>
   );
 }
 
-function WhyChooseAMG() {
+function AmgConnectPreview() {
   return (
-    <section className="bg-[var(--amg-deep-blue)] py-16 lg:py-24">
-      <div className="oc-shell grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-        <SectionIntro
-          eyebrow="Why AMG"
-          title="One operating layer for review, coordination, and visibility."
-          body="AMG is structured for practical coordination: fewer disconnected threads, clearer responsibilities, and support decisions made after feasibility review."
-        />
-        <div className="grid gap-4 sm:grid-cols-2">
-          {whyChoose.map((item) => (
-            <div key={item.title} className="rounded-lg border border-[var(--amg-border-muted)] bg-[var(--amg-midnight-navy)] p-5">
-              <CheckCircle2 className="h-5 w-5 text-[var(--amg-accent-blue)]" aria-hidden="true" />
-              <h3 className="mt-4 text-lg font-semibold text-white">{item.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[var(--amg-light-gray)]">{item.body}</p>
+    <section className="relative isolate overflow-hidden bg-[var(--amg-deep-blue)] py-16 text-white lg:py-24">
+      <Image
+        src={IMG.generatedConnectDashboard}
+        alt=""
+        fill
+        sizes="100vw"
+        className="absolute inset-0 -z-20 object-cover opacity-[0.18]"
+      />
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(5,11,20,0.98),rgba(7,17,31,0.92)_52%,rgba(5,11,20,0.96))]" />
+      <div className="oc-shell grid items-center gap-12 lg:grid-cols-[0.86fr_1.14fr]">
+        <div>
+          <p className="oc-eyebrow oc-eyebrow-light text-[var(--amg-accent-blue)]">AMG Connect Preview</p>
+          <h2 className="mt-4 text-3xl font-semibold leading-tight text-white sm:text-5xl">
+            Operational visibility for approved users.
+          </h2>
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-[var(--amg-light-gray)]">
+            AMG Connect gives approved users a clearer way to view support requests, messages, documents, quotes, invoices, and operational status.
+          </p>
+          <ul className="mt-7 grid gap-2 sm:grid-cols-2">
+            {connectFeatures.map((feature) => (
+              <li key={feature} className="flex items-center gap-3 text-sm font-semibold text-[var(--amg-light-gray)]">
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-[var(--amg-accent-blue)]" aria-hidden="true" />
+                {feature}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Link href="/login?mode=request" prefetch={false} className="oc-btn oc-btn-light">
+              Request AMG Connect Access
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link href="/login" prefetch={false} className="oc-btn oc-btn-ghost-dark">
+              Member Login
+            </Link>
+          </div>
+        </div>
+        <div className="grid gap-4">
+          <PortalScreenshotFrame
+            src={IMG.portalClientDashboard}
+            alt="AMG Connect dashboard showing aircraft support requests and status"
+            priority
+          />
+          <div className="grid grid-cols-3 gap-3 text-xs font-semibold text-[var(--amg-light-gray)]">
+            <div className="rounded-lg border border-white/[0.12] bg-white/[0.06] p-3">
+              <FileText className="mb-3 h-4 w-4 text-[var(--amg-accent-blue)]" aria-hidden="true" />
+              Documents
             </div>
-          ))}
+            <div className="rounded-lg border border-white/[0.12] bg-white/[0.06] p-3">
+              <MessageSquareText className="mb-3 h-4 w-4 text-[var(--amg-accent-blue)]" aria-hidden="true" />
+              Messages
+            </div>
+            <div className="rounded-lg border border-white/[0.12] bg-white/[0.06] p-3">
+              <ShieldCheck className="mb-3 h-4 w-4 text-[var(--amg-accent-blue)]" aria-hidden="true" />
+              Access
+            </div>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-function SupportPlans() {
+function FinalCta() {
   return (
-    <section className="bg-[var(--amg-midnight-navy)] py-16 lg:py-24">
-      <div className="oc-shell">
-        <SectionIntro
-          eyebrow="Engagement models"
-          title="Choose the support structure that matches the operation."
-          body="Use AMG once, set a recurring owner workflow, or add coordination depth for a flight department."
-        />
-        <div className="mt-10 grid gap-5 lg:grid-cols-3">
-          {supportPlans.map((plan) => (
-            <article key={plan.title} className="rounded-lg border border-[var(--amg-border-muted)] bg-[var(--amg-deep-blue)] p-6">
-              <h3 className="text-xl font-semibold text-white">{plan.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-[var(--amg-light-gray)]">{plan.body}</p>
-              <Link href={plan.href} prefetch={false} className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[var(--amg-accent-blue)]">
-                {plan.cta}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function GetStarted() {
-  return (
-    <section className="relative isolate overflow-hidden bg-[var(--amg-deep-blue)]">
+    <section className="relative isolate overflow-hidden bg-[var(--amg-midnight-navy)]">
       <div className="absolute inset-0 -z-10">
-        <Image src="/images/amg-custom/global-cta-runway.jpg" alt="" fill sizes="100vw" className="object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--amg-deep-blue)] via-[rgba(7,17,31,0.88)] to-[rgba(7,17,31,0.5)]" />
+        <Image src={IMG.ctaRunway} alt="" fill sizes="100vw" className="object-cover opacity-72" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[var(--amg-midnight-navy)] via-[rgba(5,11,20,0.88)] to-[rgba(5,11,20,0.48)]" />
       </div>
       <div className="oc-shell py-16 lg:py-24">
-        <p className="oc-eyebrow oc-eyebrow-light text-[var(--amg-accent-blue)]">Get started</p>
+        <p className="oc-eyebrow oc-eyebrow-light text-[var(--amg-accent-blue)]">Ready</p>
         <h2 className="mt-4 max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-5xl">
-          Share the mission details. AMG will review the support path.
+          Ready to coordinate aircraft support?
         </h2>
         <p className="mt-5 max-w-2xl text-base leading-relaxed text-[var(--amg-light-gray)]">
-          Send the aircraft, location, timing, and support requirement so the team can assess feasibility and provide a clear next step.
+          Send the aircraft, timing, and support need. AMG will review the path and respond with the appropriate next step.
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-light">
@@ -344,29 +277,8 @@ function GetStarted() {
             <ArrowRight className="h-4 w-4" />
           </Link>
           <Link href="/contact" prefetch={false} className="oc-btn oc-btn-ghost-dark">
-            Send a General Inquiry
+            Contact AMG
           </Link>
-        </div>
-        <a
-          href="#home-support-notice"
-          className="mt-6 inline-flex min-h-9 items-center gap-2 text-xs font-medium text-[var(--amg-light-gray)] transition-colors hover:text-white"
-        >
-          <Info className="h-4 w-4 text-[var(--amg-accent-blue)]" aria-hidden="true" />
-          Review support acceptance notice
-        </a>
-      </div>
-    </section>
-  );
-}
-
-function HomeLegalNotice() {
-  return (
-    <section id="home-support-notice" className="bg-[var(--amg-midnight-navy)] py-8">
-      <div className="oc-shell">
-        <div className="rounded-lg border border-[var(--amg-border-muted)] bg-white/[0.035] p-5">
-          <p className="text-xs leading-relaxed text-[var(--amg-slate-gray)]">
-            Support requests remain subject to aircraft status, crew availability, owner/operator approval, route and airport constraints, weather, support-scope review, and final acceptance.
-          </p>
         </div>
       </div>
     </section>
@@ -376,14 +288,12 @@ function HomeLegalNotice() {
 export function HomePageWireframe() {
   return (
     <>
-      <Hero />
-      <ServicesOverview />
-      <ProcessSteps />
-      <Audience />
-      <WhyChooseAMG />
-      <SupportPlans />
-      <GetStarted />
-      <HomeLegalNotice />
+      <HomeHero />
+      <WhatAmgSupports />
+      <WhoAmgSupports />
+      <HowItWorks />
+      <AmgConnectPreview />
+      <FinalCta />
     </>
   );
 }

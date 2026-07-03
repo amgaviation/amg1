@@ -45,7 +45,7 @@ export function HomeHero() {
               prefetch={false}
               className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-8 py-4 font-display text-sm font-semibold uppercase text-primary-foreground shadow-[0_22px_45px_rgba(59,130,246,0.32)] transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
             >
-              Request support
+              Request Aircraft Support
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
@@ -53,7 +53,7 @@ export function HomeHero() {
               prefetch={false}
               className="group inline-flex min-h-12 items-center gap-2 rounded-full border border-white/[0.24] bg-white/[0.10] px-8 py-4 font-display text-sm font-semibold uppercase text-white backdrop-blur transition-colors hover:border-primary hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
             >
-              Explore Capabilities
+              Services
               <ArrowUpRight className="h-4 w-4" />
             </Link>
           </div>

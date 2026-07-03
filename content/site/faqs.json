@@ -11,9 +11,9 @@
       "eyebrow": "FAQs",
       "headline": "Common questions before support proceeds.",
       "body": "Answers about request acceptance, crew availability, AMG Connect access, quotes, plans, and service limits.",
-      "primaryCtaLabel": "Request Support",
-      "primaryCtaHref": "/request-support",
-      "secondaryCtaLabel": "Contact AMG Aviation",
+      "primaryCtaLabel": "Request Aircraft Support",
+      "primaryCtaHref": "/booking-request",
+      "secondaryCtaLabel": "Contact AMG",
       "secondaryCtaHref": "/contact",
       "imageKey": "generatedDispatch"
     }

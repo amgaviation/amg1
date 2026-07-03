@@ -59,12 +59,12 @@ export function ConnectPreview() {
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link href={section.primaryCtaHref ?? "/login"} prefetch={false} className="oc-btn oc-btn-light">
-              {section.primaryCtaLabel ?? "Member login"}
+            <Link href={section.primaryCtaHref ?? "/login?mode=request"} prefetch={false} className="oc-btn oc-btn-light">
+              {section.primaryCtaLabel ?? "Request AMG Connect Access"}
               <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link href={section.secondaryCtaHref ?? "/login?mode=request"} prefetch={false} className="oc-btn oc-btn-ghost-dark">
-              Request Portal Access
+            <Link href={section.secondaryCtaHref ?? "/login"} prefetch={false} className="oc-btn oc-btn-ghost-dark">
+              {section.secondaryCtaLabel ?? "Member Login"}
               <ArrowUpRight className="h-4 w-4" />
             </Link>
           </div>

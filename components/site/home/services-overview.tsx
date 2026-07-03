@@ -17,7 +17,7 @@ export function ServicesOverview() {
             <SectionHeading
               align="left"
               tone="light"
-              eyebrow="Core Capabilities"
+              eyebrow="Core Services"
               title="Aircraft support with clear responsibility"
               description="AMG coordinates defined support paths around aircraft status, crew requirements, timing, route complexity, and owner/operator approval."
             />
@@ -85,7 +85,7 @@ export function ServicesOverview() {
             href="/capabilities"
             className="inline-flex min-h-12 items-center rounded-full border border-slate-300 bg-white px-8 py-4 font-display text-xs font-semibold uppercase text-slate-800 shadow-[0_12px_30px_rgba(8,20,36,0.08)] transition-colors hover:border-primary hover:text-primary"
           >
-            View Capabilities
+            Services
           </Link>
         </div>
       </div>

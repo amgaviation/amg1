@@ -1,21 +1,21 @@
 {
   "seo": {
-    "title": "Private Aircraft Support Coordination",
-    "description": "Crew coverage, aircraft movement, maintenance repositioning, and recurring support for private aircraft owners and flight departments."
+    "title": "Private Aircraft Support, Coordinated | AMG Aviation Group",
+    "description": "AMG coordinates aircraft movement, crew support, maintenance repositioning, and recurring operational support for private aviation clients."
   },
   "page": "home",
   "version": 1,
   "sections": {
     "hero": {
-      "body": "AMG coordinates crew coverage, aircraft movement, maintenance repositioning, and recurring support for owners and flight departments.",
+      "body": "AMG Aviation Group helps owners, Part 91 operators, flight departments, brokers, crews, and partners coordinate private aircraft support.",
       "enabled": true,
-      "eyebrow": "CREW. MOVEMENT. MAINTENANCE.",
+      "eyebrow": "AMG Aviation Group",
       "headline": "Private aircraft support, coordinated.",
       "imageKey": "homeIntroCockpitDesktopWebp",
-      "primaryCtaHref": "/request-support",
-      "primaryCtaLabel": "Start a Support Request",
-      "secondaryCtaHref": "/contact",
-      "secondaryCtaLabel": "Contact AMG"
+      "primaryCtaHref": "/booking-request",
+      "primaryCtaLabel": "Request Aircraft Support",
+      "secondaryCtaHref": "/pilot-network",
+      "secondaryCtaLabel": "Join Pilot Network"
     }
   }
 }

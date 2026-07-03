@@ -6,20 +6,20 @@ import { IMG } from "@/lib/site-media";
 import { heroForWebsiteContent, metadataForWebsiteContent } from "@/lib/website-editor/content";
 
 export const metadata = metadataForWebsiteContent("crew-network", {
-  title: "Crew Network",
+  title: "Pilot Network",
   description:
-    "A credential-reviewed crew network organized by base airport, aircraft experience, documents, availability, and assignment suitability.",
+    "A credential-reviewed pilot network organized by base airport, aircraft experience, documents, availability, and assignment suitability.",
 });
 
 export default function CrewNetworkPage() {
   const hero = heroForWebsiteContent("crew-network", {
-    eyebrow: "Crew Network",
+    eyebrow: "Pilot Network",
     title: "Crew coverage reviewed by aircraft, role, and assignment.",
     lead: "AMG organizes pilots and aviation professionals around base airport, aircraft experience, documents, and suitability — so crew support is reviewed against the aircraft need, not treated as an automatic placement.",
     image: IMG.pilotNetwork,
     imageAlt: "Flight crew walking the ramp toward an aircraft",
-    primary: { label: "Submit Credentials", href: "/crew-network/apply" },
-    secondary: { label: "Member login", href: "/login" },
+    primary: { label: "Join Pilot Network", href: "/crew-network/apply" },
+    secondary: { label: "Member Login", href: "/login" },
   });
 
   return (
@@ -85,12 +85,12 @@ export default function CrewNetworkPage() {
       <CrewNetworkSecondaryGlobe />
 
       <CtaBand
-        eyebrow="Crew Network"
-        title="Submit credentials for crew network review."
+        eyebrow="Pilot Network"
+        title="Submit credentials for pilot network review."
         body="Profile submission helps AMG review qualifications, aircraft experience, documents, base airport, and support suitability. Submission and approval do not guarantee assignment, compensation, or future engagement."
-        primaryLabel="Submit Credentials"
+        primaryLabel="Join Pilot Network"
         primaryHref="/crew-network/apply"
-        secondaryLabel="Member login"
+        secondaryLabel="Member Login"
         secondaryHref="/login"
       />
     </>

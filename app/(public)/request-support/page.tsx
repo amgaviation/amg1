@@ -22,13 +22,15 @@ export default async function RequestSupportPage({
   const params = await searchParams;
   const initialSupportPath =
     params.category === "subscription-program-inquiry" || params.plan
-      ? "Plan / Subscription Review"
-      : params.category === "contract-pilot-support"
-        ? "Contract Pilot Support"
-        : params.category === "maintenance-flight-support"
-          ? "Maintenance Flight Support"
-          : params.category === "ferry-and-repositioning"
-            ? "Ferry & Repositioning"
+      ? "Recurring Support"
+      : params.service === "crew-support" || params.category === "contract-pilot-support"
+        ? "Crew Support"
+        : params.service === "maintenance-repositioning" || params.category === "maintenance-flight-support"
+          ? "Maintenance Repositioning"
+          : params.service === "aircraft-movement" || params.category === "ferry-and-repositioning"
+            ? "Aircraft Movement"
+            : params.service === "amg-connect"
+              ? "AMG Connect"
             : undefined;
 
   return (
@@ -54,7 +56,7 @@ export default async function RequestSupportPage({
                 Tell us what the aircraft needs.
               </h1>
               <p className="mt-6 max-w-3xl text-lg leading-relaxed text-[var(--oc-aluminum)]">
-                Share the aircraft, location, timing, requested support, and known constraints. AMG will review feasibility and provide a clear next step.
+                Share the aircraft, timing, and support need. AMG will review the path and respond with the appropriate next step.
               </p>
               <p className="mt-5 max-w-3xl rounded-2xl border border-white/[0.14] bg-white/[0.08] p-4 text-sm leading-relaxed text-[var(--oc-aluminum)] backdrop-blur-md">
                 AMG does not present a request as accepted until the support scope, aircraft status, crew availability,
@@ -63,7 +65,7 @@ export default async function RequestSupportPage({
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button asChild className="min-h-11 rounded-full bg-white px-6 text-[var(--oc-navy)] hover:bg-white/90">
                   <a href="#support-request-form">
-                    Submit for review
+                    Request Aircraft Support
                     <ArrowRight className="h-4 w-4" />
                   </a>
                 </Button>
@@ -73,7 +75,7 @@ export default async function RequestSupportPage({
                   className="min-h-11 rounded-full border-white/[0.28] bg-white/[0.05] px-6 text-white hover:bg-white/[0.12] hover:text-white"
                 >
                   <Link href="/contact" prefetch={false}>
-                    General Contact
+                    Contact AMG
                   </Link>
                 </Button>
               </div>
@@ -84,6 +86,8 @@ export default async function RequestSupportPage({
                   src={IMG.generatedDispatch}
                   alt="Flight planning desk with route coordination materials"
                   fill
+                  loading="eager"
+                  fetchPriority="high"
                   sizes="(max-width: 1024px) 100vw, 34vw"
                   className="object-cover"
                 />
@@ -124,8 +128,8 @@ export default async function RequestSupportPage({
               <div className="p-5">
                 <h2 className="text-xl font-semibold text-[var(--oc-ink)]">Before acceptance</h2>
                 <p className="mt-3 text-sm leading-relaxed text-[var(--oc-muted)]">
-                  Requests are reviewed against the aircraft record, support scope, operational timing, and required
-                  stakeholder approvals.
+                  Requests are reviewed for aircraft status, crew availability, timing, owner/operator approval, and
+                  operational fit before acceptance.
                 </p>
                 <div className="mt-5 grid gap-3">
                   {[
@@ -156,7 +160,7 @@ export default async function RequestSupportPage({
           </p>
           <Button asChild variant="outline" className="mt-6 min-h-11 rounded-full">
             <Link href="/contact" prefetch={false}>
-              Send general inquiry
+              Contact AMG
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>

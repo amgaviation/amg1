@@ -2,19 +2,19 @@
   "page": "contact",
   "version": 1,
   "seo": {
-    "title": "Contact AMG Aviation",
-    "description": "Contact AMG Aviation for reviewed aviation support coordination and operational assistance."
+    "title": "Contact AMG Aviation Group",
+    "description": "Contact AMG for general inquiries, vendor communication, pilot network communication, or non-operational messages."
   },
   "sections": {
     "hero": {
       "enabled": true,
-      "eyebrow": "Contact AMG Aviation",
+      "eyebrow": "Contact AMG",
       "headline": "Route the right inquiry.",
-      "body": "Use this page for general inquiries, plan questions, crew-network communication, vendor coordination, or administrative requests.",
-      "primaryCtaLabel": "Request Support",
-      "primaryCtaHref": "/request-support",
-      "secondaryCtaLabel": "Email AMG Aviation",
-      "secondaryCtaHref": "mailto:information@amgaviationgroup.com",
+      "body": "Use this page for general inquiries, administrative questions, vendor communication, pilot network communication, or non-operational messages.",
+      "primaryCtaLabel": "Request Aircraft Support",
+      "primaryCtaHref": "/booking-request",
+      "secondaryCtaLabel": "Contact AMG",
+      "secondaryCtaHref": "mailto:Information@amgaviationgroup.com",
       "imageKey": "contactSupport"
     }
   }

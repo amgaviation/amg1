@@ -1,9 +1,9 @@
 export const COMPANY = {
   name: "AMG Aviation Group",
   shortName: "AMG",
-  tagline: "Private aircraft support coordination for owners, crews, and flight departments.",
-  email: "information@amgaviationgroup.com",
-  phone: "",
+  tagline: "Private aircraft support, coordinated.",
+  email: "Information@amgaviationgroup.com",
+  phone: "954-408-1730",
   location: "United States based. Support reviewed by operating region.",
   disclaimer:
     "AMG Aviation Group provides private aircraft support coordination, crew sourcing assistance, and operational administration for owner/operator and Part 91 aviation environments. AMG is not an air carrier, does not advertise or sell charter service, and does not act as the legal operator of any aircraft unless separately documented in writing.",
@@ -308,7 +308,7 @@ export const TEAM = [
     initials: "AO",
   },
   {
-    name: "Crew Network",
+    name: "Pilot Network",
     title: "Assignment Readiness",
     bio: "Credential-reviewed pilots and aviation professionals considered for aircraft qualification, availability, and assignment suitability.",
     initials: "CN",
@@ -436,8 +436,8 @@ export const CONTACT_CARDS = [
     body: "Aircraft support administration, support operations coordination, ferry/reposition assistance, or maintenance flight support.",
   },
   {
-    title: "Crew Network",
-    body: "Credential submission, crew profile questions, aircraft qualification updates, or assignment suitability inquiries.",
+    title: "Pilot Network",
+    body: "Credential submission, pilot profile questions, aircraft qualification updates, or assignment suitability inquiries.",
   },
   {
     title: "Client / Owner Support",
@@ -473,27 +473,27 @@ export const FOOTER_COLS = [
     heading: "Company",
     links: [
       { label: "About AMG", href: "/about" },
-      { label: "Capabilities", href: "/capabilities" },
-      { label: "Crew Network", href: "/crew-network" },
+      { label: "Services", href: "/services" },
+      { label: "Pilot Network", href: "/pilot-network" },
       { label: "Contact", href: "/contact" },
-      { label: "Request support", href: "/booking-request" },
+      { label: "Request Aircraft Support", href: "/booking-request" },
     ],
   },
   {
-    heading: "Capabilities",
+    heading: "Services",
     links: [
-      { label: "Aircraft Supported", href: "/aircraft-support" },
-      { label: "Aircraft Movement", href: "/capabilities" },
-      { label: "Crew Coverage", href: "/crew-network" },
-      { label: "Support Coordination", href: "/capabilities" },
+      { label: "Services Overview", href: "/services" },
+      { label: "Aircraft Support", href: "/aircraft-support" },
+      { label: "Support Plans", href: "/plans" },
+      { label: "AMG Connect", href: "/amg-connect" },
       { label: "Maintenance Repositioning", href: "/aircraft-support" },
     ],
   },
   {
     heading: "AMG Connect",
     links: [
-      { label: "Member login", href: "/login" },
-      { label: "Request access", href: "/login?mode=request" },
+      { label: "Member Login", href: "/login" },
+      { label: "Request AMG Connect Access", href: "/login?mode=request" },
       { label: "Portal overview", href: "/amg-connect" },
       { label: "Support plans", href: "/plans" },
     ],
@@ -515,11 +515,10 @@ export const FOOTER_COLS = [
 
 export const NAV_LINKS = [
   { label: "Home", href: "/" },
+  { label: "Services", href: "/services" },
+  { label: "Support Plans", href: "/plans" },
+  { label: "AMG Connect", href: "/amg-connect" },
+  { label: "Pilot Network", href: "/pilot-network" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
-  { label: "Capabilities", href: "/capabilities" },
-  { label: "Support plans", href: "/plans" },
-  { label: "Aircraft support", href: "/aircraft-support" },
-  { label: "Crew network", href: "/crew-network" },
-  { label: "AMG Connect", href: "/amg-connect" },
 ] as const;

@@ -43,7 +43,7 @@ export function HomeCrewGlobe() {
               <ArrowUpRight className="h-4 w-4" />
             </Link>
             <Link href="/credential-submission" prefetch={false} className="oc-btn oc-btn-ghost-dark">
-              Join the Crew Network
+              Join Pilot Network
             </Link>
           </div>
         </div>

@@ -159,7 +159,7 @@ function requestedServiceCategory(submission: RoutablePublicFormSubmission) {
 function missionTypeForSupportCategory(category: string) {
   const value = category.toLowerCase();
   if (value.includes("maintenance")) return "maintenance_reposition";
-  if (value.includes("ferry") || value.includes("reposition")) return "ferry";
+  if (value.includes("ferry") || value.includes("reposition") || value.includes("movement")) return "ferry";
   if (value.includes("pilot") || value.includes("crew")) return "crew_reposition";
   return "aircraft_support";
 }

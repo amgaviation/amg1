@@ -151,13 +151,13 @@ export function PageHero({
 
 /* Recurring full-bleed conversion band shown before the footer on every page. */
 export function CtaBand({
-  eyebrow = "Support Request",
-  title = "Start with the aircraft. We’ll review the support path.",
-  body = "Submit a Support Request for aircraft movement, crew coverage, maintenance repositioning, or support-specific coordination.",
-  primaryLabel = "Submit a Support Request",
-  primaryHref = "/contact",
-  secondaryLabel = "Member login",
-  secondaryHref = "/login",
+  eyebrow = "Aircraft Support",
+  title = "Ready to coordinate aircraft support?",
+  body = "Send the aircraft, timing, and support need. AMG will review the path and respond with the appropriate next step.",
+  primaryLabel = "Request Aircraft Support",
+  primaryHref = "/booking-request",
+  secondaryLabel = "Contact AMG",
+  secondaryHref = "/contact",
 }: {
   eyebrow?: string;
   title?: string;

@@ -9,23 +9,28 @@ export const metadata: Metadata = {
     template: "%s | AMG Aviation Group",
   },
   description:
-    "Aircraft support capabilities, crew coordination, ferry and repositioning assistance, maintenance flight support, and owner communication for Part 91 aviation environments.",
+    "AMG Aviation Group coordinates aircraft movement, crew support, maintenance repositioning, and recurring operational support for private aviation clients.",
   keywords: [
-    "aircraft support capabilities",
-    "aircraft management support",
-    "Part 91 operations",
-    "contract pilot support",
-    "ferry repositioning",
-    "maintenance flight support",
+    "private aircraft support",
+    "aircraft movement coordination",
+    "Part 91 support",
+    "contract crew support",
+    "maintenance repositioning",
     "pilot network",
     "AMG Aviation Group",
   ],
   authors: [{ name: "AMG Aviation Group" }],
   openGraph: {
-    title: "AMG Aviation Group - Aircraft Support Capabilities",
+    title: "Private Aircraft Support, Coordinated | AMG Aviation Group",
     description:
-      "Aircraft support capabilities and coordination for Part 91 aviation environments.",
+      "AMG Aviation Group coordinates aircraft movement, crew support, maintenance repositioning, and recurring operational support for private aviation clients.",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Private Aircraft Support, Coordinated | AMG Aviation Group",
+    description:
+      "AMG Aviation Group coordinates aircraft movement, crew support, maintenance repositioning, and recurring operational support for private aviation clients.",
   },
 };
 

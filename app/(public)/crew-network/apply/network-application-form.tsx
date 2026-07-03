@@ -116,7 +116,7 @@ export function NetworkApplicationForm() {
           AMG will review your submission and contact you if additional information is required.
         </p>
         <Link href="/crew-network" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#3B82F6] px-5 py-3 text-sm font-bold text-white">
-          Return to Crew Network
+          Return to Pilot Network
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>

@@ -14,11 +14,11 @@ const nextConfig: NextConfig = {
     ],
   },
   async redirects() {
-    // Public IA renamed under the AMG Operations Command rebuild.
+    // Preserve legacy public URLs while keeping the simplified marketing IA canonical.
     return [
-      { source: "/services", destination: "/operations", permanent: false },
+      { source: "/capabilities", destination: "/services", permanent: false },
+      { source: "/support-plans", destination: "/plans", permanent: false },
       { source: "/aircraft", destination: "/aircraft-support", permanent: false },
-      { source: "/pilot-network", destination: "/crew-network", permanent: false },
       { source: "/team", destination: "/about", permanent: false },
     ];
   },

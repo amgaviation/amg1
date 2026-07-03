@@ -16,7 +16,7 @@ function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="min-h-11 rounded-full bg-[var(--oc-blue)] px-6 text-white hover:bg-[var(--oc-navy)]">
-      {pending ? "Sending..." : "Send general inquiry"}
+      {pending ? "Sending..." : "Contact AMG"}
       <Send className="h-4 w-4" />
     </Button>
   );
@@ -144,7 +144,7 @@ export function ContactInquiryForm({
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <SubmitButton />
             <Link href="/booking-request" prefetch={false} className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">
-              Need aircraft support?
+              Request Aircraft Support
             </Link>
           </div>
         </form>

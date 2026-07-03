@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, Mail } from "lucide-react";
+import { ArrowRight, Mail, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ContactInquiryForm } from "@/components/site/contact-inquiry-form";
-import { COMPANY } from "@/lib/content";
+import { PUBLIC_SOCIAL_LINKS } from "@/lib/navigation";
 import { IMG } from "@/lib/site-media";
 import { heroForWebsiteContent, metadataForWebsiteContent } from "@/lib/website-editor/content";
 
 export const metadata = metadataForWebsiteContent("contact", {
-  title: "Contact AMG Aviation Group | Aviation Support Capabilities",
+  title: "Contact AMG Aviation Group",
   description:
-    "Contact AMG Aviation Group for general inquiries, plan questions, pilot network communication, vendor coordination, and aviation support routing.",
+    "Contact AMG Aviation Group for general inquiries, administrative questions, vendor communication, pilot network communication, or non-operational messages.",
 });
 
 export default async function ContactPage({
@@ -29,7 +29,7 @@ export default async function ContactPage({
   const hero = heroForWebsiteContent("contact", {
     eyebrow: "Contact AMG",
     title: "Send a general inquiry.",
-    lead: "Use this page for general inquiries, plan questions, crew-network communication, vendor coordination, or administrative requests.",
+    lead: "Use this page for general inquiries, administrative questions, vendor communication, pilot network communication, or non-operational messages. Aircraft support requests should use the dedicated support request form.",
     image: IMG.contactSupport,
   });
 
@@ -47,7 +47,7 @@ export default async function ContactPage({
               {hero.lead}
             </p>
             <p className="mx-auto mt-5 max-w-3xl rounded-2xl border border-white/[0.14] bg-white/[0.08] p-4 text-sm leading-relaxed text-[var(--oc-aluminum)] backdrop-blur">
-              Aircraft support requests require the dedicated support form so AMG can review the aircraft, timing, location, and operating need.
+              Aircraft support requests should use the dedicated support request form so AMG can review the aircraft, timing, location, and operating need.
             </p>
           </div>
         </div>
@@ -60,14 +60,41 @@ export default async function ContactPage({
               <p className="oc-eyebrow text-[var(--oc-blue)]">AMG Contact</p>
               <h2 className="mt-4 text-2xl font-semibold text-[var(--oc-ink)]">Inquiry routing</h2>
               <p className="mt-4 text-sm leading-relaxed text-[var(--oc-muted)]">
-                AMG routes inquiries based on request type, aircraft context when applicable, timing, and the appropriate support path.
+                Use this page for general inquiries, administrative questions, vendor communication, pilot network communication, or non-operational messages.
               </p>
-              <div className="mt-5 rounded-xl border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-4">
+              <div className="mt-5 grid gap-3">
+                <div className="rounded-xl border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-4">
                 <Mail className="h-5 w-5 text-[var(--oc-blue)]" />
                 <p className="mt-3 text-xs font-semibold uppercase text-[var(--oc-muted)]">General inquiries</p>
-                <a href={`mailto:${COMPANY.email}`} className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-[var(--oc-ink)] hover:text-[var(--oc-blue)]">
-                  {COMPANY.email}
-                </a>
+                  <a href="mailto:Information@amgaviationgroup.com" className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-[var(--oc-ink)] hover:text-[var(--oc-blue)]">
+                    Information@amgaviationgroup.com
+                  </a>
+                </div>
+                <div className="rounded-xl border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-4">
+                  <Phone className="h-5 w-5 text-[var(--oc-blue)]" />
+                  <p className="mt-3 text-xs font-semibold uppercase text-[var(--oc-muted)]">Phone</p>
+                  <a href="tel:+19544081730" className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-[var(--oc-ink)] hover:text-[var(--oc-blue)]">
+                    954-408-1730
+                  </a>
+                </div>
+              </div>
+
+              <div className="mt-5 rounded-xl border border-[var(--oc-line)] bg-white/70 p-4">
+                <p className="text-xs font-semibold uppercase text-[var(--oc-muted)]">Social</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {PUBLIC_SOCIAL_LINKS.map((link) => (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={link.ariaLabel}
+                      className="inline-flex min-h-9 items-center rounded-full border border-[var(--oc-line)] px-3 text-xs font-semibold uppercase text-[var(--oc-ink)] transition hover:border-[var(--oc-blue)] hover:text-[var(--oc-blue)]"
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -79,7 +106,7 @@ export default async function ContactPage({
               </p>
               <Button asChild className="mt-6 min-h-11 rounded-full bg-white text-[var(--oc-navy)] hover:bg-white/90">
                 <Link href="/booking-request" prefetch={false}>
-                  Request aircraft support
+                  Request Aircraft Support
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>

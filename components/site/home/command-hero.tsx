@@ -141,11 +141,11 @@ export function CommandHero() {
               style={{ animationDelay: "1.42s" }}
             >
               <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-light">
-                Request support
+                Request Aircraft Support
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link href="/capabilities" prefetch={false} className="oc-btn oc-btn-ghost-dark">
-                Explore Capabilities
+                Services
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
               <Link

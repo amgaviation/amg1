@@ -16,46 +16,30 @@ export const PUBLIC_NAV_LINKS = NAV_LINKS;
 
 export const PUBLIC_NAV_GROUPS: PublicNavGroup[] = [
   {
-    label: "Company",
-    href: "/about",
-    items: [
-      { label: "About AMG", href: "/about", description: "Company overview, values, and AMG support structure." },
-      { label: "Team / support structure", href: "/team", description: "The roles behind AMG support requests." },
-      { label: "Pilot Application", href: "/crew-network/apply", description: "Apply for AMG Crew Network review." },
-      { label: "Contact", href: "/contact", description: "Send a general inquiry to AMG." },
-    ],
-  },
-  {
     label: "Services",
-    href: "/capabilities",
+    href: "/services",
     items: [
-      { label: "Services overview", href: "/capabilities", description: "Crew coverage, aircraft movement, maintenance repositioning, and recurring support." },
-      { label: "Aircraft support", href: "/aircraft-support", description: "Aircraft categories and support context." },
-      { label: "Aircraft management support", href: "/capabilities#aircraft-management-support", description: "Administrative visibility around aircraft, records, and communication." },
-      { label: "Contract pilot support", href: "/capabilities#contract-pilot-support", description: "Aircraft-specific pilot coverage and suitability review." },
-      { label: "Ferry & repositioning", href: "/capabilities#ferry-repositioning", description: "Aircraft movement review for delivery, maintenance, and repositioning." },
-      { label: "Maintenance flight support", href: "/capabilities#maintenance-flight-support", description: "Maintenance-related movement, records, and facility timing coordination." },
-      { label: "Flight ops coordination", href: "/capabilities#flight-ops-coordination", description: "Logistics, vendors, schedules, and stakeholder communication." },
-      { label: "Fleet support", href: "/capabilities#fleet-support", description: "Recurring support across multiple aircraft and timing windows." },
-      { label: "Crew network", href: "/crew-network", description: "Crew-related support and credential review context." },
-    ],
-  },
-  {
-    label: "Support plans",
-    href: "/plans",
-    items: [
-      { label: "Support plans", href: "/plans", description: "Compare on-demand, recurring owner, and fleet support structures." },
-      { label: "Plan comparison", href: "/plans#plans-comparison", description: "Review included support areas and operational notes." },
-      { label: "Request a plan review", href: "/booking-request?category=subscription-program-inquiry", description: "Start a scoped support-plan review." },
+      { label: "Services Overview", href: "/services", description: "Aircraft movement, maintenance repositioning, crew support, and recurring coordination." },
+      { label: "Aircraft Support", href: "/aircraft-support", description: "Aircraft movement, route, timing, crew, and aircraft-status context." },
+      { label: "Support Plans", href: "/plans", description: "On-demand, recurring owner, and fleet/department support models." },
+      { label: "Request Aircraft Support", href: "/booking-request", description: "Submit aircraft, timing, and support details for AMG review." },
     ],
   },
   {
     label: "AMG Connect",
     href: "/amg-connect",
     items: [
-      { label: "Member login", href: "/login", description: "Access AMG Connect." },
-      { label: "Request Portal Access", href: "/login?mode=request", description: "Request a portal account for an approved role." },
-      { label: "Request aircraft support", href: "/booking-request", description: "Submit an aircraft support request." },
+      { label: "AMG Connect Overview", href: "/amg-connect", description: "A marketing preview of request, document, quote, invoice, and status visibility." },
+      { label: "Request AMG Connect Access", href: "/login?mode=request", description: "Request an AMG Connect account for an approved role." },
+      { label: "Member Login", href: "/login", description: "Access AMG Connect." },
+    ],
+  },
+  {
+    label: "Network",
+    href: "/pilot-network",
+    items: [
+      { label: "Pilot Network", href: "/pilot-network", description: "Profile review for aircraft experience, credential readiness, location, and fit." },
+      { label: "Join Pilot Network", href: "/crew-network/apply", description: "Submit a profile for AMG review." },
     ],
   },
 ];
@@ -74,8 +58,35 @@ export const PUBLIC_LEGAL_FOOTER_LINKS: PublicNavItem[] = [
 export const PUBLIC_FOOTER_GROUPS: PublicNavGroup[] = [
   ...PUBLIC_NAV_GROUPS,
   {
+    label: "Company",
+    href: "/about",
+    items: [
+      { label: "About AMG", href: "/about" },
+      { label: "Contact AMG", href: "/contact" },
+      { label: "Pilot Network", href: "/pilot-network" },
+    ],
+  },
+  {
     label: "Legal",
     href: "/legal",
     items: PUBLIC_LEGAL_FOOTER_LINKS,
   },
 ];
+
+export const PUBLIC_SOCIAL_LINKS = [
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/amgaviation/",
+    ariaLabel: "Visit AMG Aviation Group on Instagram",
+  },
+  {
+    label: "Facebook",
+    href: "https://www.facebook.com/profile.php?id=61577781473240",
+    ariaLabel: "Visit AMG Aviation Group on Facebook",
+  },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/amg-aviation-group",
+    ariaLabel: "Visit AMG Aviation Group on LinkedIn",
+  },
+] as const;

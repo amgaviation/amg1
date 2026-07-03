@@ -12,9 +12,9 @@
       "headline": "Structured support for aircraft operating needs.",
       "body": "AMG Aviation reviews aircraft support requests around aircraft status, route, timing, documents, owner/operator approval, and operational fit.",
       "primaryCtaLabel": "Request Aircraft Support",
-      "primaryCtaHref": "/request-support",
-      "secondaryCtaLabel": "View Capabilities",
-      "secondaryCtaHref": "/capabilities",
+      "primaryCtaHref": "/booking-request",
+      "secondaryCtaLabel": "Services",
+      "secondaryCtaHref": "/services",
       "imageKey": "aircraftSupportMain"
     }
   }
