@@ -1,7 +1,9 @@
+/// <reference types="react" />
 import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
+  ArrowUpRight,
   CheckCircle2,
   CircleDot,
   ClipboardCheck,
@@ -171,22 +173,41 @@ function Hero() {
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-[var(--amg-light-gray)] sm:text-lg">
             Crew coverage, aircraft movement &amp; maintenance solutions for owners and flight departments.
           </p>
+                    <p className="mt-6 max-w-2xl text-base leading-relaxed text-[var(--amg-light-gray)] sm:text-lg">
+           We respond within 24 hours.
+          </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
             <div>
               <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-primary justify-center">
                 Request Aircraft Support
                 <ArrowRight className="h-4 w-4" />
               </Link>
-              <p className="mt-3 text-sm text-[var(--amg-light-gray)]">We respond within 24 hours.</p>
+              {/* <p className="mt-3 text-sm text-[var(--amg-light-gray)]">We respond within 24 hours.</p> */}
             </div>
-            <Link
+            <div>
+                        <Link
+            href="/capabilities"
+            prefetch={false}
+            className="oc-btn oc-btn-ghost-dark !hidden sm:!inline-flex"
+          >
+            Explore Our Services
+            <ArrowUpRight className="h-4 w-4" />
+          </Link>
+            </div>
+{/*                         <div>
+              <Link href="/contact" prefetch={false} className="oc-btn oc-btn-primary justify-center">
+                Request Support
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div> */}
+{/*             <Link
               href="/capabilities"
               prefetch={false}
               className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-white underline decoration-[var(--amg-accent-blue)] decoration-2 underline-offset-8 transition-colors hover:text-[var(--amg-light-gray)]"
             >
               Explore Our Services
               <ArrowRight className="h-4 w-4" />
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>
