@@ -1258,3 +1258,11 @@ html {
     transform: scale(1.25);
   }
 }
+@keyframes portalIntroProgress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
