@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, FileText, MessageSquareText, ReceiptText, ShieldCheck } from "lucide-react";
 import { CtaBand, PageHero, SectionHeading } from "@/components/site/oc/shared";
-import { PortalScreenshotFrame } from "@/components/site/portal-screenshot-frame";
+import { PortalDashboardStack } from "@/components/site/portal-dashboard-stack";
 import { IMG } from "@/lib/site-media";
 
 export const metadata: Metadata = {
@@ -64,11 +64,7 @@ export default function AmgConnectPage() {
               ))}
             </div>
           </div>
-          <PortalScreenshotFrame
-            src={IMG.portalClientDashboard}
-            alt="AMG Connect client dashboard showing support request status"
-            priority
-          />
+          <PortalDashboardStack priority />
         </div>
       </section>
 

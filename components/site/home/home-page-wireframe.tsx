@@ -10,7 +10,7 @@ import {
   UsersRound,
   Wrench,
 } from "lucide-react";
-import { PortalScreenshotFrame } from "@/components/site/portal-screenshot-frame";
+import { PortalDashboardStack } from "@/components/site/portal-dashboard-stack";
 import { IMG } from "@/lib/site-media";
 
 const supportCards = [
@@ -200,7 +200,7 @@ function AmgConnectPreview() {
         alt=""
         fill
         sizes="100vw"
-        className="absolute inset-0 -z-20 object-cover opacity-[0.18]"
+        className="absolute inset-0 -z-20 object-cover opacity-[0.34]"
       />
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(5,11,20,0.98),rgba(7,17,31,0.92)_52%,rgba(5,11,20,0.96))]" />
       <div className="oc-shell grid items-center gap-12 lg:grid-cols-[0.86fr_1.14fr]">
@@ -231,11 +231,7 @@ function AmgConnectPreview() {
           </div>
         </div>
         <div className="grid gap-4">
-          <PortalScreenshotFrame
-            src={IMG.portalClientDashboard}
-            alt="AMG Connect dashboard showing aircraft support requests and status"
-            priority
-          />
+          <PortalDashboardStack priority />
           <div className="grid grid-cols-3 gap-3 text-xs font-semibold text-[var(--amg-light-gray)]">
             <div className="rounded-lg border border-white/[0.12] bg-white/[0.06] p-3">
               <FileText className="mb-3 h-4 w-4 text-[var(--amg-accent-blue)]" aria-hidden="true" />

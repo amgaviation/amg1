@@ -2,8 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { IMG } from "@/lib/site-media";
-import { PortalScreenshotFrame } from "@/components/site/portal-screenshot-frame";
-import { getWebsiteContentPage, imageSrcForKey } from "@/lib/website-editor/content";
+import { PortalDashboardStack } from "@/components/site/portal-dashboard-stack";
+import { getWebsiteContentPage } from "@/lib/website-editor/content";
 
 const FEATURES = [
   "Support requests",
@@ -18,7 +18,6 @@ const FEATURES = [
 export function ConnectPreview() {
   const content = getWebsiteContentPage("amg-connect");
   const section = content.sections.portalPreview;
-  const screenshot = imageSrcForKey(section.imageKey) ?? IMG.portalClientDashboard;
 
   return (
     <section className="oc-panel-graphite oc-section relative isolate overflow-hidden text-[var(--oc-paper)]">
@@ -27,7 +26,7 @@ export function ConnectPreview() {
         alt=""
         fill
         sizes="100vw"
-        className="absolute inset-0 -z-20 object-cover opacity-[0.2]"
+        className="absolute inset-0 -z-20 object-cover opacity-[0.34]"
       />
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(5,11,20,0.98),rgba(7,17,31,0.9)_44%,rgba(5,11,20,0.96)),radial-gradient(circle_at_80%_28%,rgba(59,130,246,0.16),transparent_28rem)]" />
       <div className="oc-shell grid items-center gap-14 lg:grid-cols-[0.85fr_1.15fr]">
@@ -71,9 +70,7 @@ export function ConnectPreview() {
         </div>
 
         <div data-scroll-animate className="group [perspective:1600px]">
-          <PortalScreenshotFrame
-            src={screenshot}
-            alt="AMG client portal dashboard showing support requests and aircraft records"
+          <PortalDashboardStack
             priority
             className="transition-transform duration-500 will-change-transform group-hover:[transform:rotateX(1.5deg)_rotateY(-2deg)] motion-reduce:transition-none motion-reduce:group-hover:[transform:none]"
           />
