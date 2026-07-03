@@ -25,9 +25,9 @@ function Field({
 }) {
   return (
     <label className="grid gap-2">
-      <span className="text-[0.66rem] font-bold uppercase tracking-[0.18em] text-[#C0C7D1]">
+      <span className="text-[0.78rem] font-semibold text-[var(--oc-aluminum)]">
         {label}
-        {required ? <span className="ml-1 text-[#3B82F6]">*</span> : null}
+        {required ? <span className="ml-1 text-[var(--oc-sky)]">*</span> : null}
       </span>
       {children}
       {error ? <span className="text-xs font-medium text-red-200">{error}</span> : null}
@@ -37,8 +37,8 @@ function Field({
 
 function inputClass(error?: string) {
   return [
-    "min-h-12 rounded-lg border bg-white/[0.055] px-3 text-sm text-white outline-none transition placeholder:text-[#9CA3AF]/60",
-    error ? "border-red-300/70" : "border-white/15 focus:border-[#3B82F6] focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]",
+    "min-h-12 rounded-lg border bg-white/[0.055] px-3 text-sm text-white outline-none transition placeholder:text-[var(--oc-aluminum-2)]/60",
+    error ? "border-red-300/70" : "border-white/15 focus:border-[var(--oc-blue)] focus:shadow-[0_0_0_3px_rgba(46,107,240,0.2)]",
   ].join(" ");
 }
 
@@ -55,8 +55,8 @@ function Checklist({
     <div>
       <div className="grid gap-2 sm:grid-cols-2">
         {options.map((option) => (
-          <label key={option} className="flex items-center gap-3 rounded-lg border border-white/12 bg-white/[0.045] px-3 py-2.5 text-sm text-[#C0C7D1]">
-            <input type="checkbox" name={name} value={option} className="h-4 w-4 accent-[#3B82F6]" />
+          <label key={option} className="flex items-center gap-3 rounded-lg border border-white/12 bg-white/[0.045] px-3 py-2.5 text-sm text-[var(--oc-aluminum)]">
+            <input type="checkbox" name={name} value={option} className="h-4 w-4 accent-[var(--oc-blue)]" />
             <span>{option}</span>
           </label>
         ))}
@@ -68,8 +68,8 @@ function Checklist({
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-white/12 bg-white/[0.055] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.28)] backdrop-blur-xl">
-      <h2 className="font-display text-xl font-extrabold uppercase text-white">{title}</h2>
+    <section className="rounded-2xl border border-white/12 bg-white/[0.055] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+      <h2 className="font-display text-xl font-semibold text-white">{title}</h2>
       <div className="mt-5 grid gap-4 lg:grid-cols-2">{children}</div>
     </section>
   );
@@ -109,14 +109,14 @@ export function NetworkApplicationForm() {
 
   if (success) {
     return (
-      <div className="rounded-xl border border-[#3B82F6]/40 bg-[#07111F]/90 p-8 text-white shadow-[0_28px_90px_rgba(0,0,0,0.34)]">
-        <CheckCircle2 className="h-10 w-10 text-[#3B82F6]" />
-        <h2 className="mt-5 font-display text-3xl font-extrabold uppercase">Application received.</h2>
-        <p className="mt-3 max-w-2xl text-sm leading-7 text-[#C0C7D1]">
+      <div className="rounded-xl border border-[var(--oc-blue)]/40 bg-[var(--oc-navy-2)]/90 p-8 text-white shadow-[0_28px_90px_rgba(0,0,0,0.34)]">
+        <CheckCircle2 className="h-10 w-10 text-[var(--oc-sky)]" />
+        <h2 className="mt-5 font-display text-3xl font-semibold">Application received.</h2>
+        <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--oc-aluminum)]">
           AMG will review your submission and contact you if additional information is required.
         </p>
-        <Link href="/crew-network" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#3B82F6] px-5 py-3 text-sm font-bold text-white">
-          Return to Crew Network
+        <Link href="/pilot-network" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--oc-blue)] px-5 py-3 text-sm font-bold text-white">
+          Return to Pilot Network
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
@@ -250,20 +250,20 @@ export function NetworkApplicationForm() {
         </div>
       </Section>
 
-      <section className="rounded-xl border border-white/12 bg-white/[0.055] p-5">
+      <section className="rounded-2xl border border-white/12 bg-white/[0.055] p-5">
         <div className="space-y-3">
-          <label className="flex items-start gap-3 text-sm leading-6 text-[#C0C7D1]">
-            <input type="checkbox" name="legal_acknowledgment" value="accepted" required className="mt-1 h-4 w-4 accent-[#3B82F6]" />
+          <label className="flex items-start gap-3 text-sm leading-6 text-[var(--oc-aluminum)]">
+            <input type="checkbox" name="legal_acknowledgment" value="accepted" required className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
             <span>I understand that submitting this application does not create employment, contractor status, assignment acceptance, aircraft approval, operator approval, or guaranteed compensation. I agree that AMG Aviation Group may review and store this information for crew-network evaluation.</span>
           </label>
           {errors.legal_acknowledgment ? <p className="text-xs text-red-200">{errors.legal_acknowledgment}</p> : null}
-          <label className="flex items-start gap-3 text-sm leading-6 text-[#C0C7D1]">
-            <input type="checkbox" name="policy_acknowledgment" value="accepted" required className="mt-1 h-4 w-4 accent-[#3B82F6]" />
+          <label className="flex items-start gap-3 text-sm leading-6 text-[var(--oc-aluminum)]">
+            <input type="checkbox" name="policy_acknowledgment" value="accepted" required className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
             <span>
               I have reviewed the{" "}
-              <Link href="/credential-submission" className="font-semibold text-[#3B82F6] hover:underline">Credential Submission Notice</Link>,{" "}
-              <Link href="/privacy-policy" className="font-semibold text-[#3B82F6] hover:underline">Privacy Policy</Link>, and{" "}
-              <Link href="/terms" className="font-semibold text-[#3B82F6] hover:underline">Terms & Conditions</Link>.
+              <Link href="/credential-submission" className="font-semibold text-[var(--oc-sky)] hover:underline">Credential Submission Notice</Link>,{" "}
+              <Link href="/privacy-policy" className="font-semibold text-[var(--oc-sky)] hover:underline">Privacy Policy</Link>, and{" "}
+              <Link href="/terms" className="font-semibold text-[var(--oc-sky)] hover:underline">Terms & Conditions</Link>.
             </span>
           </label>
           {errors.policy_acknowledgment ? <p className="text-xs text-red-200">{errors.policy_acknowledgment}</p> : null}
@@ -274,7 +274,7 @@ export function NetworkApplicationForm() {
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[#3B82F6] px-6 text-sm font-bold text-white shadow-[0_18px_45px_rgba(59,130,246,0.32)] transition hover:bg-[#2563EB] disabled:cursor-not-allowed disabled:opacity-70"
+          className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[var(--oc-blue)] px-6 text-sm font-bold text-white shadow-[0_18px_45px_rgba(46,107,240,0.32)] transition hover:bg-[#2258D6] disabled:cursor-not-allowed disabled:opacity-70"
         >
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           {pending ? "Submitting..." : "Submit Application"}

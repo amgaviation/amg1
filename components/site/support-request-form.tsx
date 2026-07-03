@@ -187,22 +187,47 @@ export function SupportRequestForm({
         ) : null}
 
         <ol className="mt-7 grid grid-cols-2 gap-2 md:grid-cols-4" aria-label="Support request progress">
-          {steps.map((step, index) => (
-            <li key={step.id}>
-              <button
-                type="button"
-                onClick={() => setActiveStep(index)}
-                aria-current={activeStep === index ? "step" : undefined}
-                className={`flex min-h-11 w-full items-center justify-center rounded-full border px-3 text-xs font-semibold transition ${
-                  activeStep === index
-                    ? "border-[var(--oc-blue)] bg-[var(--oc-blue)] text-white"
-                    : "border-[var(--oc-line)] bg-white/70 text-[var(--oc-ink)] hover:border-[var(--oc-blue)]"
-                }`}
-              >
-                {index + 1}. {step.label}
-              </button>
-            </li>
-          ))}
+          {steps.map((step, index) => {
+            const isActive = activeStep === index;
+            const isDone = activeStep > index;
+            return (
+              <li key={step.id} className="relative">
+                {index < steps.length - 1 ? (
+                  <span
+                    aria-hidden="true"
+                    className={`absolute left-[calc(50%+1.4rem)] right-[calc(-50%+1.4rem)] top-[1.35rem] hidden h-px md:block ${
+                      isDone ? "bg-[var(--oc-blue)]" : "bg-[var(--oc-line)]"
+                    }`}
+                  />
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => setActiveStep(index)}
+                  aria-current={isActive ? "step" : undefined}
+                  className="group flex w-full flex-col items-center gap-1.5 rounded-xl px-2 py-2 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--oc-blue)]"
+                >
+                  <span
+                    className={`relative z-10 flex h-7 w-7 items-center justify-center rounded-full border text-[0.7rem] font-bold transition ${
+                      isActive
+                        ? "border-[var(--oc-blue)] bg-[var(--oc-blue)] text-white shadow-[0_0_0_4px_rgba(46,107,240,0.15)]"
+                        : isDone
+                          ? "border-[var(--oc-blue)] bg-white text-[var(--oc-blue)]"
+                          : "border-[var(--oc-line-strong)] bg-white text-[var(--oc-muted)] group-hover:border-[var(--oc-blue)]"
+                    }`}
+                  >
+                    {isDone ? <CheckCircle2 className="h-4 w-4" aria-hidden="true" /> : index + 1}
+                  </span>
+                  <span
+                    className={`text-xs font-semibold ${
+                      isActive ? "text-[var(--oc-ink)]" : "text-[var(--oc-muted)] group-hover:text-[var(--oc-ink)]"
+                    }`}
+                  >
+                    {step.label}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
         </ol>
 
         <form action={submitSupportRequest} noValidate className="mt-7 grid gap-6 text-[var(--oc-ink)]">
