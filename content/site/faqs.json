@@ -2,15 +2,15 @@
   "page": "faqs",
   "version": 1,
   "seo": {
-    "title": "AMG Aviation FAQs",
-    "description": "Answers about AMG Aviation support requests, review, portal access, quotes, and service limitations."
+    "title": "FAQs",
+    "description": "Answers about AMG support requests, review, portal access, quotes, and service limitations."
   },
   "sections": {
     "hero": {
       "enabled": true,
       "eyebrow": "FAQs",
-      "headline": "Common questions before support proceeds.",
-      "body": "Answers about request acceptance, crew availability, AMG Connect access, quotes, plans, and service limits.",
+      "headline": "Straight answers before support proceeds.",
+      "body": "Request acceptance, crew availability, AMG Connect access, quotes, plans, and service limits \u2014 answered plainly.",
       "primaryCtaLabel": "Request Support",
       "primaryCtaHref": "/request-support",
       "secondaryCtaLabel": "Contact AMG Aviation",

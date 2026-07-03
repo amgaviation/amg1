@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, Mail } from "lucide-react";
+import { ArrowRight, Facebook, Instagram, Linkedin, Mail, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ContactInquiryForm } from "@/components/site/contact-inquiry-form";
-import { COMPANY } from "@/lib/content";
+import { COMPANY, SOCIAL_LINKS } from "@/lib/content";
 import { IMG } from "@/lib/site-media";
 import { heroForWebsiteContent, metadataForWebsiteContent } from "@/lib/website-editor/content";
 
@@ -62,12 +62,42 @@ export default async function ContactPage({
               <p className="mt-4 text-sm leading-relaxed text-[var(--oc-muted)]">
                 AMG routes inquiries based on request type, aircraft context when applicable, timing, and the appropriate support path.
               </p>
-              <div className="mt-5 rounded-xl border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-4">
-                <Mail className="h-5 w-5 text-[var(--oc-blue)]" />
-                <p className="mt-3 text-xs font-semibold uppercase text-[var(--oc-muted)]">General inquiries</p>
-                <a href={`mailto:${COMPANY.email}`} className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-[var(--oc-ink)] hover:text-[var(--oc-blue)]">
-                  {COMPANY.email}
-                </a>
+              <div className="mt-5 grid gap-3">
+                <div className="rounded-xl border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-4">
+                  <p className="flex items-center gap-2 text-xs font-semibold uppercase text-[var(--oc-muted)]">
+                    <Mail className="h-4 w-4 text-[var(--oc-blue)]" aria-hidden="true" />
+                    Email
+                  </p>
+                  <a href={`mailto:${COMPANY.email}`} className="mt-1 inline-flex min-h-10 items-center break-all text-sm font-semibold text-[var(--oc-ink)] hover:text-[var(--oc-blue)]">
+                    {COMPANY.email}
+                  </a>
+                </div>
+                <div className="rounded-xl border border-[var(--oc-line)] bg-[var(--oc-ivory)] p-4">
+                  <p className="flex items-center gap-2 text-xs font-semibold uppercase text-[var(--oc-muted)]">
+                    <Phone className="h-4 w-4 text-[var(--oc-blue)]" aria-hidden="true" />
+                    Phone
+                  </p>
+                  <a href={`tel:${COMPANY.phone.replace(/[^0-9+]/g, "")}`} className="mt-1 inline-flex min-h-10 items-center text-sm font-semibold text-[var(--oc-ink)] hover:text-[var(--oc-blue)]">
+                    {COMPANY.phone}
+                  </a>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  {SOCIAL_LINKS.map((social) => {
+                    const Icon = social.label === "Facebook" ? Facebook : social.label === "Instagram" ? Instagram : Linkedin;
+                    return (
+                      <a
+                        key={social.label}
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`AMG Aviation Group on ${social.label}`}
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--oc-line)] text-[var(--oc-muted)] transition-colors hover:border-[var(--oc-blue)] hover:text-[var(--oc-blue)]"
+                      >
+                        <Icon className="h-4 w-4" aria-hidden="true" />
+                      </a>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 

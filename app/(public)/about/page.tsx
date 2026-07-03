@@ -16,8 +16,8 @@ export default function AboutPage() {
     lead: "AMG Aviation Group provides structured coordination for aircraft owners, flight departments, crews, and approved representatives while keeping operating authority, aircraft approval, and pilot-in-command responsibility clearly assigned.",
     image: IMG.aboutOperations,
     imageAlt: "AMG operations environment",
-    primary: { label: "Request support", href: "/booking-request" },
-    secondary: { label: "Crew Network", href: "/crew-network" },
+    primary: { label: "Request Aircraft Support", href: "/booking-request" },
+    secondary: { label: "Pilot Network", href: "/pilot-network" },
   });
 
   return (
@@ -36,7 +36,7 @@ export default function AboutPage() {
         <div className="oc-shell grid gap-12 lg:grid-cols-[1fr_0.9fr] lg:items-center">
           <div data-scroll-animate>
             <SectionHeading
-              eyebrow="What AMG does"
+              eyebrow="What AMG Does"
               title="Coordination for the work around the aircraft."
               lead="AMG organizes the communication, documentation, and review work that surrounds aircraft support requests."
             />
@@ -57,7 +57,7 @@ export default function AboutPage() {
 
       <section id="operating-principles" className="oc-section bg-[var(--oc-ivory-2)]">
         <div className="oc-shell">
-          <SectionHeading eyebrow="How we operate" title="Four principles that hold every request." />
+          <SectionHeading eyebrow="How We Operate" title="Four principles that hold every request." />
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
             {VALUES.map((value, i) => (
               <article key={value.title} data-stagger-item className="oc-card flex h-full flex-col p-6">
@@ -73,9 +73,9 @@ export default function AboutPage() {
       <section id="support-desk" className="oc-section bg-[var(--oc-ivory)]">
         <div className="oc-shell">
           <SectionHeading
-            eyebrow="Support desk"
+            eyebrow="Support Desk"
             title="Four functions behind the support desk."
-            lead="The team structure keeps the company story here and leaves full capability detail on the Capabilities page."
+            lead="Four functions handle every request — coordination, crew readiness, owner communication, and records."
           />
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-stagger-container>
             {TEAM.map((member) => (

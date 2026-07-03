@@ -6,19 +6,19 @@ import { IMG } from "@/lib/site-media";
 import { heroForWebsiteContent, metadataForWebsiteContent } from "@/lib/website-editor/content";
 
 export const metadata = metadataForWebsiteContent("crew-network", {
-  title: "Crew Network",
+  title: "Pilot Network",
   description:
-    "A credential-reviewed crew network organized by base airport, aircraft experience, documents, availability, and assignment suitability.",
+    "A credential-reviewed pilot network organized by aircraft experience, airport region, documents, availability, and assignment suitability.",
 });
 
-export default function CrewNetworkPage() {
+export default function PilotNetworkPage() {
   const hero = heroForWebsiteContent("crew-network", {
-    eyebrow: "Crew Network",
-    title: "Crew coverage reviewed by aircraft, role, and assignment.",
-    lead: "AMG organizes pilots and aviation professionals around base airport, aircraft experience, documents, and suitability — so crew support is reviewed against the aircraft need, not treated as an automatic placement.",
+    eyebrow: "Pilot Network",
+    title: "Fly assignments that match your qualifications.",
+    lead: "AMG reviews pilots and aviation professionals around aircraft experience, airport region, credential readiness, and availability — assignments are matched to the aircraft need, never treated as automatic placement.",
     image: IMG.pilotNetwork,
     imageAlt: "Flight crew walking the ramp toward an aircraft",
-    primary: { label: "Submit Credentials", href: "/crew-network/apply" },
+    primary: { label: "Join the Pilot Network", href: "/crew-network/apply" },
     secondary: { label: "Member login", href: "/login" },
   });
 
@@ -40,7 +40,7 @@ export default function CrewNetworkPage() {
         <div className="oc-shell grid items-center gap-12 lg:grid-cols-2">
           <div data-scroll-animate>
             <SectionHeading
-              eyebrow="How the network works"
+              eyebrow="How the Network Works"
               title="Reviewed before assignment, every time."
               lead="Profiles are organized around the details that actually determine whether a crew member can support a specific aircraft need."
             />
@@ -67,7 +67,7 @@ export default function CrewNetworkPage() {
       <section className="oc-section bg-[var(--oc-ivory-2)]">
         <div className="oc-shell">
           <SectionHeading
-            eyebrow="For crew"
+            eyebrow="For Pilots & Crew"
             title="What approved users can expect."
             lead="The network is built for credential organization, assignment context, and clear communication — not a casual job board or guaranteed placement system."
           />
@@ -85,10 +85,10 @@ export default function CrewNetworkPage() {
       <CrewNetworkSecondaryGlobe />
 
       <CtaBand
-        eyebrow="Crew Network"
-        title="Submit credentials for crew network review."
-        body="Profile submission helps AMG review qualifications, aircraft experience, documents, base airport, and support suitability. Submission and approval do not guarantee assignment, compensation, or future engagement."
-        primaryLabel="Submit Credentials"
+        eyebrow="Pilot Network"
+        title="Submit your qualifications for review."
+        body="AMG reviews aircraft experience, airport region, credential readiness, availability, and assignment suitability. Submission does not guarantee assignment, employment, contractor status, compensation, or future engagement."
+        primaryLabel="Join the Pilot Network"
         primaryHref="/crew-network/apply"
         secondaryLabel="Member login"
         secondaryHref="/login"

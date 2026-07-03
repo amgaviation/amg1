@@ -2,19 +2,19 @@
   "page": "about",
   "version": 1,
   "seo": {
-    "title": "About AMG Aviation",
-    "description": "AMG Aviation Group identity, operating philosophy, support structure, and responsibilities."
+    "title": "About AMG",
+    "description": "AMG Aviation Group provides structured aircraft support coordination for owner/operator and Part 91 environments \u2014 not charter, not an air carrier."
   },
   "sections": {
     "hero": {
       "enabled": true,
-      "eyebrow": "About AMG Aviation",
-      "headline": "Operational support built around clear communication.",
-      "body": "AMG Aviation coordinates the communication, documentation, and review work around aircraft support while keeping operating authority and aircraft approvals clearly assigned.",
-      "primaryCtaLabel": "Request Support",
-      "primaryCtaHref": "/request-support",
-      "secondaryCtaLabel": "Contact AMG Aviation",
-      "secondaryCtaHref": "/contact",
+      "eyebrow": "About AMG",
+      "headline": "Built around real aircraft support needs.",
+      "body": "AMG coordinates the work around private aircraft \u2014 movement, crew, maintenance repositioning, records, and communication \u2014 while operating authority stays clearly assigned.",
+      "primaryCtaLabel": "Request Aircraft Support",
+      "primaryCtaHref": "/booking-request",
+      "secondaryCtaLabel": "Pilot Network",
+      "secondaryCtaHref": "/pilot-network",
       "imageKey": "aboutOperations"
     }
   }
