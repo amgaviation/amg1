@@ -2,19 +2,19 @@
   "page": "services",
   "version": 1,
   "seo": {
-    "title": "Aviation Support Capabilities",
-    "description": "Aircraft support, crew coordination, vendor coordination, and operational support services reviewed before acceptance."
+    "title": "Services",
+    "description": "Aircraft movement, contract crew support, maintenance repositioning, aircraft management support, operational coordination, and subscription-based support for private aircraft owners, Part 91 operators, and flight departments."
   },
   "sections": {
     "hero": {
       "enabled": true,
-      "eyebrow": "Capabilities",
-      "headline": "Aviation support capabilities reviewed for operational fit.",
-      "body": "Review AMG support paths, request sequence, required inputs, and limitations before submitting an aircraft support request.",
-      "primaryCtaLabel": "Request Support",
-      "primaryCtaHref": "/request-support",
-      "secondaryCtaLabel": "Contact AMG Aviation",
-      "secondaryCtaHref": "/contact",
+      "eyebrow": "Services",
+      "headline": "Support that starts with the aircraft.",
+      "body": "Six defined support paths \u2014 movement, crew, maintenance repositioning, management support, operational coordination, and recurring plans. Every one begins with a scoped review.",
+      "primaryCtaLabel": "Request Aircraft Support",
+      "primaryCtaHref": "/booking-request",
+      "secondaryCtaLabel": "Compare Support Plans",
+      "secondaryCtaHref": "/plans",
       "imageKey": "servicesHero"
     }
   }

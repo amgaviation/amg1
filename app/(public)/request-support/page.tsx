@@ -20,16 +20,22 @@ export default async function RequestSupportPage({
   searchParams: Promise<{ success?: string; error?: string; category?: string; service?: string; plan?: string }>;
 }) {
   const params = await searchParams;
-  const initialSupportPath =
-    params.category === "subscription-program-inquiry" || params.plan
-      ? "Plan / Subscription Review"
-      : params.category === "contract-pilot-support"
-        ? "Contract Pilot Support"
-        : params.category === "maintenance-flight-support"
-          ? "Maintenance Flight Support"
-          : params.category === "ferry-and-repositioning"
-            ? "Ferry & Repositioning"
-            : undefined;
+  const CATEGORY_TO_SUPPORT_PATH: Record<string, string> = {
+    "subscription-program-inquiry": "Plan / Subscription Review",
+    "contract-pilot-support": "Contract Pilot Support",
+    "maintenance-flight-support": "Maintenance Flight Support",
+    "ferry-and-repositioning": "Ferry & Repositioning",
+    "ferry-repositioning": "Ferry & Repositioning",
+    "aircraft-management-support": "Aircraft Management Support",
+    "flight-operations-coordination": "Flight Operations Coordination",
+    "fleet-support-programs": "Fleet Support Program",
+    "pilot-network": "Pilot Network Inquiry",
+  };
+  const initialSupportPath = params.plan
+    ? "Plan / Subscription Review"
+    : params.category
+      ? CATEGORY_TO_SUPPORT_PATH[params.category]
+      : undefined;
 
   return (
     <>

@@ -3,19 +3,19 @@ import { heroForWebsiteContent, metadataForWebsiteContent } from "@/lib/website-
 import { IMG } from "@/lib/site-media";
 
 export const metadata = metadataForWebsiteContent("plans", {
-  title: "Aircraft Support Plans | AMG Aviation Group",
+  title: "Support Plans",
   description:
     "Compare AMG Aviation Group aircraft support plans by aircraft category, support scope, flight volume, maintenance movement, crew coordination, and owner/operator visibility.",
 });
 
 export default function PlansPage() {
   const hero = heroForWebsiteContent("plans", {
-    eyebrow: "AMG Support Plans",
-    title: "Aircraft Support Plans Built Around Reality",
-    lead: "AMG plans are structured around aircraft category, support frequency, crew coordination needs, maintenance movement requirements, and owner/operator visibility.",
+    eyebrow: "Support Plans",
+    title: "Support plans built around how you actually fly.",
+    lead: "Pick your aircraft category, see the support levels, then compare the details — pricing covers AMG coordination, and every plan starts with a scoped review.",
     image: IMG.plansSelector,
     primary: { label: "Request a plan review", href: "/booking-request?category=subscription-program-inquiry" },
-    secondary: { label: "Compare Plans", href: "#plans-comparison" },
+    secondary: { label: "Compare plans", href: "#plans-comparison" },
   });
 
   return <SubscriptionPrograms hero={hero} />;

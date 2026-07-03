@@ -3,18 +3,18 @@
   "version": 1,
   "seo": {
     "title": "Aircraft Support",
-    "description": "Aircraft support coordination for owners, operators, and approved representatives."
+    "description": "Aircraft support matched to class \u2014 from piston and turboprop to heavy-cabin jets \u2014 reviewed around crew, status, route, and airport constraints."
   },
   "sections": {
     "hero": {
       "enabled": true,
       "eyebrow": "Aircraft Support",
-      "headline": "Structured support for aircraft operating needs.",
-      "body": "AMG Aviation reviews aircraft support requests around aircraft status, route, timing, documents, owner/operator approval, and operational fit.",
+      "headline": "Support matched to the aircraft, not a generic request.",
+      "body": "From owner-flown pistons to heavy-cabin jets, AMG reviews support around the aircraft class, crew requirement, route, timing, status, and airport context.",
       "primaryCtaLabel": "Request Aircraft Support",
-      "primaryCtaHref": "/request-support",
-      "secondaryCtaLabel": "View Capabilities",
-      "secondaryCtaHref": "/capabilities",
+      "primaryCtaHref": "/booking-request",
+      "secondaryCtaLabel": "Compare Support Plans",
+      "secondaryCtaHref": "/plans",
       "imageKey": "aircraftSupportMain"
     }
   }
