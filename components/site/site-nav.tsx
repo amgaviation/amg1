@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUpRight, ChevronDown, Menu, X } from "lucide-react";
+import { ArrowUpRight, ChevronDown, CircleHelp, LogIn, Menu, X } from "lucide-react";
 import { PUBLIC_NAV_GROUPS, PUBLIC_NAV_LINKS } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
@@ -148,7 +148,7 @@ export function SiteNav() {
         </ul>
 
         <div className="ml-auto flex items-center gap-2.5 xl:ml-5">
-          <Link
+{/*           <Link
             href="/booking-request"
             prefetch={false}
             onClick={closeMenu}
@@ -156,6 +156,14 @@ export function SiteNav() {
           >
             Request support
             <ArrowUpRight className="h-4 w-4" />
+          </Link> */}
+                    <Link
+            href="/contact"
+            prefetch={false}
+            onClick={closeMenu}
+            className="hidden min-h-11 items-center whitespace-nowrap px-2 text-[0.72rem] font-semibold uppercase leading-none text-white/[0.74] transition-colors hover:text-white sm:inline-flex"
+          >
+            Request Support&nbsp;<CircleHelp className="h-3.5 w-3.5 opacity-70" />
           </Link>
           <Link
             href="/login"
@@ -163,7 +171,7 @@ export function SiteNav() {
             onClick={closeMenu}
             className="hidden min-h-11 items-center whitespace-nowrap px-2 text-[0.72rem] font-semibold uppercase leading-none text-white/[0.74] transition-colors hover:text-white sm:inline-flex"
           >
-            Member login
+            Member Login &nbsp;<LogIn className="h-3.5 w-3.5 opacity-70" />
           </Link>
 
           <button
