@@ -23,6 +23,7 @@ const docsPath = "docs/email-identity-and-auth-branding.md";
 
 const authActions = read("app/portal/actions/auth.ts");
 const adminActions = read("app/portal/actions/admin.ts");
+const accountSetup = read("lib/portal/account-setup.ts");
 const provisioning = read("lib/portal/client-account-provisioning.ts");
 const resendProvider = read("lib/email/resend-provider.ts");
 const notificationDelivery = read("lib/portal/notification-delivery.ts");
@@ -42,6 +43,7 @@ if (exists(emailConfigPath)) {
   check("config includes approved sender", config.includes("notify@amgaviationgroup.com"));
   check("config includes operations sender", config.includes("operations@amgaviationgroup.com"));
   check("config includes reply-to address", config.includes("information@amgaviationgroup.com"));
+  check("config supports legacy Resend sender", config.includes("RESEND_FROM_EMAIL"));
 }
 
 if (exists(authConfigPath)) {
@@ -55,7 +57,7 @@ check("resend provider uses centralized email config", resendProvider.includes("
 check("notification delivery uses centralized email config", notificationDelivery.includes("@/lib/email/config"));
 check("email templates use centralized brand/site config", emailTemplates.includes("@/lib/email/config"));
 check("password reset uses branded auth redirect helper", authActions.includes("passwordSetupRedirectUrl()"));
-check("admin invites use branded auth redirect helper", adminActions.includes("portalInviteRedirectUrl()"));
+check("admin invites use branded auth redirect helper", accountSetup.includes("passwordSetupRedirectUrl()"));
 check("client provisioning uses branded auth redirect helper", provisioning.includes("passwordSetupRedirectUrl()"));
 check("auth actions no longer use VERCEL_URL fallback", !authActions.includes("VERCEL_URL"));
 check("admin invite actions no longer use VERCEL_URL fallback", !adminActions.includes("VERCEL_URL"));
@@ -68,6 +70,7 @@ if (exists(docsPath)) {
   check("docs include redirect allowlist", docs.includes("Redirect URLs"));
   check("docs include Resend domain verification", docs.includes("Resend domain"));
   check("docs include required env vars", docs.includes("RESEND_API_KEY") && docs.includes("AMG_EMAIL_FROM"));
+  check("docs mention legacy sender fallback", docs.includes("RESEND_FROM_EMAIL"));
 }
 
 const failures = checks.filter(([, passed]) => !passed);

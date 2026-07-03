@@ -178,7 +178,7 @@ export default async function AdminTripDetailPage({
               {[0, 1, 2, 3, 4].map((index) => (
                 <div key={index} className="rounded-lg border border-border bg-slate-50/70 p-3 space-y-3">
                   <p className="eyebrow text-[0.6rem] text-muted-foreground">Quote Line {index + 1}</p>
-                  <SelectField label="Category" name="category[]" defaultValue={index === 0 ? "Admin coordination" : ""} options={[{ value: "", label: "Select category..." }, ...QUOTE_CATEGORIES.map((c) => ({ value: c, label: c }))]} />
+                  <SelectField label="Category" name="category[]" defaultValue={index === 0 ? QUOTE_CATEGORIES[0] : ""} options={[{ value: "", label: "Select category..." }, ...QUOTE_CATEGORIES.map((c) => ({ value: c, label: c }))]} />
                   <TextField label="Description" name="description[]" defaultValue={index === 0 ? `Operations support for ${mission.ref}` : ""} />
                   <TextAreaField label="Line Notes" name="line_notes[]" />
                   <div className="grid grid-cols-2 gap-3">

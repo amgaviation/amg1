@@ -112,6 +112,34 @@ const checks = [
       );
     },
   },
+  {
+    name: "profile status default is compatible with approved status vocabulary",
+    run() {
+      const migration = fs
+        .readdirSync(path.join(root, "supabase/migrations"))
+        .filter((file) => file.includes("access_management") || file.includes("profiles_status_default"))
+        .map((file) => read(`supabase/migrations/${file}`))
+        .join("\n");
+      return (
+        migration.includes("profiles_status_check") &&
+        migration.includes("'pending_approval'") &&
+        migration.includes("alter column status set default 'pending_approval'")
+      );
+    },
+  },
+  {
+    name: "profile invitation metadata used by portal actions is migrated",
+    run() {
+      const migration = fs
+        .readdirSync(path.join(root, "supabase/migrations"))
+        .filter((file) => file.includes("access_management") || file.includes("profile_invitation_metadata") || file.includes("profiles_invited_by"))
+        .map((file) => read(`supabase/migrations/${file}`))
+        .join("\n");
+      return ["invitation_status", "invitation_channel", "invitation_sent_at", "invited_by"].every((column) =>
+        migration.includes(column)
+      );
+    },
+  },
 ];
 
 const failures = checks.filter((check) => !check.run());

@@ -12,6 +12,7 @@ const adminAircraftPage = read("app/portal/admin/aircraft/page.tsx");
 const adminAircraftDetailPage = read("app/portal/admin/aircraft/[aircraftId]/page.tsx");
 const adminActions = read("app/portal/actions/admin.ts");
 const quoteActions = read("app/portal/actions/quotes.ts");
+const adminTripDetail = read("app/portal/admin/trips/[id]/page.tsx");
 const invoiceActions = read("app/portal/actions/invoices.ts");
 
 function valuesFromArray(source, declaration) {
@@ -62,6 +63,11 @@ for (const needle of [
 for (const needle of ['status: "converted"', 'status: "draft"', '"void"', '"revision_requested"']) {
   assert.ok(quoteActions.includes(needle), `quote action missing ${needle}`);
 }
+
+assert.ok(
+  adminTripDetail.includes('defaultValue={index === 0 ? QUOTE_CATEGORIES[0] : ""}'),
+  "admin trip quick quote form must use a valid canonical default category",
+);
 
 assert.ok(invoiceActions.includes('status: "added_to_invoice"'), "invoice action no longer marks expenses as added_to_invoice");
 assert.ok(invoiceActions.includes('"partially_approved"'), "invoice action no longer accepts partially approved expenses");

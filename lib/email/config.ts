@@ -47,7 +47,10 @@ function normalizeSender(value: string | undefined, displayName: string, email: 
 export const SITE_URL = cleanUrl(process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXT_PUBLIC_APP_URL);
 export const PORTAL_URL = cleanUrl(process.env.NEXT_PUBLIC_PORTAL_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXT_PUBLIC_APP_URL, DEFAULT_PORTAL_URL);
 export const AMG_EMAIL_FROM = normalizeSender(
-  process.env.AMG_EMAIL_FROM ?? process.env.EMAIL_DEFAULT_FROM ?? process.env.EMAIL_FROM_ADDRESS,
+  process.env.AMG_EMAIL_FROM ??
+    process.env.EMAIL_DEFAULT_FROM ??
+    process.env.EMAIL_FROM_ADDRESS ??
+    process.env.RESEND_FROM_EMAIL,
   AMG_EMAIL_BRAND.companyName,
   DEFAULT_NOTIFY_EMAIL,
 );

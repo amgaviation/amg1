@@ -264,8 +264,9 @@ export async function updateMissionStatus(formData: FormData) {
     .select("ref, client_id")
     .single();
 
+  let notificationClientId = mission?.client_id ?? null;
   if (status === "under_review") {
-    await ensureClientAccountForMission(missionId, user.id);
+    notificationClientId = (await ensureClientAccountForMission(missionId, user.id)) ?? notificationClientId;
   }
   if (status === "completed") {
     await logCompletedMissionUsage(db as any, missionId, user);
@@ -280,11 +281,11 @@ export async function updateMissionStatus(formData: FormData) {
     entityType: "mission",
     entityId: missionId,
   });
-  if (mission?.client_id) {
+  if (notificationClientId) {
     await notifyUser({
-      userId: mission.client_id,
+      userId: notificationClientId,
       title: "Mission status updated",
-      body: `${mission.ref} is now ${status.replace(/_/g, " ")}.`,
+      body: `${mission?.ref ?? "Your AMG request"} is now ${status.replace(/_/g, " ")}.`,
       type: "mission_status",
       entityType: "mission",
       entityId: missionId,

@@ -295,6 +295,16 @@ export function SupportRequestForm({
             <Field id="support-additional-notes" label="Additional notes" className="md:col-span-2">
               <Textarea id="support-additional-notes" name="additional_notes" className="min-h-28 bg-white/80" />
             </Field>
+            <div className="grid gap-3 md:col-span-2 md:grid-cols-2">
+              <label className="flex items-start gap-3 rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
+                <input name="marketing_consent" value="true" type="checkbox" className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
+                <span>AMG may email me relevant updates about aviation support services.</span>
+              </label>
+              <label className="flex items-start gap-3 rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
+                <input name="sms_consent" value="true" type="checkbox" className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
+                <span>AMG may text me about this request. Message and data rates may apply.</span>
+              </label>
+            </div>
             <label className="flex items-start gap-3 rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)] md:col-span-2">
               <input name="acknowledgment" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
               <span>

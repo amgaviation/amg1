@@ -28,9 +28,9 @@ NEXT_PUBLIC_SITE_URL="https://www.amgaviationgroup.com"
 NEXT_PUBLIC_PORTAL_URL="https://www.amgaviationgroup.com"
 ```
 
-Legacy `EMAIL_DEFAULT_FROM`, `EMAIL_OPS_FROM`, `EMAIL_FROM_ADDRESS`, and
-`EMAIL_REPLY_TO` are still read as fallback values, but new configuration should
-use the AMG-prefixed variables above.
+Legacy `EMAIL_DEFAULT_FROM`, `EMAIL_OPS_FROM`, `EMAIL_FROM_ADDRESS`,
+`RESEND_FROM_EMAIL`, and `EMAIL_REPLY_TO` are still read as fallback values, but
+new configuration should use the AMG-prefixed variables above.
 
 ## Resend Domain Verification
 

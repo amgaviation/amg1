@@ -133,6 +133,8 @@ async function sendPortalSetupEmail(params: {
       error: result.error,
     });
   }
+
+  return result;
 }
 
 export async function ensureClientAccountForMission(missionId: string, actorId?: string | null) {
@@ -158,7 +160,7 @@ export async function ensureClientAccountForMission(missionId: string, actorId?:
 
     const { data: existingProfile } = await db
       .from("profiles")
-      .select("id, email, full_name, role, status, is_active, company_name, phone")
+      .select("id, email, full_name, role, status, is_active, company_name, phone, invitation_status, invitation_channel, invitation_sent_at")
       .ilike("email", email)
       .maybeSingle();
 
@@ -170,7 +172,7 @@ export async function ensureClientAccountForMission(missionId: string, actorId?:
       if (existingAuthUserId) {
         profileId = existingAuthUserId;
 
-        await db.from("profiles").upsert({
+        const { error: profileError } = await db.from("profiles").upsert({
           id: profileId,
           email,
           full_name: requesterName,
@@ -185,6 +187,22 @@ export async function ensureClientAccountForMission(missionId: string, actorId?:
           invited_by: actorId ?? null,
           updated_at: new Date().toISOString(),
         });
+
+        if (profileError) {
+          console.error("[client-provisioning] profile upsert failed", { email, profileError });
+          if (structured) {
+            await (db as any)
+              .from("public_support_requests")
+              .update({
+                portal_account_status: "portal_setup_failed",
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", structured.id);
+          }
+          return null;
+        }
+
+        createdNewProfile = true;
       }
     }
 
@@ -212,7 +230,7 @@ export async function ensureClientAccountForMission(missionId: string, actorId?:
       ["portal_setup_sent", "password_created"].includes(structured?.portal_account_status ?? "");
 
     if (createdNewProfile) {
-      await db.from("profiles").upsert({
+      const { error: profileError } = await db.from("profiles").upsert({
         id: profileId,
         email,
         full_name: requesterName,
@@ -227,22 +245,59 @@ export async function ensureClientAccountForMission(missionId: string, actorId?:
         invited_by: actorId ?? null,
         updated_at: new Date().toISOString(),
       });
+
+      if (profileError) {
+        console.error("[client-provisioning] profile upsert failed", { email, profileError });
+        if (structured) {
+          await (db as any)
+            .from("public_support_requests")
+            .update({
+              portal_account_status: "portal_setup_failed",
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", structured.id);
+        }
+        return null;
+      }
     } else if (existingProfile) {
-      await db
+      const { error: profileError } = await db
         .from("profiles")
         .update({
+          full_name: existingProfile.full_name || requesterName,
+          status: "approved",
+          is_active: true,
           company_name: existingProfile.company_name || companyName,
           phone: existingProfile.phone || phone,
-          invitation_status: "existing_account_linked",
+          invitation_status: setupAlreadySent ? existingProfile.invitation_status ?? "portal_setup_sent" : "portal_setup_pending",
+          invitation_channel: setupAlreadySent ? existingProfile.invitation_channel : "email",
+          invited_by: actorId ?? null,
           updated_at: new Date().toISOString(),
         })
         .eq("id", profileId);
+
+      if (profileError) {
+        console.error("[client-provisioning] profile update failed", { email, profileError });
+        if (structured) {
+          await (db as any)
+            .from("public_support_requests")
+            .update({
+              portal_account_status: "portal_setup_failed",
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", structured.id);
+        }
+        return null;
+      }
     }
 
-    await db.from("missions").update({ client_id: profileId }).eq("id", missionId);
+    const { error: missionUpdateError } = await db.from("missions").update({ client_id: profileId }).eq("id", missionId);
+    if (missionUpdateError) {
+      console.error("[client-provisioning] mission client link failed", { email, missionId, missionUpdateError });
+      return null;
+    }
 
     if (structured) {
-      await (db as any)
+      const { error: requestUpdateError } = await (db as any)
         .from("public_support_requests")
         .update({
           client_id: profileId,
@@ -256,6 +311,11 @@ export async function ensureClientAccountForMission(missionId: string, actorId?:
           updated_at: new Date().toISOString(),
         })
         .eq("id", structured.id);
+
+      if (requestUpdateError) {
+        console.error("[client-provisioning] support request account link failed", { email, requestUpdateError });
+        return null;
+      }
     }
 
     const shouldSendSetupEmail =
@@ -268,7 +328,7 @@ export async function ensureClientAccountForMission(missionId: string, actorId?:
         ));
 
     if (!shouldSendSetupEmail) {
-      return;
+      return profileId;
     }
 
     const setupLink = await makeRecoveryLink(email);
@@ -289,38 +349,50 @@ export async function ensureClientAccountForMission(missionId: string, actorId?:
           })
           .eq("id", structured.id);
       }
-      return;
+      return profileId;
     }
 
-    const sentAt = new Date().toISOString();
-    await db
-      .from("profiles")
-      .update({
-        invitation_status: "portal_setup_sent",
-        invitation_channel: "email",
-        invitation_sent_at: sentAt,
-        invited_by: actorId ?? null,
-        updated_at: sentAt,
-      })
-      .eq("id", profileId);
-    if (structured) {
-      await (db as any)
-        .from("public_support_requests")
-        .update({
-          portal_account_status: "portal_setup_sent",
-          portal_invitation_sent_at: sentAt,
-          updated_at: sentAt,
-        })
-        .eq("id", structured.id);
-    }
-
-    await sendPortalSetupEmail({
+    const emailResult = await sendPortalSetupEmail({
       email,
       name: requesterName,
       missionRef: mission.ref,
       setupLink,
     });
+    const emailSent = emailResult.status === "sent";
+    const sentAt = emailSent ? new Date().toISOString() : null;
+    const invitationStatus = emailSent ? "portal_setup_sent" : "portal_setup_failed";
+
+    const { error: invitationProfileError } = await db
+      .from("profiles")
+      .update({
+        invitation_status: invitationStatus,
+        invitation_channel: "email",
+        invitation_sent_at: sentAt,
+        invited_by: actorId ?? null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", profileId);
+    if (invitationProfileError) {
+      console.error("[client-provisioning] invitation status profile update failed", { email, invitationProfileError });
+    }
+
+    if (structured) {
+      const { error: invitationRequestError } = await (db as any)
+        .from("public_support_requests")
+        .update({
+          portal_account_status: invitationStatus,
+          portal_invitation_sent_at: sentAt,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", structured.id);
+      if (invitationRequestError) {
+        console.error("[client-provisioning] invitation status request update failed", { email, invitationRequestError });
+      }
+    }
+
+    return profileId;
   } catch (error) {
     console.error("[client-provisioning] failed", { missionId, error });
+    return null;
   }
 }
