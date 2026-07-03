@@ -3,13 +3,28 @@ export const COMPANY = {
   shortName: "AMG",
   tagline: "Private aircraft support coordination for owners, crews, and flight departments.",
   email: "information@amgaviationgroup.com",
-  phone: "",
+  phone: "954-408-1730",
   location: "United States based. Support reviewed by operating region.",
   disclaimer:
     "AMG Aviation Group provides private aircraft support coordination, crew sourcing assistance, and operational administration for owner/operator and Part 91 aviation environments. AMG is not an air carrier, does not advertise or sell charter service, and does not act as the legal operator of any aircraft unless separately documented in writing.",
   requestDisclaimer:
     "Submitting a Support Request does not constitute mission acceptance, crew confirmation, aircraft availability, a binding quote, or a contract. Every request remains subject to support-scope review, aircraft status, maintenance status, crew availability, insurance requirements, weather, airport restrictions, owner/operator approval, and final acceptance.",
 } as const;
+
+export const SOCIAL_LINKS = [
+  {
+    label: "Facebook",
+    href: "https://www.facebook.com/profile.php?id=61577781473240",
+  },
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/amgaviation/",
+  },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/amg-aviation-group",
+  },
+] as const;
 
 export const STATS = [
   { label: "Support Categories", value: 6, suffix: "" },

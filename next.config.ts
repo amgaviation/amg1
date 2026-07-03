@@ -14,12 +14,14 @@ const nextConfig: NextConfig = {
     ],
   },
   async redirects() {
-    // Public IA renamed under the AMG Operations Command rebuild.
+    // Public IA canonicalized under the AMG rebuild: /services and
+    // /pilot-network are the canonical marketing routes; legacy paths
+    // redirect to them (page-level redirects cover /capabilities,
+    // /operations, and /crew-network).
     return [
-      { source: "/services", destination: "/operations", permanent: false },
       { source: "/aircraft", destination: "/aircraft-support", permanent: false },
-      { source: "/pilot-network", destination: "/crew-network", permanent: false },
       { source: "/team", destination: "/about", permanent: false },
+      { source: "/support-plans", destination: "/plans", permanent: false },
     ];
   },
 };

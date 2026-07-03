@@ -1,17 +1,37 @@
 import type { Metadata, Viewport } from "next";
+import { Archivo, IBM_Plex_Mono, Manrope } from "next/font/google";
 import { CookieConsentBanner } from "@/components/compliance/cookie-consent";
 import { ConsentScriptLoader } from "@/components/compliance/consent-script-loader";
 import "./globals.css";
 
+const displayFont = Archivo({
+  subsets: ["latin"],
+  variable: "--font-archivo",
+  display: "swap",
+});
+
+const sansFont = Manrope({
+  subsets: ["latin"],
+  variable: "--font-manrope",
+  display: "swap",
+});
+
+const monoFont = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-plex-mono",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: {
-    default: "AMG Aviation Group",
+    default: "AMG Aviation Group — Private Aircraft Support, Coordinated",
     template: "%s | AMG Aviation Group",
   },
   description:
-    "Aircraft support capabilities, crew coordination, ferry and repositioning assistance, maintenance flight support, and owner communication for Part 91 aviation environments.",
+    "AMG Aviation Group coordinates aircraft movement, contract crew support, maintenance repositioning, and recurring operational support for private aircraft owners, Part 91 operators, and flight departments.",
   keywords: [
-    "aircraft support capabilities",
+    "private aircraft support",
     "aircraft management support",
     "Part 91 operations",
     "contract pilot support",
@@ -22,15 +42,16 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "AMG Aviation Group" }],
   openGraph: {
-    title: "AMG Aviation Group - Aircraft Support Capabilities",
+    title: "AMG Aviation Group — Private Aircraft Support, Coordinated",
     description:
-      "Aircraft support capabilities and coordination for Part 91 aviation environments.",
+      "Aircraft movement, crew support, maintenance repositioning, and recurring operational support for private aircraft owners, operators, and flight departments.",
     type: "website",
+    siteName: "AMG Aviation Group",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#050B14",
+  themeColor: "#060A14",
   width: "device-width",
   initialScale: 1,
 };
@@ -41,13 +62,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="bg-background" data-scroll-behavior="smooth">
+    <html
+      lang="en"
+      className={`bg-background ${displayFont.variable} ${sansFont.variable} ${monoFont.variable}`}
+      data-scroll-behavior="smooth"
+    >
       <body
         style={
           {
-            "--font-inter": "Inter, -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Helvetica Neue\", Arial, sans-serif",
-            "--font-sans": "var(--font-inter)",
-            "--font-display": "var(--font-inter)",
+            "--font-inter": "var(--font-manrope), -apple-system, BlinkMacSystemFont, \"Helvetica Neue\", Arial, sans-serif",
+            "--font-sans": "var(--font-manrope), -apple-system, BlinkMacSystemFont, \"Helvetica Neue\", Arial, sans-serif",
+            "--font-display": "var(--font-archivo), -apple-system, BlinkMacSystemFont, \"Helvetica Neue\", Arial, sans-serif",
           } as React.CSSProperties
         }
       >
