@@ -49,6 +49,7 @@ if (exists(emailConfigPath)) {
 if (exists(authConfigPath)) {
   const authConfig = read(authConfigPath);
   check("auth helper builds password setup URL", authConfig.includes("passwordSetupRedirectUrl"));
+  check("auth helper builds token-hash confirm URL", authConfig.includes("passwordSetupConfirmUrl") && authConfig.includes("/auth/confirm"));
   check("auth helper builds invite URL", authConfig.includes("portalInviteRedirectUrl"));
   check("auth helper uses AMG auth paths", authConfig.includes("/auth/password-setup") && authConfig.includes("/auth/invite"));
 }
@@ -59,6 +60,8 @@ check("email templates use centralized brand/site config", emailTemplates.includ
 check("password reset uses branded auth redirect helper", authActions.includes("passwordSetupRedirectUrl()"));
 check("admin invites use branded auth redirect helper", accountSetup.includes("passwordSetupRedirectUrl()"));
 check("client provisioning uses branded auth redirect helper", provisioning.includes("passwordSetupRedirectUrl()"));
+check("admin setup emails use AMG-owned token confirm links", accountSetup.includes("passwordSetupConfirmUrl") && !accountSetup.includes("action_link"));
+check("client provisioning emails use AMG-owned token confirm links", provisioning.includes("passwordSetupConfirmUrl") && !provisioning.includes("action_link"));
 check("auth actions no longer use VERCEL_URL fallback", !authActions.includes("VERCEL_URL"));
 check("admin invite actions no longer use VERCEL_URL fallback", !adminActions.includes("VERCEL_URL"));
 check("client provisioning no longer hardcodes amgaviationgroup.com/portal-setup", !provisioning.includes("https://amgaviationgroup.com/portal-setup"));

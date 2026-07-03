@@ -48,6 +48,7 @@ Supabase dashboard before production launch.
 - Site URL: `https://www.amgaviationgroup.com`
 - Redirect URLs should include:
   - `https://www.amgaviationgroup.com/auth/callback`
+  - `https://www.amgaviationgroup.com/auth/confirm`
   - `https://www.amgaviationgroup.com/auth/password-setup`
   - `https://www.amgaviationgroup.com/auth/invite`
   - `https://www.amgaviationgroup.com/auth/confirmed`
@@ -79,11 +80,19 @@ URLs. Button text should use plain operational language:
 
 All button URLs should use the AMG redirect URLs above.
 
+Custom portal setup emails sent by the app should use AMG-owned
+`/auth/confirm?token_hash=...&type=recovery` links generated from Supabase
+`hashed_token` values. Do not send Supabase `action_link` URLs directly in
+client-facing portal setup emails; if redirect allowlists drift, those provider
+links can fall back to the Site URL homepage instead of the password setup
+flow.
+
 ## Auth Routes
 
 Code-side auth redirects now target AMG routes:
 
 - `/auth/callback`
+- `/auth/confirm`
 - `/auth/password-setup`
 - `/auth/invite`
 - `/auth/confirmed`

@@ -2,7 +2,7 @@ import "server-only";
 
 import { amgEmailLayout } from "@/lib/portal/email-templates";
 import { sendEmail } from "@/lib/portal/notification-delivery";
-import { passwordSetupRedirectUrl } from "@/lib/auth/urls";
+import { passwordSetupConfirmUrl, passwordSetupRedirectUrl } from "@/lib/auth/urls";
 import { createServiceClient } from "@/lib/supabase/server";
 
 type PublicSupportRequest = {
@@ -74,7 +74,13 @@ async function makeRecoveryLink(email: string) {
     return null;
   }
 
-  return data.properties?.action_link ?? null;
+  const tokenHash = data.properties?.hashed_token;
+  if (!tokenHash) {
+    console.error("[client-provisioning] recovery link missing token hash", { email });
+    return null;
+  }
+
+  return passwordSetupConfirmUrl(tokenHash);
 }
 
 async function sendPortalSetupEmail(params: {

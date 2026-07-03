@@ -1,6 +1,6 @@
 import "server-only";
 
-import { passwordSetupRedirectUrl } from "@/lib/auth/urls";
+import { passwordSetupConfirmUrl, passwordSetupRedirectUrl } from "@/lib/auth/urls";
 import { amgEmailLayout } from "@/lib/portal/email-templates";
 import { sendEmail } from "@/lib/portal/notification-delivery";
 import { createServiceClient } from "@/lib/supabase/server";
@@ -46,7 +46,11 @@ export async function generatePortalPasswordSetupLink(email: string) {
   });
 
   if (error) return null;
-  return data.properties?.action_link ?? null;
+
+  const tokenHash = data.properties?.hashed_token;
+  if (!tokenHash) return null;
+
+  return passwordSetupConfirmUrl(tokenHash);
 }
 
 export async function sendPortalAccountSetupEmail(input: {
