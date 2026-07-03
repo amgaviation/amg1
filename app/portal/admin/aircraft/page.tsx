@@ -12,9 +12,11 @@ export const metadata = { title: "Aircraft - Admin Portal" };
 
 const maintenanceOptions = [
   { value: "in_service", label: "In Service" },
+  { value: "maintenance", label: "Maintenance" },
   { value: "maintenance_due", label: "Maintenance Due" },
   { value: "scheduled_maintenance", label: "Scheduled Maintenance" },
   { value: "aog", label: "AOG" },
+  { value: "inactive", label: "Inactive" },
 ];
 
 const aircraftStatusOptions = [
