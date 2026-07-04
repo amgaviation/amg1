@@ -161,11 +161,21 @@ export default function GlobalFooter() {
         {/* footer block */}
         <div className="footer-block absolute inset-x-0 bottom-0 opacity-0">
           <div className="mx-auto grid max-w-7xl gap-10 px-6 pb-16 md:grid-cols-3 md:px-10">
-            <p className="text-2xl leading-snug text-t1">
-              Your aircraft, supported
-              <br />
-              <span className="text-t3">with total clarity and control</span>
-            </p>
+            <div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/logo-short.png"
+                alt="AMG Aviation Group"
+                width="1110"
+                height="242"
+                className="mb-4 h-7 w-auto"
+              />
+              <p className="text-2xl leading-snug text-t1">
+                Your aircraft, supported
+                <br />
+                <span className="text-t3">with total clarity and control</span>
+              </p>
+            </div>
             <div className="font-mono text-sm text-t1">
               <a
                 href={`mailto:${COMPANY.email}`}

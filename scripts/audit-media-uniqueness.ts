@@ -5,6 +5,7 @@ const crypto = require("crypto");
 
 const root = process.cwd();
 const exemptPaths = new Set([
+  "/images/logo-short.png",
   "/images/logo-blue.png",
   "/images/logo-navy.png",
   "/images/logo-original.png",

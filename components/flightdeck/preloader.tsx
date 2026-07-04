@@ -80,6 +80,14 @@ export default function Preloader() {
       aria-hidden="true"
     >
       <div className="pre-inner text-center will-change-transform">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/logo-short.png"
+          alt=""
+          width="1110"
+          height="242"
+          className="mx-auto mb-6 h-8 w-auto md:h-10"
+        />
         <p className="pre-label microlabel-green mb-5 opacity-0">
           AMG AVIATION GROUP // OPS BOOT 0-01
         </p>

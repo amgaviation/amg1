@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Porthole from "./svg/porthole";
@@ -22,6 +22,14 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Hero() {
   const section = useRef<HTMLElement>(null);
   const copyLayer = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [playSky, setPlaySky] = useState(false);
+
+  // The sky video only mounts client-side and only when motion is allowed;
+  // everyone else keeps the still stratosphere plate.
+  useEffect(() => {
+    if (!prefersReducedMotion()) setPlaySky(true);
+  }, []);
 
   useLayoutEffect(() => {
     if (prefersReducedMotion()) return;
@@ -77,7 +85,19 @@ export default function Hero() {
         )
         .to(".window-frame", { opacity: 0 }, 0.55)
         .to(".cabin-wall", { opacity: 0 }, 0.5)
-        .to(".sky-brand", { opacity: 0, scale: 0.8 }, 0.6);
+        .to(".sky-brand", { opacity: 0, scale: 0.8 }, 0.6)
+        // Drop the giant scaled compositing layer (16x window + video)
+        // right before the pin releases — statement scrolls in over canvas.
+        .to(".window-group", { autoAlpha: 0, duration: 0.03 }, 0.97);
+
+      // Pause the sky video whenever the hero is off-screen.
+      ScrollTrigger.create({
+        trigger: section.current,
+        start: "top bottom",
+        end: "bottom top",
+        onLeave: () => videoRef.current?.pause(),
+        onEnterBack: () => void videoRef.current?.play().catch(() => {}),
+      });
     }, section);
 
     return () => {
@@ -113,6 +133,37 @@ export default function Hero() {
                   "linear-gradient(180deg, #04070e 0%, #0a1526 34%, #0e2a3a 58%, #16584f 82%, #00E887 130%)",
               }}
             >
+              {/* live sky through the window — video when motion is allowed,
+                  still stratosphere plate otherwise */}
+              {playSky ? (
+                <video
+                  ref={videoRef}
+                  className="absolute inset-0 h-full w-full object-cover opacity-90"
+                  src="/videos/flightdeck/porthole-sky.mp4"
+                  poster="/images/flightdeck/stratosphere.webp"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  aria-hidden="true"
+                />
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src="/images/flightdeck/stratosphere.webp"
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover opacity-90"
+                />
+              )}
+              {/* soft vignette so the window edge reads as glass depth */}
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background:
+                    "radial-gradient(80% 70% at 50% 45%, transparent 55%, rgba(4,7,14,0.55) 100%)",
+                }}
+              />
               <div
                 className="absolute inset-x-[-20%] bottom-[8%] h-[26%] opacity-40 blur-2xl"
                 style={{

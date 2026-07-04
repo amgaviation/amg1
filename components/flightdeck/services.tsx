@@ -78,8 +78,15 @@ export default function Services() {
               <path d="M17 10l5 9h-10l5-9z" fill="#00E887" />
             </svg>
             <div>
-              <p className="font-display text-sm uppercase tracking-[0.3em] text-t1">AMG</p>
-              <p className="microlabel">Aircraft support coordination</p>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/logo-short.png"
+                alt="AMG"
+                width="1110"
+                height="242"
+                className="h-5 w-auto"
+              />
+              <p className="microlabel mt-1.5">Aircraft support coordination</p>
             </div>
           </div>
           <p className="mt-8 max-w-[280px] text-[13px] leading-relaxed text-t2">

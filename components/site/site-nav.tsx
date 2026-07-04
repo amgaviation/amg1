@@ -90,13 +90,18 @@ export function SiteNav() {
           href="/"
           prefetch={false}
           onClick={closeMenu}
-          className="relative z-50 flex min-h-11 flex-col justify-center"
+          className="relative z-50 flex min-h-11 flex-col justify-center gap-1"
           aria-label="AMG Aviation Group home"
         >
-          <span className="font-display text-sm font-medium uppercase [letter-spacing:0.32em] text-white md:text-base">
-            AMG&nbsp;Aviation
-          </span>
-          <span className="mt-0.5 font-mono text-[9px] uppercase [letter-spacing:0.22em] text-[var(--t3)]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/logo-short.png"
+            alt="AMG Aviation Group"
+            width="1110"
+            height="242"
+            className="h-6 w-auto md:h-7"
+          />
+          <span className="font-mono text-[8px] uppercase [letter-spacing:0.22em] text-[var(--t3)] max-sm:hidden">
             Aircraft support coordination
           </span>
         </Link>
