@@ -73,6 +73,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
         { label: "Support Requests", href: "/portal/client/trips", icon: "plane" },
         { label: "New Request", href: "/portal/client/trips/new", icon: "plus" },
         { label: "Aircraft", href: "/portal/client/aircraft", icon: "planeTakeoff" },
+        { label: "Passengers", href: "/portal/client/passengers", icon: "users" },
       ],
     },
     {
@@ -137,6 +138,14 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
         { label: "Dashboard", href: "/portal/admin/dashboard", icon: "gauge" },
         { label: "Mission Control", href: "/portal/admin/mission-control", icon: "radar" },
         { label: "Support Requests", href: "/portal/admin/trips", icon: "plane" },
+        { label: "Calendar", href: "/portal/admin/calendar", icon: "calendar" },
+        { label: "Tasks", href: "/portal/admin/tasks", icon: "check" },
+      ],
+    },
+    {
+      label: "CRM",
+      items: [
+        { label: "Sales Pipeline", href: "/portal/admin/crm", icon: "trendingUp" },
       ],
     },
     {
@@ -162,6 +171,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       label: "Finance",
       items: [
         { label: "Analytics", href: "/portal/admin/financial/analytics", icon: "barChart" },
+        { label: "Receivables", href: "/portal/admin/receivables", icon: "alert" },
         { label: "Quotes", href: "/portal/admin/quotes", icon: "receipt" },
         { label: "Invoices", href: "/portal/admin/invoices", icon: "wallet" },
         { label: "Payments", href: "/portal/admin/payments", icon: "dollar" },

@@ -13,6 +13,8 @@ import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { countUnread, getAdminMetrics, listAllMissions, listPendingUsers } from "@/lib/portal/queries";
 import { listFormSubmissions } from "@/lib/portal/form-submissions";
+import { getPipelineMetrics } from "@/lib/portal/crm";
+import { listMyOpenTasks } from "@/lib/portal/tasks";
 import {
   MISSION_STATUS_LABEL,
   MISSION_STATUS_TONE,
@@ -35,13 +37,16 @@ const ACTIVE_MISSION_STATUSES = [
 
 export default async function AdminDashboardPage() {
   const user = await requireRole("admin");
-  const [metrics, active, pendingUsers, recentSubmissions, unread] = await Promise.all([
-    getAdminMetrics(),
-    listAllMissions({ statusIn: ACTIVE_MISSION_STATUSES, limit: 6 }),
-    listPendingUsers(),
-    listFormSubmissions({ status: "new" }),
-    countUnread(user.id),
-  ]);
+  const [metrics, active, pendingUsers, recentSubmissions, unread, myTasks, pipeline] =
+    await Promise.all([
+      getAdminMetrics(),
+      listAllMissions({ statusIn: ACTIVE_MISSION_STATUSES, limit: 6 }),
+      listPendingUsers(),
+      listFormSubmissions({ status: "new" }),
+      countUnread(user.id),
+      listMyOpenTasks(user.id),
+      getPipelineMetrics(),
+    ]);
 
   const attention = [
     metrics.pendingUsers > 0 && {
@@ -118,14 +123,14 @@ export default async function AdminDashboardPage() {
         icon="zap"
         bodyClassName="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
       >
+        <QuickLink href="/portal/admin/crm" icon="trendingUp" label="Sales Pipeline" description={pipeline.openCount ? `${pipeline.openCount} open leads` : undefined} />
+        <QuickLink href="/portal/admin/receivables" icon="alert" label="Receivables" />
+        <QuickLink href="/portal/admin/tasks" icon="check" label="Tasks" />
+        <QuickLink href="/portal/admin/calendar" icon="calendar" label="Ops Calendar" />
         <QuickLink href="/portal/admin/quotes/new" icon="receipt" label="New Quote" />
         <QuickLink href="/portal/admin/invoices" icon="wallet" label="View Invoices" />
-        <QuickLink href="/portal/admin/subscriptions/new" icon="creditCard" label="Create Subscription" />
-        <QuickLink href="/portal/admin/documents" icon="fileText" label="Review Documents" />
         <QuickLink href="/portal/admin/user-approvals" icon="userCheck" label="User Approvals" />
         <QuickLink href="/portal/admin/messages" icon="messageSquare" label="Messages" />
-        <QuickLink href="/portal/admin/form-submissions" icon="inbox" label="Form Submissions" />
-        <QuickLink href="/portal/admin/settings/billing" icon="settings" label="Billing Settings" />
       </SectionCard>
 
       <div className="grid gap-5 xl:grid-cols-2">
@@ -210,6 +215,50 @@ export default async function AdminDashboardPage() {
           )}
         </SectionCard>
       </div>
+
+      {/* My tasks */}
+      {myTasks.length > 0 ? (
+        <SectionCard
+          title="My Open Tasks"
+          icon="check"
+          actions={
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/portal/admin/tasks?view=mine">View all</Link>
+            </Button>
+          }
+        >
+          <div className="space-y-3">
+            {myTasks.map((task) => {
+              const overdue = task.due_at && new Date(task.due_at) < new Date();
+              return (
+                <RecordRow
+                  key={task.id}
+                  href="/portal/admin/tasks?view=mine"
+                  title={task.title}
+                  meta={
+                    task.due_at
+                      ? `Due ${formatDateTime(task.due_at)}`
+                      : "No due date"
+                  }
+                  tone={overdue ? "danger" : "default"}
+                  trailing={
+                    <StatusBadge
+                      label={task.priority}
+                      tone={
+                        task.priority === "urgent"
+                          ? "danger"
+                          : task.priority === "high"
+                            ? "warn"
+                            : "neutral"
+                      }
+                    />
+                  }
+                />
+              );
+            })}
+          </div>
+        </SectionCard>
+      ) : null}
 
       {/* New website submissions */}
       {recentSubmissions.length > 0 && (

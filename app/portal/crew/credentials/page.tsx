@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
-import { PageHeader, SectionCard, EmptyState, Notice } from "@/components/portal/ui/primitives";
+import { PageHeader, SectionCard, EmptyState, Notice, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { FileField, SelectField, TextField } from "@/components/portal/ui/fields";
@@ -21,6 +21,15 @@ export default async function CrewCredentialsPage({
   const params = await searchParams;
   const credentials = await listCredentials(user.id);
 
+  const approved = credentials.filter((c) => c.status === "approved").length;
+  const pending = credentials.filter((c) => c.status === "pending_review").length;
+  const withExpiry = credentials
+    .filter((c) => c.expiration_date)
+    .map((c) => ({ ...c, days: daysUntil(c.expiration_date) ?? 0 }))
+    .sort((a, b) => a.days - b.days);
+  const expiringSoon = withExpiry.filter((c) => c.days >= 0 && c.days <= 90).length;
+  const expired = withExpiry.filter((c) => c.days < 0).length;
+
   return (
     <PortalShell role="crew" user={user}>
       {params.success ? <Notice tone="success">Credential submitted for AMG review.</Notice> : null}
@@ -28,7 +37,62 @@ export default async function CrewCredentialsPage({
       {params.error === "terms" ? <Notice tone="danger">Confirm the credential and document upload notices before submitting.</Notice> : null}
       {params.error === "payment-data" ? <Notice tone="danger">Remove full card numbers, CVV codes, bank account numbers, or routing numbers before submitting.</Notice> : null}
 
-      <PageHeader eyebrow="Flight Crew" title="Credentials" description="Upload certificates, medicals, passports, recurrent training, and insurance approvals." />
+      <PageHeader eyebrow="Flight Crew" title="Credentials" description="Upload certificates, medicals, passports, recurrent training, and insurance approvals. Stay ahead of renewals with the radar below." />
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard label="Approved" value={approved} icon="badgeCheck" tone={approved ? "accent" : "default"} />
+        <StatCard label="Pending review" value={pending} icon="clock" tone={pending ? "info" : "default"} />
+        <StatCard
+          label="Expiring ≤ 90 days"
+          value={expiringSoon}
+          icon="alert"
+          tone={expiringSoon ? "warn" : "default"}
+          detail={expiringSoon ? "Renew before assignment review" : undefined}
+        />
+        <StatCard label="Expired" value={expired} icon="alert" tone={expired ? "danger" : "default"} />
+      </div>
+
+      {withExpiry.length > 0 ? (
+        <SectionCard
+          title="Renewal Radar"
+          icon="radar"
+          description="Every dated credential ordered by time remaining. The bar drains as expiration approaches."
+        >
+          <div className="space-y-4">
+            {withExpiry.map((credential) => {
+              const pct = Math.max(0, Math.min(100, Math.round((credential.days / 365) * 100)));
+              const barColor =
+                credential.days <= 30 ? "#C03636" : credential.days <= 90 ? "#D9970F" : "#17845A";
+              return (
+                <div key={credential.id}>
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="text-sm font-semibold text-[var(--deck-text)]">
+                      {credential.credential_type}
+                      {credential.identifier ? (
+                        <span className="deck-mono ml-2 text-[var(--deck-text-3)]">{credential.identifier}</span>
+                      ) : null}
+                    </p>
+                    <p
+                      className={`deck-num text-xs font-semibold ${credential.days < 0 ? "text-[#A82E2E]" : credential.days <= 90 ? "text-[#8F5F12]" : "text-[var(--deck-text-3)]"}`}
+                    >
+                      {credential.days < 0
+                        ? `Expired ${Math.abs(credential.days)}d ago`
+                        : `${credential.days}d remaining`}{" "}
+                      · {formatDate(credential.expiration_date)}
+                    </p>
+                  </div>
+                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[#EEF1F5]">
+                    <div
+                      className="h-full rounded-full"
+                      style={{ width: `${credential.days < 0 ? 100 : pct}%`, backgroundColor: barColor }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </SectionCard>
+      ) : null}
 
       <SectionCard title="Submit Credential" icon="badgeCheck">
         <Notice tone="info">

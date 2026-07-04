@@ -3,8 +3,10 @@ import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, Notice } from "@/components/portal/ui/primitives";
 import { AirportField, CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
+import Link from "next/link";
 import { createMission } from "@/app/portal/actions/missions";
 import { listAircraftForClient } from "@/lib/portal/queries";
+import { listPassengersForOwner } from "@/lib/portal/passengers";
 import { MISSION_TYPE, URGENCY } from "@/lib/portal/constants";
 import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 
@@ -17,7 +19,10 @@ export default async function NewTripPage({
 }) {
   const user = await requireRole("client");
   const params = await searchParams;
-  const aircraft = await listAircraftForClient(user.id);
+  const [aircraft, savedPassengers] = await Promise.all([
+    listAircraftForClient(user.id),
+    listPassengersForOwner(user.id),
+  ]);
 
   return (
     <PortalShell role="client" user={user}>
@@ -96,9 +101,47 @@ export default async function NewTripPage({
               <TextField label="FBO Preference" name="fbo_preference" placeholder="Signature TEB, Jet Aviation, etc." />
               <TextField label="Baggage Estimate" name="baggage_estimate" placeholder="Light / 4 bags / Heavy" />
             </div>
+            {savedPassengers.length > 0 ? (
+              <div className="mt-4">
+                <p className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">
+                  Saved Passengers
+                </p>
+                <p className="mt-1 text-xs text-[var(--deck-text-3)]">
+                  Tap to add to this manifest. Manage the list on the{" "}
+                  <Link href="/portal/client/passengers" className="font-semibold text-[var(--deck-gold-deep)] hover:underline">
+                    Passengers
+                  </Link>{" "}
+                  page.
+                </p>
+                <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  {savedPassengers.map((passenger) => (
+                    <label
+                      key={passenger.id}
+                      className="flex cursor-pointer items-center gap-3 rounded-lg border border-[var(--deck-line-strong)] bg-white px-3 py-2.5 text-sm transition-colors hover:border-[var(--deck-gold-line)]"
+                    >
+                      <input
+                        type="checkbox"
+                        name="saved_passengers"
+                        value={passenger.full_name}
+                        defaultChecked={passenger.is_frequent}
+                        className="h-4 w-4 accent-[var(--deck-gold)]"
+                      />
+                      <span className="min-w-0">
+                        <span className="block truncate text-[var(--deck-text)]">{passenger.full_name}</span>
+                        {passenger.is_frequent ? (
+                          <span className="block text-[0.62rem] font-semibold text-[var(--deck-gold-deep)]">
+                            Frequent flyer
+                          </span>
+                        ) : null}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ) : null}
             <div className="mt-4">
               <TextAreaField
-                label="Passenger Names"
+                label={savedPassengers.length ? "Additional Passenger Names" : "Passenger Names"}
                 name="passenger_names"
                 placeholder="One name per line, or comma-separated"
                 hint="Optional — can be updated later"

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, LogOut, Menu, X } from "lucide-react";
 import { signOut } from "@/app/portal/actions/auth";
+import { CommandPalette } from "@/components/portal/shell/command-palette";
 import { PortalIcon } from "@/components/portal/ui/icon";
 import { RoleBadge } from "@/components/portal/ui/status-badge";
 import { cn } from "@/lib/utils";
@@ -124,6 +125,8 @@ export function PortalShell({
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
+            {isAdminRole(user.role) ? <CommandPalette /> : null}
+
             <ZuluClock />
 
             {isAdminRole(user.role) ? <ViewSwitcher role={role} /> : null}
