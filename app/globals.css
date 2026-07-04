@@ -1264,6 +1264,12 @@ html {
 }
 
 /* ---- Tables (element-level, kept outside layers to theme legacy tables) ---- */
+.amg-portal [data-slot="table-container"] {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
 .amg-portal table {
   color: var(--deck-text-2);
 }

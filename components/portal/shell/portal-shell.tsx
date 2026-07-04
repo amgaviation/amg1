@@ -73,7 +73,7 @@ export function PortalShell({
   const navGroups = resolveNavGroups(role, user.role);
 
   return (
-    <div className="amg-portal relative min-h-screen lg:grid lg:grid-cols-[17.5rem_minmax(0,1fr)]">
+    <div className="amg-portal relative min-h-screen bg-[var(--deck-canvas)] overflow-hidden lg:grid lg:grid-cols-[17.5rem_minmax(0,1fr)]">
       {/* Desktop sidebar */}
       <aside className="deck-chrome-surface sticky top-0 hidden h-screen flex-col border-r border-[var(--deck-chrome-line)] lg:flex">
         <SidebarContent role={role} user={user} navGroups={navGroups} />
@@ -178,7 +178,7 @@ export function PortalShell({
         </header>
 
         {/* Main content */}
-        <main className="w-full max-w-full min-w-0 flex-1 px-4 py-6 sm:px-5 lg:px-8 lg:py-7">
+        <main className="w-full max-w-full min-w-0 overflow-hidden flex-1 px-4 py-6 sm:px-5 lg:px-8 lg:py-7">
           <div className="mx-auto w-full max-w-[96rem] min-w-0 space-y-5">
             {children}
           </div>

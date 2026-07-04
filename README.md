@@ -5,15 +5,27 @@ Production Next.js/Vercel website and integrated AMG portal system.
 ## Included
 
 - Public AMG Aviation website
-- Client, Crew, Admin, and Partner portals
-- Supabase Auth/profile-based role routing
+- AMG Connect **Operations Deck** portal (v2 rebuild): Client, Crew, Admin/Operations, and Partner (broker/vendor) workspaces
+- Supabase Auth/profile-based role routing (client, crew, admin, partner, super_admin)
 - Aircraft management and client aircraft visibility
-- Mission requests, mission control, crew assignment, partner service requests
+- Mission requests, mission control board, crew assignment, partner service requests
 - Quotes, client quote review, invoices, payment-status tracking
 - Crew expense submission, admin review, and invoice linkage
 - Documents, messaging, notification center, audit log
-- Admin user creation and invitation workflow
+- Admin user creation, approvals, waitlist, and invitation workflow
 - Higgsfield-ready media placeholder registry
+
+## Portal Design System (Operations Deck)
+
+The portal UI is a self-contained design system scoped under `.amg-portal`:
+
+- Tokens: `--deck-*` variables in `app/globals.css` (navy chrome, light canvas, champagne-gold accent), with shadcn and legacy `--amg-*` tokens re-pointed to the same palette
+- Component classes: `.deck-card`, `.deck-inset`, `.deck-eyebrow`, `.deck-chip`, `.deck-input`, `.deck-nav-link`, etc. (defined in `@layer components`)
+- Kit: `components/portal/ui/*` (PageHeader, SectionCard, StatCard, RecordRow, QuickLink, FilterTabs, Pagination, DataTable, StatusBadge, fields, NotificationsList)
+- Shell: `components/portal/shell/portal-shell.tsx` (dark sidebar with grouped nav per role, Zulu clock, notifications, admin view switcher)
+- Navigation IA: `DECK_NAV` in `lib/portal/constants.ts`
+
+Note: a global rule zeroes `tracking-*` utilities; portal code uses `[letter-spacing:...]` arbitrary properties or the `.deck-eyebrow` classes instead.
 
 ## Local Development
 
