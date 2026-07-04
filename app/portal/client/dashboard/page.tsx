@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import {
   countUnread,
   listAircraftForClient,
+  listInvoicesForClient,
   listMissionsForClient,
   listQuotesForClient,
   listSubscriptionsForClient,
@@ -36,12 +37,13 @@ export default async function ClientDashboardPage({
   const user = await requireRole("client");
   const params = await searchParams;
 
-  const [missions, aircraft, quotes, subscriptions, unread] = await Promise.all([
+  const [missions, aircraft, quotes, subscriptions, unread, invoices] = await Promise.all([
     listMissionsForClient(user.id),
     listAircraftForClient(user.id),
     listQuotesForClient(user.id),
     listSubscriptionsForClient(user.id),
     countUnread(user.id),
+    listInvoicesForClient(user.id),
   ]);
 
   const active = missions.filter((m) =>
@@ -64,6 +66,20 @@ export default async function ClientDashboardPage({
   const activeSubscriptions = subscriptions.filter((subscription) =>
     ["active", "renewal_pending"].includes(subscription.status)
   );
+  const balanceDue = invoices
+    .filter((invoice) => ["sent", "viewed", "partially_paid", "overdue"].includes(invoice.status))
+    .reduce((sum, invoice) => sum + Number(invoice.amount_due ?? 0), 0);
+  const nextDeparture = missions
+    .filter(
+      (m) =>
+        ["approved", "crew_assigned", "scheduled", "in_progress"].includes(m.status) &&
+        m.requested_departure &&
+        new Date(m.requested_departure) > new Date()
+    )
+    .sort((a, b) => String(a.requested_departure).localeCompare(String(b.requested_departure)))[0];
+  const daysToDeparture = nextDeparture?.requested_departure
+    ? Math.max(0, Math.ceil((new Date(nextDeparture.requested_departure).getTime() - Date.now()) / 86_400_000))
+    : null;
 
   return (
     <PortalShell role="client" user={user} unread={unread}>
@@ -86,7 +102,43 @@ export default async function ClientDashboardPage({
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      {/* Next departure hero */}
+      {nextDeparture ? (
+        <Link
+          href={`/portal/client/trips/${nextDeparture.id}`}
+          className="deck-card deck-card-hover deck-chrome-surface block overflow-hidden p-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="deck-eyebrow-chrome">Next Departure</p>
+              <p className="deck-num mt-2 text-3xl font-bold text-white">
+                {nextDeparture.departure_airport} → {nextDeparture.arrival_airport}
+              </p>
+              <p className="mt-2 text-sm text-[var(--deck-chrome-muted)]">
+                {nextDeparture.tail_number ?? "Aircraft TBD"} ·{" "}
+                {formatDateTime(nextDeparture.requested_departure)} ·{" "}
+                {MISSION_STATUS_LABEL[nextDeparture.status] ?? nextDeparture.status}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="deck-num text-5xl font-bold text-[#D9BE8C]">{daysToDeparture}</p>
+              <p className="deck-eyebrow-chrome mt-1">
+                day{daysToDeparture === 1 ? "" : "s"} out
+              </p>
+            </div>
+          </div>
+        </Link>
+      ) : null}
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <StatCard
+          label="Balance due"
+          value={formatMoney(balanceDue)}
+          icon="wallet"
+          href="/portal/client/billing"
+          tone={balanceDue > 0 ? "warn" : "default"}
+          detail={balanceDue > 0 ? "Review in Billing" : "Nothing outstanding"}
+        />
         <StatCard label="Active requests" value={active.length} icon="plane" href="/portal/client/trips" />
         <StatCard label="Aircraft on file" value={aircraft.length} icon="planeTakeoff" href="/portal/client/aircraft" />
         <StatCard
@@ -122,6 +174,7 @@ export default async function ClientDashboardPage({
         <QuickLink href="/portal/client/trips/new?type=ferry" icon="planeTakeoff" label="Ferry Request" />
         <QuickLink href="/portal/client/trips/new?type=maintenance_reposition" icon="wrench" label="Maintenance Reposition" />
         <QuickLink href="/portal/client/trips/new?type=crew_reposition" icon="users" label="Crew Request" />
+        <QuickLink href="/portal/client/passengers" icon="users" label="Manage Passengers" />
         <QuickLink href="/portal/client/documents?upload=1" icon="upload" label="Upload Document" />
         <QuickLink href="/portal/client/messages?new=1" icon="messageSquare" label="Contact Operations" />
       </SectionCard>

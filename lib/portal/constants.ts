@@ -73,6 +73,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
         { label: "Support Requests", href: "/portal/client/trips", icon: "plane" },
         { label: "New Request", href: "/portal/client/trips/new", icon: "plus" },
         { label: "Aircraft", href: "/portal/client/aircraft", icon: "planeTakeoff" },
+        { label: "Passengers", href: "/portal/client/passengers", icon: "users" },
       ],
     },
     {

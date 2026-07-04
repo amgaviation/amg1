@@ -34,6 +34,9 @@ export default async function PartnerDashboardPage() {
     ["assigned", "accepted", "quoted", "in_progress"].includes(a.status)
   );
   const awaitingQuote = assignments.filter((a) => a.status === "assigned");
+  const completed = assignments.filter((a) => a.status === "completed");
+  const completedValue = completed.reduce((sum, a) => sum + Number(a.quote_amount ?? 0), 0);
+  const openValue = open.reduce((sum, a) => sum + Number(a.quote_amount ?? 0), 0);
 
   return (
     <PortalShell role="partner" user={user} unread={unread}>
@@ -43,13 +46,20 @@ export default async function PartnerDashboardPage() {
         description="AMG service requests, quotes, supporting documents, and operations communication for brokers, vendors, and facility partners."
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard
           label="Open requests"
           value={open.length}
           icon="clipboard"
           href="/portal/partner/requests"
           tone={open.length ? "accent" : "default"}
+          detail={openValue > 0 ? `${formatMoney(openValue)} quoted` : undefined}
+        />
+        <StatCard
+          label="Completed work"
+          value={completed.length}
+          icon="check"
+          detail={completedValue > 0 ? `${formatMoney(completedValue)} lifetime` : "AMG-confirmed jobs"}
         />
         <StatCard label="Documents" value={docs.length} icon="fileText" href="/portal/partner/documents" />
         <StatCard

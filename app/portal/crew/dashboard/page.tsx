@@ -47,6 +47,15 @@ export default async function CrewDashboardPage() {
     (c) => c.status === "expiring" || c.status === "expired"
   );
   const profileCompletion = crewProfile?.profile_completion_percent ?? 0;
+  const nextAssignment = active
+    .filter((m) => m.requested_departure && new Date(m.requested_departure) > new Date())
+    .sort((a, b) => String(a.requested_departure).localeCompare(String(b.requested_departure)))[0];
+  const daysToReport = nextAssignment?.requested_departure
+    ? Math.max(
+        0,
+        Math.ceil((new Date(nextAssignment.requested_departure).getTime() - Date.now()) / 86_400_000)
+      )
+    : null;
 
   return (
     <PortalShell role="crew" user={user} unread={unread}>
@@ -66,6 +75,32 @@ export default async function CrewDashboardPage() {
           ) : undefined
         }
       />
+
+      {/* Next assignment hero */}
+      {nextAssignment ? (
+        <Link
+          href={`/portal/crew/missions/${nextAssignment.id}`}
+          className="deck-card deck-card-hover deck-chrome-surface block overflow-hidden p-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="deck-eyebrow-chrome">Next Assignment</p>
+              <p className="deck-num mt-2 text-3xl font-bold text-white">
+                {nextAssignment.departure_airport} → {nextAssignment.arrival_airport}
+              </p>
+              <p className="mt-2 text-sm text-[var(--deck-chrome-muted)]">
+                {nextAssignment.tail_number ?? "Aircraft TBD"} ·{" "}
+                {formatDateTime(nextAssignment.requested_departure)} · Open the brief for duty
+                notes and the manifest
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="deck-num text-5xl font-bold text-[#D9BE8C]">{daysToReport}</p>
+              <p className="deck-eyebrow-chrome mt-1">day{daysToReport === 1 ? "" : "s"} to departure</p>
+            </div>
+          </div>
+        </Link>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard
