@@ -25,7 +25,7 @@ export function ConnectPreview() {
 
   return (
     <section className="oc-section relative isolate overflow-hidden bg-[#070B14] text-[var(--oc-paper)]">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_80%_28%,rgba(0,232,135,0.1),transparent_28rem)]" />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_80%_28%,rgba(11, 94, 212,0.1),transparent_28rem)]" />
       <div className="oc-shell grid items-center gap-14 lg:grid-cols-[0.85fr_1.15fr]">
         <div data-scroll-animate>
           <p className="oc-eyebrow oc-eyebrow-light">AMG Connect</p>

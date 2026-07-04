@@ -28,9 +28,9 @@ export default function Blueprint({ className }: { className?: string }) {
       </g>
 
       {/* centerline */}
-      <line x1="230" y1="30" x2="230" y2="1130" stroke="#00E887" strokeOpacity="0.35" strokeDasharray="10 6 2 6" />
+      <line x1="230" y1="30" x2="230" y2="1130" stroke="#0b5ed4" strokeOpacity="0.35" strokeDasharray="10 6 2 6" />
 
-      <g fill="none" stroke="#00E887" strokeOpacity="0.85" strokeWidth="1.6">
+      <g fill="none" stroke="#0b5ed4" strokeOpacity="0.85" strokeWidth="1.6">
         {/* fuselage */}
         <path d="M230 60c14 0 26 24 30 68l6 100 4 300-2 330-6 130c-4 46-18 82-32 82s-28-36-32-82l-6-130-2-330 4-300 6-100c4-44 16-68 30-68Z" />
         {/* cockpit windows */}

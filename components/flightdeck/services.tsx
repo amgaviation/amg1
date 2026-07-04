@@ -72,10 +72,10 @@ export default function Services() {
         <div className="feat-brand">
           <div className="hud-frame inline-flex items-center gap-3 p-4">
             <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden="true">
-              <circle cx="17" cy="17" r="15" stroke="#00E887" strokeOpacity="0.6" />
+              <circle cx="17" cy="17" r="15" stroke="#0b5ed4" strokeOpacity="0.6" />
               <circle cx="17" cy="17" r="15" stroke="#A9B4C6" strokeOpacity="0.2" strokeDasharray="3 5" />
-              <path d="M17 6v22M6 17h22" stroke="#00E887" strokeOpacity="0.35" />
-              <path d="M17 10l5 9h-10l5-9z" fill="#00E887" />
+              <path d="M17 6v22M6 17h22" stroke="#0b5ed4" strokeOpacity="0.35" />
+              <path d="M17 10l5 9h-10l5-9z" fill="#0b5ed4" />
             </svg>
             <div>
               {/* eslint-disable-next-line @next/next/no-img-element */}

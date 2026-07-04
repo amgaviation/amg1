@@ -85,7 +85,6 @@ export default function Hero() {
         )
         .to(".window-frame", { opacity: 0 }, 0.55)
         .to(".cabin-wall", { opacity: 0 }, 0.5)
-        .to(".sky-brand", { opacity: 0, scale: 0.8 }, 0.6)
         // Drop the giant scaled compositing layer (16x window + video)
         // right before the pin releases — statement scrolls in over canvas.
         .to(".window-group", { autoAlpha: 0, duration: 0.03 }, 0.97);
@@ -115,7 +114,7 @@ export default function Hero() {
             className="absolute inset-0"
             style={{
               background:
-                "radial-gradient(ellipse 46% 60% at 50% 46%, rgba(0,232,135,0.14), rgba(7,11,20,0) 62%)",
+                "radial-gradient(ellipse 46% 60% at 50% 46%, rgba(11, 94, 212,0.14), rgba(7,11,20,0) 62%)",
             }}
           />
         </div>
@@ -130,7 +129,7 @@ export default function Hero() {
               className="sky-inner absolute inset-[-12%] will-change-transform"
               style={{
                 background:
-                  "linear-gradient(180deg, #04070e 0%, #0a1526 34%, #0e2a3a 58%, #16584f 82%, #00E887 130%)",
+                  "linear-gradient(180deg, #04070e 0%, #0a1526 34%, #0e2a3a 58%, #14468f 82%, #0b5ed4 130%)",
               }}
             >
               {/* live sky through the window — video when motion is allowed,
@@ -171,11 +170,6 @@ export default function Hero() {
                     "radial-gradient(60% 100% at 30% 60%, rgba(244,247,250,0.35), transparent 70%), radial-gradient(50% 90% at 75% 40%, rgba(169,180,198,0.3), transparent 70%)",
                 }}
               />
-              <div className="sky-brand absolute inset-0 flex items-center justify-center">
-                <span className="font-display text-[3.2vh] font-light uppercase tracking-[0.5em] text-t1/70">
-                  AMG
-                </span>
-              </div>
             </div>
           </div>
 

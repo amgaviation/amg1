@@ -10,7 +10,7 @@ const FOOTER_NOTE =
 export function SiteFooter() {
   return (
     <footer className="relative overflow-hidden border-t border-[var(--oc-line-dark)] bg-[#070B14] text-[var(--oc-paper)]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_0%,rgba(0,232,135,0.09),transparent_30rem)]" aria-hidden="true" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_0%,rgba(11, 94, 212,0.09),transparent_30rem)]" aria-hidden="true" />
       <div className="oc-shell relative z-10 py-14 lg:py-20">
         <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="max-w-xl">

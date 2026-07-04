@@ -118,7 +118,7 @@ export function SiteNav() {
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 font-mono text-[0.66rem] font-medium uppercase leading-none [letter-spacing:0.16em] text-white/[0.70] transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--instrument)]",
-                    active && "bg-[rgba(0,232,135,0.08)] text-white"
+                    active && "bg-[rgba(11, 94, 212,0.08)] text-white"
                   )}
                 >
                   {group.label}

@@ -18,12 +18,12 @@
 :root {
   /* Flight-deck palette — AMG "Flight Deck" design system */
   --canvas: #070b14;
-  --instrument: #00e887;
+  --instrument: #0b5ed4;
   --amber: #ffb02e;
   --t1: #f4f7fa;
   --t2: #a9b4c6;
   --t3: #5f6c82;
-  --grid-green: rgba(0, 232, 135, 0.08);
+  --grid-green: rgba(11, 94, 212, 0.08);
   --grid-silver: rgba(169, 180, 198, 0.06);
 
   --radius: 0.625rem;
@@ -1355,7 +1355,7 @@ html {
 
 /* ==========================================================================
    AMG FLIGHT DECK — public-site design system (redesign/flight-deck)
-   Canvas #070B14 · Instrument Green #00E887 · Aviation Amber #FFB02E
+   Canvas #070B14 · Instrument Green #0b5ed4 · Aviation Amber #FFB02E
    Type: Space Grotesk (display) + JetBrains Mono (data/microlabels).
    Component classes live in @layer components so Tailwind utilities keep
    winning specificity fights (unlayered CSS previously broke mobile nav).
@@ -1536,7 +1536,7 @@ html.lenis body {
   --primary: var(--instrument);
   --primary-foreground: var(--canvas);
   --ring: var(--instrument);
-  --amg-border-accent: rgba(0, 232, 135, 0.5);
+  --amg-border-accent: rgba(11, 94, 212, 0.5);
 
   --amg-midnight-navy: var(--canvas);
   --amg-deep-blue: #0a1322;
@@ -1550,7 +1550,7 @@ html.lenis body {
 
 .public-site.amg-oc {
   background:
-    radial-gradient(circle at 78% 8%, rgba(0, 232, 135, 0.07), transparent 28rem),
+    radial-gradient(circle at 78% 8%, rgba(11, 94, 212, 0.07), transparent 28rem),
     linear-gradient(180deg, #070b14 0%, #0a1322 42%, #070b14 100%);
 }
 
@@ -1582,11 +1582,11 @@ html.lenis body {
   .public-site .oc-btn-primary {
     background: var(--instrument);
     color: var(--canvas);
-    box-shadow: 0 0 40px rgba(0, 232, 135, 0.28);
+    box-shadow: 0 0 40px rgba(11, 94, 212, 0.28);
   }
   .public-site .oc-btn-primary:hover {
     background: color-mix(in srgb, var(--instrument) 82%, white);
-    box-shadow: 0 0 60px rgba(0, 232, 135, 0.4);
+    box-shadow: 0 0 60px rgba(11, 94, 212, 0.4);
   }
   .public-site .oc-btn-light {
     background: var(--t1);
@@ -1595,15 +1595,15 @@ html.lenis body {
   }
   .public-site .oc-btn-ghost-dark:hover {
     border-color: var(--instrument);
-    background: rgba(0, 232, 135, 0.1);
+    background: rgba(11, 94, 212, 0.1);
   }
   .public-site .oc-dot {
     background: var(--instrument);
-    box-shadow: 0 0 0 4px rgba(0, 232, 135, 0.16);
+    box-shadow: 0 0 0 4px rgba(11, 94, 212, 0.16);
   }
   .public-site .oc-panel-navy {
     background:
-      radial-gradient(120% 120% at 85% 0%, rgba(0, 232, 135, 0.14), transparent 55%),
+      radial-gradient(120% 120% at 85% 0%, rgba(11, 94, 212, 0.14), transparent 55%),
       linear-gradient(170deg, #0a1322, #070b14);
   }
   .public-site .support-field {
@@ -1615,8 +1615,8 @@ html.lenis body {
   .public-site .support-field:focus-visible {
     border-color: var(--instrument);
     box-shadow:
-      0 0 0 3px rgba(0, 232, 135, 0.16),
-      0 0 28px rgba(0, 232, 135, 0.12);
+      0 0 0 3px rgba(11, 94, 212, 0.16),
+      0 0 28px rgba(11, 94, 212, 0.12);
   }
   .public-site .amg-oc .support-field,
   .public-site.amg-oc .support-field {

@@ -39,16 +39,16 @@ export default function Globe({ className }: { className?: string }) {
         </linearGradient>
         {/* thin sunlit rim on the lit side */}
         <radialGradient id="fd-globe-rim" cx="50%" cy="50%" r="50%">
-          <stop offset="86%" stopColor="#9BE8CD" stopOpacity="0" />
-          <stop offset="97%" stopColor="#9BE8CD" stopOpacity="0.16" />
-          <stop offset="100%" stopColor="#CFF7E6" stopOpacity="0.32" />
+          <stop offset="86%" stopColor="#9BC4ED" stopOpacity="0" />
+          <stop offset="97%" stopColor="#9BC4ED" stopOpacity="0.16" />
+          <stop offset="100%" stopColor="#CFE4F7" stopOpacity="0.32" />
         </radialGradient>
         {/* atmosphere halo outside the limb */}
         <radialGradient id="fd-globe-atmo" cx="50%" cy="50%" r="50%">
-          <stop offset="78%" stopColor="#00E887" stopOpacity="0" />
-          <stop offset="88%" stopColor="#00E887" stopOpacity="0.1" />
-          <stop offset="94%" stopColor="#3ED9A4" stopOpacity="0.05" />
-          <stop offset="100%" stopColor="#00E887" stopOpacity="0" />
+          <stop offset="78%" stopColor="#0b5ed4" stopOpacity="0" />
+          <stop offset="88%" stopColor="#0b5ed4" stopOpacity="0.1" />
+          <stop offset="94%" stopColor="#3E8BD9" stopOpacity="0.05" />
+          <stop offset="100%" stopColor="#0b5ed4" stopOpacity="0" />
         </radialGradient>
         <clipPath id="fd-globe-clip">
           <circle cx="400" cy="220" r="200" />
@@ -99,18 +99,18 @@ export default function Globe({ className }: { className?: string }) {
       <circle cx="400" cy="220" r="200" fill="none" stroke="#A9B4C6" strokeOpacity="0.18" />
 
       {/* orbital tick ring */}
-      <circle cx="400" cy="220" r="216" fill="none" stroke="#00E887" strokeOpacity="0.14" strokeDasharray="2 10" />
+      <circle cx="400" cy="220" r="216" fill="none" stroke="#0b5ed4" strokeOpacity="0.14" strokeDasharray="2 10" />
 
       {/* support-route arcs (line-drawn on scrub) */}
       <g fill="none" strokeWidth="1.5" strokeLinecap="round">
-        <path className="flight-arc" pathLength={100} style={ARC_STYLE} d="M258 160C320 60 480 60 545 152" stroke="#00E887" strokeOpacity="0.8" />
-        <path className="flight-arc" pathLength={100} style={ARC_STYLE} d="M232 268c80-118 262-128 338-24" stroke="#00E887" strokeOpacity="0.55" />
+        <path className="flight-arc" pathLength={100} style={ARC_STYLE} d="M258 160C320 60 480 60 545 152" stroke="#0b5ed4" strokeOpacity="0.8" />
+        <path className="flight-arc" pathLength={100} style={ARC_STYLE} d="M232 268c80-118 262-128 338-24" stroke="#0b5ed4" strokeOpacity="0.55" />
         <path className="flight-arc" pathLength={100} style={ARC_STYLE} d="M300 330c56-70 156-76 216-14" stroke="#FFB02E" strokeOpacity="0.6" />
         <path className="flight-arc" pathLength={100} style={ARC_STYLE} d="M282 120c96-66 236-30 268 78" stroke="#A9B4C6" strokeOpacity="0.45" />
       </g>
 
       {/* endpoints */}
-      <g fill="#00E887">
+      <g fill="#0b5ed4">
         <circle cx="258" cy="160" r="4" />
         <circle cx="545" cy="152" r="4" />
         <circle cx="232" cy="268" r="3.4" fillOpacity="0.8" />

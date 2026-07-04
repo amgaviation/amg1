@@ -39,7 +39,7 @@ export default function Porthole({ className }: { className?: string }) {
       <path
         d="M300 148c-92 0-182 50-182 224v116c0 174 90 224 182 224s182-50 182-224V372c0-174-90-224-182-224Z"
         fill="none"
-        stroke="#00E887"
+        stroke="#0b5ed4"
         strokeOpacity="0.35"
         strokeWidth="1.5"
       />
@@ -70,8 +70,8 @@ export default function Porthole({ className }: { className?: string }) {
       ))}
 
       {/* HUD corner ticks */}
-      <path d="M36 36h26M36 36v26" stroke="#00E887" strokeOpacity="0.6" strokeWidth="1.5" fill="none" />
-      <path d="M564 824h-26M564 824v-26" stroke="#00E887" strokeOpacity="0.6" strokeWidth="1.5" fill="none" />
+      <path d="M36 36h26M36 36v26" stroke="#0b5ed4" strokeOpacity="0.6" strokeWidth="1.5" fill="none" />
+      <path d="M564 824h-26M564 824v-26" stroke="#0b5ed4" strokeOpacity="0.6" strokeWidth="1.5" fill="none" />
 
       {/* window shade rail hint */}
       <path

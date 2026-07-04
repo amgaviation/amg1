@@ -14,13 +14,13 @@ gsap.registerPlugin(ScrollTrigger);
 
 const CITIES = [
   "Teterboro",
-  "Van Nuys",
-  "Dallas",
-  "Scottsdale",
-  "Chicago",
-  "Palm Beach",
-  "Denver",
-  "Nashville",
+  "Boca Raton",
+  "Austin",
+  "Aspen",
+  "Boston",
+  "Las Vegas",
+  "Charleston",
+  "Jackson Hole",
 ];
 const CITY_H = 44; // px row height for the vertical ticker
 
@@ -98,7 +98,7 @@ export default function GlobalFooter() {
             className="font-display font-medium leading-none text-transparent"
             style={{
               fontSize: "clamp(6rem, 22vw, 24rem)",
-              WebkitTextStroke: "1px rgba(0,232,135,0.25)",
+              WebkitTextStroke: "1px rgba(11, 94, 212,0.25)",
             }}
           >
             Global
