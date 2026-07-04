@@ -9,7 +9,7 @@ import {
   type DetailFormField,
 } from "@/components/portal/admin/record-detail";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
-import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
+import { Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PROFILE_STATUS, PROFILE_STATUS_LABEL, PROFILE_STATUS_TONE, toneFor } from "@/lib/portal/constants";
@@ -100,6 +100,24 @@ export default async function AdminClientDetailPage({
   const displayName = client.company_name ?? client.full_name ?? client.email;
   const backTo = `/portal/admin/clients/${clientId}`;
 
+  // 360 rollups
+  const lifetimeValue = clientInvoices
+    .filter((invoice) => ["paid", "partially_paid"].includes(invoice.status))
+    .reduce(
+      (sum, invoice) =>
+        sum + (Number(invoice.total ?? 0) - (invoice.status === "partially_paid" ? Number(invoice.amount_due ?? 0) : 0)),
+      0
+    );
+  const outstanding = clientInvoices
+    .filter((invoice) => ["sent", "viewed", "partially_paid", "overdue"].includes(invoice.status))
+    .reduce((sum, invoice) => sum + Number(invoice.amount_due ?? 0), 0);
+  const activeMissions = clientMissions.filter((mission) =>
+    ["submitted", "under_review", "awaiting_client_info", "quoted", "approved", "crew_assigned", "scheduled", "in_progress"].includes(mission.status)
+  ).length;
+  const activeSubscriptions = clientSubscriptions.filter((subscription) =>
+    ["active", "trialing", "renewal_pending"].includes(subscription.status)
+  ).length;
+
   return (
     <PortalShell role="admin" user={user}>
       {query.success ? <Notice tone="success">Client record saved.</Notice> : null}
@@ -123,6 +141,33 @@ export default async function AdminClientDetailPage({
         status={{ label: PROFILE_STATUS_LABEL[client.status] ?? client.status, tone: toneFor(PROFILE_STATUS_TONE, client.status) }}
         meta={client.updated_at ? `Updated ${formatDateTime(client.updated_at)}` : null}
       />
+
+      {/* Client 360 rollups */}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <StatCard
+          label="Lifetime revenue"
+          value={formatMoney(lifetimeValue)}
+          icon="dollar"
+          tone={lifetimeValue > 0 ? "accent" : "default"}
+          detail="Collected on paid invoices"
+        />
+        <StatCard
+          label="Outstanding"
+          value={formatMoney(outstanding)}
+          icon="wallet"
+          tone={outstanding > 0 ? "warn" : "default"}
+          href="/portal/admin/receivables"
+          detail={outstanding > 0 ? "See Receivables" : undefined}
+        />
+        <StatCard label="Active missions" value={activeMissions} icon="plane" tone={activeMissions ? "info" : "default"} />
+        <StatCard label="Aircraft" value={clientAircraft.length} icon="planeTakeoff" />
+        <StatCard
+          label="Active subscriptions"
+          value={activeSubscriptions}
+          icon="creditCard"
+          tone={activeSubscriptions ? "accent" : "default"}
+        />
+      </div>
 
       <Tabs defaultValue="overview" className="gap-5">
         <TabsList className="h-auto w-full flex-wrap justify-start bg-[#EEF1F5] p-1">

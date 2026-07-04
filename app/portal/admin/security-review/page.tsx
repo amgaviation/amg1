@@ -106,7 +106,7 @@ export default async function AdminSecurityReviewPage({
           <SelectField label="Invalid Email" name="invalid_email" defaultValue={params.invalid_email ?? ""} options={[{ value: "", label: "All emails" }, { value: "true", label: "Invalid import email" }]} />
           <SelectField label="Pending Approval" name="pending" defaultValue={params.pending ?? ""} options={[{ value: "", label: "All users" }, { value: "true", label: "Pending only" }]} />
           <div className="flex flex-wrap items-end gap-3 lg:col-span-6">
-            <button type="submit" className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-[var(--deck-gold-deep)]-foreground">
+            <button type="submit" className="rounded-full bg-[var(--deck-navy)] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[var(--deck-navy-2)]">
               Apply Filters
             </button>
             {hasFilters ? (

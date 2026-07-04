@@ -1,0 +1,138 @@
+import "server-only";
+
+import { createServiceClient } from "@/lib/supabase/server";
+
+/** CRM data access — leads pipeline and per-lead activity history. */
+
+export type LeadStage = "new" | "contacted" | "qualified" | "proposal" | "won" | "lost";
+
+export type Lead = {
+  id: string;
+  full_name: string;
+  company: string | null;
+  email: string | null;
+  phone: string | null;
+  source: string;
+  stage: LeadStage;
+  estimated_value: number | null;
+  owner_id: string | null;
+  next_action_at: string | null;
+  notes: string | null;
+  lost_reason: string | null;
+  converted_profile_id: string | null;
+  form_submission_id: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  owner?: { id: string; full_name: string | null; email: string } | null;
+  converted_profile?: { id: string; full_name: string | null; email: string } | null;
+};
+
+export type LeadActivity = {
+  id: string;
+  lead_id: string;
+  activity_type: "note" | "call" | "email" | "meeting" | "stage_change";
+  body: string;
+  created_by: string | null;
+  created_by_email: string | null;
+  created_at: string;
+};
+
+export const LEAD_STAGES: { value: LeadStage; label: string }[] = [
+  { value: "new", label: "New" },
+  { value: "contacted", label: "Contacted" },
+  { value: "qualified", label: "Qualified" },
+  { value: "proposal", label: "Proposal" },
+  { value: "won", label: "Won" },
+  { value: "lost", label: "Lost" },
+];
+
+export const LEAD_SOURCES = [
+  { value: "manual", label: "Manual Entry" },
+  { value: "website_form", label: "Website Form" },
+  { value: "referral", label: "Referral" },
+  { value: "broker", label: "Broker" },
+  { value: "event", label: "Event" },
+  { value: "other", label: "Other" },
+];
+
+const LEAD_SELECT =
+  "*, owner:owner_id(id, full_name, email), converted_profile:converted_profile_id(id, full_name, email)";
+
+export async function listLeads(filter?: {
+  stage?: string;
+  ownerId?: string;
+  q?: string;
+}): Promise<Lead[]> {
+  const db = (await createServiceClient()) as any;
+  let query = db.from("crm_leads").select(LEAD_SELECT).order("updated_at", { ascending: false });
+  if (filter?.stage) query = query.eq("stage", filter.stage);
+  if (filter?.ownerId) query = query.eq("owner_id", filter.ownerId);
+  const { data } = await query;
+  let rows = (data ?? []) as Lead[];
+  if (filter?.q) {
+    const q = filter.q.toLowerCase();
+    rows = rows.filter((lead) =>
+      [lead.full_name, lead.company, lead.email, lead.phone]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(q))
+    );
+  }
+  return rows;
+}
+
+export async function getLead(id: string): Promise<Lead | null> {
+  const db = (await createServiceClient()) as any;
+  const { data } = await db.from("crm_leads").select(LEAD_SELECT).eq("id", id).maybeSingle();
+  return (data as Lead) ?? null;
+}
+
+export async function listLeadActivities(leadId: string): Promise<LeadActivity[]> {
+  const db = (await createServiceClient()) as any;
+  const { data } = await db
+    .from("crm_activities")
+    .select("*")
+    .eq("lead_id", leadId)
+    .order("created_at", { ascending: false })
+    .limit(200);
+  return (data ?? []) as LeadActivity[];
+}
+
+export type PipelineMetrics = {
+  openCount: number;
+  pipelineValue: number;
+  wonThisMonth: number;
+  wonValueThisMonth: number;
+  needsFollowUp: number;
+};
+
+const OPEN_STAGES = ["new", "contacted", "qualified", "proposal"];
+
+export async function getPipelineMetrics(): Promise<PipelineMetrics> {
+  const db = (await createServiceClient()) as any;
+  const monthStart = new Date();
+  monthStart.setUTCDate(1);
+  monthStart.setUTCHours(0, 0, 0, 0);
+
+  const { data } = await db
+    .from("crm_leads")
+    .select("stage, estimated_value, next_action_at, updated_at");
+  const rows = (data ?? []) as Pick<Lead, "stage" | "estimated_value" | "next_action_at" | "updated_at">[];
+
+  const open = rows.filter((row) => OPEN_STAGES.includes(row.stage));
+  const wonThisMonth = rows.filter(
+    (row) => row.stage === "won" && row.updated_at >= monthStart.toISOString()
+  );
+  const now = new Date().toISOString();
+
+  return {
+    openCount: open.length,
+    pipelineValue: open.reduce((sum, row) => sum + Number(row.estimated_value ?? 0), 0),
+    wonThisMonth: wonThisMonth.length,
+    wonValueThisMonth: wonThisMonth.reduce(
+      (sum, row) => sum + Number(row.estimated_value ?? 0),
+      0
+    ),
+    needsFollowUp: open.filter((row) => row.next_action_at && row.next_action_at <= now).length,
+  };
+}

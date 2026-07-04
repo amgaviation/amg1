@@ -1,3 +1,4 @@
+import { createLeadFromSubmission } from "@/app/portal/actions/crm";
 import { updateFormSubmission } from "@/app/portal/actions/form-submissions";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DetailRow, EmptyState, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
@@ -158,7 +159,7 @@ export default async function AdminFormSubmissionsPage({
             Search
             <input name="q" defaultValue={params.q || ""} className="h-11 rounded-md border border-[var(--deck-line-strong)] bg-white px-3 text-sm text-[var(--deck-text)] outline-none placeholder:text-[#98A2B3] focus:border-primary" placeholder="Name, email, company, tail, aircraft, path" />
           </label>
-          <button type="submit" className="h-11 rounded-md bg-primary px-4 text-sm font-semibold text-[var(--deck-gold-deep)]-foreground">
+          <button type="submit" className="h-11 rounded-md bg-[var(--deck-navy)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--deck-navy-2)]">
             Apply
           </button>
         </form>
@@ -186,11 +187,18 @@ export default async function AdminFormSubmissionsPage({
                     <p className="mt-1 text-xs text-[var(--deck-text-3)]">{display(row.timing || row.timeline_urgency)}</p>
                     <p className="mt-1 text-xs text-[var(--deck-text-3)]">{formatDateTime(row.created_at)}</p>
                   </div>
-                  <div className="flex flex-wrap gap-2 xl:justify-end">
+                  <div className="flex flex-wrap items-center gap-2 xl:justify-end">
                     <span className="rounded-full border border-[var(--deck-line)] bg-[#F8FAFB] px-3 py-1 text-xs font-semibold text-[var(--deck-text-2)]">{statusLabel(row.status)}</span>
                     <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${row.email_sent ? "border-[#BFE3D2] bg-[#EAF6F0] text-[#116947]" : "border-[#EAD9AE] bg-[#FBF4E3] text-[#8F5F12]"}`}>
                       Email {row.email_sent ? "sent" : "not sent"}
                     </span>
+                    <form action={createLeadFromSubmission}>
+                      <input type="hidden" name="submission_id" value={row.id} />
+                      <input type="hidden" name="back_to" value="/portal/admin/form-submissions" />
+                      <SubmitButton size="sm" variant="outline" pendingText="Creating…">
+                        Create Lead
+                      </SubmitButton>
+                    </form>
                   </div>
                 </div>
                 <div className="mt-4">
