@@ -18,8 +18,10 @@ export function CommandPalette() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -49,18 +51,40 @@ export function CommandPalette() {
       return;
     }
     setLoading(true);
+    const requestId = ++requestIdRef.current;
     debounceRef.current = setTimeout(async () => {
       try {
         const response = await fetch(`/api/portal/search?q=${encodeURIComponent(value)}`);
         const payload = await response.json();
+        // Drop stale responses that resolve after a newer keystroke.
+        if (requestId !== requestIdRef.current) return;
         setResults(payload.results ?? []);
+        setActiveIndex(0);
       } catch {
-        setResults([]);
+        if (requestId === requestIdRef.current) setResults([]);
       } finally {
-        setLoading(false);
+        if (requestId === requestIdRef.current) setLoading(false);
       }
     }, 250);
   }, []);
+
+  function onInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (!results.length) return;
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setActiveIndex((index) => (index + 1) % results.length);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setActiveIndex((index) => (index - 1 + results.length) % results.length);
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      const target = results[activeIndex];
+      if (target) {
+        setOpen(false);
+        router.push(target.href);
+      }
+    }
+  }
 
   const groups = results.reduce<Record<string, SearchResult[]>>((acc, result) => {
     (acc[result.group] ??= []).push(result);
@@ -107,8 +131,12 @@ export function CommandPalette() {
                   setQuery(event.target.value);
                   search(event.target.value);
                 }}
+                onKeyDown={onInputKeyDown}
                 placeholder="Search requests, clients, crew, invoices, quotes, leads, aircraft…"
                 className="flex-1 bg-transparent text-sm text-[var(--deck-text)] outline-none placeholder:text-[#98A2B3]"
+                role="combobox"
+                aria-expanded={results.length > 0}
+                aria-autocomplete="list"
               />
               <button
                 type="button"
@@ -133,24 +161,31 @@ export function CommandPalette() {
                 Object.entries(groups).map(([group, items]) => (
                   <div key={group} className="mb-2">
                     <p className="deck-eyebrow px-3 pb-1 pt-2 !text-[0.58rem]">{group}</p>
-                    {items.map((item) => (
-                      <button
-                        key={`${item.href}-${item.label}`}
-                        type="button"
-                        onClick={() => {
-                          setOpen(false);
-                          router.push(item.href);
-                        }}
-                        className="flex w-full items-baseline justify-between gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-[var(--deck-gold-tint)]"
-                      >
-                        <span className="min-w-0 truncate text-sm font-medium text-[var(--deck-text)]">
-                          {item.label}
-                        </span>
-                        {item.sublabel ? (
-                          <span className="shrink-0 text-xs text-[var(--deck-text-3)]">{item.sublabel}</span>
-                        ) : null}
-                      </button>
-                    ))}
+                    {items.map((item) => {
+                      const flatIndex = results.indexOf(item);
+                      const isActive = flatIndex === activeIndex;
+                      return (
+                        <button
+                          key={`${item.href}-${item.label}`}
+                          type="button"
+                          onClick={() => {
+                            setOpen(false);
+                            router.push(item.href);
+                          }}
+                          onMouseEnter={() => setActiveIndex(flatIndex)}
+                          className={`flex w-full items-baseline justify-between gap-3 rounded-lg px-3 py-2 text-left transition-colors ${
+                            isActive ? "bg-[var(--deck-gold-tint)]" : "hover:bg-[var(--deck-gold-tint)]"
+                          }`}
+                        >
+                          <span className="min-w-0 truncate text-sm font-medium text-[var(--deck-text)]">
+                            {item.label}
+                          </span>
+                          {item.sublabel ? (
+                            <span className="shrink-0 text-xs text-[var(--deck-text-3)]">{item.sublabel}</span>
+                          ) : null}
+                        </button>
+                      );
+                    })}
                   </div>
                 ))
               )}

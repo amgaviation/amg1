@@ -26,6 +26,18 @@ export async function sendInvoiceReminder(formData: FormData) {
     redirect(`${AR_PATH}?error=closed`);
   }
 
+  // Throttle: one reminder per invoice per 24h, regardless of which admin sends it.
+  const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { data: recent } = await db
+    .from("audit_events")
+    .select("id")
+    .eq("action", "invoice_reminder_sent")
+    .eq("entity_type", "invoice")
+    .eq("entity_id", invoiceId)
+    .gte("created_at", dayAgo)
+    .limit(1);
+  if (recent?.length) redirect(`${AR_PATH}?error=recently-reminded`);
+
   try {
     await emailInvoicePdf(invoiceId, admin.id);
   } catch (error) {

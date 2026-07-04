@@ -269,6 +269,8 @@ function ViewSwitcher({ role }: { role: PortalRole }) {
   );
 }
 
+const NAV_COLLAPSE_KEY = "amg-deck-nav-collapsed";
+
 function SidebarContent({
   role,
   user,
@@ -281,6 +283,28 @@ function SidebarContent({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(NAV_COLLAPSE_KEY);
+      if (stored) setCollapsed(JSON.parse(stored));
+    } catch {
+      /* first visit or blocked storage — leave all groups expanded */
+    }
+  }, []);
+
+  function toggleGroup(label: string) {
+    setCollapsed((current) => {
+      const next = { ...current, [label]: !current[label] };
+      try {
+        window.localStorage.setItem(NAV_COLLAPSE_KEY, JSON.stringify(next));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  }
 
   function isActive(href: string) {
     const base = href.split("?")[0];
@@ -310,26 +334,46 @@ function SidebarContent({
 
       {/* Nav */}
       <nav className="deck-scroll flex-1 overflow-y-auto px-3 py-4">
-        <div className="space-y-5">
-          {navGroups.map((group) => (
-            <div key={group.label}>
-              <p className="deck-nav-group px-3 pb-1.5">{group.label}</p>
-              <div className="space-y-0.5">
-                {group.items.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={onNavigate}
-                    data-active={isActive(item.href)}
-                    className="deck-nav-link"
-                  >
-                    <PortalIcon name={item.icon} className="h-4 w-4 shrink-0 opacity-80" />
-                    <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                  </Link>
-                ))}
+        <div className="space-y-4">
+          {navGroups.map((group) => {
+            const groupActive = group.items.some((item) => isActive(item.href));
+            // A group holding the current page never collapses out from under you.
+            const isCollapsed = collapsed[group.label] && !groupActive;
+            return (
+              <div key={group.label}>
+                <button
+                  type="button"
+                  onClick={() => toggleGroup(group.label)}
+                  aria-expanded={!isCollapsed}
+                  className="deck-nav-group flex w-full items-center justify-between px-3 pb-1.5 text-left transition-colors hover:text-[var(--deck-chrome-text)]"
+                >
+                  {group.label}
+                  <ChevronDown
+                    className={cn(
+                      "h-3 w-3 shrink-0 transition-transform",
+                      isCollapsed && "-rotate-90"
+                    )}
+                  />
+                </button>
+                {!isCollapsed ? (
+                  <div className="space-y-0.5">
+                    {group.items.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={onNavigate}
+                        data-active={isActive(item.href)}
+                        className="deck-nav-link"
+                      >
+                        <PortalIcon name={item.icon} className="h-4 w-4 shrink-0 opacity-80" />
+                        <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </nav>
 

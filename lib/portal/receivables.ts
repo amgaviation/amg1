@@ -18,6 +18,7 @@ export type ArInvoice = {
   client: { id: string; full_name: string | null; email: string; company_name: string | null } | null;
   daysOverdue: number;
   bucket: ArBucket;
+  lastRemindedAt: string | null;
 };
 
 export type ArBucket = "current" | "1-30" | "31-60" | "61-90" | "90+";
@@ -64,6 +65,21 @@ export async function getArSummary(): Promise<ArSummary> {
     .in("status", OPEN_STATUSES)
     .order("due_date", { ascending: true, nullsFirst: false });
 
+  // Latest reminder per invoice, from the audit trail.
+  const { data: reminders } = await db
+    .from("audit_events")
+    .select("entity_id, created_at")
+    .eq("action", "invoice_reminder_sent")
+    .eq("entity_type", "invoice")
+    .order("created_at", { ascending: false })
+    .limit(500);
+  const lastReminder = new Map<string, string>();
+  for (const event of (reminders ?? []) as { entity_id: string | null; created_at: string }[]) {
+    if (event.entity_id && !lastReminder.has(event.entity_id)) {
+      lastReminder.set(event.entity_id, event.created_at);
+    }
+  }
+
   const now = Date.now();
   const invoices: ArInvoice[] = ((data ?? []) as any[]).map((row) => {
     const due = row.due_date ? new Date(row.due_date).getTime() : null;
@@ -74,6 +90,7 @@ export async function getArSummary(): Promise<ArSummary> {
       total: Number(row.total ?? 0),
       daysOverdue: Math.max(0, daysOverdue),
       bucket: bucketFor(due ? daysOverdue : 0),
+      lastRemindedAt: lastReminder.get(row.id) ?? null,
     } as ArInvoice;
   });
 
