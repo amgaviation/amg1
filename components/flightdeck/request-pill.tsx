@@ -58,7 +58,7 @@ export default function RequestPill() {
         ref={btn}
         href="/booking-request"
         prefetch={false}
-        className="group flex items-center gap-2 rounded-full bg-instrument py-2 pl-6 pr-2 text-canvas shadow-[0_0_40px_rgba(11, 94, 212,0.35)] transition-shadow hover:shadow-[0_0_60px_rgba(11, 94, 212,0.55)]"
+        className="group flex items-center gap-2 rounded-full bg-instrument py-2 pl-6 pr-2 text-white shadow-[0_0_40px_rgba(11,94,212,0.35)] transition-shadow hover:shadow-[0_0_60px_rgba(11,94,212,0.55)]"
       >
         <span className="whitespace-nowrap font-mono text-xs font-medium uppercase tracking-widecap">
           Request support

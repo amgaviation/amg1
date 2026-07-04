@@ -92,7 +92,7 @@ export function PortalLogin({
                 className={cn(
                   "inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition",
                   isSignIn
-                    ? "bg-[var(--instrument)] text-[var(--canvas)]"
+                    ? "bg-[var(--instrument)] text-white"
                     : "text-[var(--oc-aluminum)] hover:text-white"
                 )}
               >
@@ -107,7 +107,7 @@ export function PortalLogin({
                 className={cn(
                   "inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition",
                   !isSignIn
-                    ? "bg-[var(--instrument)] text-[var(--canvas)]"
+                    ? "bg-[var(--instrument)] text-white"
                     : "text-[var(--oc-aluminum)] hover:text-white"
                 )}
               >
@@ -143,7 +143,7 @@ export function PortalLogin({
                   <button
                     type="button"
                     onClick={() => setMode("signin")}
-                    className="inline-flex min-h-10 items-center justify-center rounded-full bg-[var(--instrument)] px-4 text-xs font-semibold uppercase text-[var(--canvas)]"
+                    className="inline-flex min-h-10 items-center justify-center rounded-full bg-[var(--instrument)] px-4 text-xs font-semibold uppercase text-white"
                   >
                     Sign in
                   </button>
@@ -221,7 +221,7 @@ export function PortalLogin({
                   />
                 </div>
 
-                <button className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--instrument)] px-6 py-4 font-display text-sm font-semibold uppercase text-[var(--canvas)] transition hover:bg-[var(--instrument)]/85">
+                <button className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--instrument)] px-6 py-4 font-display text-sm font-semibold uppercase text-white transition hover:bg-[var(--instrument)]/85">
                   Sign in
                   <ArrowRight className="h-4 w-4" />
                 </button>
@@ -319,7 +319,7 @@ export function PortalLogin({
                   </div>
                 </div>
 
-                <button className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--instrument)] px-6 py-4 font-display text-sm font-semibold uppercase text-[var(--canvas)] transition hover:bg-[var(--instrument)]/85">
+                <button className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--instrument)] px-6 py-4 font-display text-sm font-semibold uppercase text-white transition hover:bg-[var(--instrument)]/85">
                   Submit access request
                   <ArrowRight className="h-4 w-4" />
                 </button>

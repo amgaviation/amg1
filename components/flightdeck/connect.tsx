@@ -57,7 +57,7 @@ export default function Connect() {
             <Link
               href="/login"
               prefetch={false}
-              className="group flex items-center gap-2 rounded-full bg-instrument py-2 pl-6 pr-2 font-mono text-xs font-medium uppercase tracking-widecap text-canvas shadow-[0_0_40px_rgba(11, 94, 212,0.28)] transition-shadow hover:shadow-[0_0_60px_rgba(11, 94, 212,0.45)]"
+              className="group flex items-center gap-2 rounded-full bg-instrument py-2 pl-6 pr-2 font-mono text-xs font-medium uppercase tracking-widecap text-white shadow-[0_0_40px_rgba(11,94,212,0.28)] transition-shadow hover:shadow-[0_0_60px_rgba(11,94,212,0.45)]"
             >
               Member login
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-canvas text-instrument transition-transform duration-500 ease-out-expo group-hover:rotate-45">

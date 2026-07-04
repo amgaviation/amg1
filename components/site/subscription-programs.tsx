@@ -270,7 +270,7 @@ function CategoryControls({
               className={cn(
                 "min-h-11 rounded-xl px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--oc-blue)] focus-visible:ring-offset-2",
                 pistonSubtypeId === subcategory.id
-                  ? "bg-[var(--oc-blue)] text-white"
+                  ? "bg-[var(--instrument)] text-white"
                   : "text-[var(--oc-muted)] hover:bg-[#0A1322] hover:text-[var(--oc-ink)]",
               )}
             >
@@ -355,7 +355,7 @@ function PlanCard({
           View support details
           <ChevronDown className={cn("h-4 w-4 transition-transform", selected && "rotate-180")} aria-hidden="true" />
         </button>
-        <Button asChild className="mt-3 min-h-11 w-full rounded-full bg-[var(--oc-navy)] text-white hover:bg-[var(--oc-blue)]">
+        <Button asChild className="mt-3 min-h-11 w-full rounded-full bg-[var(--oc-navy)] text-white hover:bg-[var(--instrument)]">
           <Link href={plan.ctaHref ?? REQUEST_REVIEW_HREF} prefetch={false}>
             {plan.ctaLabel ?? "Request a plan review"}
             <ArrowRight className="h-4 w-4" />

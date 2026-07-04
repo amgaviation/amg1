@@ -25,7 +25,7 @@ export function ConnectPreview() {
 
   return (
     <section className="oc-section relative isolate overflow-hidden bg-[#070B14] text-[var(--oc-paper)]">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_80%_28%,rgba(11, 94, 212,0.1),transparent_28rem)]" />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_80%_28%,rgba(11,94,212,0.1),transparent_28rem)]" />
       <div className="oc-shell grid items-center gap-14 lg:grid-cols-[0.85fr_1.15fr]">
         <div data-scroll-animate>
           <p className="oc-eyebrow oc-eyebrow-light">AMG Connect</p>
@@ -69,7 +69,7 @@ export function ConnectPreview() {
         {/* stylized flight-deck console preview (illustrative, not a screenshot) */}
         <div data-scroll-animate className="hud-frame relative overflow-hidden border border-[var(--oc-line-dark)] bg-[#0A1322] p-6">
           <div className="mb-5 flex items-center justify-between border-b border-[var(--oc-line-dark)] pb-4">
-            <span className="font-mono text-[10px] uppercase [letter-spacing:0.22em] text-[var(--instrument)]">
+            <span className="font-mono text-[10px] uppercase [letter-spacing:0.22em] text-[var(--instrument-ink)]">
               AMG CONNECT // OPS VIEW
             </span>
             <span className="flex items-center gap-2">
@@ -90,7 +90,7 @@ export function ConnectPreview() {
                 <span
                   className={`font-mono text-[10px] uppercase [letter-spacing:0.18em] ${
                     status === "SCHEDULED" || status === "ACTIVE"
-                      ? "text-[var(--instrument)]"
+                      ? "text-[var(--instrument-ink)]"
                       : "text-[var(--amber)]"
                   }`}
                 >

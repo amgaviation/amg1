@@ -19,10 +19,11 @@
   /* Flight-deck palette — AMG "Flight Deck" design system */
   --canvas: #070b14;
   --instrument: #0b5ed4;
+  --instrument-ink: #5b9dff; /* brighter accent for small text on dark (AA) */
   --amber: #ffb02e;
   --t1: #f4f7fa;
   --t2: #a9b4c6;
-  --t3: #5f6c82;
+  --t3: #74839e;
   --grid-green: rgba(11, 94, 212, 0.08);
   --grid-silver: rgba(169, 180, 198, 0.06);
 
@@ -1399,7 +1400,7 @@ html.lenis body {
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.22em;
-    color: var(--instrument);
+    color: var(--instrument-ink);
   }
   .microlabel-amber {
     font-family: var(--font-mono);
@@ -1442,7 +1443,7 @@ html.lenis body {
     bottom: -4px;
     height: 1px;
     width: 100%;
-    background: var(--instrument);
+    background: var(--instrument-ink);
     transform: scaleX(0);
     transform-origin: right;
     transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1515,7 +1516,7 @@ html.lenis body {
 }
 .fd-site ::selection {
   background: var(--instrument);
-  color: var(--canvas);
+  color: var(--t1);
 }
 
 /* ---- public-site retheme: instrument accents + flight-deck type ---- */
@@ -1525,16 +1526,17 @@ html.lenis body {
   --oc-display: var(--font-space-grotesk, "Space Grotesk"), "Space Grotesk", sans-serif;
   --oc-sans: var(--font-space-grotesk, "Space Grotesk"), "Space Grotesk", sans-serif;
 
-  --oc-blue: var(--instrument);
-  --oc-blue-soft: var(--instrument);
-  --oc-accent: var(--instrument);
-  --oc-sky: var(--instrument);
-  --amg-accent-blue: var(--instrument);
-  --amg-text-accent: var(--instrument);
+  --oc-blue: var(--instrument-ink);
+  --oc-blue-soft: var(--instrument-ink);
+  --oc-accent: var(--instrument-ink);
+  --oc-sky: var(--instrument-ink);
+  --amg-accent-blue: var(--instrument-ink);
+  --amg-text-accent: var(--instrument-ink);
+  --amg-blue: var(--instrument);
   --accent: var(--instrument);
-  --accent-foreground: var(--canvas);
+  --accent-foreground: #ffffff;
   --primary: var(--instrument);
-  --primary-foreground: var(--canvas);
+  --primary-foreground: #ffffff;
   --ring: var(--instrument);
   --amg-border-accent: rgba(11, 94, 212, 0.5);
 
@@ -1556,7 +1558,7 @@ html.lenis body {
 
 .public-site.amg-oc ::selection {
   background: var(--instrument);
-  color: var(--canvas);
+  color: #ffffff;
 }
 
 @layer utilities {
@@ -1565,10 +1567,16 @@ html.lenis body {
     font-weight: 500;
     font-size: 0.6875rem;
     letter-spacing: 0.22em;
-    color: var(--instrument);
+    color: var(--instrument-ink);
   }
   .public-site .oc-eyebrow-light {
     color: var(--t2);
+  }
+  .public-site .text-instrument,
+  .fd-site .text-instrument,
+  .public-site .text-primary,
+  .public-site .text-accent {
+    color: var(--instrument-ink);
   }
   .public-site .oc-kicker {
     font-family: var(--font-mono);
@@ -1581,7 +1589,7 @@ html.lenis body {
   }
   .public-site .oc-btn-primary {
     background: var(--instrument);
-    color: var(--canvas);
+    color: #ffffff;
     box-shadow: 0 0 40px rgba(11, 94, 212, 0.28);
   }
   .public-site .oc-btn-primary:hover {

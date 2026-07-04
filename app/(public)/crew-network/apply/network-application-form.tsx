@@ -115,7 +115,7 @@ export function NetworkApplicationForm() {
         <p className="mt-3 max-w-2xl text-sm leading-7 text-[#C0C7D1]">
           AMG will review your submission and contact you if additional information is required.
         </p>
-        <Link href="/crew-network" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#3B82F6] px-5 py-3 text-sm font-bold text-white">
+        <Link href="/crew-network" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--instrument)] px-5 py-3 text-sm font-bold text-white">
           Return to Crew Network
           <ArrowRight className="h-4 w-4" />
         </Link>
@@ -274,7 +274,7 @@ export function NetworkApplicationForm() {
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[#3B82F6] px-6 text-sm font-bold text-white shadow-[0_18px_45px_rgba(59,130,246,0.32)] transition hover:bg-[#2563EB] disabled:cursor-not-allowed disabled:opacity-70"
+          className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[var(--instrument)] px-6 text-sm font-bold text-white shadow-[0_18px_45px_rgba(11,94,212,0.32)] transition hover:bg-[#2563EB] disabled:cursor-not-allowed disabled:opacity-70"
         >
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           {pending ? "Submitting..." : "Submit Application"}

@@ -34,7 +34,7 @@ const steps = [
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} className="min-h-12 rounded-full bg-[var(--oc-blue)] px-6 text-white hover:bg-[var(--oc-navy)]">
+    <Button type="submit" disabled={pending} className="min-h-12 rounded-full bg-[var(--instrument)] px-6 text-white hover:bg-[var(--oc-navy)]">
       {pending ? "Submitting..." : "Submit for review"}
       <Send className="h-4 w-4" />
     </Button>
@@ -195,7 +195,7 @@ export function SupportRequestForm({
                 aria-current={activeStep === index ? "step" : undefined}
                 className={`flex min-h-11 w-full items-center justify-center rounded-full border px-3 text-xs font-semibold transition ${
                   activeStep === index
-                    ? "border-[var(--oc-blue)] bg-[var(--oc-blue)] text-white"
+                    ? "border-[var(--instrument)] bg-[var(--instrument)] text-white"
                     : "border-[var(--oc-line)] bg-[#0A1322]/85 text-[var(--oc-ink)] hover:border-[var(--oc-blue)]"
                 }`}
               >
@@ -320,7 +320,7 @@ export function SupportRequestForm({
                 Back
               </Button>
               {activeStep < steps.length - 1 ? (
-                <Button type="button" className="min-h-11 rounded-full bg-[var(--oc-blue)] text-white hover:bg-[var(--oc-navy)]" onClick={() => setActiveStep((step) => Math.min(steps.length - 1, step + 1))}>
+                <Button type="button" className="min-h-11 rounded-full bg-[var(--instrument)] text-white hover:bg-[var(--oc-navy)]" onClick={() => setActiveStep((step) => Math.min(steps.length - 1, step + 1))}>
                   Next
                   <ArrowRight className="h-4 w-4" />
                 </Button>

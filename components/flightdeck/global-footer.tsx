@@ -98,7 +98,7 @@ export default function GlobalFooter() {
             className="font-display font-medium leading-none text-transparent"
             style={{
               fontSize: "clamp(6rem, 22vw, 24rem)",
-              WebkitTextStroke: "1px rgba(11, 94, 212,0.25)",
+              WebkitTextStroke: "1px rgba(91,157,255,0.4)",
             }}
           >
             Global
@@ -155,7 +155,7 @@ export default function GlobalFooter() {
             conditions are reviewed before any support is accepted — from a
             single movement to recurring fleet coverage.
           </p>
-          <p className="mt-4 font-mono text-[10px] text-amber">AMG // SUPPORT-COORD</p>
+          <p className="mt-4 font-mono text-[10px] text-[#B45309]">AMG // SUPPORT-COORD</p>
         </div>
 
         {/* footer block */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Porthole from "./svg/porthole";
@@ -26,9 +26,11 @@ export default function Hero() {
   const [playSky, setPlaySky] = useState(false);
 
   // The sky video only mounts client-side and only when motion is allowed;
-  // everyone else keeps the still stratosphere plate.
+  // everyone else keeps the still stratosphere plate. `?fdstill` forces the
+  // still plate (QA hook: hardware video overlays blind pixel-capture tools).
   useEffect(() => {
-    if (!prefersReducedMotion()) setPlaySky(true);
+    const forceStill = window.location.search.includes("fdstill");
+    if (!prefersReducedMotion() && !forceStill) setPlaySky(true);
   }, []);
 
   useLayoutEffect(() => {
@@ -63,8 +65,19 @@ export default function Hero() {
         },
       });
 
-      tl.to(".window-group", { scale: 16, transformOrigin: "50% 46%" }, 0)
-        .fromTo(".sky-inner", { scale: 1.18 }, { scale: 1, transformOrigin: "50% 46%" }, 0)
+      // The dive: the bulkhead is a static full-viewport layer whose
+      // aperture is a CSS-variable mask hole — it repaints at viewport
+      // size every frame instead of compositing a 16x-scaled texture
+      // (huge transformed layers black out weaker GPUs). Only the small
+      // frame SVG actually scales, and it is dropped mid-dive.
+      tl.fromTo(
+        ".window-mask",
+        { "--apw": "19vh", "--aph": "29vh" },
+        { "--apw": "310vh", "--aph": "470vh" },
+        0
+      )
+        .to(".window-frame", { scale: 16, transformOrigin: "50% 46.3%" }, 0)
+        .fromTo(".sky-screen", { scale: 1.18 }, { scale: 1, transformOrigin: "50% 46%" }, 0)
         .fromTo(
           ".hl-left",
           { xPercent: 0, filter: "blur(0px)", opacity: 1 },
@@ -83,11 +96,10 @@ export default function Hero() {
           { yPercent: 60, opacity: 0 },
           0
         )
-        .to(".window-frame", { opacity: 0 }, 0.55)
-        .to(".cabin-wall", { opacity: 0 }, 0.5)
-        // Drop the giant scaled compositing layer (16x window + video)
-        // right before the pin releases — statement scrolls in over canvas.
-        .to(".window-group", { autoAlpha: 0, duration: 0.03 }, 0.97);
+        // Frame fades once the aperture clears the viewport, then its
+        // scaled layer is removed entirely.
+        .to(".window-frame", { opacity: 0 }, 0.5)
+        .to(".window-frame", { visibility: "hidden", duration: 0.01 }, 0.62);
 
       // Pause the sky video whenever the hero is off-screen.
       ScrollTrigger.create({
@@ -107,75 +119,76 @@ export default function Hero() {
 
   return (
     <section ref={section} id="top" className="fd-pin-section relative h-[400vh]">
-      <div className="hero-stage relative h-screen w-full overflow-hidden">
-        {/* cabin wall — deep navy bulkhead with radar grid + window glow */}
-        <div className="cabin-wall radar-grid absolute inset-0 bg-canvas">
+      <div className="hero-stage relative h-screen w-full overflow-hidden bg-canvas">
+        {/* L3: full-viewport sky — a fixed-size layer the camera flies into.
+            It never scales beyond 1.18, so the video texture stays small no
+            matter how far the bulkhead zooms. */}
+        <div
+          className="sky-screen absolute inset-0 will-change-transform"
+          style={{
+            background:
+              "linear-gradient(180deg, #04070e 0%, #0a1526 34%, #0e2a3a 58%, #14468f 92%, #0b5ed4 140%)",
+          }}
+        >
+          {playSky ? (
+            <video
+              ref={videoRef}
+              className="absolute inset-0 h-full w-full object-cover opacity-90"
+              src="/videos/flightdeck/porthole-sky.mp4"
+              poster="/images/flightdeck/stratosphere.webp"
+              autoPlay
+              muted
+              loop
+              playsInline
+              aria-hidden="true"
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src="/images/flightdeck/stratosphere.webp"
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover opacity-90"
+            />
+          )}
+          {/* soft vignette so the window edge reads as glass depth */}
           <div
-            className="absolute inset-0"
+            className="pointer-events-none absolute inset-0"
             style={{
               background:
-                "radial-gradient(ellipse 46% 60% at 50% 46%, rgba(11, 94, 212,0.14), rgba(7,11,20,0) 62%)",
+                "radial-gradient(80% 70% at 50% 45%, transparent 60%, rgba(4,7,14,0.5) 100%)",
             }}
           />
         </div>
 
-        {/* L1 + L3: window group (scales), sky inside (counter-scales) */}
-        <div className="window-group absolute inset-0 will-change-transform">
+        {/* L1: static full-viewport bulkhead with an animated mask hole —
+            the aperture grows via CSS vars, so nothing here ever becomes a
+            giant composited texture. */}
+        <div
+          className="window-mask radar-grid absolute inset-0 bg-canvas"
+          style={
+            {
+              "--apw": "19vh",
+              "--aph": "29vh",
+              WebkitMaskImage:
+                "radial-gradient(ellipse var(--apw) var(--aph) at 50% 46%, transparent 97%, black 100%)",
+              maskImage:
+                "radial-gradient(ellipse var(--apw) var(--aph) at 50% 46%, transparent 97%, black 100%)",
+            } as CSSProperties
+          }
+        >
+          {/* window glow on the wall */}
           <div
-            className="absolute left-1/2 top-[46%] h-[58vh] w-[38vh] -translate-x-1/2 -translate-y-1/2 overflow-hidden"
-            style={{ borderRadius: "46% / 40%" }}
-          >
-            <div
-              className="sky-inner absolute inset-[-12%] will-change-transform"
-              style={{
-                background:
-                  "linear-gradient(180deg, #04070e 0%, #0a1526 34%, #0e2a3a 58%, #14468f 82%, #0b5ed4 130%)",
-              }}
-            >
-              {/* live sky through the window — video when motion is allowed,
-                  still stratosphere plate otherwise */}
-              {playSky ? (
-                <video
-                  ref={videoRef}
-                  className="absolute inset-0 h-full w-full object-cover opacity-90"
-                  src="/videos/flightdeck/porthole-sky.mp4"
-                  poster="/images/flightdeck/stratosphere.webp"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="auto"
-                  aria-hidden="true"
-                />
-              ) : (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src="/images/flightdeck/stratosphere.webp"
-                  alt=""
-                  className="absolute inset-0 h-full w-full object-cover opacity-90"
-                />
-              )}
-              {/* soft vignette so the window edge reads as glass depth */}
-              <div
-                className="pointer-events-none absolute inset-0"
-                style={{
-                  background:
-                    "radial-gradient(80% 70% at 50% 45%, transparent 55%, rgba(4,7,14,0.55) 100%)",
-                }}
-              />
-              <div
-                className="absolute inset-x-[-20%] bottom-[8%] h-[26%] opacity-40 blur-2xl"
-                style={{
-                  background:
-                    "radial-gradient(60% 100% at 30% 60%, rgba(244,247,250,0.35), transparent 70%), radial-gradient(50% 90% at 75% 40%, rgba(169,180,198,0.3), transparent 70%)",
-                }}
-              />
-            </div>
-          </div>
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(ellipse 46% 60% at 50% 46%, rgba(11,94,212,0.14), rgba(7,11,20,0) 62%)",
+            }}
+          />
+        </div>
 
-          <div className="window-frame absolute left-1/2 top-[46%] h-[86vh] w-[60vh] -translate-x-1/2 -translate-y-1/2">
-            <Porthole className="h-full w-full" />
-          </div>
+        {/* window frame chrome — the only element that actually scales */}
+        <div className="window-frame absolute left-1/2 top-[46%] h-[86vh] w-[60vh] -translate-x-1/2 -translate-y-1/2 will-change-transform">
+          <Porthole className="h-full w-full" />
         </div>
 
         {/* L2: foreground headlines (fastest layer) */}
