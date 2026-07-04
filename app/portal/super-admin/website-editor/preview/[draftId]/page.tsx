@@ -35,7 +35,7 @@ export default async function WebsiteEditorPreviewPage({
         eyebrow="Website Editor"
         title={`Preview: ${content.page}`}
         description="This uses draft content stored in Supabase and does not change production website content."
-        actions={<Link href={`/portal/super-admin/website-editor?page=${content.page}`} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold">Return to Editor</Link>}
+        actions={<Link href={`/portal/super-admin/website-editor?page=${content.page}`} className="rounded-full border border-[var(--deck-line-strong)] px-4 py-2 text-sm font-semibold">Return to Editor</Link>}
       />
       <SectionCard title="Rendered Public Hero" icon="fileText" bodyClassName="p-0 overflow-hidden">
         <div className="overflow-hidden rounded-b-lg">

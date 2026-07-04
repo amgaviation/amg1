@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-const baseInput =
-  "h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.14)]";
+/** Operations Deck form fields. All inputs share the .deck-input surface. */
 
 export function Field({
   label,
@@ -20,13 +19,15 @@ export function Field({
   className?: string;
 }) {
   return (
-    <label className={cn("grid gap-2", className)}>
-      <span className="eyebrow text-[0.6rem] text-[var(--amg-text-muted)]">
+    <label className={cn("grid gap-1.5", className)}>
+      <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">
         {label}
-        {required ? <span className="ml-1 text-primary">*</span> : null}
+        {required ? <span className="ml-1 text-[var(--deck-gold-deep)]">*</span> : null}
       </span>
       {children}
-      {hint ? <span className="text-[0.7rem] leading-5 text-[var(--amg-text-muted)]">{hint}</span> : null}
+      {hint ? (
+        <span className="text-[0.7rem] leading-5 text-[var(--deck-text-3)]">{hint}</span>
+      ) : null}
     </label>
   );
 }
@@ -37,7 +38,7 @@ export function TextField(
   const { label, hint, className, required, ...rest } = props;
   return (
     <Field label={label} hint={hint} required={required}>
-      <input {...rest} required={required} className={cn(baseInput, className)} />
+      <input {...rest} required={required} className={cn("deck-input", className)} />
     </Field>
   );
 }
@@ -48,14 +49,7 @@ export function TextAreaField(
   const { label, hint, className, required, ...rest } = props;
   return (
     <Field label={label} hint={hint} required={required}>
-      <textarea
-          {...rest}
-          required={required}
-          className={cn(
-          "min-h-24 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.14)]",
-          className
-        )}
-      />
+      <textarea {...rest} required={required} className={cn("deck-input", className)} />
     </Field>
   );
 }
@@ -71,7 +65,7 @@ export function SelectField(
   const { label, hint, className, required, options, placeholder, ...rest } = props;
   return (
     <Field label={label} hint={hint} required={required}>
-      <select {...rest} required={required} className={cn(baseInput, className)}>
+      <select {...rest} required={required} className={cn("deck-input", className)}>
         {placeholder ? (
           <option value="" disabled>
             {placeholder}
@@ -112,7 +106,7 @@ export function AirportField({
         maxLength={4}
         pattern="[A-Za-z0-9]{3,4}"
         placeholder="KTEB"
-        className={cn(baseInput, "font-mono uppercase tracking-widest")}
+        className="deck-input deck-mono !text-sm uppercase [letter-spacing:0.24em]"
       />
     </Field>
   );
@@ -128,15 +122,15 @@ export function CheckboxField({
   defaultChecked?: boolean;
 }) {
   return (
-    <label className="flex items-center gap-3 rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm">
+    <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-[var(--deck-line-strong)] bg-white px-3 py-2.5 text-sm transition-colors hover:border-[var(--deck-gold-line)]">
       <input
         type="checkbox"
         name={name}
         defaultChecked={defaultChecked}
         value="true"
-        className="h-4 w-4 accent-[var(--primary)]"
+        className="h-4 w-4 accent-[var(--deck-gold)]"
       />
-      <span className="text-slate-950">{label}</span>
+      <span className="text-[var(--deck-text)]">{label}</span>
     </label>
   );
 }
@@ -158,7 +152,7 @@ export function FileField({
   return (
     <Field label={label} hint={hint} required={required}>
       <div className="flex items-center gap-3">
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-950 transition-colors hover:border-primary">
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--deck-line-strong)] bg-white px-3 py-2 text-sm font-medium text-[var(--deck-text)] transition-colors hover:border-[var(--deck-gold)]">
           Choose file
           <input
             type="file"
@@ -169,7 +163,7 @@ export function FileField({
             onChange={(e) => setFileName(e.target.files?.[0]?.name ?? "")}
           />
         </label>
-      <span className="truncate text-xs text-[var(--amg-text-muted)]">
+        <span className="truncate text-xs text-[var(--deck-text-3)]">
           {fileName || "No file selected"}
         </span>
       </div>

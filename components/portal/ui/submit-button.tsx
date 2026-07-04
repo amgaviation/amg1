@@ -10,6 +10,10 @@ import type { ComponentProps } from "react";
 type Variant = ComponentProps<typeof Button>["variant"];
 type Size = ComponentProps<typeof Button>["size"];
 
+/**
+ * Form submit button with pending state and an optional confirm dialog for
+ * destructive or irreversible actions.
+ */
 export function SubmitButton({
   children,
   pendingText,
@@ -61,25 +65,39 @@ export function SubmitButton({
       </Button>
 
       {confirmOpen ? (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="confirm-action-title">
-          <div className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-5 text-slate-950 shadow-[0_28px_80px_rgba(8,20,36,0.28)]">
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-[rgba(10,19,34,0.6)] p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="confirm-action-title"
+        >
+          <div className="deck-card w-full max-w-md p-6">
             <div className="flex items-start gap-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-amber-200 bg-amber-50">
-                <AlertTriangle className="h-5 w-5 text-amber-700" />
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#EAD9AE] bg-[#FBF4E3]">
+                <AlertTriangle className="h-5 w-5 text-[#8F5F12]" />
               </span>
               <div>
-                <p className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-amber-700">Confirm Action</p>
-                <h2 id="confirm-action-title" className="mt-2 font-display text-xl font-bold uppercase text-slate-950">
+                <p className="deck-eyebrow">Confirm Action</p>
+                <h2
+                  id="confirm-action-title"
+                  className="deck-title mt-1.5 text-lg"
+                >
                   Review before continuing
                 </h2>
-                <p className="mt-3 text-sm leading-6 text-slate-600">{confirm}</p>
+                <p className="mt-2.5 text-sm leading-6 text-[var(--deck-text-2)]">
+                  {confirm}
+                </p>
               </div>
             </div>
             <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-              <Button type="button" variant="outline" className="rounded-full" onClick={() => setConfirmOpen(false)}>
+              <Button type="button" variant="outline" onClick={() => setConfirmOpen(false)}>
                 Cancel
               </Button>
-              <Button type="button" variant={variant === "destructive" ? "destructive" : "default"} className="rounded-full" onClick={confirmSubmit}>
+              <Button
+                type="button"
+                variant={variant === "destructive" ? "destructive" : "default"}
+                onClick={confirmSubmit}
+              >
                 Continue
               </Button>
             </div>

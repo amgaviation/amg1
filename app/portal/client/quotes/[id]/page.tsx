@@ -119,7 +119,7 @@ export default async function ClientQuoteDetailPage({
                   <input type="hidden" name="quote_id" value={quote.id} />
                   <input type="hidden" name="decision" value="approved" />
                   <label className="flex items-start gap-3 rounded-lg border border-border bg-background/60 p-3 text-sm text-muted-foreground">
-                    <input name="quote_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-accent" />
+                    <input name="quote_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-gold)]" />
                     <span>I acknowledge the quote terms, support review disclaimer, and no-online-payment notice.</span>
                   </label>
                   <SubmitButton className="rounded-full" pendingText="Approving…">Approve Quote</SubmitButton>

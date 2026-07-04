@@ -13,7 +13,7 @@ const globals = read("app/globals.css");
 
 assert.match(
   portalShell,
-  /amg-portal[^"]*min-h-screen[^"]*bg-slate-50[^"]*overflow-hidden/,
+  /amg-portal[^"]*min-h-screen[^"]*bg-\[var\(--deck-canvas\)\][^"]*overflow-hidden/,
   "PortalShell root must provide a light background and prevent page-level horizontal overflow",
 );
 
@@ -25,8 +25,8 @@ assert.match(
 
 assert.match(
   adminRecordManager,
-  /<section className="[^"]*w-full[^"]*max-w-full[^"]*overflow-hidden[^"]*bg-white/,
-  "AdminRecordManager card must be a full-width white overflow boundary",
+  /<section className="[^"]*deck-card[^"]*w-full[^"]*max-w-full[^"]*overflow-hidden/,
+  "AdminRecordManager card must be a full-width panel overflow boundary",
 );
 
 assert.match(
@@ -55,7 +55,7 @@ assert.match(
 
 assert.match(
   adminRecordManager,
-  /<thead className="[^"]*bg-slate-50/,
+  /<thead className="[^"]*bg-\[#F8FAFB\]/,
   "AdminRecordManager table header must have an explicit light background",
 );
 
@@ -67,8 +67,8 @@ assert.match(
 
 assert.match(
   dataTable,
-  /rounded-lg[^"]*overflow-hidden[^"]*bg-white/,
-  "Shared DataTable outer card must keep a white background across table pages",
+  /deck-card[^"]*overflow-hidden/,
+  "Shared DataTable outer card must be a panel-surface overflow boundary",
 );
 
 assert.match(
@@ -79,8 +79,8 @@ assert.match(
 
 assert.match(
   globals,
-  /\.amg-portal table\s*{\s*color:\s*#334155;/,
-  "Portal tables must use readable slate text instead of inheriting dark public-site text tokens",
+  /\.amg-portal table\s*{\s*color:\s*var\(--deck-text-2\);/,
+  "Portal tables must use readable deck text instead of inheriting dark public-site text tokens",
 );
 
 assert.match(

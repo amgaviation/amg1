@@ -304,36 +304,78 @@
       rgb(7 17 31 / 82%);
     backdrop-filter: blur(18px);
   }
+  /* ======================================================================
+     AMG OPERATIONS DECK — portal design system tokens (v2 rebuild).
+     Deep-navy chrome, light document canvas, champagne-gold accent.
+     Every shadcn + legacy --amg-* token is re-pointed here so both the
+     new deck kit and any legacy markup resolve to the same palette.
+     ====================================================================== */
   .amg-portal {
-    --background: #F8FAFC;
-    --foreground: #050B14;
-    --card: #FFFFFF;
-    --card-foreground: #050B14;
-    --popover: #FFFFFF;
-    --popover-foreground: #050B14;
-    --secondary: #F1F5F9;
-    --secondary-foreground: #050B14;
-    --muted: #F1F5F9;
-    --muted-foreground: #4B5563;
-    --border: #E5E7EB;
-    --input: #CBD5E1;
-    --ring: #3B82F6;
-    --amg-bg-portal: #F8FAFC;
-    --amg-bg-elevated: #FFFFFF;
-    --amg-text-primary: #050B14;
-    --amg-text-secondary: #4B5563;
-    --amg-text-muted: #6B7280;
-    --amg-text-subtle: #64748B;
-    --amg-border-default: #E5E7EB;
-    --amg-border-muted: #EEF2F7;
-    --amg-border-strong: #CBD5E1;
-    background:
-      linear-gradient(180deg, #F8FAFC 0%, #F9FAFB 52%, #FFFFFF 100%);
-    color: #050B14;
+    /* Deck palette */
+    --deck-ink: #0B1626;
+    --deck-chrome: #0A1322;
+    --deck-chrome-2: #111F35;
+    --deck-chrome-line: rgba(201, 214, 232, 0.14);
+    --deck-chrome-text: #E7ECF4;
+    --deck-chrome-muted: #93A1B7;
+    --deck-canvas: #F4F6F8;
+    --deck-panel: #FFFFFF;
+    --deck-line: #E4E8EE;
+    --deck-line-strong: #CBD4DF;
+    --deck-text: #101828;
+    --deck-text-2: #475467;
+    --deck-text-3: #667085;
+    --deck-gold: #B08D57;
+    --deck-gold-deep: #8C6F42;
+    --deck-gold-tint: #FAF6EE;
+    --deck-gold-line: rgba(176, 141, 87, 0.35);
+    --deck-navy: #16283F;
+    --deck-navy-2: #1D3352;
+    --deck-info: #2563EB;
+    --deck-success: #17845A;
+    --deck-warn: #B7791F;
+    --deck-danger: #C03636;
+
+    /* shadcn remap */
+    --background: var(--deck-canvas);
+    --foreground: var(--deck-text);
+    --card: var(--deck-panel);
+    --card-foreground: var(--deck-text);
+    --popover: var(--deck-panel);
+    --popover-foreground: var(--deck-text);
+    --primary: var(--deck-navy);
+    --primary-foreground: #FFFFFF;
+    --secondary: #EEF1F5;
+    --secondary-foreground: var(--deck-text);
+    --muted: #EEF1F5;
+    --muted-foreground: var(--deck-text-2);
+    --accent: var(--deck-gold);
+    --accent-foreground: #FFFFFF;
+    --destructive: var(--deck-danger);
+    --destructive-foreground: #FFFFFF;
+    --border: var(--deck-line);
+    --input: var(--deck-line-strong);
+    --ring: var(--deck-gold);
+    --radius: 0.75rem;
+
+    /* Legacy --amg-* aliases used by not-yet-rewritten markup */
+    --amg-accent-blue: var(--deck-navy-2);
+    --amg-bg-portal: var(--deck-canvas);
+    --amg-bg-elevated: var(--deck-panel);
+    --amg-text-primary: var(--deck-text);
+    --amg-text-secondary: var(--deck-text-2);
+    --amg-text-muted: var(--deck-text-3);
+    --amg-text-subtle: var(--deck-text-3);
+    --amg-border-default: var(--deck-line);
+    --amg-border-muted: #ECF0F4;
+    --amg-border-strong: var(--deck-line-strong);
+
+    background: var(--deck-canvas);
+    color: var(--deck-text);
   }
   .amg-portal ::selection {
-    background-color: rgb(59 130 246 / 20%);
-    color: #050B14;
+    background-color: rgba(176, 141, 87, 0.28);
+    color: #101828;
   }
   .hover-lift {
     transition:
@@ -1046,31 +1088,211 @@ html {
 
 }
 
+/* ==========================================================================
+   AMG OPERATIONS DECK — portal component layer (v2 rebuild).
+   Custom component classes live in @layer components so Tailwind utilities
+   can still override them from JSX.
+   ========================================================================== */
 .amg-portal {
-  --portal-panel: #FFFFFF;
-  --portal-panel-strong: #FFFFFF;
-  --portal-line: #E5E7EB;
-  --portal-muted: #4B5563;
-  --portal-soft: #9CA3AF;
+  /* Back-compat aliases for legacy markup */
+  --portal-panel: var(--deck-panel);
+  --portal-panel-strong: var(--deck-panel);
+  --portal-line: var(--deck-line);
+  --portal-muted: var(--deck-text-2);
+  --portal-soft: var(--deck-text-3);
+  font-feature-settings: "cv05", "cv11", "ss01";
+}
+
+@layer components {
+  /* ---- Typography ---- */
+  .amg-portal .deck-eyebrow {
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--deck-gold-deep);
+  }
+  .amg-portal .deck-eyebrow-chrome {
+    font-size: 0.62rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--deck-chrome-muted);
+  }
+  .amg-portal .deck-title {
+    font-family: var(--font-display);
+    font-weight: 750;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    color: var(--deck-text);
+  }
+  .amg-portal .deck-num {
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: -0.01em;
+  }
+  .amg-portal .deck-mono {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+  }
+
+  /* ---- Surfaces ---- */
+  .amg-portal .deck-card {
+    border: 1px solid var(--deck-line);
+    border-radius: calc(var(--radius) + 2px);
+    background: var(--deck-panel);
+    box-shadow:
+      0 1px 2px rgba(16, 24, 40, 0.04),
+      0 12px 32px -18px rgba(16, 24, 40, 0.14);
+  }
+  .amg-portal .deck-card-hover {
+    transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  }
+  .amg-portal .deck-card-hover:hover {
+    border-color: var(--deck-gold-line);
+    box-shadow:
+      0 1px 2px rgba(16, 24, 40, 0.05),
+      0 18px 44px -20px rgba(16, 24, 40, 0.22);
+  }
+  .amg-portal .deck-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--deck-line);
+    padding: 1rem 1.25rem;
+  }
+  .amg-portal .deck-inset {
+    border: 1px solid var(--deck-line);
+    border-radius: var(--radius);
+    background: #F8FAFB;
+  }
+  .amg-portal .deck-gold-rail {
+    position: relative;
+  }
+  .amg-portal .deck-gold-rail::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.9rem;
+    bottom: 0.9rem;
+    width: 3px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--deck-gold), rgba(176, 141, 87, 0.25));
+  }
+
+  /* ---- Chrome (sidebar / topbar) ---- */
+  .amg-portal .deck-chrome-surface {
+    background:
+      radial-gradient(120% 60% at 100% 0%, rgba(46, 74, 117, 0.35), transparent 60%),
+      linear-gradient(180deg, var(--deck-chrome) 0%, #0C1729 55%, var(--deck-chrome) 100%);
+    color: var(--deck-chrome-text);
+  }
+  .amg-portal .deck-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 2.35rem;
+    border-radius: 0.55rem;
+    padding: 0.42rem 0.7rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--deck-chrome-muted);
+    transition: background-color 140ms ease, color 140ms ease;
+  }
+  .amg-portal .deck-nav-link:hover {
+    background: rgba(201, 214, 232, 0.07);
+    color: var(--deck-chrome-text);
+  }
+  .amg-portal .deck-nav-link[data-active="true"] {
+    background: linear-gradient(90deg, rgba(176, 141, 87, 0.16), rgba(176, 141, 87, 0.05));
+    color: #F3E9D8;
+    font-weight: 600;
+    box-shadow: inset 2.5px 0 0 var(--deck-gold);
+  }
+  .amg-portal .deck-nav-group {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgba(147, 161, 183, 0.75);
+  }
+  .amg-portal .deck-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(147, 161, 183, 0.35) transparent;
+  }
+
+  /* ---- Status chips ---- */
+  .amg-portal .deck-chip {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    gap: 0.4rem;
+    white-space: nowrap;
+    border: 1px solid;
+    border-radius: 999px;
+    padding: 0.14rem 0.62rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  /* ---- Fields ---- */
+  .amg-portal .deck-input {
+    width: 100%;
+    min-height: 2.75rem;
+    border: 1px solid var(--deck-line-strong);
+    border-radius: 0.6rem;
+    background: #FFFFFF;
+    padding: 0 0.85rem;
+    font-size: 0.875rem;
+    color: var(--deck-text);
+    outline: none;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+  }
+  .amg-portal .deck-input::placeholder {
+    color: #98A2B3;
+  }
+  .amg-portal .deck-input:focus {
+    border-color: var(--deck-gold);
+    box-shadow: 0 0 0 3px rgba(176, 141, 87, 0.18);
+  }
+  .amg-portal textarea.deck-input {
+    min-height: 6rem;
+    padding: 0.65rem 0.85rem;
+  }
+}
+
+/* ---- Tables (element-level, kept outside layers to theme legacy tables) ---- */
+.amg-portal [data-slot="table-container"] {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
 
 .amg-portal table {
-  color: #334155;
+  color: var(--deck-text-2);
 }
 
 .amg-portal thead {
-  background-color: #F8FAFC;
+  background-color: #F8FAFB;
 }
 
-.amg-portal tr:hover {
-  background-color: rgba(59, 130, 246, 0.08);
+.amg-portal tbody tr:hover {
+  background-color: rgba(176, 141, 87, 0.07);
 }
 
 .amg-portal option {
   background: #FFFFFF;
-  color: #050B14;
+  color: var(--deck-text);
 }
 
+/* ---- Buttons: replace the public-site blue glow inside the portal ---- */
+.amg-portal [data-slot="button"][data-variant="default"] {
+  box-shadow: 0 10px 24px -12px rgba(22, 40, 63, 0.5);
+}
+
+/* ---- Layout guards used by action bars across the portal ---- */
 .amg-portal [data-portal-action-bar] {
   min-width: 0;
   align-items: center;
