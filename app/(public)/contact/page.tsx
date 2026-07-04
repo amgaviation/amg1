@@ -56,7 +56,7 @@ export default async function ContactPage({
       <section className="oc-shell py-14 lg:py-20">
         <div className="grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-start">
           <aside className="grid gap-5">
-            <div className="rounded-2xl border border-[var(--oc-line)] bg-white/[0.72] p-6 shadow-[var(--oc-shadow)] backdrop-blur-xl">
+            <div className="rounded-2xl border border-[var(--oc-line)] bg-[#0A1322]/85 p-6 shadow-[var(--oc-shadow)] backdrop-blur-xl">
               <p className="oc-eyebrow text-[var(--oc-blue)]">AMG Contact</p>
               <h2 className="mt-4 text-2xl font-semibold text-[var(--oc-ink)]">Inquiry routing</h2>
               <p className="mt-4 text-sm leading-relaxed text-[var(--oc-muted)]">
@@ -77,7 +77,7 @@ export default async function ContactPage({
               <p className="mt-4 text-sm leading-relaxed text-[var(--oc-aluminum)]">
                 Aircraft movement, crew coordination, maintenance movement, and operational support requests need the structured intake flow.
               </p>
-              <Button asChild className="mt-6 min-h-11 rounded-full bg-white text-[var(--oc-navy)] hover:bg-white/90">
+              <Button asChild className="mt-6 min-h-11 rounded-full bg-[#0A1322] text-[var(--oc-navy)] hover:bg-[#0A1322]/85">
                 <Link href="/booking-request" prefetch={false}>
                   Request aircraft support
                   <ArrowRight className="h-4 w-4" />

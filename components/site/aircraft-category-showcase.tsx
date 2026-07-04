@@ -1,17 +1,6 @@
 import { AIRCRAFT_CATEGORIES } from "@/lib/content";
 import { Reveal, RevealGroup, RevealItem } from "@/components/site/reveal";
-
-const AIRCRAFT_IMAGES: Record<string, string> = {
-  "single-engine-piston": "/images/site/cirrus.webp",
-  "multi-engine-piston": "/images/site/diamond-me.jpg",
-  turboprop: "/images/site/tbm.jpg",
-  "single-engine-jet-vlj": "/images/light-jet.png",
-  "light-jet": "/images/site/citation-x.webp",
-  "midsize-jet": "/images/mid-jet.png",
-  "super-midsize-jet": "/images/heavy-jet.png",
-  "large-cabin-heavy-jet": "/images/hero-jet.png",
-  helicopter: "/images/site/bell-505.jpg",
-};
+import { getAircraftImage } from "@/lib/site-media";
 
 export function AircraftCategoryShowcase() {
   return (
@@ -37,7 +26,7 @@ export function AircraftCategoryShowcase() {
                   <div className="media-vignette relative min-h-64 overflow-hidden bg-card">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={AIRCRAFT_IMAGES[aircraft.id] ?? "/images/hero-jet.png"}
+                      src={getAircraftImage(aircraft.id)}
                       alt=""
                       className="h-full min-h-64 w-full scale-105 object-cover opacity-90 transition-transform duration-500 group-hover:scale-110"
                     />

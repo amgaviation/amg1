@@ -6,7 +6,7 @@ export function ProcessTimeline() {
   return (
     <section className="cinematic-section relative isolate overflow-hidden border-y border-slate-950/20 bg-[var(--amg-ink)] py-24 text-white lg:py-28">
       <div className="absolute inset-0 opacity-[0.24]" aria-hidden="true">
-        <Image src="/images/site/map-operations.jpg" alt="" fill sizes="100vw" className="object-cover" />
+        <Image src="/images/flightdeck/runway-dusk.webp" alt="" fill sizes="100vw" className="object-cover" />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,11,20,0.98)_0%,rgba(5,11,20,0.92)_48%,rgba(5,11,20,0.74)_100%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_18%,rgba(59,130,246,0.18),transparent_28rem)]" />
       </div>

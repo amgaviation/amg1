@@ -31,7 +31,7 @@ export default async function VerifyEmailPage({
         <div className="absolute inset-0 -z-10" aria-hidden="true">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/images/site/map-operations.jpg"
+            src="/images/flightdeck/stratosphere.webp"
             alt=""
             className="h-full w-full scale-105 object-cover opacity-30"
           />

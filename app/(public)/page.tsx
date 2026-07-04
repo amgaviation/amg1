@@ -1,4 +1,4 @@
-import { HomePageWireframe } from "@/components/site/home/home-page-wireframe";
+import FlightDeckHome from "@/components/flightdeck/flight-deck-home";
 import { metadataForWebsiteContent } from "@/lib/website-editor/content";
 
 export const metadata = metadataForWebsiteContent("home", {
@@ -8,5 +8,5 @@ export const metadata = metadataForWebsiteContent("home", {
 });
 
 export default function HomePage() {
-  return <HomePageWireframe />;
+  return <FlightDeckHome />;
 }

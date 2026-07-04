@@ -54,7 +54,7 @@ export default function AircraftSupportPage() {
         withSectionCta={false}
       />
 
-      <section className="border-y border-[var(--oc-line)] bg-white px-6 py-8 lg:px-10">
+      <section className="border-y border-[var(--oc-line)] bg-[#0A1322] px-6 py-8 lg:px-10">
         <div className="oc-shell">
           <p className="max-w-5xl text-sm leading-relaxed text-[var(--oc-muted)]">
             Aircraft manufacturer and model names are used only for identification and aircraft-class context. AMG is

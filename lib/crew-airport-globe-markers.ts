@@ -7,7 +7,7 @@ export type CrewAirportCoverageMarker = GlobeMarker & {
   crewCount: number;
 };
 
-const CREW_MARKER_SRC = "/images/amg-crew-marker.svg";
+const CREW_MARKER_SRC = "/images/flightdeck/crew-marker.svg";
 
 export const crewAirportGlobeMarkers: CrewAirportCoverageMarker[] = [
 {

@@ -16,6 +16,16 @@
 */
 
 :root {
+  /* Flight-deck palette — AMG "Flight Deck" design system */
+  --canvas: #070b14;
+  --instrument: #00e887;
+  --amber: #ffb02e;
+  --t1: #f4f7fa;
+  --t2: #a9b4c6;
+  --t3: #5f6c82;
+  --grid-green: rgba(0, 232, 135, 0.08);
+  --grid-silver: rgba(169, 180, 198, 0.06);
+
   --radius: 0.625rem;
   --public-header-height: 80px;
   --public-section-spacing: clamp(4rem, 8vw, 7rem);
@@ -174,6 +184,19 @@
   --font-sans: var(--font-sans);
   --font-display: var(--font-display);
   --font-mono: var(--font-mono);
+
+  /* Flight-deck design tokens (public-site rebuild) */
+  --color-canvas: var(--canvas);
+  --color-instrument: var(--instrument);
+  --color-amber: var(--amber);
+  --color-t1: var(--t1);
+  --color-t2: var(--t2);
+  --color-t3: var(--t3);
+  --color-grid-green: var(--grid-green);
+  --color-grid-silver: var(--grid-silver);
+  --tracking-widecap: 0.22em;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -509,155 +532,6 @@
   }
 }
 
-.amg-splash-intro {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  isolation: isolate;
-  display: grid;
-  min-height: 100svh;
-  place-items: center;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 50% 52%, rgb(59 130 246 / 0.18), transparent 24rem),
-    linear-gradient(180deg, #07111F 0%, #050B14 58%, #020711 100%);
-  color: #FFFFFF;
-  animation: wipeUp 0.72s var(--amg-ease-in-out) 3s forwards;
-  will-change: transform;
-}
-
-.amg-splash-intro::before,
-.amg-splash-intro::after {
-  content: "";
-  position: absolute;
-  inset: -18%;
-  z-index: -1;
-  pointer-events: none;
-  background-repeat: repeat;
-  animation: runwayScroll 3s linear infinite;
-}
-
-.amg-splash-intro::before {
-  opacity: 0.42;
-  background-image:
-    repeating-linear-gradient(
-      90deg,
-      rgb(192 199 209 / 0.15) 0 1px,
-      transparent 1px 84px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      rgb(59 130 246 / 0.12) 0 1px,
-      transparent 1px 128px
-    );
-  background-size: 84px 128px;
-  transform: perspective(760px) rotateX(61deg) translateY(10%);
-  transform-origin: center bottom;
-  mask-image: linear-gradient(90deg, transparent, black 18%, black 82%, transparent);
-}
-
-.amg-splash-intro::after {
-  opacity: 0.28;
-  background-image:
-    repeating-linear-gradient(
-      90deg,
-      transparent 0 52px,
-      rgb(255 255 255 / 0.18) 52px 54px,
-      transparent 54px 136px
-    );
-  background-size: 136px 100%;
-  filter: blur(0.3px);
-  mask-image: radial-gradient(ellipse at 50% 50%, black 0 42%, transparent 72%);
-}
-
-.amg-splash-mark {
-  position: relative;
-  display: flex;
-  width: min(78vw, 30rem);
-  flex-direction: column;
-  align-items: center;
-  gap: 1.35rem;
-  text-align: center;
-}
-
-.amg-splash-logo {
-  position: relative;
-  height: clamp(4.25rem, 12vw, 7.25rem);
-  width: min(76vw, 24rem);
-  filter: drop-shadow(0 20px 42px rgb(0 0 0 / 0.34));
-  mask-image: linear-gradient(90deg, black 0 42%, rgb(0 0 0 / 0.68) 48%, transparent 56%);
-  mask-size: 240% 100%;
-  mask-position: 120% 0;
-  -webkit-mask-image: linear-gradient(90deg, black 0 42%, rgb(0 0 0 / 0.68) 48%, transparent 56%);
-  -webkit-mask-size: 240% 100%;
-  -webkit-mask-position: 120% 0;
-  animation: logoDraw 1.35s var(--amg-ease-out) 0.5s forwards;
-}
-
-.amg-splash-logo::after {
-  content: "";
-  position: absolute;
-  inset: -24% -12%;
-  pointer-events: none;
-  background: linear-gradient(100deg, transparent 22%, rgb(255 255 255 / 0.86) 48%, rgb(59 130 246 / 0.28) 54%, transparent 76%);
-  mix-blend-mode: screen;
-  transform: translateX(-116%);
-  animation: amg-logo-beam 1.35s var(--amg-ease-out) 0.5s forwards;
-}
-
-.amg-splash-tagline {
-  margin: 0;
-  max-width: 26rem;
-  color: var(--oc-aluminum);
-  font-family: var(--oc-sans);
-  font-size: clamp(0.88rem, 2vw, 1.08rem);
-  font-weight: 600;
-  letter-spacing: 0;
-  line-height: 1.5;
-  opacity: 0;
-  transform: translateY(0.55rem);
-  animation: amg-splash-tagline 0.58s var(--amg-ease-out) 1.82s forwards;
-}
-
-@keyframes runwayScroll {
-  from {
-    background-position: 0 0, 0 0;
-  }
-  to {
-    background-position: 220px 0, 164px 0;
-  }
-}
-
-@keyframes logoDraw {
-  from {
-    mask-position: 120% 0;
-    -webkit-mask-position: 120% 0;
-  }
-  to {
-    mask-position: 0 0;
-    -webkit-mask-position: 0 0;
-  }
-}
-
-@keyframes amg-logo-beam {
-  to {
-    transform: translateX(116%);
-  }
-}
-
-@keyframes amg-splash-tagline {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes wipeUp {
-  to {
-    transform: translate3d(0, -101%, 0);
-  }
-}
-
 /* Custom scrollbar for the premium feel */
 ::-webkit-scrollbar {
   width: 10px;
@@ -733,11 +607,13 @@ html {
   visibility: visible;
 }
 
-.tracking-tight,
-.tracking-wide,
-.tracking-wider,
-.tracking-widest,
-[class*="tracking-"] {
+/* Legacy zero-tracking rule. The flight-deck scope (.fd-site) is excluded:
+   its design system depends on wide mono letter-spacing. */
+.tracking-tight:not(.fd-site *),
+.tracking-wide:not(.fd-site *),
+.tracking-wider:not(.fd-site *),
+.tracking-widest:not(.fd-site *),
+[class*="tracking-"]:not(.fd-site *) {
   letter-spacing: 0 !important;
 }
 
@@ -759,10 +635,6 @@ html {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.001ms !important;
-  }
-
-  .amg-splash-intro {
-    display: none !important;
   }
 }
 
@@ -1256,5 +1128,324 @@ html {
   50% {
     opacity: 1;
     transform: scale(1.25);
+  }
+}
+
+/* ==========================================================================
+   AMG FLIGHT DECK — public-site design system (redesign/flight-deck)
+   Canvas #070B14 · Instrument Green #00E887 · Aviation Amber #FFB02E
+   Type: Space Grotesk (display) + JetBrains Mono (data/microlabels).
+   Component classes live in @layer components so Tailwind utilities keep
+   winning specificity fights (unlayered CSS previously broke mobile nav).
+   ========================================================================== */
+
+/* Lenis smooth-scroll integration (home experience only) */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+@layer components {
+  /* ---- structural grid backdrops ---- */
+  .radar-grid {
+    background-image: linear-gradient(var(--grid-green) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-green) 1px, transparent 1px);
+    background-size: 72px 72px;
+  }
+  .silver-grid {
+    background-image: linear-gradient(var(--grid-silver) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-silver) 1px, transparent 1px);
+    background-size: 96px 96px;
+  }
+
+  /* ---- typography helpers ---- */
+  .microlabel {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--t3);
+  }
+  .microlabel-green {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--instrument);
+  }
+  .microlabel-amber {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--amber);
+  }
+
+  /* fluid display type */
+  .display-xl {
+    font-size: clamp(3rem, 8.5vw, 9rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+  }
+  .display-lg {
+    font-size: clamp(2.25rem, 5.5vw, 5.5rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  /* mask-reveal line wrappers (preloader / headings) */
+  .mask-line {
+    display: block;
+    overflow: hidden;
+  }
+  .mask-line > span {
+    display: block;
+    transform: translateY(110%);
+  }
+
+  /* nav link line-draw hover */
+  .fd-navlink {
+    position: relative;
+  }
+  .fd-navlink::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    height: 1px;
+    width: 100%;
+    background: var(--instrument);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .fd-navlink:hover::after,
+  .fd-navlink:focus-visible::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* accent corner ticks (HUD frames) */
+  .hud-frame {
+    position: relative;
+  }
+  .hud-frame::before,
+  .hud-frame::after {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-color: var(--instrument);
+    opacity: 0.65;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .hud-frame::before {
+    top: 0;
+    left: 0;
+    border-top: 1px solid;
+    border-left: 1px solid;
+  }
+  .hud-frame::after {
+    bottom: 0;
+    right: 0;
+    border-bottom: 1px solid;
+    border-right: 1px solid;
+  }
+
+  /* barcode for the boarding-pass card */
+  .barcode {
+    background-image: repeating-linear-gradient(
+      90deg,
+      var(--canvas) 0 2px,
+      transparent 2px 4px,
+      var(--canvas) 4px 7px,
+      transparent 7px 8px,
+      var(--canvas) 8px 9px,
+      transparent 9px 13px
+    );
+  }
+
+  /* word-reveal statement */
+  .fd-site .word {
+    opacity: 0.14;
+    will-change: opacity;
+  }
+
+  /* JS-animated entrance elements start hidden; forced visible when
+     motion is reduced or JS never runs the reveal. */
+  .fd-site [data-fd-hidden] {
+    opacity: 0;
+  }
+}
+
+/* ---- flight-deck scope ---- */
+.fd-site {
+  background: var(--canvas);
+  color: var(--t1);
+  font-family: var(--font-display);
+}
+.fd-site ::selection {
+  background: var(--instrument);
+  color: var(--canvas);
+}
+
+/* ---- public-site retheme: instrument accents + flight-deck type ---- */
+.public-site {
+  --font-display: var(--font-space-grotesk, "Space Grotesk"), "Space Grotesk", sans-serif;
+  --font-mono: var(--font-jetbrains-mono, "JetBrains Mono"), ui-monospace, monospace;
+  --oc-display: var(--font-space-grotesk, "Space Grotesk"), "Space Grotesk", sans-serif;
+  --oc-sans: var(--font-space-grotesk, "Space Grotesk"), "Space Grotesk", sans-serif;
+
+  --oc-blue: var(--instrument);
+  --oc-blue-soft: var(--instrument);
+  --oc-accent: var(--instrument);
+  --oc-sky: var(--instrument);
+  --amg-accent-blue: var(--instrument);
+  --amg-text-accent: var(--instrument);
+  --accent: var(--instrument);
+  --accent-foreground: var(--canvas);
+  --primary: var(--instrument);
+  --primary-foreground: var(--canvas);
+  --ring: var(--instrument);
+  --amg-border-accent: rgba(0, 232, 135, 0.5);
+
+  --amg-midnight-navy: var(--canvas);
+  --amg-deep-blue: #0a1322;
+  --amg-bg: var(--canvas);
+  --amg-bg-muted: #0a1322;
+  --oc-navy: var(--canvas);
+  --oc-navy-2: #0a1322;
+  --oc-graphite: #0a1322;
+  --oc-graphite-2: var(--canvas);
+}
+
+.public-site.amg-oc {
+  background:
+    radial-gradient(circle at 78% 8%, rgba(0, 232, 135, 0.07), transparent 28rem),
+    linear-gradient(180deg, #070b14 0%, #0a1322 42%, #070b14 100%);
+}
+
+.public-site.amg-oc ::selection {
+  background: var(--instrument);
+  color: var(--canvas);
+}
+
+@layer utilities {
+  .public-site .oc-eyebrow {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+    color: var(--instrument);
+  }
+  .public-site .oc-eyebrow-light {
+    color: var(--t2);
+  }
+  .public-site .oc-kicker {
+    font-family: var(--font-mono);
+    letter-spacing: 0.18em;
+  }
+  .public-site .oc-btn {
+    font-family: var(--font-mono);
+    letter-spacing: 0.14em;
+    font-weight: 500;
+  }
+  .public-site .oc-btn-primary {
+    background: var(--instrument);
+    color: var(--canvas);
+    box-shadow: 0 0 40px rgba(0, 232, 135, 0.28);
+  }
+  .public-site .oc-btn-primary:hover {
+    background: color-mix(in srgb, var(--instrument) 82%, white);
+    box-shadow: 0 0 60px rgba(0, 232, 135, 0.4);
+  }
+  .public-site .oc-btn-light {
+    background: var(--t1);
+    color: var(--canvas);
+    border-color: rgba(244, 247, 250, 0.78);
+  }
+  .public-site .oc-btn-ghost-dark:hover {
+    border-color: var(--instrument);
+    background: rgba(0, 232, 135, 0.1);
+  }
+  .public-site .oc-dot {
+    background: var(--instrument);
+    box-shadow: 0 0 0 4px rgba(0, 232, 135, 0.16);
+  }
+  .public-site .oc-panel-navy {
+    background:
+      radial-gradient(120% 120% at 85% 0%, rgba(0, 232, 135, 0.14), transparent 55%),
+      linear-gradient(170deg, #0a1322, #070b14);
+  }
+  .public-site .support-field {
+    background: rgba(10, 19, 34, 0.82);
+    border-color: rgba(169, 180, 198, 0.24);
+    color: var(--t1);
+  }
+  .public-site .support-field:focus,
+  .public-site .support-field:focus-visible {
+    border-color: var(--instrument);
+    box-shadow:
+      0 0 0 3px rgba(0, 232, 135, 0.16),
+      0 0 28px rgba(0, 232, 135, 0.12);
+  }
+  .public-site .amg-oc .support-field,
+  .public-site.amg-oc .support-field {
+    background: rgba(10, 19, 34, 0.82);
+    border-color: rgba(169, 180, 198, 0.24);
+    color: var(--t1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+  .public-site.amg-oc .support-field::placeholder {
+    color: var(--t3);
+  }
+  .public-site .oc-card {
+    background: linear-gradient(160deg, rgba(10, 19, 34, 0.96), rgba(7, 11, 20, 0.96));
+    border: 1px solid rgba(169, 180, 198, 0.16);
+    color: var(--t1);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.26);
+  }
+}
+
+/* Motion-reduction: flight-deck content must remain readable without motion */
+@media (prefers-reduced-motion: reduce) {
+  .fd-site .mask-line > span {
+    transform: none !important;
+  }
+  .fd-site .word {
+    opacity: 1 !important;
+  }
+  .fd-site [data-fd-hidden] {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/* Dark retheme for legacy light bands on secondary public pages —
+   the flight deck has no ivory surfaces. */
+.public-site {
+  --oc-ivory: #0a1322;
+  --oc-ivory-2: #0e1b2e;
+  --oc-ink: #f4f7fa;
+  --oc-muted: rgba(169, 180, 198, 0.78);
+  --oc-line: rgba(169, 180, 198, 0.16);
+  --oc-line-strong: rgba(169, 180, 198, 0.28);
+  --oc-shadow: 0 24px 70px rgb(0 0 0 / 0.32);
+}
+
+/* Pinned flight-deck sections collapse to a single viewport when the
+   user prefers reduced motion (the scrub timelines are skipped in JS). */
+@media (prefers-reduced-motion: reduce) {
+  .fd-site .fd-pin-section {
+    height: auto !important;
+    min-height: 100svh;
   }
 }

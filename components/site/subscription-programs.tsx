@@ -86,7 +86,7 @@ export function SubscriptionPrograms({ hero }: { hero?: PlansHeroContent }) {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
               <fieldset>
                 <legend className="text-sm font-semibold text-[var(--oc-ink)]">Billing interval</legend>
-                <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl border border-[var(--oc-line)] bg-white/[0.55] p-1">
+                <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl border border-[var(--oc-line)] bg-[#0A1322]/85 p-1">
                   {(["monthly", "annual"] as const).map((interval) => (
                     <button
                       key={interval}
@@ -97,7 +97,7 @@ export function SubscriptionPrograms({ hero }: { hero?: PlansHeroContent }) {
                         "min-h-11 rounded-lg px-4 text-sm font-semibold capitalize transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--oc-blue)] focus-visible:ring-offset-2",
                         billing === interval
                           ? "bg-[var(--oc-navy)] text-white shadow-sm"
-                          : "text-[var(--oc-muted)] hover:bg-white hover:text-[var(--oc-ink)]",
+                          : "text-[var(--oc-muted)] hover:bg-[#0A1322] hover:text-[var(--oc-ink)]",
                       )}
                     >
                       {interval}
@@ -125,7 +125,7 @@ export function SubscriptionPrograms({ hero }: { hero?: PlansHeroContent }) {
             onPistonSubtypeChange={selectPistonSubtype}
           />
 
-          <div className="mt-7 rounded-2xl border border-[var(--oc-line)] bg-white/[0.58] p-5 shadow-[var(--oc-shadow)] backdrop-blur-xl sm:p-6">
+          <div className="mt-7 rounded-2xl border border-[var(--oc-line)] bg-[#0A1322]/85 p-5 shadow-[var(--oc-shadow)] backdrop-blur-xl sm:p-6">
             <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-start">
               <div>
                 <p className="oc-eyebrow text-[var(--oc-blue)]">{category.label}</p>
@@ -142,7 +142,7 @@ export function SubscriptionPrograms({ hero }: { hero?: PlansHeroContent }) {
               </div>
             </div>
             {category.twoCrewNote ? (
-              <p className="mt-5 rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
+              <p className="mt-5 rounded-xl border border-[var(--oc-line)] bg-[#0A1322]/85 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
                 {category.twoCrewNote}
               </p>
             ) : null}
@@ -198,7 +198,7 @@ function PlansHero({ content }: { content?: PlansHeroContent }) {
               owner/operator approval, and operational conditions have been reviewed.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button asChild className="min-h-11 rounded-full bg-white px-6 text-[var(--oc-navy)] hover:bg-white/90">
+              <Button asChild className="min-h-11 rounded-full bg-[#0A1322] px-6 text-[var(--oc-navy)] hover:bg-[#0A1322]/85">
                 <Link href={primary.href} prefetch={false}>
                   {primary.label}
                   <ArrowRight className="h-4 w-4" />
@@ -251,7 +251,7 @@ function CategoryControls({
               "min-h-11 shrink-0 rounded-full border px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--oc-blue)] focus-visible:ring-offset-2",
               categoryId === category.id
                 ? "border-[var(--oc-navy)] bg-[var(--oc-navy)] text-white"
-                : "border-[var(--oc-line)] bg-white/70 text-[var(--oc-muted)] hover:border-[var(--oc-blue)] hover:text-[var(--oc-ink)]",
+                : "border-[var(--oc-line)] bg-[#0A1322]/85 text-[var(--oc-muted)] hover:border-[var(--oc-blue)] hover:text-[var(--oc-ink)]",
             )}
           >
             {category.label}
@@ -260,7 +260,7 @@ function CategoryControls({
       </div>
 
       {categoryId === "piston" && pistonCategory?.subcategories ? (
-        <div className="mt-4 inline-grid w-full grid-cols-1 gap-2 rounded-2xl border border-[var(--oc-line)] bg-white/[0.62] p-2 sm:w-auto sm:grid-cols-2">
+        <div className="mt-4 inline-grid w-full grid-cols-1 gap-2 rounded-2xl border border-[var(--oc-line)] bg-[#0A1322]/85 p-2 sm:w-auto sm:grid-cols-2">
           {pistonCategory.subcategories.map((subcategory) => (
             <button
               key={subcategory.id}
@@ -271,7 +271,7 @@ function CategoryControls({
                 "min-h-11 rounded-xl px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--oc-blue)] focus-visible:ring-offset-2",
                 pistonSubtypeId === subcategory.id
                   ? "bg-[var(--oc-blue)] text-white"
-                  : "text-[var(--oc-muted)] hover:bg-white hover:text-[var(--oc-ink)]",
+                  : "text-[var(--oc-muted)] hover:bg-[#0A1322] hover:text-[var(--oc-ink)]",
               )}
             >
               {subcategory.label}
@@ -305,7 +305,7 @@ function PlanCard({
       )}
     >
       <div className="flex items-start justify-between gap-3">
-        <Badge variant="outline" className="border-[var(--oc-line)] bg-white/70 text-[var(--oc-ink)]">
+        <Badge variant="outline" className="border-[var(--oc-line)] bg-[#0A1322]/85 text-[var(--oc-ink)]">
           {plan.badge ?? "Support Plan"}
         </Badge>
         <Plane className="h-5 w-5 text-[var(--oc-blue)]" aria-hidden="true" />
@@ -313,7 +313,7 @@ function PlanCard({
       <h3 className="oc-display mt-5 text-3xl text-[var(--oc-ink)]">{plan.name}</h3>
       <p className="mt-3 text-sm leading-relaxed text-[var(--oc-muted)]">{plan.description}</p>
 
-      <div className="mt-6 rounded-xl border border-[var(--oc-line)] bg-white/70 p-4">
+      <div className="mt-6 rounded-xl border border-[var(--oc-line)] bg-[#0A1322]/85 p-4">
         <p className="text-xs font-semibold uppercase text-[var(--oc-muted)]">
           {billing === "monthly" ? "Monthly pricing" : "Annual billing"}
         </p>
@@ -370,7 +370,7 @@ function PlanDetailsPanel({ plan }: { plan: SupportPlan | null }) {
   if (!plan) return null;
 
   return (
-    <section id={`plan-details-${plan.id}`} className="mt-6 rounded-2xl border border-[var(--oc-line)] bg-white/[0.72] p-5 shadow-[var(--oc-shadow)] backdrop-blur-xl sm:p-6" aria-live="polite">
+    <section id={`plan-details-${plan.id}`} className="mt-6 rounded-2xl border border-[var(--oc-line)] bg-[#0A1322]/85 p-5 shadow-[var(--oc-shadow)] backdrop-blur-xl sm:p-6" aria-live="polite">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="oc-eyebrow text-[var(--oc-blue)]">Support details</p>
@@ -427,7 +427,7 @@ function PlanComparisonMatrix({ plans, contextLabel }: { plans: SupportPlan[]; c
         </p>
       </div>
 
-      <div className="mt-9 hidden overflow-hidden rounded-2xl border border-[var(--oc-line)] bg-white/[0.72] shadow-[var(--oc-shadow)] backdrop-blur-xl lg:block">
+      <div className="mt-9 hidden overflow-hidden rounded-2xl border border-[var(--oc-line)] bg-[#0A1322]/85 shadow-[var(--oc-shadow)] backdrop-blur-xl lg:block">
         <table className="w-full table-fixed border-collapse text-left">
           <thead>
             <tr className="border-b border-[var(--oc-line)]">
@@ -458,7 +458,7 @@ function PlanComparisonMatrix({ plans, contextLabel }: { plans: SupportPlan[]; c
 
       <div className="mt-8 grid gap-4 lg:hidden">
         {plans.map((plan) => (
-          <Card key={plan.id} className="rounded-2xl border-[var(--oc-line)] bg-white/[0.74]">
+          <Card key={plan.id} className="rounded-2xl border-[var(--oc-line)] bg-[#0A1322]/85">
             <CardContent className="p-5">
               <h3 className="text-lg font-semibold text-[var(--oc-ink)]">{plan.name}</h3>
               <dl className="mt-4 grid gap-3">
@@ -522,7 +522,7 @@ function PlansCTA() {
             requirements, and owner/operator preferences before recommending a support path.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button asChild className="min-h-11 rounded-full bg-white px-6 text-[var(--oc-navy)] hover:bg-white/90">
+            <Button asChild className="min-h-11 rounded-full bg-[#0A1322] px-6 text-[var(--oc-navy)] hover:bg-[#0A1322]/85">
               <Link href={REQUEST_REVIEW_HREF} prefetch={false}>
                 Request a plan review
                 <ArrowRight className="h-4 w-4" />

@@ -16,20 +16,20 @@ export default function TeamPage() {
         eyebrow="AMG Team"
         title="The people and roles behind every mission"
         description="AMG Connect is designed around the real operation: clients, crew, admin staff, and the mission coordination desk."
-        image="/images/heavy-jet.png"
+        image="/images/flightdeck/crew-walk.webp"
       />
       <section className="cinematic-band py-28">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <RevealGroup className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4" data-scroll-animate>
             {TEAM.map((member) => (
               <RevealItem key={member.name}>
-                <article className="hover-lift h-full rounded-lg border border-slate-200 bg-white p-8 shadow-[0_18px_50px_rgba(8,20,36,0.07)]">
+                <article className="hover-lift h-full rounded-lg border border-[var(--oc-line)] bg-[#0A1322] p-8 shadow-[0_18px_50px_rgba(8,20,36,0.07)]">
                   <div className="flex h-16 w-16 items-center justify-center rounded-full border border-accent/50 bg-accent/10 font-display text-2xl font-extrabold text-accent">
                     {member.initials}
                   </div>
-                  <h2 className="mt-8 font-display text-2xl font-bold uppercase tracking-wide text-slate-950">{member.name}</h2>
+                  <h2 className="mt-8 font-display text-2xl font-bold uppercase tracking-wide text-[var(--oc-ink)]">{member.name}</h2>
                   <p className="eyebrow mt-2 text-[0.65rem] text-accent">{member.title}</p>
-                  <p className="mt-5 leading-relaxed text-slate-600">{member.bio}</p>
+                  <p className="mt-5 leading-relaxed text-[var(--oc-muted)]">{member.bio}</p>
                 </article>
               </RevealItem>
             ))}
