@@ -49,7 +49,7 @@ export default async function AdminCompliancePage() {
         eyebrow="AMG Operations"
         title="Compliance"
         description="Legal notices, privacy requests, consent architecture, script-gating, and administrative review checkpoints."
-        actions={<Link href="/privacy-choices" className="rounded-full border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-900 hover:border-primary">Public Privacy Choices</Link>}
+        actions={<Link href="/privacy-choices" className="rounded-full border border-[var(--deck-line)] px-4 py-2 text-xs font-semibold text-[var(--deck-text)] hover:border-[var(--deck-gold)]">Public Privacy Choices</Link>}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
@@ -67,10 +67,10 @@ export default async function AdminCompliancePage() {
             <Link
               key={document.slug}
               href={document.legacyPath ?? `/legal/${document.slug}`}
-              className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm transition-colors hover:border-primary"
+              className="rounded-lg border border-[var(--deck-line)] bg-[#F8FAFB] p-4 text-sm transition-colors hover:border-[var(--deck-gold)]"
             >
-              <span className="font-semibold text-slate-950">{document.title}</span>
-              <span className="mt-1 block text-xs leading-relaxed text-slate-500">{document.description}</span>
+              <span className="font-semibold text-[var(--deck-text)]">{document.title}</span>
+              <span className="mt-1 block text-xs leading-relaxed text-[var(--deck-text-3)]">{document.description}</span>
             </Link>
           ))}
         </div>
@@ -81,15 +81,15 @@ export default async function AdminCompliancePage() {
           {consentScriptRegistry.map((script) => (
             <DetailRow key={script.id} label={script.category.replace(/_/g, " ")}>
               <span className="block font-medium">{script.id}</span>
-              <span className="mt-1 block text-xs text-slate-500">{script.description}</span>
-              <span className="mt-1 block text-xs text-slate-500">Environment key: {script.envKey}</span>
+              <span className="mt-1 block text-xs text-[var(--deck-text-3)]">{script.description}</span>
+              <span className="mt-1 block text-xs text-[var(--deck-text-3)]">Environment key: {script.envKey}</span>
             </DetailRow>
           ))}
         </dl>
       </SectionCard>
 
       <SectionCard title="Operational Disclaimer" icon="plane">
-        <p className="text-sm leading-relaxed text-slate-600">
+        <p className="text-sm leading-relaxed text-[var(--deck-text-2)]">
           AMG support is reviewed before acceptance. No request is considered accepted until applicable operational
           scope, aircraft status, crew availability, owner/operator approval, and operating conditions have been reviewed.
         </p>

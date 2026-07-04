@@ -392,6 +392,55 @@ export function FilterTabs({
   );
 }
 
+/** Link-driven pagination bar for filtered lists. */
+export function Pagination({
+  basePath,
+  page,
+  pageCount,
+  params = {},
+}: {
+  basePath: string;
+  page: number;
+  pageCount: number;
+  params?: Record<string, string | number | null | undefined>;
+}) {
+  if (pageCount <= 1) return null;
+  const hrefFor = (target: number) => {
+    const search = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== null && value !== undefined && value !== "") search.set(key, String(value));
+    }
+    search.set("page", String(target));
+    return `${basePath}?${search.toString()}`;
+  };
+  const linkCls = (disabled: boolean) =>
+    cn(
+      "rounded-lg border px-4 py-2 text-xs font-semibold transition-colors",
+      disabled
+        ? "pointer-events-none border-[var(--deck-line)] text-[var(--deck-text-3)] opacity-50"
+        : "border-[var(--deck-line-strong)] bg-white text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]"
+    );
+  return (
+    <div className="deck-card flex flex-col gap-3 px-5 py-4 text-sm text-[var(--deck-text-3)] sm:flex-row sm:items-center sm:justify-between">
+      <span className="deck-num">
+        Page {page} of {pageCount}
+      </span>
+      <div className="flex gap-2">
+        <Link aria-disabled={page <= 1} href={page <= 1 ? "#" : hrefFor(page - 1)} className={linkCls(page <= 1)}>
+          Previous
+        </Link>
+        <Link
+          aria-disabled={page >= pageCount}
+          href={page >= pageCount ? "#" : hrefFor(page + 1)}
+          className={linkCls(page >= pageCount)}
+        >
+          Next
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export const PortalPageHeader = PageHeader;
 export const PortalSection = SectionCard;
 export const PortalCard = SectionCard;

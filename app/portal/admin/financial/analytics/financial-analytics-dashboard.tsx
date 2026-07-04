@@ -54,10 +54,10 @@ function labelize(value: string | null | undefined) {
 }
 
 function metricToneClasses(metric: FinancialMetric) {
-  if (metric.tone === "positive") return "border-emerald-400/40 bg-emerald-950 text-emerald-50";
-  if (metric.tone === "danger") return "border-red-400/45 bg-red-950 text-red-50";
-  if (metric.tone === "warning") return "border-amber-300/45 bg-amber-950 text-amber-50";
-  return "border-slate-700 bg-slate-950 text-slate-50";
+  if (metric.tone === "positive") return "border-[rgba(70,160,120,0.45)] bg-[#0D2A1E] text-[#D9F2E5]";
+  if (metric.tone === "danger") return "border-[rgba(214,106,106,0.5)] bg-[#2E1212] text-[#F6DBDB]";
+  if (metric.tone === "warning") return "border-[#E2CD9B]/45 bg-amber-950 text-amber-50";
+  return "border-[rgba(201,214,232,0.2)] bg-[var(--deck-ink)] text-[#E7ECF4]";
 }
 
 function MetricCard({ metric }: { metric: FinancialMetric }) {
@@ -65,9 +65,9 @@ function MetricCard({ metric }: { metric: FinancialMetric }) {
   return (
     <div className={cn("rounded-lg border p-4 shadow-[0_18px_44px_rgba(2,6,23,0.18)]", metricToneClasses(metric))}>
       <div className="flex min-h-8 items-start justify-between gap-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/68">{metric.label}</p>
+        <p className="text-xs font-semibold uppercase [letter-spacing:0.14em] text-white/68">{metric.label}</p>
         {metric.delta !== null ? (
-          <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[0.68rem] font-semibold", positive ? "border-emerald-300/35 text-emerald-100" : "border-amber-200/35 text-amber-100")}>
+          <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[0.68rem] font-semibold", positive ? "border-[#BFE3D2]/35 text-emerald-100" : "border-[#EAD9AE]/35 text-amber-100")}>
             {positive ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}
             {metric.deltaLabel}
           </span>
@@ -75,7 +75,7 @@ function MetricCard({ metric }: { metric: FinancialMetric }) {
       </div>
       <p className="mt-4 font-display text-3xl font-extrabold leading-none tracking-normal text-white sm:text-4xl">{metric.formatted}</p>
       <p className="mt-3 text-xs leading-5 text-white/72">{metric.detail}</p>
-      <p className="mt-3 border-t border-white/10 pt-3 font-mono text-[0.66rem] uppercase tracking-[0.12em] text-white/48">{metric.source}</p>
+      <p className="mt-3 border-t border-white/10 pt-3 font-mono text-[0.66rem] uppercase [letter-spacing:0.12em] text-white/48">{metric.source}</p>
     </div>
   );
 }
@@ -91,18 +91,18 @@ function BarChart({ points, secondaryLabel }: { points: ChartPoint[]; secondaryL
     <div className="space-y-3" role="img" aria-label="Bar chart">
       {points.slice(-12).map((point) => (
         <div key={point.label} className="grid grid-cols-[4.6rem_1fr_5.2rem] items-center gap-3 text-xs">
-          <span className="truncate font-mono text-slate-500">{point.label}</span>
+          <span className="truncate font-mono text-[var(--deck-text-3)]">{point.label}</span>
           <div className="space-y-1">
-            <div className="h-3 overflow-hidden rounded-full bg-slate-200">
-              <div className="h-full rounded-full bg-emerald-500" style={{ width: `${Math.max(2, (point.value / max) * 100)}%` }} />
+            <div className="h-3 overflow-hidden rounded-full bg-[#E4E8EE]">
+              <div className="h-full rounded-full bg-[#EAF6F0]0" style={{ width: `${Math.max(2, (point.value / max) * 100)}%` }} />
             </div>
             {typeof point.secondary === "number" ? (
-              <div className="h-2 overflow-hidden rounded-full bg-slate-200">
-                <div className="h-full rounded-full bg-sky-500" style={{ width: `${Math.max(2, (point.secondary / max) * 100)}%` }} />
+              <div className="h-2 overflow-hidden rounded-full bg-[#E4E8EE]">
+                <div className="h-full rounded-full bg-[#EFF4FE]0" style={{ width: `${Math.max(2, (point.secondary / max) * 100)}%` }} />
               </div>
             ) : null}
           </div>
-          <span className="text-right font-mono text-slate-700">{formatMoney(point.value)}</span>
+          <span className="text-right font-mono text-[var(--deck-text-2)]">{formatMoney(point.value)}</span>
         </div>
       ))}
       {secondaryLabel ? <p className="text-xs text-muted-foreground">Green is money in. Blue is {secondaryLabel}.</p> : null}
@@ -117,11 +117,11 @@ function BreakdownChart({ points }: { points: BreakdownPoint[] }) {
     <div className="space-y-3" role="img" aria-label="Breakdown chart">
       {points.map((point) => (
         <div key={point.label} className="grid grid-cols-[minmax(5.5rem,9rem)_1fr_5.5rem] items-center gap-3 text-xs">
-          <span className="truncate text-slate-600">{labelize(point.label)}</span>
-          <div className="h-3 overflow-hidden rounded-full bg-slate-200">
-            <div className="h-full rounded-full bg-slate-950" style={{ width: `${Math.max(2, (point.value / max) * 100)}%` }} />
+          <span className="truncate text-[var(--deck-text-2)]">{labelize(point.label)}</span>
+          <div className="h-3 overflow-hidden rounded-full bg-[#E4E8EE]">
+            <div className="h-full rounded-full bg-[var(--deck-navy)]" style={{ width: `${Math.max(2, (point.value / max) * 100)}%` }} />
           </div>
-          <span className="text-right font-mono text-slate-700">{formatMoney(point.value)}</span>
+          <span className="text-right font-mono text-[var(--deck-text-2)]">{formatMoney(point.value)}</span>
         </div>
       ))}
     </div>
@@ -130,7 +130,7 @@ function BreakdownChart({ points }: { points: BreakdownPoint[] }) {
 
 function EmptyChart() {
   return (
-    <div className="flex min-h-44 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 text-center text-sm text-muted-foreground">
+    <div className="flex min-h-44 items-center justify-center rounded-lg border border-dashed border-[var(--deck-line-strong)] bg-[#F8FAFB] px-4 text-center text-sm text-muted-foreground">
       No data available for this chart.
     </div>
   );
@@ -223,15 +223,15 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
     <div className="space-y-6">
       {error ? <Notice tone="danger">{error}</Notice> : null}
 
-      <section className="rounded-lg border border-slate-800 bg-slate-950 p-4 text-white shadow-[0_24px_60px_rgba(2,6,23,0.20)]">
+      <section className="rounded-lg border border-[rgba(201,214,232,0.16)] bg-[var(--deck-ink)] p-4 text-white shadow-[0_24px_60px_rgba(5,10,20,0.28)]">
         <div className="grid gap-4 xl:grid-cols-[1fr_auto] xl:items-center">
           <div className="flex flex-wrap items-center gap-3 text-xs">
-            <span className="inline-flex min-h-9 items-center gap-2 rounded-full border border-emerald-300/30 bg-emerald-400/10 px-3 font-semibold text-emerald-100">
+            <span className="inline-flex min-h-9 items-center gap-2 rounded-full border border-[#BFE3D2]/30 bg-emerald-400/10 px-3 font-semibold text-emerald-100">
               <Activity className="h-4 w-4" />
               Stripe {labelize(data.stripeHealth.mode)}
             </span>
             <span className="text-white/62">Last refreshed {formatDateTime(data.reportedAt)}</span>
-            <span className={cn("inline-flex min-h-8 items-center rounded-full px-3 font-semibold", autoRefresh ? "bg-emerald-400/10 text-emerald-100" : "bg-white/10 text-white/70")}>
+            <span className={cn("inline-flex min-h-8 items-center rounded-full px-3 font-semibold", autoRefresh ? "bg-[rgba(176,141,87,0.16)] text-[#E9D9BC]" : "bg-white/10 text-white/70")}>
               Auto-refresh {autoRefresh ? "on" : "off"}
             </span>
           </div>
@@ -241,17 +241,17 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
               id="analytics-range"
               value={range}
               onChange={(event) => setRange(event.target.value as AnalyticsRangeKey)}
-              className="min-h-10 rounded-md border border-white/15 bg-white/10 px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+              className="min-h-10 rounded-md border border-white/15 bg-white/10 px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]"
             >
-              {RANGE_OPTIONS.map((option) => <option key={option.value} value={option.value} className="text-slate-950">{option.label}</option>)}
+              {RANGE_OPTIONS.map((option) => <option key={option.value} value={option.value} className="text-[var(--deck-text)]">{option.label}</option>)}
             </select>
             {range === "custom" ? (
               <>
-                <input aria-label="Custom start date" type="date" value={from} onChange={(event) => setFrom(event.target.value)} className="min-h-10 rounded-md border border-white/15 bg-white/10 px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-emerald-300" />
-                <input aria-label="Custom end date" type="date" value={to} onChange={(event) => setTo(event.target.value)} className="min-h-10 rounded-md border border-white/15 bg-white/10 px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-emerald-300" />
+                <input aria-label="Custom start date" type="date" value={from} onChange={(event) => setFrom(event.target.value)} className="min-h-10 rounded-md border border-white/15 bg-white/10 px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]" />
+                <input aria-label="Custom end date" type="date" value={to} onChange={(event) => setTo(event.target.value)} className="min-h-10 rounded-md border border-white/15 bg-white/10 px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]" />
               </>
             ) : null}
-            <button type="button" onClick={refresh} disabled={isPending} className="inline-flex min-h-10 items-center gap-2 rounded-md border border-white/15 bg-white px-3 text-sm font-semibold text-slate-950 transition-colors hover:bg-emerald-100 disabled:opacity-60">
+            <button type="button" onClick={refresh} disabled={isPending} className="inline-flex min-h-10 items-center gap-2 rounded-md border border-white/15 bg-white px-3 text-sm font-semibold text-[var(--deck-text)] transition-colors hover:bg-[#D5EDE1] disabled:opacity-60">
               <RefreshCw className={cn("h-4 w-4", isPending && "animate-spin")} />
               Refresh
             </button>
@@ -273,8 +273,8 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
             type="button"
             onClick={() => setActiveTab(tab)}
             className={cn(
-              "min-h-10 shrink-0 rounded-md px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70",
-              activeTab === tab ? "bg-slate-950 text-white" : "text-slate-600 hover:bg-slate-100 hover:text-slate-950",
+              "min-h-10 shrink-0 rounded-md px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]",
+              activeTab === tab ? "bg-[var(--deck-navy)] text-white" : "text-[var(--deck-text-2)] hover:bg-[#EEF1F5] hover:text-[var(--deck-text)]",
             )}
           >
             {tab}
@@ -492,12 +492,12 @@ function ReportsTab({ data, exportActive, exportJson }: { data: FinancialAnalyti
       <SectionCard title="Available Reports" icon="fileText" description="Downloads are generated in-browser from the current real analytics payload.">
         <div className="grid gap-3 sm:grid-cols-2">
           {["Revenue ledger", "Invoice aging", "Subscription report", "Expense report", "Client summary", "Stripe health"].map((label) => (
-            <button key={label} type="button" onClick={exportActive} className="min-h-16 rounded-lg border border-border bg-white px-4 text-left text-sm font-semibold text-slate-800 transition-colors hover:border-primary/40 hover:bg-blue-50">
+            <button key={label} type="button" onClick={exportActive} className="min-h-16 rounded-lg border border-border bg-white px-4 text-left text-sm font-semibold text-[var(--deck-text)] transition-colors hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]">
               {label}
               <span className="mt-1 block text-xs font-normal text-muted-foreground">Exports the active tab as CSV.</span>
             </button>
           ))}
-          <button type="button" onClick={exportJson} className="min-h-16 rounded-lg border border-slate-950 bg-slate-950 px-4 text-left text-sm font-semibold text-white transition-colors hover:bg-slate-800">
+          <button type="button" onClick={exportJson} className="min-h-16 rounded-lg border border-[var(--deck-navy)] bg-[var(--deck-navy)] px-4 text-left text-sm font-semibold text-white transition-colors hover:bg-[var(--deck-navy-2)]">
             Full analytics JSON
             <span className="mt-1 block text-xs font-normal text-white/62">Includes metrics, charts, tables, data gaps, and Stripe health.</span>
           </button>
@@ -505,10 +505,10 @@ function ReportsTab({ data, exportActive, exportJson }: { data: FinancialAnalyti
       </SectionCard>
       <SectionCard title="Rerun Inputs" icon="settings">
         <dl className="space-y-3 text-sm">
-          <div><dt className="font-semibold text-slate-900">workflow</dt><dd className="font-mono text-xs text-muted-foreground">amg-financial-analytics</dd></div>
-          <div><dt className="font-semibold text-slate-900">date_range</dt><dd className="font-mono text-xs text-muted-foreground">{data.dateRange.label}</dd></div>
-          <div><dt className="font-semibold text-slate-900">reported_at</dt><dd className="font-mono text-xs text-muted-foreground">{data.reportedAt}</dd></div>
-          <div><dt className="font-semibold text-slate-900">sources</dt><dd className="text-xs leading-5 text-muted-foreground">payments, invoices, quotes, expenses, client_subscriptions, subscription_billing_invoices, stripe_webhook_events</dd></div>
+          <div><dt className="font-semibold text-[var(--deck-text)]">workflow</dt><dd className="font-mono text-xs text-muted-foreground">amg-financial-analytics</dd></div>
+          <div><dt className="font-semibold text-[var(--deck-text)]">date_range</dt><dd className="font-mono text-xs text-muted-foreground">{data.dateRange.label}</dd></div>
+          <div><dt className="font-semibold text-[var(--deck-text)]">reported_at</dt><dd className="font-mono text-xs text-muted-foreground">{data.reportedAt}</dd></div>
+          <div><dt className="font-semibold text-[var(--deck-text)]">sources</dt><dd className="text-xs leading-5 text-muted-foreground">payments, invoices, quotes, expenses, client_subscriptions, subscription_billing_invoices, stripe_webhook_events</dd></div>
         </dl>
       </SectionCard>
     </div>
