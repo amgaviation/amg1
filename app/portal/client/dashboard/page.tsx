@@ -15,11 +15,13 @@ import { Button } from "@/components/ui/button";
 import {
   countUnread,
   listAircraftForClient,
+  listDocumentsForUser,
   listInvoicesForClient,
   listMissionsForClient,
   listQuotesForClient,
   listSubscriptionsForClient,
 } from "@/lib/portal/queries";
+import { listPassengersForOwner } from "@/lib/portal/passengers";
 import {
   MISSION_STATUS_LABEL,
   MISSION_STATUS_TONE,
@@ -37,14 +39,17 @@ export default async function ClientDashboardPage({
   const user = await requireRole("client");
   const params = await searchParams;
 
-  const [missions, aircraft, quotes, subscriptions, unread, invoices] = await Promise.all([
-    listMissionsForClient(user.id),
-    listAircraftForClient(user.id),
-    listQuotesForClient(user.id),
-    listSubscriptionsForClient(user.id),
-    countUnread(user.id),
-    listInvoicesForClient(user.id),
-  ]);
+  const [missions, aircraft, quotes, subscriptions, unread, invoices, passengers, documents] =
+    await Promise.all([
+      listMissionsForClient(user.id),
+      listAircraftForClient(user.id),
+      listQuotesForClient(user.id),
+      listSubscriptionsForClient(user.id),
+      countUnread(user.id),
+      listInvoicesForClient(user.id),
+      listPassengersForOwner(user.id),
+      listDocumentsForUser({ userId: user.id, role: "client" }),
+    ]);
 
   const active = missions.filter((m) =>
     [
@@ -101,6 +106,58 @@ export default async function ClientDashboardPage({
           </Button>
         }
       />
+
+      {/* First-run checklist for new accounts */}
+      {missions.length === 0 ? (
+        <SectionCard
+          title="Getting Started"
+          icon="sparkles"
+          description="Three steps and AMG Operations has everything needed to support your first trip."
+        >
+          <div className="grid gap-3 lg:grid-cols-3">
+            {[
+              {
+                done: passengers.length > 0,
+                href: "/portal/client/passengers",
+                title: "Save your passengers",
+                body: "Add the people who fly with you so manifests are one tap on every request.",
+              },
+              {
+                done: documents.length > 0,
+                href: "/portal/client/documents",
+                title: "Upload key documents",
+                body: "Insurance, registration, or operating preferences give AMG a head start.",
+              },
+              {
+                done: false,
+                href: "/portal/client/trips/new",
+                title: "Submit your first request",
+                body: "Trip, ferry, maintenance reposition, or crew support — AMG reviews every detail.",
+              },
+            ].map((step, index) => (
+              <Link
+                key={step.href}
+                href={step.href}
+                className={`deck-inset deck-card-hover block p-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)] ${step.done ? "opacity-70" : ""}`}
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`deck-num flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                      step.done
+                        ? "bg-[#EAF6F0] text-[#116947]"
+                        : "bg-[var(--deck-gold-tint)] text-[var(--deck-gold-deep)]"
+                    }`}
+                  >
+                    {step.done ? "✓" : index + 1}
+                  </span>
+                  <p className="text-sm font-semibold text-[var(--deck-text)]">{step.title}</p>
+                </div>
+                <p className="mt-2 text-xs leading-5 text-[var(--deck-text-3)]">{step.body}</p>
+              </Link>
+            ))}
+          </div>
+        </SectionCard>
+      ) : null}
 
       {/* Next departure hero */}
       {nextDeparture ? (

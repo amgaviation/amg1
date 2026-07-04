@@ -34,6 +34,21 @@ export async function createLead(formData: FormData) {
   if (!fullName) redirect(`${BOARD}?error=missing`);
 
   const db = (await createServiceClient()) as any;
+
+  // Duplicate guard: an open lead already exists for this email — go work
+  // that one instead of splitting the history across two records.
+  const email = str(formData, "email").toLowerCase();
+  if (email) {
+    const { data: existing } = await db
+      .from("crm_leads")
+      .select("id")
+      .eq("email", email)
+      .in("stage", ["new", "contacted", "qualified", "proposal"])
+      .limit(1)
+      .maybeSingle();
+    if (existing) redirect(`${leadPath(existing.id)}?success=existing`);
+  }
+
   const { data: lead, error } = await db
     .from("crm_leads")
     .insert({

@@ -42,6 +42,9 @@ export default async function ReceivablesPage({
       {params.success === "overdue" ? <Notice tone="success">Invoice marked overdue.</Notice> : null}
       {params.error === "email" ? <Notice tone="danger">The reminder email could not be sent. Check email provider configuration.</Notice> : null}
       {params.error === "closed" ? <Notice tone="danger">That invoice is no longer open.</Notice> : null}
+      {params.error === "recently-reminded" ? (
+        <Notice tone="warn">A reminder already went out for that invoice in the last 24 hours — give the client time to respond.</Notice>
+      ) : null}
       {params.error === "missing" ? <Notice tone="danger">Invoice could not be found.</Notice> : null}
 
       <PageHeader
@@ -158,7 +161,12 @@ export default async function ReceivablesPage({
                 header: "Actions",
                 align: "right",
                 cell: (row) => (
-                  <div data-portal-action-bar className="flex flex-wrap justify-end gap-2">
+                  <div data-portal-action-bar className="flex flex-wrap items-center justify-end gap-2">
+                    {row.lastRemindedAt ? (
+                      <span className="text-[0.66rem] text-[var(--deck-text-3)]">
+                        Reminded {formatDate(row.lastRemindedAt)}
+                      </span>
+                    ) : null}
                     <form action={sendInvoiceReminder}>
                       <input type="hidden" name="invoice_id" value={row.id} />
                       <SubmitButton
