@@ -6,7 +6,7 @@ import {
   type AdminRecordFilter,
   type AdminRecordRow,
 } from "@/components/portal/admin/admin-record-manager";
-import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
+import { FilterTabs, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import {
   changePortalUserPassword,
@@ -249,27 +249,17 @@ export default async function AdminUsersPage({
         description="Search, filter, create, edit, approve, deactivate, and manage secure portal account access."
       />
 
-      <div className="mb-5 flex flex-wrap gap-2">
-        {[
-          ["approved", "Approved"],
-          ["pending_approval", "Pending Approval"],
-          ["denied", "Denied"],
-          ["suspended", "Suspended"],
-          ["deleted", "Deleted"],
-        ].map(([value, label]) => (
-          <a
-            key={value}
-            href={`/portal/admin/users?status=${value}`}
-            className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
-              statusFilter === value
-                ? "border-slate-950 bg-slate-950 text-white"
-                : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
-            }`}
-          >
-            {label}
-          </a>
-        ))}
-      </div>
+      <FilterTabs
+        basePath="/portal/admin/users"
+        current={statusFilter}
+        options={[
+          { label: "Approved", value: "approved" },
+          { label: "Pending Approval", value: "pending_approval" },
+          { label: "Denied", value: "denied" },
+          { label: "Suspended", value: "suspended" },
+          { label: "Deleted", value: "deleted" },
+        ]}
+      />
 
       <AdminRecordManager
         title="User Directory"
@@ -304,15 +294,15 @@ export default async function AdminUsersPage({
 
       <SectionCard title="Security Center" icon="shield">
         <div className="grid gap-4 lg:grid-cols-2">
-          <form action={sendPortalPasswordReset} className="grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
+          <form action={sendPortalPasswordReset} className="deck-inset grid gap-3 p-4">
             <div>
-              <h3 className="text-sm font-semibold text-slate-950">Send Password Reset Link</h3>
-              <p className="mt-1 text-xs leading-5 text-slate-500">
+              <h3 className="text-sm font-semibold text-[var(--deck-text)]">Send Password Reset Link</h3>
+              <p className="mt-1 text-xs leading-5 text-[var(--deck-text-3)]">
                 Preferred account-help action. AMG sends a branded reset email and never exposes the setup link in the browser.
               </p>
             </div>
             <input type="hidden" name="back_to" value="/portal/admin/users" />
-            <select name="user_id" required className="min-h-11 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-950">
+            <select name="user_id" required className="deck-input">
               <option value="">Select user</option>
               {users.filter((row) => !isReleasedEmail(row.email)).map((row) => (
                 <option key={row.id} value={row.id}>
@@ -320,20 +310,20 @@ export default async function AdminUsersPage({
                 </option>
               ))}
             </select>
-            <SubmitButton className="rounded-full" pendingText="Sending...">
+            <SubmitButton pendingText="Sending...">
               Send Password Reset Link
             </SubmitButton>
           </form>
 
-          <form action={changePortalUserPassword} className="grid gap-3 rounded-lg border border-amber-200 bg-amber-50/70 p-4">
+          <form action={changePortalUserPassword} className="grid gap-3 rounded-xl border border-[#EAD9AE] bg-[#FBF4E3]/70 p-4">
             <div>
-              <h3 className="text-sm font-semibold text-slate-950">Change Password</h3>
-              <p className="mt-1 text-xs leading-5 text-amber-800">
+              <h3 className="text-sm font-semibold text-[var(--deck-text)]">Change Password</h3>
+              <p className="mt-1 text-xs leading-5 text-[#8F5F12]">
                 Admin override. Use direct password changes only when necessary; reset links are preferred.
               </p>
             </div>
             <input type="hidden" name="back_to" value="/portal/admin/users" />
-            <select name="user_id" required className="min-h-11 rounded-md border border-amber-200 bg-white px-3 text-sm text-slate-950">
+            <select name="user_id" required className="deck-input">
               <option value="">Select user</option>
               {users.filter((row) => !isReleasedEmail(row.email)).map((row) => (
                 <option key={row.id} value={row.id}>
@@ -348,7 +338,7 @@ export default async function AdminUsersPage({
               required
               autoComplete="new-password"
               placeholder="New password"
-              className="min-h-11 rounded-md border border-amber-200 bg-white px-3 text-sm text-slate-950"
+              className="deck-input"
             />
             <input
               name="confirm_password"
@@ -357,11 +347,10 @@ export default async function AdminUsersPage({
               required
               autoComplete="new-password"
               placeholder="Confirm new password"
-              className="min-h-11 rounded-md border border-amber-200 bg-white px-3 text-sm text-slate-950"
+              className="deck-input"
             />
             <SubmitButton
               variant="outline"
-              className="rounded-full border-amber-400/70 text-amber-800 hover:border-amber-500"
               confirm="Change this user's password? Password reset links are preferred."
               pendingText="Changing..."
             >
@@ -370,9 +359,9 @@ export default async function AdminUsersPage({
           </form>
         </div>
 
-        <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Permissions Available on Create/Edit</p>
-          <p className="mt-2 text-sm leading-6 text-slate-600">{PORTAL_PERMISSIONS.join(", ")}</p>
+        <div className="deck-inset mt-4 p-4">
+          <p className="deck-eyebrow !text-[var(--deck-text-3)]">Permissions Available on Create/Edit</p>
+          <p className="mt-2 text-sm leading-6 text-[var(--deck-text-2)]">{PORTAL_PERMISSIONS.join(", ")}</p>
         </div>
       </SectionCard>
     </PortalShell>

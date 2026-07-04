@@ -25,8 +25,7 @@ export type DetailFormField = {
   fullWidth?: boolean;
 };
 
-const inputClassName =
-  "min-h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-primary focus:shadow-[0_0_0_3px_rgba(59,130,246,0.14)]";
+const inputClassName = "deck-input";
 
 export function detailValue(value: DetailValue) {
   if (value === undefined || value === null || value === "") return "Not provided";
@@ -109,21 +108,21 @@ export function RecordSummaryHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-5 text-slate-950 shadow-[0_14px_36px_rgba(15,23,42,0.06)]">
+    <section className="deck-card deck-gold-rail p-5 pl-6">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
-          <p className="eyebrow text-[0.64rem] text-primary">{eyebrow}</p>
-          <h2 className="mt-2 break-words font-display text-3xl font-extrabold uppercase leading-none text-slate-950 sm:text-4xl">
+          <p className="deck-eyebrow">{eyebrow}</p>
+          <h2 className="deck-title mt-2 break-words text-2xl sm:text-3xl">
             {title}
           </h2>
-          {subtitle ? <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--amg-text-secondary)]">{subtitle}</p> : null}
+          {subtitle ? <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--deck-text-2)]">{subtitle}</p> : null}
           <div className="mt-4 flex flex-wrap items-center gap-2">
             {status ? <StatusBadge label={status.label} tone={status.tone} /> : null}
             {secondaryStatus ? <StatusBadge label={secondaryStatus.label} tone={secondaryStatus.tone} /> : null}
-            {meta ? <span className="font-mono text-xs text-[var(--amg-text-muted)]">{meta}</span> : null}
+            {meta ? <span className="deck-mono text-[var(--deck-text-3)]">{meta}</span> : null}
           </div>
         </div>
-        {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+        {actions ? <div data-portal-action-bar className="flex flex-wrap items-center gap-2">{actions}</div> : null}
       </div>
     </section>
   );
@@ -135,7 +134,7 @@ export function DetailGrid({ items }: { items: DetailItem[] }) {
       {items.map((item) => (
         <DetailRow key={item.label} label={item.label}>
           {item.href ? (
-            <Link href={item.href} className="inline-flex items-center gap-1 text-primary hover:underline">
+            <Link href={item.href} className="inline-flex items-center gap-1 font-semibold text-[var(--deck-gold-deep)] hover:underline">
               {detailValue(item.value)}
               <ExternalLink className="h-3.5 w-3.5" />
             </Link>
@@ -165,20 +164,20 @@ export function RelatedList({
     <div className="grid gap-3">
       {items.map((item) => {
         const content = (
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)] transition-colors hover:border-primary/45 hover:bg-blue-50/45">
+          <div className="deck-inset deck-card-hover p-4">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <p className="text-sm font-semibold text-slate-950">{item.title}</p>
-                {item.meta ? <p className="mt-1 font-mono text-xs text-[var(--amg-text-muted)]">{item.meta}</p> : null}
+                <p className="text-sm font-semibold text-[var(--deck-text)]">{item.title}</p>
+                {item.meta ? <p className="deck-mono mt-1 text-[var(--deck-text-3)]">{item.meta}</p> : null}
               </div>
               {item.status}
             </div>
-            {item.body ? <p className="mt-3 text-sm leading-6 text-[var(--amg-text-secondary)]">{item.body}</p> : null}
+            {item.body ? <p className="mt-3 text-sm leading-6 text-[var(--deck-text-2)]">{item.body}</p> : null}
           </div>
         );
 
         return item.href ? (
-          <Link key={`${item.title}-${item.href}`} href={item.href} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70">
+          <Link key={`${item.title}-${item.href}`} href={item.href} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]">
             {content}
           </Link>
         ) : (
@@ -216,16 +215,16 @@ export function RecordEditForm({
         <div className="grid gap-4 md:grid-cols-2">
           {fields.map((field) => (
             <div key={field.name} className={cn("grid gap-2", field.fullWidth && "md:col-span-2")}>
-              <label htmlFor={field.name} className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-slate-500">
+              <label htmlFor={field.name} className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">
                 {field.label}
-                {field.required ? <span className="ml-1 text-primary">*</span> : null}
+                {field.required ? <span className="ml-1 text-[var(--deck-gold-deep)]">*</span> : null}
               </label>
               <FieldInput field={field} values={values} />
             </div>
           ))}
         </div>
-        <div className="flex justify-end border-t border-slate-200 pt-4">
-          <SubmitButton className="rounded-full" pendingText="Saving...">
+        <div className="flex justify-end border-t border-[var(--deck-line)] pt-4">
+          <SubmitButton pendingText="Saving...">
             Save changes
           </SubmitButton>
         </div>

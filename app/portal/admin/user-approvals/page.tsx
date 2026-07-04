@@ -174,7 +174,7 @@ export default async function AdminUserApprovalsPage({
             confirm: "Deny this portal access request?",
             pendingText: "Denying...",
             variant: "outline",
-            className: "border-red-200 text-red-700 hover:border-red-300",
+            className: "border-[#EFC7C7] text-[#A82E2E] hover:border-[#EFC7C7]",
           },
         ]}
         allowCreate={false}

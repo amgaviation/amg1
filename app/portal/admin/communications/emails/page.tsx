@@ -104,9 +104,9 @@ export default async function AdminEmailsPage({
           <input type="hidden" name="general_thread" value="on" />
 
           <div className="grid gap-4 lg:grid-cols-3">
-            <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--deck-text-3)]">
               Template
-              <select name="template_id" className="min-h-11 rounded-md border border-slate-200 bg-white px-3 text-sm font-normal normal-case tracking-normal text-slate-950">
+              <select name="template_id" className="min-h-11 rounded-md border border-[var(--deck-line)] bg-white px-3 text-sm font-normal normal-case tracking-normal text-[var(--deck-text)]">
                 <option value="">Custom Email</option>
                 {templates.map((template) => (
                   <option key={template.id} value={template.id}>
@@ -115,9 +115,9 @@ export default async function AdminEmailsPage({
                 ))}
               </select>
             </label>
-            <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--deck-text-3)]">
               Category
-              <select name="category" defaultValue="General" className="min-h-11 rounded-md border border-slate-200 bg-white px-3 text-sm font-normal normal-case tracking-normal text-slate-950">
+              <select name="category" defaultValue="General" className="min-h-11 rounded-md border border-[var(--deck-line)] bg-white px-3 text-sm font-normal normal-case tracking-normal text-[var(--deck-text)]">
                 {CATEGORIES.map((category) => (
                   <option key={category} value={category}>
                     {category}
@@ -125,9 +125,9 @@ export default async function AdminEmailsPage({
                 ))}
               </select>
             </label>
-            <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--deck-text-3)]">
               Related Client
-              <select name="related_client_id" className="min-h-11 rounded-md border border-slate-200 bg-white px-3 text-sm font-normal normal-case tracking-normal text-slate-950">
+              <select name="related_client_id" className="min-h-11 rounded-md border border-[var(--deck-line)] bg-white px-3 text-sm font-normal normal-case tracking-normal text-[var(--deck-text)]">
                 <option value="">General thread</option>
                 {records.clients.map((client) => (
                   <option key={client.id} value={client.id}>
@@ -139,33 +139,33 @@ export default async function AdminEmailsPage({
           </div>
 
           <div className="grid gap-4 xl:grid-cols-4">
-            <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--deck-text-3)]">
               Clients
-              <select name="to" multiple className="min-h-36 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-slate-950">
+              <select name="to" multiple className="min-h-36 rounded-md border border-[var(--deck-line)] bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[var(--deck-text)]">
                 {clients.map((item) => (
                   <option key={item.id} value={item.email}>{optionLabel(item)}</option>
                 ))}
               </select>
             </label>
-            <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--deck-text-3)]">
               Crew
-              <select name="to" multiple className="min-h-36 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-slate-950">
+              <select name="to" multiple className="min-h-36 rounded-md border border-[var(--deck-line)] bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[var(--deck-text)]">
                 {crew.map((item) => (
                   <option key={item.id} value={item.email}>{optionLabel(item)}</option>
                 ))}
               </select>
             </label>
-            <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--deck-text-3)]">
               Vendors / Partners
-              <select name="to" multiple className="min-h-36 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-slate-950">
+              <select name="to" multiple className="min-h-36 rounded-md border border-[var(--deck-line)] bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[var(--deck-text)]">
                 {partners.map((item) => (
                   <option key={item.id} value={item.email}>{optionLabel(item)}</option>
                 ))}
               </select>
             </label>
-            <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--deck-text-3)]">
               All Users
-              <select name="to" multiple className="min-h-36 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-slate-950">
+              <select name="to" multiple className="min-h-36 rounded-md border border-[var(--deck-line)] bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[var(--deck-text)]">
                 {allPortalUsers.map((item) => (
                   <option key={item.id} value={item.email}>{optionLabel(item)}</option>
                 ))}
@@ -173,19 +173,19 @@ export default async function AdminEmailsPage({
             </label>
           </div>
 
-          <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--deck-text-3)]">
             Manual Email
-            <input name="to" type="text" placeholder="name@example.com, another@example.com" className="min-h-11 rounded-md border border-slate-200 bg-white px-3 text-sm font-normal normal-case tracking-normal text-slate-950" />
+            <input name="to" type="text" placeholder="name@example.com, another@example.com" className="min-h-11 rounded-md border border-[var(--deck-line)] bg-white px-3 text-sm font-normal normal-case tracking-normal text-[var(--deck-text)]" />
           </label>
 
-          <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--deck-text-3)]">
             Subject
-            <input name="subject" placeholder="Leave blank to use selected template subject" className="min-h-11 rounded-md border border-slate-200 bg-white px-3 text-sm font-normal normal-case tracking-normal text-slate-950" />
+            <input name="subject" placeholder="Leave blank to use selected template subject" className="min-h-11 rounded-md border border-[var(--deck-line)] bg-white px-3 text-sm font-normal normal-case tracking-normal text-[var(--deck-text)]" />
           </label>
 
-          <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <label className="grid gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--deck-text-3)]">
             Body
-            <textarea name="body" rows={8} placeholder="Leave blank to use selected template body. Custom content is rendered through the AMG operational email wrapper." className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-normal normal-case leading-6 tracking-normal text-slate-950" />
+            <textarea name="body" rows={8} placeholder="Leave blank to use selected template body. Custom content is rendered through the AMG operational email wrapper." className="rounded-md border border-[var(--deck-line)] bg-white px-3 py-2 text-sm font-normal normal-case leading-6 tracking-normal text-[var(--deck-text)]" />
           </label>
 
           {!provider.configured ? (
@@ -201,25 +201,25 @@ export default async function AdminEmailsPage({
       </SectionCard>
 
       <SectionCard title="Email Log" icon="history">
-        <form className="grid gap-3 border-b border-slate-200 pb-4 lg:grid-cols-4">
-          <input name="q" defaultValue={params.q ?? ""} placeholder="Search subject, user, status, provider" className="min-h-11 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-950" />
-          <input name="user" defaultValue={params.user ?? ""} placeholder="User or recipient email" className="min-h-11 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-950" />
-          <input name="date_from" type="date" defaultValue={params.date_from ?? ""} className="min-h-11 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-950" />
-          <input name="date_to" type="date" defaultValue={params.date_to ?? ""} className="min-h-11 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-950" />
-          <input name="time" type="time" defaultValue={params.time ?? ""} className="min-h-11 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-950" />
-          <select name="category" defaultValue={params.category ?? ""} className="min-h-11 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-950">
+        <form className="grid gap-3 border-b border-[var(--deck-line)] pb-4 lg:grid-cols-4">
+          <input name="q" defaultValue={params.q ?? ""} placeholder="Search subject, user, status, provider" className="min-h-11 rounded-md border border-[var(--deck-line)] bg-white px-3 text-sm text-[var(--deck-text)]" />
+          <input name="user" defaultValue={params.user ?? ""} placeholder="User or recipient email" className="min-h-11 rounded-md border border-[var(--deck-line)] bg-white px-3 text-sm text-[var(--deck-text)]" />
+          <input name="date_from" type="date" defaultValue={params.date_from ?? ""} className="min-h-11 rounded-md border border-[var(--deck-line)] bg-white px-3 text-sm text-[var(--deck-text)]" />
+          <input name="date_to" type="date" defaultValue={params.date_to ?? ""} className="min-h-11 rounded-md border border-[var(--deck-line)] bg-white px-3 text-sm text-[var(--deck-text)]" />
+          <input name="time" type="time" defaultValue={params.time ?? ""} className="min-h-11 rounded-md border border-[var(--deck-line)] bg-white px-3 text-sm text-[var(--deck-text)]" />
+          <select name="category" defaultValue={params.category ?? ""} className="min-h-11 rounded-md border border-[var(--deck-line)] bg-white px-3 text-sm text-[var(--deck-text)]">
             <option value="">All categories</option>
             {CATEGORIES.map((category) => <option key={category} value={category}>{category}</option>)}
           </select>
-          <select name="template" defaultValue={params.template ?? ""} className="min-h-11 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-950">
+          <select name="template" defaultValue={params.template ?? ""} className="min-h-11 rounded-md border border-[var(--deck-line)] bg-white px-3 text-sm text-[var(--deck-text)]">
             <option value="">All templates</option>
             {templates.map((template) => <option key={template.id} value={template.id}>{template.name}</option>)}
           </select>
-          <select name="status" defaultValue={params.status ?? ""} className="min-h-11 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-950">
+          <select name="status" defaultValue={params.status ?? ""} className="min-h-11 rounded-md border border-[var(--deck-line)] bg-white px-3 text-sm text-[var(--deck-text)]">
             <option value="">All statuses</option>
             {STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
           </select>
-          <select name="sender" defaultValue={params.sender ?? ""} className="min-h-11 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-950">
+          <select name="sender" defaultValue={params.sender ?? ""} className="min-h-11 rounded-md border border-[var(--deck-line)] bg-white px-3 text-sm text-[var(--deck-text)]">
             <option value="">All senders</option>
             {users.filter((row) => row.role === "admin").map((admin) => (
               <option key={admin.id} value={admin.id}>{admin.full_name ?? admin.email}</option>
@@ -229,17 +229,17 @@ export default async function AdminEmailsPage({
             <SubmitButton variant="outline" className="rounded-full" pendingText="Filtering...">
               Filter Log
             </SubmitButton>
-            <Link href="/portal/admin/communications/emails" className="inline-flex min-h-10 items-center rounded-full border border-slate-200 px-4 text-sm font-semibold text-slate-600 hover:border-primary/40 hover:text-primary">
+            <Link href="/portal/admin/communications/emails" className="inline-flex min-h-10 items-center rounded-full border border-[var(--deck-line)] px-4 text-sm font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)] hover:text-[var(--deck-gold-deep)]">
               Clear
             </Link>
           </div>
         </form>
 
         {logs.length ? (
-          <div className="mt-4 overflow-hidden rounded-lg border border-slate-200 bg-white">
+          <div className="mt-4 overflow-hidden rounded-lg border border-[var(--deck-line)] bg-white">
             <div className="overflow-x-auto">
               <table className="min-w-[1100px] w-full border-collapse text-sm">
-                <thead className="bg-slate-50 text-left text-[0.66rem] font-bold uppercase tracking-[0.16em] text-slate-500">
+                <thead className="bg-[#F8FAFB] text-left text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]">
                   <tr>
                     <th className="px-4 py-3">Timestamp</th>
                     <th className="px-4 py-3">Subject</th>
@@ -253,20 +253,20 @@ export default async function AdminEmailsPage({
                 </thead>
                 <tbody>
                   {logs.map((log) => (
-                    <tr key={log.id} className="border-t border-slate-100 bg-white">
-                      <td className="whitespace-nowrap px-4 py-3 text-slate-600">{formatDateTime(log.sent_at ?? log.created_at)}</td>
+                    <tr key={log.id} className="border-t border-[var(--deck-line)] bg-white">
+                      <td className="whitespace-nowrap px-4 py-3 text-[var(--deck-text-2)]">{formatDateTime(log.sent_at ?? log.created_at)}</td>
                       <td className="px-4 py-3">
-                        <p className="font-semibold text-slate-950">{log.subject ?? "AMG Operations"}</p>
-                        <p className="mt-1 line-clamp-1 text-xs text-slate-500">{log.body_preview ?? log.failure_reason ?? "-"}</p>
+                        <p className="font-semibold text-[var(--deck-text)]">{log.subject ?? "AMG Operations"}</p>
+                        <p className="mt-1 line-clamp-1 text-xs text-[var(--deck-text-3)]">{log.body_preview ?? log.failure_reason ?? "-"}</p>
                       </td>
-                      <td className="px-4 py-3 text-slate-700">
+                      <td className="px-4 py-3 text-[var(--deck-text-2)]">
                         <p>{log.recipient_name ?? log.to_emails[0] ?? "-"}</p>
-                        <p className="text-xs text-slate-500">{log.to_emails.join(", ")}</p>
+                        <p className="text-xs text-[var(--deck-text-3)]">{log.to_emails.join(", ")}</p>
                       </td>
-                      <td className="px-4 py-3 text-slate-700">{log.email_category ?? "-"}</td>
-                      <td className="px-4 py-3 text-slate-700">{log.template_name ?? "Custom Email"}</td>
-                      <td className="px-4 py-3 text-slate-700">{log.sender_name ?? "-"}</td>
-                      <td className="px-4 py-3 text-slate-700">{log.provider ?? "resend"}</td>
+                      <td className="px-4 py-3 text-[var(--deck-text-2)]">{log.email_category ?? "-"}</td>
+                      <td className="px-4 py-3 text-[var(--deck-text-2)]">{log.template_name ?? "Custom Email"}</td>
+                      <td className="px-4 py-3 text-[var(--deck-text-2)]">{log.sender_name ?? "-"}</td>
+                      <td className="px-4 py-3 text-[var(--deck-text-2)]">{log.provider ?? "resend"}</td>
                       <td className="px-4 py-3"><StatusBadge label={log.status} tone={tone(log.status)} /></td>
                     </tr>
                   ))}
@@ -275,7 +275,7 @@ export default async function AdminEmailsPage({
             </div>
           </div>
         ) : (
-          <div className="mt-4 rounded-lg border border-dashed border-slate-300 bg-slate-50/80 px-4 py-8 text-center text-sm text-slate-500">
+          <div className="mt-4 rounded-lg border border-dashed border-[var(--deck-line-strong)] bg-[#F8FAFB] px-4 py-8 text-center text-sm text-[var(--deck-text-3)]">
             No email log entries match the current filters.
           </div>
         )}

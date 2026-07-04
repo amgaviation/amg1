@@ -30,14 +30,24 @@ export default async function AdminMissionControlPage({
         {MISSION_BOARD_COLUMNS.map((status) => {
           const rows = missions.filter((mission) => mission.status === status);
           return (
-            <SectionCard key={status} title={MISSION_STATUS_LABEL[status] ?? status} icon="radar" className="min-h-64">
+            <SectionCard
+              key={status}
+              title={MISSION_STATUS_LABEL[status] ?? status}
+              icon="radar"
+              className="min-h-64"
+              actions={
+                <span className="deck-num flex h-7 w-7 items-center justify-center rounded-full bg-[var(--deck-gold-tint)] text-xs font-bold text-[var(--deck-gold-deep)]">
+                  {rows.length}
+                </span>
+              }
+            >
               {rows.length === 0 ? (
                 <EmptyState icon="radar" title="Clear" description="No missions in this status." />
               ) : (
                 <div className="space-y-3">
                   {rows.map((mission) => (
-                    <div key={mission.id} className="rounded-lg border border-border bg-slate-50/70 p-4">
-                      <Link href={`/portal/admin/trips/${mission.id}`} className="font-mono text-xs text-accent hover:underline">{mission.ref}</Link>
+                    <div key={mission.id} className="deck-inset p-4">
+                      <Link href={`/portal/admin/trips/${mission.id}`} className="deck-mono text-[var(--deck-gold-deep)] hover:underline">{mission.ref}</Link>
                       <p className="mt-1 text-sm font-semibold">{formatRoute(mission.departure_airport, mission.arrival_airport)}</p>
                       <p className="mt-1 text-xs text-muted-foreground">{formatDateTime(mission.requested_departure)}</p>
                       <form action={updateMissionStatus} className="mt-3 grid gap-2">

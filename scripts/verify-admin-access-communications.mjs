@@ -52,8 +52,10 @@ check(
 );
 check(
   "admin nav exposes required grouped categories",
-  ["Operations", "Financial", "Communications", "Users", "Settings"].every((label) => shell.includes(label)),
-  "PortalShell should render grouped admin navigation categories.",
+  ["Command", "Intake", "Directory", "Finance", "Communications", "Governance"].every((label) =>
+    constants.includes(`label: "${label}"`),
+  ) && shell.includes("DECK_NAV"),
+  "DECK_NAV should define grouped admin navigation categories rendered by PortalShell.",
 );
 check(
   "Emails nav route exists",

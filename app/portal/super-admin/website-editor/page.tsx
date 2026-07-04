@@ -107,7 +107,7 @@ function EditorForm({ content, latestDraft }: { content: WebsiteContentPage; lat
         <SectionCard key={key} title={key.replace(/([A-Z])/g, " $1")} icon="fileText" description="Structured content fields only. Raw HTML and scripts are not allowed.">
           <div className="grid gap-4 lg:grid-cols-2">
             <label className="flex min-h-11 items-center gap-3 rounded-md border border-white/14 bg-[#050B14]/74 px-3 py-2 text-sm text-white">
-              <input type="checkbox" name={`section.${key}.enabled`} value="true" defaultChecked={section.enabled} className="h-4 w-4 accent-[var(--primary)]" />
+              <input type="checkbox" name={`section.${key}.enabled`} value="true" defaultChecked={section.enabled} className="h-4 w-4 accent-[var(--deck-gold)]" />
               <span>Section enabled</span>
             </label>
             <SelectField
@@ -166,8 +166,8 @@ function DraftActions({ draft, publishingConfigured }: { draft: WebsiteContentDr
       <DetailRow label="Status">{readableStatus(draft.status)}</DetailRow>
       <DetailRow label="Updated">{new Date(draft.updated_at).toLocaleString()}</DetailRow>
       {draft.branch_name ? <DetailRow label="Branch"><span className="font-mono text-xs">{draft.branch_name}</span></DetailRow> : null}
-      {prUrl ? <DetailRow label="Pull Request"><a href={prUrl} className="text-primary hover:underline" target="_blank" rel="noreferrer">View PR</a></DetailRow> : null}
-      {previewUrl ? <DetailRow label="Preview"><Link href={previewUrl} className="text-primary hover:underline">Open Preview</Link></DetailRow> : null}
+      {prUrl ? <DetailRow label="Pull Request"><a href={prUrl} className="text-[var(--deck-gold-deep)] hover:underline" target="_blank" rel="noreferrer">View PR</a></DetailRow> : null}
+      {previewUrl ? <DetailRow label="Preview"><Link href={previewUrl} className="text-[var(--deck-gold-deep)] hover:underline">Open Preview</Link></DetailRow> : null}
       <p className="rounded-md border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-xs leading-relaxed text-amber-100">
         Publishing updates the public website after GitHub and Vercel checks complete.
       </p>
@@ -251,7 +251,7 @@ function DraftHistory({
                   <StatusBadge label={workflow.label} tone={workflow.tone} />
                 </div>
                 {draft.last_preview_url ? (
-                  <Link href={draft.last_preview_url} className="mt-2 inline-flex text-primary hover:underline">
+                  <Link href={draft.last_preview_url} className="mt-2 inline-flex text-[var(--deck-gold-deep)] hover:underline">
                     View preview
                   </Link>
                 ) : null}
@@ -283,7 +283,7 @@ function DraftHistory({
       ) : null}
 
       <div className="space-y-2 border-t border-white/10 pt-4">
-        <h3 className="text-[0.66rem] font-bold uppercase tracking-[0.16em] text-[var(--amg-text-muted)]">
+        <h3 className="text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--amg-text-muted)]">
           Publish Events
         </h3>
         {events.length ? events.map((event) => {
@@ -292,7 +292,7 @@ function DraftHistory({
             <article key={event.id} className="rounded-lg border border-white/10 bg-[#050B14]/60 p-3 text-xs">
               <p className="font-semibold text-white">{readableStatus(event.action)}</p>
               <p className="mt-1 text-[var(--amg-text-muted)]">{new Date(event.created_at).toLocaleString()} · {event.result ?? "Recorded"}</p>
-              {prUrl ? <a href={prUrl} target="_blank" rel="noreferrer" className="mt-1 inline-flex text-primary hover:underline">View PR</a> : null}
+              {prUrl ? <a href={prUrl} target="_blank" rel="noreferrer" className="mt-1 inline-flex text-[var(--deck-gold-deep)] hover:underline">View PR</a> : null}
               {event.error_message ? <p className="mt-2 rounded-md border border-red-400/25 bg-red-400/10 px-2 py-1 text-red-100">{event.error_message}</p> : null}
             </article>
           );

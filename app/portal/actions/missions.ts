@@ -192,17 +192,21 @@ export async function createMission(formData: FormData) {
   }
 
   const paxRaw = str(formData, "passenger_names");
-  if (paxRaw) {
-    const names = paxRaw
-      .split(/[\n,]+/)
-      .map((n) => n.trim())
-      .filter(Boolean)
-      .slice(0, 30);
-    if (names.length) {
-      await db.from("mission_passengers").insert(
-        names.map((full_name) => ({ mission_id: mission.id, full_name }))
-      );
-    }
+  const savedPassengers = formData
+    .getAll("saved_passengers")
+    .map((value) => String(value).trim())
+    .filter(Boolean);
+  const typedNames = paxRaw
+    ? paxRaw
+        .split(/[\n,]+/)
+        .map((n) => n.trim())
+        .filter(Boolean)
+    : [];
+  const names = [...new Set([...savedPassengers, ...typedNames])].slice(0, 30);
+  if (names.length) {
+    await db.from("mission_passengers").insert(
+      names.map((full_name) => ({ mission_id: mission.id, full_name }))
+    );
   }
 
   await logAuditEvent({

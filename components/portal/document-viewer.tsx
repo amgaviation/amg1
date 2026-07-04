@@ -29,7 +29,7 @@ export function PortalDocumentViewer({
         description={description}
         actions={
           <>
-            <Link href={backHref} className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-xs font-semibold text-foreground hover:border-primary">
+            <Link href={backHref} className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-xs font-semibold text-foreground hover:border-[var(--deck-gold)]">
               <ArrowLeft className="h-3.5 w-3.5" />
               Back
             </Link>
@@ -44,7 +44,7 @@ export function PortalDocumentViewer({
       <SectionCard title="Preview" icon="fileText" className="min-h-[72vh]" bodyClassName="p-0">
         {canPreview ? (
           isImage ? (
-            <div className="flex min-h-[68vh] items-center justify-center bg-slate-950 p-4">
+            <div className="flex min-h-[68vh] items-center justify-center bg-[var(--deck-ink)] p-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={contentHref} alt={title} className="max-h-[76vh] max-w-full rounded-md object-contain shadow-2xl" />
             </div>
@@ -52,17 +52,17 @@ export function PortalDocumentViewer({
             <iframe
               src={contentHref}
               title={title}
-              className="h-[76vh] w-full rounded-b-lg border-0 bg-slate-950"
+              className="h-[76vh] w-full rounded-b-lg border-0 bg-[var(--deck-ink)]"
               sandbox="allow-same-origin allow-scripts allow-downloads"
             />
           )
         ) : (
-          <div className="flex min-h-[64vh] flex-col items-center justify-center gap-4 bg-slate-50 p-8 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full border border-slate-200 bg-white">
-              <FileText className="h-6 w-6 text-primary" />
+          <div className="flex min-h-[64vh] flex-col items-center justify-center gap-4 bg-[#F8FAFB] p-8 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[var(--deck-gold-line)] bg-[var(--deck-gold-tint)]">
+              <FileText className="h-6 w-6 text-[var(--deck-gold-deep)]" />
             </div>
             <div>
-              <h2 className="font-display text-xl font-bold uppercase text-foreground">Preview unavailable</h2>
+              <h2 className="deck-title text-xl">Preview unavailable</h2>
               <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
                 This file type cannot be safely previewed inside the portal. Download it from this secure page.
               </p>

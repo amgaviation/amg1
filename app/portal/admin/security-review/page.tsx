@@ -91,7 +91,7 @@ export default async function AdminSecurityReviewPage({
           "Pending users reviewed",
           "Invalid imported emails resolved",
         ].map((item) => (
-          <div key={item} className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          <div key={item} className="rounded-lg border border-[#EAD9AE] bg-[#FBF4E3] px-4 py-3 text-sm text-[#6E4A0E]">
             {item}
           </div>
         ))}
@@ -106,11 +106,11 @@ export default async function AdminSecurityReviewPage({
           <SelectField label="Invalid Email" name="invalid_email" defaultValue={params.invalid_email ?? ""} options={[{ value: "", label: "All emails" }, { value: "true", label: "Invalid import email" }]} />
           <SelectField label="Pending Approval" name="pending" defaultValue={params.pending ?? ""} options={[{ value: "", label: "All users" }, { value: "true", label: "Pending only" }]} />
           <div className="flex flex-wrap items-end gap-3 lg:col-span-6">
-            <button type="submit" className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground">
+            <button type="submit" className="rounded-full bg-[var(--deck-navy)] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[var(--deck-navy-2)]">
               Apply Filters
             </button>
             {hasFilters ? (
-              <Link href="/portal/admin/security-review" className="rounded-full border border-border bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:border-primary/50 hover:bg-blue-50">
+              <Link href="/portal/admin/security-review" className="rounded-full border border-border bg-white px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]">
                 Clear filters
               </Link>
             ) : null}
@@ -136,20 +136,20 @@ export default async function AdminSecurityReviewPage({
         />
       </SectionCard>
       {filtered.length > PAGE_SIZE ? (
-        <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white px-5 py-4 text-sm text-slate-500 shadow-[0_10px_30px_rgba(15,23,42,0.04)] sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-lg border border-[var(--deck-line)] bg-white px-5 py-4 text-sm text-[var(--deck-text-3)] shadow-[0_10px_30px_rgba(15,23,42,0.04)] sm:flex-row sm:items-center sm:justify-between">
           <span>Page {safePage} of {pageCount}</span>
           <div className="flex gap-2">
             <Link
               aria-disabled={safePage <= 1}
               href={safePage <= 1 ? "#" : hrefWith({ ...sharedParams, page: safePage - 1 })}
-              className={`rounded-full border border-border px-4 py-2 text-xs font-semibold ${safePage <= 1 ? "pointer-events-none opacity-50" : "text-slate-700 hover:border-primary/50 hover:bg-blue-50"}`}
+              className={`rounded-full border border-border px-4 py-2 text-xs font-semibold ${safePage <= 1 ? "pointer-events-none opacity-50" : "text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]"}`}
             >
               Previous
             </Link>
             <Link
               aria-disabled={safePage >= pageCount}
               href={safePage >= pageCount ? "#" : hrefWith({ ...sharedParams, page: safePage + 1 })}
-              className={`rounded-full border border-border px-4 py-2 text-xs font-semibold ${safePage >= pageCount ? "pointer-events-none opacity-50" : "text-slate-700 hover:border-primary/50 hover:bg-blue-50"}`}
+              className={`rounded-full border border-border px-4 py-2 text-xs font-semibold ${safePage >= pageCount ? "pointer-events-none opacity-50" : "text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]"}`}
             >
               Next
             </Link>

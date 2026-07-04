@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
-import { PageHeader, SectionCard, EmptyState, Notice } from "@/components/portal/ui/primitives";
+import { PageHeader, SectionCard, EmptyState, Notice, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { FileField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
@@ -21,6 +21,20 @@ export default async function CrewExpensesPage({
   const params = await searchParams;
   const [expenses, missions] = await Promise.all([listExpensesForCrew(user.id), listMissionsForCrew(user.id)]);
 
+  const sum = (rows: typeof expenses) =>
+    rows.reduce((total, expense) => total + Number(expense.amount ?? 0), 0);
+  const awaiting = expenses.filter((e) => ["submitted", "under_review"].includes(e.status));
+  const approvedRows = expenses.filter((e) =>
+    ["approved", "partially_approved", "added_to_quote", "added_to_invoice"].includes(e.status)
+  );
+  const paidRows = expenses.filter((e) => ["reimbursed", "paid"].includes(e.status));
+  const monthStart = new Date();
+  monthStart.setUTCDate(1);
+  monthStart.setUTCHours(0, 0, 0, 0);
+  const thisMonth = expenses.filter(
+    (e) => (e.expense_date ?? e.created_at) >= monthStart.toISOString().slice(0, 10)
+  );
+
   return (
     <PortalShell role="crew" user={user}>
       {params.success ? <Notice tone="success">Expense submitted for review.</Notice> : null}
@@ -30,6 +44,35 @@ export default async function CrewExpensesPage({
       {params.error === "payment-data" ? <Notice tone="danger">Remove full card numbers, CVV codes, bank account numbers, or routing numbers before submitting.</Notice> : null}
 
       <PageHeader eyebrow="Flight Crew" title="Expenses" description="Submit mission expenses with receipts for AMG review and payment tracking." />
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          label="Awaiting review"
+          value={formatMoney(sum(awaiting))}
+          icon="clock"
+          tone={awaiting.length ? "warn" : "default"}
+          detail={`${awaiting.length} expense${awaiting.length === 1 ? "" : "s"}`}
+        />
+        <StatCard
+          label="Approved"
+          value={formatMoney(sum(approvedRows))}
+          icon="check"
+          tone={approvedRows.length ? "info" : "default"}
+          detail="Approved or added to billing"
+        />
+        <StatCard
+          label="Reimbursed / paid"
+          value={formatMoney(sum(paidRows))}
+          icon="dollar"
+          tone={paidRows.length ? "accent" : "default"}
+        />
+        <StatCard
+          label="This month"
+          value={formatMoney(sum(thisMonth))}
+          icon="calendar"
+          detail={`${thisMonth.length} submitted`}
+        />
+      </div>
 
       <SectionCard title="Submit Expense" icon="receipt">
         <Notice tone="info">

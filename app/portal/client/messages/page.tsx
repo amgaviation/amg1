@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
-import { PageHeader, SectionCard, EmptyState, Notice } from "@/components/portal/ui/primitives";
+import { PageHeader, SectionCard, EmptyState, Notice, RecordRow } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { listThreadsForUser } from "@/lib/portal/queries";
@@ -52,15 +52,23 @@ export default async function ClientMessagesPage({
         {threads.length === 0 ? (
           <EmptyState icon="messageSquare" title="No messages yet" description="Start a thread above to contact AMG Operations." />
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {threads.map((t) => (
-              <Link key={t.id} href={`/portal/client/messages/${t.id}`} className="flex flex-col gap-1 rounded-lg border border-border bg-background/50 p-4 transition-colors hover:border-accent/60">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-semibold text-sm">{t.title ?? "AMG Operations"}</p>
-                  <span className="text-xs text-muted-foreground">{formatDateTime(t.last_message_at)}</span>
-                </div>
-                {t.last_body ? <p className="text-xs text-muted-foreground line-clamp-1">{t.last_body}</p> : null}
-              </Link>
+              <RecordRow
+                key={t.id}
+                href={`/portal/client/messages/${t.id}`}
+                title={t.title ?? "AMG Operations"}
+                meta={
+                  t.last_body ? (
+                    <span className="line-clamp-1">{t.last_body}</span>
+                  ) : undefined
+                }
+                trailing={
+                  <span className="deck-mono text-[var(--deck-text-3)]">
+                    {formatDateTime(t.last_message_at)}
+                  </span>
+                }
+              />
             ))}
           </div>
         )}
