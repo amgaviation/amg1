@@ -1,11 +1,22 @@
 import Link from "next/link";
-import { ArrowRight, Building, ClipboardList, FileText, MessageSquare } from "lucide-react";
 import { requireRole } from "@/lib/portal/session";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
-import { EmptyState, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
+import {
+  EmptyState,
+  PageHeader,
+  QuickLink,
+  RecordRow,
+  SectionCard,
+  StatCard,
+} from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { Button } from "@/components/ui/button";
-import { countUnread, getPartnerProfile, listDocumentsForUser, listPartnerAssignments } from "@/lib/portal/queries";
+import {
+  countUnread,
+  getPartnerProfile,
+  listDocumentsForUser,
+  listPartnerAssignments,
+} from "@/lib/portal/queries";
 import { PARTNER_STATUS_LABEL, PARTNER_STATUS_TONE, toneFor } from "@/lib/portal/constants";
 import { formatDateTime, formatMoney } from "@/lib/portal/format";
 
@@ -19,47 +30,121 @@ export default async function PartnerDashboardPage() {
     listDocumentsForUser({ userId: user.id, role: user.role }),
     countUnread(user.id),
   ]);
-  const open = assignments.filter((a) => ["assigned", "accepted", "quoted", "in_progress"].includes(a.status));
+  const open = assignments.filter((a) =>
+    ["assigned", "accepted", "quoted", "in_progress"].includes(a.status)
+  );
+  const awaitingQuote = assignments.filter((a) => a.status === "assigned");
 
   return (
     <PortalShell role="partner" user={user} unread={unread}>
-      <PageHeader eyebrow="Service Partner" title="Partner Dashboard" description="Manage AMG service requests, quotes, supporting documents, and operations communication." />
+      <PageHeader
+        eyebrow={profile?.partner_type ?? "Service Partner"}
+        title={`Welcome back, ${user.name.split(" ")[0]}`}
+        description="AMG service requests, quotes, supporting documents, and operations communication for brokers, vendors, and facility partners."
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Open requests" value={open.length} href="/portal/partner/requests" tone={open.length ? "accent" : "default"} />
-        <StatCard label="Documents" value={docs.length} href="/portal/partner/documents" />
-        <StatCard label="Unread messages" value={unread} href="/portal/partner/messages" tone={unread ? "warn" : "default"} />
-        <StatCard label="Profile" value={profile ? "Live" : "Setup"} href="/portal/partner/profile" detail={profile?.partner_type ?? "Complete service profile"} />
+        <StatCard
+          label="Open requests"
+          value={open.length}
+          icon="clipboard"
+          href="/portal/partner/requests"
+          tone={open.length ? "accent" : "default"}
+        />
+        <StatCard label="Documents" value={docs.length} icon="fileText" href="/portal/partner/documents" />
+        <StatCard
+          label="Unread messages"
+          value={unread}
+          icon="messageSquare"
+          href="/portal/partner/messages"
+          tone={unread ? "warn" : "default"}
+        />
+        <StatCard
+          label="Company profile"
+          value={profile ? "Live" : "Setup"}
+          icon="building"
+          href="/portal/partner/profile"
+          detail={profile?.partner_type ?? "Complete your service profile"}
+        />
       </div>
 
-      <SectionCard title="Quick Actions" icon="handshake" bodyClassName="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          { href: "/portal/partner/requests", label: "Review Requests", icon: <ClipboardList className="h-4 w-4" /> },
-          { href: "/portal/partner/profile", label: "Update Profile", icon: <Building className="h-4 w-4" /> },
-          { href: "/portal/partner/documents?upload=1", label: "Upload Document", icon: <FileText className="h-4 w-4" /> },
-          { href: "/portal/partner/messages?new=1", label: "Message AMG", icon: <MessageSquare className="h-4 w-4" /> },
-        ].map((item) => (
-          <Button key={item.href} asChild variant="outline" className="h-auto justify-start gap-3 rounded-lg py-3">
-            <Link href={item.href}>{item.icon}<span className="text-sm font-medium">{item.label}</span><ArrowRight className="ml-auto h-3.5 w-3.5 text-muted-foreground" /></Link>
-          </Button>
-        ))}
+      {awaitingQuote.length > 0 ? (
+        <SectionCard title="Awaiting Your Response" icon="alert">
+          <div className="space-y-3">
+            {awaitingQuote.slice(0, 4).map((item) => (
+              <RecordRow
+                key={item.id}
+                href={`/portal/partner/requests/${item.id}`}
+                refLabel={item.ref}
+                title={item.service_type}
+                meta={
+                  <>
+                    {item.location ?? "Location TBD"} · Required{" "}
+                    {formatDateTime(item.required_datetime)}
+                  </>
+                }
+                tone="warn"
+                trailing={
+                  <>
+                    <StatusBadge label="Assigned" tone="warn" />
+                    <span className="text-xs font-semibold text-[var(--deck-gold-deep)]">
+                      Respond →
+                    </span>
+                  </>
+                }
+              />
+            ))}
+          </div>
+        </SectionCard>
+      ) : null}
+
+      <SectionCard
+        title="Quick Actions"
+        icon="zap"
+        bodyClassName="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+      >
+        <QuickLink href="/portal/partner/requests" icon="clipboard" label="Review Requests" />
+        <QuickLink href="/portal/partner/profile" icon="building" label="Update Profile" />
+        <QuickLink href="/portal/partner/documents?upload=1" icon="upload" label="Upload Document" />
+        <QuickLink href="/portal/partner/messages?new=1" icon="messageSquare" label="Message AMG" />
       </SectionCard>
 
-      <SectionCard title="Active Service Requests" icon="clipboard">
+      <SectionCard
+        title="Active Service Requests"
+        icon="clipboard"
+        actions={
+          <Button asChild size="sm" variant="ghost">
+            <Link href="/portal/partner/requests">View all</Link>
+          </Button>
+        }
+      >
         {open.length === 0 ? (
-          <EmptyState icon="clipboard" title="No active requests" description="New AMG service tasks will appear here when assigned." />
+          <EmptyState
+            icon="clipboard"
+            title="No active requests"
+            description="New AMG service tasks will appear here when assigned."
+          />
         ) : (
           <div className="space-y-3">
             {open.slice(0, 6).map((item) => (
-              <Link key={item.id} href={`/portal/partner/requests/${item.id}`} className="grid gap-3 rounded-lg border border-border bg-background/50 p-4 hover:border-accent/60 sm:grid-cols-[1fr_auto]">
-                <div>
-                  <p className="font-mono text-xs text-accent">{item.ref}</p>
-                  <p className="mt-1 text-sm font-semibold">{item.service_type} - {item.mission?.ref ?? "Mission TBD"}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{item.location ?? "Location TBD"} | {formatDateTime(item.created_at)}</p>
-                  {item.quote_amount ? <p className="mt-1 text-xs text-muted-foreground">Quote {formatMoney(item.quote_amount)}</p> : null}
-                </div>
-                <StatusBadge label={PARTNER_STATUS_LABEL[item.status] ?? item.status} tone={toneFor(PARTNER_STATUS_TONE, item.status)} />
-              </Link>
+              <RecordRow
+                key={item.id}
+                href={`/portal/partner/requests/${item.id}`}
+                refLabel={item.ref}
+                title={`${item.service_type} — ${item.mission?.ref ?? "Mission TBD"}`}
+                meta={
+                  <>
+                    {item.location ?? "Location TBD"} · {formatDateTime(item.created_at)}
+                    {item.quote_amount ? <> · Quote {formatMoney(item.quote_amount)}</> : null}
+                  </>
+                }
+                trailing={
+                  <StatusBadge
+                    label={PARTNER_STATUS_LABEL[item.status] ?? item.status}
+                    tone={toneFor(PARTNER_STATUS_TONE, item.status)}
+                  />
+                }
+              />
             ))}
           </div>
         )}

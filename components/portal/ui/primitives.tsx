@@ -253,6 +253,145 @@ export function Notice({
   );
 }
 
+/** Compact record row used in dashboard feeds and detail side panels. */
+export function RecordRow({
+  href,
+  refLabel,
+  title,
+  meta,
+  trailing,
+  tone = "default",
+}: {
+  href?: string;
+  refLabel?: string | null;
+  title: React.ReactNode;
+  meta?: React.ReactNode;
+  trailing?: React.ReactNode;
+  tone?: "default" | "warn" | "danger" | "gold";
+}) {
+  const toneCls = {
+    default: "",
+    warn: "!border-[#EAD9AE] bg-[#FFFCF4]",
+    danger: "!border-[#EFC7C7] bg-[#FEF9F9]",
+    gold: "!border-[var(--deck-gold-line)] bg-[var(--deck-gold-tint)]",
+  }[tone];
+  const inner = (
+    <div
+      className={cn(
+        "deck-inset flex items-start justify-between gap-4 p-4",
+        href && "deck-card-hover",
+        toneCls
+      )}
+    >
+      <div className="min-w-0">
+        {refLabel ? (
+          <p className="deck-mono text-[var(--deck-gold-deep)]">{refLabel}</p>
+        ) : null}
+        <div className={cn("text-sm font-semibold text-[var(--deck-text)]", refLabel && "mt-1")}>
+          {title}
+        </div>
+        {meta ? (
+          <div className="mt-1 text-xs leading-5 text-[var(--deck-text-3)]">{meta}</div>
+        ) : null}
+      </div>
+      {trailing ? (
+        <div className="flex shrink-0 flex-col items-end gap-1.5 text-right">{trailing}</div>
+      ) : null}
+    </div>
+  );
+  return href ? (
+    <Link
+      href={href}
+      className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]"
+    >
+      {inner}
+    </Link>
+  ) : (
+    inner
+  );
+}
+
+/** Quick-action tile: icon + label + chevron. */
+export function QuickLink({
+  href,
+  icon,
+  label,
+  description,
+}: {
+  href: string;
+  icon: string;
+  label: string;
+  description?: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="deck-inset deck-card-hover group flex items-center gap-3 p-3.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]"
+    >
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--deck-gold-line)] bg-white text-[var(--deck-gold-deep)]">
+        <PortalIcon name={icon} className="h-4 w-4" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-semibold text-[var(--deck-text)]">
+          {label}
+        </span>
+        {description ? (
+          <span className="block truncate text-xs text-[var(--deck-text-3)]">
+            {description}
+          </span>
+        ) : null}
+      </span>
+      <PortalIcon
+        name="arrowUpRight"
+        className="h-3.5 w-3.5 shrink-0 text-[var(--deck-text-3)] transition-colors group-hover:text-[var(--deck-gold-deep)]"
+      />
+    </Link>
+  );
+}
+
+/** Link-driven filter pills (server-safe — no client JS). */
+export function FilterTabs({
+  basePath,
+  param = "status",
+  current,
+  options,
+  preserve,
+}: {
+  basePath: string;
+  param?: string;
+  current: string | undefined;
+  options: { label: string; value: string }[];
+  preserve?: Record<string, string | undefined>;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {options.map((option) => {
+        const active = (current ?? "") === option.value;
+        const search = new URLSearchParams();
+        for (const [key, val] of Object.entries(preserve ?? {})) {
+          if (val) search.set(key, val);
+        }
+        if (option.value) search.set(param, option.value);
+        const qs = search.toString();
+        return (
+          <Link
+            key={option.value || "all"}
+            href={qs ? `${basePath}?${qs}` : basePath}
+            className={cn(
+              "rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors",
+              active
+                ? "border-[var(--deck-gold)] bg-[var(--deck-gold-tint)] font-semibold text-[var(--deck-gold-deep)]"
+                : "border-[var(--deck-line-strong)] bg-white text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)] hover:text-[var(--deck-text)]"
+            )}
+          >
+            {option.label}
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
 export const PortalPageHeader = PageHeader;
 export const PortalSection = SectionCard;
 export const PortalCard = SectionCard;

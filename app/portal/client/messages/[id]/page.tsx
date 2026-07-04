@@ -49,7 +49,7 @@ export default async function ClientThreadPage({ params }: { params: Promise<{ i
         <form action={postMessage} className="mt-6 flex gap-3 border-t border-border pt-5">
           <input type="hidden" name="thread_id" value={thread.id} />
           <input type="hidden" name="back_to" value="/portal/client/messages" />
-          <textarea name="body" required placeholder="Type your message…" className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-accent" rows={3} />
+          <textarea name="body" required placeholder="Type your message…" className="deck-input flex-1" rows={3} />
           <div className="flex items-end">
             <SubmitButton className="rounded-full" pendingText="Sending…">Send</SubmitButton>
           </div>

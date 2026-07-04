@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { PortalShell } from "@/components/portal/shell/portal-shell";
-import { PageHeader, SectionCard, EmptyState, Notice } from "@/components/portal/ui/primitives";
+import { PageHeader, SectionCard, EmptyState, Notice, RecordRow } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { SelectField, TextField } from "@/components/portal/ui/fields";
@@ -54,8 +54,16 @@ export default async function ClientDocumentsPage({
           </div>
           <div className="mt-4">
             <label className="grid gap-2">
-              <span className="eyebrow text-[0.6rem] text-muted-foreground">File <span className="text-accent">*</span></span>
-              <input type="file" name="file" required accept=".pdf,.jpg,.jpeg,.png" className="text-sm text-muted-foreground file:mr-3 file:rounded-md file:border file:border-input file:bg-secondary/40 file:px-3 file:py-2 file:text-sm file:font-medium file:text-foreground hover:file:border-accent" />
+              <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">
+                File <span className="text-[var(--deck-gold-deep)]">*</span>
+              </span>
+              <input
+                type="file"
+                name="file"
+                required
+                accept=".pdf,.jpg,.jpeg,.png"
+                className="text-sm text-[var(--deck-text-3)] file:mr-3 file:rounded-lg file:border file:border-[var(--deck-line-strong)] file:bg-white file:px-3 file:py-2 file:text-sm file:font-medium file:text-[var(--deck-text)] hover:file:border-[var(--deck-gold)]"
+              />
             </label>
           </div>
           <label className="mt-4 flex items-start gap-3 rounded-lg border border-border bg-background/60 p-3 text-sm text-muted-foreground">
@@ -74,20 +82,29 @@ export default async function ClientDocumentsPage({
         ) : (
           <div className="space-y-3">
             {docs.map((doc) => (
-              <div key={doc.id} className="grid gap-3 rounded-lg border border-border bg-background/50 p-4 sm:grid-cols-[1fr_auto_auto_auto]">
-                <div>
-                  <p className="text-sm font-semibold">{doc.name}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{doc.doc_type} · Uploaded {formatDate(doc.created_at)}</p>
-                  {doc.expiration_date ? (
-                    <p className="mt-0.5 text-xs text-muted-foreground">Expires {formatDate(doc.expiration_date)}</p>
-                  ) : null}
-                </div>
-                <StatusBadge label={DOCUMENT_STATUS_LABEL[doc.status] ?? doc.status} tone={toneFor(DOCUMENT_STATUS_TONE, doc.status)} />
-                <Link href={`/portal/documents/${doc.id}/view`} className="text-sm text-accent hover:underline">View</Link>
-                {doc.review_notes ? (
-                  <p className="text-xs text-amber-300">{doc.review_notes}</p>
-                ) : null}
-              </div>
+              <RecordRow
+                key={doc.id}
+                href={`/portal/documents/${doc.id}/view`}
+                title={doc.name}
+                meta={
+                  <>
+                    {doc.doc_type} · Uploaded {formatDate(doc.created_at)}
+                    {doc.expiration_date ? <> · Expires {formatDate(doc.expiration_date)}</> : null}
+                    {doc.review_notes ? (
+                      <span className="mt-1 block text-[#8F5F12]">{doc.review_notes}</span>
+                    ) : null}
+                  </>
+                }
+                trailing={
+                  <>
+                    <StatusBadge
+                      label={DOCUMENT_STATUS_LABEL[doc.status] ?? doc.status}
+                      tone={toneFor(DOCUMENT_STATUS_TONE, doc.status)}
+                    />
+                    <span className="text-xs font-semibold text-[var(--deck-gold-deep)]">View →</span>
+                  </>
+                }
+              />
             ))}
           </div>
         )}
