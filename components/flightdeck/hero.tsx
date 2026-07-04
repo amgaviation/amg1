@@ -70,36 +70,44 @@ export default function Hero() {
       // size every frame instead of compositing a 16x-scaled texture
       // (huge transformed layers black out weaker GPUs). Only the small
       // frame SVG actually scales, and it is dropped mid-dive.
+      //
+      // Every tween carries an explicit duration so the motion spans the
+      // WHOLE pin (a bare .to() defaults to 0.5s, which used to finish the
+      // dive at the pin's midpoint and leave the back half as dead scroll).
+      // An ease-in accelerates the plunge; the bulkhead then dissolves so
+      // there is no geometric corner-clearing tail.
       tl.fromTo(
         ".window-mask",
         { "--apw": "19vh", "--aph": "29vh" },
-        { "--apw": "310vh", "--aph": "470vh" },
+        { "--apw": "150vh", "--aph": "140vh", duration: 1, ease: "power1.in" },
         0
       )
-        .to(".window-frame", { scale: 16, transformOrigin: "50% 46.3%" }, 0)
-        .fromTo(".sky-screen", { scale: 1.18 }, { scale: 1, transformOrigin: "50% 46%" }, 0)
+        .to(".window-frame", { scale: 14, duration: 1, ease: "power1.in", transformOrigin: "50% 46.3%" }, 0)
+        .fromTo(".sky-screen", { scale: 1.18 }, { scale: 1, duration: 1, ease: "none", transformOrigin: "50% 46%" }, 0)
         .fromTo(
           ".hl-left",
           { xPercent: 0, filter: "blur(0px)", opacity: 1 },
-          { xPercent: -160, filter: "blur(6px)", opacity: 0 },
+          { xPercent: -160, filter: "blur(6px)", opacity: 0, duration: 0.42, ease: "power1.in" },
           0
         )
         .fromTo(
           ".hl-right",
           { xPercent: 0, filter: "blur(0px)", opacity: 1 },
-          { xPercent: 160, filter: "blur(6px)", opacity: 0 },
+          { xPercent: 160, filter: "blur(6px)", opacity: 0, duration: 0.42, ease: "power1.in" },
           0
         )
         .fromTo(
           ".hero-meta",
           { yPercent: 0, opacity: 1 },
-          { yPercent: 60, opacity: 0 },
+          { yPercent: 60, opacity: 0, duration: 0.42 },
           0
         )
-        // Frame fades once the aperture clears the viewport, then its
-        // scaled layer is removed entirely.
-        .to(".window-frame", { opacity: 0 }, 0.5)
-        .to(".window-frame", { visibility: "hidden", duration: 0.01 }, 0.62);
+        // Frame chrome fades as we pass through it.
+        .to(".window-frame", { opacity: 0, duration: 0.2 }, 0.48)
+        // The bulkhead dissolves into open sky — the wall fades out rather
+        // than waiting for the mask to geometrically clear every corner.
+        .to(".window-mask", { opacity: 0, duration: 0.3 }, 0.58)
+        .to(".window-frame", { visibility: "hidden", duration: 0.01 }, 0.7);
 
       // Pause the sky video whenever the hero is off-screen.
       ScrollTrigger.create({
@@ -118,7 +126,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section ref={section} id="top" className="fd-pin-section relative h-[400vh]">
+    <section ref={section} id="top" className="fd-pin-section relative h-[240vh]">
       <div className="hero-stage relative h-screen w-full overflow-hidden bg-canvas">
         {/* L3: full-viewport sky — a fixed-size layer the camera flies into.
             It never scales beyond 1.18, so the video texture stays small no

@@ -40,7 +40,7 @@ export default function Statement() {
     <section
       ref={root}
       id="mission"
-      className="silver-grid relative flex min-h-[120vh] items-center"
+      className="silver-grid relative flex min-h-[92vh] items-center py-[16vh]"
       style={{
         background:
           "linear-gradient(180deg, #0e2a3a -30%, #070B14 45%, #070B14 100%)",

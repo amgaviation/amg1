@@ -18,10 +18,13 @@ export default function SmoothScroll() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const lenis = new Lenis({
-      duration: 1.35,
+      // Lower duration = the view tracks the wheel more tightly (less
+      // floaty lag) while the expo easing keeps motion smooth.
+      duration: 1.05,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      touchMultiplier: 1.6,
+      wheelMultiplier: 1.1,
+      touchMultiplier: 1.8,
     });
 
     lenis.on("scroll", ScrollTrigger.update);
