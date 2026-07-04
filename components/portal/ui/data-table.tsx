@@ -18,6 +18,10 @@ export type Column<T> = {
   hideOnMobile?: boolean;
 };
 
+/**
+ * Operations Deck data table: desktop table with hairline rows and a
+ * stacked card list on mobile. Row-level `getHref` makes rows navigable.
+ */
 export function DataTable<T>({
   columns,
   rows,
@@ -33,29 +37,40 @@ export function DataTable<T>({
 }) {
   if (!rows.length) {
     return (
-      <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50/80 px-4 py-8 text-center text-sm text-muted-foreground">
+      <div className="rounded-xl border border-dashed border-[var(--deck-line-strong)] bg-[#F8FAFB] px-4 py-10 text-center text-sm text-[var(--deck-text-3)]">
         {emptyLabel}
       </div>
     );
   }
   return (
-    <div className="rounded-lg overflow-hidden border border-border bg-white shadow-[0_14px_36px_rgba(15,23,42,0.06)]">
+    <div className="deck-card overflow-hidden">
+      {/* Mobile: stacked cards */}
       <div className="grid gap-3 p-3 md:hidden">
         {rows.map((row) => {
           const href = getHref?.(row);
-          const primary = columns.find((column) => column.priority === "primary") ?? columns[0];
-          const visible = columns.filter((column) => column !== primary && !column.hideOnMobile).slice(0, 4);
+          const primary =
+            columns.find((column) => column.priority === "primary") ?? columns[0];
+          const visible = columns
+            .filter((column) => column !== primary && !column.hideOnMobile)
+            .slice(0, 4);
           const card = (
-            <div className="rounded-lg border border-border bg-white p-4 transition-colors hover:border-primary/45 hover:bg-blue-50/45">
-              <div className="text-sm font-semibold text-foreground">{primary.cell(row)}</div>
+            <div className="deck-inset deck-card-hover p-4">
+              <div className="text-sm font-semibold text-[var(--deck-text)]">
+                {primary.cell(row)}
+              </div>
               {visible.length ? (
                 <dl className="mt-3 grid gap-2">
                   {visible.map((column, index) => (
-                    <div key={index} className="flex items-start justify-between gap-3 border-t border-border pt-2">
-                      <dt className="text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                    <div
+                      key={index}
+                      className="flex items-start justify-between gap-3 border-t border-[var(--deck-line)] pt-2"
+                    >
+                      <dt className="deck-eyebrow !text-[0.56rem] !text-[var(--deck-text-3)]">
                         {column.header}
                       </dt>
-                      <dd className="min-w-0 text-right text-xs text-foreground">{column.cell(row)}</dd>
+                      <dd className="min-w-0 text-right text-xs text-[var(--deck-text)]">
+                        {column.cell(row)}
+                      </dd>
                     </div>
                   ))}
                 </dl>
@@ -64,7 +79,11 @@ export function DataTable<T>({
           );
 
           return href ? (
-            <Link key={getKey(row)} href={href} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70">
+            <Link
+              key={getKey(row)}
+              href={href}
+              className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]"
+            >
               {card}
             </Link>
           ) : (
@@ -73,55 +92,64 @@ export function DataTable<T>({
         })}
       </div>
 
-      <div className="hidden max-w-full overflow-hidden bg-white md:block">
-      <Table className="border-0">
-        <TableHeader>
-          <TableRow className="bg-slate-50 hover:bg-slate-50">
-            {columns.map((c, i) => (
-              <TableHead
-                key={i}
-                className={cn(
-                  c.align === "right" && "text-right",
-                  c.align === "center" && "text-center",
-                  c.className
-                )}
-              >
-                {c.header}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rows.map((row) => {
-            const href = getHref?.(row);
-            return (
-              <TableRow
-                key={getKey(row)}
-                className={cn("border-border", href && "cursor-pointer hover:bg-blue-50/45")}
-              >
-                {columns.map((c, i) => (
-                  <TableCell
-                    key={i}
-                    className={cn(
-                      c.align === "right" && "text-right",
-                      c.align === "center" && "text-center",
-                      c.className
-                    )}
-                  >
-                    {href ? (
-                      <Link href={href} className="block min-h-8 py-1 text-inherit focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70">
-                        {c.cell(row)}
-                      </Link>
-                    ) : (
-                      c.cell(row)
-                    )}
-                  </TableCell>
-                ))}
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+      {/* Desktop: table */}
+      <div className="hidden max-w-full overflow-x-auto md:block">
+        <Table className="border-0">
+          <TableHeader>
+            <TableRow className="border-[var(--deck-line)] bg-[#F8FAFB] hover:bg-[#F8FAFB]">
+              {columns.map((c, i) => (
+                <TableHead
+                  key={i}
+                  className={cn(
+                    "h-10 text-[0.62rem] font-bold uppercase text-[var(--deck-text-3)] [letter-spacing:0.14em]",
+                    c.align === "right" && "text-right",
+                    c.align === "center" && "text-center",
+                    c.className
+                  )}
+                >
+                  {c.header}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((row) => {
+              const href = getHref?.(row);
+              return (
+                <TableRow
+                  key={getKey(row)}
+                  className={cn(
+                    "border-[var(--deck-line)]",
+                    href && "cursor-pointer"
+                  )}
+                >
+                  {columns.map((c, i) => (
+                    <TableCell
+                      key={i}
+                      className={cn(
+                        "text-sm",
+                        c.align === "right" && "text-right",
+                        c.align === "center" && "text-center",
+                        c.className
+                      )}
+                    >
+                      {href ? (
+                        <Link
+                          href={href}
+                          className="block min-h-8 py-1 text-inherit focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]"
+                        >
+                          {c.cell(row)}
+                        </Link>
+                      ) : (
+                        c.cell(row)
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

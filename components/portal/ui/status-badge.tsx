@@ -12,15 +12,9 @@ export function StatusBadge({
   className?: string;
 }) {
   return (
-    <span
-      className={cn(
-        "inline-flex w-fit items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium whitespace-nowrap",
-        STATUS_TONE_CLASSES[tone],
-        className
-      )}
-    >
+    <span className={cn("deck-chip", STATUS_TONE_CLASSES[tone], className)}>
       <span
-        className={cn("h-1.5 w-1.5 rounded-full opacity-90", STATUS_DOT_CLASSES[tone])}
+        className={cn("h-1.5 w-1.5 rounded-full", STATUS_DOT_CLASSES[tone])}
         aria-hidden
       />
       {label}
@@ -28,22 +22,28 @@ export function StatusBadge({
   );
 }
 
-export function RoleBadge({ role }: { role: string }) {
+export function RoleBadge({ role, className }: { role: string; className?: string }) {
   const labels: Record<string, string> = {
     client: "Client",
     crew: "Crew",
-    admin: "AMG Admin",
-    partner: "Partner",
+    admin: "AMG Operations",
+    partner: "Partner Network",
     super_admin: "Super Admin",
   };
   const tones: Record<string, Tone> = {
     client: "info",
-    crew: "accent",
-    admin: "success",
+    crew: "success",
+    admin: "accent",
     partner: "warn",
     super_admin: "danger",
   };
-  return <StatusBadge label={labels[role] ?? role} tone={tones[role] ?? "neutral"} />;
+  return (
+    <StatusBadge
+      label={labels[role] ?? role}
+      tone={tones[role] ?? "neutral"}
+      className={className}
+    />
+  );
 }
 
 export const PortalStatusBadge = StatusBadge;
