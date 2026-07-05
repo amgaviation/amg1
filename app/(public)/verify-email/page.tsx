@@ -31,7 +31,7 @@ export default async function VerifyEmailPage({
         <div className="absolute inset-0 -z-10" aria-hidden="true">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/images/site/map-operations.jpg"
+            src="/images/flightdeck/stratosphere.webp"
             alt=""
             className="h-full w-full scale-105 object-cover opacity-30"
           />
@@ -41,7 +41,7 @@ export default async function VerifyEmailPage({
 
         <div className="hidden max-w-3xl self-center lg:block">
           <div className="inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#3B82F6]">
-            <span className="h-px w-12 bg-[#3B82F6]/70" />
+            <span className="h-px w-12 bg-[var(--instrument)]/70" />
             AMG Connect
           </div>
           <h1 className="mt-6 font-display text-6xl font-semibold uppercase tracking-tight text-white xl:text-7xl">
@@ -74,14 +74,14 @@ export default async function VerifyEmailPage({
             </div>
 
             {params.success === "requested" ? (
-              <div className="mb-4 rounded-xl border border-[#3B82F6]/30 bg-[#3B82F6]/10 px-4 py-3 text-sm leading-6 text-white">
+              <div className="mb-4 rounded-xl border border-[var(--instrument-ink)]/30 bg-[var(--instrument)]/10 px-4 py-3 text-sm leading-6 text-white">
                 Access request submitted. Check your email for the AMG Connect
                 verification code.
               </div>
             ) : null}
 
             {params.success === "resent" ? (
-              <div className="mb-4 rounded-xl border border-[#3B82F6]/30 bg-[#3B82F6]/10 px-4 py-3 text-sm leading-6 text-white">
+              <div className="mb-4 rounded-xl border border-[var(--instrument-ink)]/30 bg-[var(--instrument)]/10 px-4 py-3 text-sm leading-6 text-white">
                 If a pending AMG Connect verification exists for that email, a
                 new code has been sent.
               </div>
@@ -120,7 +120,7 @@ export default async function VerifyEmailPage({
                 />
               </label>
 
-              <button className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#3B82F6] px-6 py-4 font-display text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2 focus:ring-offset-[#050B14]">
+              <button className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--instrument)] px-6 py-4 font-display text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[var(--instrument-ink)] focus:ring-offset-2 focus:ring-offset-[#050B14]">
                 Verify Email
                 <ArrowRight className="h-4 w-4" />
               </button>
@@ -128,7 +128,7 @@ export default async function VerifyEmailPage({
               <button
                 formAction={resendPortalVerificationCode}
                 formNoValidate
-                className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-white/[0.14] px-6 py-4 font-display text-sm font-semibold uppercase tracking-widest text-white/85 transition hover:border-[#3B82F6] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2 focus:ring-offset-[#050B14]"
+                className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-white/[0.14] px-6 py-4 font-display text-sm font-semibold uppercase tracking-widest text-white/85 transition hover:border-[#3B82F6] hover:text-white focus:outline-none focus:ring-2 focus:ring-[var(--instrument-ink)] focus:ring-offset-2 focus:ring-offset-[#050B14]"
               >
                 Resend Verification Code
               </button>

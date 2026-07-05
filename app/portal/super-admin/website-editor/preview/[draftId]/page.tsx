@@ -44,7 +44,7 @@ export default async function WebsiteEditorPreviewPage({
               eyebrow={hero.eyebrow ?? content.seo.title}
               headline={hero.headline ?? content.seo.title}
               body={hero.body ?? content.seo.description}
-              imageSrc={imageSrcForKey(hero.imageKey) ?? "/images/amg-generated/backgrounds/operational-clarity-dispatch.jpg"}
+              imageSrc={imageSrcForKey(hero.imageKey) ?? "/images/flightdeck/cockpit-dusk.webp"}
               primaryCtaLabel={hero.primaryCtaLabel || undefined}
               primaryCtaHref={hero.primaryCtaHref || undefined}
               secondaryCtaLabel={hero.secondaryCtaLabel || undefined}
@@ -55,7 +55,7 @@ export default async function WebsiteEditorPreviewPage({
               eyebrow={hero.eyebrow ?? content.seo.title}
               title={hero.headline ?? content.seo.title}
               lead={hero.body ?? content.seo.description}
-              image={imageSrcForKey(hero.imageKey) ?? "/images/amg-generated/backgrounds/operational-clarity-dispatch.jpg"}
+              image={imageSrcForKey(hero.imageKey) ?? "/images/flightdeck/cockpit-dusk.webp"}
               imageAlt=""
               primary={hero.primaryCtaLabel && hero.primaryCtaHref ? { label: hero.primaryCtaLabel, href: hero.primaryCtaHref } : undefined}
               secondary={hero.secondaryCtaLabel && hero.secondaryCtaHref ? { label: hero.secondaryCtaLabel, href: hero.secondaryCtaHref } : undefined}

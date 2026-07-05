@@ -5,6 +5,7 @@ const crypto = require("crypto");
 
 const root = process.cwd();
 const exemptPaths = new Set([
+  "/images/logo-short.png",
   "/images/logo-blue.png",
   "/images/logo-navy.png",
   "/images/logo-original.png",
@@ -31,13 +32,9 @@ const sourceRoots = [
   "app/(public)/mission-acceptance/page.tsx",
   "app/(public)/credential-submission/page.tsx",
   "components/site/oc/shared.tsx",
-  "components/site/home/command-hero.tsx",
-  "components/site/home/brand-statement.tsx",
-  "components/site/home/operational-lanes.tsx",
-  "components/site/home/mission-flow.tsx",
+  "components/flightdeck",
   "components/site/home/aircraft-gallery.tsx",
   "components/site/home/connect-preview.tsx",
-  "components/site/home/support-models.tsx",
   "components/site/subscription-programs.tsx",
   "components/site/legal-page.tsx",
   "components/site/site-nav.tsx",

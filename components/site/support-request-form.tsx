@@ -34,7 +34,7 @@ const steps = [
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} className="min-h-12 rounded-full bg-[var(--oc-blue)] px-6 text-white hover:bg-[var(--oc-navy)]">
+    <Button type="submit" disabled={pending} className="min-h-12 rounded-full bg-[var(--instrument)] px-6 text-white hover:bg-[var(--oc-navy)]">
       {pending ? "Submitting..." : "Submit for review"}
       <Send className="h-4 w-4" />
     </Button>
@@ -93,7 +93,7 @@ function NativeSelect({
       value={value}
       onChange={(event) => onChange?.(event.target.value)}
       aria-describedby={describedBy}
-      className="support-field min-h-11 bg-white/80 px-3 text-sm"
+      className="support-field min-h-11 bg-[#0A1322]/85 px-3 text-sm"
     >
       <option value="Not sure">Not sure</option>
       {options.map((option) => (
@@ -108,11 +108,11 @@ function ConditionalInput({ field, supportPath }: { field: ConditionalField; sup
   return (
     <Field id={id} label={field.label} required={field.required}>
       {field.type === "textarea" ? (
-        <Textarea id={id} name={field.name} required={field.required} placeholder={field.placeholder} className="min-h-28 bg-white/80" />
+        <Textarea id={id} name={field.name} required={field.required} placeholder={field.placeholder} className="min-h-28 bg-[#0A1322]/85" />
       ) : field.type === "select" && field.options ? (
         <NativeSelect id={id} name={field.name} options={field.options} required={field.required} />
       ) : (
-        <Input id={id} name={field.name} type={field.type ?? "text"} required={field.required} placeholder={field.placeholder} className="min-h-11 bg-white/80" />
+        <Input id={id} name={field.name} type={field.type ?? "text"} required={field.required} placeholder={field.placeholder} className="min-h-11 bg-[#0A1322]/85" />
       )}
     </Field>
   );
@@ -195,8 +195,8 @@ export function SupportRequestForm({
                 aria-current={activeStep === index ? "step" : undefined}
                 className={`flex min-h-11 w-full items-center justify-center rounded-full border px-3 text-xs font-semibold transition ${
                   activeStep === index
-                    ? "border-[var(--oc-blue)] bg-[var(--oc-blue)] text-white"
-                    : "border-[var(--oc-line)] bg-white/70 text-[var(--oc-ink)] hover:border-[var(--oc-blue)]"
+                    ? "border-[var(--instrument)] bg-[var(--instrument)] text-white"
+                    : "border-[var(--oc-line)] bg-[#0A1322]/85 text-[var(--oc-ink)] hover:border-[var(--oc-blue)]"
                 }`}
               >
                 {index + 1}. {step.label}
@@ -210,16 +210,16 @@ export function SupportRequestForm({
 
           <StepPanel index={0} activeStep={activeStep} title="Contact">
             <Field id="support-full-name" label="Full name" required>
-              <Input id="support-full-name" name="full_name" required autoComplete="name" className="min-h-11 bg-white/80" />
+              <Input id="support-full-name" name="full_name" required autoComplete="name" className="min-h-11 bg-[#0A1322]/85" />
             </Field>
             <Field id="support-email" label="Email" required>
-              <Input id="support-email" name="email" type="email" required autoComplete="email" className="min-h-11 bg-white/80" />
+              <Input id="support-email" name="email" type="email" required autoComplete="email" className="min-h-11 bg-[#0A1322]/85" />
             </Field>
             <Field id="support-phone" label="Phone">
-              <Input id="support-phone" name="phone" type="tel" autoComplete="tel" className="min-h-11 bg-white/80" />
+              <Input id="support-phone" name="phone" type="tel" autoComplete="tel" className="min-h-11 bg-[#0A1322]/85" />
             </Field>
             <Field id="support-company" label="Company / operator">
-              <Input id="support-company" name="company_operator" autoComplete="organization" className="min-h-11 bg-white/80" />
+              <Input id="support-company" name="company_operator" autoComplete="organization" className="min-h-11 bg-[#0A1322]/85" />
             </Field>
             <Field id="support-requester-role" label="Requester role" className="md:col-span-2">
               <NativeSelect id="support-requester-role" name="requester_role" options={requesterRoles} />
@@ -231,16 +231,16 @@ export function SupportRequestForm({
               <NativeSelect id="support-aircraft-category" name="aircraft_category" options={aircraftCategories} required />
             </Field>
             <Field id="support-aircraft-type" label="Aircraft type" required help="Example: Citation M2, Phenom 300, Challenger 350, SR22.">
-              <Input id="support-aircraft-type" name="aircraft_type" required aria-describedby="support-aircraft-type-help" className="min-h-11 bg-white/80" />
+              <Input id="support-aircraft-type" name="aircraft_type" required aria-describedby="support-aircraft-type-help" className="min-h-11 bg-[#0A1322]/85" />
             </Field>
             <Field id="support-tail-number" label="Tail number">
-              <Input id="support-tail-number" name="tail_number" placeholder="N123AB" className="min-h-11 bg-white/80 uppercase" />
+              <Input id="support-tail-number" name="tail_number" placeholder="N123AB" className="min-h-11 bg-[#0A1322]/85 uppercase" />
             </Field>
             <Field id="support-home-airport" label="Home base">
-              <Input id="support-home-airport" name="home_airport" placeholder="KPMP, KFXE, KTEB" className="min-h-11 bg-white/80 uppercase" />
+              <Input id="support-home-airport" name="home_airport" placeholder="KPMP, KFXE, KTEB" className="min-h-11 bg-[#0A1322]/85 uppercase" />
             </Field>
             <Field id="support-current-location" label="Current location">
-              <Input id="support-current-location" name="current_aircraft_location" className="min-h-11 bg-white/80" />
+              <Input id="support-current-location" name="current_aircraft_location" className="min-h-11 bg-[#0A1322]/85" />
             </Field>
             <Field id="support-aircraft-status" label="Aircraft status" help="Use this to flag whether the aircraft is active, in maintenance, unavailable, or still being reviewed.">
               <NativeSelect id="support-aircraft-status" name="aircraft_status" options={aircraftStatuses} describedBy="support-aircraft-status-help" />
@@ -263,49 +263,49 @@ export function SupportRequestForm({
               />
             </Field>
             <Field id="support-summary" label="Plain-language description of the need" required className="md:col-span-2">
-              <Textarea id="support-summary" name="requested_support_summary" required className="min-h-32 bg-white/80" />
+              <Textarea id="support-summary" name="requested_support_summary" required className="min-h-32 bg-[#0A1322]/85" />
             </Field>
             {conditionalFields.slice(0, 6).map((field) => (
               <ConditionalInput key={`${supportPath}-${field.name}`} field={field} supportPath={supportPath} />
             ))}
-            <p className="rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)] md:col-span-2">
+            <p className="rounded-xl border border-[var(--oc-line)] bg-[#0A1322]/85 p-4 text-sm leading-relaxed text-[var(--oc-muted)] md:col-span-2">
               Do not enter full credit card numbers, CVV codes, bank account numbers, or routing numbers.
             </p>
           </StepPanel>
 
           <StepPanel index={3} activeStep={activeStep} title="Timing and review">
             <Field id="support-start-date" label="Desired date">
-              <Input id="support-start-date" name="desired_start_date" type="date" className="min-h-11 bg-white/80" />
+              <Input id="support-start-date" name="desired_start_date" type="date" className="min-h-11 bg-[#0A1322]/85" />
             </Field>
             <Field id="support-timeline" label="Urgency / timeline" required>
               <NativeSelect id="support-timeline" name="timeline_urgency" options={timelineOptions} required />
             </Field>
             <Field id="support-departure" label="Departure / current airport">
-              <Input id="support-departure" name="departure_current_airport" className="min-h-11 bg-white/80 uppercase" />
+              <Input id="support-departure" name="departure_current_airport" className="min-h-11 bg-[#0A1322]/85 uppercase" />
             </Field>
             <Field id="support-destination" label="Destination airport">
-              <Input id="support-destination" name="destination_airport" className="min-h-11 bg-white/80 uppercase" />
+              <Input id="support-destination" name="destination_airport" className="min-h-11 bg-[#0A1322]/85 uppercase" />
             </Field>
             <Field id="support-approval" label="Owner/operator approval status" required help="Select whether the owner or responsible operator has approved AMG reviewing this request.">
               <NativeSelect id="support-approval" name="owner_operator_approval_status" options={ownerApprovalStatuses} required describedBy="support-approval-help" />
             </Field>
             <Field id="support-limitations" label="Known limitations or concerns">
-              <Textarea id="support-limitations" name="known_limitations" className="min-h-28 bg-white/80" />
+              <Textarea id="support-limitations" name="known_limitations" className="min-h-28 bg-[#0A1322]/85" />
             </Field>
             <Field id="support-additional-notes" label="Additional notes" className="md:col-span-2">
-              <Textarea id="support-additional-notes" name="additional_notes" className="min-h-28 bg-white/80" />
+              <Textarea id="support-additional-notes" name="additional_notes" className="min-h-28 bg-[#0A1322]/85" />
             </Field>
             <div className="grid gap-3 md:col-span-2 md:grid-cols-2">
-              <label className="flex items-start gap-3 rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
+              <label className="flex items-start gap-3 rounded-xl border border-[var(--oc-line)] bg-[#0A1322]/85 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
                 <input name="marketing_consent" value="true" type="checkbox" className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
                 <span>AMG may email me relevant updates about aviation support services.</span>
               </label>
-              <label className="flex items-start gap-3 rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
+              <label className="flex items-start gap-3 rounded-xl border border-[var(--oc-line)] bg-[#0A1322]/85 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
                 <input name="sms_consent" value="true" type="checkbox" className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
                 <span>AMG may text me about this request. Message and data rates may apply.</span>
               </label>
             </div>
-            <label className="flex items-start gap-3 rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)] md:col-span-2">
+            <label className="flex items-start gap-3 rounded-xl border border-[var(--oc-line)] bg-[#0A1322]/85 p-4 text-sm leading-relaxed text-[var(--oc-muted)] md:col-span-2">
               <input name="acknowledgment" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
               <span>
                 I understand that submitting this request starts AMG’s review and does not confirm support, crew availability, aircraft movement, or operational approval. I have reviewed the <Link href="/privacy-policy" className="font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">Privacy Policy</Link>, <Link href="/terms" className="font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">Terms</Link>, and <Link href="/mission-acceptance" className="font-semibold text-[var(--oc-blue)] hover:text-[var(--oc-navy)]">Mission Acceptance Policy</Link>.
@@ -320,7 +320,7 @@ export function SupportRequestForm({
                 Back
               </Button>
               {activeStep < steps.length - 1 ? (
-                <Button type="button" className="min-h-11 rounded-full bg-[var(--oc-blue)] text-white hover:bg-[var(--oc-navy)]" onClick={() => setActiveStep((step) => Math.min(steps.length - 1, step + 1))}>
+                <Button type="button" className="min-h-11 rounded-full bg-[var(--instrument)] text-white hover:bg-[var(--oc-navy)]" onClick={() => setActiveStep((step) => Math.min(steps.length - 1, step + 1))}>
                   Next
                   <ArrowRight className="h-4 w-4" />
                 </Button>

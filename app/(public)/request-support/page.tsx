@@ -61,7 +61,7 @@ export default async function RequestSupportPage({
                 owner/operator approval, and operational conditions have been reviewed.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button asChild className="min-h-11 rounded-full bg-white px-6 text-[var(--oc-navy)] hover:bg-white/90">
+                <Button asChild className="min-h-11 rounded-full bg-[#0A1322] px-6 text-[var(--oc-navy)] hover:bg-[#0A1322]/85">
                   <a href="#support-request-form">
                     Submit for review
                     <ArrowRight className="h-4 w-4" />
@@ -109,7 +109,7 @@ export default async function RequestSupportPage({
       <section id="support-request-form" className="oc-shell py-14 lg:py-20">
         <div className="grid gap-8 lg:grid-cols-[0.38fr_1fr] lg:items-start">
           <aside className="lg:sticky lg:top-[calc(var(--public-header-height)+2rem)]">
-            <div className="overflow-hidden rounded-2xl border border-[var(--oc-line)] bg-white shadow-[var(--oc-shadow)]">
+            <div className="overflow-hidden rounded-2xl border border-[var(--oc-line)] bg-[#0A1322] shadow-[var(--oc-shadow)]">
               <div className="relative aspect-[4/3]">
                 <Image
                   src={IMG.generatedDispatch}
@@ -147,7 +147,7 @@ export default async function RequestSupportPage({
       </section>
 
       <section className="oc-shell pb-16 lg:pb-24">
-        <div className="rounded-2xl border border-[var(--oc-line)] bg-white/[0.72] p-6 shadow-[var(--oc-shadow)] backdrop-blur-xl">
+        <div className="rounded-2xl border border-[var(--oc-line)] bg-[#0A1322]/85 p-6 shadow-[var(--oc-shadow)] backdrop-blur-xl">
           <p className="oc-eyebrow text-[var(--oc-blue)]">General Contact</p>
           <h2 className="mt-4 text-2xl font-semibold text-[var(--oc-ink)]">Not requesting aircraft support?</h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--oc-muted)]">

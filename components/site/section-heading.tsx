@@ -39,7 +39,7 @@ export function SectionHeading({
       <h2
         className={cn(
           "display-heading text-balance text-4xl sm:text-5xl lg:text-6xl",
-          tone === "light" ? "text-white" : "text-slate-950"
+          tone === "light" ? "text-white" : "text-[var(--oc-ink)]"
         )}
       >
         {title}
@@ -48,7 +48,7 @@ export function SectionHeading({
         <p
           className={cn(
             "mt-6 text-pretty text-lg leading-relaxed",
-            tone === "light" ? "text-[var(--oc-aluminum)]" : "text-slate-600"
+            tone === "light" ? "text-[var(--oc-aluminum)]" : "text-[var(--oc-muted)]"
           )}
         >
           {description}

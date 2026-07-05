@@ -90,23 +90,23 @@ export function ContactInquiryForm({
           <input id="contact-website" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
           <div className="grid gap-5 md:grid-cols-2">
             <Field id="contact-full-name" label="Full name" required>
-              <Input id="contact-full-name" name="full_name" required autoComplete="name" className="min-h-11 bg-white/80" />
+              <Input id="contact-full-name" name="full_name" required autoComplete="name" className="min-h-11 bg-[#0A1322]/85" />
             </Field>
             <Field id="contact-email" label="Email" required>
-              <Input id="contact-email" name="email" type="email" required autoComplete="email" className="min-h-11 bg-white/80" />
+              <Input id="contact-email" name="email" type="email" required autoComplete="email" className="min-h-11 bg-[#0A1322]/85" />
             </Field>
             <Field id="contact-company" label="Company / operator">
-              <Input id="contact-company" name="company_operator" autoComplete="organization" className="min-h-11 bg-white/80" />
+              <Input id="contact-company" name="company_operator" autoComplete="organization" className="min-h-11 bg-[#0A1322]/85" />
             </Field>
             <Field id="contact-phone" label="Phone">
-              <Input id="contact-phone" name="phone" type="tel" autoComplete="tel" className="min-h-11 bg-white/80" />
+              <Input id="contact-phone" name="phone" type="tel" autoComplete="tel" className="min-h-11 bg-[#0A1322]/85" />
             </Field>
             <Field id="contact-inquiry-type" label="Inquiry type" required>
               <select
                 id="contact-inquiry-type"
                 name="inquiry_type"
                 required
-                className="support-field min-h-11 bg-white/80 px-3 text-sm"
+                className="support-field min-h-11 bg-[#0A1322]/85 px-3 text-sm"
               >
                 {contactInquiryTypes.map((type) => (
                   <option key={type.value} value={type.value}>{type.label}</option>
@@ -116,19 +116,19 @@ export function ContactInquiryForm({
           </div>
 
           <Field id="contact-message" label="Message" required>
-            <Textarea id="contact-message" name="message" required className="min-h-36 bg-white/80" />
+            <Textarea id="contact-message" name="message" required className="min-h-36 bg-[#0A1322]/85" />
           </Field>
-          <p className="rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
+          <p className="rounded-xl border border-[var(--oc-line)] bg-[#0A1322]/85 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
             Do not enter full credit card numbers, CVV codes, bank account numbers, or routing numbers. AMG does not
             process payment card or bank account payments through this website or portal.
           </p>
 
           <div className="grid gap-3 md:grid-cols-2">
-            <label className="flex items-start gap-3 rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
+            <label className="flex items-start gap-3 rounded-xl border border-[var(--oc-line)] bg-[#0A1322]/85 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
               <input name="marketing_consent" value="true" type="checkbox" className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
               <span>AMG may email me relevant updates about aviation support services.</span>
             </label>
-            <label className="flex items-start gap-3 rounded-xl border border-[var(--oc-line)] bg-white/70 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
+            <label className="flex items-start gap-3 rounded-xl border border-[var(--oc-line)] bg-[#0A1322]/85 p-4 text-sm leading-relaxed text-[var(--oc-muted)]">
               <input name="sms_consent" value="true" type="checkbox" className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
               <span>AMG may text me about this inquiry. Message and data rates may apply.</span>
             </label>

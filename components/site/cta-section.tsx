@@ -24,7 +24,7 @@ export function CtaSection({
     <section className="relative isolate overflow-hidden border-t border-slate-900/10 bg-[var(--amg-ink)] py-24 text-white lg:py-32">
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/amg-custom/global-cta-runway.jpg"
+          src="/images/flightdeck/runway-dusk.webp"
           alt=""
           fill
           sizes="100vw"

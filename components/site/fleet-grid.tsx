@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { FLEET } from "@/lib/content";
+import { getAircraftImage } from "@/lib/site-media";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES = [
@@ -16,18 +17,6 @@ const CATEGORIES = [
   "Large-Cabin / Heavy Jet",
   "Helicopter",
 ];
-
-const AIRCRAFT_IMAGES: Record<string, string> = {
-  "single-engine-piston": "/images/site/cirrus.webp",
-  "multi-engine-piston": "/images/site/diamond-me.jpg",
-  turboprop: "/images/site/tbm.jpg",
-  "single-engine-jet-vlj": "/images/light-jet.png",
-  "light-jet": "/images/site/citation-x.webp",
-  "midsize-jet": "/images/mid-jet.png",
-  "super-midsize-jet": "/images/heavy-jet.png",
-  "large-cabin-heavy-jet": "/images/hero-jet.png",
-  helicopter: "/images/site/bell-505.jpg",
-};
 
 export function FleetGrid() {
   const [filter, setFilter] = useState("All");
@@ -66,7 +55,7 @@ export function FleetGrid() {
             <div className="media-vignette relative aspect-[16/10] overflow-hidden bg-card">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={AIRCRAFT_IMAGES[aircraft.id] ?? "/images/hero-jet.png"}
+                src={getAircraftImage(aircraft.id)}
                 alt=""
                 className="h-full w-full scale-105 object-cover opacity-80"
               />

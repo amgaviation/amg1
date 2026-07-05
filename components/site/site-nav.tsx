@@ -82,7 +82,7 @@ export function SiteNav() {
         "fixed inset-x-0 top-0 z-50 h-[var(--public-header-height)] border-b transition-[background-color,box-shadow,border-color] duration-300",
         transparent
           ? "border-transparent bg-transparent"
-          : "border-[var(--oc-line-dark)] bg-[#050B14]/92 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl"
+          : "border-[var(--oc-line-dark)] bg-[#070B14]/92 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl"
       )}
     >
       <nav className="oc-shell flex h-full items-center gap-5">
@@ -90,17 +90,20 @@ export function SiteNav() {
           href="/"
           prefetch={false}
           onClick={closeMenu}
-          className="relative z-50 flex min-h-11 items-center"
+          className="relative z-50 flex min-h-11 flex-col justify-center gap-1"
           aria-label="AMG Aviation Group home"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/images/logo-white.png"
+            src="/images/logo-short.png"
             alt="AMG Aviation Group"
-            width="1088"
-            height="221"
-            className="h-7 w-auto"
+            width="1110"
+            height="242"
+            className="h-6 w-auto md:h-7"
           />
+          <span className="font-mono text-[8px] uppercase [letter-spacing:0.22em] text-[var(--t3)] max-sm:hidden">
+            Aircraft support coordination
+          </span>
         </Link>
 
         <ul className="ml-auto hidden items-center gap-1 xl:flex">
@@ -114,8 +117,8 @@ export function SiteNav() {
                   onClick={closeMenu}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-[0.72rem] font-semibold uppercase leading-none text-white/[0.70] transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white",
-                    active && "bg-white/[0.08] text-white"
+                    "inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 font-mono text-[0.66rem] font-medium uppercase leading-none [letter-spacing:0.16em] text-white/[0.70] transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--instrument-ink)]",
+                    active && "bg-[rgba(11,94,212,0.08)] text-white"
                   )}
                 >
                   {group.label}
@@ -161,7 +164,7 @@ export function SiteNav() {
             href="/login"
             prefetch={false}
             onClick={closeMenu}
-            className="hidden min-h-11 items-center whitespace-nowrap px-2 text-[0.72rem] font-semibold uppercase leading-none text-white/[0.74] transition-colors hover:text-white sm:inline-flex"
+            className="hidden min-h-11 items-center whitespace-nowrap px-2 font-mono text-[0.66rem] font-medium uppercase leading-none [letter-spacing:0.16em] text-white/[0.74] transition-colors hover:text-[var(--instrument-ink)] sm:inline-flex"
           >
             Member login
           </Link>

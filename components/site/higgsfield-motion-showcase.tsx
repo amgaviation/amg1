@@ -10,8 +10,8 @@ const featureAssets = [
     eyebrow: "Mission Motion",
     metric: "24 fps",
     body: "Loop-ready aviation motion for operational feature cards and premium page moments.",
-    src: "/videos/amg-jet-flying.mp4",
-    poster: "/images/amg-custom/hero-aircraft-operations.jpg",
+    src: "/videos/flightdeck/jet-cruise-dusk.mp4",
+    poster: "/images/flightdeck/cockpit-dusk.webp",
     icon: Cpu,
   },
   {
@@ -19,8 +19,8 @@ const featureAssets = [
     eyebrow: "Aircraft State",
     metric: "24 fps",
     body: "Motion treatment for support paths, service cards, and aircraft status stories.",
-    src: "/videos/amg-jet-flying.mp4",
-    poster: "/images/amg-custom/global-cta-runway.jpg",
+    src: "/videos/flightdeck/jet-cruise-dusk.mp4",
+    poster: "/images/flightdeck/runway-dusk.webp",
     icon: Gauge,
   },
   {
@@ -28,8 +28,8 @@ const featureAssets = [
     eyebrow: "Flight Logic",
     metric: "4 sec",
     body: "Aerospace motion tuned for compact cards, dense dashboards, and support review contexts.",
-    src: "/videos/amg-jet-flying.mp4",
-    poster: "/images/jet-sky.png",
+    src: "/videos/flightdeck/jet-cruise-dusk.mp4",
+    poster: "/images/flightdeck/stratosphere.webp",
     icon: Zap,
   },
 ];
@@ -109,11 +109,11 @@ export function HiggsfieldMotionShowcase() {
             muted
             playsInline
             preload="metadata"
-            poster="/images/amg-custom/hero-aircraft-operations.jpg"
+            poster="/images/flightdeck/cockpit-dusk.webp"
             className="absolute inset-0 h-full w-full object-cover opacity-[0.55]"
             style={{ transform: `translate3d(0, ${heroY}px, 0) scale(${heroScale})` }}
           >
-            <source src="/videos/amg-jet-flying.mp4" type="video/mp4" />
+            <source src="/videos/flightdeck/jet-cruise-dusk.mp4" type="video/mp4" />
           </video>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_18%,rgba(59,130,246,0.18),transparent_28%),linear-gradient(180deg,rgba(5,11,20,0.45),rgba(5,11,20,0.94))]" />
           <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[var(--amg-ink)] to-transparent" />
@@ -258,13 +258,13 @@ export function HiggsfieldMotionShowcase() {
               muted
               playsInline
               preload="metadata"
-              poster="/images/jet-interior.png"
+              poster="/images/flightdeck/cabin-night.webp"
               className={cn(
                 "aspect-video w-full object-cover transition duration-500",
                 cockpitActive ? "scale-100 opacity-90" : "scale-[1.02] opacity-[0.35]"
               )}
             >
-              <source src="/videos/amg-jet-flying.mp4" type="video/mp4" />
+              <source src="/videos/flightdeck/jet-cruise-dusk.mp4" type="video/mp4" />
             </video>
             <div className="absolute inset-0">
               <div className="absolute inset-x-6 top-6 flex items-center justify-between text-xs text-accent">

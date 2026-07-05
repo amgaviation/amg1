@@ -29,10 +29,10 @@ export default function LegalIndexPage() {
             <Link
               key={document.slug}
               href={document.legacyPath ?? `/legal/${document.slug}`}
-              className="rounded-lg border border-slate-200 bg-white p-5 shadow-[0_16px_44px_rgba(8,20,36,0.06)] transition-colors hover:border-accent"
+              className="rounded-lg border border-[var(--oc-line)] bg-[#0A1322] p-5 shadow-[0_16px_44px_rgba(8,20,36,0.06)] transition-colors hover:border-accent"
             >
-              <span className="font-display text-lg font-bold uppercase text-slate-950">{document.title}</span>
-              <span className="mt-3 block text-sm leading-relaxed text-slate-600">{document.description}</span>
+              <span className="font-display text-lg font-bold uppercase text-[var(--oc-ink)]">{document.title}</span>
+              <span className="mt-3 block text-sm leading-relaxed text-[var(--oc-muted)]">{document.description}</span>
               <span className="mt-4 block text-xs uppercase tracking-[0.16em] text-[var(--oc-muted)]">Updated {document.lastUpdated}</span>
             </Link>
           ))}

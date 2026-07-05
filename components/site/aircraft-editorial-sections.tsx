@@ -3,20 +3,7 @@ import Link from "next/link";
 import { Reveal } from "@/components/site/reveal";
 import { cn } from "@/lib/utils";
 import { AIRCRAFT_CATEGORIES } from "@/lib/content";
-
-const CUSTOM_IMAGE_ROOT = "/images/amg-custom";
-
-const AIRCRAFT_IMAGES: Record<string, string> = {
-  "single-engine-piston": `${CUSTOM_IMAGE_ROOT}/aircraft-single-engine-piston.jpg`,
-  "multi-engine-piston": `${CUSTOM_IMAGE_ROOT}/aircraft-multi-engine-piston.jpg`,
-  turboprop: `${CUSTOM_IMAGE_ROOT}/aircraft-turboprop.jpg`,
-  "single-engine-jet-vlj": `${CUSTOM_IMAGE_ROOT}/aircraft-single-engine-jet-vlj.jpg`,
-  "light-jet": `${CUSTOM_IMAGE_ROOT}/aircraft-light-jet.jpg`,
-  "midsize-jet": `${CUSTOM_IMAGE_ROOT}/aircraft-midsize-jet.jpg`,
-  "super-midsize-jet": `${CUSTOM_IMAGE_ROOT}/aircraft-super-midsize-jet.jpg`,
-  "large-cabin-heavy-jet": `${CUSTOM_IMAGE_ROOT}/aircraft-large-cabin-heavy-jet.jpg`,
-  helicopter: `${CUSTOM_IMAGE_ROOT}/aircraft-helicopter.jpg`,
-};
+import { getAircraftImage } from "@/lib/site-media";
 
 export function AircraftEditorialSections() {
   return (
@@ -28,16 +15,16 @@ export function AircraftEditorialSections() {
             key={aircraft.id}
             id={aircraft.id}
             className={cn(
-              "cinematic-band border-b border-slate-200",
-              index % 2 === 0 ? "bg-white" : "bg-slate-50"
+              "cinematic-band border-b border-[var(--oc-line-dark)]",
+              index % 2 === 0 ? "bg-[#070B14]" : "bg-[#0A1322]"
             )}
           >
             <div className="mx-auto grid max-w-7xl gap-10 px-6 py-20 lg:grid-cols-[0.96fr_1.04fr] lg:items-center lg:px-10 lg:py-28">
               <Reveal className={cn(mediaLeft ? "lg:order-1" : "lg:order-2")} data-scroll-animate>
-                <div className="relative min-h-[26rem] overflow-hidden rounded-lg border border-slate-200 bg-slate-950 shadow-[0_24px_70px_rgba(8,20,36,0.12)]">
+                <div className="hud-frame relative min-h-[26rem] overflow-hidden rounded-lg border border-[var(--oc-line-dark)] bg-[#070B14] shadow-[0_24px_70px_rgba(0,0,0,0.4)]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={AIRCRAFT_IMAGES[aircraft.id] ?? `${CUSTOM_IMAGE_ROOT}/aircraft-support-main.jpg`}
+                    src={getAircraftImage(aircraft.id)}
                     alt={`${aircraft.category} aircraft support category`}
                     className="absolute inset-0 h-full w-full scale-105 object-cover opacity-[0.88]"
                   />
@@ -68,27 +55,27 @@ export function AircraftEditorialSections() {
                   <p className="eyebrow mb-4 text-accent">
                     {String(index + 1).padStart(2, "0")} / {aircraft.category}
                   </p>
-                  <h3 className="display-heading text-balance text-4xl text-slate-950 sm:text-5xl">
+                  <h3 className="display-heading text-balance text-4xl text-[var(--oc-ink)] sm:text-5xl">
                     {aircraft.name}
                   </h3>
-                  <p className="mt-5 max-w-2xl text-lg leading-relaxed text-slate-600">
+                  <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[var(--oc-muted)]">
                     {aircraft.support}
                   </p>
-                  <dl className="mt-8 grid gap-4 text-sm text-slate-600 sm:grid-cols-2">
-                    <div className="border-l border-slate-200 pl-4">
-                      <dt className="font-display text-xs font-semibold uppercase text-slate-950">Examples</dt>
+                  <dl className="mt-8 grid gap-4 text-sm text-[var(--oc-muted)] sm:grid-cols-2">
+                    <div className="border-l border-[var(--oc-line)] pl-4">
+                      <dt className="font-display text-xs font-semibold uppercase text-[var(--oc-ink)]">Examples</dt>
                       <dd className="mt-2">{aircraft.examples}</dd>
                     </div>
-                    <div className="border-l border-slate-200 pl-4">
-                      <dt className="font-display text-xs font-semibold uppercase text-slate-950">Use cases</dt>
+                    <div className="border-l border-[var(--oc-line)] pl-4">
+                      <dt className="font-display text-xs font-semibold uppercase text-[var(--oc-ink)]">Use cases</dt>
                       <dd className="mt-2">{aircraft.useCases}</dd>
                     </div>
-                    <div className="border-l border-slate-200 pl-4">
-                      <dt className="font-display text-xs font-semibold uppercase text-slate-950">Crew</dt>
+                    <div className="border-l border-[var(--oc-line)] pl-4">
+                      <dt className="font-display text-xs font-semibold uppercase text-[var(--oc-ink)]">Crew</dt>
                       <dd className="mt-2">{aircraft.crew}</dd>
                     </div>
-                    <div className="border-l border-slate-200 pl-4">
-                      <dt className="font-display text-xs font-semibold uppercase text-slate-950">Status</dt>
+                    <div className="border-l border-[var(--oc-line)] pl-4">
+                      <dt className="font-display text-xs font-semibold uppercase text-[var(--oc-ink)]">Status</dt>
                       <dd className="mt-2">Support remains subject to review and acceptance.</dd>
                     </div>
                   </dl>

@@ -4,6 +4,7 @@ import { ArrowUpRight, Check } from "lucide-react";
 import { PageHero, SectionHeading, CtaBand } from "@/components/site/oc/shared";
 import { ConnectPreview } from "@/components/site/home/connect-preview";
 import { PORTAL_ROLES } from "@/lib/content";
+import { IMG } from "@/lib/site-media";
 import { getWebsiteContentPage, imageSrcForKey } from "@/lib/website-editor/content";
 
 const content = getWebsiteContentPage("amg-connect");
@@ -21,7 +22,7 @@ export default function AmgConnectPage() {
         eyebrow="AMG Connect"
         title="One place to follow aircraft support."
         lead="Approved owners, crew members, partners, and AMG administrators can view the requests, documents, messages, quotes, invoices, and status information relevant to their role."
-        image={imageSrcForKey(hero.imageKey) ?? "/images/portal-screenshots/portal-client-dashboard-enhanced.webp"}
+        image={imageSrcForKey(hero.imageKey) ?? IMG.portalClientDashboard}
         imageAlt="Portal preview showing support requests and aircraft records"
         primary={{ label: "Member login", href: "/login" }}
         secondary={{ label: "Request portal access", href: "/login?mode=request" }}

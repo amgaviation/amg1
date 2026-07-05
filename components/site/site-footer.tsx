@@ -9,13 +9,22 @@ const FOOTER_NOTE =
 
 export function SiteFooter() {
   return (
-    <footer className="relative overflow-hidden border-t border-[var(--oc-line-dark)] bg-[#050B14] text-[var(--oc-paper)]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_0%,rgba(59,130,246,0.16),transparent_30rem)]" aria-hidden="true" />
+    <footer className="relative overflow-hidden border-t border-[var(--oc-line-dark)] bg-[#070B14] text-[var(--oc-paper)]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_0%,rgba(11,94,212,0.09),transparent_30rem)]" aria-hidden="true" />
       <div className="oc-shell relative z-10 py-14 lg:py-20">
         <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="max-w-xl">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/logo-white.png" alt="AMG Aviation Group" width="1088" height="221" className="h-9 w-auto" />
+            <img
+              src="/images/logo-short.png"
+              alt="AMG Aviation Group"
+              width="1110"
+              height="242"
+              className="h-9 w-auto"
+            />
+            <p className="mt-3 font-mono text-[10px] uppercase [letter-spacing:0.22em] text-[var(--t3)]">
+              Aircraft support coordination
+            </p>
             <p className="mt-6 text-base leading-relaxed text-[var(--oc-aluminum)]">
               Private aircraft support coordination for crew coverage, aircraft movement, maintenance repositioning, and recurring owner or flight-department needs.
             </p>
