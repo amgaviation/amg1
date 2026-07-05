@@ -88,7 +88,7 @@ export function PortalShell({
 
   return (
     <ShellNestingContext.Provider value={true}>
-      <div className="amg-portal relative min-h-screen bg-[var(--deck-canvas)] overflow-hidden lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
+      <div className="amg-portal relative min-h-screen bg-[var(--deck-canvas)] overflow-x-clip lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
         {/* Desktop sidebar */}
         <aside className="deck-chrome-surface sticky top-0 hidden h-screen flex-col border-r border-[var(--deck-chrome-line)] lg:flex">
           <SidebarContent role={role} user={user} navGroups={navGroups} />
