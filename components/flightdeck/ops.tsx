@@ -74,7 +74,7 @@ export default function Ops() {
     <section
       ref={root}
       id="operations"
-      className="radar-grid relative border-t border-grid-green bg-[#0A1322] py-28"
+      className="radar-grid relative border-t border-grid-green bg-[#0A1322] py-20 md:py-24"
     >
       <div className="mx-auto max-w-7xl px-6 md:px-10">
         <p className="bw-in microlabel-green mb-14">

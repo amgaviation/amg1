@@ -66,7 +66,7 @@ export default function Services() {
   }, []);
 
   return (
-    <section id="services" ref={root} className="relative bg-canvas py-28 md:py-40">
+    <section id="services" ref={root} className="relative bg-canvas py-20 md:py-28">
       <div className="mx-auto grid max-w-7xl gap-16 px-6 md:grid-cols-[1fr_2fr] md:px-10">
         {/* brand block */}
         <div className="feat-brand">

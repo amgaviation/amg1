@@ -78,7 +78,7 @@ export default function MissionDeck() {
   }, []);
 
   return (
-    <section ref={root} id="aircraft" className="fd-pin-section relative h-[260vh]">
+    <section ref={root} id="aircraft" className="fd-pin-section relative h-[195vh]">
       <div
         className="fleet-stage silver-grid relative h-screen w-full overflow-hidden"
         style={{

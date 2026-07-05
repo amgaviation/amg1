@@ -90,7 +90,7 @@ export default function GlobalFooter() {
   }, []);
 
   return (
-    <section ref={root} id="global" className="fd-pin-section relative h-[300vh] bg-canvas">
+    <section ref={root} id="global" className="fd-pin-section relative h-[225vh] bg-canvas">
       <div className="global-stage radar-grid relative h-screen w-full overflow-hidden">
         {/* giant watermark */}
         <div className="global-word pointer-events-none absolute inset-x-0 top-[8vh] text-center will-change-transform">

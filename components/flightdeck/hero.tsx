@@ -11,13 +11,15 @@ gsap.registerPlugin(ScrollTrigger);
 /**
  * HERO — "Aircraft Window" scroll dive.
  *
- *  - Outer section is 400vh tall; inner stage is pinned for the duration.
- *  - One linear-scrub timeline drives three depth layers:
- *      L1 window group   : scale 1 -> 16 (camera dives through the aperture)
- *      L2 headline copy  : exits horizontally faster than the frame + blur
- *      L3 sky inside     : counter-scale 1.18 -> 1 (background parallax)
- *  - The frame fades between 55% and 78% of the pin, leaving open sky —
- *    a seamless handoff into the statement section's shared gradient.
+ *  - Outer section is 190vh tall; the inner stage is pinned for the dive.
+ *  - One scrubbed timeline drives three depth layers, each with an explicit
+ *    duration so the motion spans the whole pin (no dead scroll):
+ *      L1 bulkhead : a static full-viewport wall whose porthole aperture
+ *                    grows via CSS vars, then dissolves into open sky
+ *      L2 copy     : headlines exit horizontally + blur, faster than the dive
+ *      L3 sky      : counter-scales 1.18 -> 1 for background parallax
+ *  - The wall fades out into the sky, handing off seamlessly into the
+ *    statement section's shared gradient.
  */
 export default function Hero() {
   const section = useRef<HTMLElement>(null);
@@ -126,7 +128,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section ref={section} id="top" className="fd-pin-section relative h-[240vh]">
+    <section ref={section} id="top" className="fd-pin-section relative h-[190vh]">
       <div className="hero-stage relative h-screen w-full overflow-hidden bg-canvas">
         {/* L3: full-viewport sky — a fixed-size layer the camera flies into.
             It never scales beyond 1.18, so the video texture stays small no

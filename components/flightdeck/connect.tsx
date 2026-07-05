@@ -38,7 +38,7 @@ export default function Connect() {
   }, []);
 
   return (
-    <section id="connect" ref={root} className="relative bg-canvas py-28 md:py-36">
+    <section id="connect" ref={root} className="relative bg-canvas py-20 md:py-28">
       <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 md:grid-cols-2 md:px-10">
         <div>
           <p className="cx-in microlabel-green mb-6">AMG CONNECT // MISSION RECORD</p>
