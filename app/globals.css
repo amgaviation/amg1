@@ -329,90 +329,86 @@
     backdrop-filter: blur(18px);
   }
   /* ======================================================================
-     AMG FLIGHT DECK CONSOLE — portal design system tokens (v3 rebuild).
-     The portal is the working console of the public Flight Deck site:
-     instrument-blue accent, blue-tinted paper in light mode, deep-navy
-     canvas in dark mode. Light values live on `.amg-portal`; dark
-     overrides ride the `data-portal-theme="dark"` attribute rendered by
-     app/portal/layout.tsx from the amg-portal-theme cookie (SSR, no
-     flash). Every shadcn + legacy --amg-* / --deck-gold-* token is
-     re-pointed here so untouched markup resolves to the new palette.
+     AMG MANIFEST — portal design system tokens (v4 ground-up rebuild).
+     The portal reads like a precision flight manifest: warm paper canvas,
+     ink typography, a single champagne-bronze brand accent, hairline
+     rules, flat stamped surfaces. Light ("Day Board") is default; dark
+     ("Night Ops") rides the `data-portal-theme="dark"` attribute rendered
+     by app/portal/layout.tsx from the amg-portal-theme cookie (SSR, no
+     flash). Token NAMES are the portal-wide API (~106 pages + guard
+     scripts consume them) — every VALUE is new in v4. shadcn + legacy
+     --amg-* aliases are re-pointed here so untouched markup resolves.
      ====================================================================== */
   .amg-portal {
-    /* Fonts — Flight Deck pairing, variables provided by app/portal/layout.tsx */
+    /* Fonts — variables provided by app/portal/layout.tsx */
     --font-display: var(--font-space-grotesk, "Space Grotesk"), "Space Grotesk", sans-serif;
     --font-mono: var(--font-jetbrains-mono, "JetBrains Mono"), ui-monospace, monospace;
 
-    /* Chrome (sidebar rail) — theme-invariant: the console rail is always night mode */
-    --deck-ink: #070B14;
-    --deck-chrome: #0A1120;
-    --deck-chrome-2: #101A2C;
-    --deck-chrome-line: rgba(169, 180, 198, 0.16);
-    --deck-chrome-text: #E8EEF7;
-    --deck-chrome-muted: #8FA0BC;
+    /* Chrome (sidebar rail) — theme-invariant ink: the ops rail is always night */
+    --deck-ink: #0E1114;
+    --deck-chrome: #14171B;
+    --deck-chrome-2: #1A1E23;
+    --deck-chrome-line: rgba(214, 205, 185, 0.14);
+    --deck-chrome-text: #F1EDE3;
+    --deck-chrome-muted: #98937F;
 
-    /* Surfaces + text — light ("day ops") */
-    --deck-canvas: #F5F7FB;
-    --deck-panel: #FFFFFF;
-    --deck-panel-2: #EDF1F8;
-    --deck-line: #DFE5EF;
-    --deck-line-strong: #C5D0E0;
-    --deck-text: #0E1726;
-    --deck-text-2: #44536D;
-    --deck-text-3: #6C7B95;
+    /* Surfaces + text — light ("day board"): warm manifest paper */
+    --deck-canvas: #F3F1EA;
+    --deck-panel: #FCFBF7;
+    --deck-panel-2: #ECE9DF;
+    --deck-line: #DDD9CB;
+    --deck-line-strong: #C7C1AD;
+    --deck-text: #191C1F;
+    --deck-text-2: #4C4F53;
+    --deck-text-3: #797B7E;
 
-    /* Instrument-blue accent (public-site --instrument) */
-    --deck-accent: #0B5ED4;
-    --deck-accent-ink: #0B5ED4;
-    --deck-accent-tint: rgba(11, 94, 212, 0.08);
-    --deck-accent-line: rgba(11, 94, 212, 0.28);
+    /* AMG champagne-bronze accent — the single brand color */
+    --deck-accent: #A8874F;
+    --deck-accent-ink: #7D6434;
+    --deck-accent-tint: rgba(168, 135, 79, 0.10);
+    --deck-accent-line: rgba(141, 112, 62, 0.38);
 
     /* Status tones — each with tint (bg) + line (border); base value is
        both the dot and the text-safe ink for that tone */
-    --deck-info: var(--deck-accent-ink);
-    --deck-info-tint: var(--deck-accent-tint);
-    --deck-info-line: var(--deck-accent-line);
-    --deck-success: #0E7A4F;
-    --deck-success-tint: rgba(14, 122, 79, 0.1);
-    --deck-success-line: rgba(14, 122, 79, 0.3);
-    --deck-warn: #9A5B00;
-    --deck-warn-tint: rgba(255, 176, 46, 0.16);
-    --deck-warn-line: rgba(214, 143, 30, 0.42);
-    --deck-danger: #C13640;
-    --deck-danger-tint: rgba(193, 54, 64, 0.08);
-    --deck-danger-line: rgba(193, 54, 64, 0.3);
+    --deck-info: #38618C;
+    --deck-info-tint: rgba(56, 97, 140, 0.09);
+    --deck-info-line: rgba(56, 97, 140, 0.32);
+    --deck-success: #33683D;
+    --deck-success-tint: rgba(51, 104, 61, 0.10);
+    --deck-success-line: rgba(51, 104, 61, 0.32);
+    --deck-warn: #91600C;
+    --deck-warn-tint: rgba(196, 141, 43, 0.14);
+    --deck-warn-line: rgba(169, 120, 32, 0.42);
+    --deck-danger: #A93A2E;
+    --deck-danger-tint: rgba(169, 58, 46, 0.09);
+    --deck-danger-line: rgba(169, 58, 46, 0.32);
     --deck-neutral-tint: var(--deck-panel-2);
     --deck-neutral-line: var(--deck-line);
 
-    /* Effects */
-    --deck-grid: rgba(11, 94, 212, 0.035);
-    --deck-row-hover: rgba(11, 94, 212, 0.05);
-    --deck-selection: rgba(11, 94, 212, 0.18);
-    --deck-shadow-card:
-      0 1px 2px rgba(14, 23, 38, 0.04),
-      0 12px 32px -18px rgba(14, 23, 38, 0.14);
-    --deck-shadow-card-hover:
-      0 1px 2px rgba(14, 23, 38, 0.05),
-      0 18px 44px -20px rgba(14, 23, 38, 0.22);
+    /* Effects — flat paper: hairline edges, no glow */
+    --deck-grid: transparent;
+    --deck-row-hover: rgba(168, 135, 79, 0.06);
+    --deck-selection: rgba(168, 135, 79, 0.24);
+    --deck-shadow-card: 0 1px 0 rgba(25, 28, 31, 0.04);
+    --deck-shadow-card-hover: 0 1px 0 rgba(25, 28, 31, 0.05), 0 6px 18px -12px rgba(25, 28, 31, 0.18);
 
-    /* Deprecated gold + navy aliases — champagne is retired; anything still
-       referencing gold lands on the instrument accent */
+    /* Gold aliases are first-class again in v4 (same values as accent) */
     --deck-gold: var(--deck-accent);
     --deck-gold-deep: var(--deck-accent-ink);
     --deck-gold-tint: var(--deck-accent-tint);
     --deck-gold-line: var(--deck-accent-line);
-    --deck-navy: #16283F;
-    --deck-navy-2: #1D3352;
+    --deck-navy: #1B2129;
+    --deck-navy-2: #232A34;
 
-    /* shadcn remap */
+    /* shadcn remap — primary actions are INK in light mode, never blue */
     --background: var(--deck-canvas);
     --foreground: var(--deck-text);
     --card: var(--deck-panel);
     --card-foreground: var(--deck-text);
     --popover: var(--deck-panel);
     --popover-foreground: var(--deck-text);
-    --primary: var(--deck-accent);
-    --primary-foreground: #FFFFFF;
+    --primary: #22262B;
+    --primary-foreground: #F3F1EA;
     --secondary: var(--deck-panel-2);
     --secondary-foreground: var(--deck-text);
     --muted: var(--deck-panel-2);
@@ -424,7 +420,7 @@
     --border: var(--deck-line);
     --input: var(--deck-line-strong);
     --ring: var(--deck-accent);
-    --radius: 0.75rem;
+    --radius: 0.375rem;
 
     /* Legacy --amg-* aliases used by not-yet-rewritten markup */
     --amg-accent-blue: var(--deck-accent);
@@ -439,49 +435,47 @@
     --amg-border-strong: var(--deck-line-strong);
 
     background-color: var(--deck-canvas);
-    background-image:
-      linear-gradient(var(--deck-grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--deck-grid) 1px, transparent 1px);
-    background-size: 72px 72px;
     color: var(--deck-text);
   }
   /* Dark ("night ops") overrides — attribute lives on the portal layout
-     wrapper (ancestor) today and moves onto the shell root in v3 Phase B,
-     so both selector shapes are supported. */
+     wrapper (ancestor) or the shell root, so both selector shapes are
+     supported. */
   .amg-portal[data-portal-theme="dark"],
   [data-portal-theme="dark"] .amg-portal {
-    --deck-canvas: #070B14;
-    --deck-panel: #0C1320;
-    --deck-panel-2: #121B2B;
-    --deck-line: rgba(169, 180, 198, 0.14);
-    --deck-line-strong: rgba(169, 180, 198, 0.26);
-    --deck-text: #F4F7FA;
-    --deck-text-2: #A9B4C6;
-    --deck-text-3: #74839E;
+    --deck-canvas: #121418;
+    --deck-panel: #191C21;
+    --deck-panel-2: #20242A;
+    --deck-line: rgba(214, 205, 185, 0.13);
+    --deck-line-strong: rgba(214, 205, 185, 0.24);
+    --deck-text: #ECE9E0;
+    --deck-text-2: #B6B2A7;
+    --deck-text-3: #868278;
 
-    --deck-accent-ink: #5B9DFF;
-    --deck-accent-tint: rgba(11, 94, 212, 0.16);
-    --deck-accent-line: rgba(91, 157, 255, 0.32);
+    --deck-accent-ink: #D6B67C;
+    --deck-accent-tint: rgba(214, 182, 124, 0.12);
+    --deck-accent-line: rgba(214, 182, 124, 0.34);
 
-    --deck-success: #2FBF71;
-    --deck-success-tint: rgba(47, 191, 113, 0.12);
-    --deck-success-line: rgba(47, 191, 113, 0.3);
-    --deck-warn: #FFB02E;
-    --deck-warn-tint: rgba(255, 176, 46, 0.12);
-    --deck-warn-line: rgba(255, 176, 46, 0.3);
-    --deck-danger: #E5484D;
-    --deck-danger-tint: rgba(229, 72, 77, 0.12);
-    --deck-danger-line: rgba(229, 72, 77, 0.32);
+    --deck-info: #86ADD6;
+    --deck-info-tint: rgba(134, 173, 214, 0.11);
+    --deck-info-line: rgba(134, 173, 214, 0.3);
+    --deck-success: #6CB07C;
+    --deck-success-tint: rgba(108, 176, 124, 0.11);
+    --deck-success-line: rgba(108, 176, 124, 0.3);
+    --deck-warn: #D9A43F;
+    --deck-warn-tint: rgba(217, 164, 63, 0.11);
+    --deck-warn-line: rgba(217, 164, 63, 0.3);
+    --deck-danger: #DE7061;
+    --deck-danger-tint: rgba(222, 112, 97, 0.11);
+    --deck-danger-line: rgba(222, 112, 97, 0.32);
 
-    --deck-grid: rgba(91, 157, 255, 0.03);
-    --deck-row-hover: rgba(91, 157, 255, 0.06);
-    --deck-selection: rgba(91, 157, 255, 0.35);
-    --deck-shadow-card:
-      0 1px 0 rgba(255, 255, 255, 0.02),
-      0 12px 32px -18px rgba(0, 0, 0, 0.55);
-    --deck-shadow-card-hover:
-      0 1px 0 rgba(255, 255, 255, 0.03),
-      0 18px 44px -20px rgba(0, 0, 0, 0.7);
+    --deck-row-hover: rgba(214, 182, 124, 0.07);
+    --deck-selection: rgba(214, 182, 124, 0.3);
+    --deck-shadow-card: 0 1px 0 rgba(0, 0, 0, 0.25);
+    --deck-shadow-card-hover: 0 1px 0 rgba(0, 0, 0, 0.25), 0 8px 22px -14px rgba(0, 0, 0, 0.6);
+
+    /* Primary actions flip to champagne on ink */
+    --primary: #D6B67C;
+    --primary-foreground: #14171B;
   }
   .amg-portal ::selection {
     background-color: var(--deck-selection);
@@ -1048,9 +1042,10 @@ html {
 }
 
 /* ==========================================================================
-   AMG OPERATIONS DECK — portal component layer (v2 rebuild).
+   AMG MANIFEST — portal component layer (v4 ground-up rebuild).
    Custom component classes live in @layer components so Tailwind utilities
-   can still override them from JSX.
+   can still override them from JSX. Class NAMES are the ~106-page contract;
+   every implementation below is new in v4.
    ========================================================================== */
 .amg-portal {
   /* Back-compat aliases for legacy markup */
@@ -1069,10 +1064,10 @@ html {
      classes, never in Tailwind utilities. */
   .amg-portal .deck-eyebrow {
     font-family: var(--font-mono);
-    font-size: 0.64rem;
-    font-weight: 600;
+    font-size: 0.62rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.22em;
     color: var(--deck-accent-ink);
   }
   .amg-portal .deck-eyebrow-chrome {
@@ -1080,7 +1075,7 @@ html {
     font-size: 0.6rem;
     font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.24em;
     color: var(--deck-chrome-muted);
   }
   .amg-portal .deck-micro {
@@ -1088,19 +1083,19 @@ html {
     font-size: 10px;
     font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.24em;
   }
   .amg-portal .deck-title {
     font-family: var(--font-display);
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    line-height: 1.05;
+    font-weight: 650;
+    letter-spacing: -0.015em;
+    line-height: 1.04;
     color: var(--deck-text);
   }
   .amg-portal .deck-display {
     font-family: var(--font-display);
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.022em;
     line-height: 1.02;
     text-wrap: balance;
     color: var(--deck-text);
@@ -1113,13 +1108,13 @@ html {
   .amg-portal .deck-mono {
     font-family: var(--font-mono);
     font-size: 0.72rem;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
   }
 
-  /* ---- Surfaces ---- */
+  /* ---- Surfaces — flat manifest paper: hairline edge, top rule accent ---- */
   .amg-portal .deck-card {
     border: 1px solid var(--deck-line);
-    border-radius: calc(var(--radius) + 2px);
+    border-radius: var(--radius);
     background: var(--deck-panel);
     box-shadow: var(--deck-shadow-card);
   }
@@ -1136,15 +1131,16 @@ html {
     justify-content: space-between;
     gap: 1rem;
     border-bottom: 1px solid var(--deck-line);
-    padding: 1rem 1.25rem;
+    padding: 0.9rem 1.25rem;
+    background:
+      linear-gradient(180deg, var(--deck-accent-tint), transparent 130%);
   }
   .amg-portal .deck-inset {
     border: 1px solid var(--deck-line);
-    border-radius: var(--radius);
+    border-radius: calc(var(--radius) - 1px);
     background: var(--deck-panel-2);
   }
-  /* Accent rail on KPI tiles — class name kept for the ~80-page contract;
-     champagne itself is retired. */
+  /* Champagne rail on KPI tiles — a true gold bar again in v4 */
   .amg-portal .deck-gold-rail {
     position: relative;
   }
@@ -1152,26 +1148,25 @@ html {
     content: "";
     position: absolute;
     left: 0;
-    top: 0.9rem;
-    bottom: 0.9rem;
-    width: 3px;
-    border-radius: 999px;
-    background: linear-gradient(180deg, var(--deck-accent), var(--deck-accent-tint));
+    top: 0.85rem;
+    bottom: 0.85rem;
+    width: 2px;
+    background: var(--deck-accent);
   }
 
-  /* ---- Chrome (sidebar / topbar) ---- */
+  /* ---- Chrome (sidebar / topbar) — ink rail, faint champagne wash ---- */
   .amg-portal .deck-chrome-surface {
     background:
-      radial-gradient(120% 60% at 100% 0%, rgba(11, 94, 212, 0.14), transparent 60%),
-      linear-gradient(180deg, var(--deck-chrome) 0%, var(--deck-chrome-2) 55%, var(--deck-chrome) 100%);
+      radial-gradient(130% 50% at 0% 0%, rgba(168, 135, 79, 0.10), transparent 55%),
+      linear-gradient(180deg, var(--deck-chrome) 0%, var(--deck-chrome-2) 60%, var(--deck-chrome) 100%);
     color: var(--deck-chrome-text);
   }
   .amg-portal .deck-nav-link {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    min-height: 2.35rem;
-    border-radius: 0.55rem;
+    min-height: 2.3rem;
+    border-radius: calc(var(--radius) - 2px);
     padding: 0.42rem 0.7rem;
     font-size: 0.82rem;
     font-weight: 500;
@@ -1179,12 +1174,12 @@ html {
     transition: background-color 140ms ease, color 140ms ease;
   }
   .amg-portal .deck-nav-link:hover {
-    background: rgba(169, 180, 198, 0.07);
+    background: rgba(214, 205, 185, 0.07);
     color: var(--deck-chrome-text);
   }
   .amg-portal .deck-nav-link[data-active="true"] {
-    background: rgba(11, 94, 212, 0.18);
-    color: #DCEAFF;
+    background: rgba(168, 135, 79, 0.16);
+    color: #EBD9B4;
     font-weight: 600;
     box-shadow: inset 2px 0 0 var(--deck-accent);
   }
@@ -1193,15 +1188,15 @@ html {
     font-size: 0.6rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.2em;
-    color: rgba(143, 160, 188, 0.75);
+    letter-spacing: 0.22em;
+    color: rgba(152, 147, 127, 0.8);
   }
   .amg-portal .deck-scroll {
     scrollbar-width: thin;
-    scrollbar-color: rgba(147, 161, 183, 0.35) transparent;
+    scrollbar-color: rgba(152, 147, 127, 0.35) transparent;
   }
 
-  /* ---- Status chips — dot + mono label on a tone tint ---- */
+  /* ---- Status chips — rectangular stamps: dot + mono label on a tone tint ---- */
   .amg-portal .deck-chip {
     display: inline-flex;
     width: fit-content;
@@ -1209,21 +1204,21 @@ html {
     gap: 0.4rem;
     white-space: nowrap;
     border: 1px solid;
-    border-radius: 999px;
-    padding: 0.16rem 0.62rem;
+    border-radius: 0.2rem;
+    padding: 0.18rem 0.55rem;
     font-family: var(--font-mono);
     font-size: 0.64rem;
-    font-weight: 500;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
   }
 
   /* ---- Fields ---- */
   .amg-portal .deck-input {
     width: 100%;
-    min-height: 2.75rem;
+    min-height: 2.65rem;
     border: 1px solid var(--deck-line-strong);
-    border-radius: 0.6rem;
+    border-radius: calc(var(--radius) - 1px);
     background: var(--deck-panel);
     padding: 0 0.85rem;
     font-size: 0.875rem;
@@ -1268,9 +1263,9 @@ html {
   color: var(--deck-text);
 }
 
-/* ---- Buttons: instrument-blue action shadow inside the portal ---- */
+/* ---- Buttons: flat ink actions inside the portal — no glow in v4 ---- */
 .amg-portal [data-slot="button"][data-variant="default"] {
-  box-shadow: 0 10px 24px -12px rgba(11, 94, 212, 0.45);
+  box-shadow: none;
 }
 
 /* ---- Layout guards used by action bars across the portal ---- */

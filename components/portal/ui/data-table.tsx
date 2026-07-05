@@ -37,7 +37,7 @@ export function DataTable<T>({
 }) {
   if (!rows.length) {
     return (
-      <div className="rounded-xl border border-dashed border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] px-4 py-10 text-center text-sm text-[var(--deck-text-3)]">
+      <div className="rounded-md border border-dashed border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] px-4 py-10 text-center text-sm text-[var(--deck-text-3)]">
         {emptyLabel}
       </div>
     );

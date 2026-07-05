@@ -125,7 +125,7 @@ export function PortalShell({
             <div className="flex min-w-0 items-center gap-3">
               <button
                 onClick={() => setOpen(true)}
-                className="rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-1.5 text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)] lg:hidden"
+                className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-1.5 text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)] lg:hidden"
                 aria-label="Open menu"
               >
                 <Menu className="h-4 w-4" />
@@ -149,7 +149,7 @@ export function PortalShell({
 
               <Link
                 href={NOTIFICATIONS_HREF[role]}
-                className="relative rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-1.5 text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)]"
+                className="relative rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-1.5 text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)]"
                 aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ""}`}
               >
                 <PortalIcon name="bell" className="h-4 w-4" />
@@ -195,7 +195,7 @@ function ZuluClock() {
   const mm = String(now.getUTCMinutes()).padStart(2, "0");
   return (
     <div
-      className="deck-mono hidden items-center gap-1.5 rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] px-2.5 py-1.5 text-[var(--deck-text-2)] md:flex"
+      className="deck-mono hidden items-center gap-1.5 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-2.5 py-1.5 text-[var(--deck-text-2)] md:flex"
       title="Coordinated Universal Time"
     >
       <span className="h-1.5 w-1.5 rounded-full bg-[var(--deck-success)]" aria-hidden />
@@ -219,7 +219,7 @@ function ViewSwitcher({ role }: { role: PortalRole }) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] px-2.5 py-1.5 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"
+        className="inline-flex items-center gap-1.5 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-2.5 py-1.5 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"
       >
         <PortalIcon name="layers" className="h-3.5 w-3.5" />
         View
@@ -235,7 +235,7 @@ function ViewSwitcher({ role }: { role: PortalRole }) {
                 href={ROLE_HOME[t.role]}
                 onClick={() => setOpen(false)}
                 className={cn(
-                  "flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors hover:bg-[var(--deck-accent-tint)]",
+                  "flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors hover:bg-[var(--deck-accent-tint)]",
                   t.role === role
                     ? "font-semibold text-[var(--deck-accent-ink)]"
                     : "text-[var(--deck-text-2)]"
@@ -283,7 +283,7 @@ function UserMenu({ role, user }: { role: PortalRole; user: ShellUser }) {
               <Link
                 href={SETTINGS_HREF[role]}
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-[var(--deck-text-2)] transition-colors hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)]"
+                className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-[var(--deck-text-2)] transition-colors hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)]"
               >
                 <PortalIcon name="settings" className="h-4 w-4" />
                 Settings
@@ -292,7 +292,7 @@ function UserMenu({ role, user }: { role: PortalRole; user: ShellUser }) {
                 <button
                   type="submit"
                   onClick={clearPortalIntroBrowserState}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-[var(--deck-text-2)] transition-colors hover:bg-[var(--deck-danger-tint)] hover:text-[var(--deck-danger)]"
+                  className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm text-[var(--deck-text-2)] transition-colors hover:bg-[var(--deck-danger-tint)] hover:text-[var(--deck-danger)]"
                 >
                   <LogOut className="h-4 w-4" />
                   Sign out
@@ -424,7 +424,7 @@ function SidebarContent({
       {/* User card */}
       <div className="shrink-0 border-t border-[var(--deck-chrome-line)] px-4 py-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] text-xs font-bold text-[#9FC5FF]">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] text-xs font-bold text-[#EBD9B4]">
             {initials(user.name)}
           </div>
           <div className="min-w-0">
