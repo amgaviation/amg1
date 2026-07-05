@@ -1,11 +1,11 @@
+import type { Metadata } from "next";
 import FlightDeckHome from "@/components/flightdeck/flight-deck-home";
-import { metadataForWebsiteContent } from "@/lib/website-editor/content";
 
-export const metadata = metadataForWebsiteContent("home", {
-  title: "Private Aircraft Support Coordination",
+export const metadata: Metadata = {
+  title: "Contract Pilots & Aircraft Movement for Part 91 Owners",
   description:
-    "Crew coverage, aircraft movement, maintenance repositioning, and recurring support for private aircraft owners and flight departments.",
-});
+    "Vetted contract pilots, maintenance ferries, and repositioning — quoted within 24 business hours, tracked in one portal, priced flat. Serving the Southeast US.",
+};
 
 export default function HomePage() {
   return <FlightDeckHome />;

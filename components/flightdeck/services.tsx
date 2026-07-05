@@ -12,30 +12,30 @@ const SERVICES = [
   {
     id: "01",
     title: "Crew coverage",
-    body: "Qualified crew options reviewed against aircraft fit, timing, location, insurance minimums, and operational constraints.",
-    cta: "Find qualified crew",
-    href: "/booking-request?service=contract-pilot-support",
+    body: "A vetted contract pilot when yours is sick, training, or on vacation — presented as options with qualification summaries. You choose.",
+    cta: "Get a quote",
+    href: "/request",
   },
   {
     id: "02",
-    title: "Aircraft movement",
-    body: "Ferry and repositioning support coordinated around routing, approvals, and mission readiness — before the aircraft moves.",
-    cta: "Coordinate a movement",
-    href: "/booking-request?service=ferry-and-repositioning",
+    title: "Maintenance ferries",
+    body: "Your aircraft to the shop and back, on the shop's schedule. The worked example above is exactly this mission, priced end to end.",
+    cta: "See what it costs",
+    href: "/pricing",
   },
   {
     id: "03",
-    title: "Maintenance repositioning",
-    body: "Crew, documents, timing, and facility coordination aligned so maintenance events happen on schedule, not around it.",
-    cta: "Plan maintenance support",
-    href: "/booking-request?service=maintenance-flight-support",
+    title: "Repositioning",
+    body: "Delivery flights, pre-buy positioning, and season moves — papered, insured, and tracked in AMG Connect from request to closeout.",
+    cta: "Get a quote",
+    href: "/request",
   },
   {
     id: "04",
-    title: "Recurring support",
-    body: "A defined support rhythm for owners, aircraft programs, and flight departments with repeat needs across the calendar.",
-    cta: "Review support plans",
-    href: "/plans",
+    title: "Insurance-required second pilots",
+    body: "Mentor and SIC placements that satisfy your policy — no mission proceeds until the pilot is named or approved on it.",
+    cta: "How the insurance gate works",
+    href: "/how-it-works",
   },
 ] as const;
 
@@ -90,9 +90,9 @@ export default function Services() {
             </div>
           </div>
           <p className="mt-8 max-w-[280px] text-[13px] leading-relaxed text-t2">
-            Start with the mission requirement. AMG reviews the path, confirms
-            feasibility, and coordinates the next step — with every thread in
-            one workflow.
+            Four missions, one method: written quote inside your window, pilot
+            options you choose from, insurance confirmed before anything
+            moves, every receipt in the closeout file.
           </p>
         </div>
 

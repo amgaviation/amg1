@@ -2,28 +2,30 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { prefersReducedMotion } from "./reveal";
 
 gsap.registerPlugin(ScrollTrigger);
 
+/** The four steps with clocks on them (Website Build Spec §5). */
 const STEPS = [
   {
-    title: "Submit mission details",
-    body: "Share the aircraft, location, timing, support need, and known constraints. One request starts the workflow — no scattered threads.",
+    title: "Submit — 5 minutes",
+    body: "Tail number, mission, dates, insurance carrier. One form, no phone tag. The SLA clock starts at the timestamp.",
   },
   {
-    title: "Feasibility review",
-    body: "AMG reviews aircraft status, crew fit, approvals, route factors, and availability before anything is committed. Support is accepted only after the review clears.",
+    title: "Quote — 24/12/4 business hours",
+    body: "Written and itemized inside your plan's window: pilot options with qualifications, all-in cost, timeline. Miss the window and that month's plan fee is credited, automatically.",
   },
   {
-    title: "A clear proposal",
-    body: "You receive the applicable scope, requirements, quote, or plan-review path in plain terms — what is included, what is not, and what happens next.",
+    title: "Crew confirmed — target 48 hours",
+    body: "You pick the pilot. We paper the agreement and confirm insurance approval before anything moves — an unapproved pilot voids the whole point.",
   },
   {
-    title: "Track it in AMG Connect",
-    body: "Approved users follow messages, documents, quotes, invoices, and status in one place, tied to the mission record from request to wheels-down.",
+    title: "Fly, tracked",
+    body: "Status updates in AMG Connect. Closeout file — agreement, invoice, every receipt — delivered when the mission lands. Your pilot is paid within 7 days.",
   },
 ] as const;
 
@@ -77,9 +79,16 @@ export default function Ops() {
       className="radar-grid relative border-t border-grid-green bg-[#0A1322] py-20 md:py-24"
     >
       <div className="mx-auto max-w-7xl px-6 md:px-10">
-        <p className="bw-in microlabel-green mb-14">
-          A BETTER WAY TO SUPPORT AIRCRAFT
-        </p>
+        <div className="bw-in mb-14 flex flex-wrap items-baseline justify-between gap-4">
+          <p className="microlabel-green">HOW IT WORKS // FOUR STEPS, EACH WITH A CLOCK ON IT</p>
+          <Link
+            href="/how-it-works"
+            prefetch={false}
+            className="fd-navlink font-mono text-[11px] uppercase tracking-widecap text-t2 transition-colors hover:text-t1"
+          >
+            The full process
+          </Link>
+        </div>
 
         <div className="grid gap-16 md:grid-cols-2">
           {/* accordion */}
@@ -157,19 +166,19 @@ export default function Ops() {
           </div>
         </div>
 
-        {/* stat bar */}
+        {/* commitments band (spec §3.6) */}
         <div className="bw-in mt-20 grid grid-cols-2 items-end gap-8 border-t border-grid-silver pt-6 md:grid-cols-4">
           <div>
-            <p className="microlabel mb-1">Support categories</p>
-            <p className="font-mono text-xl text-t1">06</p>
+            <p className="microlabel mb-1">Quote response</p>
+            <p className="font-mono text-xl text-t1">24 HR</p>
           </div>
           <div>
-            <p className="microlabel mb-1">Aircraft classes</p>
-            <p className="font-mono text-xl text-t1">08</p>
+            <p className="microlabel mb-1">Pilot payment</p>
+            <p className="font-mono text-xl text-t1">7 DAYS</p>
           </div>
           <div>
-            <p className="microlabel mb-1">Response</p>
-            <p className="font-mono text-xl text-t1">&lt; 24 HRS</p>
+            <p className="microlabel mb-1">Pass-through markup</p>
+            <p className="font-mono text-xl text-t1">$0</p>
           </div>
           <div className="md:text-right">
             <p className="microlabel mb-1">Zulu time</p>

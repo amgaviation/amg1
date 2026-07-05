@@ -93,10 +93,10 @@ export default function Preloader() {
         </p>
         <h2 className="text-2xl font-light leading-tight text-t1 md:text-4xl">
           <span className="mask-line">
-            <span>Private aircraft support</span>
+            <span>Crew and aircraft movement</span>
           </span>
           <span className="mask-line">
-            <span>coordinated by experts</span>
+            <span>for owners who fly Part 91</span>
           </span>
         </h2>
         <div className="pre-tick mx-auto mt-7 h-px w-40 origin-left scale-x-0 bg-instrument/60" />

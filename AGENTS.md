@@ -1,6 +1,10 @@
 # Codex Instructions for AMG1
 
 - Treat GitHub repository `amgaviation/amg1` as the source of truth for this project.
+- For AMG Aviation Group business model, website, portal, pricing, compliance, launch,
+  copy, or strategy work, check `docs/amg-aviation-group-reference.md` before acting.
+  If a request conflicts with that reference, challenge it with the relevant document point
+  before implementing.
 - Codex Cloud task/repository selectors are authoritative in ephemeral workspaces; local remotes or branch names may differ.
 - Do not rely on Tony's local MacBook files, paths, caches, credentials, or uncommitted local state.
 - Use a new branch or the normal Codex pull request workflow for each task.

@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Porthole from "./svg/porthole";
 import { onReveal, prefersReducedMotion } from "./reveal";
+import { SITE } from "@/lib/site-config";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -201,34 +202,31 @@ export default function Hero() {
           <Porthole className="h-full w-full" />
         </div>
 
-        {/* L2: foreground headlines (fastest layer) */}
+        {/* L2: foreground headlines (fastest layer) — the hero's only
+            promise is the 24-hour quote commitment (spec §3.1). */}
         <div ref={copyLayer} className="hero-copy-layer pointer-events-none absolute inset-0" data-fd-hidden>
           <h1 className="sr-only">
-            AMG Aviation Group — private aircraft support coordination for
-            owners and flight departments
+            Reliable crew and aircraft movement for owners who fly Part 91 —
+            quoted within 24 business hours, tracked in one portal, priced flat.
           </h1>
           <h2 className="hl-left display-lg absolute left-[5vw] top-[20vh] font-display font-medium text-t1 will-change-transform md:top-[22vh]">
-            We are
-            <br />
-            movement
+            Quoted in
           </h2>
           <h2 className="hl-right display-lg absolute right-[4vw] top-[60vh] text-right font-display font-medium text-t1 will-change-transform md:top-[58vh]">
-            We are
-            <br />
-            readiness
+            24 hours
           </h2>
 
-          <div className="hero-meta absolute bottom-[16vh] left-[5vw] hidden max-w-[250px] sm:block">
+          <div className="hero-meta absolute bottom-[16vh] left-[5vw] hidden max-w-[270px] sm:block">
             <p className="text-lg leading-snug text-t1">
-              Your aircraft,
+              Reliable crew and aircraft
               <br />
-              fully supported
+              movement for Part 91 owners
             </p>
             <div className="my-4 h-px w-10 bg-amber/70" />
             <p className="text-[11px] leading-relaxed text-t3">
-              Crew coverage, aircraft movement, and maintenance solutions for
-              owners and flight departments — one accountable workflow from
-              request to wheels-down.
+              Vetted contract pilots, maintenance ferries, and repositioning —
+              quoted within 24 business hours, tracked in one portal, priced
+              flat.
             </p>
           </div>
 
@@ -237,12 +235,15 @@ export default function Hero() {
               <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-instrument" />
               Scroll down
             </span>
-            <span className="hidden h-px w-24 bg-grid-silver md:block" />
-            <span className="microlabel hidden md:block">To start the mission</span>
+            <span className="hidden h-px w-24 bg-grid-silver lg:block" />
+            <span className="microlabel hidden lg:block">To start the mission</span>
           </div>
 
-          <div className="hero-meta absolute bottom-[7vh] left-[5vw] hidden sm:block">
-            <span className="microlabel-green">PART 91 // SUPPORT COORDINATION</span>
+          <div className="hero-meta absolute bottom-[7vh] left-[5vw] hidden max-w-[52vw] sm:block">
+            <span className="microlabel-green block leading-relaxed">
+              SERVING {SITE.region.replace("the ", "").toUpperCase()} // FOUNDED BY{" "}
+              {SITE.founder.toUpperCase()} // {SITE.phone}
+            </span>
           </div>
         </div>
       </div>

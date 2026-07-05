@@ -41,17 +41,18 @@ export default function Connect() {
     <section id="connect" ref={root} className="relative bg-canvas py-20 md:py-28">
       <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 md:grid-cols-2 md:px-10">
         <div>
-          <p className="cx-in microlabel-green mb-6">AMG CONNECT // MISSION RECORD</p>
+          <p className="cx-in microlabel-green mb-6">AMG CONNECT // ONE LOGIN, ONE THREAD</p>
           <h2 className="cx-in display-lg font-display font-medium text-t1">
             One record.
             <br />
             Zero guesswork.
           </h2>
           <p className="cx-in mt-6 max-w-md text-[13px] leading-relaxed text-t2">
-            Approved owners, flight departments, crew, and partners follow
-            requests, messages, documents, quotes, and invoices in AMG Connect
-            — every update tied to the mission record, visible to the roles
-            that need it.
+            Five things, done properly: request intake and live mission status,
+            the document vault, quotes and invoices that mirror each other line
+            for line, one message thread per mission, and automatic reminders —
+            insurance renewal, crew currency, plan renewal — so your file stays
+            alive between missions.
           </p>
           <div className="cx-in mt-8 flex flex-wrap items-center gap-6">
             <Link
@@ -67,11 +68,11 @@ export default function Connect() {
               </span>
             </Link>
             <Link
-              href="/amg-connect"
+              href="/how-it-works"
               prefetch={false}
               className="fd-navlink font-mono text-[11px] uppercase tracking-widecap text-t2 transition-colors hover:text-t1"
             >
-              Explore the portal
+              What tracking looks like
             </Link>
           </div>
         </div>

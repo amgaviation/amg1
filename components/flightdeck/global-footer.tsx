@@ -6,8 +6,8 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Globe from "./svg/globe";
 import { CookiePreferencesButton } from "@/components/compliance/cookie-consent";
-import { COMPANY } from "@/lib/content";
 import { PUBLIC_LEGAL_FOOTER_LINKS } from "@/lib/navigation";
+import { AFFILIATIONS, OPERATIONAL_CONTROL_STATEMENT, SITE } from "@/lib/site-config";
 import { prefersReducedMotion } from "./reveal";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -23,9 +23,6 @@ const CITIES = [
   "Jackson Hole",
 ];
 const CITY_H = 44; // px row height for the vertical ticker
-
-const FOOTER_NOTE =
-  "AMG support requests are subject to aircraft status, crew availability, owner/operator approval, operating conditions, support-scope review, and final acceptance. AMG Aviation Group is not an air carrier and does not sell charter service.";
 
 /**
  * GLOBAL + FOOTER — pinned 350vh dark sequence:
@@ -178,35 +175,50 @@ export default function GlobalFooter() {
             </div>
             <div className="font-mono text-sm text-t1">
               <a
-                href={`mailto:${COMPANY.email}`}
+                href={`mailto:${SITE.email}`}
                 className="fd-navlink block w-fit transition-colors hover:text-instrument"
               >
-                {COMPANY.email}
+                {SITE.email}
+              </a>
+              <a
+                href={SITE.phoneHref}
+                className="fd-navlink mt-3 block w-fit transition-colors hover:text-instrument"
+              >
+                {SITE.phone}
               </a>
               <Link
-                href="/booking-request"
+                href="/request"
                 prefetch={false}
                 className="fd-navlink mt-3 block w-fit transition-colors hover:text-instrument"
               >
-                Request aircraft support
+                Get a Quote
               </Link>
               <Link
-                href="/login"
+                href="/connect"
                 prefetch={false}
                 className="fd-navlink mt-3 block w-fit text-t2 transition-colors hover:text-instrument"
               >
-                Member login
+                Portal login
               </Link>
             </div>
             <div className="md:text-right">
-              <p className="microlabel">For inquiries</p>
-              <p className="microlabel-green mt-2">PART 91 // SUPPORT COORDINATION</p>
-              <p className="mt-4 text-[10px] leading-relaxed text-t3">{FOOTER_NOTE}</p>
+              <p className="microlabel">{SITE.cityState}</p>
+              <p className="microlabel-green mt-2">
+                {AFFILIATIONS.join(" // ").toUpperCase()} // SERVING{" "}
+                {SITE.region.replace("the ", "").toUpperCase()}
+              </p>
+              <p className="mt-4 text-[10px] leading-relaxed text-t3">
+                {OPERATIONAL_CONTROL_STATEMENT} Details in{" "}
+                <Link href="/legal" prefetch={false} className="underline underline-offset-2 hover:text-t1">
+                  Legal
+                </Link>
+                .
+              </p>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 border-t border-grid-silver px-6 py-3 md:justify-between md:px-10">
             <span className="microlabel">
-              © {new Date().getFullYear()} {COMPANY.name}
+              © {new Date().getFullYear()} {SITE.name}
             </span>
             <span className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
               {PUBLIC_LEGAL_FOOTER_LINKS.map((link) => (

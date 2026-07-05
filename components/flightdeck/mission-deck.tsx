@@ -9,15 +9,16 @@ import { prefersReducedMotion } from "./reveal";
 
 gsap.registerPlugin(ScrollTrigger);
 
+/** The commitments band + published numbers (Business Plan §6, spec §3.6). */
 const SPECS = [
-  ["Support categories", "06"],
-  ["Aircraft classes", "08"],
-  ["Crew basis", "CREDENTIAL-REVIEWED"],
-  ["Response", "WITHIN 24 HRS"],
-  ["Operating context", "PART 91"],
-  ["Acceptance review", "100%"],
-  ["Coordination", "SINGLE WORKFLOW"],
-  ["Visibility", "AMG CONNECT"],
+  ["Quote response", "24 BUSINESS HRS"],
+  ["Pilot payment", "WITHIN 7 DAYS"],
+  ["Pass-through markup", "$0"],
+  ["Piston day rates", "$500–800"],
+  ["Turboprop / light jet", "$1,000–1,600"],
+  ["Coordination fee", "FLAT · FROM $195"],
+  ["Missed SLA window", "PLAN FEE CREDITED"],
+  ["Every mission", "TRACKED IN CONNECT"],
 ] as const;
 
 /**
@@ -95,11 +96,11 @@ export default function MissionDeck() {
 
         <div className="fly-sub absolute left-[5vw] top-[34vh]">
           <p className="text-sm leading-snug text-t2">
-            Support
+            Same flat fee,
             <br />
-            that moves
+            whoever flies —
             <br />
-            with <span className="text-instrument">your aircraft</span>
+            <span className="text-instrument">you choose the pilot</span>
           </p>
         </div>
 
@@ -107,12 +108,12 @@ export default function MissionDeck() {
         <div className="spec-card absolute right-[5vw] top-[52vh] hidden w-[280px] border-t border-grid-silver pt-3 md:block">
           <div className="mb-3 flex justify-between font-mono text-[10px] uppercase tracking-widecap">
             <span className="text-amber">Mission profile</span>
-            <span className="text-t3">FERRY-REPO 02</span>
+            <span className="text-t3">MX FERRY 01</span>
           </div>
           <p className="text-[11px] leading-relaxed text-t3">
-            Airframe, crew seat, type ratings, insurance minimums, routing, and
-            facility timing reviewed against the movement window — before the
-            aircraft goes anywhere.
+            SR22, Tampa to Atlanta, Standard member: pilot $600, airline return
+            $240, per diem $75, AMG coordination $295 — about $1,210 all-in,
+            quoted in 12 business hours.
           </p>
         </div>
 
@@ -132,24 +133,24 @@ export default function MissionDeck() {
           </div>
         </div>
 
-        {/* class titles */}
+        {/* published-numbers titles */}
         <div className="fleet-title-l absolute left-[5vw] top-[14vh] opacity-0">
-          <p className="text-lg text-t2">Aircraft classes</p>
+          <p className="text-lg text-t2">Every price, published</p>
           <p className="display-lg font-display font-medium text-t1">
-            VLJ&nbsp;&mdash;&nbsp;Heavy
+            Flat&nbsp;fees
           </p>
         </div>
         <div className="fleet-title-r absolute right-[5vw] top-[14vh] hidden text-right opacity-0 md:block">
           <p className="text-xl leading-snug text-t1">
-            Pistons, turboprops,
+            Pistons, turboprops
             <br />
-            jets &amp; rotorcraft
+            &amp; light jets
           </p>
-          <p className="microlabel-green mt-4">Feasibility reviewed before acceptance</p>
+          <p className="microlabel-green mt-4">Day-rate ranges updated quarterly</p>
           <p className="mt-3 max-w-[260px] text-[11px] leading-relaxed text-t3">
-            Crew coverage, ferry and repositioning, maintenance movement, and
-            recurring support — matched to the airframe and the operating
-            window, across eight aircraft classes.
+            Your only AMG costs are a flat per-mission coordination fee and, if
+            you choose one, a monthly plan. Everything else passes through at
+            cost with receipts.
           </p>
         </div>
 
