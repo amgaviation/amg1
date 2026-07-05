@@ -93,6 +93,14 @@ export default async function AdminQuoteDetailPage({
               View PDF
             </Link>
           ) : null}
+          {(quote as any).converted_invoice_id ? (
+            <Link
+              href={`/portal/admin/invoices/${(quote as any).converted_invoice_id}`}
+              className="rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-4 py-2 text-xs font-semibold text-[var(--deck-accent-ink)] transition-colors hover:border-[var(--deck-accent)]"
+            >
+              View Invoice
+            </Link>
+          ) : null}
           <Link
             href="/portal/admin/quotes"
             className="rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
