@@ -48,7 +48,7 @@ export default async function AdminCompliancePage() {
         eyebrow="AMG Operations"
         title="Compliance"
         description="Legal notices, privacy requests, consent architecture, script-gating, and administrative review checkpoints."
-        actions={<Link href="/privacy-choices" className="rounded-full border border-[var(--deck-line)] px-4 py-2 text-xs font-semibold text-[var(--deck-text)] hover:border-[var(--deck-accent)]">Public Privacy Choices</Link>}
+        actions={<Link href="/privacy-choices" className="rounded-md border border-[var(--deck-line)] px-4 py-2 text-xs font-semibold text-[var(--deck-text)] hover:border-[var(--deck-accent)]">Public Privacy Choices</Link>}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">

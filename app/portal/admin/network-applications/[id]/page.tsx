@@ -43,7 +43,7 @@ function FileList({
             <p className="truncate text-sm font-semibold">{file.original_filename}</p>
             <p className="text-xs text-muted-foreground">{file.content_type ?? "File"} · {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : "Size unavailable"}</p>
           </div>
-          <Link href={`/portal/admin/network-application-files/${file.id}/view`} className="rounded-full border border-border px-3 py-2 text-xs font-semibold text-foreground hover:border-[var(--deck-accent)]">
+          <Link href={`/portal/admin/network-application-files/${file.id}/view`} className="rounded-md border border-border px-3 py-2 text-xs font-semibold text-foreground hover:border-[var(--deck-accent)]">
             View
           </Link>
         </div>
@@ -174,7 +174,7 @@ export default async function NetworkApplicationDetailPage({
               <input type="hidden" name="application_id" value={application.id} />
               <input type="hidden" name="back_to" value={backTo} />
               <TextAreaField label="Notes" name="internal_notes" defaultValue={application.internal_notes ?? ""} />
-              <SubmitButton className="w-fit rounded-full" pendingText="Saving...">Save Notes</SubmitButton>
+              <SubmitButton className="w-fit rounded-md" pendingText="Saving...">Save Notes</SubmitButton>
             </form>
           </SectionCard>
 

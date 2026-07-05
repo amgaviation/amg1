@@ -117,7 +117,7 @@ export default async function NetworkApplicationsPage({
         title="Network Applications"
         description="Review public AMG Crew Network submissions with the same list, search, filter, and row-opening behavior as Crew Management."
         actions={
-          <Link href="/portal/admin/crew" className="rounded-full border border-border bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]">
+          <Link href="/portal/admin/crew" className="rounded-md border border-border bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]">
             Crew Directory
           </Link>
         }

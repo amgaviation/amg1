@@ -81,7 +81,7 @@ export function CrewEmailComposer({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="gap-2 rounded-full">
+        <Button className="gap-2">
           <Mail className="h-4 w-4" />
           Send Email
         </Button>
@@ -109,7 +109,7 @@ export function CrewEmailComposer({
                 <input value={crewEmail} disabled className={`${inputClassName} text-[var(--amg-text-secondary)]`} />
               </label>
 
-              <label className="flex items-center gap-3 rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2.5 text-sm">
+              <label className="flex items-center gap-3 rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2.5 text-sm">
                 <input
                   type="checkbox"
                   checked={overrideRecipient}
@@ -196,11 +196,11 @@ export function CrewEmailComposer({
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="outline" className="rounded-full">
+              <Button type="button" variant="outline">
                 Cancel
               </Button>
             </DialogClose>
-            <SubmitButton className="gap-2 rounded-full" pendingText="Sending...">
+            <SubmitButton className="gap-2" pendingText="Sending...">
               <Send className="h-4 w-4" />
               Send
             </SubmitButton>

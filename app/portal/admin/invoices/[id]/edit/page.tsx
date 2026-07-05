@@ -104,7 +104,7 @@ export default async function EditInvoicePage({
           </div>
         </SectionCard>
 
-        <SubmitButton className="rounded-full" pendingText="Saving...">Save Invoice Draft</SubmitButton>
+        <SubmitButton pendingText="Saving...">Save Invoice Draft</SubmitButton>
       </form>
     </>
   );

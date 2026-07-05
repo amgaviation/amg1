@@ -87,7 +87,7 @@ export default async function AdminBillingSettingsPage({
               required
               hint="Required before payment instructions or document terms can be changed."
             />
-            <SubmitButton className="rounded-full" pendingText="Confirming...">Unlock Billing Settings</SubmitButton>
+            <SubmitButton pendingText="Confirming...">Unlock Billing Settings</SubmitButton>
           </form>
         </SectionCard>
       ) : (
@@ -133,7 +133,7 @@ export default async function AdminBillingSettingsPage({
             </div>
           </SectionCard>
 
-          <SubmitButton className="rounded-full" pendingText="Saving...">Save Billing Settings</SubmitButton>
+          <SubmitButton pendingText="Saving...">Save Billing Settings</SubmitButton>
         </form>
       )}
     </>

@@ -61,16 +61,16 @@ export default async function ClientDocumentsPage({
                 name="file"
                 required
                 accept=".pdf,.jpg,.jpeg,.png"
-                className="text-sm text-[var(--deck-text-3)] file:mr-3 file:rounded-lg file:border file:border-[var(--deck-line-strong)] file:bg-[var(--deck-panel)] file:px-3 file:py-2 file:text-sm file:font-medium file:text-[var(--deck-text)] hover:file:border-[var(--deck-accent)]"
+                className="text-sm text-[var(--deck-text-3)] file:mr-3 file:rounded-md file:border file:border-[var(--deck-line-strong)] file:bg-[var(--deck-panel)] file:px-3 file:py-2 file:text-sm file:font-medium file:text-[var(--deck-text)] hover:file:border-[var(--deck-accent)]"
               />
             </label>
           </div>
-          <label className="mt-4 flex items-start gap-3 rounded-lg border border-border bg-background/60 p-3 text-sm text-muted-foreground">
+          <label className="mt-4 flex items-start gap-3 rounded-md border border-border bg-background/60 p-3 text-sm text-muted-foreground">
             <input name="document_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-accent)]" />
             <span>Upload only documents you are authorized to provide and do not include full card numbers, CVV codes, bank account numbers, routing numbers, or unrelated personal information.</span>
           </label>
           <div className="mt-4">
-            <SubmitButton className="rounded-full" pendingText="Uploading…">Upload Document</SubmitButton>
+            <SubmitButton pendingText="Uploading…">Upload Document</SubmitButton>
           </div>
         </form>
       </SectionCard>

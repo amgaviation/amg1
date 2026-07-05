@@ -30,8 +30,8 @@ export default async function CrewMissionsPage({
     <>
       <PageHeader eyebrow="Flight Crew" title={title} />
       <div className="flex gap-2">
-        <Link href="/portal/crew/missions" className={`rounded-full border px-3 py-1 text-xs ${!params.pool ? "border-accent bg-accent/10 font-semibold text-accent" : "border-border text-muted-foreground hover:border-accent/40"}`}>My Assignments</Link>
-        <Link href="/portal/crew/missions?pool=open" className={`rounded-full border px-3 py-1 text-xs ${params.pool === "open" ? "border-accent bg-accent/10 font-semibold text-accent" : "border-border text-muted-foreground hover:border-accent/40"}`}>Open Pool</Link>
+        <Link href="/portal/crew/missions" className={`rounded-[0.25rem] border px-3 py-1.5 font-mono text-[0.68rem] font-semibold uppercase [letter-spacing:0.08em] transition-colors ${!params.pool ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]" : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"}`}>My Assignments</Link>
+        <Link href="/portal/crew/missions?pool=open" className={`rounded-[0.25rem] border px-3 py-1.5 font-mono text-[0.68rem] font-semibold uppercase [letter-spacing:0.08em] transition-colors ${params.pool === "open" ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]" : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"}`}>Open Pool</Link>
       </div>
 
       <SectionCard>
@@ -40,7 +40,7 @@ export default async function CrewMissionsPage({
         ) : (
           <div className="space-y-3">
             {missions.map((m) => (
-              <Link key={m.id} href={`/portal/crew/missions/${m.id}`} className="grid gap-3 rounded-lg border border-border bg-background/50 p-4 transition-colors hover:border-accent/60 sm:grid-cols-[1fr_auto]">
+              <Link key={m.id} href={`/portal/crew/missions/${m.id}`} className="grid gap-3 rounded-md border border-border bg-background/50 p-4 transition-colors hover:border-accent/60 sm:grid-cols-[1fr_auto]">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-mono text-xs text-accent">{m.ref}</span>

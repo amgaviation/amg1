@@ -65,7 +65,7 @@ export default async function AdminSubscriptionsPage({
             icon="clipboard"
             title="No client subscriptions"
             description="Create a subscription to track included support, usage, overages, and client credits."
-            action={<Link href="/portal/admin/subscriptions/new" className="rounded-full bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground">Create Subscription</Link>}
+            action={<Link href="/portal/admin/subscriptions/new" className="rounded-md bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground">Create Subscription</Link>}
           />
         ) : (
           <DataTable
@@ -168,7 +168,7 @@ export default async function AdminSubscriptionsPage({
             <TextAreaField label="Travel Policy" name="travel_policy" />
             <TextAreaField label="Lodging Policy" name="lodging_policy" />
             <TextAreaField label="Default Terms" name="default_terms" />
-            <SubmitButton className="rounded-full" pendingText="Creating...">Create Plan</SubmitButton>
+            <SubmitButton pendingText="Creating...">Create Plan</SubmitButton>
           </form>
         </SectionCard>
       </div>

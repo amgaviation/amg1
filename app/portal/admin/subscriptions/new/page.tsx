@@ -105,7 +105,7 @@ export default async function NewSubscriptionPage({
           </div>
         </SectionCard>
 
-        <SubmitButton className="rounded-full" pendingText="Creating...">Create Setup Link</SubmitButton>
+        <SubmitButton pendingText="Creating...">Create Setup Link</SubmitButton>
       </form>
     </>
   );

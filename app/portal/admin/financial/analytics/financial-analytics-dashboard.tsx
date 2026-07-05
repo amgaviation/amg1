@@ -56,29 +56,29 @@ function labelize(value: string | null | undefined) {
 }
 
 function metricToneClasses(metric: FinancialMetric) {
-  if (metric.tone === "positive") return "border-[rgba(70,160,120,0.45)] bg-[#0D2A1E] text-[#D9F2E5]";
-  if (metric.tone === "danger") return "border-[rgba(214,106,106,0.5)] bg-[#2E1212] text-[#F6DBDB]";
-  if (metric.tone === "warning") return "border-[rgba(91,157,255,0.4)]/45 bg-amber-950 text-amber-50";
-  return "border-[rgba(201,214,232,0.2)] bg-[var(--deck-ink)] text-[#E7ECF4]";
+  if (metric.tone === "positive") return "border-[var(--deck-success-line)] bg-[var(--deck-chrome)] text-[var(--deck-chrome-text)]";
+  if (metric.tone === "danger") return "border-[var(--deck-danger-line)] bg-[var(--deck-chrome)] text-[var(--deck-chrome-text)]";
+  if (metric.tone === "warning") return "border-[var(--deck-warn-line)] bg-[var(--deck-chrome)] text-[var(--deck-chrome-text)]";
+  return "border-[var(--deck-chrome-line)] bg-[var(--deck-ink)] text-[var(--deck-chrome-text)]";
 }
 
 function MetricCard({ metric }: { metric: FinancialMetric }) {
   const positive = (metric.delta ?? 0) >= 0;
   return (
-    <div className={cn("rounded-lg border p-4 shadow-[0_18px_44px_rgba(2,6,23,0.18)]", metricToneClasses(metric))}>
+    <div className={cn("rounded-md border p-4 shadow-[var(--deck-shadow-card)]", metricToneClasses(metric))}>
       <div className="flex min-h-8 items-start justify-between gap-3">
-        <p className="text-xs font-semibold uppercase [letter-spacing:0.14em] text-white/68">{metric.label}</p>
+        <p className="deck-eyebrow-chrome">{metric.label}</p>
         {metric.delta !== null ? (
-          <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[0.68rem] font-semibold", positive ? "border-[var(--deck-success-line)]/35 text-emerald-100" : "border-[var(--deck-warn-line)]/35 text-amber-100")}>
+          <span className={cn("inline-flex items-center gap-1 rounded-[0.25rem] border px-2 py-1 text-[0.68rem] font-semibold", positive ? "border-[var(--deck-success-line)] text-[var(--deck-success)]" : "border-[var(--deck-warn-line)] text-[var(--deck-warn)]")}>
             {positive ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}
             {metric.deltaLabel}
           </span>
         ) : null}
       </div>
-      <p className="mt-4 font-display text-3xl font-extrabold leading-none tracking-normal text-white sm:text-4xl">{metric.formatted}</p>
-      <p className="mt-3 text-xs leading-5 text-white/72">{metric.detail}</p>
+      <p className="mt-4 font-display text-3xl font-extrabold leading-none text-[var(--deck-chrome-text)] sm:text-4xl">{metric.formatted}</p>
+      <p className="mt-3 text-xs leading-5 text-[var(--deck-chrome-muted)]">{metric.detail}</p>
       <p
-        className="mt-3 truncate border-t border-white/10 pt-3 font-mono text-[0.66rem] uppercase [letter-spacing:0.12em] text-white/48"
+        className="deck-eyebrow-chrome mt-3 truncate border-t border-[var(--deck-chrome-line)] pt-3 !text-[0.6rem]"
         title={metric.source}
       >
         {metric.source}
@@ -100,12 +100,12 @@ function BarChart({ points, secondaryLabel }: { points: ChartPoint[]; secondaryL
         <div key={point.label} className="grid grid-cols-[4.6rem_1fr_5.2rem] items-center gap-3 text-xs">
           <span className="truncate font-mono text-[var(--deck-text-3)]">{point.label}</span>
           <div className="space-y-1">
-            <div className="h-3 overflow-hidden rounded-full bg-[var(--deck-line)]">
-              <div className="h-full rounded-full bg-[var(--deck-success-tint)]0" style={{ width: `${Math.max(2, (point.value / max) * 100)}%` }} />
+            <div className="h-3 overflow-hidden rounded-[0.25rem] bg-[var(--deck-line)]">
+              <div className="h-full rounded-[0.25rem] bg-[var(--deck-success)]" style={{ width: `${Math.max(2, (point.value / max) * 100)}%` }} />
             </div>
             {typeof point.secondary === "number" ? (
-              <div className="h-2 overflow-hidden rounded-full bg-[var(--deck-line)]">
-                <div className="h-full rounded-full bg-[var(--deck-info-tint)]0" style={{ width: `${Math.max(2, (point.secondary / max) * 100)}%` }} />
+              <div className="h-2 overflow-hidden rounded-[0.25rem] bg-[var(--deck-line)]">
+                <div className="h-full rounded-[0.25rem] bg-[var(--deck-info)]" style={{ width: `${Math.max(2, (point.secondary / max) * 100)}%` }} />
               </div>
             ) : null}
           </div>
@@ -125,8 +125,8 @@ function BreakdownChart({ points }: { points: BreakdownPoint[] }) {
       {points.map((point) => (
         <div key={point.label} className="grid grid-cols-[minmax(5.5rem,9rem)_1fr_5.5rem] items-center gap-3 text-xs">
           <span className="truncate text-[var(--deck-text-2)]">{labelize(point.label)}</span>
-          <div className="h-3 overflow-hidden rounded-full bg-[var(--deck-line)]">
-            <div className="h-full rounded-full bg-[var(--deck-navy)]" style={{ width: `${Math.max(2, (point.value / max) * 100)}%` }} />
+          <div className="h-3 overflow-hidden rounded-[0.25rem] bg-[var(--deck-line)]">
+            <div className="h-full rounded-[0.25rem] bg-[var(--deck-accent)]" style={{ width: `${Math.max(2, (point.value / max) * 100)}%` }} />
           </div>
           <span className="text-right font-mono text-[var(--deck-text-2)]">{formatMoney(point.value)}</span>
         </div>
@@ -137,7 +137,7 @@ function BreakdownChart({ points }: { points: BreakdownPoint[] }) {
 
 function EmptyChart() {
   return (
-    <div className="flex min-h-44 items-center justify-center rounded-lg border border-dashed border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] px-4 text-center text-sm text-muted-foreground">
+    <div className="flex min-h-44 items-center justify-center rounded-md border border-dashed border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] px-4 text-center text-sm text-muted-foreground">
       No data available for this chart.
     </div>
   );
@@ -230,15 +230,15 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
     <div className="space-y-6">
       {error ? <Notice tone="danger">{error}</Notice> : null}
 
-      <section className="rounded-lg border border-[rgba(201,214,232,0.16)] bg-[var(--deck-ink)] p-4 text-white shadow-[0_24px_60px_rgba(5,10,20,0.28)]">
+      <section className="rounded-md border border-[var(--deck-chrome-line)] bg-[var(--deck-ink)] p-4 text-[var(--deck-chrome-text)] shadow-[var(--deck-shadow-card)]">
         <div className="grid gap-4 xl:grid-cols-[1fr_auto] xl:items-center">
           <div className="flex flex-wrap items-center gap-3 text-xs">
-            <span className="inline-flex min-h-9 items-center gap-2 rounded-full border border-[var(--deck-success-line)]/30 bg-emerald-400/10 px-3 font-semibold text-emerald-100">
+            <span className="inline-flex min-h-9 items-center gap-2 rounded-[0.25rem] border border-[var(--deck-success-line)] bg-[var(--deck-success-tint)] px-3 font-semibold text-[var(--deck-success)]">
               <Activity className="h-4 w-4" />
               Stripe {labelize(data.stripeHealth.mode)}
             </span>
-            <span className="text-white/62">Last refreshed {formatDateTime(data.reportedAt)}</span>
-            <span className={cn("inline-flex min-h-8 items-center rounded-full px-3 font-semibold", autoRefresh ? "bg-[rgba(11,94,212,0.24)] text-[#BFD9FF]" : "bg-white/10 text-white/70")}>
+            <span className="text-[var(--deck-chrome-muted)]">Last refreshed {formatDateTime(data.reportedAt)}</span>
+            <span className={cn("inline-flex min-h-8 items-center rounded-[0.25rem] px-3 font-semibold", autoRefresh ? "bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]" : "bg-[var(--deck-chrome-2)] text-[var(--deck-chrome-muted)]")}>
               Auto-refresh {autoRefresh ? "on" : "off"}
             </span>
           </div>
@@ -248,24 +248,24 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
               id="analytics-range"
               value={range}
               onChange={(event) => setRange(event.target.value as AnalyticsRangeKey)}
-              className="min-h-10 rounded-md border border-white/15 bg-white/10 px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
+              className="min-h-10 rounded-md border border-[var(--deck-chrome-line)] bg-[var(--deck-chrome-2)] px-3 text-sm text-[var(--deck-chrome-text)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
             >
               {RANGE_OPTIONS.map((option) => <option key={option.value} value={option.value} className="text-[var(--deck-text)]">{option.label}</option>)}
             </select>
             {range === "custom" ? (
               <>
-                <input aria-label="Custom start date" type="date" value={from} onChange={(event) => setFrom(event.target.value)} className="min-h-10 rounded-md border border-white/15 bg-white/10 px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]" />
-                <input aria-label="Custom end date" type="date" value={to} onChange={(event) => setTo(event.target.value)} className="min-h-10 rounded-md border border-white/15 bg-white/10 px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]" />
+                <input aria-label="Custom start date" type="date" value={from} onChange={(event) => setFrom(event.target.value)} className="min-h-10 rounded-md border border-[var(--deck-chrome-line)] bg-[var(--deck-chrome-2)] px-3 text-sm text-[var(--deck-chrome-text)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]" />
+                <input aria-label="Custom end date" type="date" value={to} onChange={(event) => setTo(event.target.value)} className="min-h-10 rounded-md border border-[var(--deck-chrome-line)] bg-[var(--deck-chrome-2)] px-3 text-sm text-[var(--deck-chrome-text)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]" />
               </>
             ) : null}
-            <button type="button" onClick={refresh} disabled={isPending} className="inline-flex min-h-10 items-center gap-2 rounded-md border border-white/15 bg-[var(--deck-panel)] px-3 text-sm font-semibold text-[var(--deck-text)] transition-colors hover:bg-[var(--deck-success-tint)] disabled:opacity-60">
+            <button type="button" onClick={refresh} disabled={isPending} className="inline-flex min-h-10 items-center gap-2 rounded-md border border-[var(--deck-chrome-line)] bg-[var(--deck-panel)] px-3 text-sm font-semibold text-[var(--deck-text)] transition-colors hover:bg-[var(--deck-success-tint)] disabled:opacity-60">
               <RefreshCw className={cn("h-4 w-4", isPending && "animate-spin")} />
               Refresh
             </button>
-            <button type="button" onClick={() => setAutoRefresh((value) => !value)} className="inline-flex min-h-10 items-center rounded-md border border-white/15 px-3 text-sm font-semibold text-white transition-colors hover:bg-white/10">
+            <button type="button" onClick={() => setAutoRefresh((value) => !value)} className="inline-flex min-h-10 items-center rounded-md border border-[var(--deck-chrome-line)] px-3 text-sm font-semibold text-[var(--deck-chrome-text)] transition-colors hover:bg-[var(--deck-chrome-2)]">
               {autoRefresh ? "Pause" : "Resume"}
             </button>
-            <button type="button" onClick={exportActive} className="inline-flex min-h-10 items-center gap-2 rounded-md border border-white/15 px-3 text-sm font-semibold text-white transition-colors hover:bg-white/10">
+            <button type="button" onClick={exportActive} className="inline-flex min-h-10 items-center gap-2 rounded-md border border-[var(--deck-chrome-line)] px-3 text-sm font-semibold text-[var(--deck-chrome-text)] transition-colors hover:bg-[var(--deck-chrome-2)]">
               <Download className="h-4 w-4" />
               Export CSV
             </button>
@@ -273,7 +273,7 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
         </div>
       </section>
 
-      <div className="flex gap-2 overflow-x-auto rounded-lg border border-border bg-[var(--deck-panel)] p-2">
+      <div className="flex gap-2 overflow-x-auto rounded-md border border-border bg-[var(--deck-panel)] p-2">
         {TABS.map((tab) => (
           <button
             key={tab}
@@ -281,7 +281,7 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
             onClick={() => setActiveTab(tab)}
             className={cn(
               "min-h-10 shrink-0 rounded-md px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]",
-              activeTab === tab ? "bg-[var(--deck-navy)] text-white" : "text-[var(--deck-text-2)] hover:bg-[var(--deck-panel-2)] hover:text-[var(--deck-text)]",
+              activeTab === tab ? "bg-[var(--deck-accent)] text-[var(--deck-accent-ink)]" : "text-[var(--deck-text-2)] hover:bg-[var(--deck-panel-2)] hover:text-[var(--deck-text)]",
             )}
           >
             {tab}
@@ -499,14 +499,14 @@ function ReportsTab({ data, exportActive, exportJson }: { data: FinancialAnalyti
       <SectionCard title="Available Reports" icon="fileText" description="Downloads are generated in-browser from the current real analytics payload.">
         <div className="grid gap-3 sm:grid-cols-2">
           {["Revenue ledger", "Invoice aging", "Subscription report", "Expense report", "Client summary", "Stripe health"].map((label) => (
-            <button key={label} type="button" onClick={exportActive} className="min-h-16 rounded-lg border border-border bg-[var(--deck-panel)] px-4 text-left text-sm font-semibold text-[var(--deck-text)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]">
+            <button key={label} type="button" onClick={exportActive} className="min-h-16 rounded-md border border-border bg-[var(--deck-panel)] px-4 text-left text-sm font-semibold text-[var(--deck-text)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]">
               {label}
               <span className="mt-1 block text-xs font-normal text-muted-foreground">Exports the active tab as CSV.</span>
             </button>
           ))}
-          <button type="button" onClick={exportJson} className="min-h-16 rounded-lg border border-[var(--deck-navy)] bg-[var(--deck-navy)] px-4 text-left text-sm font-semibold text-white transition-colors hover:bg-[var(--deck-navy-2)]">
+          <button type="button" onClick={exportJson} className="min-h-16 rounded-md border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-4 text-left text-sm font-semibold text-[var(--deck-accent-ink)] transition-colors hover:bg-[var(--deck-accent)] hover:text-[var(--deck-accent-ink)]">
             Full analytics JSON
-            <span className="mt-1 block text-xs font-normal text-white/62">Includes metrics, charts, tables, data gaps, and Stripe health.</span>
+            <span className="mt-1 block text-xs font-normal text-[var(--deck-accent-ink)]/70">Includes metrics, charts, tables, data gaps, and Stripe health.</span>
           </button>
         </div>
       </SectionCard>

@@ -55,7 +55,7 @@ export default async function ClientQuoteDetailPage({
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="space-y-6">
           <SectionCard title="Line Items" icon="receipt">
-            <div className="overflow-x-auto rounded-lg border border-border">
+            <div className="overflow-x-auto rounded-md border border-border">
               <table className="w-full text-sm">
                 <thead className="bg-background/60">
                   <tr className="border-b border-border">
@@ -117,22 +117,22 @@ export default async function ClientQuoteDetailPage({
                 <form action={respondToQuote} className="grid gap-3">
                   <input type="hidden" name="quote_id" value={quote.id} />
                   <input type="hidden" name="decision" value="approved" />
-                  <label className="flex items-start gap-3 rounded-lg border border-border bg-background/60 p-3 text-sm text-muted-foreground">
+                  <label className="flex items-start gap-3 rounded-md border border-border bg-background/60 p-3 text-sm text-muted-foreground">
                     <input name="quote_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-accent)]" />
                     <span>I acknowledge the quote terms, support review disclaimer, and no-online-payment notice.</span>
                   </label>
-                  <SubmitButton className="rounded-full" pendingText="Approving…">Approve Quote</SubmitButton>
+                  <SubmitButton pendingText="Approving…">Approve Quote</SubmitButton>
                 </form>
                 <div className="flex gap-3">
                   <form action={respondToQuote}>
                     <input type="hidden" name="quote_id" value={quote.id} />
                     <input type="hidden" name="decision" value="revision_requested" />
-                    <SubmitButton variant="outline" className="rounded-full" pendingText="Sending…">Request Changes</SubmitButton>
+                    <SubmitButton variant="outline" pendingText="Sending…">Request Changes</SubmitButton>
                   </form>
                   <form action={respondToQuote}>
                     <input type="hidden" name="quote_id" value={quote.id} />
                     <input type="hidden" name="decision" value="rejected" />
-                    <SubmitButton variant="outline" className="rounded-full" pendingText="Rejecting…">Reject</SubmitButton>
+                    <SubmitButton variant="outline" pendingText="Rejecting…">Reject</SubmitButton>
                   </form>
                 </div>
               </div>

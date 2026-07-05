@@ -71,7 +71,7 @@ export default async function ClientSubscriptionDetailPage({
           {subscription.stripe_customer_id ? (
             <form action={manageSubscriptionBilling} className="mt-5">
               <input type="hidden" name="return_to" value={`/portal/client/subscriptions/${subscription.id}`} />
-              <SubmitButton className="w-full rounded-full" pendingText="Opening Stripe...">Manage Billing</SubmitButton>
+              <SubmitButton className="w-full" pendingText="Opening Stripe...">Manage Billing</SubmitButton>
             </form>
           ) : null}
         </SectionCard>

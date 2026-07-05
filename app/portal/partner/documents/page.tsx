@@ -45,7 +45,7 @@ export default async function PartnerDocumentsPage({
           <div className="mt-4">
             <input type="file" name="file" required accept=".pdf,.jpg,.jpeg,.png" className="text-sm text-muted-foreground file:mr-3 file:rounded-md file:border file:border-input file:bg-secondary/40 file:px-3 file:py-2 file:text-sm file:font-medium file:text-foreground hover:file:border-accent" />
           </div>
-          <label className="mt-4 flex items-start gap-3 rounded-lg border border-border bg-background/60 p-3 text-sm text-muted-foreground">
+          <label className="mt-4 flex items-start gap-3 rounded-md border border-border bg-background/60 p-3 text-sm text-muted-foreground">
             <input name="document_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-accent)]" />
             <span>Upload only documents you are authorized to provide and do not include full card numbers, CVV codes, bank account numbers, routing numbers, or unrelated personal information.</span>
           </label>
@@ -55,7 +55,7 @@ export default async function PartnerDocumentsPage({
       <SectionCard title="Partner Documents" icon="fileText">
         {docs.length === 0 ? <EmptyState icon="fileText" title="No documents uploaded" description="Upload partner compliance and service documents above." /> : (
           <div className="space-y-3">{docs.map((doc) => (
-            <div key={doc.id} className="grid gap-3 rounded-lg border border-border bg-background/50 p-4 sm:grid-cols-[1fr_auto_auto]">
+            <div key={doc.id} className="grid gap-3 rounded-md border border-border bg-background/50 p-4 sm:grid-cols-[1fr_auto_auto]">
               <div><p className="text-sm font-semibold">{doc.name}</p><p className="mt-1 text-xs text-muted-foreground">{doc.doc_type} | Uploaded {formatDate(doc.created_at)}</p></div>
               <StatusBadge label={DOCUMENT_STATUS_LABEL[doc.status] ?? doc.status} tone={toneFor(DOCUMENT_STATUS_TONE, doc.status)} />
               <Link href={`/portal/documents/${doc.id}/view`} className="text-sm text-accent hover:underline">View</Link>

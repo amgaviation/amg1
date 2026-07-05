@@ -82,7 +82,7 @@ export default async function AdminDocumentsPage({
             <span>Upload only documents AMG is authorized to store and do not include full card numbers, CVV codes, bank account numbers, routing numbers, or unrelated personal information.</span>
           </label>
           <div className="flex items-end">
-            <SubmitButton className="rounded-full" pendingText="Uploading...">Upload Document</SubmitButton>
+            <SubmitButton pendingText="Uploading...">Upload Document</SubmitButton>
           </div>
         </form>
       </SectionCard>
@@ -127,11 +127,11 @@ export default async function AdminDocumentsPage({
             <TextField label="To" name="date_to" type="date" defaultValue={params.date_to ?? ""} />
           </div>
           <div className="flex flex-wrap items-end gap-3 lg:col-span-4">
-            <button type="submit" className="rounded-full bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground">
+            <button type="submit" className="rounded-md bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground">
               Apply Filters
             </button>
             {activeFilterCount ? (
-              <Link href="/portal/admin/documents" className="rounded-full border border-border px-4 py-2 text-xs font-semibold text-foreground hover:border-accent">
+              <Link href="/portal/admin/documents" className="rounded-md border border-border px-4 py-2 text-xs font-semibold text-foreground hover:border-accent">
                 Clear Filters
               </Link>
             ) : null}
@@ -158,7 +158,7 @@ export default async function AdminDocumentsPage({
                 <input type="hidden" name="document_id" value={row.id} />
                 <SelectField label="Decision" name="decision" defaultValue="approved" options={[{ value: "approved", label: "Approve" }, { value: "rejected", label: "Reject" }]} />
                 <TextAreaField label="Notes" name="review_notes" defaultValue={row.review_notes ?? ""} />
-                <SubmitButton variant="outline" className="rounded-full" pendingText="Saving...">Save Review</SubmitButton>
+                <SubmitButton variant="outline" pendingText="Saving...">Save Review</SubmitButton>
               </form>
             ) },
           ]}

@@ -46,14 +46,14 @@ export default async function AdminExpensesPage({
                 <SelectField label="Reimbursable" name="reimbursable" defaultValue={row.reimbursable ? "true" : "false"} options={[{ value: "true", label: "Yes" }, { value: "false", label: "No" }]} />
                 <SelectField label="Client Billable" name="billable_to_client" defaultValue={row.billable_to_client ? "true" : "false"} options={[{ value: "false", label: "No" }, { value: "true", label: "Yes" }]} />
                 <TextAreaField label="Notes" name="review_notes" defaultValue={row.review_notes ?? ""} />
-                <SubmitButton variant="outline" className="rounded-full" pendingText="Saving...">Save Review</SubmitButton>
+                <SubmitButton variant="outline" pendingText="Saving...">Save Review</SubmitButton>
               </form>
             ) },
             { header: "Billing", cell: (row) => (
               <form action={addExpenseToInvoice} className="grid min-w-56 gap-2">
                 <input type="hidden" name="expense_id" value={row.id} />
                 <SelectField label="Invoice" name="invoice_id" defaultValue="" options={[{ value: "", label: "Select invoice..." }, ...invoices.map((invoice) => ({ value: invoice.id, label: `${invoice.invoice_number} - ${invoice.client?.company_name ?? invoice.client?.full_name ?? invoice.client?.email ?? "Client"}` }))]} />
-                <SubmitButton variant="outline" className="rounded-full" pendingText="Adding...">Add to Invoice</SubmitButton>
+                <SubmitButton variant="outline" pendingText="Adding...">Add to Invoice</SubmitButton>
               </form>
             ) },
           ]}

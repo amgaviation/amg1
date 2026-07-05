@@ -123,7 +123,7 @@ export default async function ClientTripDetailPage({
             <SectionCard title="Quotes" icon="receipt">
               <div className="space-y-2">
                 {mission.quotes.map((q) => (
-                  <Link key={q.id} href={`/portal/client/quotes/${q.id}`} className="flex items-center justify-between rounded-lg border border-border bg-background/50 px-4 py-3 hover:border-accent/60">
+                  <Link key={q.id} href={`/portal/client/quotes/${q.id}`} className="flex items-center justify-between rounded-md border border-border bg-background/50 px-4 py-3 hover:border-accent/60">
                     <div>
                       <p className="font-mono text-xs text-accent">{q.ref}</p>
                       <p className="mt-0.5 text-sm font-semibold">${q.total.toLocaleString()}</p>
@@ -139,7 +139,7 @@ export default async function ClientTripDetailPage({
             <SectionCard title="Danger Zone" icon="shield">
               <form action={cancelMission}>
                 <input type="hidden" name="mission_id" value={mission.id} />
-                <SubmitButton variant="destructive" className="rounded-full" confirm="Cancel this trip request? This cannot be undone." pendingText="Cancelling…">
+                <SubmitButton variant="destructive" confirm="Cancel this trip request? This cannot be undone." pendingText="Cancelling…">
                   Cancel This Request
                 </SubmitButton>
               </form>
@@ -158,18 +158,18 @@ export default async function ClientTripDetailPage({
                 {mission.crew.map((ca) => (
                   <div key={ca.id} className="rounded-md border border-border bg-background/50 px-4 py-3">
                     <p className="text-sm font-semibold">{ca.crew?.full_name ?? "—"}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground uppercase tracking-wide">{ca.crew_role} · {ca.status}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground uppercase [letter-spacing:0.08em]">{ca.crew_role} · {ca.status}</p>
                   </div>
                 ))}
               </div>
             </SectionCard>
           ) : null}
 
-          <SectionCard title="Messages" icon="messageSquare" actions={<Button asChild size="sm" variant="outline" className="rounded-full text-xs"><Link href="/portal/client/messages">Open</Link></Button>}>
+          <SectionCard title="Messages" icon="messageSquare" actions={<Button asChild size="sm" variant="outline" className="text-xs"><Link href="/portal/client/messages">Open</Link></Button>}>
             <p className="text-sm text-muted-foreground">Message AMG Operations about this mission.</p>
           </SectionCard>
 
-          <SectionCard title="Documents" icon="fileText" actions={<Button asChild size="sm" variant="outline" className="rounded-full text-xs"><Link href="/portal/client/documents">View all</Link></Button>}>
+          <SectionCard title="Documents" icon="fileText" actions={<Button asChild size="sm" variant="outline" className="text-xs"><Link href="/portal/client/documents">View all</Link></Button>}>
             <p className="text-sm text-muted-foreground">Mission documents and flight packets.</p>
           </SectionCard>
         </div>

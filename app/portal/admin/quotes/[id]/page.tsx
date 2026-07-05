@@ -80,7 +80,7 @@ export default async function AdminQuoteDetailPage({
           {canEdit ? (
             <Link
               href={`/portal/admin/quotes/${quote.id}/edit`}
-              className="rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-4 py-2 text-xs font-semibold text-[var(--deck-accent-ink)] transition-colors hover:border-[var(--deck-accent)]"
+              className="rounded-md border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-4 py-2 text-xs font-semibold text-[var(--deck-accent-ink)] transition-colors hover:border-[var(--deck-accent)]"
             >
               Edit Draft
             </Link>
@@ -88,14 +88,14 @@ export default async function AdminQuoteDetailPage({
           {latestDocument ? (
             <Link
               href={`/portal/billing-documents/${latestDocument.id}/view`}
-              className="rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
+              className="rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
             >
               View PDF
             </Link>
           ) : null}
           <Link
             href="/portal/admin/quotes"
-            className="rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
+            className="rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
           >
             All Quotes
           </Link>
@@ -174,25 +174,25 @@ export default async function AdminQuoteDetailPage({
             <div className="space-y-3">
               <form action={previewQuotePdf}>
                 <input type="hidden" name="quote_id" value={quote.id} />
-                <SubmitButton className="w-full rounded-full" pendingText="Generating...">Preview PDF</SubmitButton>
+                <SubmitButton className="w-full" pendingText="Generating...">Preview PDF</SubmitButton>
               </form>
               {canSend ? (
                 <form action={sendQuote}>
                   <input type="hidden" name="quote_id" value={quote.id} />
-                  <SubmitButton className="w-full rounded-full" pendingText="Sending...">Send / Resend PDF</SubmitButton>
+                  <SubmitButton className="w-full" pendingText="Sending...">Send / Resend PDF</SubmitButton>
                 </form>
               ) : null}
               {canConvert ? (
                 <form action={convertApprovedQuoteToInvoice}>
                   <input type="hidden" name="quote_id" value={quote.id} />
-                  <SubmitButton className="w-full rounded-full" pendingText="Creating...">Create Invoice Draft</SubmitButton>
+                  <SubmitButton className="w-full" pendingText="Creating...">Create Invoice Draft</SubmitButton>
                 </form>
               ) : null}
               {canRevise ? (
                 <form action={createQuoteRevision} className="space-y-3 rounded-md border border-border p-3">
                   <input type="hidden" name="quote_id" value={quote.id} />
                   <TextAreaField label="Revision Reason" name="revision_reason" placeholder="Client requested aircraft, scope, date, or pricing changes..." />
-                  <SubmitButton className="w-full rounded-full" pendingText="Creating...">Create Revision Draft</SubmitButton>
+                  <SubmitButton className="w-full" pendingText="Creating...">Create Revision Draft</SubmitButton>
                 </form>
               ) : null}
               {canRevise ? (

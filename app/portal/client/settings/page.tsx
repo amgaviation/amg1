@@ -66,7 +66,7 @@ export default async function ClientSettingsPage({
           <TextField label="Billing Contact Phone" name="billing_contact_phone" defaultValue={(profile as any)?.billing_contact_phone ?? ""} />
           <TextField label="Billing CC Emails" name="billing_cc_emails" defaultValue={((profile as any)?.billing_cc_emails ?? []).join(", ")} />
           <div className="md:col-span-2">
-            <SubmitButton className="rounded-full" pendingText="Saving...">Save Billing Contact</SubmitButton>
+            <SubmitButton pendingText="Saving...">Save Billing Contact</SubmitButton>
           </div>
         </form>
       </SectionCard>

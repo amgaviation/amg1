@@ -156,18 +156,18 @@ export default async function AdminSubscriptionDetailPage({
             <div className="space-y-3">
               <form action={refreshStripeSubscription}>
                 <input type="hidden" name="subscription_id" value={subscription.id} />
-                <SubmitButton className="w-full rounded-full" pendingText="Refreshing...">Refresh From Stripe</SubmitButton>
+                <SubmitButton className="w-full" pendingText="Refreshing...">Refresh From Stripe</SubmitButton>
               </form>
               {subscription.stripe_checkout_url && subscription.stripe_sync_status === "pending_checkout" ? (
                 <form action={resendSubscriptionSetupLink}>
                   <input type="hidden" name="subscription_id" value={subscription.id} />
-                  <SubmitButton className="w-full rounded-full" pendingText="Resending...">Resend Setup Link</SubmitButton>
+                  <SubmitButton className="w-full" pendingText="Resending...">Resend Setup Link</SubmitButton>
                 </form>
               ) : null}
               {subscription.stripe_subscription_id ? (
                 <form action={cancelStripeSubscriptionAtPeriodEnd}>
                   <input type="hidden" name="subscription_id" value={subscription.id} />
-                  <SubmitButton className="w-full rounded-full" variant="outline" confirm="Cancel this Stripe subscription at the end of the current period?" pendingText="Canceling...">Cancel At Period End</SubmitButton>
+                  <SubmitButton className="w-full" variant="outline" confirm="Cancel this Stripe subscription at the end of the current period?" pendingText="Canceling...">Cancel At Period End</SubmitButton>
                 </form>
               ) : null}
               {dashboardUrl ? <Link href={dashboardUrl} className="block text-xs text-accent hover:underline">Open Stripe Dashboard</Link> : null}
@@ -179,11 +179,11 @@ export default async function AdminSubscriptionDetailPage({
               <form action={linkNeedsReviewSubscription} className="space-y-4">
                 <input type="hidden" name="subscription_id" value={subscription.id} />
                 <SelectField label="Link to Client" name="client_id" defaultValue="" options={[{ value: "", label: "Select client..." }, ...clients.map((client) => ({ value: client.id, label: client.company_name ?? client.full_name ?? client.email }))]} />
-                <SubmitButton className="rounded-full" pendingText="Linking...">Link Subscription</SubmitButton>
+                <SubmitButton pendingText="Linking...">Link Subscription</SubmitButton>
               </form>
               <form action={ignoreNeedsReviewSubscription} className="mt-3">
                 <input type="hidden" name="subscription_id" value={subscription.id} />
-                <SubmitButton variant="outline" className="rounded-full" confirm="Mark this Stripe subscription ignored/not AMG-related?" pendingText="Ignoring...">Mark Ignored</SubmitButton>
+                <SubmitButton variant="outline" confirm="Mark this Stripe subscription ignored/not AMG-related?" pendingText="Ignoring...">Mark Ignored</SubmitButton>
               </form>
             </SectionCard>
           ) : null}
@@ -195,7 +195,7 @@ export default async function AdminSubscriptionDetailPage({
               <TextField label="End Date" name="end_date" type="date" defaultValue={subscription.end_date ?? ""} />
               <TextField label="Renewal Date" name="renewal_date" type="date" defaultValue={subscription.renewal_date ?? ""} />
               <TextAreaField label="Notes" name="notes" defaultValue={subscription.notes ?? ""} />
-              <SubmitButton className="rounded-full" pendingText="Saving...">Save Status</SubmitButton>
+              <SubmitButton pendingText="Saving...">Save Status</SubmitButton>
             </form>
           </SectionCard>
 
@@ -214,7 +214,7 @@ export default async function AdminSubscriptionDetailPage({
                 <TextField label="Overage Rate" name="unit_rate" type="number" min="0" step="0.01" />
               </div>
               <TextAreaField label="Notes" name="notes" />
-              <SubmitButton className="rounded-full" pendingText="Adding...">Add Usage</SubmitButton>
+              <SubmitButton pendingText="Adding...">Add Usage</SubmitButton>
             </form>
             ) : <Notice tone="warn">Link this Stripe subscription to a client before recording operational usage.</Notice>}
           </SectionCard>
@@ -228,7 +228,7 @@ export default async function AdminSubscriptionDetailPage({
               <TextField label="Amount" name="amount" type="number" step="0.01" required />
               <TextField label="Expires" name="expires_at" type="date" />
               <TextAreaField label="Description" name="description" />
-              <SubmitButton className="rounded-full" pendingText="Adding...">Add Credit</SubmitButton>
+              <SubmitButton pendingText="Adding...">Add Credit</SubmitButton>
             </form>
             ) : <Notice tone="warn">Link this Stripe subscription to a client before adding credits.</Notice>}
           </SectionCard>

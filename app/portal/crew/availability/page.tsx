@@ -36,7 +36,7 @@ export default async function CrewAvailabilityPage({
             defaultValue={profile?.availability_status ?? "available"}
             options={AVAILABILITY_STATUS.map((s) => ({ value: s.value, label: s.label }))}
           />
-          <SubmitButton className="rounded-full" pendingText="Saving...">Save Status</SubmitButton>
+          <SubmitButton pendingText="Saving...">Save Status</SubmitButton>
         </form>
       </SectionCard>
 
@@ -58,7 +58,7 @@ export default async function CrewAvailabilityPage({
             <TextAreaField label="Notes" name="notes" placeholder="Location, aircraft preference, duty limits..." />
           </div>
           <div>
-            <SubmitButton className="rounded-full" pendingText="Adding...">Add Window</SubmitButton>
+            <SubmitButton pendingText="Adding...">Add Window</SubmitButton>
           </div>
         </form>
       </SectionCard>
@@ -69,7 +69,7 @@ export default async function CrewAvailabilityPage({
         ) : (
           <div className="space-y-3">
             {windows.map((item) => (
-              <div key={item.id} className="grid gap-3 rounded-lg border border-border bg-background/50 p-4 sm:grid-cols-[1fr_auto_auto] sm:items-center">
+              <div key={item.id} className="grid gap-3 rounded-md border border-border bg-background/50 p-4 sm:grid-cols-[1fr_auto_auto] sm:items-center">
                 <div>
                   <p className="text-sm font-semibold">{formatDate(item.start_date)} - {formatDate(item.end_date)}</p>
                   {item.notes ? <p className="mt-1 text-xs text-muted-foreground">{item.notes}</p> : null}
@@ -77,7 +77,7 @@ export default async function CrewAvailabilityPage({
                 <StatusBadge label={AVAILABILITY_STATUS_LABEL[item.availability_type] ?? item.availability_type} tone={toneFor(AVAILABILITY_STATUS_TONE, item.availability_type)} />
                 <form action={removeAvailabilityWindow}>
                   <input type="hidden" name="window_id" value={item.id} />
-                  <SubmitButton variant="outline" className="rounded-full" pendingText="Removing...">Remove</SubmitButton>
+                  <SubmitButton variant="outline" pendingText="Removing...">Remove</SubmitButton>
                 </form>
               </div>
             ))}

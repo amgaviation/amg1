@@ -257,7 +257,7 @@ export function AdminRecordManager({
             <Button
               type="button"
               variant="outline"
-              className="gap-2 rounded-full"
+              className="gap-2"
               onClick={() => startRefresh(() => router.refresh())}
               disabled={isRefreshing}
             >
@@ -265,7 +265,7 @@ export function AdminRecordManager({
               Refresh
             </Button>
             {allowCreate && createAction ? (
-              <Button type="button" className="gap-2 rounded-full" onClick={() => setEditor({ mode: "create" })}>
+              <Button type="button" className="gap-2" onClick={() => setEditor({ mode: "create" })}>
                 <Plus className="h-4 w-4" />
                 {createLabel}
               </Button>
@@ -283,14 +283,14 @@ export function AdminRecordManager({
               className={cn(inputClassName, "pl-9")}
             />
           </label>
-          <Button type="button" variant="outline" className="gap-2 rounded-full" onClick={() => setFilterOpen((open) => !open)}>
+          <Button type="button" variant="outline" className="gap-2" onClick={() => setFilterOpen((open) => !open)}>
             <Filter className="h-4 w-4" />
             Advanced Filters
           </Button>
         </div>
 
         {filterOpen ? (
-          <div className="mt-4 grid gap-3 rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-4 grid gap-3 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4 md:grid-cols-2 xl:grid-cols-4">
             {filters.map((filter) => (
               <label key={filter.key} className="grid gap-2">
                 <span className="text-[0.64rem] font-bold uppercase [letter-spacing:0.18em] text-[var(--deck-text-3)]">{filter.label}</span>
@@ -318,7 +318,7 @@ export function AdminRecordManager({
               </label>
             ))}
             <div className="flex items-end">
-              <Button type="button" variant="ghost" className="rounded-full" onClick={() => setActiveFilters({})}>
+              <Button type="button" variant="ghost" onClick={() => setActiveFilters({})}>
                 Clear filters
               </Button>
             </div>
@@ -334,7 +334,7 @@ export function AdminRecordManager({
                   key={key}
                   type="button"
                   onClick={() => updateFilter(key, "")}
-                  className="inline-flex items-center gap-2 rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-3 py-1 text-xs font-semibold text-[var(--deck-accent-ink)] transition-colors hover:border-[var(--deck-accent)]"
+                  className="deck-chip border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-3 py-1 text-[var(--deck-accent-ink)] transition-colors hover:border-[var(--deck-accent)]"
                 >
                   {filter?.label ?? key}: {filter?.options ? labelFor(filter.options, value) : value}
                   <X className="h-3 w-3" />
@@ -425,7 +425,7 @@ export function AdminRecordManager({
                             <StatusBadge label={row.secondaryStatus.label} tone={row.secondaryStatus.tone} />
                           ) : typeof row.cells[column.key] === "boolean" ? (
                             <span className={cn(
-                              "inline-flex rounded-full border px-2 py-0.5 text-xs font-semibold",
+                              "inline-flex rounded-[0.25rem] border px-2 py-0.5 text-xs font-semibold",
                               row.cells[column.key]
                                 ? "border-[var(--deck-success-line)] bg-[var(--deck-success-tint)] text-[var(--deck-success)]"
                                 : "border-[var(--deck-line)] bg-[var(--deck-panel-2)] text-[var(--deck-text-2)]"
@@ -439,13 +439,13 @@ export function AdminRecordManager({
                       ))}
                       <td data-portal-table-actions className="min-w-[17rem] bg-inherit px-4 py-3 text-right" onClick={(event) => event.stopPropagation()}>
                         <div data-portal-action-bar className="flex flex-wrap justify-end gap-2">
-                          <Button type="button" variant="outline" size="sm" className="rounded-full gap-1" onClick={() => openRecord(row)}>
+                          <Button type="button" variant="outline" size="sm" className="gap-1" onClick={() => openRecord(row)}>
                             <Eye className="h-3.5 w-3.5" />
                             {detailHrefBase ? "Open" : "View"}
                           </Button>
                           {archiveAction ? (
                             ["archived", "suspended", "inactive", "deleted"].includes(row.status?.label.toLowerCase() ?? "") && archiveDisabledReason ? (
-                              <Button type="button" variant="ghost" size="sm" className="rounded-full" disabled title={archiveDisabledReason}>
+                              <Button type="button" variant="ghost" size="sm" disabled title={archiveDisabledReason}>
                                 {row.status?.label ?? "Inactive"}
                               </Button>
                             ) : (
@@ -455,7 +455,7 @@ export function AdminRecordManager({
                                 <SubmitButton
                                   variant="ghost"
                                   size="sm"
-                                  className="rounded-full text-[var(--deck-text-2)] hover:text-[var(--deck-danger)]"
+                                  className="text-[var(--deck-text-2)] hover:text-[var(--deck-danger)]"
                                   confirm={row.archiveConfirm ?? archiveConfirm}
                                   pendingText="Saving..."
                                 >
@@ -472,7 +472,7 @@ export function AdminRecordManager({
                               <SubmitButton
                                 variant={action.variant ?? "outline"}
                                 size="sm"
-                                className={cn("rounded-full", action.className)}
+                                className={action.className}
                                 confirm={action.confirm}
                                 pendingText={action.pendingText ?? "Saving..."}
                               >
@@ -494,7 +494,7 @@ export function AdminRecordManager({
                   key={row.id}
                   type="button"
                   onClick={() => openRecord(row)}
-                  className="rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4 text-left shadow-sm outline-none transition-colors hover:border-[var(--deck-accent-line)] focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
+                  className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4 text-left outline-none transition-colors hover:border-[var(--deck-accent-line)] focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -517,7 +517,7 @@ export function AdminRecordManager({
             </>
           ) : (
             <div className="flex min-h-[28rem] flex-col items-center justify-center p-8 text-center">
-              <div className="rounded-full border border-dashed border-[var(--deck-line-strong)] p-4">
+              <div className="rounded-md border border-dashed border-[var(--deck-line-strong)] p-4">
                 <Search className="h-6 w-6 text-[var(--deck-text-3)]" />
               </div>
               <h3 className="mt-4 font-display text-lg font-bold uppercase text-[var(--deck-text)]">{emptyTitle}</h3>
@@ -537,7 +537,6 @@ export function AdminRecordManager({
               type="button"
               variant="outline"
               size="sm"
-              className="rounded-full"
               disabled={safePage <= 1}
               onClick={() => setPage((current) => Math.max(1, current - 1))}
             >
@@ -547,7 +546,6 @@ export function AdminRecordManager({
               type="button"
               variant="outline"
               size="sm"
-              className="rounded-full"
               disabled={safePage >= pageCount}
               onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
             >
@@ -560,7 +558,7 @@ export function AdminRecordManager({
       {selected ? (
         <div className="fixed inset-0 z-40 flex justify-end bg-[rgba(10,19,34,0.55)] backdrop-blur-sm" role="dialog" aria-modal="true" onClick={() => setSelectedId("")}>
           <aside
-            className="h-full w-full overflow-y-auto border-l border-[var(--deck-line)] bg-[var(--deck-panel)] text-[var(--deck-text)] shadow-2xl sm:max-w-[42rem]"
+            className="h-full w-full overflow-y-auto border-l border-[var(--deck-line)] bg-[var(--deck-panel)] text-[var(--deck-text)] sm:max-w-[42rem]"
             onClick={(event) => event.stopPropagation()}
           >
             <header className="sticky top-0 z-10 border-b border-[var(--deck-line)] bg-[var(--deck-panel)]/95 px-5 py-4 backdrop-blur">
@@ -578,7 +576,7 @@ export function AdminRecordManager({
                 {selected.status ? <StatusBadge label={selected.status.label} tone={selected.status.tone} /> : null}
                 {selected.secondaryStatus ? <StatusBadge label={selected.secondaryStatus.label} tone={selected.secondaryStatus.tone} /> : null}
                 {updateAction ? (
-                  <Button type="button" className="ml-auto gap-2 rounded-full" onClick={() => setEditor({ mode: "edit", row: selected })}>
+                  <Button type="button" className="ml-auto gap-2" onClick={() => setEditor({ mode: "edit", row: selected })}>
                     <Edit3 className="h-4 w-4" />
                     {editLabel}
                   </Button>
@@ -588,7 +586,7 @@ export function AdminRecordManager({
 
             <div className="grid gap-4 p-5">
               {recordActions.length ? (
-                <section className="rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4">
+                <section className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4">
                   <h4 className="text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]">Review Actions</h4>
                   <div data-portal-action-bar className="mt-3 flex flex-wrap gap-2">
                     {recordActions.map((action) => (
@@ -598,7 +596,7 @@ export function AdminRecordManager({
                         <input type="hidden" name="back_to" value={backTo} />
                         <SubmitButton
                           variant={action.variant ?? "outline"}
-                          className={cn("rounded-full", action.className)}
+                          className={action.className}
                           confirm={action.confirm}
                           pendingText={action.pendingText ?? "Saving..."}
                         >
@@ -610,7 +608,7 @@ export function AdminRecordManager({
                 </section>
               ) : null}
               {(selected.detailSections?.length ? selected.detailSections : [{ title: "Details", rows: selected.details }]).map((section) => (
-                <section key={section.title} className="rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-4">
+                <section key={section.title} className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-4">
                   <h4 className="text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]">{section.title}</h4>
                   <dl className="mt-3">
                     {section.rows.map((detail) => (
@@ -624,7 +622,7 @@ export function AdminRecordManager({
               ))}
 
               {selected.tabs?.map((tab) => (
-                <section key={tab.title} className="rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-4">
+                <section key={tab.title} className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-4">
                   <h4 className="text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]">{tab.title}</h4>
                   {tab.rows?.length ? (
                     <dl className="mt-3">
@@ -647,7 +645,7 @@ export function AdminRecordManager({
 
       {editor ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(10,19,34,0.55)] p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
-          <div className="max-h-[92vh] w-full max-w-4xl overflow-hidden rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] text-[var(--deck-text)] shadow-2xl">
+          <div className="max-h-[92vh] w-full max-w-4xl overflow-hidden rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] text-[var(--deck-text)]">
             <header className="flex items-start justify-between gap-4 border-b border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-5 py-4">
               <div>
                 <p className="text-[0.62rem] font-bold uppercase [letter-spacing:0.18em] text-[var(--deck-accent-ink)]">
@@ -680,10 +678,10 @@ export function AdminRecordManager({
                 ))}
               </div>
               <footer data-portal-action-bar className="mt-6 flex flex-col-reverse gap-2 border-t border-[var(--deck-line)] pt-4 sm:flex-row sm:justify-end">
-                <Button type="button" variant="outline" className="rounded-full" onClick={() => setEditor(null)}>
+                <Button type="button" variant="outline" onClick={() => setEditor(null)}>
                   Cancel
                 </Button>
-                <SubmitButton className="rounded-full" pendingText="Saving...">
+                <SubmitButton pendingText="Saving...">
                   Save changes
                 </SubmitButton>
               </footer>

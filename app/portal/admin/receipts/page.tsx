@@ -44,7 +44,7 @@ export default async function AdminReceiptsPage({
                 row.payment_id ? (
                   <form action={resendReceiptPdf}>
                     <input type="hidden" name="payment_id" value={row.payment_id} />
-                    <SubmitButton className="rounded-full px-3 py-1 text-xs" pendingText="Sending...">Resend</SubmitButton>
+                    <SubmitButton className="px-3 py-1 text-xs" pendingText="Sending...">Resend</SubmitButton>
                   </form>
                 ) : "-",
             },

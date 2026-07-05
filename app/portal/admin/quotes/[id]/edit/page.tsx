@@ -102,7 +102,7 @@ export default async function EditQuotePage({ params }: { params: Promise<{ id: 
           </div>
         </SectionCard>
 
-        <SubmitButton className="rounded-full" pendingText="Saving...">Save Draft</SubmitButton>
+        <SubmitButton pendingText="Saving...">Save Draft</SubmitButton>
       </form>
     </>
   );

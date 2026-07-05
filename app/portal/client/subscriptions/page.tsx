@@ -45,7 +45,7 @@ export default async function ClientSubscriptionsPage() {
         ) : (
           <div className="grid gap-4 lg:grid-cols-2">
             {subscriptions.map((subscription) => (
-              <Link key={subscription.id} href={`/portal/client/subscriptions/${subscription.id}`} className="rounded-lg border border-border bg-background/50 p-4 transition-colors hover:border-accent/60">
+              <Link key={subscription.id} href={`/portal/client/subscriptions/${subscription.id}`} className="rounded-md border border-border bg-background/50 p-4 transition-colors hover:border-accent/60">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold">{subscription.plan?.name ?? "AMG Support Subscription"}</p>
@@ -74,7 +74,7 @@ export default async function ClientSubscriptionsPage() {
       {subscriptions.some((subscription) => subscription.stripe_customer_id) ? (
         <form action={manageSubscriptionBilling}>
           <input type="hidden" name="return_to" value="/portal/client/subscriptions" />
-          <SubmitButton className="rounded-full" pendingText="Opening Stripe...">Manage Billing</SubmitButton>
+          <SubmitButton pendingText="Opening Stripe...">Manage Billing</SubmitButton>
         </form>
       ) : null}
     </>

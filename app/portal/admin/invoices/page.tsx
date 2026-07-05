@@ -54,8 +54,8 @@ export default async function AdminInvoicesPage({
             <TextField label="Due Date" name="due_date" type="date" />
             <TextAreaField label="Terms" name="terms" defaultValue="Due on receipt unless otherwise agreed in writing." />
             <div className="flex gap-3">
-              <SubmitButton className="rounded-full" name="intent" value="draft" pendingText="Creating...">Create Draft</SubmitButton>
-              <SubmitButton className="rounded-full" name="intent" value="send" pendingText="Sending...">Create & Send</SubmitButton>
+              <SubmitButton name="intent" value="draft" pendingText="Creating...">Create Draft</SubmitButton>
+              <SubmitButton name="intent" value="send" pendingText="Sending...">Create & Send</SubmitButton>
             </div>
           </form>
         </SectionCard>
@@ -82,7 +82,7 @@ export default async function AdminInvoicesPage({
               <TextAreaField label="Client Notes" name="client_notes" />
             </div>
             <div className="sm:col-span-2">
-              <SubmitButton className="rounded-full" pendingText="Creating...">Create Invoice</SubmitButton>
+              <SubmitButton pendingText="Creating...">Create Invoice</SubmitButton>
             </div>
           </form>
         </SectionCard>
@@ -99,9 +99,9 @@ export default async function AdminInvoicesPage({
             { header: "Client", cell: (row) => row.client?.company_name ?? row.client?.full_name ?? row.client?.email ?? "—" },
             { header: "Mission", cell: (row) => row.mission?.ref ?? "—" },
             { header: "Quote", cell: (row) => row.quote?.ref ?? "—" },
-            { header: "Due", cell: (row) => formatDate(row.due_date) },
+            { header: "Due Date", cell: (row) => formatDate(row.due_date) },
             { header: "Total", cell: (row) => formatMoney(row.total), align: "right" },
-            { header: "Due", cell: (row) => formatMoney(row.amount_due), align: "right" },
+            { header: "Balance", cell: (row) => formatMoney(row.amount_due), align: "right" },
             { header: "Status", cell: (row) => <StatusBadge label={INVOICE_STATUS_LABEL[row.status] ?? row.status} tone={toneFor(INVOICE_STATUS_TONE, row.status)} /> },
           ]}
         />

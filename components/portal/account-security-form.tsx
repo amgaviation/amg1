@@ -17,7 +17,7 @@ export function AccountSecurityForm({
       description="Update the email address tied to this portal account and set a new password."
     >
       <div className="grid gap-6 lg:grid-cols-2">
-        <form action={updatePortalEmail} className="grid gap-4 rounded-lg border border-border bg-[var(--deck-panel-2)] p-4">
+        <form action={updatePortalEmail} className="deck-inset grid gap-4 p-4">
           <input type="hidden" name="back_to" value={backTo} />
           <TextField
             label="Portal Email"
@@ -32,7 +32,7 @@ export function AccountSecurityForm({
           </SubmitButton>
         </form>
 
-        <form action={updatePortalPassword} className="grid gap-4 rounded-lg border border-border bg-[var(--deck-panel-2)] p-4">
+        <form action={updatePortalPassword} className="deck-inset grid gap-4 p-4">
           <input type="hidden" name="back_to" value={backTo} />
           <TextField
             label="New Password"

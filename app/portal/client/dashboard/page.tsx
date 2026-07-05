@@ -167,7 +167,7 @@ export default async function ClientDashboardPage({
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="deck-eyebrow-chrome">Next Departure</p>
-              <p className="deck-num mt-2 text-3xl font-bold text-white">
+              <p className="deck-num mt-2 text-3xl font-bold text-[var(--deck-chrome-text)]">
                 {nextDeparture.departure_airport} → {nextDeparture.arrival_airport}
               </p>
               <p className="mt-2 text-sm text-[var(--deck-chrome-muted)]">

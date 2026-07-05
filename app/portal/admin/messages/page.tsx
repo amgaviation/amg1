@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/portal/session";
 import { EmptyState, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
+import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/portal/format";
 import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 import type { ErrorCategory } from "@/lib/errors/user-facing-errors";
@@ -131,15 +132,15 @@ function ThreadRow({ thread, selectedId, query }: { thread: ThreadSummary; selec
       <div className="mt-3 flex flex-wrap gap-1.5">
         <StatusBadge label={label(thread.status)} tone={statusTone(thread.status)} />
         <StatusBadge label={label(thread.priority)} tone={priorityTone(thread.priority)} />
-        <span className="rounded-full border border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-2.5 py-0.5 text-xs text-[var(--deck-text-2)]">
+        <span className="rounded-[0.25rem] border border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-2.5 py-0.5 text-xs text-[var(--deck-text-2)]">
           {thread.related_label}
         </span>
         {thread.unread_count > 0 ? (
-          <span className="rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-2.5 py-0.5 text-xs font-semibold text-[var(--deck-accent-ink)]">
+          <span className="rounded-[0.25rem] border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-2.5 py-0.5 text-xs font-semibold text-[var(--deck-accent-ink)]">
             {thread.unread_count} unread
           </span>
         ) : null}
-        {thread.has_attachments ? <span className="rounded-full border border-[var(--deck-line)] px-2.5 py-0.5 text-xs text-[var(--deck-text-2)]">Attachment</span> : null}
+        {thread.has_attachments ? <span className="rounded-[0.25rem] border border-[var(--deck-line)] px-2.5 py-0.5 text-xs text-[var(--deck-text-2)]">Attachment</span> : null}
         {thread.failed_count > 0 ? <StatusBadge label="Failed" tone="danger" /> : null}
       </div>
     </Link>
@@ -265,7 +266,7 @@ function ComposeForm({
         <Notice tone="warn">Email sending is disabled until a verified sender and email provider key are configured. Messages will not be marked sent without a real provider or the explicit local mock flag.</Notice>
       ) : null}
       <div className="flex justify-end">
-        <SubmitButton disabled={!providerConfigured} className="rounded-full" pendingText="Sending...">
+        <SubmitButton disabled={!providerConfigured} pendingText="Sending...">
           Send email
         </SubmitButton>
       </div>
@@ -284,7 +285,7 @@ function ThreadControls({ thread, records }: { thread: CommunicationThread; reco
           <Select name="assigned_to_user_id" label="Assigned Admin" defaultValue={thread.assigned_to_user_id} options={records.admins} />
         </div>
         <div className="flex justify-end">
-          <SubmitButton className="rounded-full" pendingText="Updating...">Update Thread</SubmitButton>
+          <SubmitButton pendingText="Updating...">Update Thread</SubmitButton>
         </div>
       </form>
       <form action={linkCommunicationThreadAction} className="deck-inset grid gap-3 p-4">
@@ -297,7 +298,7 @@ function ThreadControls({ thread, records }: { thread: CommunicationThread; reco
           <Select name="related_invoice_id" label="Invoice" defaultValue={thread.related_invoice_id} options={records.invoices} />
         </div>
         <div className="flex justify-end">
-          <SubmitButton className="rounded-full" pendingText="Linking...">Link Records</SubmitButton>
+          <SubmitButton pendingText="Linking...">Link Records</SubmitButton>
         </div>
       </form>
     </div>
@@ -318,7 +319,7 @@ function MessageBubble({ message }: { message: CommunicationMessage }) {
         </div>
         <div className="flex flex-wrap gap-1.5">
           <StatusBadge label={label(message.status)} tone={statusTone(message.status)} />
-          <span className="rounded-full border border-[var(--deck-line)] bg-[var(--deck-panel)] px-2.5 py-0.5 text-xs text-[var(--deck-text-2)]">
+          <span className="rounded-[0.25rem] border border-[var(--deck-line)] bg-[var(--deck-panel)] px-2.5 py-0.5 text-xs text-[var(--deck-text-2)]">
             {label(message.visibility)}
           </span>
         </div>
@@ -394,14 +395,14 @@ function ThreadDetail({
       ) : null}
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <form action={addCommunicationInternalNoteAction} className="grid gap-3 rounded-xl border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] p-4">
+        <form action={addCommunicationInternalNoteAction} className="grid gap-3 rounded-md border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] p-4">
           <input type="hidden" name="thread_id" value={detail.thread.id} />
           <label className="deck-eyebrow grid gap-1 !text-[0.6rem] !text-[var(--deck-warn)]">
             Internal Note
             <textarea name="body" required rows={4} className="deck-input !border-[var(--deck-warn-line)] font-normal normal-case leading-6 [letter-spacing:normal]" />
           </label>
           <div className="flex justify-end">
-            <SubmitButton className="rounded-full" pendingText="Adding...">Add Internal Note</SubmitButton>
+            <SubmitButton pendingText="Adding...">Add Internal Note</SubmitButton>
           </div>
         </form>
         <ComposeForm templates={templates} records={records} providerConfigured={providerConfigured} thread={detail.thread} />
@@ -459,12 +460,11 @@ export default async function AdminMessagesPage({
                 Email threads, internal notes, linked records, delivery status, and AMG support review communications.
               </p>
             </div>
-            <Link
-              href={hrefWith(query, { compose: "1", thread: null })}
-              className="inline-flex min-h-10 items-center justify-center rounded-full bg-[var(--deck-navy)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--deck-navy-2)]"
-            >
-              Compose
-            </Link>
+            <Button asChild>
+              <Link href={hrefWith(query, { compose: "1", thread: null })}>
+                Compose
+              </Link>
+            </Button>
           </div>
 
           <form className="mt-4 grid gap-3 lg:grid-cols-[minmax(12rem,1fr)_11rem_11rem_auto]">
@@ -479,7 +479,7 @@ export default async function AdminMessagesPage({
               <option value="">All priorities</option>
               {PRIORITY_OPTIONS.map((priority) => <option key={priority} value={priority}>{label(priority)}</option>)}
             </select>
-            <button className="rounded-full border border-[var(--deck-line)] bg-[var(--deck-panel)] px-4 py-2 text-sm font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)]">
+            <button className="rounded-[0.25rem] border border-[var(--deck-line)] bg-[var(--deck-panel)] px-4 py-2 text-sm font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)]">
               Apply Filters
             </button>
           </form>
@@ -495,7 +495,7 @@ export default async function AdminMessagesPage({
                   <Link
                     key={view.value || "attention"}
                     href={`/portal/admin/messages?${next.toString()}`}
-                    className={`shrink-0 rounded-full border px-3 py-2 text-sm ${activeView === view.value ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] font-semibold text-[var(--deck-accent-ink)]" : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)]"}`}
+                    className={`shrink-0 rounded-[0.25rem] border px-3 py-2 text-sm ${activeView === view.value ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] font-semibold text-[var(--deck-accent-ink)]" : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)]"}`}
                   >
                     {view.label}
                   </Link>
@@ -520,9 +520,11 @@ export default async function AdminMessagesPage({
                     title="No matching threads"
                     description="Adjust filters or compose a new operational email when outreach is needed."
                     action={
-                      <Link href={hrefWith(query, { compose: "1", thread: null })} className="inline-flex rounded-full bg-[var(--deck-navy)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--deck-navy-2)]">
-                        Compose
-                      </Link>
+                      <Button asChild>
+                        <Link href={hrefWith(query, { compose: "1", thread: null })}>
+                          Compose
+                        </Link>
+                      </Button>
                     }
                   />
                 </div>
@@ -539,7 +541,7 @@ export default async function AdminMessagesPage({
                 title="No thread selected"
                 description="Select a conversation from the inbox to review the message history, update status, or link operational records."
                 action={
-                  <Link href={hrefWith(query, { compose: "1", thread: null })} className="inline-flex rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-4 py-2 text-sm font-semibold text-[var(--deck-accent-ink)]">
+                  <Link href={hrefWith(query, { compose: "1", thread: null })} className="inline-flex rounded-md border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-4 py-2 text-sm font-semibold text-[var(--deck-accent-ink)]">
                     Compose email
                   </Link>
                 }
@@ -551,7 +553,7 @@ export default async function AdminMessagesPage({
 
       {params.compose ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(10,19,34,0.6)] p-4" role="dialog" aria-modal="true" aria-label="Compose email">
-          <div className="max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-xl border border-[var(--deck-line)] bg-[var(--deck-panel)] shadow-2xl">
+          <div className="max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] shadow-[var(--deck-shadow-card)]">
             <header className="flex items-start justify-between gap-4 border-b border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-5 py-4">
               <div>
                 <p className="deck-eyebrow">Admin Email</p>

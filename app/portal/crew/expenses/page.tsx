@@ -96,7 +96,7 @@ export default async function CrewExpensesPage({
             <TextAreaField label="Notes" name="notes" placeholder="Routing, hotel, ticket number, operational context..." />
           </div>
           <div>
-            <SubmitButton className="rounded-full" pendingText="Submitting...">Submit Expense</SubmitButton>
+            <SubmitButton pendingText="Submitting...">Submit Expense</SubmitButton>
           </div>
         </form>
       </SectionCard>
@@ -107,7 +107,7 @@ export default async function CrewExpensesPage({
         ) : (
           <div className="space-y-3">
             {expenses.map((expense) => (
-              <div key={expense.id} className="grid gap-3 rounded-lg border border-border bg-background/50 p-4 sm:grid-cols-[1fr_auto_auto]">
+              <div key={expense.id} className="grid gap-3 rounded-md border border-border bg-background/50 p-4 sm:grid-cols-[1fr_auto_auto]">
                 <div>
                   <p className="text-sm font-semibold">{EXPENSE_CATEGORY_LABEL[expense.category] ?? expense.category} - {expense.mission?.ref ?? "General"}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{formatDate(expense.expense_date)} | {expense.merchant ?? "No merchant"} | {expense.notes ?? "No notes"}</p>
