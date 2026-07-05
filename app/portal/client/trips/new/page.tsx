@@ -1,5 +1,4 @@
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, Notice } from "@/components/portal/ui/primitives";
 import { AirportField, CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -25,7 +24,7 @@ export default async function NewTripPage({
   ]);
 
   return (
-    <PortalShell role="client" user={user}>
+    <>
       {params.error === "missing" ? (
         <Notice tone="danger">Please fill in all required fields (departure and arrival airports).</Notice>
       ) : params.error === "failed" ? (
@@ -201,6 +200,6 @@ export default async function NewTripPage({
           </div>
         </div>
       </form>
-    </PortalShell>
+    </>
   );
 }

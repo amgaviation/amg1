@@ -1,5 +1,4 @@
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, EmptyState, DetailRow } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { listAircraftForClient } from "@/lib/portal/queries";
@@ -11,7 +10,7 @@ export default async function ClientAircraftPage() {
   const aircraft = await listAircraftForClient(user.id);
 
   return (
-    <PortalShell role="client" user={user}>
+    <>
       <PageHeader eyebrow="Owner Services" title="Aircraft Profiles" description="Aircraft associated with your account and current operational status." />
 
       {aircraft.length === 0 ? (
@@ -51,6 +50,6 @@ export default async function ClientAircraftPage() {
           ))}
         </div>
       )}
-    </PortalShell>
+    </>
   );
 }

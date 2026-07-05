@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { payInvoiceWithStripe } from "@/app/portal/actions/invoice-payments";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { DetailRow, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -32,7 +31,7 @@ export default async function ClientInvoicePage({
   const canPay = ["sent", "viewed", "overdue", "partially_paid"].includes(invoice.status) && Number(invoice.amount_due ?? 0) > 0;
 
   return (
-    <PortalShell role="client" user={user}>
+    <>
       {flash.success === "payment" ? (
         <Notice tone="success">Payment received. AMG is finalizing the invoice status. Refresh this page for the latest details.</Notice>
       ) : null}
@@ -128,6 +127,6 @@ export default async function ClientInvoicePage({
           )}
         </SectionCard>
       </div>
-    </PortalShell>
+    </>
   );
 }

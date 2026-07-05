@@ -1,5 +1,4 @@
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import {
   EmptyState,
   PageHeader,
@@ -18,7 +17,7 @@ export default async function ClientQuotesPage() {
   const quotes = await listQuotesForClient(user.id);
 
   return (
-    <PortalShell role="client" user={user}>
+    <>
       <PageHeader
         eyebrow="Owner Services"
         title="Quotes & Estimates"
@@ -57,6 +56,6 @@ export default async function ClientQuotesPage() {
           </div>
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

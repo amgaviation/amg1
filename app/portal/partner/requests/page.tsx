@@ -1,5 +1,4 @@
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -14,7 +13,7 @@ export default async function PartnerRequestsPage() {
   const assignments = await listPartnerAssignments(user.id);
 
   return (
-    <PortalShell role="partner" user={user}>
+    <>
       <PageHeader eyebrow="Service Partner" title="Service Requests" description="Respond to assigned AMG service tasks and submit quotes or milestone updates." />
       <SectionCard title="Assigned Work" icon="clipboard">
         <DataTable
@@ -33,6 +32,6 @@ export default async function PartnerRequestsPage() {
           ]}
         />
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

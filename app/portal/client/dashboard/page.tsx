@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import {
   EmptyState,
   Notice,
@@ -87,7 +86,7 @@ export default async function ClientDashboardPage({
     : null;
 
   return (
-    <PortalShell role="client" user={user} unread={unread}>
+    <>
       {params.success === "created" ? (
         <Notice tone="success">
           Request received. AMG Operations will review the submitted details against support
@@ -408,6 +407,6 @@ export default async function ClientDashboardPage({
           </div>
         </SectionCard>
       ) : null}
-    </PortalShell>
+    </>
   );
 }

@@ -1,6 +1,5 @@
 import { requireRole } from "@/lib/portal/session";
 import { AccountSecurityForm } from "@/components/portal/account-security-form";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, Notice } from "@/components/portal/ui/primitives";
 import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -33,7 +32,7 @@ export default async function CrewSettingsPage({
               : null;
 
   return (
-    <PortalShell role="crew" user={user}>
+    <>
       {params.success ? <Notice tone="success">Crew profile saved.</Notice> : null}
       {params.accountSuccess === "email" ? <Notice tone="success">Email change saved. Check your inbox if confirmation is required.</Notice> : null}
       {params.accountSuccess === "password" ? <Notice tone="success">Password updated for this portal account.</Notice> : null}
@@ -111,6 +110,6 @@ export default async function CrewSettingsPage({
         </form>
       </SectionCard>
       <AccountSecurityForm email={user.email} backTo="/portal/crew/settings" />
-    </PortalShell>
+    </>
   );
 }

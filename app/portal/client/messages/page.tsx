@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, EmptyState, Notice, RecordRow } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { TextAreaField, TextField } from "@/components/portal/ui/fields";
@@ -21,7 +20,7 @@ export default async function ClientMessagesPage({
   const threads = await listThreadsForUser(user.id, false);
 
   return (
-    <PortalShell role="client" user={user}>
+    <>
       {params.error === "empty" ? <Notice tone="danger">Please enter a message.</Notice> : null}
       {params.error === "forbidden" ? <Notice tone="danger">{getUserFacingErrorMessage({ audience: "client", area: "communications", action: "message", category: "permission" })}</Notice> : null}
       {params.error === "payment-data" ? <Notice tone="danger">Remove full card numbers, CVV codes, bank account numbers, or routing numbers before sending.</Notice> : null}
@@ -73,6 +72,6 @@ export default async function ClientMessagesPage({
           </div>
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, EmptyState, Notice, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -31,7 +30,7 @@ export default async function CrewCredentialsPage({
   const expired = withExpiry.filter((c) => c.days < 0).length;
 
   return (
-    <PortalShell role="crew" user={user}>
+    <>
       {params.success ? <Notice tone="success">Credential submitted for AMG review.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Credential type is required.</Notice> : null}
       {params.error === "terms" ? <Notice tone="danger">Confirm the credential and document upload notices before submitting.</Notice> : null}
@@ -145,6 +144,6 @@ export default async function CrewCredentialsPage({
           </div>
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DetailRow, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -27,7 +26,7 @@ export default async function PartnerRequestDetailPage({
   if (!assignment || assignment.partner_id !== user.id) notFound();
 
   return (
-    <PortalShell role="partner" user={user}>
+    <>
       {flash.success ? <Notice tone="success">Service request updated.</Notice> : null}
       {flash.error === "invalid" ? <Notice tone="danger">Enter a valid quote amount.</Notice> : null}
       <PageHeader eyebrow="Service Request" title={assignment.ref} actions={<Link href="/portal/partner/requests" className="text-xs text-muted-foreground hover:text-accent">Back to requests</Link>} />
@@ -73,6 +72,6 @@ export default async function PartnerRequestDetailPage({
           </SectionCard>
         </div>
       </div>
-    </PortalShell>
+    </>
   );
 }

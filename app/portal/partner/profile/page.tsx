@@ -1,6 +1,5 @@
 import { requireRole } from "@/lib/portal/session";
 import { AccountSecurityForm } from "@/components/portal/account-security-form";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -32,7 +31,7 @@ export default async function PartnerProfilePage({
               : null;
 
   return (
-    <PortalShell role="partner" user={user}>
+    <>
       {params.success ? <Notice tone="success">Partner profile saved.</Notice> : null}
       {params.accountSuccess === "email" ? <Notice tone="success">Email change saved. Check your inbox if confirmation is required.</Notice> : null}
       {params.accountSuccess === "password" ? <Notice tone="success">Password updated for this portal account.</Notice> : null}
@@ -59,6 +58,6 @@ export default async function PartnerProfilePage({
         </form>
       </SectionCard>
       <AccountSecurityForm email={user.email} backTo="/portal/partner/profile" />
-    </PortalShell>
+    </>
   );
 }

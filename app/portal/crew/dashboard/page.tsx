@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import {
   EmptyState,
   Notice,
@@ -58,7 +57,7 @@ export default async function CrewDashboardPage() {
     : null;
 
   return (
-    <PortalShell role="crew" user={user} unread={unread}>
+    <>
       <PageHeader
         eyebrow="Flight Crew"
         title={`Welcome back, ${user.name.split(" ")[0]}`}
@@ -261,6 +260,6 @@ export default async function CrewDashboardPage() {
           </div>
         </SectionCard>
       ) : null}
-    </PortalShell>
+    </>
   );
 }

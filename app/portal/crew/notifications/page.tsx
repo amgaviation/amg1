@@ -1,5 +1,4 @@
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { NotificationsList } from "@/components/portal/ui/notifications-list";
 import { listNotifications, markNotificationsRead } from "@/lib/portal/queries";
@@ -16,7 +15,7 @@ export default async function CrewNotificationsPage() {
   }
 
   return (
-    <PortalShell role="crew" user={user}>
+    <>
       <PageHeader
         eyebrow="Flight Crew"
         title="Notifications"
@@ -29,6 +28,6 @@ export default async function CrewNotificationsPage() {
           emptyDescription="AMG Operations will notify you here when assignments are offered, credentials are reviewed, or updates require your attention."
         />
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

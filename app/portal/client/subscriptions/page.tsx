@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { manageSubscriptionBilling } from "@/app/portal/actions/subscriptions";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { EmptyState, Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -19,7 +18,7 @@ export default async function ClientSubscriptionsPage() {
   const paymentIssue = subscriptions.some((subscription) => ["past_due", "unpaid"].includes(subscription.status) || subscription.stripe_payment_status === "failed");
 
   return (
-    <PortalShell role="client" user={user}>
+    <>
       <PageHeader
         eyebrow="Owner Services"
         title="Subscriptions"
@@ -78,6 +77,6 @@ export default async function ClientSubscriptionsPage() {
           <SubmitButton className="rounded-full" pendingText="Opening Stripe...">Manage Billing</SubmitButton>
         </form>
       ) : null}
-    </PortalShell>
+    </>
   );
 }

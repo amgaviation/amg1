@@ -1,5 +1,4 @@
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { NotificationsList } from "@/components/portal/ui/notifications-list";
 import { listNotifications, markNotificationsRead } from "@/lib/portal/queries";
@@ -17,7 +16,7 @@ export default async function ClientNotificationsPage() {
   }
 
   return (
-    <PortalShell role="client" user={user}>
+    <>
       <PageHeader
         eyebrow="Owner Services"
         title="Notifications"
@@ -30,6 +29,6 @@ export default async function ClientNotificationsPage() {
           emptyDescription="AMG Operations will notify you here when your support requests are updated, quotes are sent, or actions are needed."
         />
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

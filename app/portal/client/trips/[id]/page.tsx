@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, DetailRow, Timeline, Notice } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -47,7 +46,7 @@ export default async function ClientTripDetailPage({
   const canCancel = ["submitted", "under_review", "awaiting_client_info"].includes(mission.status);
 
   return (
-    <PortalShell role="client" user={user}>
+    <>
       {sp.success === "cancelled" ? <Notice tone="success">Mission cancelled.</Notice> : null}
       {sp.success === "passenger" ? <Notice tone="success">Passenger list updated.</Notice> : null}
 
@@ -156,6 +155,6 @@ export default async function ClientTripDetailPage({
           </SectionCard>
         </div>
       </div>
-    </PortalShell>
+    </>
   );
 }

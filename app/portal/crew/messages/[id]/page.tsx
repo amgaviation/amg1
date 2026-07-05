@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { postMessage } from "@/app/portal/actions/messages";
@@ -23,7 +22,7 @@ export default async function CrewThreadPage({ params }: { params: Promise<{ id:
   if (!result) notFound();
 
   return (
-    <PortalShell role="crew" user={user}>
+    <>
       <PageHeader eyebrow="Messages" title={result.thread.title ?? "AMG Operations"} actions={<Link href="/portal/crew/messages" className="text-xs text-muted-foreground hover:text-accent">Back to threads</Link>} />
       <SectionCard icon="messageSquare">
         <div className="space-y-4">
@@ -49,6 +48,6 @@ export default async function CrewThreadPage({ params }: { params: Promise<{ id:
           <div className="flex items-end"><SubmitButton className="rounded-full" pendingText="Sending...">Send</SubmitButton></div>
         </form>
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

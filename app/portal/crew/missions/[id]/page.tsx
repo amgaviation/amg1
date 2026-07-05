@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, DetailRow, Notice } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -38,7 +37,7 @@ export default async function CrewMissionDetailPage({
   const showAssignedDetails = Boolean(myAssignment);
 
   return (
-    <PortalShell role="crew" user={user}>
+    <>
       {sp.success === "responded" ? <Notice tone="success">Assignment response recorded.</Notice> : null}
       {!myAssignment && openPoolEligible ? (
         <Notice tone="info">
@@ -133,6 +132,6 @@ export default async function CrewMissionDetailPage({
           </SectionCard>
         </div>
       </div>
-    </PortalShell>
+    </>
   );
 }

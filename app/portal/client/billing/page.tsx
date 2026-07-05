@@ -1,5 +1,4 @@
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { EmptyState, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -29,7 +28,7 @@ export default async function ClientBillingPage() {
   const lifetime = paid.reduce((sum, invoice) => sum + Number(invoice.total ?? 0), 0);
 
   return (
-    <PortalShell role="client" user={user}>
+    <>
       <PageHeader eyebrow="Owner Services" title="Billing" description="Your account statement at a glance — open balances, due dates, and every issued invoice with its payment status." />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
@@ -91,6 +90,6 @@ export default async function ClientBillingPage() {
           />
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

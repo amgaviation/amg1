@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { EmptyState, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -22,7 +21,7 @@ export default async function PartnerDocumentsPage({
   const params = await searchParams;
   const docs = await listDocumentsForUser({ userId: user.id, role: user.role });
   return (
-    <PortalShell role="partner" user={user}>
+    <>
       {params.success === "uploaded" ? <Notice tone="success">Document uploaded and submitted for review.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Please provide a document name and file.</Notice> : null}
       {params.error === "terms" ? <Notice tone="danger">Confirm the document upload terms before uploading.</Notice> : null}
@@ -64,6 +63,6 @@ export default async function PartnerDocumentsPage({
           ))}</div>
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }
