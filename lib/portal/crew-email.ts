@@ -285,7 +285,7 @@ export async function sendCrewEmail(input: CrewEmailSendInput, user: SessionUser
 
   try {
     const text = operationalEmailText(body);
-    const html = operationalEmailHtml(body);
+    const html = operationalEmailHtml(body, { title: subject, eyebrow: "AMG Crew Operations" });
     const providerConfigured = provider.configured();
     const draft = await persistCrewEmailDraft(client, {
       user,

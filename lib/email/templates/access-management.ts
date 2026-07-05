@@ -1,5 +1,7 @@
 import "server-only";
 
+import { amgEmailLayout } from "@/lib/portal/email-templates";
+
 export const WAITLIST_CONTACT_TEMPLATE_KEY = "waitlist_contact_request";
 
 export function waitlistContactRequestTemplate(input: { fullName?: string | null; email: string }) {
@@ -20,9 +22,10 @@ export function waitlistContactRequestTemplate(input: { fullName?: string | null
     templateName: WAITLIST_CONTACT_TEMPLATE_KEY,
     subject: "AMG Portal Access Request",
     text,
-    html: text
-      .split("\n")
-      .map((line) => (line ? `<p>${line}</p>` : "<br />"))
-      .join("\n"),
+    html: amgEmailLayout({
+      eyebrow: "Portal Access",
+      title: "AMG Portal Access Request",
+      intro: text,
+    }),
   };
 }

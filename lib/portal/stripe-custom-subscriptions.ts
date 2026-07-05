@@ -4,6 +4,7 @@ import Stripe from "stripe";
 import { createServiceClient } from "@/lib/supabase/server";
 import { absolutePortalUrl } from "@/lib/email/config";
 import { OPERATIONAL_EMAIL_FOOTER } from "@/lib/email/templates";
+import { amgEmailLayout } from "@/lib/portal/email-templates";
 import { sendEmail } from "@/lib/portal/notification-delivery";
 import { logAuditEvent } from "@/lib/portal/audit";
 import { currentStripeMode } from "@/lib/portal/stripe-mode";
@@ -262,16 +263,23 @@ export async function createCustomSubscription(input: {
         to,
         subject: "Set up your AMG subscription",
         text: `Set up your AMG subscription\n\n${input.name.trim()}\n${amount} per ${cadence.per}${input.trialDays ? ` after a ${input.trialDays}-day trial` : ""}\n\nComplete setup: ${session.url}\n\n---\n${OPERATIONAL_EMAIL_FOOTER}`,
-        html: `
-    <div style="font-family:Arial,sans-serif;color:#0f172a;line-height:1.6;">
-      <h1 style="color:#050B14;">Set up your AMG subscription</h1>
-      <p>${escapeHtml(clientName)}, AMG has prepared your ${escapeHtml(input.name.trim())} subscription.</p>
-      <p><strong>${amount} per ${cadence.per}</strong>${input.trialDays ? ` after a ${input.trialDays}-day trial` : ""}</p>
-      ${input.description ? `<p>${escapeHtml(input.description)}</p>` : ""}
-      <p><a href="${escapeHtml(session.url)}" style="display:inline-block;background:#050B14;color:#fff;text-decoration:none;border-radius:999px;padding:12px 20px;font-weight:700;">Complete Subscription Setup</a></p>
-      <hr style="border:0;border-top:1px solid #dbe3ef;margin:24px 0;" />
-      <p style="font-size:12px;color:#64748b;">${escapeHtml(OPERATIONAL_EMAIL_FOOTER)}</p>
-    </div>`,
+        html: amgEmailLayout({
+          eyebrow: "AMG Billing",
+          title: "Set up your AMG subscription",
+          intro: `${clientName}, AMG has prepared your ${input.name.trim()} subscription.${input.description ? `\n\n${input.description}` : ""}`,
+          sections: [
+            {
+              title: "Subscription Terms",
+              rows: [
+                { label: "Subscription", value: input.name.trim() },
+                { label: "Amount", value: `${amount} per ${cadence.per}` },
+                ...(input.trialDays ? [{ label: "Trial", value: `${input.trialDays} days` }] : []),
+              ],
+            },
+          ],
+          cta: { label: "Complete Subscription Setup", href: session.url },
+          footerNote: OPERATIONAL_EMAIL_FOOTER,
+        }),
       });
     }
 

@@ -558,7 +558,7 @@ export async function sendCommunicationEmail(formData: FormData, user: SessionUs
     const messagePublicId = generateCommunicationPublicId("MSG");
     const subjectWithToken = subjectWithThreadToken(interpolateTemplate(subject, { threadPublicId: thread.public_id }), thread.public_id);
     const text = operationalEmailText(interpolateTemplate(body, { threadPublicId: thread.public_id }));
-    const html = operationalEmailHtml(interpolateTemplate(body, { threadPublicId: thread.public_id }));
+    const html = operationalEmailHtml(interpolateTemplate(body, { threadPublicId: thread.public_id }), { title: interpolateTemplate(subject, { threadPublicId: thread.public_id }), eyebrow: "AMG Communications" });
 
     const { data, error } = await client
       .from("communication_messages")
