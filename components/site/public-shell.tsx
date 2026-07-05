@@ -28,10 +28,6 @@ function scrollToHash(hash: string) {
   return true;
 }
 
-function normalizeBrowserPath(path: string) {
-  return normalizePath(path || "/");
-}
-
 export function PublicShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isHome = normalizePath(pathname) === "/";
@@ -71,7 +67,7 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
 
       const url = new URL(link.href, window.location.href);
       if (url.origin !== window.location.origin || !url.hash) return;
-      if (normalizeBrowserPath(url.pathname) !== normalizeBrowserPath(window.location.pathname)) return;
+      if (normalizePath(url.pathname || "/") !== normalizePath(window.location.pathname || "/")) return;
 
       event.preventDefault();
       event.stopPropagation();

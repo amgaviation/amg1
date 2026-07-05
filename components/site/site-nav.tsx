@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUpRight, ChevronDown, Menu, X } from "lucide-react";
-import { PUBLIC_NAV_GROUPS, PUBLIC_NAV_LINKS } from "@/lib/navigation";
+import { ArrowUpRight, Menu, Phone, X } from "lucide-react";
+import { PUBLIC_NAV_LINKS } from "@/lib/navigation";
+import { PhoneLink } from "@/components/site/tracked-link";
 import { cn } from "@/lib/utils";
 
 function normalizePath(path: string) {
@@ -107,12 +108,12 @@ export function SiteNav() {
         </Link>
 
         <ul className="ml-auto hidden items-center gap-1 xl:flex">
-          {PUBLIC_NAV_GROUPS.map((group) => {
-            const active = isActivePath(pathname, group.href) || group.items.some((item) => isActivePath(pathname, item.href));
+          {PUBLIC_NAV_LINKS.map((link) => {
+            const active = isActivePath(pathname, link.href);
             return (
-              <li key={group.label} className="group relative">
+              <li key={link.href}>
                 <Link
-                  href={group.href}
+                  href={link.href}
                   prefetch={false}
                   onClick={closeMenu}
                   aria-current={active ? "page" : undefined}
@@ -121,52 +122,34 @@ export function SiteNav() {
                     active && "bg-[rgba(11,94,212,0.08)] text-white"
                   )}
                 >
-                  {group.label}
-                  <ChevronDown className="h-3.5 w-3.5 opacity-70" />
+                  {link.label}
                 </Link>
-                <div className="invisible absolute left-1/2 top-[calc(100%+0.7rem)] w-[26rem] -translate-x-1/2 opacity-0 transition duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
-                  <div className="max-h-[calc(100svh-var(--public-header-height)-2rem)] overflow-y-auto rounded-lg border border-[var(--oc-line-dark)] bg-[#07111F]/96 p-2 shadow-[0_26px_90px_rgba(0,0,0,0.36)] backdrop-blur-xl">
-                    {group.items.map((item) => (
-                      <Link
-                        key={`${group.label}-${item.href}-${item.label}`}
-                        href={item.href}
-                        prefetch={false}
-                        onClick={closeMenu}
-                        className="group/item block rounded-md px-4 py-3 transition hover:bg-white/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                      >
-                        <span className="flex items-center justify-between gap-3 text-sm font-semibold text-white">
-                          {item.label}
-                          <ArrowUpRight className="h-3.5 w-3.5 text-[var(--oc-blue)] opacity-0 transition group-hover/item:opacity-100" />
-                        </span>
-                        {item.description ? (
-                          <span className="mt-1 block text-xs leading-5 text-[var(--oc-aluminum-2)]">{item.description}</span>
-                        ) : null}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
               </li>
             );
           })}
         </ul>
 
-        <div className="ml-auto flex items-center gap-2.5 xl:ml-5">
+        <div className="ml-auto flex items-center gap-2.5 xl:ml-4">
+          <PhoneLink
+            source="nav"
+            className="oc-mono hidden min-h-11 items-center gap-2 whitespace-nowrap px-2 text-sm text-white/[0.74] transition-colors hover:text-white lg:inline-flex"
+          />
           <Link
-            href="/booking-request"
-            prefetch={false}
-            onClick={closeMenu}
-            className="oc-btn oc-btn-ghost-dark !hidden sm:!inline-flex"
-          >
-            Request support
-            <ArrowUpRight className="h-4 w-4" />
-          </Link>
-          <Link
-            href="/login"
+            href="/connect"
             prefetch={false}
             onClick={closeMenu}
             className="hidden min-h-11 items-center whitespace-nowrap px-2 font-mono text-[0.66rem] font-medium uppercase leading-none [letter-spacing:0.16em] text-white/[0.74] transition-colors hover:text-[var(--instrument-ink)] sm:inline-flex"
           >
-            Member login
+            Portal login
+          </Link>
+          <Link
+            href="/request"
+            prefetch={false}
+            onClick={closeMenu}
+            className="oc-btn oc-btn-light !hidden sm:!inline-flex"
+          >
+            Get a Quote
+            <ArrowUpRight className="h-4 w-4" />
           </Link>
 
           <button
@@ -212,36 +195,23 @@ export function SiteNav() {
               })}
             </div>
 
-            <div className="grid gap-5">
-              {PUBLIC_NAV_GROUPS.map((group) => (
-                <section key={group.label} className="rounded-lg border border-[var(--oc-line-dark)] bg-white/[0.035] p-4">
-                  <h2 className="oc-kicker text-[var(--oc-aluminum-2)]">{group.label}</h2>
-                  <div className="mt-3 grid gap-2">
-                    {group.items.map((item) => (
-                      <Link
-                        key={`${group.label}-mobile-${item.href}-${item.label}`}
-                        href={item.href}
-                        prefetch={false}
-                        onClick={closeMenu}
-                        className="rounded-md px-2 py-2 text-sm text-[var(--oc-aluminum)] transition hover:bg-white/[0.06] hover:text-white"
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
-                  </div>
-                </section>
-              ))}
-            </div>
-
             <div className="grid gap-3 sm:grid-cols-2">
-              <Link href="/booking-request" prefetch={false} onClick={closeMenu} className="oc-btn oc-btn-light justify-center">
-                Request support
+              <Link href="/request" prefetch={false} onClick={closeMenu} className="oc-btn oc-btn-light justify-center">
+                Get a Quote
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
-              <Link href="/login" prefetch={false} onClick={closeMenu} className="oc-btn oc-btn-ghost-dark justify-center">
-                Member login
+              <Link href="/connect" prefetch={false} onClick={closeMenu} className="oc-btn oc-btn-ghost-dark justify-center">
+                Portal login
               </Link>
             </div>
+
+            <span className="inline-flex items-center gap-2 text-white/[0.82]">
+              <Phone className="h-4 w-4" aria-hidden="true" />
+              <PhoneLink
+                source="nav_mobile"
+                className="oc-mono inline-flex min-h-11 items-center text-base text-white/[0.82]"
+              />
+            </span>
           </div>
         </div>
       ) : null}
