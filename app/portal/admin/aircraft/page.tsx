@@ -1,6 +1,5 @@
 import { archiveAircraft, saveAircraft } from "@/app/portal/actions/admin";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import { formatDateTime } from "@/lib/portal/format";
 import { listAllAircraft, listAllDocuments, listAllMissions, listClients } from "@/lib/portal/queries";
@@ -182,7 +181,7 @@ export default async function AdminAircraftPage({
   ];
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success === "archived-linked" ? <Notice tone="success">Aircraft archived. Linked missions, documents, and history were preserved.</Notice> : null}
       {params.success && params.success !== "archived-linked" ? <Notice tone="success">Aircraft record saved.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Tail number is required.</Notice> : null}
@@ -241,6 +240,6 @@ export default async function AdminAircraftPage({
         detailEyebrow="Aircraft Detail"
         detailHrefBase="/portal/admin/aircraft"
       />
-    </PortalShell>
+    </>
   );
 }

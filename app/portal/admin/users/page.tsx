@@ -1,5 +1,4 @@
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import {
   AdminRecordManager,
   type AdminRecordField,
@@ -240,7 +239,7 @@ export default async function AdminUsersPage({
   const rows = userRows(users);
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {noticeFor(params.success, params.error)}
 
       <PageHeader
@@ -364,6 +363,6 @@ export default async function AdminUsersPage({
           <p className="mt-2 text-sm leading-6 text-[var(--deck-text-2)]">{PORTAL_PERMISSIONS.join(", ")}</p>
         </div>
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DetailRow, EmptyState, Notice, PageHeader, SectionCard, Timeline } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -68,7 +67,7 @@ export default async function NetworkApplicationDetailPage({
   const backTo = `/portal/admin/network-applications/${application.id}`;
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {query.success ? <Notice tone="success">Network application saved.</Notice> : null}
       {query.error ? <Notice tone="danger">{decodeURIComponent(query.error)}</Notice> : null}
       <PageHeader
@@ -193,6 +192,6 @@ export default async function NetworkApplicationDetailPage({
           ) : null}
         </aside>
       </div>
-    </PortalShell>
+    </>
   );
 }

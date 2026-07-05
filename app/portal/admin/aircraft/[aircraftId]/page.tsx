@@ -8,7 +8,6 @@ import {
   RelatedList,
   type DetailFormField,
 } from "@/components/portal/admin/record-detail";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -99,7 +98,7 @@ export default async function AdminAircraftDetailPage({
   ];
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {query.success ? <Notice tone="success">Aircraft record saved.</Notice> : null}
       {query.error === "missing" ? <Notice tone="danger">Tail number is required.</Notice> : null}
       {query.error === "duplicate" ? <Notice tone="danger">That tail number already exists.</Notice> : null}
@@ -245,6 +244,6 @@ export default async function AdminAircraftDetailPage({
           />
         </TabsContent>
       </Tabs>
-    </PortalShell>
+    </>
   );
 }

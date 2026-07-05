@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -70,7 +69,7 @@ export default async function AdminSecurityReviewPage({
   const hasFilters = Boolean(params.q || params.role || params.status || params.sensitive || params.invalid_email || params.pending);
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success === "reviewed" ? <Notice tone="success">Admin access review recorded in compliance evidence.</Notice> : null}
       <Notice tone="warn">
         MFA is not currently enforced by this portal UI. Verify Supabase Auth MFA enrollment and enforcement before
@@ -167,6 +166,6 @@ export default async function AdminSecurityReviewPage({
           <SubmitButton className="rounded-full" pendingText="Recording...">Mark Review Completed</SubmitButton>
         </form>
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

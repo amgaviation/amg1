@@ -1,5 +1,4 @@
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -29,7 +28,7 @@ export default async function AdminInvoicesPage({
   const acceptedQuotes = quotes.filter((quote) => ["approved", "accepted"].includes(quote.status));
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success ? <Notice tone="success">Invoice updated.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Required invoice fields are missing.</Notice> : null}
       {params.error === "quote" ? <Notice tone="danger">Quote could not be found.</Notice> : null}
@@ -107,6 +106,6 @@ export default async function AdminInvoicesPage({
           ]}
         />
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

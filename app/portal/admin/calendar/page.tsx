@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { listAllMissions } from "@/lib/portal/queries";
@@ -69,7 +68,7 @@ export default async function OpsCalendarPage({
     "rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]";
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       <PageHeader
         eyebrow="AMG Operations"
         title="Ops Calendar"
@@ -171,6 +170,6 @@ export default async function OpsCalendarPage({
             ))}
         </div>
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

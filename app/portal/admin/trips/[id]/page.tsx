@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DetailRow, EmptyState, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -48,7 +47,7 @@ export default async function AdminTripDetailPage({
     : [];
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {flash.success ? <Notice tone="success">Mission updated.</Notice> : null}
       <PageHeader eyebrow="Mission Detail" title={mission.ref} description={formatRoute(mission.departure_airport, mission.arrival_airport)} actions={<Link href="/portal/admin/trips" className="text-xs text-muted-foreground hover:text-accent">Back to trips</Link>} />
 
@@ -206,6 +205,6 @@ export default async function AdminTripDetailPage({
           </SectionCard>
         </div>
       </div>
-    </PortalShell>
+    </>
   );
 }

@@ -1,6 +1,5 @@
 import { createLeadFromSubmission } from "@/app/portal/actions/crm";
 import { updateFormSubmission } from "@/app/portal/actions/form-submissions";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DetailRow, EmptyState, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { requireRole } from "@/lib/portal/session";
@@ -128,7 +127,7 @@ export default async function AdminFormSubmissionsPage({
   });
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success === "updated" ? <Notice tone="success">Form submission updated.</Notice> : null}
       {params.error ? <Notice tone="danger">Form submission could not be updated.</Notice> : null}
       <PageHeader
@@ -209,6 +208,6 @@ export default async function AdminFormSubmissionsPage({
           </div>
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/portal/session";
 import { createServiceClient } from "@/lib/supabase/server";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PortalDocumentViewer } from "@/components/portal/document-viewer";
 
 export default async function NetworkApplicationFileViewPage({ params }: { params: Promise<{ id: string }> }) {
@@ -12,7 +11,7 @@ export default async function NetworkApplicationFileViewPage({ params }: { param
   if (!file) notFound();
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       <PortalDocumentViewer
         title={file.original_filename}
         description="Crew Network application document"
@@ -21,6 +20,6 @@ export default async function NetworkApplicationFileViewPage({ params }: { param
         backHref={`/portal/admin/network-applications/${file.application_id}`}
         contentType={file.content_type}
       />
-    </PortalShell>
+    </>
   );
 }

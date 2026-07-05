@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import {
   listNetworkApplications,
@@ -110,7 +109,7 @@ export default async function NetworkApplicationsPage({
   ];
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success ? <Notice tone="success">Network application updated.</Notice> : null}
       {params.error ? <Notice tone="danger">Network applications could not be updated. Review the request and try again.</Notice> : null}
       <PageHeader
@@ -152,6 +151,6 @@ export default async function NetworkApplicationsPage({
         detailHrefBase="/portal/admin/network-applications"
         pageSize={12}
       />
-    </PortalShell>
+    </>
   );
 }

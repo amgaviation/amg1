@@ -1,6 +1,5 @@
 import { archiveClientRecord, saveClientRecord } from "@/app/portal/actions/admin";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import { PROFILE_STATUS, PROFILE_STATUS_LABEL, PROFILE_STATUS_TONE, type Tone, toneFor } from "@/lib/portal/constants";
 import { formatDateTime } from "@/lib/portal/format";
@@ -209,7 +208,7 @@ export default async function AdminClientsPage({
   ];
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success === "archived-linked" ? <Notice tone="success">Client deactivated. Linked operational and financial records were preserved.</Notice> : null}
       {params.success && params.success !== "archived-linked" ? <Notice tone="success">Client record saved.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Client name and valid email are required.</Notice> : null}
@@ -270,6 +269,6 @@ export default async function AdminClientsPage({
         detailEyebrow="Client Detail"
         detailHrefBase="/portal/admin/clients"
       />
-    </PortalShell>
+    </>
   );
 }

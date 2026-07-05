@@ -1,6 +1,5 @@
 import { approveUser, denyUser, waitlistUser } from "@/app/portal/actions/admin";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import {
   ASSIGNABLE_PORTAL_ROLES,
@@ -121,7 +120,7 @@ export default async function AdminUserApprovalsPage({
   ];
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success ? <Notice tone="success">User access updated.</Notice> : null}
       {params.error === "role" ? <Notice tone="danger">Invalid role selected.</Notice> : null}
       {params.error === "user" ? <Notice tone="danger">User request could not be found.</Notice> : null}
@@ -187,6 +186,6 @@ export default async function AdminUserApprovalsPage({
         detailEyebrow="Access Request"
         pageSize={12}
       />
-    </PortalShell>
+    </>
   );
 }

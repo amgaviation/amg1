@@ -1,6 +1,5 @@
 import { requireRole } from "@/lib/portal/session";
 import { AccountSecurityForm } from "@/components/portal/account-security-form";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DetailRow, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { RoleBadge } from "@/components/portal/ui/status-badge";
 import Link from "next/link";
@@ -28,7 +27,7 @@ export default async function AdminSettingsPage({
               : null;
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.accountSuccess === "email" ? <Notice tone="success">Email change saved. Check your inbox if confirmation is required.</Notice> : null}
       {params.accountSuccess === "password" ? <Notice tone="success">Password updated for this portal account.</Notice> : null}
       {accountErrorMessage ? <Notice tone="danger">{accountErrorMessage}</Notice> : null}
@@ -63,6 +62,6 @@ export default async function AdminSettingsPage({
         </div>
       </SectionCard>
       <AccountSecurityForm email={user.email} backTo="/portal/admin/settings" />
-    </PortalShell>
+    </>
   );
 }

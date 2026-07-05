@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import {
   EmptyState,
   PageHeader,
@@ -67,7 +66,7 @@ export default async function AdminDashboardPage() {
   ].filter(Boolean) as { href: string; count: number; label: string }[];
 
   return (
-    <PortalShell role="admin" user={user} unread={unread}>
+    <>
       <PageHeader
         eyebrow="AMG Operations"
         title="Command Center"
@@ -291,6 +290,6 @@ export default async function AdminDashboardPage() {
           </div>
         </SectionCard>
       )}
-    </PortalShell>
+    </>
   );
 }

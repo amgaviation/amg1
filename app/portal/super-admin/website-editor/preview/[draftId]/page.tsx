@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { HomeHangarEntry } from "@/components/site/home/home-hangar-entry";
 import { PageHero } from "@/components/site/oc/shared";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
@@ -29,7 +28,7 @@ export default async function WebsiteEditorPreviewPage({
   const hero = content.sections.hero ?? Object.values(content.sections)[0];
 
   return (
-    <PortalShell role="super_admin" user={user}>
+    <>
       <Notice tone="warn">Draft Preview - Not Live. This preview is restricted to Super Admin users.</Notice>
       <PageHeader
         eyebrow="Website Editor"
@@ -63,6 +62,6 @@ export default async function WebsiteEditorPreviewPage({
           )}
         </div>
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

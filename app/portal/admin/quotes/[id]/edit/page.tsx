@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -28,7 +27,7 @@ export default async function EditQuotePage({ params }: { params: Promise<{ id: 
   } as any))].slice(0, 8);
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       <PageHeader
         eyebrow="Quote Draft"
         title={`Edit ${quote.ref}`}
@@ -105,6 +104,6 @@ export default async function EditQuotePage({ params }: { params: Promise<{ id: 
 
         <SubmitButton className="rounded-full" pendingText="Saving...">Save Draft</SubmitButton>
       </form>
-    </PortalShell>
+    </>
   );
 }

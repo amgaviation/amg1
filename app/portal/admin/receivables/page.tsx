@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import {
   EmptyState,
@@ -35,7 +34,7 @@ export default async function ReceivablesPage({
   const ar = await getArSummary();
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success === "reminded" ? (
         <Notice tone="success">Reminder sent — the invoice email was re-issued and the client notified in-portal.</Notice>
       ) : null}
@@ -227,6 +226,6 @@ export default async function ReceivablesPage({
           />
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

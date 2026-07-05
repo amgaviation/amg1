@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { DetailRow, Notice, PageHeader, SectionCard, Timeline } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -55,7 +54,7 @@ export default async function AdminQuoteDetailPage({
     }));
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {flash.success ? <Notice tone="success">Quote updated.</Notice> : null}
       {flash.error === "locked" ? <Notice tone="danger">This quote is locked. Create a revision before changing sent or approved terms.</Notice> : null}
       {flash.error === "not-approved" ? <Notice tone="danger">Only approved quotes can be converted to invoice.</Notice> : null}
@@ -173,6 +172,6 @@ export default async function AdminQuoteDetailPage({
           </SectionCard>
         </div>
       </div>
-    </PortalShell>
+    </>
   );
 }

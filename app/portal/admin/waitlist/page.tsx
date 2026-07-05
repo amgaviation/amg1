@@ -1,6 +1,5 @@
 import { approveWaitlistedUser, denyWaitlistedUser, sendWaitlistContactEmail } from "@/app/portal/actions/admin";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import {
   ASSIGNABLE_PORTAL_ROLES,
@@ -148,7 +147,7 @@ export default async function AdminWaitlistPage({
   ];
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {noticeFor(params.success, params.error)}
       <PageHeader
         eyebrow="AMG Operations"
@@ -210,6 +209,6 @@ export default async function AdminWaitlistPage({
         detailEyebrow="Waitlist Request"
         pageSize={12}
       />
-    </PortalShell>
+    </>
   );
 }

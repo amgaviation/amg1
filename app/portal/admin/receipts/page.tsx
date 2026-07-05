@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { resendReceiptPdf } from "@/app/portal/actions/receipts";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -20,7 +19,7 @@ export default async function AdminReceiptsPage({
   const receipts = await listAllReceipts();
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success === "resent" ? <Notice tone="success">Receipt resent.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Receipt payment record was not found.</Notice> : null}
       <PageHeader eyebrow="AMG Billing" title="Receipts" description="Generated receipt PDFs for partial and final invoice payments." />
@@ -52,6 +51,6 @@ export default async function AdminReceiptsPage({
           ]}
         />
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

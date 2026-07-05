@@ -1,6 +1,5 @@
 import { archiveCrewRecord, saveCrewRecord } from "@/app/portal/actions/admin";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import {
   AVAILABILITY_STATUS,
@@ -314,7 +313,7 @@ export default async function AdminCrewPage({
   ];
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success === "archived-linked" ? <Notice tone="success">Crew profile deactivated. Credentials, assignments, and documents were preserved.</Notice> : null}
       {params.success && params.success !== "archived-linked" ? <Notice tone="success">Crew record saved.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Crew name and valid email are required.</Notice> : null}
@@ -407,6 +406,6 @@ export default async function AdminCrewPage({
         detailEyebrow="Crew Detail"
         detailHrefBase="/portal/admin/crew"
       />
-    </PortalShell>
+    </>
   );
 }

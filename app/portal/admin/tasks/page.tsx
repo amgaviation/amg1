@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import {
   EmptyState,
   FilterTabs,
@@ -62,7 +61,7 @@ export default async function OpsTasksPage({
     .map((row) => ({ value: row.id, label: row.full_name ?? row.email }));
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success === "created" ? <Notice tone="success">Task created.</Notice> : null}
       {params.success === "updated" ? <Notice tone="success">Task updated.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Task title is required.</Notice> : null}
@@ -182,6 +181,6 @@ export default async function OpsTasksPage({
         </Link>{" "}
         or mission pages as workflows grow.
       </p>
-    </PortalShell>
+    </>
   );
 }

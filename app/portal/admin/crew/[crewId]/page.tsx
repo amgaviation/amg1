@@ -12,7 +12,6 @@ import {
   detailValue,
   type DetailFormField,
 } from "@/components/portal/admin/record-detail";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -215,7 +214,7 @@ export default async function AdminCrewDetailPage({
   };
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {query.success ? <Notice tone="success">Crew record saved.</Notice> : null}
       {query.email === "sent" ? <Notice tone="success">Crew email sent and logged.</Notice> : null}
       {query.email_error === "configuration" ? <Notice tone="danger">Crew email was logged but could not be sent because Resend is not configured.</Notice> : null}
@@ -460,6 +459,6 @@ export default async function AdminCrewDetailPage({
           Back to crew roster
         </Link>
       </div>
-    </PortalShell>
+    </>
   );
 }

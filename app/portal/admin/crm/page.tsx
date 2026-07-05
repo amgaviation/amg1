@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import {
   EmptyState,
   Notice,
@@ -47,7 +46,7 @@ export default async function CrmPipelinePage({
   const lost = leads.filter((lead) => lead.stage === "lost");
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success === "created" ? <Notice tone="success">Lead created.</Notice> : null}
       {params.success === "moved" ? <Notice tone="success">Lead stage updated.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Lead name is required.</Notice> : null}
@@ -200,6 +199,6 @@ export default async function CrmPipelinePage({
           </div>
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

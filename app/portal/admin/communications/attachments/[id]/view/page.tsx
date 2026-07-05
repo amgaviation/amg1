@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/portal/session";
 import { createServiceClient } from "@/lib/supabase/server";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PortalDocumentViewer } from "@/components/portal/document-viewer";
 
 export default async function CommunicationAttachmentViewPage({ params }: { params: Promise<{ id: string }> }) {
@@ -16,7 +15,7 @@ export default async function CommunicationAttachmentViewPage({ params }: { para
   if (!attachment) notFound();
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       <PortalDocumentViewer
         title={attachment.file_name}
         description="Communication attachment"
@@ -25,6 +24,6 @@ export default async function CommunicationAttachmentViewPage({ params }: { para
         backHref={`/portal/admin/messages/${attachment.thread_id}`}
         contentType={attachment.content_type}
       />
-    </PortalShell>
+    </>
   );
 }

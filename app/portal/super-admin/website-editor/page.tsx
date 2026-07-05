@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, Notice, DetailRow, EmptyState } from "@/components/portal/ui/primitives";
 import { TextAreaField, TextField, SelectField } from "@/components/portal/ui/fields";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -324,7 +323,7 @@ export default async function WebsiteEditorPage({
   const publishingConfigured = githubPublishingConfigured();
 
   return (
-    <PortalShell role="super_admin" user={user}>
+    <>
       {flash ? <Notice tone={flash.tone}>{flash.body}</Notice> : null}
       {!publishingConfigured ? (
         <Notice tone="warn">Publishing is disabled until `GITHUB_TOKEN`, `GITHUB_OWNER`, and `GITHUB_REPO` are configured server-side.</Notice>
@@ -370,6 +369,6 @@ export default async function WebsiteEditorPage({
           </SectionCard>
         </div>
       </div>
-    </PortalShell>
+    </>
   );
 }

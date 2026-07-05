@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DetailRow, Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { createServiceClient } from "@/lib/supabase/server";
 import { consentScriptRegistry } from "@/lib/compliance/consent";
@@ -39,7 +38,7 @@ export default async function AdminCompliancePage() {
   const counts = await complianceCounts();
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {!counts.ok ? (
         <Notice tone="warn">
           {getUserFacingErrorMessage({ area: "admin_portal", action: "load", correlationId: counts.referenceId })}
@@ -94,6 +93,6 @@ export default async function AdminCompliancePage() {
           scope, aircraft status, crew availability, owner/operator approval, and operating conditions have been reviewed.
         </p>
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

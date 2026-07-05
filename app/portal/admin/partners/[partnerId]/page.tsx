@@ -8,7 +8,6 @@ import {
   RelatedList,
   type DetailFormField,
 } from "@/components/portal/admin/record-detail";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -68,7 +67,7 @@ export default async function AdminPartnerDetailPage({
   const backTo = `/portal/admin/partners/${partnerId}`;
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {query.success ? <Notice tone="success">Partner record saved.</Notice> : null}
       {query.error === "missing" ? <Notice tone="danger">Partner contact name and valid email are required.</Notice> : null}
       {query.error === "duplicate" ? <Notice tone="danger">A profile already exists for that email.</Notice> : null}
@@ -220,6 +219,6 @@ export default async function AdminPartnerDetailPage({
           />
         </TabsContent>
       </Tabs>
-    </PortalShell>
+    </>
   );
 }

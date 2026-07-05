@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -86,7 +85,7 @@ export default async function AdminEmailsPage({
   const allPortalUsers = users.filter((row) => !row.email.includes("+released-"));
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success === "sent" ? <Notice tone="success">Email sent and logged.</Notice> : null}
       {params.error === "validation" ? <Notice tone="danger">Choose at least one valid recipient, subject, body or template, and a related/general thread option.</Notice> : null}
       {params.error === "configuration" ? <Notice tone="danger">Email provider is not configured.</Notice> : null}
@@ -280,6 +279,6 @@ export default async function AdminEmailsPage({
           </div>
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

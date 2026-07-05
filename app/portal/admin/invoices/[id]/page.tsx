@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { DetailRow, Notice, PageHeader, SectionCard, Timeline } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -70,7 +69,7 @@ export default async function AdminInvoiceDetailPage({
     }));
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {flash.success ? <Notice tone="success">Invoice updated.</Notice> : null}
       {flash.error === "duplicate" ? <Notice tone="danger">This quote already has an active invoice.</Notice> : null}
       {flash.error === "payment-required" ? <Notice tone="danger">Record a payment to mark this invoice paid.</Notice> : null}
@@ -249,6 +248,6 @@ export default async function AdminInvoiceDetailPage({
           ) : null}
         </div>
       </div>
-    </PortalShell>
+    </>
   );
 }

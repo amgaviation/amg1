@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -44,7 +43,7 @@ export default async function NewQuotePage() {
   const [clients, missions] = await Promise.all([listClients(), listAllMissions()]);
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       <PageHeader
         eyebrow="AMG Billing"
         title="New Quote"
@@ -125,6 +124,6 @@ export default async function NewQuotePage() {
           <SubmitButton className="rounded-full" name="intent" value="send" pendingText="Sending...">Send Quote PDF</SubmitButton>
         </div>
       </form>
-    </PortalShell>
+    </>
   );
 }

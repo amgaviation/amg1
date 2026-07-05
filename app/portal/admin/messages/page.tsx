@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { EmptyState, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -435,7 +434,7 @@ export default async function AdminMessagesPage({
   const providerConfigured = provider.configured || provider.mockEnabled;
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       <PageHeader
         eyebrow="AMG Operations"
         title="Communications"
@@ -569,6 +568,6 @@ export default async function AdminMessagesPage({
           </div>
         </div>
       ) : null}
-    </PortalShell>
+    </>
   );
 }

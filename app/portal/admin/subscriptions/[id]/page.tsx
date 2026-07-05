@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/portal/session";
 import { addSubscriptionCredit, addSubscriptionUsage, cancelStripeSubscriptionAtPeriodEnd, ignoreNeedsReviewSubscription, linkNeedsReviewSubscription, refreshStripeSubscription, resendSubscriptionSetupLink, updateSubscriptionStatus } from "@/app/portal/actions/subscriptions";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { DetailRow, Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
@@ -39,7 +38,7 @@ export default async function AdminSubscriptionDetailPage({
   const dashboardUrl = stripeDashboardSubscriptionUrl(subscription.stripe_subscription_id);
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {flash.success ? <Notice tone="success">Subscription updated.</Notice> : null}
       {flash.error ? <Notice tone="danger">Subscription action could not be completed.</Notice> : null}
       {subscription.stripe_sync_warning ? <Notice tone={subscription.stripe_sync_status === "pending_checkout" ? "warn" : "danger"}>{subscription.stripe_sync_warning}</Notice> : null}
@@ -235,6 +234,6 @@ export default async function AdminSubscriptionDetailPage({
           </SectionCard>
         </div>
       </div>
-    </PortalShell>
+    </>
   );
 }

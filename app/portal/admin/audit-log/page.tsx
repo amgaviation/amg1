@@ -1,5 +1,4 @@
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { listAuditEvents } from "@/lib/portal/queries";
@@ -11,7 +10,7 @@ export default async function AdminAuditLogPage() {
   const user = await requireRole("admin");
   const events = await listAuditEvents(200);
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       <PageHeader eyebrow="AMG Operations" title="Audit Log" description="Operational event trail for mission changes, approvals, uploads, messages, and role activity." />
       <SectionCard title="Recent Events" icon="history">
         <DataTable
@@ -27,6 +26,6 @@ export default async function AdminAuditLogPage() {
           ]}
         />
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

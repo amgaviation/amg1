@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import {
   EmptyState,
@@ -127,7 +126,7 @@ export default async function AdminTripsPage({
   const hasFilters = Boolean(params.status || params.type || params.urgency || params.q);
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       <PageHeader
         eyebrow="AMG Operations"
         title="Support Requests"
@@ -273,6 +272,6 @@ export default async function AdminTripsPage({
         pageCount={pageCount}
         params={sharedParams}
       />
-    </PortalShell>
+    </>
   );
 }
