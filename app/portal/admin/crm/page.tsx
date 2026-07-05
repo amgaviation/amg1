@@ -11,6 +11,7 @@ import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fi
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { createLead, moveLeadStage } from "@/app/portal/actions/crm";
+import { CrmLeadImportExport } from "@/components/portal/admin/crm-lead-import-export";
 import { LEAD_SOURCES, LEAD_STAGES, getPipelineMetrics, listLeads } from "@/lib/portal/crm";
 import { listAllUsers } from "@/lib/portal/queries";
 import { formatDate, formatMoney } from "@/lib/portal/format";
@@ -102,6 +103,9 @@ export default async function CrmPipelinePage({
           </div>
         </form>
       </SectionCard>
+
+      {/* Bulk import & export */}
+      <CrmLeadImportExport />
 
       {/* Search */}
       <form className="flex flex-wrap items-end gap-3">

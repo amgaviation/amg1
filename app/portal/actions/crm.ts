@@ -3,8 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { logAuditEvent } from "@/lib/portal/audit";
+import { sendLeadEmail } from "@/lib/portal/lead-email";
+import {
+  MAX_IMPORT_ROWS,
+  sanitizeLeadImportRow,
+  type LeadImportRow,
+} from "@/lib/portal/lead-import";
 import { createServiceClient } from "@/lib/supabase/server";
-import { actor, isoOrNull, num, str } from "./_helpers";
+import { actor, isoOrNull, num, safeRedirectPath, str } from "./_helpers";
 
 const BOARD = "/portal/admin/crm";
 
@@ -190,6 +196,158 @@ export async function linkLeadToProfile(formData: FormData) {
   revalidatePath(BOARD);
   revalidatePath(leadPath(leadId));
   redirect(`${leadPath(leadId)}?success=converted`);
+}
+
+const OPEN_STAGES = ["new", "contacted", "qualified", "proposal"];
+const INSERT_CHUNK = 200;
+
+export type LeadImportResult = {
+  ok: boolean;
+  inserted: number;
+  duplicates: number;
+  invalid: number;
+  error?: string;
+};
+
+/**
+ * Bulk-insert leads normalized by the smart import UI. Every row is
+ * re-validated server-side; duplicates are skipped by email against open
+ * leads and within the batch itself.
+ */
+export async function importLeads(input: {
+  fileName?: string;
+  rows: unknown[];
+}): Promise<LeadImportResult> {
+  const admin = await actor(["admin"]);
+  const fileName = String(input?.fileName ?? "uploaded file").slice(0, 120);
+  const rawRows = Array.isArray(input?.rows) ? input.rows : [];
+  if (!rawRows.length) {
+    return { ok: false, inserted: 0, duplicates: 0, invalid: 0, error: "No rows to import." };
+  }
+  if (rawRows.length > MAX_IMPORT_ROWS) {
+    return {
+      ok: false,
+      inserted: 0,
+      duplicates: 0,
+      invalid: 0,
+      error: `Too many rows (${rawRows.length}). The limit is ${MAX_IMPORT_ROWS} per file.`,
+    };
+  }
+
+  let invalid = 0;
+  let duplicates = 0;
+  const seenEmails = new Set<string>();
+  const seenNames = new Set<string>();
+  const candidates: LeadImportRow[] = [];
+
+  for (const raw of rawRows) {
+    const row = sanitizeLeadImportRow(raw);
+    if (!row) {
+      invalid += 1;
+      continue;
+    }
+    // Dedupe inside the file: by email, or name+company when no email.
+    const key = row.email ?? `${row.full_name.toLowerCase()}|${(row.company ?? "").toLowerCase()}`;
+    const seen = row.email ? seenEmails : seenNames;
+    if (seen.has(key)) {
+      duplicates += 1;
+      continue;
+    }
+    seen.add(key);
+    candidates.push(row);
+  }
+
+  const db = (await createServiceClient()) as any;
+
+  // Dedupe against the pipeline: an open lead with the same email wins,
+  // matching the guard in createLead.
+  const emails = candidates.map((row) => row.email).filter(Boolean) as string[];
+  const existingEmails = new Set<string>();
+  for (let i = 0; i < emails.length; i += 500) {
+    const { data } = await db
+      .from("crm_leads")
+      .select("email")
+      .in("email", emails.slice(i, i + 500))
+      .in("stage", OPEN_STAGES);
+    for (const row of data ?? []) {
+      if (row.email) existingEmails.add(String(row.email).toLowerCase());
+    }
+  }
+
+  const toInsert = candidates.filter((row) => {
+    if (row.email && existingEmails.has(row.email)) {
+      duplicates += 1;
+      return false;
+    }
+    return true;
+  });
+
+  let inserted = 0;
+  for (let i = 0; i < toInsert.length; i += INSERT_CHUNK) {
+    const chunk = toInsert.slice(i, i + INSERT_CHUNK).map((row) => ({
+      ...row,
+      owner_id: admin.id,
+      created_by: admin.id,
+    }));
+    const { data, error } = await db.from("crm_leads").insert(chunk).select("id");
+    if (error) {
+      return {
+        ok: false,
+        inserted,
+        duplicates,
+        invalid,
+        error: `Import stopped after ${inserted} leads: rows could not be saved.`,
+      };
+    }
+    const ids = (data ?? []).map((row: { id: string }) => row.id);
+    inserted += ids.length;
+    if (ids.length) {
+      await db.from("crm_activities").insert(
+        ids.map((leadId: string) => ({
+          lead_id: leadId,
+          activity_type: "note",
+          body: `Imported from ${fileName}`,
+          created_by: admin.id,
+          created_by_email: admin.email,
+        }))
+      );
+    }
+  }
+
+  await logAuditEvent({
+    actor: admin,
+    action: "crm_leads_imported",
+    detail: `${inserted} leads imported from ${fileName} (${duplicates} duplicates, ${invalid} invalid rows skipped)`,
+    entityType: "crm_lead",
+    entityId: null,
+  });
+  revalidatePath(BOARD);
+  return { ok: true, inserted, duplicates, invalid };
+}
+
+/** Send a templated outreach email to a lead and log it to the activity history. */
+export async function sendLeadEmailAction(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const leadId = str(formData, "lead_id");
+  const backTo = safeRedirectPath(str(formData, "back_to"), leadId ? leadPath(leadId) : BOARD);
+  const separator = backTo.includes("?") ? "&" : "?";
+  if (!leadId) redirect(`${backTo}${separator}email_error=validation`);
+
+  const result = await sendLeadEmail(
+    {
+      leadId,
+      recipientEmail: str(formData, "recipient_email"),
+      subject: str(formData, "subject"),
+      body: str(formData, "body"),
+    },
+    admin
+  );
+
+  revalidatePath(leadPath(leadId));
+  if (result.ok) redirect(`${backTo}${separator}email=sent`);
+  redirect(
+    `${backTo}${separator}email_error=${result.reason}${result.referenceId ? `&ref=${encodeURIComponent(result.referenceId)}` : ""}`
+  );
 }
 
 /** Create a lead from a public website form submission. */
