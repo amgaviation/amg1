@@ -36,8 +36,14 @@ export default async function ClientTripDetailPage({
   const mission = await getMissionDetail(id);
   if (!mission || (mission.client_id !== user.id && user.role !== "admin")) notFound();
 
-  const statusIndex = MISSION_STATUS.findIndex((s) => s.value === mission.status);
-  const timelineItems = MISSION_STATUS.filter((s) => s.value !== "draft" && s.value !== "cancelled").map((s, i) => ({
+  // Index must be computed on the SAME filtered list the stepper renders,
+  // or removing "draft" shifts every comparison by one (stage after the
+  // current one showed as "Current").
+  const timelineStatuses = MISSION_STATUS.filter(
+    (s) => s.value !== "draft" && s.value !== "cancelled"
+  );
+  const statusIndex = timelineStatuses.findIndex((s) => s.value === mission.status);
+  const timelineItems = timelineStatuses.map((s, i) => ({
     title: s.label,
     meta: i === statusIndex ? "Current" : i < statusIndex ? "Done" : undefined,
     body: i === statusIndex && mission.client_notes ? mission.client_notes : undefined,
