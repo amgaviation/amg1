@@ -1,4 +1,5 @@
 import { OPERATIONAL_EMAIL_DISCLAIMER } from "@/lib/email/config";
+import { amgEmailLayout } from "@/lib/portal/email-templates";
 
 export const OPERATIONAL_EMAIL_FOOTER = OPERATIONAL_EMAIL_DISCLAIMER;
 
@@ -13,21 +14,17 @@ export function operationalEmailText(body: string) {
   return `${body.trim()}\n\n---\n${OPERATIONAL_EMAIL_FOOTER}`;
 }
 
-export function operationalEmailHtml(body: string) {
-  const paragraphs = body
-    .split(/\n{2,}/)
-    .map((paragraph) => paragraph.trim())
-    .filter(Boolean)
-    .map((paragraph) => `<p>${escapeHtml(paragraph).replace(/\n/g, "<br />")}</p>`)
-    .join("");
-
-  return `
-    <div style="font-family: Arial, sans-serif; color: #0f172a; line-height: 1.6;">
-      ${paragraphs}
-      <hr style="border: 0; border-top: 1px solid #dbe3ef; margin: 24px 0;" />
-      <p style="font-size: 12px; color: #64748b;">${escapeHtml(OPERATIONAL_EMAIL_FOOTER)}</p>
-    </div>
-  `;
+export function operationalEmailHtml(
+  body: string,
+  options?: { title?: string; eyebrow?: string }
+) {
+  // Every operational email renders through the one global AMG layout.
+  return amgEmailLayout({
+    eyebrow: options?.eyebrow ?? "AMG Operations",
+    title: options?.title ?? "Message from AMG Operations",
+    intro: body,
+    footerNote: OPERATIONAL_EMAIL_FOOTER,
+  });
 }
 
 export function stripHtml(html: string) {

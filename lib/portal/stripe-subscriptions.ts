@@ -8,6 +8,7 @@ import { sendEmail } from "@/lib/portal/notification-delivery";
 import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
 import { currentStripeMode } from "@/lib/portal/stripe-mode";
 import { applyScheduledCancelAt } from "@/lib/portal/stripe-custom-subscriptions";
+import { amgEmailLayout } from "@/lib/portal/email-templates";
 import { resolveSubscriptionPriceForStripeMode } from "@/lib/portal/stripe-mode-core";
 import {
   buildSubscriptionCheckoutSummary,
@@ -208,21 +209,26 @@ async function sendSubscriptionSetupEmail(client: any, subscription: any, price:
     currency: normalizedSubscriptionCurrency(price.currency).toUpperCase(),
   }).format(price.amountCents / 100);
   const interval = price.billingInterval === "annual" ? "annual" : "monthly";
-  const html = `
-    <div style="font-family:Arial,sans-serif;color:#0f172a;line-height:1.6;">
-      <h1 style="color:#050B14;">Set up your AMG subscription</h1>
-      <p>${escapeHtml(profileName(client))}, AMG has prepared your ${escapeHtml(price.planName)} subscription.</p>
-      <p><strong>${amount} ${interval}</strong></p>
-      <p><a href="${escapeHtml(url)}" style="display:inline-block;background:#050B14;color:#fff;text-decoration:none;border-radius:999px;padding:12px 20px;font-weight:700;">Complete Subscription Setup</a></p>
-      <hr style="border:0;border-top:1px solid #dbe3ef;margin:24px 0;" />
-      <p style="font-size:12px;color:#64748b;">${escapeHtml(OPERATIONAL_EMAIL_FOOTER)}</p>
-    </div>
-  `;
   await sendEmail({
     to,
     subject: "Set up your AMG subscription",
     text: `Set up your AMG subscription\n\n${price.planName}\n${amount} ${interval}\n\nComplete setup: ${url}\n\n---\n${OPERATIONAL_EMAIL_FOOTER}`,
-    html,
+    html: amgEmailLayout({
+      eyebrow: "AMG Billing",
+      title: "Set up your AMG subscription",
+      intro: `${profileName(client)}, AMG has prepared your ${price.planName} subscription.`,
+      sections: [
+        {
+          title: "Subscription Terms",
+          rows: [
+            { label: "Plan", value: price.planName },
+            { label: "Amount", value: `${amount} ${interval}` },
+          ],
+        },
+      ],
+      cta: { label: "Complete Subscription Setup", href: url },
+      footerNote: OPERATIONAL_EMAIL_FOOTER,
+    }),
   });
 }
 

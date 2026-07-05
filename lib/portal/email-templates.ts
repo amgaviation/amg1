@@ -1,6 +1,6 @@
 import "server-only";
 
-import { AMG_EMAIL_BRAND, SHARED_EMAIL_FOOTER, SITE_URL } from "@/lib/email/config";
+import { AMG_EMAIL_BRAND, SITE_URL } from "@/lib/email/config";
 
 type EmailSection = {
   title?: string;
@@ -63,16 +63,27 @@ export type PortalNotificationEmailInput = {
   portalUrl?: string | null;
 };
 
+/**
+ * AMG Instrument — the ONE global email design. Every email and emailed
+ * notification the portal sends renders through amgEmailLayout below:
+ * clean white card, ink typography, single instrument-blue accent,
+ * hairline rules — matching the portal's design language. Email-client
+ * safe: tables, inline styles, system font stack.
+ */
 const brand = {
-  midnight: AMG_EMAIL_BRAND.primaryColor,
-  deepBlue: AMG_EMAIL_BRAND.secondaryDarkColor,
-  accentBlue: AMG_EMAIL_BRAND.accentBlue,
-  slateGray: AMG_EMAIL_BRAND.slateText,
-  lightGray: AMG_EMAIL_BRAND.lightGray,
-  white: AMG_EMAIL_BRAND.white,
-  cardBorder: "#1E2A3C",
-  softBlue: "#EFF6FF",
-  offWhite: "#F8FAFC",
+  page: "#EEF1F5",
+  card: "#FFFFFF",
+  cardBorder: "#E3E7ED",
+  hairline: "#E9EDF2",
+  ink: "#16191E",
+  body: "#4A5160",
+  muted: "#8A93A3",
+  faint: "#9AA3B2",
+  accent: "#0B5ED4",
+  accentTint: "#EEF4FC",
+  footerBg: "#F7F9FB",
+  white: "#FFFFFF",
+  font: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
 };
 
 function escapeHtml(value?: string | number | null) {
@@ -94,17 +105,17 @@ function absoluteAppUrl() {
 
 function logoUrl() {
   const appUrl = absoluteAppUrl();
-  return appUrl ? `${appUrl}/images/logo-white.png` : null;
+  return appUrl ? `${appUrl}/images/logo-navy.png` : null;
 }
 
 function row(label: string, value?: string | number | null) {
   if (value === undefined || value === null || value === "") return "";
   return `
     <tr>
-      <td style="padding: 11px 0; color: ${brand.slateGray}; font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.11em; vertical-align: top; width: 176px; border-bottom: 1px solid #E5E7EB;">
+      <td style="padding: 10px 0; color: ${brand.muted}; font-family: ${brand.font}; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; vertical-align: top; width: 168px; border-bottom: 1px solid ${brand.hairline};">
         ${escapeHtml(label)}
       </td>
-      <td style="padding: 11px 0; color: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.55; vertical-align: top; border-bottom: 1px solid #E5E7EB;">
+      <td style="padding: 10px 0; color: ${brand.ink}; font-family: ${brand.font}; font-size: 14px; line-height: 1.6; vertical-align: top; border-bottom: 1px solid ${brand.hairline};">
         ${formatMultiline(String(value))}
       </td>
     </tr>
@@ -114,43 +125,54 @@ function row(label: string, value?: string | number | null) {
 export function amgEmailLayout(input: BaseEmailTemplateInput) {
   const previewText = input.previewText || input.title;
   const logo = logoUrl();
+  const siteUrl = absoluteAppUrl() || `https://${AMG_EMAIL_BRAND.websiteLabel}`;
 
   const sectionsHtml = (input.sections ?? [])
     .map((section) => {
-      const rowsHtml = section.rows
-        ?.map((item) => row(item.label, item.value))
-        .join("");
-
+      const rowsHtml = section.rows?.map((item) => row(item.label, item.value)).join("") ?? "";
       const bodyHtml = section.body
-        ? `<p style="margin: 0; color: #1F2937; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.7;">${formatMultiline(section.body)}</p>`
+        ? `<p style="margin: ${section.title ? "8px" : "0"} 0 0; color: ${brand.body}; font-family: ${brand.font}; font-size: 14px; line-height: 1.7;">${formatMultiline(section.body)}</p>`
         : "";
+      if (!rowsHtml && !bodyHtml) return "";
 
       return `
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top: 24px; border: 1px solid #E5E7EB; border-radius: 14px; overflow: hidden; background: #FFFFFF;">
+        <div style="margin-top: 26px;">
           ${
             section.title
-              ? `<tr>
-                  <td colspan="2" style="padding: 15px 18px; background: ${brand.offWhite}; border-bottom: 1px solid #E5E7EB;">
-                    <h2 style="margin: 0; color: ${brand.deepBlue}; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.4; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em;">
-                      ${escapeHtml(section.title)}
-                    </h2>
-                  </td>
-                </tr>`
+              ? `<div style="padding-bottom: 8px; border-bottom: 1px solid ${brand.hairline}; color: ${brand.muted}; font-family: ${brand.font}; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em;">
+                  ${escapeHtml(section.title)}
+                </div>`
               : ""
           }
-          ${bodyHtml ? `<tr><td colspan="2" style="padding: 18px;">${bodyHtml}</td></tr>` : ""}
-          ${rowsHtml ? `<tr><td colspan="2" style="padding: 0 18px 6px;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0">${rowsHtml}</table></td></tr>` : ""}
-        </table>
+          ${bodyHtml}
+          ${rowsHtml ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top: 2px;">${rowsHtml}</table>` : ""}
+        </div>
       `;
     })
     .join("");
 
+  const chipsHtml =
+    input.reference || input.status
+      ? `<div style="margin: 0 0 16px;">
+          ${
+            input.reference
+              ? `<span style="display: inline-block; margin-right: 8px; padding: 5px 10px; border-radius: 4px; background: ${brand.accentTint}; color: ${brand.accent}; font-family: ${brand.font}; font-size: 12px; font-weight: 700; letter-spacing: 0.04em;">${escapeHtml(input.reference)}</span>`
+              : ""
+          }
+          ${
+            input.status
+              ? `<span style="display: inline-block; padding: 5px 10px; border-radius: 4px; background: #F2F4F8; border: 1px solid ${brand.hairline}; color: ${brand.body}; font-family: ${brand.font}; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;">${escapeHtml(input.status)}</span>`
+              : ""
+          }
+        </div>`
+      : "";
+
   const ctaHtml = input.cta
     ? `
-      <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top: 28px;">
+      <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top: 30px;">
         <tr>
-          <td style="border-radius: 999px; background: ${brand.accentBlue};">
-            <a href="${escapeHtml(input.cta.href)}" style="display: inline-block; padding: 13px 22px; color: ${brand.white}; font-family: Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 800; text-decoration: none; letter-spacing: 0.04em;">
+          <td style="border-radius: 8px; background: ${brand.accent};">
+            <a href="${escapeHtml(input.cta.href)}" style="display: inline-block; padding: 13px 26px; color: ${brand.white}; font-family: ${brand.font}; font-size: 14px; font-weight: 700; text-decoration: none;">
               ${escapeHtml(input.cta.label)}
             </a>
           </td>
@@ -160,8 +182,8 @@ export function amgEmailLayout(input: BaseEmailTemplateInput) {
     : "";
 
   const logoHtml = logo
-    ? `<img src="${escapeHtml(logo)}" width="190" alt="AMG Aviation Group" style="display: block; width: 190px; max-width: 78%; height: auto; border: 0; outline: none; text-decoration: none;" />`
-    : `<div style="color: ${brand.white}; font-family: Arial, Helvetica, sans-serif; font-size: 20px; line-height: 1.2; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase;">AMG Aviation Group</div>`;
+    ? `<img src="${escapeHtml(logo)}" width="168" alt="${escapeHtml(AMG_EMAIL_BRAND.companyName)}" style="display: block; width: 168px; max-width: 60%; height: auto; border: 0; outline: none; text-decoration: none;" />`
+    : `<div style="color: ${brand.ink}; font-family: ${brand.font}; font-size: 17px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;">${escapeHtml(AMG_EMAIL_BRAND.companyName)}</div>`;
 
   return `<!doctype html>
 <html lang="en">
@@ -171,61 +193,36 @@ export function amgEmailLayout(input: BaseEmailTemplateInput) {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${escapeHtml(input.title)}</title>
   </head>
-  <body style="margin: 0; padding: 0; background: ${brand.midnight};">
+  <body style="margin: 0; padding: 0; background: ${brand.page};">
     <div style="display: none; overflow: hidden; line-height: 1px; opacity: 0; max-height: 0; max-width: 0;">
       ${escapeHtml(previewText)}
     </div>
 
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: ${brand.midnight}; padding: 34px 12px;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: ${brand.page};">
       <tr>
-        <td align="center">
-          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 700px; background: ${brand.white}; border: 1px solid ${brand.cardBorder}; border-radius: 22px; overflow: hidden; box-shadow: 0 18px 55px rgba(0,0,0,0.28);">
+        <td align="center" style="padding: 36px 14px;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; background: ${brand.card}; border: 1px solid ${brand.cardBorder}; border-radius: 12px; overflow: hidden;">
             <tr>
-              <td style="padding: 28px 32px 30px; background: ${brand.deepBlue}; border-bottom: 4px solid ${brand.accentBlue};">
-                ${logoHtml}
-                <div style="margin-top: 22px; color: ${brand.accentBlue}; font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase;">
-                  ${escapeHtml(input.eyebrow || "Operational Notification")}
-                </div>
-                <div style="margin-top: 8px; color: ${brand.white}; font-family: Arial, Helvetica, sans-serif; font-size: 24px; line-height: 1.25; font-weight: 800;">
-                  ${escapeHtml(input.title)}
-                </div>
+              <td style="height: 4px; background: ${brand.accent}; font-size: 0; line-height: 0;">&nbsp;</td>
+            </tr>
+            <tr>
+              <td style="padding: 26px 36px; border-bottom: 1px solid ${brand.hairline};">
+                <a href="${escapeHtml(siteUrl)}" style="text-decoration: none;">${logoHtml}</a>
               </td>
             </tr>
 
             <tr>
-              <td style="padding: 32px 32px 36px; background: ${brand.white};">
-                ${
-                  input.status || input.reference
-                    ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 22px;">
-                        <tr>
-                          <td>
-                            ${
-                              input.reference
-                                ? `<span style="display: inline-block; margin-right: 8px; margin-bottom: 8px; padding: 8px 11px; border-radius: 999px; background: ${brand.softBlue}; color: ${brand.accentBlue}; font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 800;">
-                                    Ref ${escapeHtml(input.reference)}
-                                  </span>`
-                                : ""
-                            }
-                            ${
-                              input.status
-                                ? `<span style="display: inline-block; margin-bottom: 8px; padding: 8px 11px; border-radius: 999px; background: ${brand.deepBlue}; color: ${brand.white}; font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 800;">
-                                    ${escapeHtml(input.status)}
-                                  </span>`
-                                : ""
-                            }
-                          </td>
-                        </tr>
-                      </table>`
-                    : ""
-                }
-
-                <h1 style="margin: 0; color: ${brand.midnight}; font-family: Arial, Helvetica, sans-serif; font-size: 24px; line-height: 1.26; font-weight: 800;">
+              <td style="padding: 32px 36px 38px;">
+                <div style="margin: 0 0 10px; color: ${brand.accent}; font-family: ${brand.font}; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;">
+                  ${escapeHtml(input.eyebrow || "AMG Operations")}
+                </div>
+                <h1 style="margin: 0 0 16px; color: ${brand.ink}; font-family: ${brand.font}; font-size: 23px; line-height: 1.3; font-weight: 700;">
                   ${escapeHtml(input.title)}
                 </h1>
-
+                ${chipsHtml}
                 ${
                   input.intro
-                    ? `<p style="margin: 14px 0 0; color: #374151; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 1.7;">
+                    ? `<p style="margin: 0; color: ${brand.body}; font-family: ${brand.font}; font-size: 15px; line-height: 1.7;">
                         ${formatMultiline(input.intro)}
                       </p>`
                     : ""
@@ -236,7 +233,7 @@ export function amgEmailLayout(input: BaseEmailTemplateInput) {
 
                 ${
                   input.footerNote
-                    ? `<p style="margin: 28px 0 0; padding-top: 18px; border-top: 1px solid #E5E7EB; color: #4B5563; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.65;">
+                    ? `<p style="margin: 30px 0 0; padding-top: 18px; border-top: 1px solid ${brand.hairline}; color: ${brand.muted}; font-family: ${brand.font}; font-size: 12px; line-height: 1.65;">
                         ${formatMultiline(input.footerNote)}
                       </p>`
                     : ""
@@ -245,24 +242,26 @@ export function amgEmailLayout(input: BaseEmailTemplateInput) {
             </tr>
 
             <tr>
-              <td style="padding: 24px 32px; background: ${brand.deepBlue}; border-top: 1px solid ${brand.cardBorder};">
-                <p style="margin: 0; color: ${brand.white}; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.65; font-weight: 700;">
+              <td style="padding: 22px 36px; background: ${brand.footerBg}; border-top: 1px solid ${brand.hairline};">
+                <p style="margin: 0; color: ${brand.ink}; font-family: ${brand.font}; font-size: 13px; font-weight: 700;">
                   ${escapeHtml(AMG_EMAIL_BRAND.companyName)}
                 </p>
-                <p style="margin: 6px 0 0; color: ${brand.lightGray}; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.65;">
+                <p style="margin: 6px 0 0; color: ${brand.muted}; font-family: ${brand.font}; font-size: 12px; line-height: 1.65;">
                   Operational support, crew coordination, aircraft movement, and flight department support.
                 </p>
-                <p style="margin: 10px 0 0; color: ${brand.lightGray}; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.65;">
-                  ${formatMultiline(SHARED_EMAIL_FOOTER)}
+                <p style="margin: 8px 0 0; font-family: ${brand.font}; font-size: 12px; line-height: 1.65;">
+                  <a href="mailto:${escapeHtml(AMG_EMAIL_BRAND.contactEmail)}" style="color: ${brand.accent}; text-decoration: none;">${escapeHtml(AMG_EMAIL_BRAND.contactEmail)}</a>
+                  <span style="color: ${brand.faint};">&nbsp;·&nbsp;</span>
+                  <a href="${escapeHtml(siteUrl)}" style="color: ${brand.accent}; text-decoration: none;">${escapeHtml(AMG_EMAIL_BRAND.websiteLabel)}</a>
                 </p>
-                <p style="margin: 12px 0 0; color: ${brand.slateGray}; font-family: Arial, Helvetica, sans-serif; font-size: 11px; line-height: 1.65;">
-                  This message may contain operationally sensitive information. If you received it in error, delete it and notify AMG Aviation Group.
+                <p style="margin: 12px 0 0; color: ${brand.faint}; font-family: ${brand.font}; font-size: 11px; line-height: 1.6;">
+                  This message may contain operationally sensitive information. If you received it in error, delete it and notify ${escapeHtml(AMG_EMAIL_BRAND.companyName)}.
                 </p>
               </td>
             </tr>
           </table>
 
-          <p style="margin: 18px 0 0; color: ${brand.slateGray}; font-family: Arial, Helvetica, sans-serif; font-size: 11px;">
+          <p style="margin: 16px 0 0; color: ${brand.faint}; font-family: ${brand.font}; font-size: 11px;">
             © ${new Date().getFullYear()} ${escapeHtml(AMG_EMAIL_BRAND.companyName)}
           </p>
         </td>
