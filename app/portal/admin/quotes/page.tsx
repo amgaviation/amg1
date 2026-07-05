@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -14,7 +13,7 @@ export default async function AdminQuotesPage() {
   const user = await requireRole("admin");
   const quotes = await listAllQuotes();
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       <PageHeader
         eyebrow="AMG Operations"
         title="Quotes"
@@ -48,6 +47,6 @@ export default async function AdminQuotesPage() {
           ]}
         />
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

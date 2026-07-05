@@ -12,7 +12,6 @@ import {
   detailValue,
   type DetailFormField,
 } from "@/components/portal/admin/record-detail";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -215,7 +214,7 @@ export default async function AdminCrewDetailPage({
   };
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {query.success ? <Notice tone="success">Crew record saved.</Notice> : null}
       {query.email === "sent" ? <Notice tone="success">Crew email sent and logged.</Notice> : null}
       {query.email_error === "configuration" ? <Notice tone="danger">Crew email was logged but could not be sent because Resend is not configured.</Notice> : null}
@@ -255,7 +254,7 @@ export default async function AdminCrewDetailPage({
       />
 
       <Tabs defaultValue="overview" className="gap-5">
-        <TabsList className="h-auto w-full flex-wrap justify-start bg-[#EEF1F5] p-1">
+        <TabsList className="h-auto w-full flex-wrap justify-start bg-[var(--deck-panel-2)] p-1">
           {["Overview", "Contact", "Qualifications / Aircraft", "Documents", "Missions", "Communications", "Notes", "Settings"].map((tab) => (
             <TabsTrigger key={tab} value={tab.toLowerCase().replace(/ \/ /g, "-").replace(/\s+/g, "-")} className="grow-0 rounded-md px-3 py-2 text-xs">
               {tab}
@@ -386,7 +385,7 @@ export default async function AdminCrewDetailPage({
             {communications.length ? (
               <div className="grid gap-3">
                 {communications.map((message) => (
-                  <details key={message.id} className="rounded-lg border border-[var(--deck-line)] bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+                  <details key={message.id} className="rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
                     <summary className="cursor-pointer list-none">
                       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                         <div>
@@ -409,7 +408,7 @@ export default async function AdminCrewDetailPage({
                           { label: "Error", value: message.errorMessage },
                         ]}
                       />
-                      <pre className="mt-4 whitespace-pre-wrap rounded-md border border-[var(--deck-line)] bg-[#F8FAFB] p-3 text-xs leading-5 text-[var(--deck-text-2)]">{message.body}</pre>
+                      <pre className="mt-4 whitespace-pre-wrap rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-3 text-xs leading-5 text-[var(--deck-text-2)]">{message.body}</pre>
                     </div>
                   </details>
                 ))}
@@ -456,10 +455,10 @@ export default async function AdminCrewDetailPage({
       </Tabs>
 
       <div className="flex justify-start">
-        <Link href="/portal/admin/crew" className="text-sm text-[var(--amg-text-muted)] hover:text-[var(--deck-gold-deep)]">
+        <Link href="/portal/admin/crew" className="text-sm text-[var(--amg-text-muted)] hover:text-[var(--deck-accent-ink)]">
           Back to crew roster
         </Link>
       </div>
-    </PortalShell>
+    </>
   );
 }

@@ -1,5 +1,4 @@
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import {
   EmptyState,
   Notice,
@@ -31,7 +30,7 @@ export default async function ClientPassengersPage({
   const frequent = passengers.filter((passenger) => passenger.is_frequent);
 
   return (
-    <PortalShell role="client" user={user}>
+    <>
       {params.success === "created" ? <Notice tone="success">Passenger saved.</Notice> : null}
       {params.success === "saved" ? <Notice tone="success">Passenger updated.</Notice> : null}
       {params.success === "deleted" ? <Notice tone="success">Passenger removed.</Notice> : null}
@@ -148,6 +147,6 @@ export default async function ClientPassengersPage({
           </div>
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

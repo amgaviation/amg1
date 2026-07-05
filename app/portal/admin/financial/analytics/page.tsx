@@ -1,4 +1,3 @@
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader } from "@/components/portal/ui/primitives";
 import { requireRole } from "@/lib/portal/session";
 import { getFinancialAnalytics, type AnalyticsRangeKey } from "@/lib/portal/financial-analytics";
@@ -20,13 +19,13 @@ export default async function AdminFinancialAnalyticsPage({
   });
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       <PageHeader
         eyebrow="AMG Financial"
         title="Financial Analytics"
         description="Real-time revenue, payments, invoices, subscriptions, and expense reporting for AMG Operations."
       />
       <FinancialAnalyticsDashboard initialData={data} />
-    </PortalShell>
+    </>
   );
 }

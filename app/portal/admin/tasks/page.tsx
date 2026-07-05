@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import {
   EmptyState,
   FilterTabs,
@@ -33,7 +32,7 @@ function taskMeta(task: OpsTask) {
     <>
       {task.assignee ? <>Assigned to {task.assignee.full_name ?? task.assignee.email} · </> : null}
       {task.due_at ? (
-        <span className={overdue ? "font-semibold text-[#A82E2E]" : undefined}>
+        <span className={overdue ? "font-semibold text-[var(--deck-danger)]" : undefined}>
           Due {formatDateTime(task.due_at)}
         </span>
       ) : (
@@ -62,7 +61,7 @@ export default async function OpsTasksPage({
     .map((row) => ({ value: row.id, label: row.full_name ?? row.email }));
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success === "created" ? <Notice tone="success">Task created.</Notice> : null}
       {params.success === "updated" ? <Notice tone="success">Task updated.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Task title is required.</Notice> : null}
@@ -177,11 +176,11 @@ export default async function OpsTasksPage({
       <p className="text-xs text-[var(--deck-text-3)]">
         Tip: tasks assigned to another admin notify them in-portal and by their configured delivery
         channel. Link tasks to records from{" "}
-        <Link href="/portal/admin/crm" className="font-semibold text-[var(--deck-gold-deep)] hover:underline">
+        <Link href="/portal/admin/crm" className="font-semibold text-[var(--deck-accent-ink)] hover:underline">
           the pipeline
         </Link>{" "}
         or mission pages as workflows grow.
       </p>
-    </PortalShell>
+    </>
   );
 }

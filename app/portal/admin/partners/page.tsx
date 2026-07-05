@@ -1,7 +1,6 @@
 import { archivePartnerRecord, savePartnerRecord } from "@/app/portal/actions/admin";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -119,7 +118,7 @@ export default async function AdminPartnersPage({
   ];
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success === "archived-linked" ? <Notice tone="success">Partner deactivated. Assignment history was preserved.</Notice> : null}
       {params.success && params.success !== "archived-linked" ? <Notice tone="success">Partner record saved.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Partner contact name and valid email are required.</Notice> : null}
@@ -196,6 +195,6 @@ export default async function AdminPartnersPage({
           ]}
         />
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

@@ -1,7 +1,6 @@
 import { requireRole } from "@/lib/portal/session";
 import { updateBillingContact } from "@/app/portal/actions/profiles";
 import { AccountSecurityForm } from "@/components/portal/account-security-form";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { TextField } from "@/components/portal/ui/fields";
 import { PageHeader, SectionCard, DetailRow, Notice } from "@/components/portal/ui/primitives";
 import { RoleBadge } from "@/components/portal/ui/status-badge";
@@ -33,7 +32,7 @@ export default async function ClientSettingsPage({
               : null;
 
   return (
-    <PortalShell role="client" user={user}>
+    <>
       {params.success && params.success !== "billing-contact" ? <Notice tone="success">Profile updated.</Notice> : null}
       {params.success === "billing-contact" ? <Notice tone="success">Billing contact updated.</Notice> : null}
       {params.error === "billing-contact" ? <Notice tone="danger">Billing contact could not be saved.</Notice> : null}
@@ -72,6 +71,6 @@ export default async function ClientSettingsPage({
         </form>
       </SectionCard>
       <AccountSecurityForm email={user.email} backTo="/portal/client/settings" />
-    </PortalShell>
+    </>
   );
 }

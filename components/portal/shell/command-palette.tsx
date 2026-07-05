@@ -96,12 +96,12 @@ export function CommandPalette() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="hidden items-center gap-2 rounded-lg border border-[var(--deck-line)] bg-white px-3 py-2 text-xs text-[var(--deck-text-3)] transition-colors hover:border-[var(--deck-gold-line)] hover:text-[var(--deck-text)] lg:flex"
+        className="hidden items-center gap-2 rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 py-2 text-xs text-[var(--deck-text-3)] transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)] lg:flex"
         aria-label="Search (Cmd+K)"
       >
         <Search className="h-3.5 w-3.5" />
         <span>Search</span>
-        <kbd className="deck-mono rounded border border-[var(--deck-line)] bg-[#F8FAFB] px-1.5 py-0.5 text-[0.6rem]">
+        <kbd className="deck-mono rounded border border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-1.5 py-0.5 text-[0.6rem]">
           ⌘K
         </kbd>
       </button>
@@ -120,7 +120,7 @@ export function CommandPalette() {
           >
             <div className="flex items-center gap-3 border-b border-[var(--deck-line)] px-4 py-3">
               {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin text-[var(--deck-gold-deep)]" />
+                <Loader2 className="h-4 w-4 animate-spin text-[var(--deck-accent-ink)]" />
               ) : (
                 <Search className="h-4 w-4 text-[var(--deck-text-3)]" />
               )}
@@ -133,10 +133,14 @@ export function CommandPalette() {
                 }}
                 onKeyDown={onInputKeyDown}
                 placeholder="Search requests, clients, crew, invoices, quotes, leads, aircraft…"
-                className="flex-1 bg-transparent text-sm text-[var(--deck-text)] outline-none placeholder:text-[#98A2B3]"
+                className="flex-1 bg-transparent text-sm text-[var(--deck-text)] outline-none placeholder:text-[var(--deck-text-3)]"
                 role="combobox"
                 aria-expanded={results.length > 0}
                 aria-autocomplete="list"
+                aria-controls="command-palette-results"
+                aria-activedescendant={
+                  results.length > 0 ? `command-palette-option-${activeIndex}` : undefined
+                }
               />
               <button
                 type="button"
@@ -148,7 +152,12 @@ export function CommandPalette() {
               </button>
             </div>
 
-            <div className="deck-scroll max-h-[52vh] overflow-y-auto p-2">
+            <div
+              id="command-palette-results"
+              role="listbox"
+              aria-label="Search results"
+              className="deck-scroll max-h-[52vh] overflow-y-auto p-2"
+            >
               {query.trim().length < 2 ? (
                 <p className="px-3 py-6 text-center text-xs text-[var(--deck-text-3)]">
                   Type at least two characters to search every operational record.
@@ -168,13 +177,16 @@ export function CommandPalette() {
                         <button
                           key={`${item.href}-${item.label}`}
                           type="button"
+                          id={`command-palette-option-${flatIndex}`}
+                          role="option"
+                          aria-selected={isActive}
                           onClick={() => {
                             setOpen(false);
                             router.push(item.href);
                           }}
                           onMouseEnter={() => setActiveIndex(flatIndex)}
                           className={`flex w-full items-baseline justify-between gap-3 rounded-lg px-3 py-2 text-left transition-colors ${
-                            isActive ? "bg-[var(--deck-gold-tint)]" : "hover:bg-[var(--deck-gold-tint)]"
+                            isActive ? "bg-[var(--deck-accent-tint)]" : "hover:bg-[var(--deck-accent-tint)]"
                           }`}
                         >
                           <span className="min-w-0 truncate text-sm font-medium text-[var(--deck-text)]">

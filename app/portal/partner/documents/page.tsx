@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { EmptyState, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -22,7 +21,7 @@ export default async function PartnerDocumentsPage({
   const params = await searchParams;
   const docs = await listDocumentsForUser({ userId: user.id, role: user.role });
   return (
-    <PortalShell role="partner" user={user}>
+    <>
       {params.success === "uploaded" ? <Notice tone="success">Document uploaded and submitted for review.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Please provide a document name and file.</Notice> : null}
       {params.error === "terms" ? <Notice tone="danger">Confirm the document upload terms before uploading.</Notice> : null}
@@ -47,7 +46,7 @@ export default async function PartnerDocumentsPage({
             <input type="file" name="file" required accept=".pdf,.jpg,.jpeg,.png" className="text-sm text-muted-foreground file:mr-3 file:rounded-md file:border file:border-input file:bg-secondary/40 file:px-3 file:py-2 file:text-sm file:font-medium file:text-foreground hover:file:border-accent" />
           </div>
           <label className="mt-4 flex items-start gap-3 rounded-lg border border-border bg-background/60 p-3 text-sm text-muted-foreground">
-            <input name="document_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-gold)]" />
+            <input name="document_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-accent)]" />
             <span>Upload only documents you are authorized to provide and do not include full card numbers, CVV codes, bank account numbers, routing numbers, or unrelated personal information.</span>
           </label>
           <div className="mt-4"><SubmitButton className="rounded-full" pendingText="Uploading...">Upload Document</SubmitButton></div>
@@ -64,6 +63,6 @@ export default async function PartnerDocumentsPage({
           ))}</div>
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

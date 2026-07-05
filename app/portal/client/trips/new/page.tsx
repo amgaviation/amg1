@@ -1,5 +1,4 @@
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, Notice } from "@/components/portal/ui/primitives";
 import { AirportField, CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -25,7 +24,7 @@ export default async function NewTripPage({
   ]);
 
   return (
-    <PortalShell role="client" user={user}>
+    <>
       {params.error === "missing" ? (
         <Notice tone="danger">Please fill in all required fields (departure and arrival airports).</Notice>
       ) : params.error === "failed" ? (
@@ -108,7 +107,7 @@ export default async function NewTripPage({
                 </p>
                 <p className="mt-1 text-xs text-[var(--deck-text-3)]">
                   Tap to add to this manifest. Manage the list on the{" "}
-                  <Link href="/portal/client/passengers" className="font-semibold text-[var(--deck-gold-deep)] hover:underline">
+                  <Link href="/portal/client/passengers" className="font-semibold text-[var(--deck-accent-ink)] hover:underline">
                     Passengers
                   </Link>{" "}
                   page.
@@ -117,19 +116,19 @@ export default async function NewTripPage({
                   {savedPassengers.map((passenger) => (
                     <label
                       key={passenger.id}
-                      className="flex cursor-pointer items-center gap-3 rounded-lg border border-[var(--deck-line-strong)] bg-white px-3 py-2.5 text-sm transition-colors hover:border-[var(--deck-gold-line)]"
+                      className="flex cursor-pointer items-center gap-3 rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2.5 text-sm transition-colors hover:border-[var(--deck-accent-line)]"
                     >
                       <input
                         type="checkbox"
                         name="saved_passengers"
                         value={passenger.full_name}
                         defaultChecked={passenger.is_frequent}
-                        className="h-4 w-4 accent-[var(--deck-gold)]"
+                        className="h-4 w-4 accent-[var(--deck-accent)]"
                       />
                       <span className="min-w-0">
                         <span className="block truncate text-[var(--deck-text)]">{passenger.full_name}</span>
                         {passenger.is_frequent ? (
-                          <span className="block text-[0.62rem] font-semibold text-[var(--deck-gold-deep)]">
+                          <span className="block text-[0.62rem] font-semibold text-[var(--deck-accent-ink)]">
                             Frequent flyer
                           </span>
                         ) : null}
@@ -189,7 +188,7 @@ export default async function NewTripPage({
               </p>
             </div>
             <label className="mt-4 flex items-start gap-3 rounded-lg border border-border bg-background/60 p-3 text-sm text-muted-foreground">
-              <input name="support_disclaimer_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-gold)]" />
+              <input name="support_disclaimer_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-accent)]" />
               <span>Submitting this request does not create an accepted assignment, confirmed service, emergency response, or operational commitment. AMG reviews scope, aircraft status, crew availability, owner/operator approval, and operating conditions before acceptance.</span>
             </label>
           </SectionCard>
@@ -201,6 +200,6 @@ export default async function NewTripPage({
           </div>
         </div>
       </form>
-    </PortalShell>
+    </>
   );
 }

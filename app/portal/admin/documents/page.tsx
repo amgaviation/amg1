@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -50,7 +49,7 @@ export default async function AdminDocumentsPage({
   };
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success === "uploaded" ? <Notice tone="success">Document uploaded and submitted for review.</Notice> : null}
       {params.success === "reviewed" ? <Notice tone="success">Document review saved.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Document name and file are required.</Notice> : null}
@@ -78,8 +77,8 @@ export default async function AdminDocumentsPage({
           <div className="lg:col-span-3">
             <FileField label="File" name="file" accept=".pdf,.jpg,.jpeg,.png" required />
           </div>
-          <label className="lg:col-span-4 flex items-start gap-3 rounded-lg border border-border bg-[#F8FAFB] p-3 text-sm text-muted-foreground">
-            <input name="document_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-gold)]" />
+          <label className="lg:col-span-4 flex items-start gap-3 rounded-lg border border-border bg-[var(--deck-panel-2)] p-3 text-sm text-muted-foreground">
+            <input name="document_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-accent)]" />
             <span>Upload only documents AMG is authorized to store and do not include full card numbers, CVV codes, bank account numbers, routing numbers, or unrelated personal information.</span>
           </label>
           <div className="flex items-end">
@@ -165,6 +164,6 @@ export default async function AdminDocumentsPage({
           ]}
         />
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

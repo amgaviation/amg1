@@ -113,10 +113,8 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
     {
       label: "Records",
       items: [
-        { label: "Credentials", href: "/portal/crew/credentials", icon: "badgeCheck" },
+        { label: "Credentials & Documents", href: "/portal/crew/credentials", icon: "badgeCheck" },
         { label: "Expenses", href: "/portal/crew/expenses", icon: "receipt" },
-        { label: "Documents", href: "/portal/crew/documents", icon: "fileText" },
-        { label: "Profile", href: "/portal/crew/profile", icon: "user" },
       ],
     },
     {
@@ -133,7 +131,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
   ],
   admin: [
     {
-      label: "Command",
+      label: "Operations",
       items: [
         { label: "Dashboard", href: "/portal/admin/dashboard", icon: "gauge" },
         { label: "Mission Control", href: "/portal/admin/mission-control", icon: "radar" },
@@ -143,14 +141,9 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       ],
     },
     {
-      label: "CRM",
+      label: "Pipeline",
       items: [
         { label: "Sales Pipeline", href: "/portal/admin/crm", icon: "trendingUp" },
-      ],
-    },
-    {
-      label: "Intake",
-      items: [
         { label: "Form Submissions", href: "/portal/admin/form-submissions", icon: "inbox" },
         { label: "Network Applications", href: "/portal/admin/network-applications", icon: "userCheck" },
         { label: "User Approvals", href: "/portal/admin/user-approvals", icon: "check" },
@@ -168,29 +161,29 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       ],
     },
     {
-      label: "Finance",
+      label: "Billing",
       items: [
-        { label: "Analytics", href: "/portal/admin/financial/analytics", icon: "barChart" },
-        { label: "Receivables", href: "/portal/admin/receivables", icon: "alert" },
         { label: "Quotes", href: "/portal/admin/quotes", icon: "receipt" },
         { label: "Invoices", href: "/portal/admin/invoices", icon: "wallet" },
         { label: "Payments", href: "/portal/admin/payments", icon: "dollar" },
+        { label: "Receivables", href: "/portal/admin/receivables", icon: "alert" },
         { label: "Subscriptions", href: "/portal/admin/subscriptions", icon: "creditCard" },
+      ],
+    },
+    {
+      label: "Finance",
+      items: [
+        { label: "Analytics", href: "/portal/admin/financial/analytics", icon: "barChart" },
         { label: "Expenses", href: "/portal/admin/expenses", icon: "receipt" },
         { label: "Receipts", href: "/portal/admin/receipts", icon: "fileText" },
       ],
     },
     {
-      label: "Communications",
+      label: "Comms & Files",
       items: [
         { label: "Messages", href: "/portal/admin/messages", icon: "messageSquare" },
         { label: "Emails", href: "/portal/admin/communications/emails", icon: "mail" },
         { label: "Notifications", href: "/portal/admin/notifications", icon: "bell" },
-      ],
-    },
-    {
-      label: "Records",
-      items: [
         { label: "Documents", href: "/portal/admin/documents", icon: "fileText" },
       ],
     },
@@ -214,8 +207,6 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       label: "Work",
       items: [
         { label: "Service Requests", href: "/portal/partner/requests", icon: "clipboard" },
-        { label: "Quotes", href: "/portal/partner/quotes", icon: "receipt" },
-        { label: "Milestones", href: "/portal/partner/milestones", icon: "check" },
       ],
     },
     {
@@ -345,6 +336,44 @@ export const MISSION_STATUS_TONE = buildToneMap(MISSION_STATUS);
 export const MISSION_BOARD_COLUMNS = MISSION_STATUS.map((s) => s.value).filter(
   (v) => v !== "draft"
 );
+
+/**
+ * Operational flow stages — the portal's working vocabulary for missions.
+ * Mission Control lanes and the Command Center flow band both render these,
+ * so admins see one pipeline everywhere: Intake → Quote → Crew & Schedule →
+ * In Flight (billing hangs off invoices, not mission status).
+ */
+export const MISSION_FLOW_STAGES: {
+  key: string;
+  label: string;
+  hint: string;
+  statuses: string[];
+}[] = [
+  {
+    key: "intake",
+    label: "Intake",
+    hint: "New + under review + awaiting client",
+    statuses: ["submitted", "under_review", "awaiting_client_info"],
+  },
+  {
+    key: "quote",
+    label: "Quote",
+    hint: "Quoted, awaiting client approval",
+    statuses: ["quoted"],
+  },
+  {
+    key: "schedule",
+    label: "Crew & Schedule",
+    hint: "Approved → crew assigned → scheduled",
+    statuses: ["approved", "crew_assigned", "scheduled"],
+  },
+  {
+    key: "fly",
+    label: "In Flight",
+    hint: "Missions in progress",
+    statuses: ["in_progress"],
+  },
+];
 
 export const MISSION_TYPE: Choice[] = [
   { value: "passenger_trip", label: "Passenger Trip" },

@@ -1,5 +1,4 @@
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -22,7 +21,7 @@ export default async function AdminExpensesPage({
   const params = await searchParams;
   const [expenses, invoices] = await Promise.all([listAllExpenses(), listAllInvoices()]);
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success ? <Notice tone="success">Expense review saved.</Notice> : null}
       {params.error === "already_billed" ? <Notice tone="danger">That expense is already linked to an invoice.</Notice> : null}
       {params.error === "not_billable" ? <Notice tone="danger">Only approved client-billable expenses can be added to invoices.</Notice> : null}
@@ -60,6 +59,6 @@ export default async function AdminExpensesPage({
           ]}
         />
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

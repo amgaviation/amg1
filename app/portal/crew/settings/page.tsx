@@ -1,6 +1,5 @@
 import { requireRole } from "@/lib/portal/session";
 import { AccountSecurityForm } from "@/components/portal/account-security-form";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, Notice } from "@/components/portal/ui/primitives";
 import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -33,7 +32,7 @@ export default async function CrewSettingsPage({
               : null;
 
   return (
-    <PortalShell role="crew" user={user}>
+    <>
       {params.success ? <Notice tone="success">Crew profile saved.</Notice> : null}
       {params.accountSuccess === "email" ? <Notice tone="success">Email change saved. Check your inbox if confirmation is required.</Notice> : null}
       {params.accountSuccess === "password" ? <Notice tone="success">Password updated for this portal account.</Notice> : null}
@@ -83,14 +82,14 @@ export default async function CrewSettingsPage({
             <CheckboxField label="Generally available for short-notice coverage" name="generally_short_notice" defaultChecked={profile?.generally_short_notice ?? false} />
             <CheckboxField label="Willing to travel" name="willing_to_travel" defaultChecked={profile?.willing_to_travel ?? false} />
           </div>
-          <div className="lg:col-span-3 rounded-lg border border-border bg-[#F8FAFB] p-4">
+          <div className="lg:col-span-3 rounded-lg border border-border bg-[var(--deck-panel-2)] p-4">
             <h3 className="font-display text-lg font-bold uppercase text-foreground">Weekly Availability</h3>
             <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-7">
               {["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"].map((day) => {
                 const selected = Array.isArray(weeklyAvailability[day]) ? weeklyAvailability[day] : [];
                 return (
-                  <div key={day} className="rounded-lg border border-border bg-white p-3">
-                    <p className="text-xs font-bold uppercase tracking-wider text-[var(--deck-gold-deep)]">{day}</p>
+                  <div key={day} className="rounded-lg border border-border bg-[var(--deck-panel)] p-3">
+                    <p className="text-xs font-bold uppercase tracking-wider text-[var(--deck-accent-ink)]">{day}</p>
                     <div className="mt-3 grid gap-2">
                       {["available", "morning", "afternoon", "evening", "overnight"].map((slot) => (
                         <label key={slot} className="flex items-center gap-2 text-xs text-foreground">
@@ -111,6 +110,6 @@ export default async function CrewSettingsPage({
         </form>
       </SectionCard>
       <AccountSecurityForm email={user.email} backTo="/portal/crew/settings" />
-    </PortalShell>
+    </>
   );
 }

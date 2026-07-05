@@ -31,8 +31,8 @@ assert.match(
 
 assert.match(
   adminRecordManager,
-  /data-admin-record-table-scroller[^>]*className="[^"]*overflow-x-auto[^"]*bg-white/,
-  "AdminRecordManager desktop table must scroll horizontally inside a white scroller",
+  /data-admin-record-table-scroller[^>]*className="[^"]*overflow-x-auto[^"]*bg-\[var\(--deck-panel\)\]/,
+  "AdminRecordManager desktop table must scroll horizontally inside an opaque panel-token scroller",
 );
 
 assert.match(
@@ -49,20 +49,20 @@ assert.match(
 
 assert.match(
   adminRecordManager,
-  /<table className="[^"]*min-w-\[[^\]]+\][^"]*bg-white/,
-  "AdminRecordManager table must have an explicit scroll width and white background",
+  /<table className="[^"]*min-w-\[[^\]]+\][^"]*bg-\[var\(--deck-panel\)\]/,
+  "AdminRecordManager table must have an explicit scroll width and opaque panel-token background",
 );
 
 assert.match(
   adminRecordManager,
-  /<thead className="[^"]*bg-\[#F8FAFB\]/,
-  "AdminRecordManager table header must have an explicit light background",
+  /<thead className="[^"]*bg-\[var\(--deck-panel-2\)\]/,
+  "AdminRecordManager table header must have an explicit panel-2 token background",
 );
 
 assert.match(
   adminRecordManager,
-  /<tbody className="[^"]*bg-white/,
-  "AdminRecordManager table body must have an explicit white background",
+  /<tbody className="[^"]*bg-\[var\(--deck-panel\)\]/,
+  "AdminRecordManager table body must have an explicit opaque panel-token background",
 );
 
 assert.match(
@@ -73,8 +73,8 @@ assert.match(
 
 assert.match(
   table,
-  /overflow-x-auto[^"]*bg-white/,
-  "Base Table scroller must expose a white horizontal scroll surface",
+  /overflow-x-auto[^"]*bg-\[var\(--deck-panel/,
+  "Base Table scroller must expose an opaque panel-token horizontal scroll surface",
 );
 
 assert.match(

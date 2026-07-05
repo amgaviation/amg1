@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
-import { DetailRow, EmptyState, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
+import { DetailRow, EmptyState, Notice, SectionCard } from "@/components/portal/ui/primitives";
+import { DescriptionList } from "@/components/portal/ui/description-list";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
@@ -48,50 +48,81 @@ export default async function AdminTripDetailPage({
     : [];
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {flash.success ? <Notice tone="success">Mission updated.</Notice> : null}
-      <PageHeader eyebrow="Mission Detail" title={mission.ref} description={formatRoute(mission.departure_airport, mission.arrival_airport)} actions={<Link href="/portal/admin/trips" className="text-xs text-muted-foreground hover:text-accent">Back to trips</Link>} />
+
+      {/* Detail-archetype summary header: ref + status + mono key facts */}
+      <div className="flex flex-col gap-4 pb-2 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <p className="deck-eyebrow">Mission Detail</p>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <h1 className="deck-title text-[1.65rem] sm:text-[2rem]">{mission.ref}</h1>
+            <StatusBadge
+              label={MISSION_STATUS_LABEL[mission.status] ?? mission.status}
+              tone={toneFor(MISSION_STATUS_TONE, mission.status)}
+            />
+          </div>
+          <p className="deck-mono mt-2.5 !text-[0.8rem] text-[var(--deck-text-2)]">
+            {formatRoute(mission.departure_airport, mission.arrival_airport)}
+            {" · DEP "}
+            {formatDateTime(mission.requested_departure)}
+            {" · "}
+            {mission.client?.company_name ?? mission.client?.full_name ?? mission.client?.email ?? publicRequest?.email ?? "Unassigned client"}
+          </p>
+        </div>
+        <div data-portal-action-bar className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/portal/admin/trips"
+            className="rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
+          >
+            All Requests
+          </Link>
+        </div>
+      </div>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_24rem]">
         <div className="space-y-6">
           <SectionCard title="Mission Profile" icon="plane">
-            <dl>
-              <DetailRow label="Status"><StatusBadge label={MISSION_STATUS_LABEL[mission.status] ?? mission.status} tone={toneFor(MISSION_STATUS_TONE, mission.status)} /></DetailRow>
-              <DetailRow label="Client">{mission.client?.company_name ?? mission.client?.full_name ?? mission.client?.email ?? publicRequest?.email ?? "-"}</DetailRow>
-              <DetailRow label="Aircraft">{mission.aircraft?.tail_number ?? mission.tail_number ?? publicRequest?.tail_number ?? "TBD"}</DetailRow>
-              <DetailRow label="Route">{formatRoute(mission.departure_airport, mission.arrival_airport)}</DetailRow>
-              <DetailRow label="Departure">{formatDateTime(mission.requested_departure)}</DetailRow>
-              <DetailRow label="Arrival">{formatDateTime(mission.requested_arrival)}</DetailRow>
-              <DetailRow label="Passengers">{mission.passenger_count ?? mission.passengers.length}</DetailRow>
-              <DetailRow label="Operational Summary">{publicRequest?.operational_summary ?? mission.additional_notes ?? "-"}</DetailRow>
-              <DetailRow label="Internal Notes">{mission.internal_notes ?? "-"}</DetailRow>
-            </dl>
+            <DescriptionList
+              items={[
+                { label: "Client", value: mission.client?.company_name ?? mission.client?.full_name ?? mission.client?.email ?? publicRequest?.email ?? "-" },
+                { label: "Aircraft", value: mission.aircraft?.tail_number ?? mission.tail_number ?? publicRequest?.tail_number ?? "TBD", mono: true },
+                { label: "Route", value: formatRoute(mission.departure_airport, mission.arrival_airport), mono: true },
+                { label: "Passengers", value: mission.passenger_count ?? mission.passengers.length },
+                { label: "Departure", value: formatDateTime(mission.requested_departure) },
+                { label: "Arrival", value: formatDateTime(mission.requested_arrival) },
+                { label: "Operational Summary", value: publicRequest?.operational_summary ?? mission.additional_notes ?? "-", wide: true },
+                { label: "Internal Notes", value: mission.internal_notes ?? "-", wide: true },
+              ]}
+            />
           </SectionCard>
 
           {publicRequest ? (
             <SectionCard title="Public Support Request" icon="clipboard">
-              <dl>
-                <DetailRow label="Requester">{publicRequest.requester_name}</DetailRow>
-                <DetailRow label="Email">{publicRequest.email}</DetailRow>
-                <DetailRow label="Phone">{publicRequest.phone ?? "-"}</DetailRow>
-                <DetailRow label="Preferred Contact">{publicRequest.preferred_contact_method ?? "-"}</DetailRow>
-                <DetailRow label="Company">{publicRequest.company_name ?? "-"}</DetailRow>
-                <DetailRow label="Requested Category">{publicRequest.requested_service_category}</DetailRow>
-                <DetailRow label="Aircraft">{publicRequest.aircraft_display ?? ([publicRequest.aircraft_make, publicRequest.aircraft_model].filter(Boolean).join(" ") || "-")}</DetailRow>
-                <DetailRow label="Tail Number">{publicRequest.tail_number ?? "-"}</DetailRow>
-                <DetailRow label="Aircraft Base">{publicRequest.aircraft_base ?? "-"}</DetailRow>
-                <DetailRow label="Requested Timing">{publicRequest.requested_timing ?? "-"}</DetailRow>
-                <DetailRow label="Route Submitted">{publicRequest.route ?? "-"}</DetailRow>
-                <DetailRow label="Source Form">{publicRequest.source_form_type ?? "-"}</DetailRow>
-                <DetailRow label="Source Submission">{publicRequest.source_submission_id ?? "-"}</DetailRow>
-                <DetailRow label="Portal Account">{publicRequest.portal_account_status ?? "not created"}</DetailRow>
-              </dl>
+              <DescriptionList
+                items={[
+                  { label: "Requester", value: publicRequest.requester_name },
+                  { label: "Email", value: publicRequest.email },
+                  { label: "Phone", value: publicRequest.phone ?? "-" },
+                  { label: "Preferred Contact", value: publicRequest.preferred_contact_method ?? "-" },
+                  { label: "Company", value: publicRequest.company_name ?? "-" },
+                  { label: "Requested Category", value: publicRequest.requested_service_category },
+                  { label: "Aircraft", value: publicRequest.aircraft_display ?? ([publicRequest.aircraft_make, publicRequest.aircraft_model].filter(Boolean).join(" ") || "-") },
+                  { label: "Tail Number", value: publicRequest.tail_number ?? "-", mono: true },
+                  { label: "Aircraft Base", value: publicRequest.aircraft_base ?? "-", mono: true },
+                  { label: "Requested Timing", value: publicRequest.requested_timing ?? "-" },
+                  { label: "Route Submitted", value: publicRequest.route ?? "-", mono: true },
+                  { label: "Source Form", value: publicRequest.source_form_type ?? "-" },
+                  { label: "Source Submission", value: publicRequest.source_submission_id ?? "-", mono: true },
+                  { label: "Portal Account", value: publicRequest.portal_account_status ?? "not created" },
+                ]}
+              />
               {publicDetails.length ? (
                 <div className="mt-5 grid gap-3">
                   <p className="eyebrow text-[0.65rem] text-muted-foreground">Category Details</p>
                   <div className="grid gap-2">
                     {publicDetails.map(([key, value]) => (
-                      <div key={key} className="rounded-lg border border-border bg-[#F8FAFB] p-3">
+                      <div key={key} className="rounded-lg border border-border bg-[var(--deck-panel-2)] p-3">
                         <p className="text-[0.65rem] font-semibold uppercase [letter-spacing:0.18em] text-muted-foreground">{publicSupportLabel(key)}</p>
                         <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">{value}</p>
                       </div>
@@ -102,7 +133,7 @@ export default async function AdminTripDetailPage({
               {rawSubmissionDetails.length ? (
                 <div className="mt-5 grid gap-3">
                   <p className="eyebrow text-[0.65rem] text-muted-foreground">Original Form Submission</p>
-                  <div className="rounded-lg border border-border bg-[#F8FAFB] p-3">
+                  <div className="rounded-lg border border-border bg-[var(--deck-panel-2)] p-3">
                     <dl>
                       {rawSubmissionDetails.map(([key, value]) => (
                         <DetailRow key={key} label={publicSupportLabel(key)}>
@@ -119,7 +150,7 @@ export default async function AdminTripDetailPage({
           <SectionCard title="Crew Assignments" icon="users">
             {mission.crew.length === 0 ? <EmptyState icon="users" title="No crew assigned" /> : (
               <div className="space-y-3">{mission.crew.map((item) => (
-                <div key={item.id} className="rounded-lg border border-border bg-[#F8FAFB] p-4">
+                <div key={item.id} className="rounded-lg border border-border bg-[var(--deck-panel-2)] p-4">
                   <p className="text-sm font-semibold">{item.crew?.full_name ?? item.crew?.email ?? item.crew_id}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{item.crew_role} | {item.status}</p>
                 </div>
@@ -130,7 +161,7 @@ export default async function AdminTripDetailPage({
           <SectionCard title="Partner Assignments" icon="handshake">
             {mission.partners.length === 0 ? <EmptyState icon="handshake" title="No partners assigned" /> : (
               <div className="space-y-3">{mission.partners.map((item) => (
-                <div key={item.id} className="rounded-lg border border-border bg-[#F8FAFB] p-4">
+                <div key={item.id} className="rounded-lg border border-border bg-[var(--deck-panel-2)] p-4">
                   <p className="text-sm font-semibold">{item.service_type} - {item.partner?.full_name ?? item.partner?.email ?? item.partner_id}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{item.status} | {item.location ?? "Location TBD"} | {formatMoney(item.quote_amount)}</p>
                 </div>
@@ -152,7 +183,7 @@ export default async function AdminTripDetailPage({
             <form action={assignCrew} className="space-y-5">
               <input type="hidden" name="mission_id" value={mission.id} />
               {[0, 1, 2].map((index) => (
-                <div key={index} className="rounded-lg border border-border bg-[#F8FAFB] p-3 space-y-3">
+                <div key={index} className="rounded-lg border border-border bg-[var(--deck-panel-2)] p-3 space-y-3">
                   <p className="eyebrow text-[0.6rem] text-muted-foreground">Crew Slot {index + 1}</p>
                   <SelectField label="Crew Member" name="crew_id[]" defaultValue="" options={[{ value: "", label: "Select crew..." }, ...crew.map((c) => ({ value: c.id, label: c.full_name ?? c.email }))]} />
                   <SelectField label="Crew Role" name="crew_role[]" defaultValue={index === 0 ? "pic" : index === 1 ? "sic" : "relief"} options={CREW_ROLE.map((r) => ({ value: r.value, label: r.label }))} />
@@ -176,7 +207,7 @@ export default async function AdminTripDetailPage({
             <form action={createQuote} className="space-y-5">
               <input type="hidden" name="mission_id" value={mission.id} />
               {[0, 1, 2, 3, 4].map((index) => (
-                <div key={index} className="rounded-lg border border-border bg-[#F8FAFB] p-3 space-y-3">
+                <div key={index} className="rounded-lg border border-border bg-[var(--deck-panel-2)] p-3 space-y-3">
                   <p className="eyebrow text-[0.6rem] text-muted-foreground">Quote Line {index + 1}</p>
                   <SelectField label="Category" name="category[]" defaultValue={index === 0 ? QUOTE_CATEGORIES[0] : ""} options={[{ value: "", label: "Select category..." }, ...QUOTE_CATEGORIES.map((c) => ({ value: c, label: c }))]} />
                   <TextField label="Description" name="description[]" defaultValue={index === 0 ? `Operations support for ${mission.ref}` : ""} />
@@ -206,6 +237,6 @@ export default async function AdminTripDetailPage({
           </SectionCard>
         </div>
       </div>
-    </PortalShell>
+    </>
   );
 }

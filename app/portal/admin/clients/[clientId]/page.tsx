@@ -8,7 +8,6 @@ import {
   RelatedList,
   type DetailFormField,
 } from "@/components/portal/admin/record-detail";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -119,7 +118,7 @@ export default async function AdminClientDetailPage({
   ).length;
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {query.success ? <Notice tone="success">Client record saved.</Notice> : null}
       {query.error === "missing" ? <Notice tone="danger">Client name and valid email are required.</Notice> : null}
       {query.error === "duplicate" ? <Notice tone="danger">A profile already exists for that email.</Notice> : null}
@@ -170,7 +169,7 @@ export default async function AdminClientDetailPage({
       </div>
 
       <Tabs defaultValue="overview" className="gap-5">
-        <TabsList className="h-auto w-full flex-wrap justify-start bg-[#EEF1F5] p-1">
+        <TabsList className="h-auto w-full flex-wrap justify-start bg-[var(--deck-panel-2)] p-1">
           {["Overview", "Contacts / Authorized Requesters", "Aircraft", "Missions", "Billing", "Documents", "Communications", "Notes", "Settings"].map((tab) => (
             <TabsTrigger key={tab} value={tab.toLowerCase().replace(/ \/ /g, "-").replace(/\s+/g, "-")} className="grow-0 rounded-md px-3 py-2 text-xs">
               {tab}
@@ -330,6 +329,6 @@ export default async function AdminClientDetailPage({
           />
         </TabsContent>
       </Tabs>
-    </PortalShell>
+    </>
   );
 }

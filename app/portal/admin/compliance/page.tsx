@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DetailRow, Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { createServiceClient } from "@/lib/supabase/server";
 import { consentScriptRegistry } from "@/lib/compliance/consent";
@@ -39,7 +38,7 @@ export default async function AdminCompliancePage() {
   const counts = await complianceCounts();
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {!counts.ok ? (
         <Notice tone="warn">
           {getUserFacingErrorMessage({ area: "admin_portal", action: "load", correlationId: counts.referenceId })}
@@ -49,7 +48,7 @@ export default async function AdminCompliancePage() {
         eyebrow="AMG Operations"
         title="Compliance"
         description="Legal notices, privacy requests, consent architecture, script-gating, and administrative review checkpoints."
-        actions={<Link href="/privacy-choices" className="rounded-full border border-[var(--deck-line)] px-4 py-2 text-xs font-semibold text-[var(--deck-text)] hover:border-[var(--deck-gold)]">Public Privacy Choices</Link>}
+        actions={<Link href="/privacy-choices" className="rounded-full border border-[var(--deck-line)] px-4 py-2 text-xs font-semibold text-[var(--deck-text)] hover:border-[var(--deck-accent)]">Public Privacy Choices</Link>}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
@@ -67,7 +66,7 @@ export default async function AdminCompliancePage() {
             <Link
               key={document.slug}
               href={document.legacyPath ?? `/legal/${document.slug}`}
-              className="rounded-lg border border-[var(--deck-line)] bg-[#F8FAFB] p-4 text-sm transition-colors hover:border-[var(--deck-gold)]"
+              className="rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-4 text-sm transition-colors hover:border-[var(--deck-accent)]"
             >
               <span className="font-semibold text-[var(--deck-text)]">{document.title}</span>
               <span className="mt-1 block text-xs leading-relaxed text-[var(--deck-text-3)]">{document.description}</span>
@@ -94,6 +93,6 @@ export default async function AdminCompliancePage() {
           scope, aircraft status, crew availability, owner/operator approval, and operating conditions have been reviewed.
         </p>
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

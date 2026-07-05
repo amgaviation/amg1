@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { EmptyState, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -117,8 +116,8 @@ function ThreadRow({ thread, selectedId, query }: { thread: ThreadSummary; selec
   return (
     <Link
       href={`/portal/admin/messages?${next.toString()}`}
-      className={`block border-b border-[var(--deck-line)] px-4 py-3 transition-colors hover:bg-[var(--deck-gold-tint)] ${
-        selectedId === thread.id ? "bg-[var(--deck-gold-tint)]" : "bg-white"
+      className={`block border-b border-[var(--deck-line)] px-4 py-3 transition-colors hover:bg-[var(--deck-accent-tint)] ${
+        selectedId === thread.id ? "bg-[var(--deck-accent-tint)]" : "bg-[var(--deck-panel)]"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -132,11 +131,11 @@ function ThreadRow({ thread, selectedId, query }: { thread: ThreadSummary; selec
       <div className="mt-3 flex flex-wrap gap-1.5">
         <StatusBadge label={label(thread.status)} tone={statusTone(thread.status)} />
         <StatusBadge label={label(thread.priority)} tone={priorityTone(thread.priority)} />
-        <span className="rounded-full border border-[var(--deck-line)] bg-[#F8FAFB] px-2.5 py-0.5 text-xs text-[var(--deck-text-2)]">
+        <span className="rounded-full border border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-2.5 py-0.5 text-xs text-[var(--deck-text-2)]">
           {thread.related_label}
         </span>
         {thread.unread_count > 0 ? (
-          <span className="rounded-full border border-[var(--deck-gold-line)] bg-[var(--deck-gold-tint)] px-2.5 py-0.5 text-xs font-semibold text-[var(--deck-gold-deep)]">
+          <span className="rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-2.5 py-0.5 text-xs font-semibold text-[var(--deck-accent-ink)]">
             {thread.unread_count} unread
           </span>
         ) : null}
@@ -185,7 +184,7 @@ function TemplatePreview({ templates }: { templates: CommunicationTemplate[] }) 
       </summary>
       <div className="mt-3 grid gap-3">
         {templates.map((template) => (
-          <div key={template.id} className="rounded-md border border-[var(--deck-line)] bg-white p-3">
+          <div key={template.id} className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-3">
             <p className="text-sm font-semibold text-[var(--deck-text)]">{template.name}</p>
             <p className="mt-1 text-xs font-medium text-[var(--deck-text-2)]">{template.subject_template}</p>
             <p className="mt-2 line-clamp-3 text-xs leading-5 text-[var(--deck-text-3)]">{template.body_template_text}</p>
@@ -309,7 +308,7 @@ function MessageBubble({ message }: { message: CommunicationMessage }) {
   const isNote = message.message_type === "internal_note";
   const isInbound = message.direction === "inbound";
   return (
-    <article className={`rounded-lg border p-4 ${isNote ? "border-[#EAD9AE] bg-[#FBF4E3]" : isInbound ? "border-[var(--deck-line)] bg-white" : "border-[var(--deck-gold-line)] bg-[var(--deck-gold-tint)]"}`}>
+    <article className={`rounded-lg border p-4 ${isNote ? "border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)]" : isInbound ? "border-[var(--deck-line)] bg-[var(--deck-panel)]" : "border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)]"}`}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="text-sm font-semibold text-[var(--deck-text)]">
@@ -319,7 +318,7 @@ function MessageBubble({ message }: { message: CommunicationMessage }) {
         </div>
         <div className="flex flex-wrap gap-1.5">
           <StatusBadge label={label(message.status)} tone={statusTone(message.status)} />
-          <span className="rounded-full border border-[var(--deck-line)] bg-white px-2.5 py-0.5 text-xs text-[var(--deck-text-2)]">
+          <span className="rounded-full border border-[var(--deck-line)] bg-[var(--deck-panel)] px-2.5 py-0.5 text-xs text-[var(--deck-text-2)]">
             {label(message.visibility)}
           </span>
         </div>
@@ -329,7 +328,7 @@ function MessageBubble({ message }: { message: CommunicationMessage }) {
         {message.body_text || "No text body was stored for this message."}
       </p>
       {message.failure_reason ? (
-        <p className="mt-3 rounded-md border border-[#EFC7C7] bg-[#FBEFEF] px-3 py-2 text-xs text-[#7E2222]">
+        <p className="mt-3 rounded-md border border-[var(--deck-danger-line)] bg-[var(--deck-danger-tint)] px-3 py-2 text-xs text-[var(--deck-danger)]">
           Send failed. Review system logs or retry from this thread.
         </p>
       ) : null}
@@ -360,7 +359,7 @@ function ThreadDetail({
     <div className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="deck-mono text-[var(--deck-gold-deep)]">{detail.thread.public_id}</p>
+          <p className="deck-mono text-[var(--deck-accent-ink)]">{detail.thread.public_id}</p>
           <h2 className="mt-1 text-xl font-bold text-[var(--deck-text)]">{detail.thread.subject ?? "AMG Operations"}</h2>
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -385,7 +384,7 @@ function ThreadDetail({
               <Link
                 key={attachment.id}
                 href={`/portal/admin/communications/attachments/${attachment.id}/view`}
-                className="rounded-md border border-[var(--deck-line)] bg-white px-3 py-2 text-sm font-semibold text-[var(--deck-gold-deep)] hover:border-[var(--deck-gold-line)]"
+                className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 py-2 text-sm font-semibold text-[var(--deck-accent-ink)] hover:border-[var(--deck-accent-line)]"
               >
                 {attachment.file_name}
               </Link>
@@ -395,11 +394,11 @@ function ThreadDetail({
       ) : null}
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <form action={addCommunicationInternalNoteAction} className="grid gap-3 rounded-xl border border-[#EAD9AE] bg-[#FBF4E3] p-4">
+        <form action={addCommunicationInternalNoteAction} className="grid gap-3 rounded-xl border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] p-4">
           <input type="hidden" name="thread_id" value={detail.thread.id} />
-          <label className="deck-eyebrow grid gap-1 !text-[0.6rem] !text-[#8F5F12]">
+          <label className="deck-eyebrow grid gap-1 !text-[0.6rem] !text-[var(--deck-warn)]">
             Internal Note
-            <textarea name="body" required rows={4} className="deck-input !border-[#EAD9AE] font-normal normal-case leading-6 [letter-spacing:normal]" />
+            <textarea name="body" required rows={4} className="deck-input !border-[var(--deck-warn-line)] font-normal normal-case leading-6 [letter-spacing:normal]" />
           </label>
           <div className="flex justify-end">
             <SubmitButton className="rounded-full" pendingText="Adding...">Add Internal Note</SubmitButton>
@@ -435,7 +434,7 @@ export default async function AdminMessagesPage({
   const providerConfigured = provider.configured || provider.mockEnabled;
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       <PageHeader
         eyebrow="AMG Operations"
         title="Communications"
@@ -449,7 +448,7 @@ export default async function AdminMessagesPage({
         className="overflow-hidden"
         bodyClassName="p-0"
       >
-        <div className="border-b border-[var(--deck-line)] bg-[#F8FAFB] px-5 py-4">
+        <div className="border-b border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-5 py-4">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div className="min-w-0">
               <div className="flex items-center gap-2">
@@ -480,7 +479,7 @@ export default async function AdminMessagesPage({
               <option value="">All priorities</option>
               {PRIORITY_OPTIONS.map((priority) => <option key={priority} value={priority}>{label(priority)}</option>)}
             </select>
-            <button className="rounded-full border border-[var(--deck-line)] bg-white px-4 py-2 text-sm font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)]">
+            <button className="rounded-full border border-[var(--deck-line)] bg-[var(--deck-panel)] px-4 py-2 text-sm font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)]">
               Apply Filters
             </button>
           </form>
@@ -496,7 +495,7 @@ export default async function AdminMessagesPage({
                   <Link
                     key={view.value || "attention"}
                     href={`/portal/admin/messages?${next.toString()}`}
-                    className={`shrink-0 rounded-full border px-3 py-2 text-sm ${activeView === view.value ? "border-[var(--deck-gold)] bg-[var(--deck-gold-tint)] font-semibold text-[var(--deck-gold-deep)]" : "border-[var(--deck-line-strong)] bg-white text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)]"}`}
+                    className={`shrink-0 rounded-full border px-3 py-2 text-sm ${activeView === view.value ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] font-semibold text-[var(--deck-accent-ink)]" : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)]"}`}
                   >
                     {view.label}
                   </Link>
@@ -540,7 +539,7 @@ export default async function AdminMessagesPage({
                 title="No thread selected"
                 description="Select a conversation from the inbox to review the message history, update status, or link operational records."
                 action={
-                  <Link href={hrefWith(query, { compose: "1", thread: null })} className="inline-flex rounded-full border border-[var(--deck-gold-line)] bg-[var(--deck-gold-tint)] px-4 py-2 text-sm font-semibold text-[var(--deck-gold-deep)]">
+                  <Link href={hrefWith(query, { compose: "1", thread: null })} className="inline-flex rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-4 py-2 text-sm font-semibold text-[var(--deck-accent-ink)]">
                     Compose email
                   </Link>
                 }
@@ -552,14 +551,14 @@ export default async function AdminMessagesPage({
 
       {params.compose ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(10,19,34,0.6)] p-4" role="dialog" aria-modal="true" aria-label="Compose email">
-          <div className="max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-xl border border-[var(--deck-line)] bg-white shadow-2xl">
-            <header className="flex items-start justify-between gap-4 border-b border-[var(--deck-line)] bg-[#F8FAFB] px-5 py-4">
+          <div className="max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-xl border border-[var(--deck-line)] bg-[var(--deck-panel)] shadow-2xl">
+            <header className="flex items-start justify-between gap-4 border-b border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-5 py-4">
               <div>
                 <p className="deck-eyebrow">Admin Email</p>
                 <h3 className="mt-1 text-xl font-bold text-[var(--deck-text)]">Compose Operational Message</h3>
                 <p className="mt-1 text-sm text-[var(--deck-text-3)]">Email sending is available to AMG admins when provider configuration is enabled.</p>
               </div>
-              <Link href={hrefWith(query, { compose: null })} className="rounded-md p-2 text-[var(--deck-text-3)] hover:bg-[#EEF1F5]" aria-label="Close compose">
+              <Link href={hrefWith(query, { compose: null })} className="rounded-md p-2 text-[var(--deck-text-3)] hover:bg-[var(--deck-panel-2)]" aria-label="Close compose">
                 X
               </Link>
             </header>
@@ -569,6 +568,6 @@ export default async function AdminMessagesPage({
           </div>
         </div>
       ) : null}
-    </PortalShell>
+    </>
   );
 }

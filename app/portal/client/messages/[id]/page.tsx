@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { isThreadMember } from "@/lib/portal/queries";
@@ -25,7 +24,7 @@ export default async function ClientThreadPage({ params }: { params: Promise<{ i
   const { thread, messages } = result;
 
   return (
-    <PortalShell role="client" user={user}>
+    <>
       <PageHeader eyebrow="Messages" title={thread.title ?? "AMG Operations"} actions={<Link href="/portal/client/messages" className="text-xs text-muted-foreground hover:text-accent">← All threads</Link>} />
       <SectionCard icon="messageSquare">
         <div className="space-y-4">
@@ -55,6 +54,6 @@ export default async function ClientThreadPage({ params }: { params: Promise<{ i
           </div>
         </form>
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

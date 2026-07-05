@@ -134,7 +134,7 @@ export function DetailGrid({ items }: { items: DetailItem[] }) {
       {items.map((item) => (
         <DetailRow key={item.label} label={item.label}>
           {item.href ? (
-            <Link href={item.href} className="inline-flex items-center gap-1 font-semibold text-[var(--deck-gold-deep)] hover:underline">
+            <Link href={item.href} className="inline-flex items-center gap-1 font-semibold text-[var(--deck-accent-ink)] hover:underline">
               {detailValue(item.value)}
               <ExternalLink className="h-3.5 w-3.5" />
             </Link>
@@ -177,7 +177,7 @@ export function RelatedList({
         );
 
         return item.href ? (
-          <Link key={`${item.title}-${item.href}`} href={item.href} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]">
+          <Link key={`${item.title}-${item.href}`} href={item.href} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]">
             {content}
           </Link>
         ) : (
@@ -217,7 +217,7 @@ export function RecordEditForm({
             <div key={field.name} className={cn("grid gap-2", field.fullWidth && "md:col-span-2")}>
               <label htmlFor={field.name} className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">
                 {field.label}
-                {field.required ? <span className="ml-1 text-[var(--deck-gold-deep)]">*</span> : null}
+                {field.required ? <span className="ml-1 text-[var(--deck-accent-ink)]">*</span> : null}
               </label>
               <FieldInput field={field} values={values} />
             </div>

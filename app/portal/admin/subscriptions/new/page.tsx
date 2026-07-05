@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { createClientSubscription } from "@/app/portal/actions/subscriptions";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -25,7 +24,7 @@ export default async function NewSubscriptionPage({
   );
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.error === "missing-price" ? (
         <Notice tone="danger">This plan is not connected to a Stripe price yet.</Notice>
       ) : params.error === "missing-live-price" ? (
@@ -108,6 +107,6 @@ export default async function NewSubscriptionPage({
 
         <SubmitButton className="rounded-full" pendingText="Creating...">Create Setup Link</SubmitButton>
       </form>
-    </PortalShell>
+    </>
   );
 }

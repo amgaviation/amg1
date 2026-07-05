@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import {
   DetailRow,
   Notice,
@@ -64,7 +63,7 @@ export default async function LeadDetailPage({
     .map((row) => ({ value: row.id, label: row.full_name ?? row.email }));
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {sp.success === "saved" ? <Notice tone="success">Lead saved.</Notice> : null}
       {sp.success === "activity" ? <Notice tone="success">Activity logged.</Notice> : null}
       {sp.success === "moved" ? <Notice tone="success">Stage updated.</Notice> : null}
@@ -204,7 +203,7 @@ export default async function LeadDetailPage({
                 Linked to{" "}
                 <Link
                   href={`/portal/admin/clients/${lead.converted_profile.id}`}
-                  className="font-semibold text-[var(--deck-gold-deep)] hover:underline"
+                  className="font-semibold text-[var(--deck-accent-ink)] hover:underline"
                 >
                   {lead.converted_profile.full_name ?? lead.converted_profile.email}
                 </Link>
@@ -224,7 +223,7 @@ export default async function LeadDetailPage({
                 <DetailRow label="Origin">
                   <Link
                     href="/portal/admin/form-submissions"
-                    className="font-semibold text-[var(--deck-gold-deep)] hover:underline"
+                    className="font-semibold text-[var(--deck-accent-ink)] hover:underline"
                   >
                     Website submission
                   </Link>
@@ -234,6 +233,6 @@ export default async function LeadDetailPage({
           </SectionCard>
         </div>
       </div>
-    </PortalShell>
+    </>
   );
 }

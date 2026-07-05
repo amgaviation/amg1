@@ -1,5 +1,4 @@
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, EmptyState, Notice } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -22,7 +21,7 @@ export default async function CrewAvailabilityPage({
   const [profile, windows] = await Promise.all([getCrewProfile(user.id), listAvailability(user.id)]);
 
   return (
-    <PortalShell role="crew" user={user}>
+    <>
       {params.success ? <Notice tone="success">Availability updated.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Start date is required.</Notice> : null}
       {params.error && params.error !== "missing" ? <Notice tone="danger">{getUserFacingErrorMessage({ audience: "crew", area: "crew_portal", action: "update" })}</Notice> : null}
@@ -85,6 +84,6 @@ export default async function CrewAvailabilityPage({
           </div>
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

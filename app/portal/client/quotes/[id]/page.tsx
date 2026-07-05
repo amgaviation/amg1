@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, DetailRow, Notice } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -30,7 +29,7 @@ export default async function ClientQuoteDetailPage({
   const latestQuoteDocument = quote.documents[0];
 
   return (
-    <PortalShell role="client" user={user}>
+    <>
       {sp.success === "approved" ? <Notice tone="success">Quote approved. AMG Operations will continue the required operational review before any request is considered accepted.</Notice> : null}
       {sp.success === "rejected" ? <Notice tone="warn">Quote rejected. AMG Operations will follow up.</Notice> : null}
       {sp.error === "terms" ? <Notice tone="danger">Confirm the quote terms and operational review notice before approving.</Notice> : null}
@@ -119,7 +118,7 @@ export default async function ClientQuoteDetailPage({
                   <input type="hidden" name="quote_id" value={quote.id} />
                   <input type="hidden" name="decision" value="approved" />
                   <label className="flex items-start gap-3 rounded-lg border border-border bg-background/60 p-3 text-sm text-muted-foreground">
-                    <input name="quote_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-gold)]" />
+                    <input name="quote_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-accent)]" />
                     <span>I acknowledge the quote terms, support review disclaimer, and no-online-payment notice.</span>
                   </label>
                   <SubmitButton className="rounded-full" pendingText="Approving…">Approve Quote</SubmitButton>
@@ -155,6 +154,6 @@ export default async function ClientQuoteDetailPage({
           </SectionCard>
         </div>
       </div>
-    </PortalShell>
+    </>
   );
 }

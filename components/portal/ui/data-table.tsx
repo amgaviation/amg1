@@ -37,7 +37,7 @@ export function DataTable<T>({
 }) {
   if (!rows.length) {
     return (
-      <div className="rounded-xl border border-dashed border-[var(--deck-line-strong)] bg-[#F8FAFB] px-4 py-10 text-center text-sm text-[var(--deck-text-3)]">
+      <div className="rounded-xl border border-dashed border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] px-4 py-10 text-center text-sm text-[var(--deck-text-3)]">
         {emptyLabel}
       </div>
     );
@@ -82,7 +82,7 @@ export function DataTable<T>({
             <Link
               key={getKey(row)}
               href={href}
-              className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]"
+              className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
             >
               {card}
             </Link>
@@ -96,7 +96,7 @@ export function DataTable<T>({
       <div className="hidden max-w-full overflow-x-auto md:block">
         <Table className="border-0">
           <TableHeader>
-            <TableRow className="border-[var(--deck-line)] bg-[#F8FAFB] hover:bg-[#F8FAFB]">
+            <TableRow className="border-[var(--deck-line)] bg-[var(--deck-panel-2)] hover:bg-[var(--deck-panel-2)]">
               {columns.map((c, i) => (
                 <TableHead
                   key={i}
@@ -136,7 +136,7 @@ export function DataTable<T>({
                       {href ? (
                         <Link
                           href={href}
-                          className="block min-h-8 py-1 text-inherit focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]"
+                          className="block min-h-8 py-1 text-inherit focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
                         >
                           {c.cell(row)}
                         </Link>

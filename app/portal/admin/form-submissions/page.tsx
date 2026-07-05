@@ -1,8 +1,9 @@
 import { createLeadFromSubmission } from "@/app/portal/actions/crm";
 import { updateFormSubmission } from "@/app/portal/actions/form-submissions";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DetailRow, EmptyState, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
+import { PageToolbar } from "@/components/portal/ui/page-toolbar";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
+import { Button } from "@/components/ui/button";
 import { requireRole } from "@/lib/portal/session";
 import { formatDateTime } from "@/lib/portal/format";
 import { listFormSubmissions, type FormSubmission } from "@/lib/portal/form-submissions";
@@ -33,7 +34,7 @@ function SubmissionDetails({ row }: { row: FormSubmission }) {
   const timing = row.timing || row.timeline_urgency;
 
   return (
-    <details className="rounded-lg border border-[var(--deck-line)] bg-[#F8FAFB]">
+    <details className="rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel-2)]">
       <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-[var(--deck-text)]">
         View submitted details
       </summary>
@@ -69,14 +70,14 @@ function SubmissionDetails({ row }: { row: FormSubmission }) {
         </dl>
         <div className="lg:col-span-2">
           <h3 className="text-sm font-semibold text-[var(--deck-text)]">Message / Summary</h3>
-          <p className="mt-2 whitespace-pre-wrap rounded-lg border border-[var(--deck-line)] bg-white p-4 text-sm leading-6 text-[var(--deck-text-2)]">
+          <p className="mt-2 whitespace-pre-wrap rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4 text-sm leading-6 text-[var(--deck-text-2)]">
             {row.message || row.requested_support_summary || "-"}
           </p>
         </div>
         {conditional.length ? (
           <div className="lg:col-span-2">
             <h3 className="text-sm font-semibold text-[var(--deck-text)]">Conditional Details</h3>
-            <dl className="mt-2 rounded-lg border border-[var(--deck-line)] bg-white p-4">
+            <dl className="mt-2 rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4">
               {conditional.map(([key, value]) => (
                 <DetailRow key={key} label={labelize(key)}>{display(value)}</DetailRow>
               ))}
@@ -86,18 +87,18 @@ function SubmissionDetails({ row }: { row: FormSubmission }) {
         {payload.length ? (
           <div className="lg:col-span-2">
             <h3 className="text-sm font-semibold text-[var(--deck-text)]">All Submitted Fields</h3>
-            <dl className="mt-2 rounded-lg border border-[var(--deck-line)] bg-white p-4">
+            <dl className="mt-2 rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4">
               {payload.map(([key, value]) => (
                 <DetailRow key={key} label={labelize(key)}>{Array.isArray(value) ? value.join(", ") : display(value)}</DetailRow>
               ))}
             </dl>
           </div>
         ) : null}
-        <form action={updateFormSubmission} className="grid gap-3 rounded-lg border border-[var(--deck-line)] bg-white p-4 lg:col-span-2">
+        <form action={updateFormSubmission} className="grid gap-3 rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4 lg:col-span-2">
           <input type="hidden" name="id" value={row.id} />
           <label className="grid gap-2 text-sm font-semibold text-[var(--deck-text-2)]">
             Submission Status
-            <select name="status" defaultValue={row.status} className="h-11 rounded-md border border-[var(--deck-line-strong)] bg-white px-3 text-sm text-[var(--deck-text)] outline-none focus:border-primary">
+            <select name="status" defaultValue={row.status} className="h-11 rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 text-sm text-[var(--deck-text)] outline-none focus:border-primary">
               {submissionStatuses.map((status) => (
                 <option key={status} value={status}>{statusLabel(status)}</option>
               ))}
@@ -105,7 +106,7 @@ function SubmissionDetails({ row }: { row: FormSubmission }) {
           </label>
           <label className="grid gap-2 text-sm font-semibold text-[var(--deck-text-2)]">
             Admin Notes
-            <textarea name="admin_notes" defaultValue={row.admin_notes ?? ""} className="min-h-24 rounded-md border border-[var(--deck-line-strong)] bg-white px-3 py-2 text-sm text-[var(--deck-text)] outline-none focus:border-primary" />
+            <textarea name="admin_notes" defaultValue={row.admin_notes ?? ""} className="min-h-24 rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2 text-sm text-[var(--deck-text)] outline-none focus:border-primary" />
           </label>
           <SubmitButton className="w-fit rounded-full" pendingText="Saving...">Save Submission</SubmitButton>
         </form>
@@ -128,7 +129,7 @@ export default async function AdminFormSubmissionsPage({
   });
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success === "updated" ? <Notice tone="success">Form submission updated.</Notice> : null}
       {params.error ? <Notice tone="danger">Form submission could not be updated.</Notice> : null}
       <PageHeader
@@ -137,33 +138,32 @@ export default async function AdminFormSubmissionsPage({
         description="Review generic public website inquiries that do not require operational support tracking."
       />
 
-      <SectionCard title="Filters" icon="clipboard">
-        <form className="grid gap-3 md:grid-cols-[1fr_1fr_2fr_auto] md:items-end">
-          <label className="grid gap-2 text-sm font-semibold text-[var(--deck-text-2)]">
-            Source
-            <select name="source" defaultValue={params.source || "All"} className="h-11 rounded-md border border-[var(--deck-line-strong)] bg-white px-3 text-sm text-[var(--deck-text)] outline-none focus:border-primary">
+      <PageToolbar
+        search={
+          <form className="flex flex-wrap items-center gap-2">
+            <input
+              name="q"
+              defaultValue={params.q || ""}
+              placeholder="Name, email, company, tail, aircraft, path"
+              aria-label="Search form submissions"
+              className="deck-input min-w-[12rem] flex-1 sm:max-w-xs"
+            />
+            <select name="source" defaultValue={params.source || "All"} aria-label="Source" className="deck-input w-auto">
               <option>All</option>
               <option>Contact</option>
             </select>
-          </label>
-          <label className="grid gap-2 text-sm font-semibold text-[var(--deck-text-2)]">
-            Status
-            <select name="status" defaultValue={params.status || "All"} className="h-11 rounded-md border border-[var(--deck-line-strong)] bg-white px-3 text-sm text-[var(--deck-text)] outline-none focus:border-primary">
+            <select name="status" defaultValue={params.status || "All"} aria-label="Status" className="deck-input w-auto">
               <option>All</option>
               {submissionStatuses.map((status) => (
                 <option key={status} value={status}>{statusLabel(status)}</option>
               ))}
             </select>
-          </label>
-          <label className="grid gap-2 text-sm font-semibold text-[var(--deck-text-2)]">
-            Search
-            <input name="q" defaultValue={params.q || ""} className="h-11 rounded-md border border-[var(--deck-line-strong)] bg-white px-3 text-sm text-[var(--deck-text)] outline-none placeholder:text-[#98A2B3] focus:border-primary" placeholder="Name, email, company, tail, aircraft, path" />
-          </label>
-          <button type="submit" className="h-11 rounded-md bg-[var(--deck-navy)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--deck-navy-2)]">
-            Apply
-          </button>
-        </form>
-      </SectionCard>
+            <Button type="submit" size="sm">
+              Apply
+            </Button>
+          </form>
+        }
+      />
 
       <SectionCard title="Website Inquiries" icon="clipboard">
         {submissions.length === 0 ? (
@@ -171,7 +171,7 @@ export default async function AdminFormSubmissionsPage({
         ) : (
           <div className="space-y-3">
             {submissions.map((row) => (
-              <article key={row.id} className="rounded-lg border border-[var(--deck-line)] bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+              <article key={row.id} className="rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
                 <div className="grid gap-3 xl:grid-cols-[1.2fr_1fr_1fr_auto] xl:items-start">
                   <div>
                     <p className="text-sm font-semibold text-[var(--deck-text)]">{row.requester_name || row.full_name}</p>
@@ -188,8 +188,8 @@ export default async function AdminFormSubmissionsPage({
                     <p className="mt-1 text-xs text-[var(--deck-text-3)]">{formatDateTime(row.created_at)}</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 xl:justify-end">
-                    <span className="rounded-full border border-[var(--deck-line)] bg-[#F8FAFB] px-3 py-1 text-xs font-semibold text-[var(--deck-text-2)]">{statusLabel(row.status)}</span>
-                    <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${row.email_sent ? "border-[#BFE3D2] bg-[#EAF6F0] text-[#116947]" : "border-[#EAD9AE] bg-[#FBF4E3] text-[#8F5F12]"}`}>
+                    <span className="rounded-full border border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-3 py-1 text-xs font-semibold text-[var(--deck-text-2)]">{statusLabel(row.status)}</span>
+                    <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${row.email_sent ? "border-[var(--deck-success-line)] bg-[var(--deck-success-tint)] text-[var(--deck-success)]" : "border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] text-[var(--deck-warn)]"}`}>
                       Email {row.email_sent ? "sent" : "not sent"}
                     </span>
                     <form action={createLeadFromSubmission}>
@@ -209,6 +209,6 @@ export default async function AdminFormSubmissionsPage({
           </div>
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

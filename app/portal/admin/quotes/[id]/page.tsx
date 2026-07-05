@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
-import { DetailRow, Notice, PageHeader, SectionCard, Timeline } from "@/components/portal/ui/primitives";
+import { Notice, SectionCard, Timeline } from "@/components/portal/ui/primitives";
+import { DescriptionList } from "@/components/portal/ui/description-list";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { TextAreaField } from "@/components/portal/ui/fields";
@@ -55,25 +55,52 @@ export default async function AdminQuoteDetailPage({
     }));
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {flash.success ? <Notice tone="success">Quote updated.</Notice> : null}
       {flash.error === "locked" ? <Notice tone="danger">This quote is locked. Create a revision before changing sent or approved terms.</Notice> : null}
       {flash.error === "not-approved" ? <Notice tone="danger">Only approved quotes can be converted to invoice.</Notice> : null}
       {flash.error === "revision" ? <Notice tone="danger">A quote revision could not be created.</Notice> : null}
 
-      <PageHeader
-        eyebrow="Quote"
-        title={quote.ref}
-        actions={
-          <div className="flex flex-wrap items-center gap-3 text-xs">
-            {canEdit ? <Link href={`/portal/admin/quotes/${quote.id}/edit`} className="text-accent hover:underline">Edit Draft</Link> : null}
-            {latestDocument ? (
-              <Link href={`/portal/billing-documents/${latestDocument.id}/view`} className="text-accent hover:underline">View PDF</Link>
-            ) : null}
-            <Link href="/portal/admin/quotes" className="text-muted-foreground hover:text-accent">Back to quotes</Link>
+      {/* Detail-archetype summary header */}
+      <div className="flex flex-col gap-4 pb-2 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <p className="deck-eyebrow">Quote</p>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <h1 className="deck-title text-[1.65rem] sm:text-[2rem]">{quote.ref}</h1>
+            <StatusBadge label={QUOTE_STATUS_LABEL[quote.status] ?? quote.status} tone={toneFor(QUOTE_STATUS_TONE, quote.status)} />
           </div>
-        }
-      />
+          <p className="deck-mono mt-2.5 !text-[0.8rem] text-[var(--deck-text-2)]">
+            {formatMoney(quote.total)}
+            {" · "}
+            {(quote as any).manual_client_company ?? (quote as any).manual_client_name ?? "Unassigned client"}
+            {quote.mission?.ref ? ` · ${quote.mission.ref}` : ""}
+          </p>
+        </div>
+        <div data-portal-action-bar className="flex flex-wrap items-center gap-2">
+          {canEdit ? (
+            <Link
+              href={`/portal/admin/quotes/${quote.id}/edit`}
+              className="rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-4 py-2 text-xs font-semibold text-[var(--deck-accent-ink)] transition-colors hover:border-[var(--deck-accent)]"
+            >
+              Edit Draft
+            </Link>
+          ) : null}
+          {latestDocument ? (
+            <Link
+              href={`/portal/billing-documents/${latestDocument.id}/view`}
+              className="rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
+            >
+              View PDF
+            </Link>
+          ) : null}
+          <Link
+            href="/portal/admin/quotes"
+            className="rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
+          >
+            All Quotes
+          </Link>
+        </div>
+      </div>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_24rem]">
         <div className="space-y-6">
@@ -122,23 +149,25 @@ export default async function AdminQuoteDetailPage({
 
         <div className="space-y-6">
           <SectionCard title="Quote Summary" icon="receipt">
-            <dl>
-              <DetailRow label="Status"><StatusBadge label={QUOTE_STATUS_LABEL[quote.status] ?? quote.status} tone={toneFor(QUOTE_STATUS_TONE, quote.status)} /></DetailRow>
-              <DetailRow label="Client">{(quote as any).manual_client_company ?? (quote as any).manual_client_name ?? quote.client_id ?? "-"}</DetailRow>
-              <DetailRow label="Recipient">{(quote as any).recipient_email ?? (quote as any).manual_client_email ?? "-"}</DetailRow>
-              <DetailRow label="Mission">{quote.mission?.ref ?? "-"}</DetailRow>
-              <DetailRow label="Aircraft">{(quote as any).aircraft_summary ?? "-"}</DetailRow>
-              <DetailRow label="Tail">{(quote as any).tail_number ?? "-"}</DetailRow>
-              <DetailRow label="Route">{(quote as any).route_summary ?? "-"}</DetailRow>
-              <DetailRow label="Subtotal">{formatMoney(quote.subtotal)}</DetailRow>
-              <DetailRow label="Discount">{formatMoney((quote as any).discount_total ?? 0)}</DetailRow>
-              <DetailRow label="Tax">{formatMoney((quote as any).tax_total ?? 0)}</DetailRow>
-              <DetailRow label="Deposit">{formatMoney((quote as any).deposit_amount ?? 0)}</DetailRow>
-              <DetailRow label="Total">{formatMoney(quote.total)}</DetailRow>
-              <DetailRow label="Sent">{formatDateTime((quote as any).sent_at)}</DetailRow>
-              <DetailRow label="Expires">{formatDate((quote as any).expires_at)}</DetailRow>
-              <DetailRow label="Approved">{formatDateTime((quote as any).approved_at)}</DetailRow>
-            </dl>
+            <DescriptionList
+              columns={1}
+              items={[
+                { label: "Client", value: (quote as any).manual_client_company ?? (quote as any).manual_client_name ?? quote.client_id ?? "-" },
+                { label: "Recipient", value: (quote as any).recipient_email ?? (quote as any).manual_client_email ?? "-" },
+                { label: "Mission", value: quote.mission?.ref ?? "-", mono: true },
+                { label: "Aircraft", value: (quote as any).aircraft_summary ?? "-" },
+                { label: "Tail", value: (quote as any).tail_number ?? "-", mono: true },
+                { label: "Route", value: (quote as any).route_summary ?? "-", mono: true },
+                { label: "Subtotal", value: formatMoney(quote.subtotal), mono: true },
+                { label: "Discount", value: formatMoney((quote as any).discount_total ?? 0), mono: true },
+                { label: "Tax", value: formatMoney((quote as any).tax_total ?? 0), mono: true },
+                { label: "Deposit", value: formatMoney((quote as any).deposit_amount ?? 0), mono: true },
+                { label: "Total", value: formatMoney(quote.total), mono: true },
+                { label: "Sent", value: formatDateTime((quote as any).sent_at) },
+                { label: "Expires", value: formatDate((quote as any).expires_at) },
+                { label: "Approved", value: formatDateTime((quote as any).approved_at) },
+              ]}
+            />
           </SectionCard>
 
           <SectionCard title="Actions" icon="settings">
@@ -173,6 +202,6 @@ export default async function AdminQuoteDetailPage({
           </SectionCard>
         </div>
       </div>
-    </PortalShell>
+    </>
   );
 }

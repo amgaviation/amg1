@@ -5,7 +5,7 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 function SkeletonBlock({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-md bg-[#EEF1F5] ${className}`} />;
+  return <div className={`animate-pulse rounded-md bg-[var(--deck-panel-2)] ${className}`} />;
 }
 
 export function RecordDetailLoading({ label }: { label: string }) {
@@ -47,7 +47,7 @@ export function RecordDetailLoading({ label }: { label: string }) {
         </div>
 
         <div className="inline-flex items-center gap-2 text-sm text-[var(--amg-text-muted)]">
-          <Loader2 className="h-4 w-4 animate-spin text-[var(--deck-gold-deep)]" />
+          <Loader2 className="h-4 w-4 animate-spin text-[var(--deck-accent-ink)]" />
           Loading {label.toLowerCase()}...
         </div>
       </div>
@@ -66,13 +66,13 @@ export function RecordDetailError({
 }) {
   return (
     <main className="amg-portal flex min-h-screen items-center justify-center px-4 py-10 text-foreground">
-      <section className="deck-card w-full max-w-xl border-[#EFC7C7] p-6">
+      <section className="deck-card w-full max-w-xl border-[var(--deck-danger-line)] p-6">
         <div className="flex items-start gap-4">
-          <span className="rounded-full border border-[#EFC7C7] bg-[#FBEFEF] p-2 text-[#A82E2E]">
+          <span className="rounded-full border border-[var(--deck-danger-line)] bg-[var(--deck-danger-tint)] p-2 text-[var(--deck-danger)]">
             <AlertTriangle className="h-5 w-5" />
           </span>
           <div className="min-w-0">
-            <p className="deck-eyebrow !text-[#A82E2E]">{label}</p>
+            <p className="deck-eyebrow !text-[var(--deck-danger)]">{label}</p>
             <h2 className="mt-2 font-display text-2xl font-extrabold uppercase leading-none text-foreground">
               Record unavailable
             </h2>

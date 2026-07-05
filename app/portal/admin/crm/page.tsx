@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import {
   EmptyState,
   Notice,
@@ -47,7 +46,7 @@ export default async function CrmPipelinePage({
   const lost = leads.filter((lead) => lead.stage === "lost");
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success === "created" ? <Notice tone="success">Lead created.</Notice> : null}
       {params.success === "moved" ? <Notice tone="success">Lead stage updated.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Lead name is required.</Notice> : null}
@@ -110,7 +109,7 @@ export default async function CrmPipelinePage({
         </div>
         <SubmitButton variant="outline" pendingText="Searching…">Search</SubmitButton>
         {params.q ? (
-          <Link href="/portal/admin/crm" className="pb-2 text-xs font-semibold text-[var(--deck-gold-deep)] hover:underline">
+          <Link href="/portal/admin/crm" className="pb-2 text-xs font-semibold text-[var(--deck-accent-ink)] hover:underline">
             Clear
           </Link>
         ) : null}
@@ -128,7 +127,7 @@ export default async function CrmPipelinePage({
               className="min-h-56"
               description={stageValue > 0 ? formatMoney(stageValue) : undefined}
               actions={
-                <span className="deck-num flex h-7 w-7 items-center justify-center rounded-full bg-[var(--deck-gold-tint)] text-xs font-bold text-[var(--deck-gold-deep)]">
+                <span className="deck-num flex h-7 w-7 items-center justify-center rounded-full bg-[var(--deck-accent-tint)] text-xs font-bold text-[var(--deck-accent-ink)]">
                   {rows.length}
                 </span>
               }
@@ -147,13 +146,13 @@ export default async function CrmPipelinePage({
                         </p>
                         <div className="mt-2 flex flex-wrap items-center gap-2">
                           {lead.estimated_value ? (
-                            <span className="deck-num text-xs font-bold text-[var(--deck-gold-deep)]">
+                            <span className="deck-num text-xs font-bold text-[var(--deck-accent-ink)]">
                               {formatMoney(lead.estimated_value)}
                             </span>
                           ) : null}
                           {lead.next_action_at ? (
                             <span
-                              className={`text-[0.66rem] ${new Date(lead.next_action_at) <= new Date() ? "font-semibold text-[#A82E2E]" : "text-[var(--deck-text-3)]"}`}
+                              className={`text-[0.66rem] ${new Date(lead.next_action_at) <= new Date() ? "font-semibold text-[var(--deck-danger)]" : "text-[var(--deck-text-3)]"}`}
                             >
                               Next: {formatDate(lead.next_action_at)}
                             </span>
@@ -200,6 +199,6 @@ export default async function CrmPipelinePage({
           </div>
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

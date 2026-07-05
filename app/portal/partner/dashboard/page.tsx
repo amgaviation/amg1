@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import {
   EmptyState,
   PageHeader,
@@ -39,7 +38,7 @@ export default async function PartnerDashboardPage() {
   const openValue = open.reduce((sum, a) => sum + Number(a.quote_amount ?? 0), 0);
 
   return (
-    <PortalShell role="partner" user={user} unread={unread}>
+    <>
       <PageHeader
         eyebrow={profile?.partner_type ?? "Service Partner"}
         title={`Welcome back, ${user.name.split(" ")[0]}`}
@@ -97,7 +96,7 @@ export default async function PartnerDashboardPage() {
                 trailing={
                   <>
                     <StatusBadge label="Assigned" tone="warn" />
-                    <span className="text-xs font-semibold text-[var(--deck-gold-deep)]">
+                    <span className="text-xs font-semibold text-[var(--deck-accent-ink)]">
                       Respond →
                     </span>
                   </>
@@ -159,6 +158,6 @@ export default async function PartnerDashboardPage() {
           </div>
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

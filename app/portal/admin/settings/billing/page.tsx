@@ -3,7 +3,6 @@ import { requireRole } from "@/lib/portal/session";
 import { logAuditEvent } from "@/lib/portal/audit";
 import { getBillingSettings } from "@/lib/portal/billing-config";
 import { getStripeBillingDiagnostics } from "@/lib/portal/stripe-mode";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DetailRow, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { CheckboxField, TextAreaField, TextField } from "@/components/portal/ui/fields";
@@ -37,7 +36,7 @@ export default async function AdminBillingSettingsPage({
   });
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success === "confirmed" ? <Notice tone="success">Billing settings unlocked for this session.</Notice> : null}
       {params.success === "saved" ? <Notice tone="success">Billing settings saved for future documents.</Notice> : null}
       {params.error === "confirm" ? <Notice tone="danger">Confirm your admin password before editing billing settings.</Notice> : null}
@@ -137,6 +136,6 @@ export default async function AdminBillingSettingsPage({
           <SubmitButton className="rounded-full" pendingText="Saving...">Save Billing Settings</SubmitButton>
         </form>
       )}
-    </PortalShell>
+    </>
   );
 }

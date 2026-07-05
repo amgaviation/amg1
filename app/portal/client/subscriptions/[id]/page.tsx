@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { requireRole } from "@/lib/portal/session";
 import { manageSubscriptionBilling } from "@/app/portal/actions/subscriptions";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { DetailRow, Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -36,7 +35,7 @@ export default async function ClientSubscriptionDetailPage({
   );
 
   return (
-    <PortalShell role="client" user={user}>
+    <>
       {flash.success === "checkout" ? <Notice tone="success">Subscription setup was completed. AMG is finalizing billing status from Stripe.</Notice> : null}
       {flash.error === "checkout_cancelled" ? <Notice tone="warn">Subscription setup was not completed. You can use the setup link from AMG or contact Operations.</Notice> : null}
       {["past_due", "unpaid"].includes(subscription.status) || subscription.stripe_payment_status === "failed" ? (
@@ -126,6 +125,6 @@ export default async function ClientSubscriptionDetailPage({
           </SectionCard>
         </div>
       </div>
-    </PortalShell>
+    </>
   );
 }

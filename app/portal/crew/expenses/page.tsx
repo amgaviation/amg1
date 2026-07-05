@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, EmptyState, Notice, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -36,7 +35,7 @@ export default async function CrewExpensesPage({
   );
 
   return (
-    <PortalShell role="crew" user={user}>
+    <>
       {params.success ? <Notice tone="success">Expense submitted for review.</Notice> : null}
       {params.error === "invalid" ? <Notice tone="danger">Enter a valid category and amount.</Notice> : null}
       {params.error === "forbidden" ? <Notice tone="danger">Select one of your assigned missions for mission-related expenses.</Notice> : null}
@@ -120,6 +119,6 @@ export default async function CrewExpensesPage({
           </div>
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

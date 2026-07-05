@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import {
   listNetworkApplications,
@@ -110,7 +109,7 @@ export default async function NetworkApplicationsPage({
   ];
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success ? <Notice tone="success">Network application updated.</Notice> : null}
       {params.error ? <Notice tone="danger">Network applications could not be updated. Review the request and try again.</Notice> : null}
       <PageHeader
@@ -118,7 +117,7 @@ export default async function NetworkApplicationsPage({
         title="Network Applications"
         description="Review public AMG Crew Network submissions with the same list, search, filter, and row-opening behavior as Crew Management."
         actions={
-          <Link href="/portal/admin/crew" className="rounded-full border border-border bg-white px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]">
+          <Link href="/portal/admin/crew" className="rounded-full border border-border bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]">
             Crew Directory
           </Link>
         }
@@ -152,6 +151,6 @@ export default async function NetworkApplicationsPage({
         detailHrefBase="/portal/admin/network-applications"
         pageSize={12}
       />
-    </PortalShell>
+    </>
   );
 }

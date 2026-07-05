@@ -47,7 +47,7 @@ export async function getStripeBillingDiagnostics(): Promise<StripeBillingDiagno
   const [{ data: tiers }, { data: lastEvents }] = await Promise.all([
     db
       .from("subscription_plan_tiers")
-      .select("id,stripe_test_monthly_price_id,stripe_test_annual_price_id,stripe_live_monthly_price_id,stripe_live_annual_price_id,stripe_monthly_price_id,stripe_annual_price_id")
+      .select("id,stripe_test_monthly_price_id,stripe_test_annual_price_id,stripe_live_monthly_price_id,stripe_live_annual_price_id,stripe_monthly_price_id,stripe_annual_price_id,plan:plan_id(status)")
       .order("created_at", { ascending: false }),
     db
       .from("stripe_webhook_events")
@@ -56,10 +56,12 @@ export async function getStripeBillingDiagnostics(): Promise<StripeBillingDiagno
       .limit(1),
   ]);
 
-  const missingLivePriceCount = (tiers ?? []).filter((tier: any) =>
+  // Archived/draft plans can't be sold — only active plans gate live readiness.
+  const sellableTiers = (tiers ?? []).filter((tier: any) => tier.plan?.status === "active");
+  const missingLivePriceCount = sellableTiers.filter((tier: any) =>
     !tier.stripe_live_monthly_price_id || !tier.stripe_live_annual_price_id
   ).length;
-  const missingTestPriceCount = (tiers ?? []).filter((tier: any) =>
+  const missingTestPriceCount = sellableTiers.filter((tier: any) =>
     !(tier.stripe_test_monthly_price_id || tier.stripe_monthly_price_id) ||
     !(tier.stripe_test_annual_price_id || tier.stripe_annual_price_id)
   ).length;

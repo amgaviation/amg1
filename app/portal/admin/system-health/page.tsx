@@ -2,7 +2,6 @@ import fs from "fs";
 import path from "path";
 import { requireRole } from "@/lib/portal/session";
 import { createServiceClient } from "@/lib/supabase/server";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DetailRow, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 
 export const metadata = { title: "System Health - Admin Portal" };
@@ -53,7 +52,7 @@ export default async function AdminSystemHealthPage() {
   const environment = process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? "unknown";
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       <PageHeader
         eyebrow="AMG Operations"
         title="System Health"
@@ -95,6 +94,6 @@ export default async function AdminSystemHealthPage() {
           <p>Run <code className="text-foreground">npm run media:audit</code>, <code className="text-foreground">npm run typecheck</code>, and <code className="text-foreground">npm run build</code> before promoting a deployment.</p>
         </div>
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

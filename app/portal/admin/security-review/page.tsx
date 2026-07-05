@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -70,7 +69,7 @@ export default async function AdminSecurityReviewPage({
   const hasFilters = Boolean(params.q || params.role || params.status || params.sensitive || params.invalid_email || params.pending);
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success === "reviewed" ? <Notice tone="success">Admin access review recorded in compliance evidence.</Notice> : null}
       <Notice tone="warn">
         MFA is not currently enforced by this portal UI. Verify Supabase Auth MFA enrollment and enforcement before
@@ -91,7 +90,7 @@ export default async function AdminSecurityReviewPage({
           "Pending users reviewed",
           "Invalid imported emails resolved",
         ].map((item) => (
-          <div key={item} className="rounded-lg border border-[#EAD9AE] bg-[#FBF4E3] px-4 py-3 text-sm text-[#6E4A0E]">
+          <div key={item} className="rounded-lg border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] px-4 py-3 text-sm text-[var(--deck-warn)]">
             {item}
           </div>
         ))}
@@ -110,7 +109,7 @@ export default async function AdminSecurityReviewPage({
               Apply Filters
             </button>
             {hasFilters ? (
-              <Link href="/portal/admin/security-review" className="rounded-full border border-border bg-white px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]">
+              <Link href="/portal/admin/security-review" className="rounded-full border border-border bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]">
                 Clear filters
               </Link>
             ) : null}
@@ -136,20 +135,20 @@ export default async function AdminSecurityReviewPage({
         />
       </SectionCard>
       {filtered.length > PAGE_SIZE ? (
-        <div className="flex flex-col gap-3 rounded-lg border border-[var(--deck-line)] bg-white px-5 py-4 text-sm text-[var(--deck-text-3)] shadow-[0_10px_30px_rgba(15,23,42,0.04)] sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] px-5 py-4 text-sm text-[var(--deck-text-3)] shadow-[0_10px_30px_rgba(15,23,42,0.04)] sm:flex-row sm:items-center sm:justify-between">
           <span>Page {safePage} of {pageCount}</span>
           <div className="flex gap-2">
             <Link
               aria-disabled={safePage <= 1}
               href={safePage <= 1 ? "#" : hrefWith({ ...sharedParams, page: safePage - 1 })}
-              className={`rounded-full border border-border px-4 py-2 text-xs font-semibold ${safePage <= 1 ? "pointer-events-none opacity-50" : "text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]"}`}
+              className={`rounded-full border border-border px-4 py-2 text-xs font-semibold ${safePage <= 1 ? "pointer-events-none opacity-50" : "text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"}`}
             >
               Previous
             </Link>
             <Link
               aria-disabled={safePage >= pageCount}
               href={safePage >= pageCount ? "#" : hrefWith({ ...sharedParams, page: safePage + 1 })}
-              className={`rounded-full border border-border px-4 py-2 text-xs font-semibold ${safePage >= pageCount ? "pointer-events-none opacity-50" : "text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]"}`}
+              className={`rounded-full border border-border px-4 py-2 text-xs font-semibold ${safePage >= pageCount ? "pointer-events-none opacity-50" : "text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"}`}
             >
               Next
             </Link>
@@ -167,6 +166,6 @@ export default async function AdminSecurityReviewPage({
           <SubmitButton className="rounded-full" pendingText="Recording...">Mark Review Completed</SubmitButton>
         </form>
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -14,7 +13,7 @@ export default async function AdminPaymentsPage() {
   const payments = await listAllPayments();
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       <PageHeader eyebrow="AMG Billing" title="Payments" description="Payment ledger for invoice settlement and receipt tracking." />
       <SectionCard title="Payment Ledger" icon="wallet">
         <DataTable
@@ -38,6 +37,6 @@ export default async function AdminPaymentsPage() {
           ]}
         />
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

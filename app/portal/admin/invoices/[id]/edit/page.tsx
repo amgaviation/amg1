@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -42,7 +41,7 @@ export default async function EditInvoicePage({
   const editableStatuses = INVOICE_STATUS.filter((status) => ["draft", "ready_to_send"].includes(status.value));
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {flash.error === "save" ? <Notice tone="danger">Invoice draft could not be saved.</Notice> : null}
       <PageHeader
         eyebrow="Invoice Draft"
@@ -107,6 +106,6 @@ export default async function EditInvoicePage({
 
         <SubmitButton className="rounded-full" pendingText="Saving...">Save Invoice Draft</SubmitButton>
       </form>
-    </PortalShell>
+    </>
   );
 }

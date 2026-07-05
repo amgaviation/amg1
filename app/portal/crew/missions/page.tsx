@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, EmptyState } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { listMissionsForCrew, listOpenPoolMissions } from "@/lib/portal/queries";
@@ -28,7 +27,7 @@ export default async function CrewMissionsPage({
   const title = params.pool === "open" ? "Open Assignments" : "My Assignments";
 
   return (
-    <PortalShell role="crew" user={user}>
+    <>
       <PageHeader eyebrow="Flight Crew" title={title} />
       <div className="flex gap-2">
         <Link href="/portal/crew/missions" className={`rounded-full border px-3 py-1 text-xs ${!params.pool ? "border-accent bg-accent/10 font-semibold text-accent" : "border-border text-muted-foreground hover:border-accent/40"}`}>My Assignments</Link>
@@ -64,6 +63,6 @@ export default async function CrewMissionsPage({
           </div>
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

@@ -1,5 +1,4 @@
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import {
   AdminRecordManager,
   type AdminRecordField,
@@ -240,7 +239,7 @@ export default async function AdminUsersPage({
   const rows = userRows(users);
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {noticeFor(params.success, params.error)}
 
       <PageHeader
@@ -315,10 +314,10 @@ export default async function AdminUsersPage({
             </SubmitButton>
           </form>
 
-          <form action={changePortalUserPassword} className="grid gap-3 rounded-xl border border-[#EAD9AE] bg-[#FBF4E3]/70 p-4">
+          <form action={changePortalUserPassword} className="grid gap-3 rounded-xl border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)]/70 p-4">
             <div>
               <h3 className="text-sm font-semibold text-[var(--deck-text)]">Change Password</h3>
-              <p className="mt-1 text-xs leading-5 text-[#8F5F12]">
+              <p className="mt-1 text-xs leading-5 text-[var(--deck-warn)]">
                 Admin override. Use direct password changes only when necessary; reset links are preferred.
               </p>
             </div>
@@ -364,6 +363,6 @@ export default async function AdminUsersPage({
           <p className="mt-2 text-sm leading-6 text-[var(--deck-text-2)]">{PORTAL_PERMISSIONS.join(", ")}</p>
         </div>
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

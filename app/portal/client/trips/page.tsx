@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import {
   EmptyState,
   FilterTabs,
@@ -50,7 +49,7 @@ export default async function ClientTripsPage({
     : missions;
 
   return (
-    <PortalShell role="client" user={user}>
+    <>
       {params.success === "cancelled" ? (
         <Notice tone="success">Support request cancelled.</Notice>
       ) : null}
@@ -122,6 +121,6 @@ export default async function ClientTripsPage({
           </div>
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

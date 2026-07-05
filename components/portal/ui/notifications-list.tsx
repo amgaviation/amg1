@@ -29,7 +29,7 @@ export function NotificationsList({
           <div
             className={cn(
               "mt-1.5 h-2 w-2 shrink-0 rounded-full",
-              n.is_read ? "bg-transparent" : "bg-[var(--deck-gold)]"
+              n.is_read ? "bg-transparent" : "bg-[var(--deck-accent)]"
             )}
             aria-hidden
           />

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DetailRow, EmptyState, Notice, PageHeader, SectionCard, Timeline } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -44,7 +43,7 @@ function FileList({
             <p className="truncate text-sm font-semibold">{file.original_filename}</p>
             <p className="text-xs text-muted-foreground">{file.content_type ?? "File"} · {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : "Size unavailable"}</p>
           </div>
-          <Link href={`/portal/admin/network-application-files/${file.id}/view`} className="rounded-full border border-border px-3 py-2 text-xs font-semibold text-foreground hover:border-[var(--deck-gold)]">
+          <Link href={`/portal/admin/network-application-files/${file.id}/view`} className="rounded-full border border-border px-3 py-2 text-xs font-semibold text-foreground hover:border-[var(--deck-accent)]">
             View
           </Link>
         </div>
@@ -68,7 +67,7 @@ export default async function NetworkApplicationDetailPage({
   const backTo = `/portal/admin/network-applications/${application.id}`;
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {query.success ? <Notice tone="success">Network application saved.</Notice> : null}
       {query.error ? <Notice tone="danger">{decodeURIComponent(query.error)}</Notice> : null}
       <PageHeader
@@ -193,6 +192,6 @@ export default async function NetworkApplicationDetailPage({
           ) : null}
         </aside>
       </div>
-    </PortalShell>
+    </>
   );
 }

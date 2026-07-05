@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { PageHeader, SectionCard, EmptyState, Notice, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -31,7 +30,7 @@ export default async function CrewCredentialsPage({
   const expired = withExpiry.filter((c) => c.days < 0).length;
 
   return (
-    <PortalShell role="crew" user={user}>
+    <>
       {params.success ? <Notice tone="success">Credential submitted for AMG review.</Notice> : null}
       {params.error === "missing" ? <Notice tone="danger">Credential type is required.</Notice> : null}
       {params.error === "terms" ? <Notice tone="danger">Confirm the credential and document upload notices before submitting.</Notice> : null}
@@ -73,7 +72,7 @@ export default async function CrewCredentialsPage({
                       ) : null}
                     </p>
                     <p
-                      className={`deck-num text-xs font-semibold ${credential.days < 0 ? "text-[#A82E2E]" : credential.days <= 90 ? "text-[#8F5F12]" : "text-[var(--deck-text-3)]"}`}
+                      className={`deck-num text-xs font-semibold ${credential.days < 0 ? "text-[var(--deck-danger)]" : credential.days <= 90 ? "text-[var(--deck-warn)]" : "text-[var(--deck-text-3)]"}`}
                     >
                       {credential.days < 0
                         ? `Expired ${Math.abs(credential.days)}d ago`
@@ -81,7 +80,7 @@ export default async function CrewCredentialsPage({
                       · {formatDate(credential.expiration_date)}
                     </p>
                   </div>
-                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[#EEF1F5]">
+                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[var(--deck-panel-2)]">
                     <div
                       className="h-full rounded-full"
                       style={{ width: `${credential.days < 0 ? 100 : pct}%`, backgroundColor: barColor }}
@@ -110,7 +109,7 @@ export default async function CrewCredentialsPage({
             <FileField label="Credential File" name="file" accept=".pdf,.jpg,.jpeg,.png" />
           </div>
           <label className="lg:col-span-4 flex items-start gap-3 rounded-lg border border-border bg-background/60 p-3 text-sm text-muted-foreground">
-            <input name="document_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-gold)]" />
+            <input name="document_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-accent)]" />
             <span>I acknowledge the credential submission notice and document upload terms, and I will not submit full card numbers, CVV codes, bank account numbers, routing numbers, or unrelated sensitive information.</span>
           </label>
           <div className="flex items-end">
@@ -145,6 +144,6 @@ export default async function CrewCredentialsPage({
           </div>
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

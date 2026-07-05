@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { EmptyState, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { TextAreaField, TextField } from "@/components/portal/ui/fields";
@@ -20,7 +19,7 @@ export default async function PartnerMessagesPage({
   const params = await searchParams;
   const threads = await listThreadsForUser(user.id, false);
   return (
-    <PortalShell role="partner" user={user}>
+    <>
       {params.error === "empty" ? <Notice tone="danger">Please enter a message.</Notice> : null}
       {params.error === "forbidden" ? <Notice tone="danger">{getUserFacingErrorMessage({ audience: "vendor", area: "vendor_portal", action: "message", category: "permission" })}</Notice> : null}
       {params.error === "payment-data" ? <Notice tone="danger">Remove full card numbers, CVV codes, bank account numbers, or routing numbers before sending.</Notice> : null}
@@ -44,6 +43,6 @@ export default async function PartnerMessagesPage({
           ))}</div>
         )}
       </SectionCard>
-    </PortalShell>
+    </>
   );
 }

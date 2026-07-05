@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { createSubscriptionPlan } from "@/app/portal/actions/subscriptions";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { EmptyState, Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
@@ -33,7 +32,7 @@ export default async function AdminSubscriptionsPage({
   const syncErrorCount = subscriptions.filter((subscription) => ["sync_error", "price_mismatch", "disconnected"].includes(subscription.stripe_sync_status ?? "")).length;
 
   return (
-    <PortalShell role="admin" user={user}>
+    <>
       {params.success === "plan" ? <Notice tone="success">Subscription plan created.</Notice> : null}
       {params.error ? <Notice tone="danger">Subscription action could not be completed.</Notice> : null}
       <PageHeader
@@ -114,7 +113,7 @@ export default async function AdminSubscriptionsPage({
           ) : (
             <div className="space-y-3">
               {plans.map((plan) => (
-                <div key={plan.id} className="rounded-lg border border-border bg-[#F8FAFB] p-4">
+                <div key={plan.id} className="rounded-lg border border-border bg-[var(--deck-panel-2)] p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <p className="text-sm font-semibold">{plan.name}</p>
@@ -173,6 +172,6 @@ export default async function AdminSubscriptionsPage({
           </form>
         </SectionCard>
       </div>
-    </PortalShell>
+    </>
   );
 }

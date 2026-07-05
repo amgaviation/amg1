@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PortalShell } from "@/components/portal/shell/portal-shell";
-import { DetailRow, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
+import { Notice, SectionCard } from "@/components/portal/ui/primitives";
+import { DescriptionList } from "@/components/portal/ui/description-list";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
@@ -27,24 +27,47 @@ export default async function PartnerRequestDetailPage({
   if (!assignment || assignment.partner_id !== user.id) notFound();
 
   return (
-    <PortalShell role="partner" user={user}>
+    <>
       {flash.success ? <Notice tone="success">Service request updated.</Notice> : null}
       {flash.error === "invalid" ? <Notice tone="danger">Enter a valid quote amount.</Notice> : null}
-      <PageHeader eyebrow="Service Request" title={assignment.ref} actions={<Link href="/portal/partner/requests" className="text-xs text-muted-foreground hover:text-accent">Back to requests</Link>} />
+      {/* Detail-archetype summary header */}
+      <div className="flex flex-col gap-4 pb-2 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <p className="deck-eyebrow">Service Request</p>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <h1 className="deck-title text-[1.65rem] sm:text-[2rem]">{assignment.ref}</h1>
+            <StatusBadge label={PARTNER_STATUS_LABEL[assignment.status] ?? assignment.status} tone={toneFor(PARTNER_STATUS_TONE, assignment.status)} />
+          </div>
+          <p className="deck-mono mt-2.5 !text-[0.8rem] text-[var(--deck-text-2)]">
+            {assignment.service_type}
+            {assignment.location ? ` · ${assignment.location}` : ""}
+            {assignment.mission?.ref ? ` · ${assignment.mission.ref}` : ""}
+          </p>
+        </div>
+        <div data-portal-action-bar className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/portal/partner/requests"
+            className="rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
+          >
+            All Requests
+          </Link>
+        </div>
+      </div>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_24rem]">
         <SectionCard title="Request Details" icon="clipboard">
-          <dl>
-            <DetailRow label="Status"><StatusBadge label={PARTNER_STATUS_LABEL[assignment.status] ?? assignment.status} tone={toneFor(PARTNER_STATUS_TONE, assignment.status)} /></DetailRow>
-            <DetailRow label="Service">{assignment.service_type}</DetailRow>
-            <DetailRow label="Location">{assignment.location ?? "-"}</DetailRow>
-            <DetailRow label="Mission">{assignment.mission?.ref ?? "-"}</DetailRow>
-            <DetailRow label="Route">{formatRoute(assignment.mission?.departure_airport, assignment.mission?.arrival_airport)}</DetailRow>
-            <DetailRow label="Requested">{formatDateTime(assignment.created_at)}</DetailRow>
-            <DetailRow label="Description">{assignment.description ?? "-"}</DetailRow>
-            <DetailRow label="Quote">{formatMoney(assignment.quote_amount)}</DetailRow>
-            <DetailRow label="Notes">{assignment.partner_notes ?? "-"}</DetailRow>
-          </dl>
+          <DescriptionList
+            items={[
+              { label: "Service", value: assignment.service_type },
+              { label: "Location", value: assignment.location ?? "-", mono: true },
+              { label: "Mission", value: assignment.mission?.ref ?? "-", mono: true },
+              { label: "Route", value: formatRoute(assignment.mission?.departure_airport, assignment.mission?.arrival_airport), mono: true },
+              { label: "Requested", value: formatDateTime(assignment.created_at) },
+              { label: "Quote", value: formatMoney(assignment.quote_amount), mono: true },
+              { label: "Description", value: assignment.description ?? "-", wide: true },
+              { label: "Notes", value: assignment.partner_notes ?? "-", wide: true },
+            ]}
+          />
         </SectionCard>
 
         <div className="space-y-6">
@@ -73,6 +96,6 @@ export default async function PartnerRequestDetailPage({
           </SectionCard>
         </div>
       </div>
-    </PortalShell>
+    </>
   );
 }
