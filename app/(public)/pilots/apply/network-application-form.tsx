@@ -176,6 +176,7 @@ export function NetworkApplicationForm() {
           ["Turbine time", "turbine_time", false],
           ["Jet time", "jet_time", false],
           ["Instrument time", "instrument_time", false],
+          ["Flight time — last 90 days", "hours_last_90_days", true],
           ["Desired day rate", "desired_day_rate", false],
         ].map(([label, name, required]) => (
           <Field key={String(name)} label={String(label)} name={String(name)} required={Boolean(required)} error={errors[String(name)]}>
@@ -236,6 +237,44 @@ export function NetworkApplicationForm() {
         </div>
       </Section>
 
+      <Section title="Insurance History & References">
+        <Field
+          label="Any accidents, incidents, or FAA enforcement actions?"
+          name="insurance_incidents"
+          required
+          error={errors.insurance_incidents}
+        >
+          <select name="insurance_incidents" required defaultValue="" className={inputClass(errors.insurance_incidents)}>
+            <option value="" disabled>Select…</option>
+            <option value="No">No</option>
+            <option value="Yes — explained below">Yes — explained below</option>
+          </select>
+        </Field>
+        <Field
+          label="Ever denied coverage, or added with special conditions, by an aircraft insurer?"
+          name="insurance_denied"
+          required
+          error={errors.insurance_denied}
+        >
+          <select name="insurance_denied" required defaultValue="" className={inputClass(errors.insurance_denied)}>
+            <option value="" disabled>Select…</option>
+            <option value="No">No</option>
+            <option value="Yes — explained below">Yes — explained below</option>
+          </select>
+        </Field>
+        <div className="lg:col-span-2">
+          <Field label="Details (if you answered yes above)" name="insurance_incident_details">
+            <textarea name="insurance_incident_details" rows={3} className={inputClass()} />
+          </Field>
+        </div>
+        <Field label="Reference 1 — name, relationship, phone or email" name="reference_1" required error={errors.reference_1}>
+          <input name="reference_1" required placeholder="e.g. Jane Doe, chief pilot, (555) 000-0000" className={inputClass(errors.reference_1)} />
+        </Field>
+        <Field label="Reference 2 — name, relationship, phone or email" name="reference_2">
+          <input name="reference_2" placeholder="Optional but speeds up review" className={inputClass()} />
+        </Field>
+      </Section>
+
       <Section title="Documents">
         <Field label="Resume upload" name="resume" required error={errors.resume}>
           <input name="resume" type="file" required accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" className={inputClass(errors.resume)} />
@@ -254,7 +293,7 @@ export function NetworkApplicationForm() {
         <div className="space-y-3">
           <label className="flex items-start gap-3 text-sm leading-6 text-[#C0C7D1]">
             <input type="checkbox" name="legal_acknowledgment" value="accepted" required className="mt-1 h-4 w-4 accent-[#3B82F6]" />
-            <span>I understand that submitting this application does not create employment, contractor status, assignment acceptance, aircraft approval, operator approval, or guaranteed compensation. I agree that AMG Aviation Group may review and store this information for crew-network evaluation.</span>
+            <span>I understand that submitting this application does not create employment, contractor status, assignment acceptance, aircraft approval, operator approval, or guaranteed compensation. I agree that AMG Aviation Group may review and store this information for crew-network evaluation, may contact the references I provided, and may verify the credentials and history in this application.</span>
           </label>
           {errors.legal_acknowledgment ? <p className="text-xs text-red-200">{errors.legal_acknowledgment}</p> : null}
           <label className="flex items-start gap-3 text-sm leading-6 text-[#C0C7D1]">

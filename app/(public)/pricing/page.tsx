@@ -18,7 +18,7 @@ const POSITIONING = [
   },
   {
     name: "Standard",
-    body: "You fly yourself but need a professional a few times a year. We keep your aircraft file, answer in 12 hours, and every mission's coordination fee drops $200. Honest math: on fees alone, Standard pays for itself around nine missions a year — most members are really buying the response time and never re-explaining their airplane.",
+    body: "You fly yourself but need a professional a few times a year. We keep your aircraft file, answer in 12 hours, and every mission's coordination fee drops $200. Your file stays alive between missions — insurance-renewal and crew-currency reminders run automatically. Honest math: on fees alone, Standard pays for itself around nine missions a year — most members are really buying the response time and never re-explaining their airplane.",
   },
   {
     name: "Priority",

@@ -193,6 +193,29 @@ function validateFile(file: File, allowedTypes: Set<string>) {
   return null;
 }
 
+/**
+ * Portal Spec §3.3 fields (90-day currency, insurance-history questionnaire,
+ * references) are captured as structured form inputs and folded into
+ * additional_notes so the launch schema needs no migration; the portal's
+ * vetting checklist reads them from the application record.
+ */
+function foldSpecFieldsIntoNotes(formData: FormData, notes: string): string {
+  const lines = [
+    ["Flight time last 90 days", text(formData.get("hours_last_90_days"))],
+    ["Accidents / incidents / enforcement actions", text(formData.get("insurance_incidents"))],
+    ["Incident details", text(formData.get("insurance_incident_details"))],
+    ["Insurance denied or special conditions", text(formData.get("insurance_denied"))],
+    ["Insurance history details", text(formData.get("insurance_denied_details"))],
+    ["Reference 1", text(formData.get("reference_1"))],
+    ["Reference 2", text(formData.get("reference_2"))],
+  ]
+    .filter(([, value]) => value)
+    .map(([label, value]) => `${label}: ${value}`);
+  if (!lines.length) return notes;
+  const block = `— Insurance history & references —\n${lines.join("\n")}`;
+  return notes ? `${notes}\n\n${block}` : block;
+}
+
 export function parseNetworkApplicationForm(formData: FormData) {
   const payload = {
     full_name: text(formData.get("full_name")),
@@ -219,7 +242,8 @@ export function parseNetworkApplicationForm(formData: FormData) {
     international_ops: boolOrNull(formData.get("international_ops")),
     preferred_assignment_types: arr(formData, "preferred_assignment_types"),
     desired_day_rate: numberOrNull(formData.get("desired_day_rate")),
-    additional_notes: text(formData.get("additional_notes")) || null,
+    additional_notes:
+      foldSpecFieldsIntoNotes(formData, text(formData.get("additional_notes"))) || null,
   };
 
   const errors: Record<string, string> = {};

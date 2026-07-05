@@ -82,6 +82,16 @@ export function QuoteRequestForm({ error }: { error?: string }) {
         <Field label="Insurance carrier" hint="If unknown now, we'll collect it before crew confirmation">
           <input name="insurance_carrier" className={inputClass} />
         </Field>
+        <Field label="Insurance broker contact" hint="Name or email — speeds up pilot approval on your policy">
+          <input name="insurance_broker" className={inputClass} />
+        </Field>
+        <Field label="Plan status">
+          <select name="plan_status" className={inputClass} defaultValue="No plan yet">
+            <option value="No plan yet">No plan yet</option>
+            <option value="Standard member">Standard member</option>
+            <option value="Priority member">Priority member</option>
+          </select>
+        </Field>
         <Field label="Origin" hint="If known">
           <input name="origin" className={inputClass} placeholder="e.g. KTPA" />
         </Field>

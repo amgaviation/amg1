@@ -53,6 +53,25 @@ export async function submitQuoteRequest(formData: FormData) {
     );
   }
 
+  // Portal Spec §3.1: insurance carrier & broker contact and plan status ride
+  // in the notes so the coordinator and the portal mission record capture
+  // them — the shared normalizer has no dedicated columns for these fields.
+  const specLines = [
+    ["Insurance carrier", formData.get("insurance_carrier")],
+    ["Insurance broker contact", formData.get("insurance_broker")],
+    ["Plan status", formData.get("plan_status")],
+  ]
+    .map(([label, value]) => {
+      const text = String(value ?? "").trim();
+      return text ? `${label}: ${text}` : null;
+    })
+    .filter(Boolean)
+    .join("\n");
+  if (specLines) {
+    const notes = String(formData.get("additional_notes") ?? "").trim();
+    formData.set("additional_notes", notes ? `${notes}\n\n${specLines}` : specLines);
+  }
+
   const normalized = normalizeSupportSubmission(formData);
   if (!normalized.ok) redirect("/request?error=missing");
 

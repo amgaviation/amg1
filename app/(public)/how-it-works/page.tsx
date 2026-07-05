@@ -41,6 +41,15 @@ const NEVER_DO = [
   "We never mark up pass-through costs.",
 ] as const;
 
+/** Portal Spec §1 — the five launch functions, in client language. */
+const CONNECT_FUNCTIONS = [
+  { title: "Requests & status", body: "Submit missions and watch them move through every state." },
+  { title: "Document vault", body: "Agreements, invoices, receipts, and insurance confirmations, per mission." },
+  { title: "Quotes & invoices", body: "Itemized against the published fee schedule — the invoice mirrors the quote, line for line." },
+  { title: "One message thread", body: "Per mission. No email scatter, no attachments lost in inboxes." },
+  { title: "Automatic reminders", body: "Insurance renewal, crew currency, plan renewal — your file stays alive between missions." },
+] as const;
+
 export default function HowItWorksPage() {
   return (
     <>
@@ -100,6 +109,26 @@ export default function HowItWorksPage() {
               No mission proceeds until the selected pilot is named or approved on your policy.
               An unapproved pilot voids the whole point.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Inside AMG Connect — the five launch functions (Portal Spec §1). */}
+      <section className="oc-section pt-0">
+        <div className="oc-shell">
+          <div className="max-w-2xl">
+            <p className="oc-eyebrow oc-eyebrow-light">Inside AMG Connect</p>
+            <h2 className="oc-display mt-4 text-3xl text-[var(--oc-paper)]">
+              One login, one thread. Five things, done properly.
+            </h2>
+          </div>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            {CONNECT_FUNCTIONS.map((item) => (
+              <div key={item.title} className="oc-card-dark p-5">
+                <h3 className="text-base font-semibold text-[var(--oc-paper)]">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--oc-aluminum)]">{item.body}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>

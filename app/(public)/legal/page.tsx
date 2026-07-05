@@ -75,8 +75,10 @@ export default function LegalPage() {
               are collected only through the secure portal over encrypted transport, never by
               email. Access is limited to AMG&apos;s founder and mission coordinators. Records
               are retained while a pilot is active in the network plus 12 months, and deleted on
-              request. Client data lives in AMG Connect and is used to coordinate missions, not
-              sold or shared. Questions:{" "}
+              request. Clients see only their own records plus a qualification summary for the
+              pilot assigned to their mission — never the raw credential documents. Client data
+              lives in AMG Connect and is used to coordinate missions, not sold or shared.
+              Questions:{" "}
               <a href={`mailto:${SITE.email}`} className="oc-mono text-[var(--oc-paper)] underline-offset-2 hover:underline">
                 {SITE.email}
               </a>

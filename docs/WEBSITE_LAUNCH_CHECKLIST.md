@@ -31,6 +31,8 @@ public. **The site should not launch while any OPEN item remains.**
 - [ ] **Quote form end-to-end test in production** — submit, confirm the row lands in `contact_form_submissions` with timestamp, the portal mission is created, and both emails deliver.
 - [ ] **Mobile pass on real devices** — pricing table (stacked cards < md), worked example, and quote form.
 - [ ] **Website-editor rework or retirement** — the portal super-admin website editor still edits the old CMS pages (`content/site/*.json`), which no longer drive the public site. Decide: retire it or repoint it at the new pages. (Guard `website-editor:verify` files kept intact meanwhile.)
+- [ ] **ops@ auto-reply for inbound attachments** (Portal Spec §5) — configure the ops@ mailbox to auto-reply to messages carrying attachments, repeating that credentials upload only through the portal, never email.
+- [ ] **Counsel confirmation of credential retention window** (Portal Spec §9) — the site publishes "active + 12 months" on /pilots and /legal; counsel must confirm or correct that figure, and the published statement changes the same week the configured policy does.
 
 ## Definition of done (spec)
 
