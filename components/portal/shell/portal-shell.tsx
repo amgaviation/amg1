@@ -424,7 +424,7 @@ function SidebarContent({
       {/* User card */}
       <div className="shrink-0 border-t border-[var(--deck-chrome-line)] px-4 py-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] text-xs font-bold text-[#EBD9B4]">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] text-xs font-bold text-[#9FC5FF]">
             {initials(user.name)}
           </div>
           <div className="min-w-0">
