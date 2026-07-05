@@ -1,11 +1,9 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { CookiePreferencesButton } from "@/components/compliance/cookie-consent";
-import { COMPANY } from "@/lib/content";
+import { PhoneLink } from "@/components/site/tracked-link";
 import { PUBLIC_FOOTER_GROUPS } from "@/lib/navigation";
-
-const FOOTER_NOTE =
-  "AMG support requests are subject to aircraft status, crew availability, owner/operator approval, operating conditions, support-scope review, and final acceptance. AMG Aviation Group does not present a request as accepted until the applicable review is complete.";
+import { AFFILIATIONS, OPERATIONAL_CONTROL_STATEMENT, SITE } from "@/lib/site-config";
 
 export function SiteFooter() {
   return (
@@ -17,20 +15,39 @@ export function SiteFooter() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/logo-white.png" alt="AMG Aviation Group" width="1088" height="221" className="h-9 w-auto" />
             <p className="mt-6 text-base leading-relaxed text-[var(--oc-aluminum)]">
-              Private aircraft support coordination for crew coverage, aircraft movement, maintenance repositioning, and recurring owner or flight-department needs.
+              Vetted contract pilots, maintenance ferries, and repositioning for owners who fly
+              Part 91 — quoted within 24 business hours, tracked in one portal, priced flat.
             </p>
+            <address className="mt-6 grid gap-1.5 not-italic text-sm text-[var(--oc-aluminum)]">
+              <span>{SITE.streetAddress}</span>
+              <PhoneLink source="footer" className="oc-mono w-fit transition-colors hover:text-white" />
+              <a href={`mailto:${SITE.email}`} className="oc-mono w-fit transition-colors hover:text-white">
+                {SITE.email}
+              </a>
+            </address>
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              {AFFILIATIONS.map((affiliation) => (
+                <span
+                  key={affiliation}
+                  className="inline-flex items-center gap-2 rounded-full border border-[var(--oc-line-dark)] bg-white/[0.04] px-3 py-1.5 text-[0.7rem] font-semibold uppercase text-[var(--oc-aluminum)]"
+                >
+                  <span className="oc-dot" aria-hidden="true" />
+                  {affiliation}
+                </span>
+              ))}
+            </div>
             <div className="mt-7 flex flex-wrap items-center gap-3">
-              <Link href="/booking-request" prefetch={false} className="oc-btn oc-btn-light">
-                Request aircraft support
+              <Link href="/request" prefetch={false} className="oc-btn oc-btn-light">
+                Get a Quote
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
-              <Link href="/login" prefetch={false} className="oc-btn oc-btn-ghost-dark">
-                Member login
+              <Link href="/connect" prefetch={false} className="oc-btn oc-btn-ghost-dark">
+                Portal login
               </Link>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-7 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="grid grid-cols-2 gap-7 sm:grid-cols-3">
             {PUBLIC_FOOTER_GROUPS.map((col) => (
               <div key={col.label}>
                 <Link
@@ -58,23 +75,22 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-12 grid gap-6 rounded-lg border border-[var(--oc-line-dark)] bg-white/[0.035] p-5 lg:grid-cols-[1fr_auto] lg:items-end">
-          <p className="max-w-4xl text-xs leading-relaxed text-[var(--oc-aluminum-2)]">{FOOTER_NOTE}</p>
-          <a
-            href={`mailto:${COMPANY.email}`}
-            className="oc-mono inline-flex min-h-9 items-center text-sm text-[var(--oc-aluminum)] transition-colors hover:text-white"
-          >
-            {COMPANY.email}
-          </a>
-        </div>
+        <p className="mt-12 max-w-4xl text-xs leading-relaxed text-[var(--oc-aluminum-2)]">
+          {OPERATIONAL_CONTROL_STATEMENT}{" "}
+          Details in{" "}
+          <Link href="/legal" prefetch={false} className="underline underline-offset-2 transition-colors hover:text-white">
+            Legal
+          </Link>
+          .
+        </p>
 
         <div className="mt-8 flex flex-col gap-3 border-t border-[var(--oc-line-dark)] pt-6 text-xs text-[var(--oc-aluminum-2)] sm:flex-row sm:items-center sm:justify-between">
           <span>
-            &copy; {new Date().getFullYear()} {COMPANY.name}. All rights reserved.
+            &copy; {new Date().getFullYear()} {SITE.name}. All rights reserved.
           </span>
           <span className="flex flex-wrap items-center gap-3">
             <CookiePreferencesButton className="text-[var(--oc-aluminum-2)] transition-colors hover:text-white" />
-            <span>{COMPANY.location}</span>
+            <span>{SITE.cityState}</span>
           </span>
         </div>
       </div>

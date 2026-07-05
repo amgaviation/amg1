@@ -1,34 +1,38 @@
 import type { MetadataRoute } from "next";
+import { MISSION_CASE_STUDIES } from "@/content/missions";
 
 const publicRoutes = [
   "",
-  "/capabilities",
-  "/aircraft-support",
-  "/crew-network",
-  "/amg-connect",
-  "/plans",
-  "/about",
-  "/contact",
-  "/request-support",
-  "/booking-request",
-  "/login",
-  "/signup",
-  "/forgot-password",
-  "/pending-approval",
-  "/access-denied",
+  "/pricing",
+  "/how-it-works",
+  "/missions",
+  "/team",
+  "/pilots",
+  "/pilots/apply",
+  "/for-shops",
+  "/request",
+  "/legal",
   "/privacy-policy",
+  "/cookie-policy",
   "/terms",
-  "/operational-disclaimer",
-  "/mission-acceptance",
-  "/credential-submission",
+  "/accessibility",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://amgaviationgroup.com";
-  return publicRoutes.map((route) => ({
-    url: `${base}${route}`,
-    lastModified: new Date(),
-    changeFrequency: route === "" ? "weekly" : "monthly",
-    priority: route === "" ? 1 : 0.7,
-  }));
+  return [
+    ...publicRoutes.map((route) => ({
+      url: `${base}${route}`,
+      lastModified: new Date(),
+      changeFrequency: (route === "" || route === "/missions" ? "weekly" : "monthly") as "weekly" | "monthly",
+      priority: route === "" ? 1 : route === "/pricing" ? 0.9 : 0.7,
+    })),
+    // Case studies are the long-tail SEO magnets (spec §12) — individual URLs.
+    ...MISSION_CASE_STUDIES.map((mission) => ({
+      url: `${base}/missions/${mission.slug}`,
+      lastModified: new Date(mission.flownOn),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
+  ];
 }
