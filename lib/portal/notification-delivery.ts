@@ -2,6 +2,7 @@ import "server-only";
 
 import { createServiceClient } from "@/lib/supabase/server";
 import { absolutePortalUrl, defaultSender, replyToAddress } from "@/lib/email/config";
+import { generateCommunicationPublicId } from "@/lib/email/threading";
 import { portalNotificationEmail } from "@/lib/portal/email-templates";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -204,14 +205,89 @@ export async function sendEmail(params: {
 
   const payload = await response.json().catch(() => ({}));
 
-  if (!response.ok) {
-    return {
-      status: "failed",
-      error: payload?.message ?? "Resend request failed",
-    };
-  }
+  const result: DeliveryResult = !response.ok
+    ? { status: "failed", error: payload?.message ?? "Resend request failed" }
+    : { status: "sent", providerMessageId: payload?.id };
 
-  return { status: "sent", providerMessageId: payload?.id };
+  // Best-effort: every outbound email lands in the admin Email Log
+  // (communication_messages), not just hub-composed ones.
+  await logTransactionalEmail({ ...params, from }, result).catch((error) =>
+    console.error("[email-log] failed to record transactional email", error),
+  );
+
+  return result;
+}
+
+const TRANSACTIONAL_THREAD_SUBJECT = "Automated System Emails";
+
+/**
+ * Record an outbound transactional email in communication_messages so the
+ * admin Email Log reflects everything the system sends (billing PDFs,
+ * account setup, notifications) — not only hub-composed messages. All
+ * transactional rows share one closed thread so the Messages hub inbox
+ * isn't flooded with single-message threads.
+ */
+async function logTransactionalEmail(
+  params: {
+    to: string;
+    cc?: string[];
+    subject: string;
+    text: string;
+    html?: string;
+    from: string;
+  },
+  result: DeliveryResult,
+) {
+  if (result.status === "suppressed") return;
+  const db = (await createServiceClient()) as any;
+
+  let { data: thread } = await db
+    .from("communication_threads")
+    .select("id")
+    .eq("subject", TRANSACTIONAL_THREAD_SUBJECT)
+    .eq("channel", "email")
+    .limit(1)
+    .maybeSingle();
+
+  if (!thread) {
+    const { data: created } = await db
+      .from("communication_threads")
+      .insert({
+        public_id: generateCommunicationPublicId("THR"),
+        subject: TRANSACTIONAL_THREAD_SUBJECT,
+        status: "closed",
+        priority: "normal",
+        channel: "email",
+        last_message_at: new Date().toISOString(),
+      })
+      .select("id")
+      .single();
+    thread = created;
+  }
+  if (!thread) return;
+
+  const nowIso = new Date().toISOString();
+  await db.from("communication_messages").insert({
+    thread_id: thread.id,
+    public_id: generateCommunicationPublicId("MSG"),
+    message_type: "email",
+    direction: "outbound",
+    visibility: "internal",
+    status: result.status === "sent" ? "sent" : "failed",
+    provider: "resend",
+    provider_message_id: result.providerMessageId ?? null,
+    from_email: params.from,
+    to_emails: [params.to],
+    cc_emails: params.cc ?? [],
+    bcc_emails: [],
+    subject: params.subject,
+    body_text: params.text?.slice(0, 8000) ?? null,
+    body_preview: params.text?.slice(0, 280) ?? null,
+    email_category: "transactional",
+    sent_at: result.status === "sent" ? nowIso : null,
+    failed_at: result.status === "failed" ? nowIso : null,
+    failure_reason: result.status === "failed" ? (result.error ?? null) : null,
+  });
 }
 
 export async function sendSms(params: {
