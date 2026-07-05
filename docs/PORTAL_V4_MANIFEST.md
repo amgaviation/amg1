@@ -24,21 +24,22 @@ from zero as a new design system called **AMG Manifest**.
 
 ## AMG Manifest design language
 
-The portal reads like a precision flight manifest: warm paper, ink typography, one
-champagne-bronze brand accent, hairline rules, flat stamped surfaces. Explicitly NOT
-generic SaaS (no blue accents, no glow shadows, no bubbly radii) and NOT the public
-site system (no instrument green, no GSAP motion).
+The portal reads like a precision flight manifest: plain white canvas, ink
+typography, one AMG instrument-blue brand accent, hairline rules, flat stamped
+surfaces. Explicitly NOT generic SaaS (no glow shadows, no bubbly radii) and NOT
+the public site system (no instrument green, no GSAP motion).
 
 - **Light "Day Board" is default**; dark "Night Ops" via `data-portal-theme="dark"`.
-- Palette (light): canvas `#F3F1EA` warm paper, panel `#FCFBF7`, ink text `#191C1F`,
-  hairlines `#DDD9CB`, accent champagne-bronze `#A8874F` (ink `#7D6434`).
-- Palette (dark): canvas `#121418`, panel `#191C21`, warm text `#ECE9E0`,
-  champagne `#D6B67C`.
-- Chrome rail: theme-invariant ink `#14171B` with warm text — the ops rail is always night.
+- Palette (light): canvas `#FFFFFF` plain white, panel `#FFFFFF` (separated by
+  hairlines + faint shadow), insets/table-heads `#F2F4F8`, ink text `#16191E`,
+  hairlines `#E3E7ED`, accent AMG instrument blue `#0B5ED4`.
+- Palette (dark): canvas `#0D1219`, panel `#131924`, cool text `#EEF2F7`,
+  accent `#5B9DFF`.
+- Chrome rail: theme-invariant deep navy `#0A1120` — the ops rail is always night.
 - Geometry: radius 6px, flat surfaces (hairline shadow only), square stamped chips,
-  2px solid gold rails on KPI tiles.
+  2px solid accent rails on KPI tiles.
 - Type: Space Grotesk display, JetBrains Mono for eyebrows/data/numerals (tabular).
-- Primary buttons: ink in light mode, champagne in dark — never blue.
+- Primary buttons: ink in light mode, instrument blue in dark.
 - Ergonomics: calm density, generous line-height, high contrast, no motion beyond
   140ms color/border transitions.
 
