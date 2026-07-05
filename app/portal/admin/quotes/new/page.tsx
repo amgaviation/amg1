@@ -120,8 +120,8 @@ export default async function NewQuotePage() {
         </SectionCard>
 
         <div className="flex gap-3">
-          <SubmitButton className="rounded-full" name="intent" value="draft" pendingText="Saving...">Save Draft</SubmitButton>
-          <SubmitButton className="rounded-full" name="intent" value="send" pendingText="Sending...">Send Quote PDF</SubmitButton>
+          <SubmitButton name="intent" value="draft" pendingText="Saving...">Save Draft</SubmitButton>
+          <SubmitButton name="intent" value="send" pendingText="Sending...">Send Quote PDF</SubmitButton>
         </div>
       </form>
     </>

@@ -65,7 +65,7 @@ export default async function CrewMissionDetailPage({
       </div>
 
       {canRespond ? (
-        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] p-4">
+        <div className="flex flex-wrap items-center gap-3 rounded-md border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] p-4">
           <div className="flex-1">
             <p className="font-semibold">Assignment Offer</p>
             <p className="text-sm text-muted-foreground">You have been offered this mission. Please accept or decline.</p>
@@ -74,12 +74,12 @@ export default async function CrewMissionDetailPage({
             <form action={respondToAssignment}>
               <input type="hidden" name="assignment_id" value={myAssignment.id} />
               <input type="hidden" name="decision" value="accepted" />
-              <SubmitButton className="rounded-full" pendingText="Accepting…">Accept</SubmitButton>
+              <SubmitButton pendingText="Accepting…">Accept</SubmitButton>
             </form>
             <form action={respondToAssignment}>
               <input type="hidden" name="assignment_id" value={myAssignment.id} />
               <input type="hidden" name="decision" value="declined" />
-              <SubmitButton variant="outline" className="rounded-full" pendingText="Declining…">Decline</SubmitButton>
+              <SubmitButton variant="outline" pendingText="Declining…">Decline</SubmitButton>
             </form>
           </div>
         </div>

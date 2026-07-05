@@ -19,11 +19,11 @@ export function RecordDetailLoading({ label }: { label: string }) {
               <SkeletonBlock className="h-9 w-72 max-w-full" />
               <SkeletonBlock className="h-4 w-[34rem] max-w-full" />
               <div className="flex gap-2">
-                <SkeletonBlock className="h-7 w-24 rounded-full" />
-                <SkeletonBlock className="h-7 w-28 rounded-full" />
+                <SkeletonBlock className="h-7 w-24 rounded-[0.25rem]" />
+                <SkeletonBlock className="h-7 w-28 rounded-[0.25rem]" />
               </div>
             </div>
-            <SkeletonBlock className="h-11 w-36 rounded-full" />
+            <SkeletonBlock className="h-11 w-36 rounded-md" />
           </div>
         </section>
 
@@ -68,7 +68,7 @@ export function RecordDetailError({
     <main className="amg-portal flex min-h-screen items-center justify-center px-4 py-10 text-foreground">
       <section className="deck-card w-full max-w-xl border-[var(--deck-danger-line)] p-6">
         <div className="flex items-start gap-4">
-          <span className="rounded-full border border-[var(--deck-danger-line)] bg-[var(--deck-danger-tint)] p-2 text-[var(--deck-danger)]">
+          <span className="rounded-md border border-[var(--deck-danger-line)] bg-[var(--deck-danger-tint)] p-2 text-[var(--deck-danger)]">
             <AlertTriangle className="h-5 w-5" />
           </span>
           <div className="min-w-0">
@@ -82,10 +82,10 @@ export function RecordDetailError({
           </div>
         </div>
         <div className="mt-6 flex flex-wrap justify-end gap-2 border-t border-border pt-4">
-          <Button type="button" variant="outline" className="rounded-full" asChild>
+          <Button type="button" variant="outline" asChild>
             <Link href={href}>Back</Link>
           </Button>
-          <Button type="button" className="rounded-full" onClick={reset}>
+          <Button type="button" onClick={reset}>
             Retry
           </Button>
         </div>

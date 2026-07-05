@@ -155,7 +155,7 @@ export default async function OpsCalendarPage({
                     <Link
                       key={mission.id}
                       href={`/portal/admin/trips/${mission.id}`}
-                      className="inline-flex items-center gap-2 rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] py-1 pl-3 pr-1.5 text-xs transition-colors hover:border-[var(--deck-accent-line)]"
+                      className="inline-flex items-center gap-2 rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] py-1 pl-3 pr-1.5 text-xs transition-colors hover:border-[var(--deck-accent-line)]"
                     >
                       <span className="deck-mono text-[var(--deck-accent-ink)]">{mission.ref}</span>
                       {mission.departure_airport}→{mission.arrival_airport}

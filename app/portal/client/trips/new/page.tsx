@@ -116,7 +116,7 @@ export default async function NewTripPage({
                   {savedPassengers.map((passenger) => (
                     <label
                       key={passenger.id}
-                      className="flex cursor-pointer items-center gap-3 rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2.5 text-sm transition-colors hover:border-[var(--deck-accent-line)]"
+                      className="flex cursor-pointer items-center gap-3 rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2.5 text-sm transition-colors hover:border-[var(--deck-accent-line)]"
                     >
                       <input
                         type="checkbox"
@@ -173,28 +173,28 @@ export default async function NewTripPage({
               />
             </div>
             <div className="mt-4 grid gap-3 text-sm leading-relaxed text-muted-foreground">
-              <p className="rounded-lg border border-border bg-background/60 p-3">
+              <p className="rounded-md border border-border bg-background/60 p-3">
                 AMG Aviation does not provide emergency response services through this website or portal.
                 Time-sensitive requests remain subject to review, availability, and operational conditions.
               </p>
-              <p className="rounded-lg border border-border bg-background/60 p-3">
+              <p className="rounded-md border border-border bg-background/60 p-3">
                 AMG Aviation&apos;s website and portal may be accessible internationally. Service availability, vendor
                 participation, crew availability, regulatory requirements, and operational support may vary by location
                 and remain subject to review.
               </p>
-              <p className="rounded-lg border border-border bg-background/60 p-3">
+              <p className="rounded-md border border-border bg-background/60 p-3">
                 Do not enter full credit card numbers, CVV codes, bank account numbers, or routing numbers. AMG does
                 not process payment card or bank account payments through this website or portal.
               </p>
             </div>
-            <label className="mt-4 flex items-start gap-3 rounded-lg border border-border bg-background/60 p-3 text-sm text-muted-foreground">
+            <label className="mt-4 flex items-start gap-3 rounded-md border border-border bg-background/60 p-3 text-sm text-muted-foreground">
               <input name="support_disclaimer_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-accent)]" />
               <span>Submitting this request does not create an accepted assignment, confirmed service, emergency response, or operational commitment. AMG reviews scope, aircraft status, crew availability, owner/operator approval, and operating conditions before acceptance.</span>
             </label>
           </SectionCard>
 
           <div className="flex items-center justify-end gap-3 border-t border-border pt-4">
-            <SubmitButton className="rounded-full" pendingText="Submitting…">
+            <SubmitButton pendingText="Submitting…">
               Submit Trip Request
             </SubmitButton>
           </div>

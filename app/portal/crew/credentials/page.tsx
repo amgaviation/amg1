@@ -61,7 +61,11 @@ export default async function CrewCredentialsPage({
             {withExpiry.map((credential) => {
               const pct = Math.max(0, Math.min(100, Math.round((credential.days / 365) * 100)));
               const barColor =
-                credential.days <= 30 ? "#C03636" : credential.days <= 90 ? "#D9970F" : "#17845A";
+                credential.days <= 30
+                  ? "var(--deck-danger)"
+                  : credential.days <= 90
+                    ? "var(--deck-warn)"
+                    : "var(--deck-success)";
               return (
                 <div key={credential.id}>
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -108,12 +112,12 @@ export default async function CrewCredentialsPage({
           <div className="lg:col-span-3">
             <FileField label="Credential File" name="file" accept=".pdf,.jpg,.jpeg,.png" />
           </div>
-          <label className="lg:col-span-4 flex items-start gap-3 rounded-lg border border-border bg-background/60 p-3 text-sm text-muted-foreground">
+          <label className="lg:col-span-4 flex items-start gap-3 rounded-md border border-border bg-background/60 p-3 text-sm text-muted-foreground">
             <input name="document_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-accent)]" />
             <span>I acknowledge the credential submission notice and document upload terms, and I will not submit full card numbers, CVV codes, bank account numbers, routing numbers, or unrelated sensitive information.</span>
           </label>
           <div className="flex items-end">
-            <SubmitButton className="rounded-full" pendingText="Submitting...">Submit Credential</SubmitButton>
+            <SubmitButton pendingText="Submitting...">Submit Credential</SubmitButton>
           </div>
         </form>
       </SectionCard>
@@ -126,7 +130,7 @@ export default async function CrewCredentialsPage({
             {credentials.map((credential) => {
               const days = daysUntil(credential.expiration_date);
               return (
-                <div key={credential.id} className="grid gap-3 rounded-lg border border-border bg-background/50 p-4 sm:grid-cols-[1fr_auto_auto]">
+                <div key={credential.id} className="grid gap-3 rounded-md border border-border bg-background/50 p-4 sm:grid-cols-[1fr_auto_auto]">
                   <div>
                     <p className="text-sm font-semibold">{credential.credential_type}</p>
                     <p className="mt-1 text-xs text-muted-foreground">

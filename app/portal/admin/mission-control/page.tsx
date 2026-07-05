@@ -136,7 +136,7 @@ export default async function AdminMissionControlPage({
                           </option>
                         ))}
                       </select>
-                      <SubmitButton variant="outline" size="sm" className="rounded-full" pendingText="…">
+                      <SubmitButton variant="outline" size="sm" pendingText="…">
                         Move
                       </SubmitButton>
                     </form>

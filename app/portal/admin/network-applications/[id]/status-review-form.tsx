@@ -53,7 +53,7 @@ export function StatusReviewForm({
         />
       ) : null}
       <TextAreaField label="Status note" name="note" placeholder="Optional internal event note" />
-      <SubmitButton className="w-fit rounded-full" pendingText="Saving..." confirm="Save this status and send the matching AMG status email?">
+      <SubmitButton className="w-fit rounded-md" pendingText="Saving..." confirm="Save this status and send the matching AMG status email?">
         Save and Send Email
       </SubmitButton>
     </form>

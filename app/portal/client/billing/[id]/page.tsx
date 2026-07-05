@@ -112,7 +112,7 @@ export default async function ClientInvoicePage({
             <form action={payInvoiceWithStripe} className="mt-5">
               <input type="hidden" name="invoice_id" value={invoice.id} />
               <input type="hidden" name="return_to" value={`/portal/client/billing/${invoice.id}`} />
-              <SubmitButton className="w-full rounded-full" pendingText="Opening Stripe...">
+              <SubmitButton className="w-full" pendingText="Opening Stripe...">
                 Pay Invoice
               </SubmitButton>
             </form>

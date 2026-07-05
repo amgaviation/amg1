@@ -37,7 +37,7 @@ export default async function WebsiteEditorPreviewPage({
         actions={<Link href={`/portal/super-admin/website-editor?page=${content.page}`} className="rounded-full border border-[var(--deck-line-strong)] px-4 py-2 text-sm font-semibold">Return to Editor</Link>}
       />
       <SectionCard title="Rendered Public Hero" icon="fileText" bodyClassName="p-0 overflow-hidden">
-        <div className="overflow-hidden rounded-b-lg">
+        <div className="overflow-hidden rounded-b-md">
           {content.page === "home" ? (
             <HomeHangarEntry
               eyebrow={hero.eyebrow ?? content.seo.title}

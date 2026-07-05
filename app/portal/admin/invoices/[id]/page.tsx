@@ -98,7 +98,7 @@ export default async function AdminInvoiceDetailPage({
           {editableInvoice ? (
             <Link
               href={`/portal/admin/invoices/${invoice.id}/edit`}
-              className="rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-4 py-2 text-xs font-semibold text-[var(--deck-accent-ink)] transition-colors hover:border-[var(--deck-accent)]"
+              className="rounded-md border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-4 py-2 text-xs font-semibold text-[var(--deck-accent-ink)] transition-colors hover:border-[var(--deck-accent)]"
             >
               Edit Draft
             </Link>
@@ -106,14 +106,14 @@ export default async function AdminInvoiceDetailPage({
           {latestInvoiceDocument ? (
             <Link
               href={`/portal/billing-documents/${latestInvoiceDocument.id}/view`}
-              className="rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
+              className="rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
             >
               View PDF
             </Link>
           ) : null}
           <Link
             href="/portal/admin/invoices"
-            className="rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
+            className="rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
           >
             All Invoices
           </Link>
@@ -198,19 +198,19 @@ export default async function AdminInvoiceDetailPage({
             <div className="space-y-3">
               <form action={previewInvoicePdf}>
                 <input type="hidden" name="invoice_id" value={invoice.id} />
-                <SubmitButton className="w-full rounded-full" pendingText="Generating...">Preview PDF</SubmitButton>
+                <SubmitButton className="w-full" pendingText="Generating...">Preview PDF</SubmitButton>
               </form>
               {!lockedInvoice ? (
                 <form action={sendInvoicePdf}>
                   <input type="hidden" name="invoice_id" value={invoice.id} />
-                  <SubmitButton className="w-full rounded-full" pendingText="Sending...">Send / Resend PDF</SubmitButton>
+                  <SubmitButton className="w-full" pendingText="Sending...">Send / Resend PDF</SubmitButton>
                 </form>
               ) : null}
               {canRevise ? (
                 <form action={createInvoiceRevision} className="space-y-3 rounded-md border border-border p-3">
                   <input type="hidden" name="invoice_id" value={invoice.id} />
                   <TextAreaField label="Revision Reason" name="revision_reason" placeholder="Updated services, corrected vendor cost, changed tax, or adjusted billing details..." />
-                  <SubmitButton className="w-full rounded-full" pendingText="Creating...">Create Revision Draft</SubmitButton>
+                  <SubmitButton className="w-full" pendingText="Creating...">Create Revision Draft</SubmitButton>
                 </form>
               ) : null}
             </div>
@@ -226,7 +226,7 @@ export default async function AdminInvoiceDetailPage({
                   <form action={payInvoiceWithStripe}>
                     <input type="hidden" name="invoice_id" value={invoice.id} />
                     <input type="hidden" name="return_to" value={`/portal/admin/invoices/${invoice.id}`} />
-                    <SubmitButton className="w-full rounded-full" pendingText="Opening Stripe...">
+                    <SubmitButton className="w-full" pendingText="Opening Stripe...">
                       Generate / Open Pay Invoice
                     </SubmitButton>
                   </form>
@@ -243,7 +243,7 @@ export default async function AdminInvoiceDetailPage({
                 <input type="hidden" name="invoice_id" value={invoice.id} />
                 <SelectField label="Status" name="status" defaultValue={invoice.status} options={INVOICE_STATUS.filter((status) => status.value !== "paid").map((status) => ({ value: status.value, label: status.label }))} />
                 <TextAreaField label="Internal Notes" name="internal_notes" defaultValue={invoice.internal_notes ?? ""} />
-                <SubmitButton className="rounded-full" pendingText="Saving...">Save Status</SubmitButton>
+                <SubmitButton pendingText="Saving...">Save Status</SubmitButton>
               </form>
             </SectionCard>
           ) : null}
@@ -262,7 +262,7 @@ export default async function AdminInvoiceDetailPage({
                 <TextAreaField label="Notes" name="notes" />
                 <TextAreaField label="Internal Notes" name="internal_notes" />
                 <CheckboxField label="Email receipt now" name="send_receipt" defaultChecked />
-                <SubmitButton className="rounded-full" pendingText="Recording...">Record Payment / Mark Paid</SubmitButton>
+                <SubmitButton pendingText="Recording...">Record Payment / Mark Paid</SubmitButton>
               </form>
             </SectionCard>
           ) : null}

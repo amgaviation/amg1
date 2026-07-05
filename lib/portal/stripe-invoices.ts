@@ -239,8 +239,21 @@ export async function processStripeWebhook(rawBody: string, signature: string | 
     portal_subscription_id: links.portalSubscriptionId,
     status: "processing",
   });
-  if (insertError?.code === "23505") return { ok: true, duplicate: true };
-  if (insertError) return { ok: false, error: "Could not record Stripe event" };
+  if (insertError?.code === "23505") {
+    // Seen before — but only a completed attempt is a true duplicate. A row
+    // stuck in processing/failed means the first delivery died mid-flight;
+    // Stripe's retry must reprocess it, not get a hollow 200.
+    const { data: existing } = await db
+      .from("stripe_webhook_events")
+      .select("status")
+      .eq("stripe_event_id", event.id)
+      .maybeSingle();
+    if (existing?.status === "processed" || existing?.status === "ignored") {
+      return { ok: true, duplicate: true };
+    }
+  } else if (insertError) {
+    return { ok: false, error: "Could not record Stripe event" };
+  }
 
   try {
     const result = await handleStripeEvent(event);

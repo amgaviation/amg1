@@ -105,7 +105,7 @@ function EditorForm({ content, latestDraft }: { content: WebsiteContentPage; lat
       {Object.entries(content.sections).map(([key, section]) => (
         <SectionCard key={key} title={key.replace(/([A-Z])/g, " $1")} icon="fileText" description="Structured content fields only. Raw HTML and scripts are not allowed.">
           <div className="grid gap-4 lg:grid-cols-2">
-            <label className="flex min-h-11 items-center gap-3 rounded-md border border-white/14 bg-[#050B14]/74 px-3 py-2 text-sm text-white">
+            <label className="flex min-h-11 items-center gap-3 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-3 py-2 text-sm text-[var(--deck-text)]">
               <input type="checkbox" name={`section.${key}.enabled`} value="true" defaultChecked={section.enabled} className="h-4 w-4 accent-[var(--deck-accent)]" />
               <span>Section enabled</span>
             </label>
@@ -129,7 +129,7 @@ function EditorForm({ content, latestDraft }: { content: WebsiteContentPage; lat
         </SectionCard>
       ))}
       <TextAreaField label="Draft Notes" name="notes" defaultValue={latestDraft?.notes ?? ""} />
-      <div className="sticky bottom-4 z-10 flex flex-wrap items-center gap-3 rounded-lg border border-white/10 bg-[#050B14]/92 p-3 shadow-[0_18px_58px_rgba(0,0,0,0.32)] backdrop-blur">
+      <div className="sticky bottom-4 z-10 flex flex-wrap items-center gap-3 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)]/95 p-3 shadow-[var(--deck-shadow-card)] backdrop-blur">
         <SubmitButton className="rounded-full" pendingText="Saving draft...">Save Draft</SubmitButton>
         {latestDraft ? <p className="text-xs text-[var(--amg-text-muted)]">Preview and publish actions are available in the Status panel.</p> : null}
         <p className="basis-full text-xs leading-5 text-[var(--amg-text-muted)]">
@@ -157,7 +157,7 @@ function DraftActions({ draft, publishingConfigured }: { draft: WebsiteContentDr
   const canMerge = publishingConfigured && Boolean(prUrl) && draft.status === "ready_to_publish";
   return (
     <div className="space-y-3">
-      <div className="rounded-lg border border-white/10 bg-[#050B14]/60 p-3">
+      <div className="deck-inset p-3">
         <StatusBadge label={workflow.label} tone={workflow.tone} />
         <p className="mt-2 text-xs leading-5 text-[var(--amg-text-muted)]">{workflow.help}</p>
       </div>
@@ -167,7 +167,7 @@ function DraftActions({ draft, publishingConfigured }: { draft: WebsiteContentDr
       {draft.branch_name ? <DetailRow label="Branch"><span className="font-mono text-xs">{draft.branch_name}</span></DetailRow> : null}
       {prUrl ? <DetailRow label="Pull Request"><a href={prUrl} className="text-[var(--deck-accent-ink)] hover:underline" target="_blank" rel="noreferrer">View PR</a></DetailRow> : null}
       {previewUrl ? <DetailRow label="Preview"><Link href={previewUrl} className="text-[var(--deck-accent-ink)] hover:underline">Open Preview</Link></DetailRow> : null}
-      <p className="rounded-md border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-xs leading-relaxed text-amber-100">
+      <p className="rounded-md border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] px-3 py-2 text-xs leading-relaxed text-[var(--deck-warn)]">
         Publishing updates the public website after GitHub and Vercel checks complete.
       </p>
       <div className="flex flex-wrap gap-2 pt-2">
@@ -218,7 +218,7 @@ function DraftActions({ draft, publishingConfigured }: { draft: WebsiteContentDr
         </form>
       </div>
       {!publishingConfigured ? (
-        <p className="text-xs leading-5 text-amber-100">GitHub publishing is not configured, so PR and merge actions are disabled.</p>
+        <p className="text-xs leading-5 text-[var(--deck-warn)]">GitHub publishing is not configured, so PR and merge actions are disabled.</p>
       ) : null}
     </div>
   );
@@ -241,10 +241,10 @@ function DraftHistory({
           {draftRows.map((draft) => {
             const workflow = draftWorkflowStatus(draft);
             return (
-              <article key={draft.id} className="rounded-lg border border-white/10 bg-[#050B14]/60 p-3 text-xs">
+              <article key={draft.id} className="deck-inset p-3 text-xs">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
-                    <p className="font-semibold text-white">{readableStatus(draft.status)}</p>
+                    <p className="font-semibold text-[var(--deck-text)]">{readableStatus(draft.status)}</p>
                     <p className="mt-1 text-[var(--amg-text-muted)]">{new Date(draft.updated_at).toLocaleString()}</p>
                   </div>
                   <StatusBadge label={workflow.label} tone={workflow.tone} />
@@ -281,18 +281,18 @@ function DraftHistory({
         </form>
       ) : null}
 
-      <div className="space-y-2 border-t border-white/10 pt-4">
+      <div className="space-y-2 border-t border-[var(--deck-line)] pt-4">
         <h3 className="text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--amg-text-muted)]">
           Publish Events
         </h3>
         {events.length ? events.map((event) => {
           const prUrl = validExternalUrl(event.github_pr_url);
           return (
-            <article key={event.id} className="rounded-lg border border-white/10 bg-[#050B14]/60 p-3 text-xs">
-              <p className="font-semibold text-white">{readableStatus(event.action)}</p>
+            <article key={event.id} className="deck-inset p-3 text-xs">
+              <p className="font-semibold text-[var(--deck-text)]">{readableStatus(event.action)}</p>
               <p className="mt-1 text-[var(--amg-text-muted)]">{new Date(event.created_at).toLocaleString()} · {event.result ?? "Recorded"}</p>
               {prUrl ? <a href={prUrl} target="_blank" rel="noreferrer" className="mt-1 inline-flex text-[var(--deck-accent-ink)] hover:underline">View PR</a> : null}
-              {event.error_message ? <p className="mt-2 rounded-md border border-red-400/25 bg-red-400/10 px-2 py-1 text-red-100">{event.error_message}</p> : null}
+              {event.error_message ? <p className="mt-2 rounded-md border border-[var(--deck-danger-line)] bg-[var(--deck-danger-tint)] px-2 py-1 text-[var(--deck-danger)]">{event.error_message}</p> : null}
             </article>
           );
         }) : (
@@ -342,7 +342,7 @@ export default async function WebsiteEditorPage({
               <Link
                 key={page.slug}
                 href={`/portal/super-admin/website-editor?page=${page.slug}${params.panel === "history" ? "&panel=history" : ""}`}
-                className={`rounded-md px-3 py-2 text-sm transition-colors ${page.slug === selectedSlug ? "bg-primary text-white" : "text-[var(--amg-text-muted)] hover:bg-white/[0.06] hover:text-white"}`}
+                className={`rounded-md px-3 py-2 text-sm transition-colors ${page.slug === selectedSlug ? "bg-primary text-primary-foreground" : "text-[var(--amg-text-muted)] hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)]"}`}
               >
                 {page.label}
               </Link>

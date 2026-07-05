@@ -81,7 +81,7 @@ function FieldInput({ field, values }: { field: DetailFormField; values: Record<
 
 export function BackLink({ href, label }: { href: string; label: string }) {
   return (
-    <Button asChild variant="outline" className="gap-2 rounded-full">
+    <Button asChild variant="outline" className="gap-2">
       <Link href={href}>
         <ArrowLeft className="h-4 w-4" />
         {label}

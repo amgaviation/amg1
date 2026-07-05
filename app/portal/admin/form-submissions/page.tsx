@@ -108,7 +108,7 @@ function SubmissionDetails({ row }: { row: FormSubmission }) {
             Admin Notes
             <textarea name="admin_notes" defaultValue={row.admin_notes ?? ""} className="min-h-24 rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2 text-sm text-[var(--deck-text)] outline-none focus:border-primary" />
           </label>
-          <SubmitButton className="w-fit rounded-full" pendingText="Saving...">Save Submission</SubmitButton>
+          <SubmitButton className="w-fit" pendingText="Saving...">Save Submission</SubmitButton>
         </form>
       </div>
     </details>
@@ -171,7 +171,7 @@ export default async function AdminFormSubmissionsPage({
         ) : (
           <div className="space-y-3">
             {submissions.map((row) => (
-              <article key={row.id} className="rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+              <article key={row.id} className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4">
                 <div className="grid gap-3 xl:grid-cols-[1.2fr_1fr_1fr_auto] xl:items-start">
                   <div>
                     <p className="text-sm font-semibold text-[var(--deck-text)]">{row.requester_name || row.full_name}</p>
@@ -188,8 +188,8 @@ export default async function AdminFormSubmissionsPage({
                     <p className="mt-1 text-xs text-[var(--deck-text-3)]">{formatDateTime(row.created_at)}</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 xl:justify-end">
-                    <span className="rounded-full border border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-3 py-1 text-xs font-semibold text-[var(--deck-text-2)]">{statusLabel(row.status)}</span>
-                    <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${row.email_sent ? "border-[var(--deck-success-line)] bg-[var(--deck-success-tint)] text-[var(--deck-success)]" : "border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] text-[var(--deck-warn)]"}`}>
+                    <span className="rounded-[0.25rem] border border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-3 py-1 text-xs font-semibold text-[var(--deck-text-2)]">{statusLabel(row.status)}</span>
+                    <span className={`rounded-[0.25rem] border px-3 py-1 text-xs font-semibold ${row.email_sent ? "border-[var(--deck-success-line)] bg-[var(--deck-success-tint)] text-[var(--deck-success)]" : "border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] text-[var(--deck-warn)]"}`}>
                       Email {row.email_sent ? "sent" : "not sent"}
                     </span>
                     <form action={createLeadFromSubmission}>

@@ -127,7 +127,7 @@ export default async function CrmPipelinePage({
               className="min-h-56"
               description={stageValue > 0 ? formatMoney(stageValue) : undefined}
               actions={
-                <span className="deck-num flex h-7 w-7 items-center justify-center rounded-full bg-[var(--deck-accent-tint)] text-xs font-bold text-[var(--deck-accent-ink)]">
+                <span className="deck-num flex h-7 w-7 items-center justify-center rounded-[0.25rem] bg-[var(--deck-accent-tint)] text-xs font-bold text-[var(--deck-accent-ink)]">
                   {rows.length}
                 </span>
               }

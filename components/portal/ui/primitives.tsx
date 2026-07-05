@@ -64,7 +64,7 @@ export function SectionCard({
         <header className="deck-card-header">
           <div className="flex min-w-0 items-center gap-3">
             {icon ? (
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]">
                 <PortalIcon name={icon} className="h-4 w-4" />
               </span>
             ) : null}
@@ -161,8 +161,8 @@ export function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] px-6 py-12 text-center">
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)]">
+    <div className="flex flex-col items-center justify-center rounded-md border border-dashed border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] px-6 py-12 text-center">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-md border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)]">
         <PortalIcon name={icon} className="h-5 w-5 text-[var(--deck-accent-ink)]" />
       </div>
       <h3 className="text-sm font-semibold text-[var(--deck-text)]">{title}</h3>
@@ -248,7 +248,7 @@ export function Notice({
     warn: "bg-[var(--deck-warn)]",
   }[tone];
   return (
-    <div className={cn("relative overflow-hidden rounded-xl border px-4 py-3 pl-5 text-sm", cls)}>
+    <div className={cn("relative overflow-hidden rounded-md border px-4 py-3 pl-5 text-sm", cls)}>
       <span className={cn("absolute inset-y-0 left-0 w-1", rail)} aria-hidden />
       {children}
     </div>
@@ -330,7 +330,7 @@ export function QuickLink({
       href={href}
       className="deck-inset deck-card-hover group flex items-center gap-3 p-3.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--deck-accent-line)] bg-[var(--deck-panel)] text-[var(--deck-accent-ink)]">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[var(--deck-accent-line)] bg-[var(--deck-panel)] text-[var(--deck-accent-ink)]">
         <PortalIcon name={icon} className="h-4 w-4" />
       </span>
       <span className="min-w-0 flex-1">
@@ -380,9 +380,9 @@ export function FilterTabs({
             key={option.value || "all"}
             href={qs ? `${basePath}?${qs}` : basePath}
             className={cn(
-              "rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors",
+              "rounded-[0.25rem] border px-3 py-1.5 font-mono text-[0.68rem] font-semibold uppercase [letter-spacing:0.08em] transition-colors",
               active
-                ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] font-semibold text-[var(--deck-accent-ink)]"
+                ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]"
                 : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"
             )}
           >
@@ -417,7 +417,7 @@ export function Pagination({
   };
   const linkCls = (disabled: boolean) =>
     cn(
-      "rounded-lg border px-4 py-2 text-xs font-semibold transition-colors",
+      "rounded-md border px-4 py-2 text-xs font-semibold transition-colors",
       disabled
         ? "pointer-events-none border-[var(--deck-line)] text-[var(--deck-text-3)] opacity-50"
         : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"

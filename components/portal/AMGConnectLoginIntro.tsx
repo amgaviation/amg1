@@ -28,7 +28,7 @@ function usePrefersReducedMotion() {
 
 function StaticIntroFrame() {
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-[#050B14]">
+    <div className="absolute inset-0 flex items-center justify-center bg-[var(--deck-ink)]">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={PORTAL_INTRO_ASSETS.fallbackLogo}
@@ -95,7 +95,7 @@ export function AMGConnectLoginIntro({ onComplete }: { onComplete: () => void })
   return (
     <div
       className={cn(
-        "fixed inset-0 z-[99999] overflow-hidden bg-[#050B14] text-white transition-opacity ease-[cubic-bezier(0.4,0,0.2,1)]",
+        "fixed inset-0 z-[99999] overflow-hidden bg-[var(--deck-ink)] text-[var(--deck-chrome-text)] transition-opacity ease-[cubic-bezier(0.4,0,0.2,1)]",
         phase === "revealing" ? "pointer-events-auto opacity-0" : "pointer-events-auto opacity-100",
       )}
       style={{ transitionDuration: `${REVEAL_DURATION_MS}ms` }}
@@ -109,7 +109,7 @@ export function AMGConnectLoginIntro({ onComplete }: { onComplete: () => void })
         <StaticIntroFrame />
       ) : (
         <video
-          className="absolute inset-0 h-full w-full bg-[#050B14] object-cover"
+          className="absolute inset-0 h-full w-full bg-[var(--deck-ink)] object-cover"
           autoPlay
           muted
           playsInline
@@ -127,7 +127,7 @@ export function AMGConnectLoginIntro({ onComplete }: { onComplete: () => void })
       )}
 
       <div
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(5,11,20,0.04),rgba(5,11,20,0.24))]"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(14,17,20,0.04),rgba(14,17,20,0.24))]"
         aria-hidden="true"
       />
 
@@ -135,7 +135,7 @@ export function AMGConnectLoginIntro({ onComplete }: { onComplete: () => void })
         type="button"
         onClick={reveal}
         className={cn(
-          "absolute bottom-5 right-5 min-h-10 rounded-full border border-white/15 bg-[#050B14]/45 px-4 text-xs font-semibold uppercase text-white/70 shadow-[0_14px_38px_rgba(0,0,0,0.28)] backdrop-blur-md transition hover:border-white/35 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6] sm:bottom-7 sm:right-7",
+          "absolute bottom-5 right-5 min-h-10 rounded-full border border-[var(--deck-chrome-line)] bg-[var(--deck-ink)]/45 px-4 text-xs font-semibold uppercase text-[var(--deck-chrome-muted)] shadow-[0_14px_38px_rgba(0,0,0,0.28)] backdrop-blur-md transition hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-chrome-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--deck-accent)] sm:bottom-7 sm:right-7",
           showSkip ? "opacity-100" : "pointer-events-none opacity-0",
         )}
         aria-label="Skip AMG Connect intro"

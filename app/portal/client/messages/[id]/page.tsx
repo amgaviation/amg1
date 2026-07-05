@@ -36,7 +36,7 @@ export default async function ClientThreadPage({ params }: { params: Promise<{ i
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-secondary text-xs font-bold">
                   {initials(messageSenderInitialsSource(message))}
                 </div>
-                <div className={`max-w-[75%] rounded-xl px-4 py-3 ${isMe ? "bg-accent/10 border border-accent/30" : "bg-card border border-border"}`}>
+                <div className={`max-w-[75%] rounded-md px-4 py-3 ${isMe ? "bg-accent/10 border border-accent/30" : "bg-card border border-border"}`}>
                   <p className="text-xs font-semibold mb-1 text-muted-foreground">{senderLabel}</p>
                   <p className="text-sm leading-6">{message.body}</p>
                   <p className="mt-1 text-[0.65rem] text-muted-foreground">{formatDateTime(message.created_at)}</p>
@@ -50,7 +50,7 @@ export default async function ClientThreadPage({ params }: { params: Promise<{ i
           <input type="hidden" name="back_to" value="/portal/client/messages" />
           <textarea name="body" required placeholder="Type your message…" className="deck-input flex-1" rows={3} />
           <div className="flex items-end">
-            <SubmitButton className="rounded-full" pendingText="Sending…">Send</SubmitButton>
+            <SubmitButton pendingText="Sending…">Send</SubmitButton>
           </div>
         </form>
       </SectionCard>

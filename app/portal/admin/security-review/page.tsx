@@ -105,11 +105,11 @@ export default async function AdminSecurityReviewPage({
           <SelectField label="Invalid Email" name="invalid_email" defaultValue={params.invalid_email ?? ""} options={[{ value: "", label: "All emails" }, { value: "true", label: "Invalid import email" }]} />
           <SelectField label="Pending Approval" name="pending" defaultValue={params.pending ?? ""} options={[{ value: "", label: "All users" }, { value: "true", label: "Pending only" }]} />
           <div className="flex flex-wrap items-end gap-3 lg:col-span-6">
-            <button type="submit" className="rounded-full bg-[var(--deck-navy)] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[var(--deck-navy-2)]">
+            <button type="submit" className="rounded-md bg-[var(--deck-accent)] px-4 py-2 text-xs font-semibold text-[var(--deck-accent-ink)] transition-colors hover:bg-[var(--deck-accent)]/90">
               Apply Filters
             </button>
             {hasFilters ? (
-              <Link href="/portal/admin/security-review" className="rounded-full border border-border bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]">
+              <Link href="/portal/admin/security-review" className="rounded-md border border-border bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]">
                 Clear filters
               </Link>
             ) : null}
@@ -141,14 +141,14 @@ export default async function AdminSecurityReviewPage({
             <Link
               aria-disabled={safePage <= 1}
               href={safePage <= 1 ? "#" : hrefWith({ ...sharedParams, page: safePage - 1 })}
-              className={`rounded-full border border-border px-4 py-2 text-xs font-semibold ${safePage <= 1 ? "pointer-events-none opacity-50" : "text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"}`}
+              className={`rounded-md border border-border px-4 py-2 text-xs font-semibold ${safePage <= 1 ? "pointer-events-none opacity-50" : "text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"}`}
             >
               Previous
             </Link>
             <Link
               aria-disabled={safePage >= pageCount}
               href={safePage >= pageCount ? "#" : hrefWith({ ...sharedParams, page: safePage + 1 })}
-              className={`rounded-full border border-border px-4 py-2 text-xs font-semibold ${safePage >= pageCount ? "pointer-events-none opacity-50" : "text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"}`}
+              className={`rounded-md border border-border px-4 py-2 text-xs font-semibold ${safePage >= pageCount ? "pointer-events-none opacity-50" : "text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"}`}
             >
               Next
             </Link>
@@ -163,7 +163,7 @@ export default async function AdminSecurityReviewPage({
             name="notes"
             placeholder="Accounts reviewed, stale accounts identified, role changes needed, MFA follow-up, suspended users checked..."
           />
-          <SubmitButton className="rounded-full" pendingText="Recording...">Mark Review Completed</SubmitButton>
+          <SubmitButton pendingText="Recording...">Mark Review Completed</SubmitButton>
         </form>
       </SectionCard>
     </>

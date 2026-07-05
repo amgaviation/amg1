@@ -84,7 +84,7 @@ export default async function CrewDashboardPage() {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="deck-eyebrow-chrome">Next Assignment</p>
-              <p className="deck-num mt-2 text-3xl font-bold text-white">
+              <p className="deck-num mt-2 text-3xl font-bold text-[var(--deck-chrome-text)]">
                 {nextAssignment.departure_airport} → {nextAssignment.arrival_airport}
               </p>
               <p className="mt-2 text-sm text-[var(--deck-chrome-muted)]">
@@ -94,7 +94,7 @@ export default async function CrewDashboardPage() {
               </p>
             </div>
             <div className="text-right">
-              <p className="deck-num text-5xl font-bold text-[#9FC5FF]">{daysToReport}</p>
+              <p className="deck-num text-5xl font-bold text-[#EBD9B4]">{daysToReport}</p>
               <p className="deck-eyebrow-chrome mt-1">day{daysToReport === 1 ? "" : "s"} to departure</p>
             </div>
           </div>

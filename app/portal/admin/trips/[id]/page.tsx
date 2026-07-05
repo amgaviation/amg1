@@ -73,7 +73,7 @@ export default async function AdminTripDetailPage({
         <div data-portal-action-bar className="flex flex-wrap items-center gap-2">
           <Link
             href="/portal/admin/trips"
-            className="rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
+            className="rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
           >
             All Requests
           </Link>
@@ -176,7 +176,7 @@ export default async function AdminTripDetailPage({
               <input type="hidden" name="mission_id" value={mission.id} />
               <SelectField label="Mission Status" name="status" defaultValue={mission.status} options={MISSION_STATUS.map((s) => ({ value: s.value, label: s.label }))} />
               <TextAreaField label="Internal Note" name="internal_notes" defaultValue={mission.internal_notes ?? ""} />
-              <SubmitButton className="rounded-full" pendingText="Saving...">Update Status</SubmitButton>
+              <SubmitButton pendingText="Saving...">Update Status</SubmitButton>
             </form>
           </SectionCard>
           <SectionCard title="Assign Crew" icon="users">
@@ -190,7 +190,7 @@ export default async function AdminTripDetailPage({
                   <TextAreaField label="Duty Notes" name="duty_notes[]" />
                 </div>
               ))}
-              <SubmitButton className="rounded-full" pendingText="Assigning...">Offer Crew Assignment(s)</SubmitButton>
+              <SubmitButton pendingText="Assigning...">Offer Crew Assignment(s)</SubmitButton>
             </form>
           </SectionCard>
           <SectionCard title="Assign Partner" icon="handshake">
@@ -200,7 +200,7 @@ export default async function AdminTripDetailPage({
               <SelectField label="Service Type" name="service_type" defaultValue="" options={[{ value: "", label: "Select service..." }, ...PARTNER_TYPES.map((t) => ({ value: t, label: t }))]} />
               <TextField label="Location" name="location" placeholder="KTEB, KPBI..." />
               <TextAreaField label="Description" name="description" />
-              <SubmitButton className="rounded-full" pendingText="Assigning...">Assign Partner</SubmitButton>
+              <SubmitButton pendingText="Assigning...">Assign Partner</SubmitButton>
             </form>
           </SectionCard>
           <SectionCard title="Create Quote" icon="receipt">
@@ -224,7 +224,7 @@ export default async function AdminTripDetailPage({
               <TextAreaField label="Payment Instructions" name="payment_instructions" />
               <TextAreaField label="Client Notes" name="client_notes" />
               <TextAreaField label="Internal Notes" name="internal_notes" />
-              <SubmitButton className="rounded-full" pendingText="Creating...">Send Quote</SubmitButton>
+              <SubmitButton pendingText="Creating...">Send Quote</SubmitButton>
             </form>
           </SectionCard>
           <SectionCard title="Notes" icon="clipboard">
@@ -232,7 +232,7 @@ export default async function AdminTripDetailPage({
               <input type="hidden" name="mission_id" value={mission.id} />
               <TextAreaField label="Client Notes" name="client_notes" defaultValue={mission.client_notes ?? ""} />
               <TextAreaField label="Internal Notes" name="internal_notes" defaultValue={mission.internal_notes ?? ""} />
-              <SubmitButton className="rounded-full" pendingText="Saving...">Save Notes</SubmitButton>
+              <SubmitButton pendingText="Saving...">Save Notes</SubmitButton>
             </form>
           </SectionCard>
         </div>

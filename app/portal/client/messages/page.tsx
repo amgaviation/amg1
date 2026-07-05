@@ -42,7 +42,7 @@ export default async function ClientMessagesPage({
             <TextAreaField label="Message" name="body" required placeholder="Write your message to AMG Operations…" />
           </div>
           <div className="mt-4">
-            <SubmitButton className="rounded-full" pendingText="Sending…">Send Message</SubmitButton>
+            <SubmitButton pendingText="Sending…">Send Message</SubmitButton>
           </div>
         </form>
       </SectionCard>
