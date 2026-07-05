@@ -113,10 +113,8 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
     {
       label: "Records",
       items: [
-        { label: "Credentials", href: "/portal/crew/credentials", icon: "badgeCheck" },
+        { label: "Credentials & Documents", href: "/portal/crew/credentials", icon: "badgeCheck" },
         { label: "Expenses", href: "/portal/crew/expenses", icon: "receipt" },
-        { label: "Documents", href: "/portal/crew/documents", icon: "fileText" },
-        { label: "Profile", href: "/portal/crew/profile", icon: "user" },
       ],
     },
     {
@@ -209,8 +207,6 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       label: "Work",
       items: [
         { label: "Service Requests", href: "/portal/partner/requests", icon: "clipboard" },
-        { label: "Quotes", href: "/portal/partner/quotes", icon: "receipt" },
-        { label: "Milestones", href: "/portal/partner/milestones", icon: "check" },
       ],
     },
     {

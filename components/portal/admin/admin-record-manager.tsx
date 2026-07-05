@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowDown, ArrowUp, Edit3, Eye, Filter, Plus, RefreshCw, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -402,7 +403,20 @@ export function AdminRecordManager({
                         <td key={column.key} className={cn("bg-inherit px-4 py-3 align-middle text-[var(--deck-text-2)]", column.className)}>
                           {index === 0 ? (
                             <div className="min-w-0">
-                              <div className="truncate font-semibold text-[var(--deck-text)]" title={valueText(row.cells[column.key])}>{valueText(row.cells[column.key])}</div>
+                              {detailHref(row) ? (
+                                // Real anchor so records are middle-clickable / crawlable;
+                                // stopPropagation avoids the row's router.push double-firing.
+                                <Link
+                                  href={detailHref(row)!}
+                                  className="block truncate font-semibold text-[var(--deck-text)] hover:underline"
+                                  title={valueText(row.cells[column.key])}
+                                  onClick={(event) => event.stopPropagation()}
+                                >
+                                  {valueText(row.cells[column.key])}
+                                </Link>
+                              ) : (
+                                <div className="truncate font-semibold text-[var(--deck-text)]" title={valueText(row.cells[column.key])}>{valueText(row.cells[column.key])}</div>
+                              )}
                               {row.subtitle ? <div className="mt-0.5 truncate text-xs text-[var(--deck-text-3)]" title={row.subtitle}>{row.subtitle}</div> : null}
                             </div>
                           ) : column.key === "status" && row.status ? (

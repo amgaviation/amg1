@@ -137,6 +137,10 @@ export function CommandPalette() {
                 role="combobox"
                 aria-expanded={results.length > 0}
                 aria-autocomplete="list"
+                aria-controls="command-palette-results"
+                aria-activedescendant={
+                  results.length > 0 ? `command-palette-option-${activeIndex}` : undefined
+                }
               />
               <button
                 type="button"
@@ -148,7 +152,12 @@ export function CommandPalette() {
               </button>
             </div>
 
-            <div className="deck-scroll max-h-[52vh] overflow-y-auto p-2">
+            <div
+              id="command-palette-results"
+              role="listbox"
+              aria-label="Search results"
+              className="deck-scroll max-h-[52vh] overflow-y-auto p-2"
+            >
               {query.trim().length < 2 ? (
                 <p className="px-3 py-6 text-center text-xs text-[var(--deck-text-3)]">
                   Type at least two characters to search every operational record.
@@ -168,6 +177,9 @@ export function CommandPalette() {
                         <button
                           key={`${item.href}-${item.label}`}
                           type="button"
+                          id={`command-palette-option-${flatIndex}`}
+                          role="option"
+                          aria-selected={isActive}
                           onClick={() => {
                             setOpen(false);
                             router.push(item.href);

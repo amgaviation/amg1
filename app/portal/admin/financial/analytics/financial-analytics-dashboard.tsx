@@ -38,14 +38,16 @@ function formatMoney(value: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
 }
 
+// Pinned to UTC: ops run on Zulu time, and a floating timezone renders
+// different text on server vs client — React hydration error #418.
 function formatDateTime(value: string | null | undefined) {
   if (!value) return "-";
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value));
+  return `${new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "UTC" }).format(new Date(value))}Z`;
 }
 
 function formatDate(value: string | null | undefined) {
   if (!value) return "-";
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(value));
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(value));
 }
 
 function labelize(value: string | null | undefined) {
@@ -75,7 +77,12 @@ function MetricCard({ metric }: { metric: FinancialMetric }) {
       </div>
       <p className="mt-4 font-display text-3xl font-extrabold leading-none tracking-normal text-white sm:text-4xl">{metric.formatted}</p>
       <p className="mt-3 text-xs leading-5 text-white/72">{metric.detail}</p>
-      <p className="mt-3 border-t border-white/10 pt-3 font-mono text-[0.66rem] uppercase [letter-spacing:0.12em] text-white/48">{metric.source}</p>
+      <p
+        className="mt-3 truncate border-t border-white/10 pt-3 font-mono text-[0.66rem] uppercase [letter-spacing:0.12em] text-white/48"
+        title={metric.source}
+      >
+        {metric.source}
+      </p>
     </div>
   );
 }
