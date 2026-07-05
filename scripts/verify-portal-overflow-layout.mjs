@@ -13,8 +13,8 @@ const globals = read("app/globals.css");
 
 assert.match(
   portalShell,
-  /amg-portal[^"]*min-h-screen[^"]*bg-\[var\(--deck-canvas\)\][^"]*overflow-hidden/,
-  "PortalShell root must provide a light background and prevent page-level horizontal overflow",
+  /amg-portal[^"]*min-h-screen[^"]*bg-\[var\(--deck-canvas\)\][^"]*overflow-x-clip/,
+  "PortalShell root must clip horizontal overflow without creating a scroll container (overflow-x-clip keeps the sticky sidebar anchored to the viewport; plain overflow-hidden re-anchors sticky to the root and breaks the fixed sidebar)",
 );
 
 assert.match(
