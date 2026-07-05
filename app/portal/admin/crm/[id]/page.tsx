@@ -19,7 +19,10 @@ import {
   moveLeadStage,
   updateLead,
 } from "@/app/portal/actions/crm";
+import { LeadEmailComposer } from "@/components/portal/admin/lead-email-composer";
 import { LEAD_SOURCES, LEAD_STAGES, getLead, listLeadActivities } from "@/lib/portal/crm";
+import { emailProviderStatus, leadEmailVariablesFor } from "@/lib/portal/lead-email";
+import { detectLeadBusinessType } from "@/lib/portal/lead-email-templates";
 import { listAllUsers, listClients } from "@/lib/portal/queries";
 import { formatDateTime, formatMoney, titleCase, toDatetimeLocal } from "@/lib/portal/format";
 
@@ -46,7 +49,7 @@ export default async function LeadDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ success?: string; error?: string }>;
+  searchParams: Promise<{ success?: string; error?: string; email?: string; email_error?: string }>;
 }) {
   const user = await requireRole("admin");
   const { id } = await params;
@@ -63,6 +66,10 @@ export default async function LeadDetailPage({
     .filter((row) => row.role === "admin" || row.role === "super_admin")
     .map((row) => ({ value: row.id, label: row.full_name ?? row.email }));
 
+  const emailVariables = leadEmailVariablesFor(lead, user);
+  const businessType = detectLeadBusinessType(lead);
+  const emailProvider = emailProviderStatus();
+
   return (
     <>
       {sp.success === "saved" ? <Notice tone="success">Lead saved.</Notice> : null}
@@ -73,6 +80,10 @@ export default async function LeadDetailPage({
       {sp.success === "created" ? <Notice tone="success">Lead created from website submission.</Notice> : null}
       {sp.error === "missing" ? <Notice tone="danger">Required fields are missing.</Notice> : null}
       {sp.error === "save" ? <Notice tone="danger">Lead could not be saved.</Notice> : null}
+      {sp.email === "sent" ? <Notice tone="success">Email sent and logged to the activity history.</Notice> : null}
+      {sp.email_error === "validation" ? <Notice tone="danger">The email could not be sent — check the recipient, subject, and message.</Notice> : null}
+      {sp.email_error === "configuration" ? <Notice tone="danger">The email provider is not configured for this environment yet.</Notice> : null}
+      {sp.email_error === "provider" || sp.email_error === "unknown" ? <Notice tone="danger">The email could not be sent. Try again, and check the audit log if it keeps failing.</Notice> : null}
 
       <PageHeader
         eyebrow="Sales Pipeline"
@@ -127,6 +138,17 @@ export default async function LeadDetailPage({
               </div>
             </form>
           </SectionCard>
+
+          {/* Email outreach */}
+          <LeadEmailComposer
+            leadId={lead.id}
+            recipientEmail={lead.email}
+            leadStage={lead.stage}
+            defaultBusinessType={businessType}
+            variables={emailVariables}
+            providerConfigured={emailProvider.configured || emailProvider.mockEnabled}
+            backTo={`/portal/admin/crm/${lead.id}`}
+          />
 
           {/* Activity log */}
           <SectionCard title="Activity" icon="history" description="Calls, emails, meetings, and notes for this lead.">
