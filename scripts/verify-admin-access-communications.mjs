@@ -52,10 +52,10 @@ check(
 );
 check(
   "admin nav exposes required grouped categories",
-  ["Command", "Intake", "Directory", "Finance", "Communications", "Governance"].every((label) =>
-    constants.includes(`label: "${label}"`),
+  ["Operations", "Pipeline", "Directory", "Billing", "Finance", "Comms & Files", "Governance"].every(
+    (label) => constants.includes(`label: "${label}"`),
   ) && shell.includes("DECK_NAV"),
-  "DECK_NAV should define grouped admin navigation categories rendered by PortalShell.",
+  "DECK_NAV should define the Flight Deck Console admin navigation groups rendered by PortalShell.",
 );
 check(
   "Emails nav route exists",

@@ -133,7 +133,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
   ],
   admin: [
     {
-      label: "Command",
+      label: "Operations",
       items: [
         { label: "Dashboard", href: "/portal/admin/dashboard", icon: "gauge" },
         { label: "Mission Control", href: "/portal/admin/mission-control", icon: "radar" },
@@ -143,14 +143,9 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       ],
     },
     {
-      label: "CRM",
+      label: "Pipeline",
       items: [
         { label: "Sales Pipeline", href: "/portal/admin/crm", icon: "trendingUp" },
-      ],
-    },
-    {
-      label: "Intake",
-      items: [
         { label: "Form Submissions", href: "/portal/admin/form-submissions", icon: "inbox" },
         { label: "Network Applications", href: "/portal/admin/network-applications", icon: "userCheck" },
         { label: "User Approvals", href: "/portal/admin/user-approvals", icon: "check" },
@@ -168,29 +163,29 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       ],
     },
     {
-      label: "Finance",
+      label: "Billing",
       items: [
-        { label: "Analytics", href: "/portal/admin/financial/analytics", icon: "barChart" },
-        { label: "Receivables", href: "/portal/admin/receivables", icon: "alert" },
         { label: "Quotes", href: "/portal/admin/quotes", icon: "receipt" },
         { label: "Invoices", href: "/portal/admin/invoices", icon: "wallet" },
         { label: "Payments", href: "/portal/admin/payments", icon: "dollar" },
+        { label: "Receivables", href: "/portal/admin/receivables", icon: "alert" },
         { label: "Subscriptions", href: "/portal/admin/subscriptions", icon: "creditCard" },
+      ],
+    },
+    {
+      label: "Finance",
+      items: [
+        { label: "Analytics", href: "/portal/admin/financial/analytics", icon: "barChart" },
         { label: "Expenses", href: "/portal/admin/expenses", icon: "receipt" },
         { label: "Receipts", href: "/portal/admin/receipts", icon: "fileText" },
       ],
     },
     {
-      label: "Communications",
+      label: "Comms & Files",
       items: [
         { label: "Messages", href: "/portal/admin/messages", icon: "messageSquare" },
         { label: "Emails", href: "/portal/admin/communications/emails", icon: "mail" },
         { label: "Notifications", href: "/portal/admin/notifications", icon: "bell" },
-      ],
-    },
-    {
-      label: "Records",
-      items: [
         { label: "Documents", href: "/portal/admin/documents", icon: "fileText" },
       ],
     },

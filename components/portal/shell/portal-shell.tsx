@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, LogOut, Menu, X } from "lucide-react";
 import { signOut } from "@/app/portal/actions/auth";
 import { CommandPalette } from "@/components/portal/shell/command-palette";
+import { Breadcrumbs } from "@/components/portal/ui/breadcrumbs";
 import { PortalIcon } from "@/components/portal/ui/icon";
 import { RoleBadge } from "@/components/portal/ui/status-badge";
 import { ThemeToggle } from "@/components/portal/ui/theme-toggle";
@@ -24,9 +25,14 @@ import {
 } from "@/lib/portal/constants";
 
 /**
- * AMG Operations Deck shell — the chrome every portal page renders inside.
- * Dark navy sidebar with grouped navigation, light canvas, topbar with
- * Zulu clock, notifications, and role context.
+ * Flight Deck Console shell — the chrome every portal page renders inside.
+ * Night-mode chrome rail in both themes, grouped mono-labelled navigation,
+ * and a status strip with breadcrumbs, Zulu clock, and the theme toggle.
+ *
+ * Rendered once by the per-role layout (app/portal/<role>/layout.tsx). Pages
+ * that still render their own <PortalShell> are harmless: a nested shell
+ * detects the layout-rendered one via context and renders bare children,
+ * so wrappers can be stripped role-by-role instead of in one big bang.
  */
 
 type ShellUser = {
@@ -35,6 +41,8 @@ type ShellUser = {
   role: PortalRole;
   companyName: string | null;
 };
+
+const ShellNestingContext = createContext(false);
 
 const NOTIFICATIONS_HREF: Record<PortalRole, string> = {
   client: "/portal/client/notifications",
@@ -71,132 +79,106 @@ export function PortalShell({
   unread?: number;
   children: React.ReactNode;
 }) {
+  const nested = useContext(ShellNestingContext);
   const [open, setOpen] = useState(false);
   const navGroups = resolveNavGroups(role, user.role);
 
+  // A shell already wraps this subtree (per-role layout): stay out of the way.
+  if (nested) return <>{children}</>;
+
   return (
-    <div className="amg-portal relative min-h-screen bg-[var(--deck-canvas)] overflow-hidden lg:grid lg:grid-cols-[17.5rem_minmax(0,1fr)]">
-      {/* Desktop sidebar */}
-      <aside className="deck-chrome-surface sticky top-0 hidden h-screen flex-col border-r border-[var(--deck-chrome-line)] lg:flex">
-        <SidebarContent role={role} user={user} navGroups={navGroups} />
-      </aside>
+    <ShellNestingContext.Provider value={true}>
+      <div className="amg-portal relative min-h-screen bg-[var(--deck-canvas)] overflow-hidden lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
+        {/* Desktop sidebar */}
+        <aside className="deck-chrome-surface sticky top-0 hidden h-screen flex-col border-r border-[var(--deck-chrome-line)] lg:flex">
+          <SidebarContent role={role} user={user} navGroups={navGroups} />
+        </aside>
 
-      {/* Mobile drawer */}
-      {open && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-[rgba(6,12,22,0.62)] backdrop-blur-sm"
-            onClick={() => setOpen(false)}
-          />
-          <aside className="deck-chrome-surface absolute left-0 top-0 flex h-full w-[19rem] flex-col border-r border-[var(--deck-chrome-line)] shadow-2xl">
-            <button
+        {/* Mobile drawer */}
+        {open && (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <div
+              className="absolute inset-0 bg-[rgba(4,8,16,0.66)] backdrop-blur-sm"
               onClick={() => setOpen(false)}
-              className="absolute right-3 top-3 z-10 rounded-md border border-[var(--deck-chrome-line)] p-2 text-[var(--deck-chrome-muted)] transition-colors hover:text-[var(--deck-chrome-text)]"
-              aria-label="Close menu"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <SidebarContent
-              role={role}
-              user={user}
-              navGroups={navGroups}
-              onNavigate={() => setOpen(false)}
             />
-          </aside>
-        </div>
-      )}
+            <aside className="deck-chrome-surface absolute left-0 top-0 flex h-full w-[18rem] flex-col border-r border-[var(--deck-chrome-line)] shadow-2xl">
+              <button
+                onClick={() => setOpen(false)}
+                className="absolute right-3 top-3 z-10 rounded-md border border-[var(--deck-chrome-line)] p-2 text-[var(--deck-chrome-muted)] transition-colors hover:text-[var(--deck-chrome-text)]"
+                aria-label="Close menu"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <SidebarContent
+                role={role}
+                user={user}
+                navGroups={navGroups}
+                onNavigate={() => setOpen(false)}
+              />
+            </aside>
+          </div>
+        )}
 
-      <div className="flex min-h-screen min-w-0 flex-col">
-        {/* Topbar */}
-        <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-[var(--deck-line)] bg-[var(--deck-canvas)]/90 px-4 py-2.5 backdrop-blur-xl sm:px-5 lg:px-8">
-          <div className="flex min-w-0 items-center gap-3">
-            <button
-              onClick={() => setOpen(true)}
-              className="rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-2 text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)] lg:hidden"
-              aria-label="Open menu"
-            >
-              <Menu className="h-4 w-4" />
-            </button>
-            <div className="hidden min-w-0 sm:block">
-              <p className="deck-eyebrow">{ROLE_SHORT[role]}</p>
-              <p className="truncate text-sm font-semibold text-[var(--deck-text)]">
-                {ROLE_LABELS[role]}
+        <div className="flex min-h-screen min-w-0 flex-col">
+          {/* Status strip */}
+          <header className="sticky top-0 z-30 flex h-12 items-center justify-between gap-3 border-b border-[var(--deck-line)] bg-[var(--deck-canvas)]/90 px-4 backdrop-blur-xl sm:px-5 lg:px-8">
+            <div className="flex min-w-0 items-center gap-3">
+              <button
+                onClick={() => setOpen(true)}
+                className="rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-1.5 text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)] lg:hidden"
+                aria-label="Open menu"
+              >
+                <Menu className="h-4 w-4" />
+              </button>
+              <div className="hidden min-w-0 md:block">
+                <Breadcrumbs role={role} />
+              </div>
+              <p className="deck-micro truncate text-[var(--deck-text-3)] md:hidden">
+                {ROLE_SHORT[role]}
               </p>
             </div>
-          </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            {isAdminRole(user.role) ? <CommandPalette /> : null}
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              {isAdminRole(user.role) ? <CommandPalette /> : null}
 
-            <ZuluClock />
+              <ZuluClock />
 
-            <ThemeToggle />
+              {isAdminRole(user.role) ? <ViewSwitcher role={role} /> : null}
 
-            {isAdminRole(user.role) ? <ViewSwitcher role={role} /> : null}
+              <ThemeToggle />
 
-            <Link
-              href={NOTIFICATIONS_HREF[role]}
-              className="relative rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-2 text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)]"
-              aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ""}`}
-            >
-              <PortalIcon name="bell" className="h-4 w-4" />
-              {unread > 0 && (
-                <span className="deck-num absolute -right-1.5 -top-1.5 flex h-4 min-w-[1.1rem] items-center justify-center rounded-full bg-[var(--deck-accent)] px-1 text-[0.6rem] font-bold text-white">
-                  {unread > 99 ? "99+" : unread}
-                </span>
-              )}
-            </Link>
-
-            <Link
-              href={SETTINGS_HREF[role]}
-              className="hidden rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-2 text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)] sm:block"
-              aria-label="Settings"
-            >
-              <PortalIcon name="settings" className="h-4 w-4" />
-            </Link>
-
-            <div className="hidden items-center gap-3 pl-2 sm:flex">
-              <div className="border-l border-[var(--deck-line)] pl-3 text-right">
-                <p className="max-w-[11rem] truncate text-sm font-semibold leading-tight text-[var(--deck-text)]">
-                  {user.name}
-                </p>
-                <p className="max-w-[11rem] truncate text-xs text-[var(--deck-text-3)]">
-                  {user.companyName ?? user.email}
-                </p>
-              </div>
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] text-xs font-bold text-[var(--deck-accent-ink)]">
-                {initials(user.name)}
-              </div>
-            </div>
-
-            <form action={signOut}>
-              <button
-                type="submit"
-                onClick={clearPortalIntroBrowserState}
-                className="inline-flex items-center gap-2 rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)]"
-                aria-label="Sign out"
+              <Link
+                href={NOTIFICATIONS_HREF[role]}
+                className="relative rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-1.5 text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)]"
+                aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ""}`}
               >
-                <LogOut className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Sign out</span>
-              </button>
-            </form>
-          </div>
-        </header>
+                <PortalIcon name="bell" className="h-4 w-4" />
+                {unread > 0 && (
+                  <span className="deck-num absolute -right-1.5 -top-1.5 flex h-4 min-w-[1.1rem] items-center justify-center rounded-full bg-[var(--deck-accent)] px-1 text-[0.6rem] font-bold text-white">
+                    {unread > 99 ? "99+" : unread}
+                  </span>
+                )}
+              </Link>
 
-        {/* Main content */}
-        <main className="w-full max-w-full min-w-0 overflow-hidden flex-1 px-4 py-6 sm:px-5 lg:px-8 lg:py-7">
-          <div className="mx-auto w-full max-w-[96rem] min-w-0 space-y-5">
-            {children}
-          </div>
-        </main>
+              <UserMenu role={role} user={user} />
+            </div>
+          </header>
 
-        <footer className="border-t border-[var(--deck-line)] px-4 py-3 sm:px-8">
-          <p className="text-[0.62rem] text-[var(--deck-text-3)]">
-            AMG Aviation Group · AMG Connect · Part 91 Operational Support
-          </p>
-        </footer>
+          {/* Main content */}
+          <main className="w-full max-w-full min-w-0 overflow-hidden flex-1 px-4 py-6 sm:px-5 lg:px-8 lg:py-7">
+            <div className="mx-auto w-full max-w-[96rem] min-w-0 space-y-5">
+              {children}
+            </div>
+          </main>
+
+          <footer className="border-t border-[var(--deck-line)] px-4 py-3 sm:px-8">
+            <p className="deck-micro text-[var(--deck-text-3)]">
+              AMG Aviation Group · AMG Connect · UTC Ops
+            </p>
+          </footer>
+        </div>
       </div>
-    </div>
+    </ShellNestingContext.Provider>
   );
 }
 
@@ -213,7 +195,7 @@ function ZuluClock() {
   const mm = String(now.getUTCMinutes()).padStart(2, "0");
   return (
     <div
-      className="deck-mono hidden items-center gap-1.5 rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] px-2.5 py-2 text-[var(--deck-text-2)] md:flex"
+      className="deck-mono hidden items-center gap-1.5 rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] px-2.5 py-1.5 text-[var(--deck-text-2)] md:flex"
       title="Coordinated Universal Time"
     >
       <span className="h-1.5 w-1.5 rounded-full bg-[var(--deck-success)]" aria-hidden />
@@ -237,7 +219,7 @@ function ViewSwitcher({ role }: { role: PortalRole }) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] px-2.5 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] px-2.5 py-1.5 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"
       >
         <PortalIcon name="layers" className="h-3.5 w-3.5" />
         View
@@ -265,6 +247,58 @@ function ViewSwitcher({ role }: { role: PortalRole }) {
                 ) : null}
               </Link>
             ))}
+          </div>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+/** Avatar dropdown: identity, workspace label, settings, sign out. */
+function UserMenu({ role, user }: { role: PortalRole; user: ShellUser }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-label="Account menu"
+        className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] text-[0.68rem] font-bold text-[var(--deck-accent-ink)] transition-colors hover:border-[var(--deck-accent)]"
+      >
+        {initials(user.name)}
+      </button>
+      {open ? (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden />
+          <div className="deck-card absolute right-0 z-50 mt-2 w-64 overflow-hidden">
+            <div className="border-b border-[var(--deck-line)] px-4 py-3">
+              <p className="truncate text-sm font-semibold text-[var(--deck-text)]">{user.name}</p>
+              <p className="truncate text-xs text-[var(--deck-text-3)]">
+                {user.companyName ?? user.email}
+              </p>
+              <p className="deck-micro mt-2 text-[var(--deck-text-3)]">{ROLE_LABELS[role]}</p>
+            </div>
+            <div className="p-1.5">
+              <Link
+                href={SETTINGS_HREF[role]}
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-[var(--deck-text-2)] transition-colors hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)]"
+              >
+                <PortalIcon name="settings" className="h-4 w-4" />
+                Settings
+              </Link>
+              <form action={signOut}>
+                <button
+                  type="submit"
+                  onClick={clearPortalIntroBrowserState}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-[var(--deck-text-2)] transition-colors hover:bg-[var(--deck-danger-tint)] hover:text-[var(--deck-danger)]"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign out
+                </button>
+              </form>
+            </div>
           </div>
         </>
       ) : null}
@@ -329,7 +363,9 @@ function SidebarContent({
             className="h-6 w-auto"
           />
         </Link>
-        <p className="deck-eyebrow-chrome mt-2.5">Operations Deck</p>
+        <p className="deck-micro mt-2.5 text-[var(--deck-chrome-muted)]">
+          AMG Connect · Console
+        </p>
         <div className="mt-3">
           <RoleBadge role={role} />
         </div>
@@ -337,13 +373,18 @@ function SidebarContent({
 
       {/* Nav */}
       <nav className="deck-scroll flex-1 overflow-y-auto px-3 py-4">
-        <div className="space-y-4">
-          {navGroups.map((group) => {
+        <div>
+          {navGroups.map((group, index) => {
             const groupActive = group.items.some((item) => isActive(item.href));
             // A group holding the current page never collapses out from under you.
             const isCollapsed = collapsed[group.label] && !groupActive;
             return (
-              <div key={group.label}>
+              <div
+                key={group.label}
+                className={cn(
+                  index > 0 && "mt-3 border-t border-[var(--deck-chrome-line)] pt-3"
+                )}
+              >
                 <button
                   type="button"
                   onClick={() => toggleGroup(group.label)}
@@ -395,7 +436,7 @@ function SidebarContent({
             </p>
           </div>
         </div>
-        <p className="deck-eyebrow-chrome mt-3 !text-[0.55rem]">
+        <p className="deck-micro mt-3 !text-[9px] text-[var(--deck-chrome-muted)]">
           AMG Aviation Group
         </p>
       </div>
