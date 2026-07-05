@@ -1294,6 +1294,57 @@ html {
   justify-content: flex-end;
 }
 
+/* ---- Portalled dropdown surfaces ----
+   Radix mounts open Select menus on <body>, OUTSIDE the .amg-portal token
+   scope, so var(--deck-*) and the shadcn remaps are undefined there and the
+   menu renders transparent. These un-layered rules (they beat Tailwind's
+   layered utilities) paint the portalled surfaces for both themes. */
+body:has(.amg-portal) [data-slot="select-content"] {
+  background: #FFFFFF;
+  color: #16191E;
+  border: 1px solid #C9D1DC;
+  box-shadow: 0 1px 2px rgba(22, 25, 30, 0.05), 0 8px 20px -12px rgba(22, 25, 30, 0.18);
+}
+body:has(.amg-portal) [data-slot="select-item"] {
+  color: #16191E;
+}
+body:has(.amg-portal) [data-slot="select-item"]:focus,
+body:has(.amg-portal) [data-slot="select-item"][data-highlighted] {
+  background: rgba(11, 94, 212, 0.08);
+  color: #16191E;
+}
+body:has(.amg-portal) [data-slot="select-item"][data-state="checked"] {
+  font-weight: 600;
+  color: #0B5ED4;
+}
+body:has(.amg-portal) [data-slot="select-scroll-up-button"],
+body:has(.amg-portal) [data-slot="select-scroll-down-button"] {
+  color: #76808F;
+  background: #FFFFFF;
+}
+body:has([data-portal-theme="dark"]) [data-slot="select-content"] {
+  background: #131924;
+  color: #EEF2F7;
+  border-color: rgba(169, 180, 198, 0.26);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25), 0 8px 22px -14px rgba(0, 0, 0, 0.6);
+}
+body:has([data-portal-theme="dark"]) [data-slot="select-item"] {
+  color: #EEF2F7;
+}
+body:has([data-portal-theme="dark"]) [data-slot="select-item"]:focus,
+body:has([data-portal-theme="dark"]) [data-slot="select-item"][data-highlighted] {
+  background: rgba(11, 94, 212, 0.16);
+  color: #EEF2F7;
+}
+body:has([data-portal-theme="dark"]) [data-slot="select-item"][data-state="checked"] {
+  color: #5B9DFF;
+}
+body:has([data-portal-theme="dark"]) [data-slot="select-scroll-up-button"],
+body:has([data-portal-theme="dark"]) [data-slot="select-scroll-down-button"] {
+  color: #74839E;
+  background: #131924;
+}
+
 /* ==========================================================================
    CINEMATIC HOME ENTRY — hangar-door reveal + mission-control layer.
    All motion is pure CSS so it runs without JS, never hides content if the
