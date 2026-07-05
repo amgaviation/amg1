@@ -341,6 +341,44 @@ export const MISSION_BOARD_COLUMNS = MISSION_STATUS.map((s) => s.value).filter(
   (v) => v !== "draft"
 );
 
+/**
+ * Operational flow stages — the portal's working vocabulary for missions.
+ * Mission Control lanes and the Command Center flow band both render these,
+ * so admins see one pipeline everywhere: Intake → Quote → Crew & Schedule →
+ * In Flight (billing hangs off invoices, not mission status).
+ */
+export const MISSION_FLOW_STAGES: {
+  key: string;
+  label: string;
+  hint: string;
+  statuses: string[];
+}[] = [
+  {
+    key: "intake",
+    label: "Intake",
+    hint: "New + under review + awaiting client",
+    statuses: ["submitted", "under_review", "awaiting_client_info"],
+  },
+  {
+    key: "quote",
+    label: "Quote",
+    hint: "Quoted, awaiting client approval",
+    statuses: ["quoted"],
+  },
+  {
+    key: "schedule",
+    label: "Crew & Schedule",
+    hint: "Approved → crew assigned → scheduled",
+    statuses: ["approved", "crew_assigned", "scheduled"],
+  },
+  {
+    key: "fly",
+    label: "In Flight",
+    hint: "Missions in progress",
+    statuses: ["in_progress"],
+  },
+];
+
 export const MISSION_TYPE: Choice[] = [
   { value: "passenger_trip", label: "Passenger Trip" },
   { value: "owner_trip", label: "Owner Trip" },
