@@ -1,6 +1,8 @@
 import "server-only";
 
 import { createServiceClient } from "@/lib/supabase/server";
+import { absolutePortalUrl } from "@/lib/email/config";
+import { amgEmailLayout } from "@/lib/portal/email-templates";
 import { sendEmail } from "@/lib/portal/notification-delivery";
 import { invoicePaymentEmailContent } from "@/lib/portal/stripe-invoice-core";
 import {
@@ -77,8 +79,18 @@ export async function emailQuotePdf(quoteId: string, actorId?: string | null) {
     to: email.to,
     cc: email.cc,
     subject: `AMG Aviation Group quote ${pdf.document.document_number}`,
-    text: `Your AMG Aviation Group quote ${pdf.document.document_number} is attached for review.`,
-    html: `<p>Your AMG Aviation Group quote <strong>${pdf.document.document_number}</strong> is attached for review.</p>`,
+    text: `Your AMG Aviation Group quote ${pdf.document.document_number} is attached for review. Review and approve it any time from your AMG Connect portal.`,
+    html: amgEmailLayout({
+      previewText: `Quote ${pdf.document.document_number} is ready for review`,
+      eyebrow: "Quote Ready",
+      title: `Quote ${pdf.document.document_number}`,
+      reference: pdf.document.document_number,
+      intro:
+        "Your AMG Aviation Group quote is attached as a PDF. You can review the full breakdown and approve it any time from your AMG Connect portal.",
+      cta: { label: "Review in Portal", href: absolutePortalUrl("/portal/client/quotes") },
+      footerNote:
+        "Questions about scope, timing, or pricing? Reply to this email and AMG Operations will follow up.",
+    }),
     attachments: [attachment(pdf)],
   });
   if (result.status === "sent") {
@@ -104,8 +116,16 @@ export async function emailInvoicePdf(invoiceId: string, actorId?: string | null
       })
     : {
         subject: `Invoice ${pdf.document.document_number} from AMG Aviation Group`,
-        text: `Your AMG Aviation Group invoice ${pdf.document.document_number} is attached.`,
-        html: `<p>Your AMG Aviation Group invoice <strong>${pdf.document.document_number}</strong> is attached.</p>`,
+        text: `Your AMG Aviation Group invoice ${pdf.document.document_number} is attached. View it any time from your AMG Connect portal.`,
+        html: amgEmailLayout({
+          previewText: `Invoice ${pdf.document.document_number} from AMG Aviation Group`,
+          eyebrow: "Invoice",
+          title: `Invoice ${pdf.document.document_number}`,
+          reference: pdf.document.document_number,
+          intro:
+            "Your AMG Aviation Group invoice is attached as a PDF. Payment details are on the invoice, and the full history is available in your AMG Connect portal.",
+          cta: { label: "View in Portal", href: absolutePortalUrl("/portal/client/billing") },
+        }),
       };
   const result = await sendEmail({
     to: email.to,
@@ -129,8 +149,16 @@ export async function emailReceiptPdf(paymentId: string, actorId?: string | null
     to: email.to,
     cc: email.cc,
     subject: `AMG Aviation Group receipt ${pdf.document.document_number}`,
-    text: `Your AMG Aviation Group payment receipt ${pdf.document.document_number} is attached.`,
-    html: `<p>Your AMG Aviation Group payment receipt <strong>${pdf.document.document_number}</strong> is attached.</p>`,
+    text: `Your AMG Aviation Group payment receipt ${pdf.document.document_number} is attached. Thank you — your payment has been recorded.`,
+    html: amgEmailLayout({
+      previewText: `Payment received — receipt ${pdf.document.document_number}`,
+      eyebrow: "Payment Received",
+      title: `Receipt ${pdf.document.document_number}`,
+      reference: pdf.document.document_number,
+      intro:
+        "Thank you — your payment has been recorded. Your official receipt is attached as a PDF, and your billing history is available in your AMG Connect portal.",
+      cta: { label: "View Billing", href: absolutePortalUrl("/portal/client/billing") },
+    }),
     attachments: [attachment(pdf)],
   });
   if (result.status === "sent") {
