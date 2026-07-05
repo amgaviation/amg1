@@ -122,7 +122,7 @@ export function CheckboxField({
   defaultChecked?: boolean;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-[var(--deck-line-strong)] bg-white px-3 py-2.5 text-sm transition-colors hover:border-[var(--deck-gold-line)]">
+    <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2.5 text-sm transition-colors hover:border-[var(--deck-gold-line)]">
       <input
         type="checkbox"
         name={name}
@@ -152,7 +152,7 @@ export function FileField({
   return (
     <Field label={label} hint={hint} required={required}>
       <div className="flex items-center gap-3">
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--deck-line-strong)] bg-white px-3 py-2 text-sm font-medium text-[var(--deck-text)] transition-colors hover:border-[var(--deck-gold)]">
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2 text-sm font-medium text-[var(--deck-text)] transition-colors hover:border-[var(--deck-gold)]">
           Choose file
           <input
             type="file"

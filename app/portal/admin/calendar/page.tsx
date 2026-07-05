@@ -66,7 +66,7 @@ export default async function OpsCalendarPage({
     year === now.getUTCFullYear() && month === now.getUTCMonth() && day === now.getUTCDate();
 
   const navLink =
-    "rounded-lg border border-[var(--deck-line-strong)] bg-white px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]";
+    "rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]";
 
   return (
     <PortalShell role="admin" user={user}>
@@ -91,7 +91,7 @@ export default async function OpsCalendarPage({
       >
         <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-[var(--deck-line)] bg-[var(--deck-line)]">
           {WEEKDAYS.map((weekday) => (
-            <div key={weekday} className="deck-eyebrow bg-[#F8FAFB] px-2 py-2 text-center !text-[0.58rem]">
+            <div key={weekday} className="deck-eyebrow bg-[var(--deck-panel-2)] px-2 py-2 text-center !text-[0.58rem]">
               {weekday}
             </div>
           ))}
@@ -99,8 +99,8 @@ export default async function OpsCalendarPage({
             <div
               key={index}
               className={cn(
-                "min-h-24 bg-white p-1.5",
-                day === null && "bg-[#F8FAFB]",
+                "min-h-24 bg-[var(--deck-panel)] p-1.5",
+                day === null && "bg-[var(--deck-panel-2)]",
                 day !== null && isToday(day) && "bg-[var(--deck-gold-tint)]"
               )}
             >
@@ -122,7 +122,7 @@ export default async function OpsCalendarPage({
                         key={mission.id}
                         href={`/portal/admin/trips/${mission.id}`}
                         title={`${mission.ref} · ${MISSION_STATUS_LABEL[mission.status] ?? mission.status}`}
-                        className="block truncate rounded border border-[var(--deck-gold-line)] bg-white px-1.5 py-1 text-[0.66rem] font-medium text-[var(--deck-text)] transition-colors hover:bg-[var(--deck-gold-tint)]"
+                        className="block truncate rounded border border-[var(--deck-gold-line)] bg-[var(--deck-panel)] px-1.5 py-1 text-[0.66rem] font-medium text-[var(--deck-text)] transition-colors hover:bg-[var(--deck-gold-tint)]"
                       >
                         <span className="deck-mono !text-[0.58rem] text-[var(--deck-gold-deep)]">
                           {mission.departure_airport}→{mission.arrival_airport}
@@ -156,7 +156,7 @@ export default async function OpsCalendarPage({
                     <Link
                       key={mission.id}
                       href={`/portal/admin/trips/${mission.id}`}
-                      className="inline-flex items-center gap-2 rounded-full border border-[var(--deck-line-strong)] bg-white py-1 pl-3 pr-1.5 text-xs transition-colors hover:border-[var(--deck-gold-line)]"
+                      className="inline-flex items-center gap-2 rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] py-1 pl-3 pr-1.5 text-xs transition-colors hover:border-[var(--deck-gold-line)]"
                     >
                       <span className="deck-mono text-[var(--deck-gold-deep)]">{mission.ref}</span>
                       {mission.departure_airport}→{mission.arrival_airport}

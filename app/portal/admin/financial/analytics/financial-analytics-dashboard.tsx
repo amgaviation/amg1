@@ -67,7 +67,7 @@ function MetricCard({ metric }: { metric: FinancialMetric }) {
       <div className="flex min-h-8 items-start justify-between gap-3">
         <p className="text-xs font-semibold uppercase [letter-spacing:0.14em] text-white/68">{metric.label}</p>
         {metric.delta !== null ? (
-          <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[0.68rem] font-semibold", positive ? "border-[#BFE3D2]/35 text-emerald-100" : "border-[#EAD9AE]/35 text-amber-100")}>
+          <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[0.68rem] font-semibold", positive ? "border-[var(--deck-success-line)]/35 text-emerald-100" : "border-[var(--deck-warn-line)]/35 text-amber-100")}>
             {positive ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}
             {metric.deltaLabel}
           </span>
@@ -93,12 +93,12 @@ function BarChart({ points, secondaryLabel }: { points: ChartPoint[]; secondaryL
         <div key={point.label} className="grid grid-cols-[4.6rem_1fr_5.2rem] items-center gap-3 text-xs">
           <span className="truncate font-mono text-[var(--deck-text-3)]">{point.label}</span>
           <div className="space-y-1">
-            <div className="h-3 overflow-hidden rounded-full bg-[#E4E8EE]">
-              <div className="h-full rounded-full bg-[#EAF6F0]0" style={{ width: `${Math.max(2, (point.value / max) * 100)}%` }} />
+            <div className="h-3 overflow-hidden rounded-full bg-[var(--deck-line)]">
+              <div className="h-full rounded-full bg-[var(--deck-success-tint)]0" style={{ width: `${Math.max(2, (point.value / max) * 100)}%` }} />
             </div>
             {typeof point.secondary === "number" ? (
-              <div className="h-2 overflow-hidden rounded-full bg-[#E4E8EE]">
-                <div className="h-full rounded-full bg-[#EFF4FE]0" style={{ width: `${Math.max(2, (point.secondary / max) * 100)}%` }} />
+              <div className="h-2 overflow-hidden rounded-full bg-[var(--deck-line)]">
+                <div className="h-full rounded-full bg-[var(--deck-info-tint)]0" style={{ width: `${Math.max(2, (point.secondary / max) * 100)}%` }} />
               </div>
             ) : null}
           </div>
@@ -118,7 +118,7 @@ function BreakdownChart({ points }: { points: BreakdownPoint[] }) {
       {points.map((point) => (
         <div key={point.label} className="grid grid-cols-[minmax(5.5rem,9rem)_1fr_5.5rem] items-center gap-3 text-xs">
           <span className="truncate text-[var(--deck-text-2)]">{labelize(point.label)}</span>
-          <div className="h-3 overflow-hidden rounded-full bg-[#E4E8EE]">
+          <div className="h-3 overflow-hidden rounded-full bg-[var(--deck-line)]">
             <div className="h-full rounded-full bg-[var(--deck-navy)]" style={{ width: `${Math.max(2, (point.value / max) * 100)}%` }} />
           </div>
           <span className="text-right font-mono text-[var(--deck-text-2)]">{formatMoney(point.value)}</span>
@@ -130,7 +130,7 @@ function BreakdownChart({ points }: { points: BreakdownPoint[] }) {
 
 function EmptyChart() {
   return (
-    <div className="flex min-h-44 items-center justify-center rounded-lg border border-dashed border-[var(--deck-line-strong)] bg-[#F8FAFB] px-4 text-center text-sm text-muted-foreground">
+    <div className="flex min-h-44 items-center justify-center rounded-lg border border-dashed border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] px-4 text-center text-sm text-muted-foreground">
       No data available for this chart.
     </div>
   );
@@ -226,7 +226,7 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
       <section className="rounded-lg border border-[rgba(201,214,232,0.16)] bg-[var(--deck-ink)] p-4 text-white shadow-[0_24px_60px_rgba(5,10,20,0.28)]">
         <div className="grid gap-4 xl:grid-cols-[1fr_auto] xl:items-center">
           <div className="flex flex-wrap items-center gap-3 text-xs">
-            <span className="inline-flex min-h-9 items-center gap-2 rounded-full border border-[#BFE3D2]/30 bg-emerald-400/10 px-3 font-semibold text-emerald-100">
+            <span className="inline-flex min-h-9 items-center gap-2 rounded-full border border-[var(--deck-success-line)]/30 bg-emerald-400/10 px-3 font-semibold text-emerald-100">
               <Activity className="h-4 w-4" />
               Stripe {labelize(data.stripeHealth.mode)}
             </span>
@@ -251,7 +251,7 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
                 <input aria-label="Custom end date" type="date" value={to} onChange={(event) => setTo(event.target.value)} className="min-h-10 rounded-md border border-white/15 bg-white/10 px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]" />
               </>
             ) : null}
-            <button type="button" onClick={refresh} disabled={isPending} className="inline-flex min-h-10 items-center gap-2 rounded-md border border-white/15 bg-white px-3 text-sm font-semibold text-[var(--deck-text)] transition-colors hover:bg-[#D5EDE1] disabled:opacity-60">
+            <button type="button" onClick={refresh} disabled={isPending} className="inline-flex min-h-10 items-center gap-2 rounded-md border border-white/15 bg-[var(--deck-panel)] px-3 text-sm font-semibold text-[var(--deck-text)] transition-colors hover:bg-[var(--deck-success-tint)] disabled:opacity-60">
               <RefreshCw className={cn("h-4 w-4", isPending && "animate-spin")} />
               Refresh
             </button>
@@ -266,7 +266,7 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
         </div>
       </section>
 
-      <div className="flex gap-2 overflow-x-auto rounded-lg border border-border bg-white p-2">
+      <div className="flex gap-2 overflow-x-auto rounded-lg border border-border bg-[var(--deck-panel)] p-2">
         {TABS.map((tab) => (
           <button
             key={tab}
@@ -274,7 +274,7 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
             onClick={() => setActiveTab(tab)}
             className={cn(
               "min-h-10 shrink-0 rounded-md px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]",
-              activeTab === tab ? "bg-[var(--deck-navy)] text-white" : "text-[var(--deck-text-2)] hover:bg-[#EEF1F5] hover:text-[var(--deck-text)]",
+              activeTab === tab ? "bg-[var(--deck-navy)] text-white" : "text-[var(--deck-text-2)] hover:bg-[var(--deck-panel-2)] hover:text-[var(--deck-text)]",
             )}
           >
             {tab}
@@ -492,7 +492,7 @@ function ReportsTab({ data, exportActive, exportJson }: { data: FinancialAnalyti
       <SectionCard title="Available Reports" icon="fileText" description="Downloads are generated in-browser from the current real analytics payload.">
         <div className="grid gap-3 sm:grid-cols-2">
           {["Revenue ledger", "Invoice aging", "Subscription report", "Expense report", "Client summary", "Stripe health"].map((label) => (
-            <button key={label} type="button" onClick={exportActive} className="min-h-16 rounded-lg border border-border bg-white px-4 text-left text-sm font-semibold text-[var(--deck-text)] transition-colors hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]">
+            <button key={label} type="button" onClick={exportActive} className="min-h-16 rounded-lg border border-border bg-[var(--deck-panel)] px-4 text-left text-sm font-semibold text-[var(--deck-text)] transition-colors hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]">
               {label}
               <span className="mt-1 block text-xs font-normal text-muted-foreground">Exports the active tab as CSV.</span>
             </button>

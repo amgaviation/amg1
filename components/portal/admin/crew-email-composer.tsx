@@ -86,7 +86,7 @@ export function CrewEmailComposer({
           Send Email
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[92vh] overflow-y-auto border-[var(--deck-line)] bg-white text-[var(--deck-text)] sm:max-w-4xl">
+      <DialogContent className="max-h-[92vh] overflow-y-auto border-[var(--deck-line)] bg-[var(--deck-panel)] text-[var(--deck-text)] sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle className="deck-title text-2xl">Send Email</DialogTitle>
           <DialogDescription className="text-[var(--amg-text-muted)]">
@@ -109,7 +109,7 @@ export function CrewEmailComposer({
                 <input value={crewEmail} disabled className={`${inputClassName} text-[var(--amg-text-secondary)]`} />
               </label>
 
-              <label className="flex items-center gap-3 rounded-lg border border-[var(--deck-line-strong)] bg-white px-3 py-2.5 text-sm">
+              <label className="flex items-center gap-3 rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2.5 text-sm">
                 <input
                   type="checkbox"
                   checked={overrideRecipient}

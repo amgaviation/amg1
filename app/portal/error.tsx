@@ -14,11 +14,11 @@ export default function PortalError({
       <div className="mx-auto flex min-h-[70vh] w-full max-w-6xl items-center justify-center">
         <section className="deck-card w-full max-w-xl p-6">
           <div className="flex items-start gap-4">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#EFC7C7] bg-[#FBEFEF]">
-              <AlertTriangle className="h-5 w-5 text-[#A82E2E]" />
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--deck-danger-line)] bg-[var(--deck-danger-tint)]">
+              <AlertTriangle className="h-5 w-5 text-[var(--deck-danger)]" />
             </div>
             <div>
-              <p className="deck-eyebrow !text-[#A82E2E]">Portal Unavailable</p>
+              <p className="deck-eyebrow !text-[var(--deck-danger)]">Portal Unavailable</p>
               <h1 className="deck-title mt-2 text-2xl">
                 This workspace could not be loaded
               </h1>
@@ -39,7 +39,7 @@ export default function PortalError({
             </button>
             <Link
               href="/portal"
-              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[var(--deck-line-strong)] bg-white px-5 text-sm font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-5 text-sm font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]"
             >
               Return to portal
             </Link>

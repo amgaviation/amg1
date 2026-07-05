@@ -144,7 +144,7 @@ export default async function ClientDashboardPage({
                   <span
                     className={`deck-num flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
                       step.done
-                        ? "bg-[#EAF6F0] text-[#116947]"
+                        ? "bg-[var(--deck-success-tint)] text-[var(--deck-success)]"
                         : "bg-[var(--deck-gold-tint)] text-[var(--deck-gold-deep)]"
                     }`}
                   >

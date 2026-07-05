@@ -37,7 +37,7 @@ export function DataTable<T>({
 }) {
   if (!rows.length) {
     return (
-      <div className="rounded-xl border border-dashed border-[var(--deck-line-strong)] bg-[#F8FAFB] px-4 py-10 text-center text-sm text-[var(--deck-text-3)]">
+      <div className="rounded-xl border border-dashed border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] px-4 py-10 text-center text-sm text-[var(--deck-text-3)]">
         {emptyLabel}
       </div>
     );
@@ -96,7 +96,7 @@ export function DataTable<T>({
       <div className="hidden max-w-full overflow-x-auto md:block">
         <Table className="border-0">
           <TableHeader>
-            <TableRow className="border-[var(--deck-line)] bg-[#F8FAFB] hover:bg-[#F8FAFB]">
+            <TableRow className="border-[var(--deck-line)] bg-[var(--deck-panel-2)] hover:bg-[var(--deck-panel-2)]">
               {columns.map((c, i) => (
                 <TableHead
                   key={i}

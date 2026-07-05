@@ -73,8 +73,8 @@ export function SubmitButton({
         >
           <div className="deck-card w-full max-w-md p-6">
             <div className="flex items-start gap-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#EAD9AE] bg-[#FBF4E3]">
-                <AlertTriangle className="h-5 w-5 text-[#8F5F12]" />
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)]">
+                <AlertTriangle className="h-5 w-5 text-[var(--deck-warn)]" />
               </span>
               <div>
                 <p className="deck-eyebrow">Confirm Action</p>

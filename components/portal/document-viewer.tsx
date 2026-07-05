@@ -57,7 +57,7 @@ export function PortalDocumentViewer({
             />
           )
         ) : (
-          <div className="flex min-h-[64vh] flex-col items-center justify-center gap-4 bg-[#F8FAFB] p-8 text-center">
+          <div className="flex min-h-[64vh] flex-col items-center justify-center gap-4 bg-[var(--deck-panel-2)] p-8 text-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[var(--deck-gold-line)] bg-[var(--deck-gold-tint)]">
               <FileText className="h-6 w-6 text-[var(--deck-gold-deep)]" />
             </div>

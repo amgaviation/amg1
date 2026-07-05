@@ -76,7 +76,7 @@ export default async function ClientBillingPage() {
                     ["sent", "viewed", "partially_paid", "overdue"].includes(row.status) &&
                     daysOverdue(row.due_date) > 0;
                   return overdue ? (
-                    <span className="font-semibold text-[#A82E2E]">
+                    <span className="font-semibold text-[var(--deck-danger)]">
                       {formatDate(row.due_date)} · {daysOverdue(row.due_date)}d overdue
                     </span>
                   ) : (

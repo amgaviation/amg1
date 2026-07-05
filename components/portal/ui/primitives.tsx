@@ -112,10 +112,10 @@ export function StatCard({
 }) {
   const toneText = {
     default: "text-[var(--deck-text)]",
-    accent: "text-[var(--deck-gold-deep)]",
-    warn: "text-[#8F5F12]",
-    danger: "text-[#A82E2E]",
-    info: "text-[#1D4ED8]",
+    accent: "text-[var(--deck-accent-ink)]",
+    warn: "text-[var(--deck-warn)]",
+    danger: "text-[var(--deck-danger)]",
+    info: "text-[var(--deck-info)]",
   }[tone];
 
   const inner = (
@@ -161,7 +161,7 @@ export function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[var(--deck-line-strong)] bg-[#F8FAFB] px-6 py-12 text-center">
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] px-6 py-12 text-center">
       <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[var(--deck-gold-line)] bg-[var(--deck-gold-tint)]">
         <PortalIcon name={icon} className="h-5 w-5 text-[var(--deck-gold-deep)]" />
       </div>
@@ -211,7 +211,7 @@ export function Timeline({
     <ol className="relative ml-2 space-y-5 border-l border-[var(--deck-line-strong)] pl-6">
       {items.map((item, i) => (
         <li key={i} className="relative">
-          <span className="absolute -left-[1.72rem] top-1 h-3 w-3 rounded-full border-2 border-[var(--deck-gold)] bg-white shadow-[0_0_0_4px_rgba(176,141,87,0.14)]" />
+          <span className="absolute -left-[1.72rem] top-1 h-3 w-3 rounded-full border-2 border-[var(--deck-accent)] bg-[var(--deck-panel)] shadow-[0_0_0_4px_var(--deck-accent-tint)]" />
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <p className="text-sm font-semibold text-[var(--deck-text)]">{item.title}</p>
             {item.meta ? <span className="deck-mono text-[var(--deck-text-3)]">{item.meta}</span> : null}
@@ -234,16 +234,18 @@ export function Notice({
   children: React.ReactNode;
 }) {
   const cls = {
-    info: "border-[#C9DAF8] bg-[#EFF4FE] text-[#173A8A]",
-    success: "border-[#BFE3D2] bg-[#EAF6F0] text-[#0E5238]",
-    danger: "border-[#EFC7C7] bg-[#FBEFEF] text-[#7E2222]",
-    warn: "border-[#EAD9AE] bg-[#FBF4E3] text-[#6E4A0E]",
+    info: "border-[var(--deck-info-line)] bg-[var(--deck-info-tint)] text-[var(--deck-info)]",
+    success:
+      "border-[var(--deck-success-line)] bg-[var(--deck-success-tint)] text-[var(--deck-success)]",
+    danger:
+      "border-[var(--deck-danger-line)] bg-[var(--deck-danger-tint)] text-[var(--deck-danger)]",
+    warn: "border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] text-[var(--deck-warn)]",
   }[tone];
   const rail = {
-    info: "bg-[#2563EB]",
-    success: "bg-[#17845A]",
-    danger: "bg-[#C03636]",
-    warn: "bg-[#D9970F]",
+    info: "bg-[var(--deck-info)]",
+    success: "bg-[var(--deck-success)]",
+    danger: "bg-[var(--deck-danger)]",
+    warn: "bg-[var(--deck-warn)]",
   }[tone];
   return (
     <div className={cn("relative overflow-hidden rounded-xl border px-4 py-3 pl-5 text-sm", cls)}>
@@ -271,9 +273,9 @@ export function RecordRow({
 }) {
   const toneCls = {
     default: "",
-    warn: "!border-[#EAD9AE] bg-[#FFFCF4]",
-    danger: "!border-[#EFC7C7] bg-[#FEF9F9]",
-    gold: "!border-[var(--deck-gold-line)] bg-[var(--deck-gold-tint)]",
+    warn: "!border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)]",
+    danger: "!border-[var(--deck-danger-line)] bg-[var(--deck-danger-tint)]",
+    gold: "!border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)]",
   }[tone];
   const inner = (
     <div
@@ -328,7 +330,7 @@ export function QuickLink({
       href={href}
       className="deck-inset deck-card-hover group flex items-center gap-3 p-3.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]"
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--deck-gold-line)] bg-white text-[var(--deck-gold-deep)]">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--deck-accent-line)] bg-[var(--deck-panel)] text-[var(--deck-accent-ink)]">
         <PortalIcon name={icon} className="h-4 w-4" />
       </span>
       <span className="min-w-0 flex-1">
@@ -381,7 +383,7 @@ export function FilterTabs({
               "rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors",
               active
                 ? "border-[var(--deck-gold)] bg-[var(--deck-gold-tint)] font-semibold text-[var(--deck-gold-deep)]"
-                : "border-[var(--deck-line-strong)] bg-white text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)] hover:text-[var(--deck-text)]"
+                : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"
             )}
           >
             {option.label}
@@ -418,7 +420,7 @@ export function Pagination({
       "rounded-lg border px-4 py-2 text-xs font-semibold transition-colors",
       disabled
         ? "pointer-events-none border-[var(--deck-line)] text-[var(--deck-text-3)] opacity-50"
-        : "border-[var(--deck-line-strong)] bg-white text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]"
+        : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
     );
   return (
     <div className="deck-card flex flex-col gap-3 px-5 py-4 text-sm text-[var(--deck-text-3)] sm:flex-row sm:items-center sm:justify-between">

@@ -55,7 +55,7 @@ export default async function CrewMissionDetailPage({
       />
 
       {canRespond ? (
-        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[#EAD9AE] bg-[#FBF4E3] p-4">
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] p-4">
           <div className="flex-1">
             <p className="font-semibold">Assignment Offer</p>
             <p className="text-sm text-muted-foreground">You have been offered this mission. Please accept or decline.</p>

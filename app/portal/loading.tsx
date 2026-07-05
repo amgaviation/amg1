@@ -18,8 +18,8 @@ export default function PortalLoading() {
             </div>
           </div>
           <div className="mt-6 grid gap-3">
-            <div className="h-3 w-5/6 animate-pulse rounded-full bg-[#EEF1F5]" />
-            <div className="h-3 w-2/3 animate-pulse rounded-full bg-[#EEF1F5]" />
+            <div className="h-3 w-5/6 animate-pulse rounded-full bg-[var(--deck-panel-2)]" />
+            <div className="h-3 w-2/3 animate-pulse rounded-full bg-[var(--deck-panel-2)]" />
             <div className="deck-inset h-20 animate-pulse" />
           </div>
         </div>

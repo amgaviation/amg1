@@ -83,13 +83,13 @@ export default async function CrewSettingsPage({
             <CheckboxField label="Generally available for short-notice coverage" name="generally_short_notice" defaultChecked={profile?.generally_short_notice ?? false} />
             <CheckboxField label="Willing to travel" name="willing_to_travel" defaultChecked={profile?.willing_to_travel ?? false} />
           </div>
-          <div className="lg:col-span-3 rounded-lg border border-border bg-[#F8FAFB] p-4">
+          <div className="lg:col-span-3 rounded-lg border border-border bg-[var(--deck-panel-2)] p-4">
             <h3 className="font-display text-lg font-bold uppercase text-foreground">Weekly Availability</h3>
             <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-7">
               {["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"].map((day) => {
                 const selected = Array.isArray(weeklyAvailability[day]) ? weeklyAvailability[day] : [];
                 return (
-                  <div key={day} className="rounded-lg border border-border bg-white p-3">
+                  <div key={day} className="rounded-lg border border-border bg-[var(--deck-panel)] p-3">
                     <p className="text-xs font-bold uppercase tracking-wider text-[var(--deck-gold-deep)]">{day}</p>
                     <div className="mt-3 grid gap-2">
                       {["available", "morning", "afternoon", "evening", "overnight"].map((slot) => (

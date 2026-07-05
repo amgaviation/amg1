@@ -73,7 +73,7 @@ export default async function CrewCredentialsPage({
                       ) : null}
                     </p>
                     <p
-                      className={`deck-num text-xs font-semibold ${credential.days < 0 ? "text-[#A82E2E]" : credential.days <= 90 ? "text-[#8F5F12]" : "text-[var(--deck-text-3)]"}`}
+                      className={`deck-num text-xs font-semibold ${credential.days < 0 ? "text-[var(--deck-danger)]" : credential.days <= 90 ? "text-[var(--deck-warn)]" : "text-[var(--deck-text-3)]"}`}
                     >
                       {credential.days < 0
                         ? `Expired ${Math.abs(credential.days)}d ago`
@@ -81,7 +81,7 @@ export default async function CrewCredentialsPage({
                       · {formatDate(credential.expiration_date)}
                     </p>
                   </div>
-                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[#EEF1F5]">
+                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[var(--deck-panel-2)]">
                     <div
                       className="h-full rounded-full"
                       style={{ width: `${credential.days < 0 ? 100 : pct}%`, backgroundColor: barColor }}

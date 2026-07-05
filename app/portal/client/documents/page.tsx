@@ -62,7 +62,7 @@ export default async function ClientDocumentsPage({
                 name="file"
                 required
                 accept=".pdf,.jpg,.jpeg,.png"
-                className="text-sm text-[var(--deck-text-3)] file:mr-3 file:rounded-lg file:border file:border-[var(--deck-line-strong)] file:bg-white file:px-3 file:py-2 file:text-sm file:font-medium file:text-[var(--deck-text)] hover:file:border-[var(--deck-gold)]"
+                className="text-sm text-[var(--deck-text-3)] file:mr-3 file:rounded-lg file:border file:border-[var(--deck-line-strong)] file:bg-[var(--deck-panel)] file:px-3 file:py-2 file:text-sm file:font-medium file:text-[var(--deck-text)] hover:file:border-[var(--deck-gold)]"
               />
             </label>
           </div>
@@ -91,7 +91,7 @@ export default async function ClientDocumentsPage({
                     {doc.doc_type} · Uploaded {formatDate(doc.created_at)}
                     {doc.expiration_date ? <> · Expires {formatDate(doc.expiration_date)}</> : null}
                     {doc.review_notes ? (
-                      <span className="mt-1 block text-[#8F5F12]">{doc.review_notes}</span>
+                      <span className="mt-1 block text-[var(--deck-warn)]">{doc.review_notes}</span>
                     ) : null}
                   </>
                 }

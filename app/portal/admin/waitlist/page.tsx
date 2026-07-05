@@ -197,7 +197,7 @@ export default async function AdminWaitlistPage({
             confirm: "Deny this waitlisted portal access request?",
             pendingText: "Denying...",
             variant: "outline",
-            className: "border-[#EFC7C7] text-[#A82E2E] hover:border-[#EFC7C7]",
+            className: "border-[var(--deck-danger-line)] text-[var(--deck-danger)] hover:border-[var(--deck-danger-line)]",
           },
         ]}
         allowCreate={false}

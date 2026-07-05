@@ -67,7 +67,7 @@ export default async function AdminCompliancePage() {
             <Link
               key={document.slug}
               href={document.legacyPath ?? `/legal/${document.slug}`}
-              className="rounded-lg border border-[var(--deck-line)] bg-[#F8FAFB] p-4 text-sm transition-colors hover:border-[var(--deck-gold)]"
+              className="rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-4 text-sm transition-colors hover:border-[var(--deck-gold)]"
             >
               <span className="font-semibold text-[var(--deck-text)]">{document.title}</span>
               <span className="mt-1 block text-xs leading-relaxed text-[var(--deck-text-3)]">{document.description}</span>

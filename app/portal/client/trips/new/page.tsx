@@ -117,7 +117,7 @@ export default async function NewTripPage({
                   {savedPassengers.map((passenger) => (
                     <label
                       key={passenger.id}
-                      className="flex cursor-pointer items-center gap-3 rounded-lg border border-[var(--deck-line-strong)] bg-white px-3 py-2.5 text-sm transition-colors hover:border-[var(--deck-gold-line)]"
+                      className="flex cursor-pointer items-center gap-3 rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2.5 text-sm transition-colors hover:border-[var(--deck-gold-line)]"
                     >
                       <input
                         type="checkbox"

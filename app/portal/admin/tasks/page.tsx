@@ -33,7 +33,7 @@ function taskMeta(task: OpsTask) {
     <>
       {task.assignee ? <>Assigned to {task.assignee.full_name ?? task.assignee.email} · </> : null}
       {task.due_at ? (
-        <span className={overdue ? "font-semibold text-[#A82E2E]" : undefined}>
+        <span className={overdue ? "font-semibold text-[var(--deck-danger)]" : undefined}>
           Due {formatDateTime(task.due_at)}
         </span>
       ) : (

@@ -170,7 +170,7 @@ export default async function AdminClientDetailPage({
       </div>
 
       <Tabs defaultValue="overview" className="gap-5">
-        <TabsList className="h-auto w-full flex-wrap justify-start bg-[#EEF1F5] p-1">
+        <TabsList className="h-auto w-full flex-wrap justify-start bg-[var(--deck-panel-2)] p-1">
           {["Overview", "Contacts / Authorized Requesters", "Aircraft", "Missions", "Billing", "Documents", "Communications", "Notes", "Settings"].map((tab) => (
             <TabsTrigger key={tab} value={tab.toLowerCase().replace(/ \/ /g, "-").replace(/\s+/g, "-")} className="grow-0 rounded-md px-3 py-2 text-xs">
               {tab}

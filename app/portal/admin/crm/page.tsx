@@ -153,7 +153,7 @@ export default async function CrmPipelinePage({
                           ) : null}
                           {lead.next_action_at ? (
                             <span
-                              className={`text-[0.66rem] ${new Date(lead.next_action_at) <= new Date() ? "font-semibold text-[#A82E2E]" : "text-[var(--deck-text-3)]"}`}
+                              className={`text-[0.66rem] ${new Date(lead.next_action_at) <= new Date() ? "font-semibold text-[var(--deck-danger)]" : "text-[var(--deck-text-3)]"}`}
                             >
                               Next: {formatDate(lead.next_action_at)}
                             </span>

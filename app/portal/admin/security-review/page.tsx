@@ -91,7 +91,7 @@ export default async function AdminSecurityReviewPage({
           "Pending users reviewed",
           "Invalid imported emails resolved",
         ].map((item) => (
-          <div key={item} className="rounded-lg border border-[#EAD9AE] bg-[#FBF4E3] px-4 py-3 text-sm text-[#6E4A0E]">
+          <div key={item} className="rounded-lg border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] px-4 py-3 text-sm text-[var(--deck-warn)]">
             {item}
           </div>
         ))}
@@ -110,7 +110,7 @@ export default async function AdminSecurityReviewPage({
               Apply Filters
             </button>
             {hasFilters ? (
-              <Link href="/portal/admin/security-review" className="rounded-full border border-border bg-white px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]">
+              <Link href="/portal/admin/security-review" className="rounded-full border border-border bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]">
                 Clear filters
               </Link>
             ) : null}
@@ -136,7 +136,7 @@ export default async function AdminSecurityReviewPage({
         />
       </SectionCard>
       {filtered.length > PAGE_SIZE ? (
-        <div className="flex flex-col gap-3 rounded-lg border border-[var(--deck-line)] bg-white px-5 py-4 text-sm text-[var(--deck-text-3)] shadow-[0_10px_30px_rgba(15,23,42,0.04)] sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] px-5 py-4 text-sm text-[var(--deck-text-3)] shadow-[0_10px_30px_rgba(15,23,42,0.04)] sm:flex-row sm:items-center sm:justify-between">
           <span>Page {safePage} of {pageCount}</span>
           <div className="flex gap-2">
             <Link

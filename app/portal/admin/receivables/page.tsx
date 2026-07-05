@@ -54,7 +54,7 @@ export default async function ReceivablesPage({
         actions={
           <Link
             href="/portal/admin/invoices"
-            className="rounded-lg border border-[var(--deck-line-strong)] bg-white px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]"
+            className="rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]"
           >
             All invoices
           </Link>
@@ -213,7 +213,7 @@ export default async function ReceivablesPage({
                 align: "right",
                 cell: (row) =>
                   row.overdue > 0 ? (
-                    <span className="deck-num font-semibold text-[#A82E2E]">{formatMoney(row.overdue)}</span>
+                    <span className="deck-num font-semibold text-[var(--deck-danger)]">{formatMoney(row.overdue)}</span>
                   ) : (
                     "—"
                   ),

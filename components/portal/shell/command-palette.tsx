@@ -96,12 +96,12 @@ export function CommandPalette() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="hidden items-center gap-2 rounded-lg border border-[var(--deck-line)] bg-white px-3 py-2 text-xs text-[var(--deck-text-3)] transition-colors hover:border-[var(--deck-gold-line)] hover:text-[var(--deck-text)] lg:flex"
+        className="hidden items-center gap-2 rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 py-2 text-xs text-[var(--deck-text-3)] transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)] lg:flex"
         aria-label="Search (Cmd+K)"
       >
         <Search className="h-3.5 w-3.5" />
         <span>Search</span>
-        <kbd className="deck-mono rounded border border-[var(--deck-line)] bg-[#F8FAFB] px-1.5 py-0.5 text-[0.6rem]">
+        <kbd className="deck-mono rounded border border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-1.5 py-0.5 text-[0.6rem]">
           ⌘K
         </kbd>
       </button>
@@ -133,7 +133,7 @@ export function CommandPalette() {
                 }}
                 onKeyDown={onInputKeyDown}
                 placeholder="Search requests, clients, crew, invoices, quotes, leads, aircraft…"
-                className="flex-1 bg-transparent text-sm text-[var(--deck-text)] outline-none placeholder:text-[#98A2B3]"
+                className="flex-1 bg-transparent text-sm text-[var(--deck-text)] outline-none placeholder:text-[var(--deck-text-3)]"
                 role="combobox"
                 aria-expanded={results.length > 0}
                 aria-autocomplete="list"
