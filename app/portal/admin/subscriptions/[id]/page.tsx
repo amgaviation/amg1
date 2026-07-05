@@ -4,6 +4,7 @@ import { requireRole } from "@/lib/portal/session";
 import { addSubscriptionCredit, addSubscriptionUsage, cancelStripeSubscriptionAtPeriodEnd, ignoreNeedsReviewSubscription, linkNeedsReviewSubscription, refreshStripeSubscription, resendSubscriptionSetupLink, updateSubscriptionStatus } from "@/app/portal/actions/subscriptions";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
+import { ClientPickerField } from "@/components/portal/ui/combobox";
 import { DetailRow, Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -42,10 +43,15 @@ export default async function AdminSubscriptionDetailPage({
       {flash.success ? <Notice tone="success">Subscription updated.</Notice> : null}
       {flash.error ? <Notice tone="danger">Subscription action could not be completed.</Notice> : null}
       {subscription.stripe_sync_warning ? <Notice tone={subscription.stripe_sync_status === "pending_checkout" ? "warn" : "danger"}>{subscription.stripe_sync_warning}</Notice> : null}
+      {(subscription as any).is_test ? (
+        <Notice tone="warn">
+          TEST subscription — Stripe test mode only. Excluded from revenue metrics and client views; remove it via “Delete All Test Subscriptions” on the Subscriptions page.
+        </Notice>
+      ) : null}
       <PageHeader
-        eyebrow="Client Subscription"
-        title={subscription.plan?.name ?? "Custom Subscription"}
-        description={subscription.client?.company_name ?? subscription.client?.full_name ?? subscription.client?.email ?? "Client"}
+        eyebrow={(subscription as any).is_test ? "TEST Subscription" : (subscription as any).is_custom ? "Custom Subscription" : "Client Subscription"}
+        title={(subscription as any).custom_name ?? subscription.plan?.name ?? "Custom Subscription"}
+        description={subscription.client?.company_name ?? subscription.client?.full_name ?? subscription.client?.email ?? ((subscription as any).is_test ? "Stripe test-mode customer" : "Client")}
         actions={<Link href="/portal/admin/subscriptions" className="text-xs text-muted-foreground hover:text-accent">Back to subscriptions</Link>}
       />
 
@@ -178,7 +184,7 @@ export default async function AdminSubscriptionDetailPage({
             <SectionCard title="Needs Review" icon="building">
               <form action={linkNeedsReviewSubscription} className="space-y-4">
                 <input type="hidden" name="subscription_id" value={subscription.id} />
-                <SelectField label="Link to Client" name="client_id" defaultValue="" options={[{ value: "", label: "Select client..." }, ...clients.map((client) => ({ value: client.id, label: client.company_name ?? client.full_name ?? client.email }))]} />
+                <ClientPickerField label="Link to Client" clients={clients} />
                 <SubmitButton pendingText="Linking...">Link Subscription</SubmitButton>
               </form>
               <form action={ignoreNeedsReviewSubscription} className="mt-3">

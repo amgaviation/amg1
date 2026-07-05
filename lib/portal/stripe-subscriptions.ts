@@ -7,6 +7,7 @@ import { OPERATIONAL_EMAIL_FOOTER } from "@/lib/email/templates";
 import { sendEmail } from "@/lib/portal/notification-delivery";
 import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
 import { currentStripeMode } from "@/lib/portal/stripe-mode";
+import { applyScheduledCancelAt } from "@/lib/portal/stripe-custom-subscriptions";
 import { resolveSubscriptionPriceForStripeMode } from "@/lib/portal/stripe-mode-core";
 import {
   buildSubscriptionCheckoutSummary,
@@ -290,6 +291,9 @@ async function syncCheckoutSession(session: Stripe.Checkout.Session, event: Stri
   const stripe = stripeClient();
   if (stripeSubscriptionId && stripe) {
     const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+    // Custom subscriptions with an end date / cycle count carry the target in
+    // metadata (Checkout can't set cancel_at directly) — apply it once here.
+    await applyScheduledCancelAt(subscription);
     return syncSubscription(subscription, event, portalSubscriptionId);
   }
   if (!portalSubscriptionId) return { ok: true, ignored: true };

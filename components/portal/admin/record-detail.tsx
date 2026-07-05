@@ -6,6 +6,8 @@ import { DetailRow, EmptyState, SectionCard } from "@/components/portal/ui/primi
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import type { Tone } from "@/lib/portal/constants";
 import { cn } from "@/lib/utils";
+import { DeckSelect } from "@/components/portal/ui/fields";
+import { Combobox } from "@/components/portal/ui/combobox";
 
 export type DetailValue = string | number | boolean | null | undefined;
 
@@ -55,14 +57,25 @@ function FieldInput({ field, values }: { field: DetailFormField; values: Record<
   }
 
   if (field.type === "select") {
+    if ((field.options?.length ?? 0) > 12) {
+      return (
+        <Combobox
+          name={field.name}
+          required={field.required}
+          defaultValue={value}
+          options={(field.options ?? []).filter((o) => o.value !== "")}
+          placeholder={field.options?.find((o) => o.value === "")?.label ?? "Search…"}
+        />
+      );
+    }
     return (
-      <select id={field.name} name={field.name} required={field.required} defaultValue={value} className={inputClassName}>
-        {field.options?.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+      <DeckSelect
+        id={field.name}
+        name={field.name}
+        required={field.required}
+        defaultValue={value}
+        options={field.options ?? []}
+      />
     );
   }
 

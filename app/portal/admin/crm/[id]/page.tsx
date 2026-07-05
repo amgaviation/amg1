@@ -9,6 +9,7 @@ import {
   Timeline,
 } from "@/components/portal/ui/primitives";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
+import { ClientPickerField } from "@/components/portal/ui/combobox";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { Button } from "@/components/ui/button";
@@ -176,15 +177,11 @@ export default async function LeadDetailPage({
           >
             <form action={linkLeadToProfile} className="grid gap-3">
               <input type="hidden" name="lead_id" value={lead.id} />
-              <SelectField
+              <ClientPickerField
                 label="Portal Client"
                 name="profile_id"
+                clients={clients}
                 defaultValue={lead.converted_profile_id ?? ""}
-                placeholder="Select client account…"
-                options={clients.map((client) => ({
-                  value: client.id,
-                  label: `${client.full_name ?? client.email}${client.company_name ? ` — ${client.company_name}` : ""}`,
-                }))}
               />
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <Button asChild variant="ghost" size="sm">

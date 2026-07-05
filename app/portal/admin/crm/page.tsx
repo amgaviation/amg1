@@ -14,6 +14,7 @@ import { createLead, moveLeadStage } from "@/app/portal/actions/crm";
 import { LEAD_SOURCES, LEAD_STAGES, getPipelineMetrics, listLeads } from "@/lib/portal/crm";
 import { listAllUsers } from "@/lib/portal/queries";
 import { formatDate, formatMoney } from "@/lib/portal/format";
+import { DeckSelect } from "@/components/portal/ui/fields";
 
 export const metadata = { title: "Sales Pipeline - AMG Operations" };
 export const dynamic = "force-dynamic";
@@ -161,11 +162,7 @@ export default async function CrmPipelinePage({
                       </Link>
                       <form action={moveLeadStage} className="mt-3 flex items-end gap-2">
                         <input type="hidden" name="lead_id" value={lead.id} />
-                        <select name="stage" defaultValue={lead.stage} className="deck-input !min-h-9 flex-1 !text-xs">
-                          {LEAD_STAGES.map((s) => (
-                            <option key={s.value} value={s.value}>{s.label}</option>
-                          ))}
-                        </select>
+                        <DeckSelect name="stage" defaultValue={lead.stage} aria-label="Move lead to stage" className="!min-h-9 flex-1 !text-xs" options={LEAD_STAGES.map((s) => ({ value: s.value, label: s.label }))} />
                         <SubmitButton variant="outline" size="sm" pendingText="…">Move</SubmitButton>
                       </form>
                     </div>

@@ -20,6 +20,7 @@ import {
   type CrewEmailVariables,
 } from "@/lib/portal/crew-email-templates";
 import type { CrewEmailTemplateOption } from "@/lib/portal/crew-email";
+import { DeckSelect } from "@/components/portal/ui/fields";
 
 type MissionOption = {
   id: string;
@@ -133,29 +134,22 @@ export function CrewEmailComposer({
 
               <label className="grid gap-2">
                 <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">Template</span>
-                <select
+                <DeckSelect
+                  aria-label="Template"
                   value={templateKey}
                   onChange={(event) => selectTemplate(event.target.value as CrewEmailTemplateKey)}
-                  className={inputClassName}
-                >
-                  {templates.map((template) => (
-                    <option key={template.key} value={template.key}>
-                      {template.name}
-                    </option>
-                  ))}
-                </select>
+                  options={templates.map((template) => ({ value: template.key, label: template.name }))}
+                />
               </label>
 
               <label className="grid gap-2">
                 <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">Related Mission</span>
-                <select value={missionId} onChange={(event) => setMissionId(event.target.value)} className={inputClassName}>
-                  <option value="">None selected</option>
-                  {missionOptions.map((mission) => (
-                    <option key={mission.id} value={mission.id}>
-                      {mission.label}
-                    </option>
-                  ))}
-                </select>
+                <DeckSelect
+                  aria-label="Related Mission"
+                  value={missionId || "__none__"}
+                  onChange={(event) => setMissionId(event.target.value === "__none__" ? "" : event.target.value)}
+                  options={[{ value: "__none__", label: "None selected" }, ...missionOptions.map((mission) => ({ value: mission.id, label: mission.label }))]}
+                />
               </label>
 
               <label className="grid gap-2">

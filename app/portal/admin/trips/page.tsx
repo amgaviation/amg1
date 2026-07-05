@@ -22,6 +22,7 @@ import {
   toneFor,
 } from "@/lib/portal/constants";
 import { formatDateTime, formatRoute } from "@/lib/portal/format";
+import { DeckSelect } from "@/components/portal/ui/fields";
 
 export const metadata = { title: "Support Requests - AMG Operations" };
 
@@ -168,30 +169,10 @@ export default async function AdminTripsPage({
               aria-label="Search support requests"
               className="deck-input min-w-[12rem] flex-1 sm:max-w-xs"
             />
-            <select name="type" defaultValue={params.type ?? ""} aria-label="Type" className="deck-input w-auto">
-              <option value="">All Types</option>
-              {MISSION_TYPE.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
-            <select name="urgency" defaultValue={params.urgency ?? ""} aria-label="Urgency" className="deck-input w-auto">
-              <option value="">All Urgency</option>
-              {URGENCY.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
-            <select name="sort" defaultValue={sortKey} aria-label="Sort by" className="deck-input w-auto">
-              <option value="created">Created</option>
-              <option value="departure">Requested Departure</option>
-              <option value="ref">Reference</option>
-              <option value="route">Route</option>
-              <option value="client">Owner / Operator</option>
-              <option value="status">Status</option>
-            </select>
-            <select name="dir" defaultValue={direction} aria-label="Sort direction" className="deck-input w-auto">
-              <option value="desc">Descending</option>
-              <option value="asc">Ascending</option>
-            </select>
+            <DeckSelect name="type" defaultValue={params.type ?? ""} aria-label="Type" className="w-auto min-w-[9rem]" options={[{ value: "", label: "All Types" }, ...MISSION_TYPE.map((o) => ({ value: o.value, label: o.label }))]} placeholder="All Types" />
+            <DeckSelect name="urgency" defaultValue={params.urgency ?? ""} aria-label="Urgency" className="w-auto min-w-[9rem]" options={[{ value: "", label: "All Urgency" }, ...URGENCY.map((o) => ({ value: o.value, label: o.label }))]} placeholder="All Urgency" />
+            <DeckSelect name="sort" defaultValue={sortKey} aria-label="Sort by" className="w-auto min-w-[10rem]" options={[{ value: "created", label: "Created" }, { value: "departure", label: "Requested Departure" }, { value: "ref", label: "Reference" }, { value: "route", label: "Route" }, { value: "client", label: "Owner / Operator" }, { value: "status", label: "Status" }]} />
+            <DeckSelect name="dir" defaultValue={direction} aria-label="Sort direction" className="w-auto min-w-[8rem]" options={[{ value: "desc", label: "Descending" }, { value: "asc", label: "Ascending" }]} />
             <Button type="submit" size="sm">
               Apply
             </Button>

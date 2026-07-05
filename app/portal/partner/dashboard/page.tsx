@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
+import { ProfileSetupNotice } from "@/components/portal/profile-setup-notice";
 import {
   EmptyState,
   PageHeader,
@@ -39,6 +40,7 @@ export default async function PartnerDashboardPage() {
 
   return (
     <>
+      <ProfileSetupNotice userId={user.id} role={user.role} />
       <PageHeader
         eyebrow={profile?.partner_type ?? "Service Partner"}
         title={`Welcome back, ${user.name.split(" ")[0]}`}

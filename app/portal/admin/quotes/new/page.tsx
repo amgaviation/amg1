@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
+import { ClientPickerField } from "@/components/portal/ui/combobox";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { createQuote } from "@/app/portal/actions/quotes";
 import { listAllMissions, listClients } from "@/lib/portal/queries";
@@ -60,12 +61,7 @@ export default async function NewQuotePage() {
               defaultValue=""
               options={[{ value: "", label: "Standalone or client-only quote" }, ...missions.map((mission) => ({ value: mission.id, label: `${mission.ref} - ${mission.departure_airport} to ${mission.arrival_airport}` }))]}
             />
-            <SelectField
-              label="Existing Client"
-              name="client_id"
-              defaultValue=""
-              options={[{ value: "", label: "Manual recipient or mission client" }, ...clients.map((client) => ({ value: client.id, label: client.company_name ?? client.full_name ?? client.email }))]}
-            />
+            <ClientPickerField label="Existing Client" clients={clients} placeholder="Search company, name, or email — or leave blank for manual recipient" />
             <TextField label="Manual Client Name" name="manual_client_name" />
             <TextField label="Manual Company" name="manual_client_company" />
             <TextField label="Recipient Email" name="recipient_email" type="email" />

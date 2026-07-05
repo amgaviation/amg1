@@ -570,6 +570,7 @@ export async function listSubscriptionsForClient(clientId: string): Promise<
     .from("client_subscriptions")
     .select("*, aircraft:aircraft_id(tail_number,make,model), plan:plan_id(*), tier:tier_id(*)")
     .eq("client_id", clientId)
+    .eq("is_test", false)
     .order("created_at", { ascending: false });
   return data ?? [];
 }
@@ -994,7 +995,7 @@ export async function getAdminMetrics() {
     db.from("documents").select("id", { count: "exact", head: true }).eq("status", "pending_review"),
     db.from("expenses").select("id", { count: "exact", head: true }).eq("status", "submitted"),
     db.from("profiles").select("id", { count: "exact", head: true }).eq("role", "crew"),
-    (db as any).from("client_subscriptions").select("id", { count: "exact", head: true }).eq("status", "active"),
+    (db as any).from("client_subscriptions").select("id", { count: "exact", head: true }).eq("status", "active").eq("is_test", false),
     (db as any).from("subscription_usage_events").select("id", { count: "exact", head: true }).gt("overage_amount", 0),
     (db as any)
       .from("contact_form_submissions")

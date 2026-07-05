@@ -14,6 +14,7 @@ import {
   toneFor,
 } from "@/lib/portal/constants";
 import { formatDateTime, formatRoute } from "@/lib/portal/format";
+import { DeckSelect } from "@/components/portal/ui/fields";
 
 export const metadata = { title: "Mission Control - Admin Portal" };
 
@@ -124,18 +125,13 @@ export default async function AdminMissionControlPage({
                     </p>
                     <form action={updateMissionStatus} className="mt-2.5 flex items-center gap-2">
                       <input type="hidden" name="mission_id" value={mission.id} />
-                      <select
+                      <DeckSelect
                         name="status"
                         defaultValue={mission.status}
                         aria-label={`Move ${mission.ref} to status`}
-                        className="deck-input !min-h-9 flex-1 !text-xs"
-                      >
-                        {MISSION_STATUS.map((s) => (
-                          <option key={s.value} value={s.value}>
-                            {s.label}
-                          </option>
-                        ))}
-                      </select>
+                        className="!min-h-9 flex-1 !text-xs"
+                        options={MISSION_STATUS.map((s) => ({ value: s.value, label: s.label }))}
+                      />
                       <SubmitButton variant="outline" size="sm" pendingText="…">
                         Move
                       </SubmitButton>

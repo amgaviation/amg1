@@ -12,6 +12,8 @@ import {
   listEmailCommunicationLogs,
 } from "@/lib/portal/communications";
 import { formatDateTime } from "@/lib/portal/format";
+import { DeckSelect } from "@/components/portal/ui/fields";
+import { Combobox } from "@/components/portal/ui/combobox";
 
 export const metadata = { title: "Emails - Admin Portal" };
 
@@ -105,35 +107,15 @@ export default async function AdminEmailsPage({
           <div className="grid gap-4 lg:grid-cols-3">
             <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
               Template
-              <select name="template_id" className="min-h-11 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 text-sm font-normal normal-case text-[var(--deck-text)]">
-                <option value="">Custom Email</option>
-                {templates.map((template) => (
-                  <option key={template.id} value={template.id}>
-                    {template.name}
-                  </option>
-                ))}
-              </select>
+              <DeckSelect name="template_id" aria-label="Template" className="font-normal normal-case" placeholder="Custom Email" options={templates.map((template) => ({ value: template.id, label: template.name }))} />
             </label>
             <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
               Category
-              <select name="category" defaultValue="General" className="min-h-11 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 text-sm font-normal normal-case text-[var(--deck-text)]">
-                {CATEGORIES.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
+              <DeckSelect name="category" defaultValue="General" aria-label="Category" className="font-normal normal-case" options={CATEGORIES.map((category) => ({ value: category, label: category }))} />
             </label>
             <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
               Related Client
-              <select name="related_client_id" className="min-h-11 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 text-sm font-normal normal-case text-[var(--deck-text)]">
-                <option value="">General thread</option>
-                {records.clients.map((client) => (
-                  <option key={client.id} value={client.id}>
-                    {client.label}
-                  </option>
-                ))}
-              </select>
+              <Combobox name="related_client_id" placeholder="General thread — or search a client…" options={records.clients.map((client) => ({ value: client.id, label: client.label }))} className="font-normal normal-case" />
             </label>
           </div>
 
@@ -206,24 +188,10 @@ export default async function AdminEmailsPage({
           <input name="date_from" type="date" defaultValue={params.date_from ?? ""} className="min-h-11 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 text-sm text-[var(--deck-text)]" />
           <input name="date_to" type="date" defaultValue={params.date_to ?? ""} className="min-h-11 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 text-sm text-[var(--deck-text)]" />
           <input name="time" type="time" defaultValue={params.time ?? ""} className="min-h-11 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 text-sm text-[var(--deck-text)]" />
-          <select name="category" defaultValue={params.category ?? ""} className="min-h-11 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 text-sm text-[var(--deck-text)]">
-            <option value="">All categories</option>
-            {CATEGORIES.map((category) => <option key={category} value={category}>{category}</option>)}
-          </select>
-          <select name="template" defaultValue={params.template ?? ""} className="min-h-11 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 text-sm text-[var(--deck-text)]">
-            <option value="">All templates</option>
-            {templates.map((template) => <option key={template.id} value={template.id}>{template.name}</option>)}
-          </select>
-          <select name="status" defaultValue={params.status ?? ""} className="min-h-11 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 text-sm text-[var(--deck-text)]">
-            <option value="">All statuses</option>
-            {STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
-          </select>
-          <select name="sender" defaultValue={params.sender ?? ""} className="min-h-11 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 text-sm text-[var(--deck-text)]">
-            <option value="">All senders</option>
-            {users.filter((row) => row.role === "admin").map((admin) => (
-              <option key={admin.id} value={admin.id}>{admin.full_name ?? admin.email}</option>
-            ))}
-          </select>
+          <DeckSelect name="category" defaultValue={params.category ?? ""} aria-label="Category filter" options={[{ value: "", label: "All categories" }, ...CATEGORIES.map((category) => ({ value: category, label: category }))]} />
+          <DeckSelect name="template" defaultValue={params.template ?? ""} aria-label="Template filter" options={[{ value: "", label: "All templates" }, ...templates.map((template) => ({ value: template.id, label: template.name }))]} />
+          <DeckSelect name="status" defaultValue={params.status ?? ""} aria-label="Status filter" options={[{ value: "", label: "All statuses" }, ...STATUSES.map((status) => ({ value: status, label: status }))]} />
+          <DeckSelect name="sender" defaultValue={params.sender ?? ""} aria-label="Sender filter" options={[{ value: "", label: "All senders" }, ...users.filter((row) => row.role === "admin").map((admin) => ({ value: admin.id, label: admin.full_name ?? admin.email }))]} />
           <div className="flex gap-2 lg:col-span-3">
             <SubmitButton variant="outline" pendingText="Filtering...">
               Filter Log

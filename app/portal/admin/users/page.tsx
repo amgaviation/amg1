@@ -24,6 +24,7 @@ import {
   toneFor,
 } from "@/lib/portal/constants";
 import { formatDateTime } from "@/lib/portal/format";
+import { Combobox } from "@/components/portal/ui/combobox";
 
 export const metadata = { title: "Users - Admin Portal" };
 export const dynamic = "force-dynamic";
@@ -301,14 +302,12 @@ export default async function AdminUsersPage({
               </p>
             </div>
             <input type="hidden" name="back_to" value="/portal/admin/users" />
-            <select name="user_id" required className="deck-input">
-              <option value="">Select user</option>
-              {users.filter((row) => !isReleasedEmail(row.email)).map((row) => (
-                <option key={row.id} value={row.id}>
-                  {row.full_name ?? row.email} - {row.email}
-                </option>
-              ))}
-            </select>
+            <Combobox
+              name="user_id"
+              required
+              placeholder="Search user by name or email…"
+              options={users.filter((row) => !isReleasedEmail(row.email)).map((row) => ({ value: row.id, label: row.full_name ?? row.email ?? row.id, keywords: `${row.full_name ?? ""} ${row.email ?? ""}`, description: row.email ?? undefined }))}
+            />
             <SubmitButton pendingText="Sending...">
               Send Password Reset Link
             </SubmitButton>
@@ -322,14 +321,12 @@ export default async function AdminUsersPage({
               </p>
             </div>
             <input type="hidden" name="back_to" value="/portal/admin/users" />
-            <select name="user_id" required className="deck-input">
-              <option value="">Select user</option>
-              {users.filter((row) => !isReleasedEmail(row.email)).map((row) => (
-                <option key={row.id} value={row.id}>
-                  {row.full_name ?? row.email} - {row.email}
-                </option>
-              ))}
-            </select>
+            <Combobox
+              name="user_id"
+              required
+              placeholder="Search user by name or email…"
+              options={users.filter((row) => !isReleasedEmail(row.email)).map((row) => ({ value: row.id, label: row.full_name ?? row.email ?? row.id, keywords: `${row.full_name ?? ""} ${row.email ?? ""}`, description: row.email ?? undefined }))}
+            />
             <input
               name="password"
               type="password"

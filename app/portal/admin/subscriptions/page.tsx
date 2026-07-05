@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { createSubscriptionPlan } from "@/app/portal/actions/subscriptions";
+import { cleanupTestSubscriptionsAction, createSubscriptionPlan, createTestSubscriptionAction } from "@/app/portal/actions/subscriptions";
+import { currentStripeMode } from "@/lib/portal/stripe-mode";
+import { resolveTestStripeKey } from "@/lib/portal/stripe-custom-subscriptions";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { EmptyState, Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
@@ -25,16 +27,22 @@ export default async function AdminSubscriptionsPage({
     getSubscriptionOverageTotal(),
     listStripeSubscriptionEvents(),
   ]);
-  const activeCount = subscriptions.filter((subscription) => subscription.status === "active").length;
-  const trialingCount = subscriptions.filter((subscription) => subscription.status === "trialing").length;
-  const pendingCheckoutCount = subscriptions.filter((subscription) => subscription.stripe_sync_status === "pending_checkout").length;
-  const needsReviewCount = subscriptions.filter((subscription) => subscription.stripe_sync_status === "needs_review" || subscription.status === "needs_review").length;
-  const syncErrorCount = subscriptions.filter((subscription) => ["sync_error", "price_mismatch", "disconnected"].includes(subscription.stripe_sync_status ?? "")).length;
+  // Test subscriptions never count toward operations/revenue numbers.
+  const realSubscriptions = subscriptions.filter((subscription) => !(subscription as any).is_test);
+  const testCount = subscriptions.length - realSubscriptions.length;
+  const activeCount = realSubscriptions.filter((subscription) => subscription.status === "active").length;
+  const trialingCount = realSubscriptions.filter((subscription) => subscription.status === "trialing").length;
+  const pendingCheckoutCount = realSubscriptions.filter((subscription) => subscription.stripe_sync_status === "pending_checkout").length;
+  const needsReviewCount = realSubscriptions.filter((subscription) => subscription.stripe_sync_status === "needs_review" || subscription.status === "needs_review").length;
+  const syncErrorCount = realSubscriptions.filter((subscription) => ["sync_error", "price_mismatch", "disconnected"].includes(subscription.stripe_sync_status ?? "")).length;
+  const stripeMode = currentStripeMode();
+  const hasTestKey = Boolean(resolveTestStripeKey());
 
   return (
     <>
       {params.success === "plan" ? <Notice tone="success">Subscription plan created.</Notice> : null}
-      {params.error ? <Notice tone="danger">Subscription action could not be completed.</Notice> : null}
+      {params.success === "test-cleanup" ? <Notice tone="success">Test subscriptions cleaned up.</Notice> : null}
+      {params.error ? <Notice tone="danger">{decodeURIComponent(params.error)}</Notice> : null}
       <PageHeader
         eyebrow="AMG Billing"
         title="Subscriptions"
@@ -73,8 +81,15 @@ export default async function AdminSubscriptionsPage({
             getKey={(row) => row.id}
             emptyLabel="No client subscriptions."
             columns={[
-              { header: "Client", cell: (row) => row.client?.company_name ?? row.client?.full_name ?? row.client?.email ?? "-" },
-              { header: "Plan", cell: (row) => <Link href={`/portal/admin/subscriptions/${row.id}`} className="text-accent hover:underline">{row.plan?.name ?? "Custom subscription"}</Link> },
+              { header: "Client", cell: (row) => (row as any).is_test ? <span className="deck-chip border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] text-[var(--deck-warn)]">TEST</span> : row.client?.company_name ?? row.client?.full_name ?? row.client?.email ?? "-" },
+              { header: "Plan", cell: (row) => (
+                <span className="inline-flex items-center gap-2">
+                  <Link href={`/portal/admin/subscriptions/${row.id}`} className="text-accent hover:underline">
+                    {(row as any).custom_name ?? row.plan?.name ?? "Custom subscription"}
+                  </Link>
+                  {(row as any).is_test ? <StatusBadge label="TEST" tone="warn" /> : (row as any).is_custom ? <StatusBadge label="CUSTOM" tone="accent" /> : null}
+                </span>
+              ) },
               { header: "Tier", cell: (row) => row.tier?.name ?? "-" },
               { header: "Aircraft", cell: (row) => row.aircraft?.tail_number ?? "-" },
               { header: "Stripe", cell: (row) => <StatusBadge label={SUBSCRIPTION_STATUS_LABEL[row.status] ?? row.status} tone={toneFor(SUBSCRIPTION_STATUS_TONE, row.status)} /> },
@@ -86,6 +101,49 @@ export default async function AdminSubscriptionsPage({
             ]}
           />
         )}
+      </SectionCard>
+
+      <SectionCard
+        title="Subscription Testing"
+        icon="shield"
+        description="Admin-only lifecycle verification against Stripe TEST mode. Test subscriptions are flagged, excluded from every revenue number and client view, and can be removed here in one action."
+      >
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div className="deck-inset p-4">
+            <p className="text-sm font-semibold">Create test subscription <StatusBadge label="TEST" tone="warn" /></p>
+            <p className="mt-1 text-xs leading-5 text-[var(--deck-text-3)]">
+              Creates a $1/month subscription on a Stripe TEST customer paying with pm_card_visa so you can verify creation → invoice → renewal → cancellation without charging anyone.
+              {hasTestKey ? null : " Unavailable: add STRIPE_TEST_SECRET_KEY (sk_test_…) to enable."}
+            </p>
+            <form action={createTestSubscriptionAction} className="mt-3 grid gap-3">
+              {stripeMode === "live" ? (
+                <TextField
+                  label={`This environment is on a LIVE Stripe key — type CREATE TEST to confirm`}
+                  name="confirm_text"
+                  placeholder="CREATE TEST"
+                  required
+                />
+              ) : null}
+              <SubmitButton pendingText="Creating..." disabled={!hasTestKey}>Create Test Subscription</SubmitButton>
+            </form>
+          </div>
+          <div className="deck-inset p-4">
+            <p className="text-sm font-semibold">Clean up test subscriptions</p>
+            <p className="mt-1 text-xs leading-5 text-[var(--deck-text-3)]">
+              Cancels every test subscription in Stripe test mode (best effort) and deletes the {testCount} flagged test row{testCount === 1 ? "" : "s"} plus their usage, credits, and invoice mirrors.
+            </p>
+            <form action={cleanupTestSubscriptionsAction} className="mt-3">
+              <SubmitButton
+                variant="outline"
+                pendingText="Cleaning..."
+                disabled={testCount === 0}
+                confirm={`Delete ${testCount} test subscription(s) and their Stripe test-mode counterparts?`}
+              >
+                Delete All Test Subscriptions
+              </SubmitButton>
+            </form>
+          </div>
+        </div>
       </SectionCard>
 
       <SectionCard title="Stripe Event History" icon="history">
