@@ -56,7 +56,7 @@ function labelize(value: string | null | undefined) {
 function metricToneClasses(metric: FinancialMetric) {
   if (metric.tone === "positive") return "border-[rgba(70,160,120,0.45)] bg-[#0D2A1E] text-[#D9F2E5]";
   if (metric.tone === "danger") return "border-[rgba(214,106,106,0.5)] bg-[#2E1212] text-[#F6DBDB]";
-  if (metric.tone === "warning") return "border-[#E2CD9B]/45 bg-amber-950 text-amber-50";
+  if (metric.tone === "warning") return "border-[rgba(91,157,255,0.4)]/45 bg-amber-950 text-amber-50";
   return "border-[rgba(201,214,232,0.2)] bg-[var(--deck-ink)] text-[#E7ECF4]";
 }
 
@@ -231,7 +231,7 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
               Stripe {labelize(data.stripeHealth.mode)}
             </span>
             <span className="text-white/62">Last refreshed {formatDateTime(data.reportedAt)}</span>
-            <span className={cn("inline-flex min-h-8 items-center rounded-full px-3 font-semibold", autoRefresh ? "bg-[rgba(176,141,87,0.16)] text-[#E9D9BC]" : "bg-white/10 text-white/70")}>
+            <span className={cn("inline-flex min-h-8 items-center rounded-full px-3 font-semibold", autoRefresh ? "bg-[rgba(11,94,212,0.24)] text-[#BFD9FF]" : "bg-white/10 text-white/70")}>
               Auto-refresh {autoRefresh ? "on" : "off"}
             </span>
           </div>
@@ -241,14 +241,14 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
               id="analytics-range"
               value={range}
               onChange={(event) => setRange(event.target.value as AnalyticsRangeKey)}
-              className="min-h-10 rounded-md border border-white/15 bg-white/10 px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]"
+              className="min-h-10 rounded-md border border-white/15 bg-white/10 px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
             >
               {RANGE_OPTIONS.map((option) => <option key={option.value} value={option.value} className="text-[var(--deck-text)]">{option.label}</option>)}
             </select>
             {range === "custom" ? (
               <>
-                <input aria-label="Custom start date" type="date" value={from} onChange={(event) => setFrom(event.target.value)} className="min-h-10 rounded-md border border-white/15 bg-white/10 px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]" />
-                <input aria-label="Custom end date" type="date" value={to} onChange={(event) => setTo(event.target.value)} className="min-h-10 rounded-md border border-white/15 bg-white/10 px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]" />
+                <input aria-label="Custom start date" type="date" value={from} onChange={(event) => setFrom(event.target.value)} className="min-h-10 rounded-md border border-white/15 bg-white/10 px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]" />
+                <input aria-label="Custom end date" type="date" value={to} onChange={(event) => setTo(event.target.value)} className="min-h-10 rounded-md border border-white/15 bg-white/10 px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]" />
               </>
             ) : null}
             <button type="button" onClick={refresh} disabled={isPending} className="inline-flex min-h-10 items-center gap-2 rounded-md border border-white/15 bg-[var(--deck-panel)] px-3 text-sm font-semibold text-[var(--deck-text)] transition-colors hover:bg-[var(--deck-success-tint)] disabled:opacity-60">
@@ -273,7 +273,7 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
             type="button"
             onClick={() => setActiveTab(tab)}
             className={cn(
-              "min-h-10 shrink-0 rounded-md px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]",
+              "min-h-10 shrink-0 rounded-md px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]",
               activeTab === tab ? "bg-[var(--deck-navy)] text-white" : "text-[var(--deck-text-2)] hover:bg-[var(--deck-panel-2)] hover:text-[var(--deck-text)]",
             )}
           >
@@ -492,7 +492,7 @@ function ReportsTab({ data, exportActive, exportJson }: { data: FinancialAnalyti
       <SectionCard title="Available Reports" icon="fileText" description="Downloads are generated in-browser from the current real analytics payload.">
         <div className="grid gap-3 sm:grid-cols-2">
           {["Revenue ledger", "Invoice aging", "Subscription report", "Expense report", "Client summary", "Stripe health"].map((label) => (
-            <button key={label} type="button" onClick={exportActive} className="min-h-16 rounded-lg border border-border bg-[var(--deck-panel)] px-4 text-left text-sm font-semibold text-[var(--deck-text)] transition-colors hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]">
+            <button key={label} type="button" onClick={exportActive} className="min-h-16 rounded-lg border border-border bg-[var(--deck-panel)] px-4 text-left text-sm font-semibold text-[var(--deck-text)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]">
               {label}
               <span className="mt-1 block text-xs font-normal text-muted-foreground">Exports the active tab as CSV.</span>
             </button>

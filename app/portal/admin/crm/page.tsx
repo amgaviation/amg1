@@ -109,7 +109,7 @@ export default async function CrmPipelinePage({
         </div>
         <SubmitButton variant="outline" pendingText="Searching…">Search</SubmitButton>
         {params.q ? (
-          <Link href="/portal/admin/crm" className="pb-2 text-xs font-semibold text-[var(--deck-gold-deep)] hover:underline">
+          <Link href="/portal/admin/crm" className="pb-2 text-xs font-semibold text-[var(--deck-accent-ink)] hover:underline">
             Clear
           </Link>
         ) : null}
@@ -127,7 +127,7 @@ export default async function CrmPipelinePage({
               className="min-h-56"
               description={stageValue > 0 ? formatMoney(stageValue) : undefined}
               actions={
-                <span className="deck-num flex h-7 w-7 items-center justify-center rounded-full bg-[var(--deck-gold-tint)] text-xs font-bold text-[var(--deck-gold-deep)]">
+                <span className="deck-num flex h-7 w-7 items-center justify-center rounded-full bg-[var(--deck-accent-tint)] text-xs font-bold text-[var(--deck-accent-ink)]">
                   {rows.length}
                 </span>
               }
@@ -146,7 +146,7 @@ export default async function CrmPipelinePage({
                         </p>
                         <div className="mt-2 flex flex-wrap items-center gap-2">
                           {lead.estimated_value ? (
-                            <span className="deck-num text-xs font-bold text-[var(--deck-gold-deep)]">
+                            <span className="deck-num text-xs font-bold text-[var(--deck-accent-ink)]">
                               {formatMoney(lead.estimated_value)}
                             </span>
                           ) : null}

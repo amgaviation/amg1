@@ -35,7 +35,7 @@ export default async function AdminMissionControlPage({
               icon="radar"
               className="min-h-64"
               actions={
-                <span className="deck-num flex h-7 w-7 items-center justify-center rounded-full bg-[var(--deck-gold-tint)] text-xs font-bold text-[var(--deck-gold-deep)]">
+                <span className="deck-num flex h-7 w-7 items-center justify-center rounded-full bg-[var(--deck-accent-tint)] text-xs font-bold text-[var(--deck-accent-ink)]">
                   {rows.length}
                 </span>
               }
@@ -46,7 +46,7 @@ export default async function AdminMissionControlPage({
                 <div className="space-y-3">
                   {rows.map((mission) => (
                     <div key={mission.id} className="deck-inset p-4">
-                      <Link href={`/portal/admin/trips/${mission.id}`} className="deck-mono text-[var(--deck-gold-deep)] hover:underline">{mission.ref}</Link>
+                      <Link href={`/portal/admin/trips/${mission.id}`} className="deck-mono text-[var(--deck-accent-ink)] hover:underline">{mission.ref}</Link>
                       <p className="mt-1 text-sm font-semibold">{formatRoute(mission.departure_airport, mission.arrival_airport)}</p>
                       <p className="mt-1 text-xs text-muted-foreground">{formatDateTime(mission.requested_departure)}</p>
                       <form action={updateMissionStatus} className="mt-3 grid gap-2">

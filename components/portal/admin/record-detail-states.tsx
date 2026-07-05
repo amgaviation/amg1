@@ -47,7 +47,7 @@ export function RecordDetailLoading({ label }: { label: string }) {
         </div>
 
         <div className="inline-flex items-center gap-2 text-sm text-[var(--amg-text-muted)]">
-          <Loader2 className="h-4 w-4 animate-spin text-[var(--deck-gold-deep)]" />
+          <Loader2 className="h-4 w-4 animate-spin text-[var(--deck-accent-ink)]" />
           Loading {label.toLowerCase()}...
         </div>
       </div>

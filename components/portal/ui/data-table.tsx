@@ -82,7 +82,7 @@ export function DataTable<T>({
             <Link
               key={getKey(row)}
               href={href}
-              className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]"
+              className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
             >
               {card}
             </Link>
@@ -136,7 +136,7 @@ export function DataTable<T>({
                       {href ? (
                         <Link
                           href={href}
-                          className="block min-h-8 py-1 text-inherit focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]"
+                          className="block min-h-8 py-1 text-inherit focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
                         >
                           {c.cell(row)}
                         </Link>

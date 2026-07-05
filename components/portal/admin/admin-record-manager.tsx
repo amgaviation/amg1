@@ -333,7 +333,7 @@ export function AdminRecordManager({
                   key={key}
                   type="button"
                   onClick={() => updateFilter(key, "")}
-                  className="inline-flex items-center gap-2 rounded-full border border-[var(--deck-gold-line)] bg-[var(--deck-gold-tint)] px-3 py-1 text-xs font-semibold text-[var(--deck-gold-deep)] transition-colors hover:border-[var(--deck-gold)]"
+                  className="inline-flex items-center gap-2 rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-3 py-1 text-xs font-semibold text-[var(--deck-accent-ink)] transition-colors hover:border-[var(--deck-accent)]"
                 >
                   {filter?.label ?? key}: {filter?.options ? labelFor(filter.options, value) : value}
                   <X className="h-3 w-3" />
@@ -365,7 +365,7 @@ export function AdminRecordManager({
                     {columns.map((column) => (
                       <th key={column.key} className={cn("whitespace-nowrap bg-[var(--deck-panel-2)] px-4 py-3 text-left text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]", column.className)}>
                         {column.sortable ? (
-                          <button type="button" className="inline-flex items-center gap-1 rounded-sm outline-none transition-colors hover:text-[var(--deck-text)] focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]" onClick={() => toggleSort(column.key)}>
+                          <button type="button" className="inline-flex items-center gap-1 rounded-sm outline-none transition-colors hover:text-[var(--deck-text)] focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]" onClick={() => toggleSort(column.key)}>
                             {column.label}
                             {sort.key === column.key ? (
                               sort.direction === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
@@ -387,8 +387,8 @@ export function AdminRecordManager({
                       tabIndex={0}
                       aria-label={`${detailHrefBase ? "Open" : "View"} ${row.title}`}
                       className={cn(
-                        "cursor-pointer border-b border-[var(--deck-line)] bg-[var(--deck-panel)] outline-none transition-colors hover:bg-[var(--deck-row-hover)] focus-visible:bg-[var(--deck-gold-tint)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--deck-gold)]",
-                        selected?.id === row.id && "bg-[var(--deck-gold-tint)]"
+                        "cursor-pointer border-b border-[var(--deck-line)] bg-[var(--deck-panel)] outline-none transition-colors hover:bg-[var(--deck-row-hover)] focus-visible:bg-[var(--deck-accent-tint)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--deck-accent)]",
+                        selected?.id === row.id && "bg-[var(--deck-accent-tint)]"
                       )}
                       onClick={() => openRecord(row)}
                       onKeyDown={(event) => {
@@ -480,7 +480,7 @@ export function AdminRecordManager({
                   key={row.id}
                   type="button"
                   onClick={() => openRecord(row)}
-                  className="rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4 text-left shadow-sm outline-none transition-colors hover:border-[var(--deck-gold-line)] focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]"
+                  className="rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4 text-left shadow-sm outline-none transition-colors hover:border-[var(--deck-accent-line)] focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -552,7 +552,7 @@ export function AdminRecordManager({
             <header className="sticky top-0 z-10 border-b border-[var(--deck-line)] bg-[var(--deck-panel)]/95 px-5 py-4 backdrop-blur">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="text-[0.62rem] font-bold uppercase [letter-spacing:0.18em] text-[var(--deck-gold-deep)]">{detailEyebrow}</p>
+                  <p className="text-[0.62rem] font-bold uppercase [letter-spacing:0.18em] text-[var(--deck-accent-ink)]">{detailEyebrow}</p>
                   <h3 className="mt-2 truncate text-2xl font-bold text-[var(--deck-text)]">{selected.title}</h3>
                   {selected.subtitle ? <p className="mt-1 truncate text-sm text-[var(--deck-text-3)]">{selected.subtitle}</p> : null}
                 </div>
@@ -636,7 +636,7 @@ export function AdminRecordManager({
           <div className="max-h-[92vh] w-full max-w-4xl overflow-hidden rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] text-[var(--deck-text)] shadow-2xl">
             <header className="flex items-start justify-between gap-4 border-b border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-5 py-4">
               <div>
-                <p className="text-[0.62rem] font-bold uppercase [letter-spacing:0.18em] text-[var(--deck-gold-deep)]">
+                <p className="text-[0.62rem] font-bold uppercase [letter-spacing:0.18em] text-[var(--deck-accent-ink)]">
                   {editor.mode === "create" ? "Create Record" : "Edit Record"}
                 </p>
                 <h3 className="mt-1 text-xl font-bold text-[var(--deck-text)]">
@@ -659,7 +659,7 @@ export function AdminRecordManager({
                   <div key={field.name} className={cn("grid gap-2", field.fullWidth && "md:col-span-2", field.className)}>
                     <label htmlFor={field.name} className="text-[0.64rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]">
                       {field.label}
-                      {field.required ? <span className="ml-1 text-[var(--deck-gold-deep)]">*</span> : null}
+                      {field.required ? <span className="ml-1 text-[var(--deck-accent-ink)]">*</span> : null}
                     </label>
                     {fieldInput(field, editorValues)}
                   </div>

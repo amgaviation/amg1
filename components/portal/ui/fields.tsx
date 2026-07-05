@@ -22,7 +22,7 @@ export function Field({
     <label className={cn("grid gap-1.5", className)}>
       <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">
         {label}
-        {required ? <span className="ml-1 text-[var(--deck-gold-deep)]">*</span> : null}
+        {required ? <span className="ml-1 text-[var(--deck-accent-ink)]">*</span> : null}
       </span>
       {children}
       {hint ? (
@@ -122,13 +122,13 @@ export function CheckboxField({
   defaultChecked?: boolean;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2.5 text-sm transition-colors hover:border-[var(--deck-gold-line)]">
+    <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2.5 text-sm transition-colors hover:border-[var(--deck-accent-line)]">
       <input
         type="checkbox"
         name={name}
         defaultChecked={defaultChecked}
         value="true"
-        className="h-4 w-4 accent-[var(--deck-gold)]"
+        className="h-4 w-4 accent-[var(--deck-accent)]"
       />
       <span className="text-[var(--deck-text)]">{label}</span>
     </label>
@@ -152,7 +152,7 @@ export function FileField({
   return (
     <Field label={label} hint={hint} required={required}>
       <div className="flex items-center gap-3">
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2 text-sm font-medium text-[var(--deck-text)] transition-colors hover:border-[var(--deck-gold)]">
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2 text-sm font-medium text-[var(--deck-text)] transition-colors hover:border-[var(--deck-accent)]">
           Choose file
           <input
             type="file"

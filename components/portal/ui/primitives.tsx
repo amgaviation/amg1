@@ -64,7 +64,7 @@ export function SectionCard({
         <header className="deck-card-header">
           <div className="flex min-w-0 items-center gap-3">
             {icon ? (
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--deck-gold-line)] bg-[var(--deck-gold-tint)] text-[var(--deck-gold-deep)]">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]">
                 <PortalIcon name={icon} className="h-4 w-4" />
               </span>
             ) : null}
@@ -140,7 +140,7 @@ export function StatCard({
     </div>
   );
   return href ? (
-    <Link href={href} className="block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]">
+    <Link href={href} className="block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]">
       {inner}
     </Link>
   ) : (
@@ -162,8 +162,8 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] px-6 py-12 text-center">
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[var(--deck-gold-line)] bg-[var(--deck-gold-tint)]">
-        <PortalIcon name={icon} className="h-5 w-5 text-[var(--deck-gold-deep)]" />
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)]">
+        <PortalIcon name={icon} className="h-5 w-5 text-[var(--deck-accent-ink)]" />
       </div>
       <h3 className="text-sm font-semibold text-[var(--deck-text)]">{title}</h3>
       {description ? (
@@ -287,7 +287,7 @@ export function RecordRow({
     >
       <div className="min-w-0">
         {refLabel ? (
-          <p className="deck-mono text-[var(--deck-gold-deep)]">{refLabel}</p>
+          <p className="deck-mono text-[var(--deck-accent-ink)]">{refLabel}</p>
         ) : null}
         <div className={cn("text-sm font-semibold text-[var(--deck-text)]", refLabel && "mt-1")}>
           {title}
@@ -304,7 +304,7 @@ export function RecordRow({
   return href ? (
     <Link
       href={href}
-      className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]"
+      className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
     >
       {inner}
     </Link>
@@ -328,7 +328,7 @@ export function QuickLink({
   return (
     <Link
       href={href}
-      className="deck-inset deck-card-hover group flex items-center gap-3 p-3.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]"
+      className="deck-inset deck-card-hover group flex items-center gap-3 p-3.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
     >
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--deck-accent-line)] bg-[var(--deck-panel)] text-[var(--deck-accent-ink)]">
         <PortalIcon name={icon} className="h-4 w-4" />
@@ -345,7 +345,7 @@ export function QuickLink({
       </span>
       <PortalIcon
         name="arrowUpRight"
-        className="h-3.5 w-3.5 shrink-0 text-[var(--deck-text-3)] transition-colors group-hover:text-[var(--deck-gold-deep)]"
+        className="h-3.5 w-3.5 shrink-0 text-[var(--deck-text-3)] transition-colors group-hover:text-[var(--deck-accent-ink)]"
       />
     </Link>
   );
@@ -382,7 +382,7 @@ export function FilterTabs({
             className={cn(
               "rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors",
               active
-                ? "border-[var(--deck-gold)] bg-[var(--deck-gold-tint)] font-semibold text-[var(--deck-gold-deep)]"
+                ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] font-semibold text-[var(--deck-accent-ink)]"
                 : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"
             )}
           >

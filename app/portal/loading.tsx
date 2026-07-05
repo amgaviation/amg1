@@ -6,10 +6,10 @@ export default function PortalLoading() {
       <div className="mx-auto flex min-h-[70vh] w-full max-w-6xl items-center justify-center">
         <div className="deck-card w-full max-w-xl p-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--deck-gold-line)] bg-[var(--deck-gold-tint)]">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)]">
               <PortalIcon
                 name="radar"
-                className="h-5 w-5 animate-pulse text-[var(--deck-gold-deep)]"
+                className="h-5 w-5 animate-pulse text-[var(--deck-accent-ink)]"
               />
             </div>
             <div>

@@ -120,7 +120,7 @@ export function CommandPalette() {
           >
             <div className="flex items-center gap-3 border-b border-[var(--deck-line)] px-4 py-3">
               {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin text-[var(--deck-gold-deep)]" />
+                <Loader2 className="h-4 w-4 animate-spin text-[var(--deck-accent-ink)]" />
               ) : (
                 <Search className="h-4 w-4 text-[var(--deck-text-3)]" />
               )}
@@ -174,7 +174,7 @@ export function CommandPalette() {
                           }}
                           onMouseEnter={() => setActiveIndex(flatIndex)}
                           className={`flex w-full items-baseline justify-between gap-3 rounded-lg px-3 py-2 text-left transition-colors ${
-                            isActive ? "bg-[var(--deck-gold-tint)]" : "hover:bg-[var(--deck-gold-tint)]"
+                            isActive ? "bg-[var(--deck-accent-tint)]" : "hover:bg-[var(--deck-accent-tint)]"
                           }`}
                         >
                           <span className="min-w-0 truncate text-sm font-medium text-[var(--deck-text)]">

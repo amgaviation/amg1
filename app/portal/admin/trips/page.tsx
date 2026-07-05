@@ -198,7 +198,7 @@ export default async function AdminTripsPage({
             {hasFilters ? (
               <Link
                 href="/portal/admin/trips"
-                className="rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]"
+                className="rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
               >
                 Clear filters
               </Link>
@@ -229,7 +229,7 @@ export default async function AdminTripsPage({
                 header: "Ref",
                 priority: "primary",
                 cell: (row) => (
-                  <span className="deck-mono text-[var(--deck-gold-deep)]">{row.ref}</span>
+                  <span className="deck-mono text-[var(--deck-accent-ink)]">{row.ref}</span>
                 ),
               },
               {

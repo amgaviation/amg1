@@ -455,7 +455,7 @@ export default async function AdminCrewDetailPage({
       </Tabs>
 
       <div className="flex justify-start">
-        <Link href="/portal/admin/crew" className="text-sm text-[var(--amg-text-muted)] hover:text-[var(--deck-gold-deep)]">
+        <Link href="/portal/admin/crew" className="text-sm text-[var(--amg-text-muted)] hover:text-[var(--deck-accent-ink)]">
           Back to crew roster
         </Link>
       </div>

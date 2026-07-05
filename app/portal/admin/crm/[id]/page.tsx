@@ -203,7 +203,7 @@ export default async function LeadDetailPage({
                 Linked to{" "}
                 <Link
                   href={`/portal/admin/clients/${lead.converted_profile.id}`}
-                  className="font-semibold text-[var(--deck-gold-deep)] hover:underline"
+                  className="font-semibold text-[var(--deck-accent-ink)] hover:underline"
                 >
                   {lead.converted_profile.full_name ?? lead.converted_profile.email}
                 </Link>
@@ -223,7 +223,7 @@ export default async function LeadDetailPage({
                 <DetailRow label="Origin">
                   <Link
                     href="/portal/admin/form-submissions"
-                    className="font-semibold text-[var(--deck-gold-deep)] hover:underline"
+                    className="font-semibold text-[var(--deck-accent-ink)] hover:underline"
                   >
                     Website submission
                   </Link>

@@ -24,7 +24,7 @@ export default function PortalNotFound() {
           <div className="mt-6">
             <Link
               href="/portal"
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-5 text-sm font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-5 text-sm font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
             >
               <ArrowLeft className="h-4 w-4" />
               Return to portal

@@ -228,7 +228,7 @@ export default async function AdminEmailsPage({
             <SubmitButton variant="outline" className="rounded-full" pendingText="Filtering...">
               Filter Log
             </SubmitButton>
-            <Link href="/portal/admin/communications/emails" className="inline-flex min-h-10 items-center rounded-full border border-[var(--deck-line)] px-4 text-sm font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)] hover:text-[var(--deck-gold-deep)]">
+            <Link href="/portal/admin/communications/emails" className="inline-flex min-h-10 items-center rounded-full border border-[var(--deck-line)] px-4 text-sm font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-accent-ink)]">
               Clear
             </Link>
           </div>

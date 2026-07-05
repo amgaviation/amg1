@@ -53,7 +53,7 @@ export default async function ReceivablesPage({
         actions={
           <Link
             href="/portal/admin/invoices"
-            className="rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]"
+            className="rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
           >
             All invoices
           </Link>
@@ -110,7 +110,7 @@ export default async function ReceivablesPage({
                 cell: (row) => (
                   <Link
                     href={`/portal/admin/invoices/${row.id}`}
-                    className="deck-mono font-semibold text-[var(--deck-gold-deep)] hover:underline"
+                    className="deck-mono font-semibold text-[var(--deck-accent-ink)] hover:underline"
                   >
                     {row.invoice_number}
                   </Link>

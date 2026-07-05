@@ -79,7 +79,7 @@ export default async function CrewDashboardPage() {
       {nextAssignment ? (
         <Link
           href={`/portal/crew/missions/${nextAssignment.id}`}
-          className="deck-card deck-card-hover deck-chrome-surface block overflow-hidden p-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]"
+          className="deck-card deck-card-hover deck-chrome-surface block overflow-hidden p-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
         >
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -94,7 +94,7 @@ export default async function CrewDashboardPage() {
               </p>
             </div>
             <div className="text-right">
-              <p className="deck-num text-5xl font-bold text-[#D9BE8C]">{daysToReport}</p>
+              <p className="deck-num text-5xl font-bold text-[#9FC5FF]">{daysToReport}</p>
               <p className="deck-eyebrow-chrome mt-1">day{daysToReport === 1 ? "" : "s"} to departure</p>
             </div>
           </div>
@@ -171,7 +171,7 @@ export default async function CrewDashboardPage() {
                 trailing={
                   <>
                     <StatusBadge label="Offered" tone="warn" />
-                    <span className="text-xs font-semibold text-[var(--deck-gold-deep)]">
+                    <span className="text-xs font-semibold text-[var(--deck-accent-ink)]">
                       Review →
                     </span>
                   </>

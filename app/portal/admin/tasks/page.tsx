@@ -176,7 +176,7 @@ export default async function OpsTasksPage({
       <p className="text-xs text-[var(--deck-text-3)]">
         Tip: tasks assigned to another admin notify them in-portal and by their configured delivery
         channel. Link tasks to records from{" "}
-        <Link href="/portal/admin/crm" className="font-semibold text-[var(--deck-gold-deep)] hover:underline">
+        <Link href="/portal/admin/crm" className="font-semibold text-[var(--deck-accent-ink)] hover:underline">
           the pipeline
         </Link>{" "}
         or mission pages as workflows grow.

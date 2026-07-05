@@ -54,19 +54,19 @@ export default async function ClientDocumentsPage({
           <div className="mt-4">
             <label className="grid gap-2">
               <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">
-                File <span className="text-[var(--deck-gold-deep)]">*</span>
+                File <span className="text-[var(--deck-accent-ink)]">*</span>
               </span>
               <input
                 type="file"
                 name="file"
                 required
                 accept=".pdf,.jpg,.jpeg,.png"
-                className="text-sm text-[var(--deck-text-3)] file:mr-3 file:rounded-lg file:border file:border-[var(--deck-line-strong)] file:bg-[var(--deck-panel)] file:px-3 file:py-2 file:text-sm file:font-medium file:text-[var(--deck-text)] hover:file:border-[var(--deck-gold)]"
+                className="text-sm text-[var(--deck-text-3)] file:mr-3 file:rounded-lg file:border file:border-[var(--deck-line-strong)] file:bg-[var(--deck-panel)] file:px-3 file:py-2 file:text-sm file:font-medium file:text-[var(--deck-text)] hover:file:border-[var(--deck-accent)]"
               />
             </label>
           </div>
           <label className="mt-4 flex items-start gap-3 rounded-lg border border-border bg-background/60 p-3 text-sm text-muted-foreground">
-            <input name="document_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-gold)]" />
+            <input name="document_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-accent)]" />
             <span>Upload only documents you are authorized to provide and do not include full card numbers, CVV codes, bank account numbers, routing numbers, or unrelated personal information.</span>
           </label>
           <div className="mt-4">
@@ -100,7 +100,7 @@ export default async function ClientDocumentsPage({
                       label={DOCUMENT_STATUS_LABEL[doc.status] ?? doc.status}
                       tone={toneFor(DOCUMENT_STATUS_TONE, doc.status)}
                     />
-                    <span className="text-xs font-semibold text-[var(--deck-gold-deep)]">View →</span>
+                    <span className="text-xs font-semibold text-[var(--deck-accent-ink)]">View →</span>
                   </>
                 }
               />

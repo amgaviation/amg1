@@ -96,7 +96,7 @@ export default async function PartnerDashboardPage() {
                 trailing={
                   <>
                     <StatusBadge label="Assigned" tone="warn" />
-                    <span className="text-xs font-semibold text-[var(--deck-gold-deep)]">
+                    <span className="text-xs font-semibold text-[var(--deck-accent-ink)]">
                       Respond →
                     </span>
                   </>

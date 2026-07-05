@@ -39,7 +39,7 @@ export default function PortalError({
             </button>
             <Link
               href="/portal"
-              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-5 text-sm font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-5 text-sm font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
             >
               Return to portal
             </Link>

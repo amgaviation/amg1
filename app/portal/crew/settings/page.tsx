@@ -89,7 +89,7 @@ export default async function CrewSettingsPage({
                 const selected = Array.isArray(weeklyAvailability[day]) ? weeklyAvailability[day] : [];
                 return (
                   <div key={day} className="rounded-lg border border-border bg-[var(--deck-panel)] p-3">
-                    <p className="text-xs font-bold uppercase tracking-wider text-[var(--deck-gold-deep)]">{day}</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-[var(--deck-accent-ink)]">{day}</p>
                     <div className="mt-3 grid gap-2">
                       {["available", "morning", "afternoon", "evening", "overnight"].map((slot) => (
                         <label key={slot} className="flex items-center gap-2 text-xs text-foreground">

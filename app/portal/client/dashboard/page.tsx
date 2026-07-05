@@ -137,14 +137,14 @@ export default async function ClientDashboardPage({
               <Link
                 key={step.href}
                 href={step.href}
-                className={`deck-inset deck-card-hover block p-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)] ${step.done ? "opacity-70" : ""}`}
+                className={`deck-inset deck-card-hover block p-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)] ${step.done ? "opacity-70" : ""}`}
               >
                 <div className="flex items-center gap-3">
                   <span
                     className={`deck-num flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
                       step.done
                         ? "bg-[var(--deck-success-tint)] text-[var(--deck-success)]"
-                        : "bg-[var(--deck-gold-tint)] text-[var(--deck-gold-deep)]"
+                        : "bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]"
                     }`}
                   >
                     {step.done ? "✓" : index + 1}
@@ -162,7 +162,7 @@ export default async function ClientDashboardPage({
       {nextDeparture ? (
         <Link
           href={`/portal/client/trips/${nextDeparture.id}`}
-          className="deck-card deck-card-hover deck-chrome-surface block overflow-hidden p-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-gold)]"
+          className="deck-card deck-card-hover deck-chrome-surface block overflow-hidden p-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
         >
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -177,7 +177,7 @@ export default async function ClientDashboardPage({
               </p>
             </div>
             <div className="text-right">
-              <p className="deck-num text-5xl font-bold text-[#D9BE8C]">{daysToDeparture}</p>
+              <p className="deck-num text-5xl font-bold text-[#9FC5FF]">{daysToDeparture}</p>
               <p className="deck-eyebrow-chrome mt-1">
                 day{daysToDeparture === 1 ? "" : "s"} out
               </p>
@@ -348,7 +348,7 @@ export default async function ClientDashboardPage({
                   </>
                 }
                 trailing={
-                  <span className="text-xs font-semibold text-[var(--deck-gold-deep)]">
+                  <span className="text-xs font-semibold text-[var(--deck-accent-ink)]">
                     Renews {subscription.renewal_date ?? "TBD"}
                   </span>
                 }
@@ -381,7 +381,7 @@ export default async function ClientDashboardPage({
                     <span className="deck-num text-sm font-bold text-[var(--deck-text)]">
                       {formatMoney(q.total)}
                     </span>
-                    <span className="text-xs font-semibold text-[var(--deck-gold-deep)]">
+                    <span className="text-xs font-semibold text-[var(--deck-accent-ink)]">
                       Review →
                     </span>
                   </>

@@ -109,7 +109,7 @@ export default async function AdminSecurityReviewPage({
               Apply Filters
             </button>
             {hasFilters ? (
-              <Link href="/portal/admin/security-review" className="rounded-full border border-border bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]">
+              <Link href="/portal/admin/security-review" className="rounded-full border border-border bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]">
                 Clear filters
               </Link>
             ) : null}
@@ -141,14 +141,14 @@ export default async function AdminSecurityReviewPage({
             <Link
               aria-disabled={safePage <= 1}
               href={safePage <= 1 ? "#" : hrefWith({ ...sharedParams, page: safePage - 1 })}
-              className={`rounded-full border border-border px-4 py-2 text-xs font-semibold ${safePage <= 1 ? "pointer-events-none opacity-50" : "text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]"}`}
+              className={`rounded-full border border-border px-4 py-2 text-xs font-semibold ${safePage <= 1 ? "pointer-events-none opacity-50" : "text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"}`}
             >
               Previous
             </Link>
             <Link
               aria-disabled={safePage >= pageCount}
               href={safePage >= pageCount ? "#" : hrefWith({ ...sharedParams, page: safePage + 1 })}
-              className={`rounded-full border border-border px-4 py-2 text-xs font-semibold ${safePage >= pageCount ? "pointer-events-none opacity-50" : "text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)] hover:bg-[var(--deck-gold-tint)]"}`}
+              className={`rounded-full border border-border px-4 py-2 text-xs font-semibold ${safePage >= pageCount ? "pointer-events-none opacity-50" : "text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"}`}
             >
               Next
             </Link>

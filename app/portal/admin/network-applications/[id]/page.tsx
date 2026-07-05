@@ -43,7 +43,7 @@ function FileList({
             <p className="truncate text-sm font-semibold">{file.original_filename}</p>
             <p className="text-xs text-muted-foreground">{file.content_type ?? "File"} · {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : "Size unavailable"}</p>
           </div>
-          <Link href={`/portal/admin/network-application-files/${file.id}/view`} className="rounded-full border border-border px-3 py-2 text-xs font-semibold text-foreground hover:border-[var(--deck-gold)]">
+          <Link href={`/portal/admin/network-application-files/${file.id}/view`} className="rounded-full border border-border px-3 py-2 text-xs font-semibold text-foreground hover:border-[var(--deck-accent)]">
             View
           </Link>
         </div>

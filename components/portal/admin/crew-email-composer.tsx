@@ -114,7 +114,7 @@ export function CrewEmailComposer({
                   type="checkbox"
                   checked={overrideRecipient}
                   onChange={(event) => setOverrideRecipient(event.target.checked)}
-                  className="h-4 w-4 accent-[var(--deck-gold)]"
+                  className="h-4 w-4 accent-[var(--deck-accent)]"
                 />
                 <span>Override recipient</span>
               </label>

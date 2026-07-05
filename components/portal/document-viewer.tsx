@@ -29,7 +29,7 @@ export function PortalDocumentViewer({
         description={description}
         actions={
           <>
-            <Link href={backHref} className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-xs font-semibold text-foreground hover:border-[var(--deck-gold)]">
+            <Link href={backHref} className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-xs font-semibold text-foreground hover:border-[var(--deck-accent)]">
               <ArrowLeft className="h-3.5 w-3.5" />
               Back
             </Link>
@@ -58,8 +58,8 @@ export function PortalDocumentViewer({
           )
         ) : (
           <div className="flex min-h-[64vh] flex-col items-center justify-center gap-4 bg-[var(--deck-panel-2)] p-8 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[var(--deck-gold-line)] bg-[var(--deck-gold-tint)]">
-              <FileText className="h-6 w-6 text-[var(--deck-gold-deep)]" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)]">
+              <FileText className="h-6 w-6 text-[var(--deck-accent-ink)]" />
             </div>
             <div>
               <h2 className="deck-title text-xl">Preview unavailable</h2>

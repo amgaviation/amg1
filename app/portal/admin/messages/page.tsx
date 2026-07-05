@@ -116,8 +116,8 @@ function ThreadRow({ thread, selectedId, query }: { thread: ThreadSummary; selec
   return (
     <Link
       href={`/portal/admin/messages?${next.toString()}`}
-      className={`block border-b border-[var(--deck-line)] px-4 py-3 transition-colors hover:bg-[var(--deck-gold-tint)] ${
-        selectedId === thread.id ? "bg-[var(--deck-gold-tint)]" : "bg-[var(--deck-panel)]"
+      className={`block border-b border-[var(--deck-line)] px-4 py-3 transition-colors hover:bg-[var(--deck-accent-tint)] ${
+        selectedId === thread.id ? "bg-[var(--deck-accent-tint)]" : "bg-[var(--deck-panel)]"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -135,7 +135,7 @@ function ThreadRow({ thread, selectedId, query }: { thread: ThreadSummary; selec
           {thread.related_label}
         </span>
         {thread.unread_count > 0 ? (
-          <span className="rounded-full border border-[var(--deck-gold-line)] bg-[var(--deck-gold-tint)] px-2.5 py-0.5 text-xs font-semibold text-[var(--deck-gold-deep)]">
+          <span className="rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-2.5 py-0.5 text-xs font-semibold text-[var(--deck-accent-ink)]">
             {thread.unread_count} unread
           </span>
         ) : null}
@@ -308,7 +308,7 @@ function MessageBubble({ message }: { message: CommunicationMessage }) {
   const isNote = message.message_type === "internal_note";
   const isInbound = message.direction === "inbound";
   return (
-    <article className={`rounded-lg border p-4 ${isNote ? "border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)]" : isInbound ? "border-[var(--deck-line)] bg-[var(--deck-panel)]" : "border-[var(--deck-gold-line)] bg-[var(--deck-gold-tint)]"}`}>
+    <article className={`rounded-lg border p-4 ${isNote ? "border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)]" : isInbound ? "border-[var(--deck-line)] bg-[var(--deck-panel)]" : "border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)]"}`}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="text-sm font-semibold text-[var(--deck-text)]">
@@ -359,7 +359,7 @@ function ThreadDetail({
     <div className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="deck-mono text-[var(--deck-gold-deep)]">{detail.thread.public_id}</p>
+          <p className="deck-mono text-[var(--deck-accent-ink)]">{detail.thread.public_id}</p>
           <h2 className="mt-1 text-xl font-bold text-[var(--deck-text)]">{detail.thread.subject ?? "AMG Operations"}</h2>
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -384,7 +384,7 @@ function ThreadDetail({
               <Link
                 key={attachment.id}
                 href={`/portal/admin/communications/attachments/${attachment.id}/view`}
-                className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 py-2 text-sm font-semibold text-[var(--deck-gold-deep)] hover:border-[var(--deck-gold-line)]"
+                className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 py-2 text-sm font-semibold text-[var(--deck-accent-ink)] hover:border-[var(--deck-accent-line)]"
               >
                 {attachment.file_name}
               </Link>
@@ -479,7 +479,7 @@ export default async function AdminMessagesPage({
               <option value="">All priorities</option>
               {PRIORITY_OPTIONS.map((priority) => <option key={priority} value={priority}>{label(priority)}</option>)}
             </select>
-            <button className="rounded-full border border-[var(--deck-line)] bg-[var(--deck-panel)] px-4 py-2 text-sm font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)]">
+            <button className="rounded-full border border-[var(--deck-line)] bg-[var(--deck-panel)] px-4 py-2 text-sm font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)]">
               Apply Filters
             </button>
           </form>
@@ -495,7 +495,7 @@ export default async function AdminMessagesPage({
                   <Link
                     key={view.value || "attention"}
                     href={`/portal/admin/messages?${next.toString()}`}
-                    className={`shrink-0 rounded-full border px-3 py-2 text-sm ${activeView === view.value ? "border-[var(--deck-gold)] bg-[var(--deck-gold-tint)] font-semibold text-[var(--deck-gold-deep)]" : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-gold-line)]"}`}
+                    className={`shrink-0 rounded-full border px-3 py-2 text-sm ${activeView === view.value ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] font-semibold text-[var(--deck-accent-ink)]" : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)]"}`}
                   >
                     {view.label}
                   </Link>
@@ -539,7 +539,7 @@ export default async function AdminMessagesPage({
                 title="No thread selected"
                 description="Select a conversation from the inbox to review the message history, update status, or link operational records."
                 action={
-                  <Link href={hrefWith(query, { compose: "1", thread: null })} className="inline-flex rounded-full border border-[var(--deck-gold-line)] bg-[var(--deck-gold-tint)] px-4 py-2 text-sm font-semibold text-[var(--deck-gold-deep)]">
+                  <Link href={hrefWith(query, { compose: "1", thread: null })} className="inline-flex rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-4 py-2 text-sm font-semibold text-[var(--deck-accent-ink)]">
                     Compose email
                   </Link>
                 }

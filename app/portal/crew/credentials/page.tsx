@@ -109,7 +109,7 @@ export default async function CrewCredentialsPage({
             <FileField label="Credential File" name="file" accept=".pdf,.jpg,.jpeg,.png" />
           </div>
           <label className="lg:col-span-4 flex items-start gap-3 rounded-lg border border-border bg-background/60 p-3 text-sm text-muted-foreground">
-            <input name="document_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-gold)]" />
+            <input name="document_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-accent)]" />
             <span>I acknowledge the credential submission notice and document upload terms, and I will not submit full card numbers, CVV codes, bank account numbers, routing numbers, or unrelated sensitive information.</span>
           </label>
           <div className="flex items-end">

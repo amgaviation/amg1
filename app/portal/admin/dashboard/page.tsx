@@ -90,9 +90,9 @@ export default async function AdminDashboardPage() {
             <Link
               key={item.href}
               href={item.href}
-              className="deck-card deck-card-hover flex items-center gap-3 border-l-[3px] !border-l-[var(--deck-gold)] px-4 py-3"
+              className="deck-card deck-card-hover flex items-center gap-3 border-l-[3px] !border-l-[var(--deck-accent)] px-4 py-3"
             >
-              <span className="deck-num flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--deck-gold-tint)] text-sm font-bold text-[var(--deck-gold-deep)]">
+              <span className="deck-num flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--deck-accent-tint)] text-sm font-bold text-[var(--deck-accent-ink)]">
                 {item.count}
               </span>
               <span className="text-sm font-semibold text-[var(--deck-text)]">{item.label}</span>
