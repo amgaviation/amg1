@@ -3,17 +3,16 @@ import { requireRole } from "@/lib/portal/session";
 import { DataTable } from "@/components/portal/ui/data-table";
 import {
   EmptyState,
+  FilterTabs,
   PageHeader,
   Pagination,
-  SectionCard,
 } from "@/components/portal/ui/primitives";
-import { SelectField, TextField } from "@/components/portal/ui/fields";
+import { PageToolbar } from "@/components/portal/ui/page-toolbar";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { listAllMissions } from "@/lib/portal/queries";
 import {
   MISSION_TYPE,
-  MISSION_STATUS,
   MISSION_STATUS_LABEL,
   MISSION_STATUS_TONE,
   MISSION_TYPE_LABEL,
@@ -138,87 +137,86 @@ export default async function AdminTripsPage({
         }
       />
 
-      {/* Filters */}
-      <SectionCard title="Filters" icon="search">
-        <form className="grid gap-3 md:grid-cols-2 md:items-end xl:grid-cols-[1fr_1fr_1fr_2fr_1fr_1fr_auto]">
-          <SelectField
-            label="Status"
-            name="status"
-            defaultValue={params.status ?? ""}
+      <PageToolbar
+        filters={
+          <FilterTabs
+            basePath="/portal/admin/trips"
+            param="status"
+            current={params.status ?? ""}
+            preserve={{ type: params.type, urgency: params.urgency, q: params.q, sort: sortKey, dir: direction }}
             options={[
-              { value: "", label: "All Statuses" },
-              { value: "active", label: "Active Requests" },
-              ...MISSION_STATUS,
+              { value: "", label: "All" },
+              { value: "active", label: "Active" },
+              { value: "submitted", label: "New" },
+              { value: "under_review", label: "Under Review" },
+              { value: "quoted", label: "Quoted" },
+              { value: "approved", label: "Approved" },
+              { value: "scheduled", label: "Scheduled" },
+              { value: "in_progress", label: "In Progress" },
+              { value: "completed", label: "Completed" },
+              { value: "cancelled", label: "Cancelled" },
             ]}
           />
-          <SelectField
-            label="Type"
-            name="type"
-            defaultValue={params.type ?? ""}
-            options={[{ value: "", label: "All Types" }, ...MISSION_TYPE]}
-          />
-          <SelectField
-            label="Urgency"
-            name="urgency"
-            defaultValue={params.urgency ?? ""}
-            options={[{ value: "", label: "All Urgency" }, ...URGENCY]}
-          />
-          <TextField
-            label="Search"
-            name="q"
-            defaultValue={params.q ?? ""}
-            placeholder="Ref, route, tail number, client…"
-          />
-          <SelectField
-            label="Sort"
-            name="sort"
-            defaultValue={sortKey}
-            options={[
-              { value: "created", label: "Created" },
-              { value: "departure", label: "Requested Departure" },
-              { value: "ref", label: "Reference" },
-              { value: "route", label: "Route" },
-              { value: "client", label: "Owner / Operator" },
-              { value: "status", label: "Status" },
-            ]}
-          />
-          <SelectField
-            label="Direction"
-            name="dir"
-            defaultValue={direction}
-            options={[
-              { value: "desc", label: "Descending" },
-              { value: "asc", label: "Ascending" },
-            ]}
-          />
-          <Button type="submit" className="h-11">
-            Apply
-          </Button>
-          <div className="flex flex-wrap items-center gap-3 md:col-span-2 xl:col-span-7">
+        }
+        search={
+          <form className="flex flex-wrap items-center gap-2">
+            {params.status ? <input type="hidden" name="status" value={params.status} /> : null}
+            <input
+              name="q"
+              defaultValue={params.q ?? ""}
+              placeholder="Ref, route, tail number, client…"
+              aria-label="Search support requests"
+              className="deck-input min-w-[12rem] flex-1 sm:max-w-xs"
+            />
+            <select name="type" defaultValue={params.type ?? ""} aria-label="Type" className="deck-input w-auto">
+              <option value="">All Types</option>
+              {MISSION_TYPE.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+            <select name="urgency" defaultValue={params.urgency ?? ""} aria-label="Urgency" className="deck-input w-auto">
+              <option value="">All Urgency</option>
+              {URGENCY.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+            <select name="sort" defaultValue={sortKey} aria-label="Sort by" className="deck-input w-auto">
+              <option value="created">Created</option>
+              <option value="departure">Requested Departure</option>
+              <option value="ref">Reference</option>
+              <option value="route">Route</option>
+              <option value="client">Owner / Operator</option>
+              <option value="status">Status</option>
+            </select>
+            <select name="dir" defaultValue={direction} aria-label="Sort direction" className="deck-input w-auto">
+              <option value="desc">Descending</option>
+              <option value="asc">Ascending</option>
+            </select>
+            <Button type="submit" size="sm">
+              Apply
+            </Button>
             {hasFilters ? (
               <Link
                 href="/portal/admin/trips"
-                className="rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
+                className="rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3.5 py-1.5 text-xs font-medium text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
               >
-                Clear filters
+                Clear
               </Link>
             ) : null}
-            <p className="deck-num text-xs text-[var(--deck-text-3)]">
-              Showing {filtered.length} of {missions.length} support request
-              {missions.length === 1 ? "" : "s"}.
-            </p>
-          </div>
-        </form>
-      </SectionCard>
+            <span className="deck-micro ml-auto text-[var(--deck-text-3)]">
+              {filtered.length} / {missions.length} requests
+            </span>
+          </form>
+        }
+      />
 
-      <SectionCard title="Request Register" icon="plane">
-        {filtered.length === 0 ? (
-          <EmptyState
-            icon="plane"
-            title="No requests found"
-            description="No support requests match the current filters."
-          />
-        ) : (
+      {filtered.length === 0 ? (
+        <EmptyState
+          icon="plane"
+          title="No requests found"
+          description="No support requests match the current filters."
+        />
+      ) : (
           <DataTable
             rows={paged}
             getKey={(row) => row.id}
@@ -264,7 +262,6 @@ export default async function AdminTripsPage({
             ]}
           />
         )}
-      </SectionCard>
 
       <Pagination
         basePath="/portal/admin/trips"

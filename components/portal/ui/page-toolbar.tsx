@@ -24,9 +24,9 @@ export function PageToolbar({
         className
       )}
     >
-      <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center">
-        {search ? <div className="w-full max-w-md">{search}</div> : null}
+      <div className="flex min-w-0 flex-1 flex-col gap-3">
         {filters ? <div className="min-w-0">{filters}</div> : null}
+        {search ? <div className="min-w-0 flex-1">{search}</div> : null}
       </div>
       {actions ? (
         <div data-portal-action-bar className="flex flex-wrap items-center gap-2">

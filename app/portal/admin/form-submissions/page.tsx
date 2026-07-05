@@ -1,7 +1,9 @@
 import { createLeadFromSubmission } from "@/app/portal/actions/crm";
 import { updateFormSubmission } from "@/app/portal/actions/form-submissions";
 import { DetailRow, EmptyState, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
+import { PageToolbar } from "@/components/portal/ui/page-toolbar";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
+import { Button } from "@/components/ui/button";
 import { requireRole } from "@/lib/portal/session";
 import { formatDateTime } from "@/lib/portal/format";
 import { listFormSubmissions, type FormSubmission } from "@/lib/portal/form-submissions";
@@ -136,33 +138,32 @@ export default async function AdminFormSubmissionsPage({
         description="Review generic public website inquiries that do not require operational support tracking."
       />
 
-      <SectionCard title="Filters" icon="clipboard">
-        <form className="grid gap-3 md:grid-cols-[1fr_1fr_2fr_auto] md:items-end">
-          <label className="grid gap-2 text-sm font-semibold text-[var(--deck-text-2)]">
-            Source
-            <select name="source" defaultValue={params.source || "All"} className="h-11 rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 text-sm text-[var(--deck-text)] outline-none focus:border-primary">
+      <PageToolbar
+        search={
+          <form className="flex flex-wrap items-center gap-2">
+            <input
+              name="q"
+              defaultValue={params.q || ""}
+              placeholder="Name, email, company, tail, aircraft, path"
+              aria-label="Search form submissions"
+              className="deck-input min-w-[12rem] flex-1 sm:max-w-xs"
+            />
+            <select name="source" defaultValue={params.source || "All"} aria-label="Source" className="deck-input w-auto">
               <option>All</option>
               <option>Contact</option>
             </select>
-          </label>
-          <label className="grid gap-2 text-sm font-semibold text-[var(--deck-text-2)]">
-            Status
-            <select name="status" defaultValue={params.status || "All"} className="h-11 rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 text-sm text-[var(--deck-text)] outline-none focus:border-primary">
+            <select name="status" defaultValue={params.status || "All"} aria-label="Status" className="deck-input w-auto">
               <option>All</option>
               {submissionStatuses.map((status) => (
                 <option key={status} value={status}>{statusLabel(status)}</option>
               ))}
             </select>
-          </label>
-          <label className="grid gap-2 text-sm font-semibold text-[var(--deck-text-2)]">
-            Search
-            <input name="q" defaultValue={params.q || ""} className="h-11 rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 text-sm text-[var(--deck-text)] outline-none placeholder:text-[var(--deck-text-3)] focus:border-primary" placeholder="Name, email, company, tail, aircraft, path" />
-          </label>
-          <button type="submit" className="h-11 rounded-md bg-[var(--deck-navy)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--deck-navy-2)]">
-            Apply
-          </button>
-        </form>
-      </SectionCard>
+            <Button type="submit" size="sm">
+              Apply
+            </Button>
+          </form>
+        }
+      />
 
       <SectionCard title="Website Inquiries" icon="clipboard">
         {submissions.length === 0 ? (
