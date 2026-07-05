@@ -1,10 +1,5 @@
 # AMG Aviation Website Ground Truth
 
-Newer business, website, and portal direction from the July 2026 planning PDFs is captured in
-`docs/amg-aviation-group-reference.md`. If this older ground-truth file conflicts with that
-reference, use the newer reference and update this file deliberately instead of carrying both
-versions forward.
-
 This document is the website source of truth for user-facing copy, service descriptions, portal flows, forms, emails, notices, and CTAs.
 
 ## Company Identity

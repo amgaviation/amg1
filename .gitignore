@@ -24,3 +24,7 @@ logs
 cache
 .parcel-cache
 .eslintcache
+
+# iCloud conflict copies
+* 2.*
+* 2/
