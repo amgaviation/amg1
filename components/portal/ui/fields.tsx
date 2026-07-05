@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 /** Operations Deck form fields. All inputs share the .deck-input surface. */
 
@@ -54,6 +61,70 @@ export function TextAreaField(
   );
 }
 
+/**
+ * Custom styled dropdown (Radix Select) replacing the OS-native menu.
+ * Form-post compatible: with `name` set, Radix renders a hidden native
+ * select carrying the value. Options with value "" become the placeholder
+ * (Radix forbids empty item values); an unset select posts "".
+ */
+export function DeckSelect(
+  props: React.SelectHTMLAttributes<HTMLSelectElement> & {
+    options: { value: string; label: string }[];
+    placeholder?: string;
+  }
+) {
+  const { options, placeholder, className, name, value, defaultValue, onChange, disabled, required, id, "aria-label": ariaLabel } = props;
+  const items = options.filter((o) => o.value !== "");
+  const emptyOption = options.find((o) => o.value === "");
+  const resolvedPlaceholder = placeholder ?? emptyOption?.label ?? "Select…";
+  const controlled = value !== undefined;
+
+  return (
+    <Select
+      name={name}
+      disabled={disabled}
+      {...(controlled
+        ? { value: String(value) === "" ? undefined : String(value) }
+        : {
+            defaultValue:
+              defaultValue === undefined || String(defaultValue) === ""
+                ? undefined
+                : String(defaultValue),
+          })}
+      onValueChange={(next) => {
+        onChange?.({ target: { value: next, name: name ?? "" } } as unknown as React.ChangeEvent<HTMLSelectElement>);
+      }}
+    >
+      <SelectTrigger
+        id={id}
+        aria-label={ariaLabel}
+        aria-required={required || undefined}
+        className={cn(
+          "deck-input h-auto w-full justify-between shadow-none data-[placeholder]:text-[var(--deck-text-3)] [&_svg]:text-[var(--deck-text-3)]",
+          className
+        )}
+      >
+        <SelectValue placeholder={resolvedPlaceholder} />
+      </SelectTrigger>
+      <SelectContent
+        position="popper"
+        align="start"
+        className="max-h-72 border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text)] shadow-[var(--deck-shadow-card-hover)]"
+      >
+        {items.map((o) => (
+          <SelectItem
+            key={o.value}
+            value={o.value}
+            className="focus:bg-[var(--deck-accent-tint)] focus:text-[var(--deck-text)] data-[state=checked]:font-semibold"
+          >
+            {o.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
 export function SelectField(
   props: React.SelectHTMLAttributes<HTMLSelectElement> & {
     label: string;
@@ -62,21 +133,10 @@ export function SelectField(
     placeholder?: string;
   }
 ) {
-  const { label, hint, className, required, options, placeholder, ...rest } = props;
+  const { label, hint, required, ...rest } = props;
   return (
     <Field label={label} hint={hint} required={required}>
-      <select {...rest} required={required} className={cn("deck-input", className)}>
-        {placeholder ? (
-          <option value="" disabled>
-            {placeholder}
-          </option>
-        ) : null}
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
+      <DeckSelect {...rest} required={required} />
     </Field>
   );
 }

@@ -2,9 +2,11 @@ import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { createClientSubscription } from "@/app/portal/actions/subscriptions";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
+import { ClientPickerField } from "@/components/portal/ui/combobox";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { listAllAircraft, listClients, listSubscriptionPlans } from "@/lib/portal/queries";
+import { CustomSubscriptionForm } from "./custom-subscription-form";
 
 export const metadata = { title: "New Subscription - Admin Portal" };
 
@@ -39,8 +41,12 @@ export default async function NewSubscriptionPage({
         <Notice tone="danger">Stripe secret key prefix is not recognized. Use a valid test or live Stripe secret key.</Notice>
       ) : params.error === "configuration" ? (
         <Notice tone="danger">Stripe is not configured. Add STRIPE_SECRET_KEY before creating billing subscriptions.</Notice>
+      ) : params.error === "custom-missing" ? (
+        <Notice tone="danger">Custom subscriptions need a client, a name, and an amount.</Notice>
+      ) : params.error === "custom-interval" ? (
+        <Notice tone="danger">Choose a valid billing interval for the custom subscription.</Notice>
       ) : params.error ? (
-        <Notice tone="danger">Subscription could not be created. Check required fields.</Notice>
+        <Notice tone="danger">{decodeURIComponent(params.error)}</Notice>
       ) : null}
       <PageHeader
         eyebrow="AMG Billing"
@@ -52,13 +58,7 @@ export default async function NewSubscriptionPage({
       <form action={createClientSubscription} className="space-y-6">
         <SectionCard title="Client & Plan" icon="building">
           <div className="grid gap-4 md:grid-cols-2">
-            <SelectField
-              label="Client"
-              name="client_id"
-              required
-              defaultValue=""
-              options={[{ value: "", label: "Select client..." }, ...clients.map((client) => ({ value: client.id, label: client.company_name ?? client.full_name ?? client.email }))]}
-            />
+            <ClientPickerField clients={clients} required />
             <SelectField
               label="Aircraft"
               name="aircraft_id"
@@ -107,6 +107,14 @@ export default async function NewSubscriptionPage({
 
         <SubmitButton pendingText="Creating...">Create Setup Link</SubmitButton>
       </form>
+
+      <SectionCard
+        title="Custom Subscription"
+        icon="pencil"
+        description="One-off terms outside the standard plans: your own name, amount, interval, optional trial, and end date or cycle count. Bills through Stripe with an ad-hoc price — no new Products in the dashboard."
+      >
+        <CustomSubscriptionForm clients={clients} />
+      </SectionCard>
     </>
   );
 }

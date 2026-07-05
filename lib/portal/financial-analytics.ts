@@ -566,6 +566,7 @@ export async function getFinancialAnalytics(filters: FinancialAnalyticsFilters =
     db
       .from("client_subscriptions")
       .select("*, client:client_id(full_name,email,company_name), plan:plan_id(name), tier:tier_id(name,monthly_price,annual_price)")
+      .eq("is_test", false)
       .order("created_at", { ascending: false }),
     db
       .from("subscription_billing_invoices")

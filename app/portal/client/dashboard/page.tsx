@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
+import { ProfileSetupNotice } from "@/components/portal/profile-setup-notice";
 import {
   EmptyState,
   Notice,
@@ -87,6 +88,7 @@ export default async function ClientDashboardPage({
 
   return (
     <>
+      <ProfileSetupNotice userId={user.id} role={user.role} />
       {params.success === "created" ? (
         <Notice tone="success">
           Request received. AMG Operations will review the submitted details against support

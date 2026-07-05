@@ -8,6 +8,7 @@ import { requireRole } from "@/lib/portal/session";
 import { formatDateTime } from "@/lib/portal/format";
 import { listFormSubmissions, type FormSubmission } from "@/lib/portal/form-submissions";
 import { submissionStatuses } from "@/lib/public-form-options";
+import { DeckSelect } from "@/components/portal/ui/fields";
 
 export const metadata = { title: "Form Submissions - Admin Portal" };
 
@@ -98,11 +99,7 @@ function SubmissionDetails({ row }: { row: FormSubmission }) {
           <input type="hidden" name="id" value={row.id} />
           <label className="grid gap-2 text-sm font-semibold text-[var(--deck-text-2)]">
             Submission Status
-            <select name="status" defaultValue={row.status} className="h-11 rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 text-sm text-[var(--deck-text)] outline-none focus:border-primary">
-              {submissionStatuses.map((status) => (
-                <option key={status} value={status}>{statusLabel(status)}</option>
-              ))}
-            </select>
+            <DeckSelect name="status" defaultValue={row.status} aria-label="Submission status" options={submissionStatuses.map((status) => ({ value: status, label: statusLabel(status) }))} />
           </label>
           <label className="grid gap-2 text-sm font-semibold text-[var(--deck-text-2)]">
             Admin Notes
@@ -148,16 +145,8 @@ export default async function AdminFormSubmissionsPage({
               aria-label="Search form submissions"
               className="deck-input min-w-[12rem] flex-1 sm:max-w-xs"
             />
-            <select name="source" defaultValue={params.source || "All"} aria-label="Source" className="deck-input w-auto">
-              <option>All</option>
-              <option>Contact</option>
-            </select>
-            <select name="status" defaultValue={params.status || "All"} aria-label="Status" className="deck-input w-auto">
-              <option>All</option>
-              {submissionStatuses.map((status) => (
-                <option key={status} value={status}>{statusLabel(status)}</option>
-              ))}
-            </select>
+            <DeckSelect name="source" defaultValue={params.source || "All"} aria-label="Source" className="w-auto min-w-[8rem]" options={[{ value: "All", label: "All" }, { value: "Contact", label: "Contact" }]} />
+            <DeckSelect name="status" defaultValue={params.status || "All"} aria-label="Status" className="w-auto min-w-[9rem]" options={[{ value: "All", label: "All" }, ...submissionStatuses.map((status) => ({ value: status, label: statusLabel(status) }))]} />
             <Button type="submit" size="sm">
               Apply
             </Button>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
+import { ProfileSetupNotice } from "@/components/portal/profile-setup-notice";
 import {
   EmptyState,
   Notice,
@@ -58,6 +59,7 @@ export default async function CrewDashboardPage() {
 
   return (
     <>
+      <ProfileSetupNotice userId={user.id} role={user.role} />
       <PageHeader
         eyebrow="Flight Crew"
         title={`Welcome back, ${user.name.split(" ")[0]}`}

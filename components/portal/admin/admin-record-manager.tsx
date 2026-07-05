@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowDown, ArrowUp, Edit3, Eye, Filter, Plus, RefreshCw, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DeckSelect } from "@/components/portal/ui/fields";
+import { Combobox } from "@/components/portal/ui/combobox";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import type { Tone } from "@/lib/portal/constants";
@@ -125,20 +127,27 @@ function fieldInput(field: AdminRecordField, values: Record<string, RecordValue>
   }
 
   if (field.type === "select") {
+    // Long option lists (e.g. client pickers) get the searchable combobox;
+    // short ones get the styled dropdown. Both post under field.name.
+    if ((field.options?.length ?? 0) > 12) {
+      return (
+        <Combobox
+          name={field.name}
+          required={field.required}
+          defaultValue={inputValue(values[field.name])}
+          options={(field.options ?? []).filter((o) => o.value !== "")}
+          placeholder={field.options?.find((o) => o.value === "")?.label ?? "Search…"}
+        />
+      );
+    }
     return (
-      <select
+      <DeckSelect
         id={field.name}
         name={field.name}
         required={field.required}
         defaultValue={inputValue(values[field.name])}
-        className={common.className}
-      >
-        {field.options?.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+        options={field.options ?? []}
+      />
     );
   }
 
@@ -302,18 +311,14 @@ export function AdminRecordManager({
                     className={inputClassName}
                   />
                 ) : (
-                  <select
-                    value={activeFilters[filter.key] ?? ""}
-                    onChange={(event) => updateFilter(filter.key, event.target.value)}
-                    className={inputClassName}
-                  >
-                    <option value="">All</option>
-                    {filter.options?.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
+                  <DeckSelect
+                    aria-label={filter.label}
+                    value={activeFilters[filter.key] || "__all__"}
+                    onChange={(event) =>
+                      updateFilter(filter.key, event.target.value === "__all__" ? "" : event.target.value)
+                    }
+                    options={[{ value: "__all__", label: "All" }, ...(filter.options ?? [])]}
+                  />
                 )}
               </label>
             ))}

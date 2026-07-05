@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
+import { ProfileSetupNotice } from "@/components/portal/profile-setup-notice";
 import {
   EmptyState,
   QuickLink,
@@ -105,6 +106,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <>
+      <ProfileSetupNotice userId={user.id} role={user.role} />
       {/* Command header */}
       <div className="flex flex-col gap-4 pb-2 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">

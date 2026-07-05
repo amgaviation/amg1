@@ -13,6 +13,7 @@ import {
   sendCommunicationEmailAction,
   updateCommunicationThreadAction,
 } from "@/app/portal/actions/communications";
+import { DeckSelect } from "@/components/portal/ui/fields";
 import {
   emailProviderStatus,
   getCommunicationThreadDetail,
@@ -161,17 +162,14 @@ function Select({
   return (
     <label className="deck-eyebrow grid gap-1 !text-[0.6rem] !text-[var(--deck-text-2)]">
       {fieldLabel}
-      <select name={name} defaultValue={defaultValue ?? ""} className="deck-input font-normal normal-case [letter-spacing:normal]">
-        <option value="">None</option>
-        {options.map((option) => {
-          const value = option.value ?? option.id ?? "";
-          return (
-          <option key={value} value={value}>
-            {option.label}
-          </option>
-          );
-        })}
-      </select>
+      <DeckSelect
+        name={name}
+        defaultValue={defaultValue ?? ""}
+        aria-label={fieldLabel}
+        className="font-normal normal-case [letter-spacing:normal]"
+        placeholder="None"
+        options={options.map((option) => ({ value: option.value ?? option.id ?? "", label: option.label }))}
+      />
     </label>
   );
 }
@@ -471,14 +469,8 @@ export default async function AdminMessagesPage({
             <input type="hidden" name="view" value={activeView} />
             {params.thread ? <input type="hidden" name="thread" value={params.thread} /> : null}
             <input name="q" defaultValue={params.q ?? ""} placeholder="Search messages" className="deck-input" />
-            <select name="status" defaultValue={params.status ?? ""} className="deck-input">
-              <option value="">All statuses</option>
-              {STATUS_OPTIONS.map((status) => <option key={status} value={status}>{label(status)}</option>)}
-            </select>
-            <select name="priority" defaultValue={params.priority ?? ""} className="deck-input">
-              <option value="">All priorities</option>
-              {PRIORITY_OPTIONS.map((priority) => <option key={priority} value={priority}>{label(priority)}</option>)}
-            </select>
+            <DeckSelect name="status" defaultValue={params.status ?? ""} aria-label="Status filter" options={[{ value: "", label: "All statuses" }, ...STATUS_OPTIONS.map((status) => ({ value: status, label: label(status) }))]} />
+            <DeckSelect name="priority" defaultValue={params.priority ?? ""} aria-label="Priority filter" options={[{ value: "", label: "All priorities" }, ...PRIORITY_OPTIONS.map((priority) => ({ value: priority, label: label(priority) }))]} />
             <button className="rounded-[0.25rem] border border-[var(--deck-line)] bg-[var(--deck-panel)] px-4 py-2 text-sm font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)]">
               Apply Filters
             </button>

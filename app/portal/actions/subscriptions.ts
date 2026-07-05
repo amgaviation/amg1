@@ -15,6 +15,13 @@ import {
   markStripeSubscriptionIgnored,
   refreshSubscriptionFromStripe,
 } from "@/lib/portal/stripe-subscriptions";
+import {
+  cleanupTestSubscriptions,
+  createCustomSubscription,
+  createTestSubscription,
+  isCustomInterval,
+  refreshTestSubscription,
+} from "@/lib/portal/stripe-custom-subscriptions";
 
 function money(formData: FormData, key: string) {
   return num(formData, key) ?? 0;
@@ -211,10 +218,24 @@ export async function refreshStripeSubscription(formData: FormData) {
   const admin = await actor(["admin"]);
   const subscriptionId = str(formData, "subscription_id");
   if (!subscriptionId) redirect("/portal/admin/subscriptions?error=missing");
-  const result = await refreshSubscriptionFromStripe(subscriptionId, admin);
+  const dbCheck = (await createServiceClient()) as any;
+  const { data: subRow } = await dbCheck
+    .from("client_subscriptions")
+    .select("is_test")
+    .eq("id", subscriptionId)
+    .maybeSingle();
+  const result = subRow?.is_test
+    ? await refreshTestSubscription(subscriptionId)
+    : await refreshSubscriptionFromStripe(subscriptionId, admin);
   revalidatePath(`/portal/admin/subscriptions/${subscriptionId}`);
   revalidatePath("/portal/admin/subscriptions");
-  redirect(`/portal/admin/subscriptions/${subscriptionId}?${result.ok ? "success=refresh" : `error=${result.reason}`}`);
+  redirect(
+    `/portal/admin/subscriptions/${subscriptionId}?${
+      result.ok
+        ? "success=refresh"
+        : `error=${encodeURIComponent("reason" in result ? result.reason : result.error)}`
+    }`
+  );
 }
 
 export async function cancelStripeSubscriptionAtPeriodEnd(formData: FormData) {
@@ -344,4 +365,69 @@ export async function addSubscriptionCredit(formData: FormData) {
   revalidatePath(`/portal/admin/subscriptions/${subscriptionId}`);
   revalidatePath("/portal/client/subscriptions");
   redirect(`/portal/admin/subscriptions/${subscriptionId}?success=credit`);
+}
+
+// ─── Custom + test subscriptions ────────────────────────────────────
+
+export async function createCustomClientSubscription(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const clientId = str(formData, "client_id");
+  const name = str(formData, "custom_name");
+  const interval = str(formData, "custom_interval");
+  const amount = money(formData, "custom_amount");
+  if (!clientId || !name) redirect("/portal/admin/subscriptions/new?error=custom-missing");
+  if (!isCustomInterval(interval)) redirect("/portal/admin/subscriptions/new?error=custom-interval");
+
+  const endMode = str(formData, "end_mode"); // none | date | cycles
+  const result = await createCustomSubscription({
+    admin,
+    clientId,
+    name,
+    description: str(formData, "custom_description") || null,
+    amountCents: Math.round(amount * 100),
+    interval,
+    trialDays: num(formData, "trial_days"),
+    endDate: endMode === "date" ? str(formData, "end_date") || null : null,
+    cycles: endMode === "cycles" ? num(formData, "cycles") : null,
+    notes: str(formData, "notes") || null,
+  });
+  if (!result.ok) {
+    redirect(`/portal/admin/subscriptions/new?error=${encodeURIComponent(result.error)}`);
+  }
+  revalidatePath("/portal/admin/subscriptions");
+  redirect(`/portal/admin/subscriptions/${result.subscriptionId}?success=created`);
+}
+
+export async function createTestSubscriptionAction(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const result = await createTestSubscription({
+    admin,
+    confirmText: str(formData, "confirm_text") || null,
+  });
+  if (!result.ok) {
+    redirect(`/portal/admin/subscriptions?error=${encodeURIComponent(result.error)}`);
+  }
+  revalidatePath("/portal/admin/subscriptions");
+  redirect(`/portal/admin/subscriptions/${result.subscriptionId}?success=test-created`);
+}
+
+export async function cleanupTestSubscriptionsAction() {
+  const admin = await actor(["admin"]);
+  const result = await cleanupTestSubscriptions(admin);
+  if (!result.ok) {
+    redirect(`/portal/admin/subscriptions?error=${encodeURIComponent(result.error)}`);
+  }
+  revalidatePath("/portal/admin/subscriptions");
+  redirect(`/portal/admin/subscriptions?success=test-cleanup&removed=${result.removed}`);
+}
+
+export async function refreshTestSubscriptionAction(formData: FormData) {
+  await actor(["admin"]);
+  const subscriptionId = str(formData, "subscription_id");
+  const result = await refreshTestSubscription(subscriptionId);
+  if (!result.ok) {
+    redirect(`/portal/admin/subscriptions/${subscriptionId}?error=${encodeURIComponent(result.error)}`);
+  }
+  revalidatePath(`/portal/admin/subscriptions/${subscriptionId}`);
+  redirect(`/portal/admin/subscriptions/${subscriptionId}?success=refreshed`);
 }

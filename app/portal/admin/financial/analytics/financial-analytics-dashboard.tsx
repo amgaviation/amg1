@@ -8,6 +8,7 @@ import { EmptyState, Notice, SectionCard } from "@/components/portal/ui/primitiv
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { cn } from "@/lib/utils";
 import type { AnalyticsRangeKey, BreakdownPoint, ChartPoint, FinancialAnalyticsData, FinancialMetric } from "@/lib/portal/financial-analytics";
+import { DeckSelect } from "@/components/portal/ui/fields";
 
 const RANGE_OPTIONS: { value: AnalyticsRangeKey; label: string }[] = [
   { value: "today", label: "Today" },
@@ -244,14 +245,14 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <label className="sr-only" htmlFor="analytics-range">Date range</label>
-            <select
+            <DeckSelect
               id="analytics-range"
+              aria-label="Date range"
               value={range}
               onChange={(event) => setRange(event.target.value as AnalyticsRangeKey)}
-              className="min-h-10 rounded-md border border-[var(--deck-chrome-line)] bg-[var(--deck-chrome-2)] px-3 text-sm text-[var(--deck-chrome-text)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
-            >
-              {RANGE_OPTIONS.map((option) => <option key={option.value} value={option.value} className="text-[var(--deck-text)]">{option.label}</option>)}
-            </select>
+              className="w-auto min-w-[10rem] !min-h-10 !border-[var(--deck-chrome-line)] !bg-[var(--deck-chrome-2)] !text-[var(--deck-chrome-text)]"
+              options={RANGE_OPTIONS.map((option) => ({ value: option.value, label: option.label }))}
+            />
             {range === "custom" ? (
               <>
                 <input aria-label="Custom start date" type="date" value={from} onChange={(event) => setFrom(event.target.value)} className="min-h-10 rounded-md border border-[var(--deck-chrome-line)] bg-[var(--deck-chrome-2)] px-3 text-sm text-[var(--deck-chrome-text)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]" />

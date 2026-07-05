@@ -4,6 +4,7 @@ import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitiv
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
+import { ClientPickerField } from "@/components/portal/ui/combobox";
 import { createInvoiceFromQuote, createStandaloneInvoice } from "@/app/portal/actions/invoices";
 import { listAllAircraft, listAllInvoices, listAllMissions, listAllQuotes, listClients } from "@/lib/portal/queries";
 import { INVOICE_STATUS, INVOICE_STATUS_LABEL, INVOICE_STATUS_TONE, QUOTE_CATEGORIES, toneFor } from "@/lib/portal/constants";
@@ -62,7 +63,7 @@ export default async function AdminInvoicesPage({
 
         <SectionCard title="Standalone Invoice" icon="wallet">
           <form action={createStandaloneInvoice} className="grid gap-4 sm:grid-cols-2">
-            <SelectField label="Client" name="client_id" required defaultValue="" options={[{ value: "", label: "Select client..." }, ...clients.map((client) => ({ value: client.id, label: client.company_name ?? client.full_name ?? client.email }))]} />
+            <ClientPickerField clients={clients} required />
             <SelectField label="Status" name="status" defaultValue="draft" options={INVOICE_STATUS.map((status) => ({ value: status.value, label: status.label }))} />
             <SelectField label="Mission" name="mission_id" defaultValue="" options={[{ value: "", label: "No mission" }, ...missions.map((mission) => ({ value: mission.id, label: mission.ref }))]} />
             <SelectField label="Aircraft" name="aircraft_id" defaultValue="" options={[{ value: "", label: "No aircraft" }, ...aircraft.map((item) => ({ value: item.id, label: item.tail_number }))]} />
