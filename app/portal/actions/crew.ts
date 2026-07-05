@@ -10,6 +10,7 @@ import { normalizeDocumentCategory } from "@/lib/compliance/document-classificat
 import { recordComplianceEvidence } from "@/lib/compliance/evidence";
 import { detectProhibitedPaymentData } from "@/lib/compliance/payment-data-guard";
 import { actor, bool, num, str } from "./_helpers";
+import { getPoolMissionForCrew } from "@/lib/portal/pool";
 
 function arr(formData: FormData, key: string): string[] {
   return str(formData, key)
@@ -114,6 +115,7 @@ export async function saveCrewProfile(formData: FormData) {
     ratings_held: arr(formData, "ratings_held"),
     medical_certificate: str(formData, "medical_certificate") || null,
     medical_expiration_date: str(formData, "medical_expiration_date") || null,
+    date_of_birth: str(formData, "date_of_birth") || null,
     type_ratings: arr(formData, "type_ratings"),
     total_time: num(formData, "total_time"),
     pic_time: num(formData, "pic_time"),
@@ -382,4 +384,54 @@ export async function submitExpense(formData: FormData) {
   });
   revalidatePath("/portal/crew/expenses");
   redirect("/portal/crew/expenses?success=expense");
+}
+
+/**
+ * Crew requests a mission from the Open Pool. The pool gate + qualification
+ * requirements are re-verified server-side; the request then waits for admin
+ * approval in the trip's Crew Pool panel.
+ */
+export async function requestPoolMission(formData: FormData) {
+  const user = await actor(["crew"]);
+  const db = await createServiceClient();
+  const missionId = str(formData, "mission_id");
+  const message = str(formData, "message");
+
+  const pool = await getPoolMissionForCrew(missionId, user.id);
+  if (!pool) redirect("/portal/crew/missions?pool=open&error=not-eligible");
+  if (pool!.my_request_status && pool!.my_request_status !== "withdrawn") {
+    redirect("/portal/crew/missions?pool=open&error=already-requested");
+  }
+
+  await db.from("mission_crew_requests").upsert(
+    {
+      mission_id: missionId,
+      crew_id: user.id,
+      status: "pending",
+      message: message || null,
+      decided_by: null,
+      decided_at: null,
+      decision_notes: null,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "mission_id,crew_id" }
+  );
+
+  await logAuditEvent({
+    actor: user,
+    action: "crew_pool_request_submitted",
+    detail: `${user.name} requested ${pool!.ref} from the open pool`,
+    entityType: "mission",
+    entityId: missionId,
+  });
+  await notifyAdmins({
+    title: `Crew mission request — ${pool!.ref}`,
+    body: `${user.name} requested ${pool!.ref} from the open pool. Review it in the trip's Crew Pool panel.`,
+    type: "crew_pool_request",
+    entityType: "mission",
+    entityId: missionId,
+  });
+
+  revalidatePath("/portal/crew/missions");
+  redirect("/portal/crew/missions?pool=open&success=requested");
 }

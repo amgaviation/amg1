@@ -142,24 +142,34 @@ export type Database = {
         Row: {
           address: string | null
           aircraft_type_experience: string | null
+          approved: boolean
+          availability_notes: string | null
           availability_status: string
           certificate_level: string | null
+          certificates_held: string[]
           certificates_ratings: string | null
           city: string | null
+          closest_major_airport: string | null
           company: string | null
           country: string | null
           crew_status: string
+          date_of_birth: string | null
           day_rate: number | null
+          desired_day_rate: number | null
           display_name: string | null
           dual_given_time: number | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
           first_name: string | null
+          generally_short_notice: boolean | null
+          home_airport: string | null
           id: string
           import_batch_id: string | null
           import_row_number: number | null
           import_source: string | null
           imported_at: string | null
-          insurance_approved: boolean
           instrument_time: number | null
+          insurance_approved: boolean
           international_experience: boolean
           jet_time: number | null
           last_contacted: string | null
@@ -168,19 +178,25 @@ export type Database = {
           max_days_away: number | null
           me_time: number | null
           medical: string | null
+          medical_certificate: string | null
+          medical_expiration_date: string | null
+          minimum_call_time: string | null
+          minimum_notice_required: string | null
           multi_time: number | null
           needs_manual_review: boolean
           notes: string | null
           ops_notes: string | null
           passport_mentioned: boolean
           pic_time: number | null
-          priority_candidate: boolean
           preferred_aircraft: string[] | null
           preferred_regions: string[] | null
+          priority_candidate: boolean
+          profile_completed_at: string | null
+          profile_completion_percent: number
           profile_status: string
+          ratings_held: string[]
           resume_notes: string | null
           reviewed: boolean
-          approved: boolean
           searchable_text: string | null
           short_notice_available: boolean
           sic_time: number | null
@@ -191,29 +207,41 @@ export type Database = {
           turbine_time: number | null
           type_ratings: string[] | null
           updated_at: string
+          weekly_availability: Json
+          willing_to_travel: boolean | null
           zip: string | null
         }
         Insert: {
           address?: string | null
           aircraft_type_experience?: string | null
+          approved?: boolean
+          availability_notes?: string | null
           availability_status?: string
           certificate_level?: string | null
+          certificates_held?: string[]
           certificates_ratings?: string | null
           city?: string | null
+          closest_major_airport?: string | null
           company?: string | null
           country?: string | null
           crew_status?: string
+          date_of_birth?: string | null
           day_rate?: number | null
+          desired_day_rate?: number | null
           display_name?: string | null
           dual_given_time?: number | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
           first_name?: string | null
+          generally_short_notice?: boolean | null
+          home_airport?: string | null
           id: string
           import_batch_id?: string | null
           import_row_number?: number | null
           import_source?: string | null
           imported_at?: string | null
-          insurance_approved?: boolean
           instrument_time?: number | null
+          insurance_approved?: boolean
           international_experience?: boolean
           jet_time?: number | null
           last_contacted?: string | null
@@ -222,19 +250,25 @@ export type Database = {
           max_days_away?: number | null
           me_time?: number | null
           medical?: string | null
+          medical_certificate?: string | null
+          medical_expiration_date?: string | null
+          minimum_call_time?: string | null
+          minimum_notice_required?: string | null
           multi_time?: number | null
           needs_manual_review?: boolean
           notes?: string | null
           ops_notes?: string | null
           passport_mentioned?: boolean
           pic_time?: number | null
-          priority_candidate?: boolean
           preferred_aircraft?: string[] | null
           preferred_regions?: string[] | null
+          priority_candidate?: boolean
+          profile_completed_at?: string | null
+          profile_completion_percent?: number
           profile_status?: string
+          ratings_held?: string[]
           resume_notes?: string | null
           reviewed?: boolean
-          approved?: boolean
           searchable_text?: string | null
           short_notice_available?: boolean
           sic_time?: number | null
@@ -245,10 +279,91 @@ export type Database = {
           turbine_time?: number | null
           type_ratings?: string[] | null
           updated_at?: string
+          weekly_availability?: Json
+          willing_to_travel?: boolean | null
           zip?: string | null
         }
-        Update: Partial<Database["public"]["Tables"]["crew_profiles"]["Insert"]>
-        Relationships: []
+        Update: {
+          address?: string | null
+          aircraft_type_experience?: string | null
+          approved?: boolean
+          availability_notes?: string | null
+          availability_status?: string
+          certificate_level?: string | null
+          certificates_held?: string[]
+          certificates_ratings?: string | null
+          city?: string | null
+          closest_major_airport?: string | null
+          company?: string | null
+          country?: string | null
+          crew_status?: string
+          date_of_birth?: string | null
+          day_rate?: number | null
+          desired_day_rate?: number | null
+          display_name?: string | null
+          dual_given_time?: number | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name?: string | null
+          generally_short_notice?: boolean | null
+          home_airport?: string | null
+          id?: string
+          import_batch_id?: string | null
+          import_row_number?: number | null
+          import_source?: string | null
+          imported_at?: string | null
+          instrument_time?: number | null
+          insurance_approved?: boolean
+          international_experience?: boolean
+          jet_time?: number | null
+          last_contacted?: string | null
+          last_name?: string | null
+          location_display?: string | null
+          max_days_away?: number | null
+          me_time?: number | null
+          medical?: string | null
+          medical_certificate?: string | null
+          medical_expiration_date?: string | null
+          minimum_call_time?: string | null
+          minimum_notice_required?: string | null
+          multi_time?: number | null
+          needs_manual_review?: boolean
+          notes?: string | null
+          ops_notes?: string | null
+          passport_mentioned?: boolean
+          pic_time?: number | null
+          preferred_aircraft?: string[] | null
+          preferred_regions?: string[] | null
+          priority_candidate?: boolean
+          profile_completed_at?: string | null
+          profile_completion_percent?: number
+          profile_status?: string
+          ratings_held?: string[]
+          resume_notes?: string | null
+          reviewed?: boolean
+          searchable_text?: string | null
+          short_notice_available?: boolean
+          sic_time?: number | null
+          source_email?: string | null
+          state?: string | null
+          time_in_type?: string | null
+          total_time?: number | null
+          turbine_time?: number | null
+          type_ratings?: string[] | null
+          updated_at?: string
+          weekly_availability?: Json
+          willing_to_travel?: boolean | null
+          zip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crew_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       documents: {
         Row: {
@@ -496,6 +611,67 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["mission_crew_assignments"]["Insert"]>
         Relationships: []
       }
+      mission_crew_requests: {
+        Row: {
+          created_at: string
+          crew_id: string
+          decided_at: string | null
+          decided_by: string | null
+          decision_notes: string | null
+          id: string
+          message: string | null
+          mission_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          crew_id: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_notes?: string | null
+          id?: string
+          message?: string | null
+          mission_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          crew_id?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_notes?: string | null
+          id?: string
+          message?: string | null
+          mission_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission_crew_requests_crew_id_fkey"
+            columns: ["crew_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mission_crew_requests_decided_by_fkey"
+            columns: ["decided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mission_crew_requests_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mission_partner_assignments: {
         Row: {
           admin_notes: string | null
@@ -578,6 +754,9 @@ export type Database = {
           mission_type: string
           passenger_count: number
           pets_onboard: boolean
+          pool_published_at: string | null
+          pool_requirements: Json
+          pool_visible: boolean
           ref: string
           requested_arrival: string | null
           requested_departure: string | null
@@ -610,6 +789,9 @@ export type Database = {
           mission_type?: string
           passenger_count?: number
           pets_onboard?: boolean
+          pool_published_at?: string | null
+          pool_requirements?: Json
+          pool_visible?: boolean
           ref?: string
           requested_arrival?: string | null
           requested_departure?: string | null
@@ -619,8 +801,71 @@ export type Database = {
           updated_at?: string
           urgency?: string
         }
-        Update: Partial<Database["public"]["Tables"]["missions"]["Insert"]>
-        Relationships: []
+        Update: {
+          additional_notes?: string | null
+          aircraft_id?: string | null
+          alternate_airport?: string | null
+          arrival_airport?: string
+          assigned_crew_id?: string | null
+          baggage_estimate?: string | null
+          catering?: boolean
+          client_id?: string | null
+          client_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          customs_notes?: string | null
+          departure_airport?: string
+          fbo_preference?: string | null
+          flexible_time?: boolean
+          ground_transport?: boolean
+          id?: string
+          internal_notes?: string | null
+          is_international?: boolean
+          mission_type?: string
+          passenger_count?: number
+          pets_onboard?: boolean
+          pool_published_at?: string | null
+          pool_requirements?: Json
+          pool_visible?: boolean
+          ref?: string
+          requested_arrival?: string | null
+          requested_departure?: string | null
+          special_handling?: string | null
+          status?: string
+          tail_number?: string | null
+          updated_at?: string
+          urgency?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "missions_aircraft_id_fkey"
+            columns: ["aircraft_id"]
+            isOneToOne: false
+            referencedRelation: "aircraft"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "missions_assigned_crew_id_fkey"
+            columns: ["assigned_crew_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "missions_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "missions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {

@@ -8,8 +8,9 @@ import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { assignCrew, assignPartner } from "@/app/portal/actions/admin";
 import { createQuote } from "@/app/portal/actions/quotes";
-import { updateMissionNotes, updateMissionStatus } from "@/app/portal/actions/missions";
+import { decideCrewPoolRequest, updateMissionNotes, updateMissionPool, updateMissionStatus } from "@/app/portal/actions/missions";
 import { getMissionDetail, listAllCrew, listAllPartners } from "@/lib/portal/queries";
+import { countQualifiedCrew, describePoolRequirements, listCrewRequestsForMission, parsePoolRequirements } from "@/lib/portal/pool";
 import { getPublicSupportRequestForMission, publicSupportLabel } from "@/lib/portal/public-support-requests";
 import { CREW_ROLE, MISSION_STATUS, MISSION_STATUS_LABEL, MISSION_STATUS_TONE, PARTNER_TYPES, QUOTE_CATEGORIES, toneFor } from "@/lib/portal/constants";
 import { formatDateTime, formatMoney, formatRoute } from "@/lib/portal/format";
@@ -32,13 +33,19 @@ export default async function AdminTripDetailPage({
   const user = await requireRole("admin");
   const { id } = await params;
   const flash = await searchParams;
-  const [mission, crew, partners, publicRequest] = await Promise.all([
+  const [mission, crew, partners, publicRequest, poolRequests] = await Promise.all([
     getMissionDetail(id),
     listAllCrew(),
     listAllPartners(),
     getPublicSupportRequestForMission(id),
+    listCrewRequestsForMission(id),
   ]);
   if (!mission) notFound();
+
+  const poolRequirements = parsePoolRequirements(mission.pool_requirements);
+  const qualifiedCrewCount = await countQualifiedCrew(poolRequirements);
+  const pendingPoolRequests = poolRequests.filter((r) => r.status === "pending");
+  const decidedPoolRequests = poolRequests.filter((r) => r.status !== "pending");
 
   const publicDetails = publicRequest?.category_details
     ? Object.entries(publicRequest.category_details).filter(([, value]) => Boolean(value))
@@ -192,6 +199,78 @@ export default async function AdminTripDetailPage({
               ))}
               <SubmitButton pendingText="Assigning...">Offer Crew Assignment(s)</SubmitButton>
             </form>
+          </SectionCard>
+          <SectionCard
+            title="Crew Pool"
+            icon="radar"
+            description={mission.pool_visible ? "Published — visible to qualifying crew in the Open Pool." : "Not published. Crew cannot see this mission until you publish it."}
+          >
+            <form action={updateMissionPool} className="space-y-4">
+              <input type="hidden" name="mission_id" value={mission.id} />
+              <SelectField
+                label="Pool Visibility"
+                name="pool_visible"
+                defaultValue={mission.pool_visible ? "true" : "false"}
+                options={[
+                  { value: "false", label: "Not in pool (hidden from crew)" },
+                  { value: "true", label: "Published to crew pool" },
+                ]}
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <TextField label="Min Total Time (hrs)" name="min_total_time" type="number" step="1" defaultValue={poolRequirements.min_total_time?.toString() ?? ""} />
+                <TextField label="Min Time in Type (hrs)" name="min_time_in_type" type="number" step="1" defaultValue={poolRequirements.min_time_in_type?.toString() ?? ""} />
+              </div>
+              <TextField label="Required Type Ratings" name="required_type_ratings" placeholder="CE-525, PC-12 (comma separated)" defaultValue={poolRequirements.required_type_ratings?.join(", ") ?? ""} />
+              <div className="grid grid-cols-2 gap-3">
+                <TextField label="Min Pilot Age" name="min_pilot_age" type="number" step="1" defaultValue={poolRequirements.min_pilot_age?.toString() ?? ""} />
+                <TextField label="Max Pilot Age" name="max_pilot_age" type="number" step="1" defaultValue={poolRequirements.max_pilot_age?.toString() ?? ""} />
+              </div>
+              <TextField label="Pilot Regions" name="allowed_regions" placeholder="FL, Southeast US (comma separated)" defaultValue={poolRequirements.allowed_regions?.join(", ") ?? ""} />
+              <p className="text-xs text-muted-foreground">
+                <span className="deck-num font-semibold">{qualifiedCrewCount}</span> active crew currently meet these requirements. Requirements fail closed — crew missing profile data (e.g. date of birth) will not see the mission.
+              </p>
+              <SubmitButton pendingText="Saving...">Save Pool Settings</SubmitButton>
+            </form>
+
+            <div className="mt-6 space-y-3 border-t border-[var(--deck-line)] pt-4">
+              <p className="eyebrow text-[0.65rem] text-muted-foreground">Crew Requests</p>
+              {pendingPoolRequests.length === 0 && decidedPoolRequests.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No crew requests yet.</p>
+              ) : null}
+              {pendingPoolRequests.map((request) => (
+                <div key={request.id} className="rounded-md border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] p-3 space-y-3">
+                  <div>
+                    <p className="text-sm font-semibold">{request.crew?.full_name ?? request.crew?.email ?? request.crew_id}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {request.crew_qualifications?.total_time != null ? `${Number(request.crew_qualifications.total_time).toLocaleString()} hrs TT` : "TT n/a"}
+                      {request.crew_qualifications?.type_ratings?.length ? ` · ${request.crew_qualifications.type_ratings.join(", ")}` : ""}
+                    </p>
+                    {request.message ? <p className="mt-1 text-xs text-muted-foreground">“{request.message}”</p> : null}
+                  </div>
+                  <form action={decideCrewPoolRequest} className="space-y-3">
+                    <input type="hidden" name="request_id" value={request.id} />
+                    <SelectField label="Crew Role" name="crew_role" defaultValue="pic" options={CREW_ROLE.map((r) => ({ value: r.value, label: r.label }))} />
+                    <div className="flex gap-2">
+                      <SubmitButton name="decision" value="approved" pendingText="Approving...">Approve &amp; Assign</SubmitButton>
+                      <SubmitButton name="decision" value="denied" variant="outline" pendingText="Denying...">Deny</SubmitButton>
+                    </div>
+                  </form>
+                </div>
+              ))}
+              {decidedPoolRequests.map((request) => (
+                <div key={request.id} className="rounded-md border border-border bg-[var(--deck-panel-2)] p-3">
+                  <p className="text-sm font-semibold">{request.crew?.full_name ?? request.crew?.email ?? request.crew_id}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground capitalize">{request.status}{request.decided_at ? ` · ${formatDateTime(request.decided_at)}` : ""}</p>
+                </div>
+              ))}
+            </div>
+            {mission.pool_visible && describePoolRequirements(poolRequirements).length ? (
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                {describePoolRequirements(poolRequirements).map((r) => (
+                  <span key={r} className="deck-chip border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] text-[var(--deck-text-2)]">{r}</span>
+                ))}
+              </div>
+            ) : null}
           </SectionCard>
           <SectionCard title="Assign Partner" icon="handshake">
             <form action={assignPartner} className="space-y-4">
