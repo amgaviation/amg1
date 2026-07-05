@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
+import { NetworkProspectTools } from "@/components/portal/admin/network-prospect-tools";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import {
+  getCrewAccountStates,
   listNetworkApplications,
   NETWORK_APPLICATION_STATUSES,
   NETWORK_STATUS_LABELS,
   NETWORK_STATUS_TONES,
 } from "@/lib/portal/network-applications";
+import { NETWORK_SOURCE_LABELS } from "@/lib/portal/network-application-constants";
 import { formatDate } from "@/lib/portal/format";
 import { requireRole } from "@/lib/portal/session";
 
@@ -23,11 +26,19 @@ function airportText(value?: string | null) {
 export default async function NetworkApplicationsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ success?: string; error?: string }>;
+  searchParams: Promise<{ success?: string; error?: string; warning?: string; imported?: string; duplicates?: string; skipped?: string }>;
 }) {
   const user = await requireRole("admin");
   const params = await searchParams;
   const applications = await listNetworkApplications();
+  const accountStates = await getCrewAccountStates(
+    applications.map((a) => a.crew_user_id).filter((id): id is string => Boolean(id))
+  );
+
+  const accountLabel = (application: (typeof applications)[number]) => {
+    if (!application.crew_user_id) return "—";
+    return accountStates[application.crew_user_id] === "active" ? "Active" : "Setup pending";
+  };
 
   const rows: AdminRecordRow[] = applications.map((application) => {
     const certificates = listText(application.certificates_held);
@@ -52,6 +63,8 @@ export default async function NetworkApplicationsPage({
         totalTime: application.total_time,
         certificates: certificates || "Not provided",
         status: NETWORK_STATUS_LABELS[application.status],
+        source: NETWORK_SOURCE_LABELS[application.source] ?? application.source,
+        account: accountLabel(application),
         submitted,
         updated,
       },
@@ -71,6 +84,7 @@ export default async function NetworkApplicationsPage({
       ].filter(Boolean).join(" "),
       filters: {
         status: application.status,
+        source: application.source,
         airport: [application.home_airport, application.closest_major_airport].filter(Boolean).join(" "),
         certificate: certificates,
         assignment: application.preferred_assignment_types.join(" "),
@@ -103,25 +117,40 @@ export default async function NetworkApplicationsPage({
       label: "Status",
       options: NETWORK_APPLICATION_STATUSES.map((status) => ({ value: status, label: NETWORK_STATUS_LABELS[status] })),
     },
+    {
+      key: "source",
+      label: "Source",
+      options: Object.entries(NETWORK_SOURCE_LABELS).map(([value, label]) => ({ value, label })),
+    },
     { key: "airport", label: "Airport Keyword", type: "text" },
     { key: "certificate", label: "Certificate Keyword", type: "text" },
     { key: "assignment", label: "Assignment Keyword", type: "text" },
   ];
 
+  const imported = Number(params.imported ?? "");
+
   return (
     <>
       {params.success ? <Notice tone="success">Network application updated.</Notice> : null}
-      {params.error ? <Notice tone="danger">Network applications could not be updated. Review the request and try again.</Notice> : null}
+      {params.warning ? <Notice tone="warn">{params.warning}</Notice> : null}
+      {Number.isFinite(imported) && params.imported !== undefined ? (
+        <Notice tone={imported > 0 ? "success" : "warn"}>
+          Import complete: {params.imported ?? 0} imported · {params.duplicates ?? 0} duplicate{params.duplicates === "1" ? "" : "s"} skipped · {params.skipped ?? 0} invalid row{params.skipped === "1" ? "" : "s"} skipped.
+        </Notice>
+      ) : null}
+      {params.error ? <Notice tone="danger">{params.error}</Notice> : null}
       <PageHeader
         eyebrow="AMG Operations"
         title="Network Applications"
-        description="Review public AMG Crew Network submissions with the same list, search, filter, and row-opening behavior as Crew Management."
+        description="Review crew prospects from the public application, manual entry, and CSV/XLSX imports — one queue, one decision flow, one set of branded emails."
         actions={
           <Link href="/portal/admin/crew" className="rounded-md border border-border bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]">
             Crew Directory
           </Link>
         }
       />
+
+      <NetworkProspectTools />
 
       <AdminRecordManager
         title="Review Queue"
@@ -135,6 +164,8 @@ export default async function NetworkApplicationsPage({
           { key: "totalTime", label: "Total Time", sortable: true, className: "w-[8rem]" },
           { key: "certificates", label: "Certificates", sortable: true, className: "w-[13rem]" },
           { key: "status", label: "Status", sortable: true, className: "w-[12rem]" },
+          { key: "source", label: "Source", sortable: true, className: "w-[9rem]" },
+          { key: "account", label: "Account", sortable: true, className: "w-[9rem]" },
           { key: "submitted", label: "Submitted", sortable: true, className: "w-[9rem]" },
           { key: "updated", label: "Updated", sortable: true, className: "w-[9rem]" },
         ]}

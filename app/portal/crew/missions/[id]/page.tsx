@@ -5,7 +5,8 @@ import { DescriptionList } from "@/components/portal/ui/description-list";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { getMissionDetail } from "@/lib/portal/queries";
-import { respondToAssignment } from "@/app/portal/actions/crew";
+import { getPoolMissionForCrew, type PoolMission } from "@/lib/portal/pool";
+import { requestPoolMission, respondToAssignment } from "@/app/portal/actions/crew";
 import {
   MISSION_STATUS_LABEL, MISSION_STATUS_TONE, MISSION_TYPE_LABEL,
   URGENCY_LABEL, URGENCY_TONE, toneFor, labelFor
@@ -14,8 +15,6 @@ import { formatRoute, formatDateTime } from "@/lib/portal/format";
 import { COMPANY } from "@/lib/content";
 
 export const metadata = { title: "Mission Brief — Crew Portal" };
-
-const OPEN_POOL_STATUSES = new Set(["submitted", "under_review", "approved", "quoted"]);
 
 export default async function CrewMissionDetailPage({
   params,
@@ -31,19 +30,46 @@ export default async function CrewMissionDetailPage({
   if (!mission) notFound();
 
   const myAssignment = mission.crew.find((ca) => ca.crew_id === user.id);
-  const openPoolEligible = !mission.assigned_crew_id && OPEN_POOL_STATUSES.has(mission.status);
-  if (!myAssignment && !openPoolEligible) notFound();
+
+  // Without an assignment, this brief is reachable only as a pool preview:
+  // the mission must be admin-published AND this crew member must meet its
+  // requirements. Pool previews stay sanitized — no client identity, notes,
+  // passengers, or tail number.
+  let poolPreview: PoolMission | null = null;
+  if (!myAssignment) {
+    poolPreview = await getPoolMissionForCrew(id, user.id);
+    if (!poolPreview) notFound();
+  }
 
   const canRespond = myAssignment && myAssignment.status === "offered";
   const showAssignedDetails = Boolean(myAssignment);
+  const aircraftLabel = showAssignedDetails
+    ? mission.tail_number ?? "—"
+    : [poolPreview?.aircraft?.make, poolPreview?.aircraft?.model].filter(Boolean).join(" ") || "TBD";
 
   return (
     <>
       {sp.success === "responded" ? <Notice tone="success">Assignment response recorded.</Notice> : null}
-      {!myAssignment && openPoolEligible ? (
+      {poolPreview ? (
         <Notice tone="info">
-          Open pool preview. AMG has not assigned you to this mission, so passenger details and assignment notes remain hidden.
+          Open pool preview. AMG has not assigned you to this mission, so client information, passenger details, and assignment notes remain hidden.
         </Notice>
+      ) : null}
+
+      {poolPreview && (!poolPreview.my_request_status || poolPreview.my_request_status === "withdrawn") ? (
+        <div className="flex flex-wrap items-center gap-3 rounded-md border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] p-4">
+          <div className="flex-1">
+            <p className="font-semibold">Available in the Open Pool</p>
+            <p className="text-sm text-muted-foreground">Request this mission and AMG Operations will review your request.</p>
+          </div>
+          <form action={requestPoolMission}>
+            <input type="hidden" name="mission_id" value={mission.id} />
+            <SubmitButton pendingText="Requesting…">Request This Mission</SubmitButton>
+          </form>
+        </div>
+      ) : null}
+      {poolPreview?.my_request_status === "pending" ? (
+        <Notice tone="info">Your request for this mission is with AMG Operations for review.</Notice>
       ) : null}
 
       {/* Detail-archetype summary header */}
@@ -95,7 +121,7 @@ export default async function CrewMissionDetailPage({
                 ...(mission.alternate_airport
                   ? [{ label: "Alternate", value: mission.alternate_airport, mono: true }]
                   : []),
-                { label: "Aircraft", value: mission.tail_number ?? "—", mono: true },
+                { label: "Aircraft", value: aircraftLabel, mono: true },
                 { label: "Departure", value: formatDateTime(mission.requested_departure) },
                 { label: "Arrival", value: formatDateTime(mission.requested_arrival) },
                 ...(mission.urgency !== "standard"

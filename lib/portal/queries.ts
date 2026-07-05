@@ -317,18 +317,8 @@ export async function listMissionsForCrew(crewId: string): Promise<
   }));
 }
 
-/** Open-pool missions awaiting crew (no crew assigned yet). */
-export async function listOpenPoolMissions(): Promise<MissionListItem[]> {
-  const db = await createServiceClient();
-  const { data } = await db
-    .from("missions")
-    .select(MISSION_LIST_SELECT)
-    .is("assigned_crew_id", null)
-    .in("status", ["submitted", "under_review", "approved", "quoted"])
-    .order("requested_departure", { ascending: true })
-    .returns<MissionListItem[]>();
-  return data ?? [];
-}
+// Open-pool listing moved to lib/portal/pool.ts (listPoolMissionsForCrew):
+// pool access is admin-published, requirement-gated, and client-sanitized.
 
 export async function getMissionDetail(id: string): Promise<MissionDetail | null> {
   const db = await createServiceClient();

@@ -419,3 +419,162 @@ export async function removePassenger(formData: FormData) {
   revalidatePath(`${base}/${missionId}`);
   redirect(`${base}/${missionId}?success=passenger`);
 }
+
+// ─── Crew pool (admin) ──────────────────────────────────────────────
+
+function csvList(formData: FormData, key: string): string[] {
+  return str(formData, key)
+    .split(/[\n,]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+/** Publish/unpublish a mission to the crew Open Pool and set its requirements. */
+export async function updateMissionPool(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const missionId = str(formData, "mission_id");
+  const visible = bool(formData, "pool_visible");
+
+  const requirements = {
+    min_total_time: num(formData, "min_total_time"),
+    required_type_ratings: csvList(formData, "required_type_ratings"),
+    min_time_in_type: num(formData, "min_time_in_type"),
+    min_pilot_age: num(formData, "min_pilot_age"),
+    max_pilot_age: num(formData, "max_pilot_age"),
+    allowed_regions: csvList(formData, "allowed_regions"),
+  };
+
+  const { data: mission } = await db
+    .from("missions")
+    .select("id, ref, pool_visible")
+    .eq("id", missionId)
+    .maybeSingle();
+  if (!mission) redirect("/portal/admin/trips");
+
+  await db
+    .from("missions")
+    .update({
+      pool_visible: visible,
+      pool_published_at: visible ? new Date().toISOString() : null,
+      pool_requirements: requirements,
+    })
+    .eq("id", missionId);
+
+  await logAuditEvent({
+    actor: admin,
+    action: visible ? "mission_pool_published" : "mission_pool_unpublished",
+    detail: `${mission!.ref} ${visible ? "published to" : "removed from"} the crew pool`,
+    entityType: "mission",
+    entityId: missionId,
+  });
+
+  revalidatePath(`/portal/admin/trips/${missionId}`);
+  revalidatePath("/portal/crew/missions");
+  redirect(`/portal/admin/trips/${missionId}?success=pool`);
+}
+
+/** Approve or deny a crew member's pool request. Approval creates the assignment. */
+export async function decideCrewPoolRequest(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const requestId = str(formData, "request_id");
+  const decision = str(formData, "decision") === "approved" ? "approved" : "denied";
+  const crewRole = str(formData, "crew_role") || "pic";
+  const notes = str(formData, "decision_notes");
+  const now = new Date().toISOString();
+
+  const { data: request } = await db
+    .from("mission_crew_requests")
+    .select("*, mission:mission_id(id,ref,assigned_crew_id), crew:crew_id(full_name,email)")
+    .eq("id", requestId)
+    .maybeSingle();
+  if (!request || !request.mission) redirect("/portal/admin/trips");
+  const missionId = request!.mission_id as string;
+  const missionRef = (request!.mission as { ref: string }).ref;
+  if (request!.status !== "pending") {
+    redirect(`/portal/admin/trips/${missionId}?error=request-decided`);
+  }
+
+  await db
+    .from("mission_crew_requests")
+    .update({
+      status: decision,
+      decided_by: admin.id,
+      decided_at: now,
+      decision_notes: notes || null,
+      updated_at: now,
+    })
+    .eq("id", requestId);
+
+  if (decision === "approved") {
+    const { data: existing } = await db
+      .from("mission_crew_assignments")
+      .select("id")
+      .eq("mission_id", missionId)
+      .eq("crew_id", request!.crew_id)
+      .maybeSingle();
+    if (existing) {
+      await db
+        .from("mission_crew_assignments")
+        .update({ status: "accepted", responded_at: now })
+        .eq("id", existing.id);
+    } else {
+      await db.from("mission_crew_assignments").insert({
+        mission_id: missionId,
+        crew_id: request!.crew_id,
+        crew_role: crewRole,
+        status: "accepted",
+        responded_at: now,
+      });
+    }
+
+    const alreadyAssigned = (request!.mission as { assigned_crew_id: string | null }).assigned_crew_id;
+    await db
+      .from("missions")
+      .update(
+        alreadyAssigned
+          ? { pool_visible: false }
+          : { assigned_crew_id: request!.crew_id, status: "crew_assigned", pool_visible: false }
+      )
+      .eq("id", missionId);
+
+    await notifyUser({
+      userId: request!.crew_id,
+      title: `Mission request approved — ${missionRef}`,
+      body: `AMG Operations approved your request for ${missionRef}. The full mission brief, including passenger details, is now available in My Assignments.`,
+      type: "crew_pool_request_approved",
+      entityType: "mission",
+      entityId: missionId,
+    });
+    await notifyMissionContactByEmail({
+      missionId,
+      title: "Crew assignment confirmed",
+      eventLabel: "Crew Assigned",
+      intro:
+        "AMG Operations has confirmed a crew assignment for your mission. We will continue coordinating the remaining operational details and will contact you if additional information is required.",
+      details: [{ label: "Crew Status", value: "Confirmed" }],
+    });
+  } else {
+    await notifyUser({
+      userId: request!.crew_id,
+      title: `Mission request update — ${missionRef}`,
+      body: `AMG Operations was unable to approve your request for ${missionRef} at this time. Keep an eye on the Open Pool for future missions.`,
+      type: "crew_pool_request_denied",
+      entityType: "mission",
+      entityId: missionId,
+    });
+  }
+
+  await logAuditEvent({
+    actor: admin,
+    action: decision === "approved" ? "crew_pool_request_approved" : "crew_pool_request_denied",
+    detail: `${decision === "approved" ? "Approved" : "Denied"} crew request for ${missionRef}`,
+    entityType: "mission",
+    entityId: missionId,
+  });
+
+  revalidatePath(`/portal/admin/trips/${missionId}`);
+  revalidatePath("/portal/crew/missions");
+  redirect(`/portal/admin/trips/${missionId}?success=pool-request`);
+}

@@ -1,45 +1,160 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { PageHeader, SectionCard, EmptyState } from "@/components/portal/ui/primitives";
+import { PageHeader, SectionCard, EmptyState, Notice } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
-import { listMissionsForCrew, listOpenPoolMissions } from "@/lib/portal/queries";
+import { SubmitButton } from "@/components/portal/ui/submit-button";
+import { listMissionsForCrew } from "@/lib/portal/queries";
+import { listPoolMissionsForCrew, describePoolRequirements, type PoolMission } from "@/lib/portal/pool";
+import { requestPoolMission } from "@/app/portal/actions/crew";
 import {
   MISSION_STATUS_LABEL, MISSION_STATUS_TONE, MISSION_TYPE_LABEL,
-  CREW_ASSIGNMENT_STATUS_LABEL, CREW_ASSIGNMENT_STATUS_TONE, toneFor
+  CREW_ASSIGNMENT_STATUS_LABEL, CREW_ASSIGNMENT_STATUS_TONE,
+  URGENCY_LABEL, URGENCY_TONE, toneFor, labelFor
 } from "@/lib/portal/constants";
 import { formatRoute, formatDateTime } from "@/lib/portal/format";
 
 export const metadata = { title: "Assignments — Crew Portal" };
 
+const POOL_REQUEST_LABEL: Record<string, { label: string; tone: "info" | "success" | "danger" | "warn" }> = {
+  pending: { label: "Requested — Awaiting AMG", tone: "info" },
+  approved: { label: "Request Approved", tone: "success" },
+  denied: { label: "Not Selected", tone: "warn" },
+};
+
+function tabCls(active: boolean) {
+  return `rounded-[0.25rem] border px-3 py-1.5 font-mono text-[0.68rem] font-semibold uppercase [letter-spacing:0.08em] transition-colors ${active ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]" : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"}`;
+}
+
+function PoolMissionCard({ mission }: { mission: PoolMission }) {
+  const aircraftType = [mission.aircraft?.make, mission.aircraft?.model].filter(Boolean).join(" ") || "TBD";
+  const requirements = describePoolRequirements(mission.pool_requirements);
+  const request = mission.my_request_status ? POOL_REQUEST_LABEL[mission.my_request_status] : null;
+
+  return (
+    <div className="rounded-md border border-border bg-background/50 p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-mono text-xs text-accent">{mission.ref}</span>
+            <span className="text-xs text-muted-foreground">{labelFor(MISSION_TYPE_LABEL, mission.mission_type)}</span>
+            {mission.urgency !== "standard" ? (
+              <StatusBadge label={labelFor(URGENCY_LABEL, mission.urgency)} tone={toneFor(URGENCY_TONE, mission.urgency)} />
+            ) : null}
+          </div>
+          <p className="mt-1 font-semibold">{formatRoute(mission.departure_airport, mission.arrival_airport)}</p>
+        </div>
+        {request ? <StatusBadge label={request.label} tone={request.tone} /> : null}
+      </div>
+
+      <dl className="mt-3 grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-2">
+        <div className="flex justify-between gap-3 sm:justify-start">
+          <dt className="text-muted-foreground">Departure</dt>
+          <dd className="font-mono text-xs sm:ml-auto">{formatDateTime(mission.requested_departure)}</dd>
+        </div>
+        <div className="flex justify-between gap-3 sm:justify-start">
+          <dt className="text-muted-foreground">Arrival</dt>
+          <dd className="font-mono text-xs sm:ml-auto">{formatDateTime(mission.requested_arrival)}</dd>
+        </div>
+        <div className="flex justify-between gap-3 sm:justify-start">
+          <dt className="text-muted-foreground">Aircraft Type</dt>
+          <dd className="font-mono text-xs sm:ml-auto">{aircraftType}</dd>
+        </div>
+        <div className="flex justify-between gap-3 sm:justify-start">
+          <dt className="text-muted-foreground">Passengers</dt>
+          <dd className="font-mono text-xs sm:ml-auto">{mission.passenger_count ?? "—"}</dd>
+        </div>
+        {mission.alternate_airport ? (
+          <div className="flex justify-between gap-3 sm:justify-start">
+            <dt className="text-muted-foreground">Alternate</dt>
+            <dd className="font-mono text-xs sm:ml-auto">{mission.alternate_airport}</dd>
+          </div>
+        ) : null}
+        <div className="flex justify-between gap-3 sm:justify-start">
+          <dt className="text-muted-foreground">International</dt>
+          <dd className="font-mono text-xs sm:ml-auto">{mission.is_international ? "Yes" : "No"}</dd>
+        </div>
+        {mission.flexible_time ? (
+          <div className="flex justify-between gap-3 sm:justify-start">
+            <dt className="text-muted-foreground">Timing</dt>
+            <dd className="font-mono text-xs sm:ml-auto">Flexible</dd>
+          </div>
+        ) : null}
+      </dl>
+
+      {requirements.length ? (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {requirements.map((r) => (
+            <span key={r} className="deck-chip border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] text-[var(--deck-text-2)]">
+              {r}
+            </span>
+          ))}
+        </div>
+      ) : null}
+
+      {!request || mission.my_request_status === "withdrawn" ? (
+        <form action={requestPoolMission} className="mt-4 flex flex-wrap items-center gap-2">
+          <input type="hidden" name="mission_id" value={mission.id} />
+          <SubmitButton pendingText="Requesting…">Request This Mission</SubmitButton>
+          <span className="text-xs text-muted-foreground">
+            Sends your request to AMG Operations for approval.
+          </span>
+        </form>
+      ) : null}
+    </div>
+  );
+}
+
 export default async function CrewMissionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ pool?: string; success?: string }>;
+  searchParams: Promise<{ pool?: string; success?: string; error?: string }>;
 }) {
   const user = await requireRole("crew");
   const params = await searchParams;
+  const poolView = params.pool === "open";
   const [myMissions, openPool] = await Promise.all([
     listMissionsForCrew(user.id),
-    params.pool === "open" ? listOpenPoolMissions() : Promise.resolve([]),
+    poolView ? listPoolMissionsForCrew(user.id) : Promise.resolve([]),
   ]);
-
-  const missions = params.pool === "open" ? openPool : myMissions;
-  const title = params.pool === "open" ? "Open Assignments" : "My Assignments";
 
   return (
     <>
-      <PageHeader eyebrow="Flight Crew" title={title} />
+      <PageHeader
+        eyebrow="Flight Crew"
+        title={poolView ? "Open Assignments" : "My Assignments"}
+        description={poolView ? "Missions AMG Operations has published to the pool for qualified crew. Client details are shared after assignment." : undefined}
+      />
+      {params.success === "requested" ? (
+        <Notice tone="success">Request sent. AMG Operations will review it and confirm the assignment.</Notice>
+      ) : null}
+      {params.error === "already-requested" ? (
+        <Notice tone="warn">You have already requested this mission.</Notice>
+      ) : null}
+      {params.error === "not-eligible" ? (
+        <Notice tone="warn">This mission is no longer available in the open pool.</Notice>
+      ) : null}
+
       <div className="flex gap-2">
-        <Link href="/portal/crew/missions" className={`rounded-[0.25rem] border px-3 py-1.5 font-mono text-[0.68rem] font-semibold uppercase [letter-spacing:0.08em] transition-colors ${!params.pool ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]" : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"}`}>My Assignments</Link>
-        <Link href="/portal/crew/missions?pool=open" className={`rounded-[0.25rem] border px-3 py-1.5 font-mono text-[0.68rem] font-semibold uppercase [letter-spacing:0.08em] transition-colors ${params.pool === "open" ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]" : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"}`}>Open Pool</Link>
+        <Link href="/portal/crew/missions" className={tabCls(!poolView)}>My Assignments</Link>
+        <Link href="/portal/crew/missions?pool=open" className={tabCls(poolView)}>Open Pool</Link>
       </div>
 
       <SectionCard>
-        {missions.length === 0 ? (
-          <EmptyState icon="plane" title={params.pool === "open" ? "No open assignments" : "No assignments"} description={params.pool === "open" ? "Check back when AMG Operations posts new open assignments." : "Your accepted assignments will appear here. Check the Open Pool for available missions."} />
+        {poolView ? (
+          openPool.length === 0 ? (
+            <EmptyState icon="radar" title="No open assignments" description="Nothing in the pool matches your profile right now. AMG Operations publishes missions here when they need crew — keep your certificates, ratings, hours, and date of birth current so you qualify." />
+          ) : (
+            <div className="space-y-3">
+              {openPool.map((m) => (
+                <PoolMissionCard key={m.id} mission={m} />
+              ))}
+            </div>
+          )
+        ) : myMissions.length === 0 ? (
+          <EmptyState icon="plane" title="No assignments" description="Your accepted assignments will appear here. Check the Open Pool for available missions." />
         ) : (
           <div className="space-y-3">
-            {missions.map((m) => (
+            {myMissions.map((m) => (
               <Link key={m.id} href={`/portal/crew/missions/${m.id}`} className="grid gap-3 rounded-md border border-border bg-background/50 p-4 transition-colors hover:border-accent/60 sm:grid-cols-[1fr_auto]">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">

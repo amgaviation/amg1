@@ -51,6 +51,7 @@ export default async function CrewSettingsPage({
           <TextField label="Emergency Contact Name" name="emergency_contact_name" defaultValue={profile?.emergency_contact_name ?? ""} />
           <TextField label="Emergency Contact Phone" name="emergency_contact_phone" defaultValue={profile?.emergency_contact_phone ?? ""} />
           <TextField label="Certificate Level" name="certificate_level" defaultValue={profile?.certificate_level ?? ""} placeholder="ATP, Commercial..." />
+          <TextField label="Date of Birth" name="date_of_birth" type="date" defaultValue={profile?.date_of_birth ?? ""} hint="Required for missions with pilot-age requirements." />
           <TextField label="Total Time" name="total_time" type="number" defaultValue={profile?.total_time ?? ""} />
           <TextField label="PIC Time" name="pic_time" type="number" defaultValue={profile?.pic_time ?? ""} />
           <TextField label="SIC Time" name="sic_time" type="number" defaultValue={profile?.sic_time ?? ""} />

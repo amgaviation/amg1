@@ -5,7 +5,8 @@ import { DetailRow, EmptyState, Notice, PageHeader, SectionCard, Timeline } from
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { TextAreaField } from "@/components/portal/ui/fields";
-import { saveNetworkApplicationNotes } from "@/app/portal/actions/network-applications";
+import { resendNetworkApplicationEmail, saveNetworkApplicationNotes } from "@/app/portal/actions/network-applications";
+import { NETWORK_SOURCE_LABELS } from "@/lib/portal/network-application-constants";
 import {
   getNetworkApplicationDetails,
   NETWORK_STATUS_LABELS,
@@ -57,7 +58,7 @@ export default async function NetworkApplicationDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ success?: string; error?: string }>;
+  searchParams: Promise<{ success?: string; error?: string; warning?: string }>;
 }) {
   const user = await requireRole("admin");
   const { id } = await params;
@@ -68,7 +69,8 @@ export default async function NetworkApplicationDetailPage({
 
   return (
     <>
-      {query.success ? <Notice tone="success">Network application saved.</Notice> : null}
+      {query.success === "email-resent" ? <Notice tone="success">Decision email re-sent to {application.email}.</Notice> : query.success ? <Notice tone="success">Network application saved.</Notice> : null}
+      {query.warning ? <Notice tone="warn">{query.warning}</Notice> : null}
       {query.error ? <Notice tone="danger">{decodeURIComponent(query.error)}</Notice> : null}
       <PageHeader
         eyebrow="Network Applications"
@@ -84,7 +86,13 @@ export default async function NetworkApplicationDetailPage({
             <DetailRow label="Email">{application.email}</DetailRow>
             <DetailRow label="Phone">{application.phone}</DetailRow>
             <DetailRow label="Submitted">{formatDateTime(application.submitted_at)}</DetailRow>
+            <DetailRow label="Source">{NETWORK_SOURCE_LABELS[application.source] ?? application.source}</DetailRow>
+            {application.position_applied ? <DetailRow label="Position">{application.position_applied}</DetailRow> : null}
             <DetailRow label="Status"><StatusBadge label={NETWORK_STATUS_LABELS[application.status]} tone={NETWORK_STATUS_TONES[application.status]} /></DetailRow>
+            {application.denial_reason ? <DetailRow label="Denial reason">{application.denial_reason}</DetailRow> : null}
+            <DetailRow label="Decision email">
+              {application.decision_email_sent_at ? `Sent ${formatDateTime(application.decision_email_sent_at)}` : "Not sent yet"}
+            </DetailRow>
           </SectionCard>
 
           <div className="grid gap-6 lg:grid-cols-2">
@@ -162,11 +170,30 @@ export default async function NetworkApplicationDetailPage({
           <SectionCard title="Internal Review" icon="clipboard">
             <StatusReviewForm
               applicationId={application.id}
+              applicantName={application.full_name}
               currentStatus={application.status}
               backTo={backTo}
               missingInformation={application.missing_information}
               otherStatusReason={application.other_status_reason}
+              denialReason={application.denial_reason}
             />
+            <form action={resendNetworkApplicationEmail} className="mt-4 border-t border-[var(--deck-line)] pt-4">
+              <input type="hidden" name="application_id" value={application.id} />
+              <input type="hidden" name="back_to" value={backTo} />
+              <SubmitButton
+                variant="outline"
+                className="w-fit rounded-md"
+                pendingText="Sending..."
+                confirm={`Re-send the "${NETWORK_STATUS_LABELS[application.status]}" email to ${application.email}?`}
+              >
+                Resend Decision Email
+              </SubmitButton>
+              <p className="mt-2 text-xs text-[var(--deck-text-3)]">
+                {application.decision_email_sent_at
+                  ? `Last sent ${formatDateTime(application.decision_email_sent_at)}.`
+                  : "No decision email recorded yet — use this if a send failed."}
+              </p>
+            </form>
           </SectionCard>
 
           <SectionCard title="Internal Notes" icon="messageSquare">

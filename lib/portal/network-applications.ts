@@ -17,7 +17,11 @@ export {
   NETWORK_STATUS_TONES,
   type NetworkApplicationStatus,
 } from "@/lib/portal/network-application-constants";
-import { NETWORK_APPLICATION_STATUSES, type NetworkApplicationStatus } from "@/lib/portal/network-application-constants";
+import { NETWORK_APPLICATION_STATUSES, type NetworkApplicationSource, type NetworkApplicationStatus } from "@/lib/portal/network-application-constants";
+import {
+  buildNetworkDecisionEmailCopy,
+  renderDecisionEmailText,
+} from "@/lib/portal/network-application-email-copy";
 
 export const CERTIFICATE_OPTIONS = [
   "Private Pilot",
@@ -82,6 +86,11 @@ export type NetworkApplication = {
   other_status_reason: string | null;
   internal_notes: string | null;
   missing_information: string | null;
+  denial_reason: string | null;
+  decision_email_sent_at: string | null;
+  source: NetworkApplicationSource;
+  import_batch_id: string | null;
+  position_applied: string | null;
   submitted_at: string;
   reviewed_at: string | null;
   approved_at: string | null;
@@ -335,7 +344,10 @@ function firstName(name: string) {
 }
 
 function emailBodyForStatus(input: {
-  application: Pick<NetworkApplication, "full_name" | "email" | "missing_information" | "other_status_reason">;
+  application: Pick<
+    NetworkApplication,
+    "full_name" | "email" | "missing_information" | "other_status_reason" | "denial_reason"
+  >;
   status: NetworkApplicationStatus;
   setupLink?: string | null;
 }) {
@@ -346,19 +358,7 @@ function emailBodyForStatus(input: {
     eyebrow: "AMG Crew Network",
   };
 
-  if (input.status === "in_review") {
-    return {
-      subject: "AMG Crew Network Application In Review",
-      text: `Hello ${name},\n\nYour AMG Crew Network application is now under review. AMG is reviewing submitted qualifications, documents, airport coverage, aircraft experience, and operational fit. AMG will contact you if additional information is required.\n\n${DISCLAIM}`,
-      html: amgEmailLayout({
-        ...common,
-        title: "AMG Crew Network Application In Review",
-        intro: `Hello ${name}, your AMG Crew Network application is now under review.`,
-        sections: [{ body: "AMG is reviewing submitted qualifications, documents, airport coverage, aircraft experience, and operational fit. AMG will contact you if additional information is required." }],
-      }),
-    };
-  }
-
+  // additional_information_needed keeps its dedicated template.
   if (input.status === "additional_information_needed") {
     const missing = input.application.missing_information || "AMG Operations needs additional information before review can continue.";
     return {
@@ -373,64 +373,27 @@ function emailBodyForStatus(input: {
     };
   }
 
-  if (input.status === "approved") {
-    return {
-      subject: "AMG Crew Network Application Approved",
-      text: `Hello ${name},\n\nYour AMG Crew Network application has been approved for crew portal access. Approval allows you to access the crew portal and complete your approved crew profile. It does not guarantee trip assignment, compensation, or engagement.\n\nSet your password and sign in here: ${input.setupLink ?? portalLink}\n\nComplete your crew profile with total time, flight experience breakdown, logbook upload, medical certificate upload, certificate uploads, desired day rate, availability, aircraft/type ratings, base airport/preferred coverage, and contact details.\n\n${DISCLAIM}`,
-      html: amgEmailLayout({
-        ...common,
-        title: "AMG Crew Network Application Approved",
-        intro: `Hello ${name}, your AMG Crew Network application has been approved for AMG crew portal access.`,
-        sections: [
-          { body: "Approval means you may access the crew portal and complete your AMG crew profile. Approval does not guarantee trip assignment, compensation, or engagement." },
-          { title: "Crew Profile Required Items", body: "Total time, flight experience breakdown, logbook upload, medical certificate upload, certificate uploads, desired day rate, availability, aircraft/type ratings, base airport / preferred airport coverage, and contact details." },
-        ],
-        cta: { label: input.setupLink ? "Set Password and Sign In" : "Open AMG Portal", href: input.setupLink ?? portalLink },
-      }),
-    };
-  }
+  // All decision emails share one copy source with the admin preview modal.
+  const copy = buildNetworkDecisionEmailCopy({
+    status: input.status,
+    fullName: input.application.full_name,
+    denialReason: input.application.denial_reason,
+    otherStatusReason: input.application.other_status_reason,
+  });
+  if (!copy) return null;
 
-  if (input.status === "denied") {
-    return {
-      subject: "AMG Crew Network Application Update",
-      text: `Hello ${name},\n\nThank you for submitting your AMG Crew Network application. AMG is unable to approve the application at this time. This update does not imply permanent ineligibility.\n\n${DISCLAIM}`,
-      html: amgEmailLayout({
-        ...common,
-        title: "AMG Crew Network Application Update",
-        intro: `Hello ${name}, thank you for submitting your AMG Crew Network application. AMG is unable to approve the application at this time.`,
-        sections: [{ body: "This update does not imply permanent ineligibility. AMG may reassess operational fit if network needs change." }],
-      }),
-    };
-  }
-
-  if (input.status === "waitlist") {
-    return {
-      subject: "AMG Crew Network Application Waitlist Update",
-      text: `Hello ${name},\n\nYour AMG Crew Network application was reviewed and placed on the waitlist. Waitlist status may be based on current network coverage, aircraft demand, geography, timing, or operational need. AMG may contact you if needs change.\n\n${DISCLAIM}`,
-      html: amgEmailLayout({
-        ...common,
-        title: "AMG Crew Network Application Waitlist Update",
-        intro: `Hello ${name}, your AMG Crew Network application was reviewed and placed on the waitlist.`,
-        sections: [{ body: "Waitlist status may be based on current network coverage, aircraft demand, geography, timing, or operational need. AMG may contact you if needs change." }],
-      }),
-    };
-  }
-
-  if (input.status === "other") {
-    const reason = input.application.other_status_reason || "AMG Operations has updated your crew-network application status.";
-    return {
-      subject: "AMG Crew Network Application Status Update",
-      text: `Hello ${name},\n\n${reason}\n\nIf you have questions, contact AMG Operations through approved AMG channels.\n\n${DISCLAIM}`,
-      html: amgEmailLayout({
-        ...common,
-        title: "AMG Crew Network Application Status Update",
-        intro: `Hello ${name}, AMG Operations has updated your crew-network application status.`,
-        sections: [{ title: "Status Detail", body: reason }],
-      }),
-    };
-  }
-
-  return null;
+  const ctaHref = input.setupLink ?? portalLink;
+  return {
+    subject: copy.subject,
+    text: renderDecisionEmailText(copy, { ctaHref: copy.cta ? ctaHref : null }),
+    html: amgEmailLayout({
+      ...common,
+      title: copy.subject,
+      intro: copy.intro,
+      sections: copy.sections,
+      ...(copy.cta ? { cta: { label: copy.cta.label, href: ctaHref } } : {}),
+    }),
+  };
 }
 
 async function sendStatusEmail(application: NetworkApplication, setupLink?: string | null) {
@@ -679,6 +642,7 @@ export async function updateNetworkApplicationStatus(input: {
   status: NetworkApplicationStatus;
   missingInformation?: string | null;
   otherStatusReason?: string | null;
+  denialReason?: string | null;
   note?: string | null;
 }) {
   if (!NETWORK_APPLICATION_STATUSES.includes(input.status)) return { ok: false as const, error: "Invalid status." };
@@ -687,6 +651,9 @@ export async function updateNetworkApplicationStatus(input: {
   }
   if (input.status === "other" && !input.otherStatusReason?.trim()) {
     return { ok: false as const, error: "Other status reason is required." };
+  }
+  if (input.status === "denied" && !input.denialReason?.trim()) {
+    return { ok: false as const, error: "A denial reason is required." };
   }
 
   const db = (await createServiceClient()) as any;
@@ -704,6 +671,7 @@ export async function updateNetworkApplicationStatus(input: {
     status: input.status,
     missing_information: input.status === "additional_information_needed" ? input.missingInformation?.trim() : current.missing_information,
     other_status_reason: input.status === "other" ? input.otherStatusReason?.trim() : current.other_status_reason,
+    denial_reason: input.status === "denied" ? input.denialReason?.trim() : current.denial_reason,
     reviewed_at: input.status !== "awaiting_review" ? new Date().toISOString() : current.reviewed_at,
     reviewed_by: input.status !== "awaiting_review" ? input.actor.id : current.reviewed_by,
     approved_at: input.status === "approved" ? (current.approved_at ?? new Date().toISOString()) : current.approved_at,
@@ -715,6 +683,12 @@ export async function updateNetworkApplicationStatus(input: {
   if (error || !application) return { ok: false as const, error: "Status could not be saved." };
 
   const emailResult = await sendStatusEmail(application as NetworkApplication, setupLink);
+  if (emailResult.sent) {
+    await db
+      .from("network_applications")
+      .update({ decision_email_sent_at: new Date().toISOString() })
+      .eq("id", input.applicationId);
+  }
   await db.from("network_application_status_events").insert({
     application_id: input.applicationId,
     previous_status: current.status,
@@ -737,7 +711,179 @@ export async function updateNetworkApplicationStatus(input: {
   });
   revalidatePath("/portal/admin/network-applications");
   revalidatePath(`/portal/admin/network-applications/${input.applicationId}`);
+  // Status is saved either way; the caller surfaces a failed send with a
+  // retry (Resend button) instead of silently reporting success.
+  return { ok: true as const, emailSent: emailResult.sent, emailError: emailResult.error };
+}
+
+/** Re-send the decision email for the application's current status. */
+export async function resendNetworkDecisionEmail(input: {
+  actor: SessionUser;
+  applicationId: string;
+}) {
+  const db = (await createServiceClient()) as any;
+  const { data: application } = await db.from("network_applications").select("*").eq("id", input.applicationId).maybeSingle();
+  if (!application) return { ok: false as const, error: "Application was not found." };
+
+  // Approved applications regenerate a fresh password-setup link when the
+  // account hasn't finished setup yet.
+  let setupLink: string | null = null;
+  if (application.status === "approved" && application.crew_user_id) {
+    setupLink = await generatePortalPasswordSetupLink(application.email.toLowerCase());
+  }
+
+  const emailResult = await sendStatusEmail(application as NetworkApplication, setupLink);
+  if (!emailResult.sent) {
+    return { ok: false as const, error: `Email could not be sent: ${emailResult.error ?? "unknown error"}` };
+  }
+
+  await db
+    .from("network_applications")
+    .update({ decision_email_sent_at: new Date().toISOString() })
+    .eq("id", input.applicationId);
+  await db.from("network_application_status_events").insert({
+    application_id: input.applicationId,
+    previous_status: application.status,
+    new_status: application.status,
+    note: "Decision email re-sent.",
+    changed_by: input.actor.id,
+    email_sent: true,
+    email_sent_at: new Date().toISOString(),
+  });
+  await logAuditEvent({
+    actor: input.actor,
+    action: "network_application_email_resent",
+    detail: `Re-sent ${application.status} email to ${application.email}`,
+    entityType: "network_application",
+    entityId: input.applicationId,
+  });
+  revalidatePath(`/portal/admin/network-applications/${input.applicationId}`);
   return { ok: true as const };
+}
+
+// ─── Manual prospects + CSV/XLSX import ─────────────────────────────
+
+export type ProspectInput = {
+  full_name: string;
+  email: string;
+  phone?: string | null;
+  position?: string | null;
+  certificates_ratings?: string | null;
+  total_hours?: number | null;
+  notes?: string | null;
+};
+
+function prospectRow(input: ProspectInput, source: NetworkApplicationSource, batchId?: string | null) {
+  return {
+    full_name: input.full_name.trim(),
+    email: input.email.trim().toLowerCase(),
+    phone: input.phone?.trim() || "",
+    home_airport: "",
+    closest_major_airport: "",
+    commute_time: "",
+    minimum_call_time: "",
+    total_time: input.total_hours ?? 0,
+    type_ratings: input.certificates_ratings?.trim() || null,
+    medical_certificate: "",
+    work_authorization_status: "unknown",
+    additional_notes: input.notes?.trim() || null,
+    position_applied: input.position?.trim() || null,
+    status: "awaiting_review",
+    source,
+    import_batch_id: batchId ?? null,
+  };
+}
+
+/** Manually add one prospect (e.g. a pilot who emailed directly). */
+export async function addManualProspect(input: { actor: SessionUser; prospect: ProspectInput }) {
+  const email = input.prospect.email.trim().toLowerCase();
+  if (!input.prospect.full_name.trim()) return { ok: false as const, error: "Name is required." };
+  if (!validEmail(email)) return { ok: false as const, error: "Enter a valid email." };
+
+  const db = (await createServiceClient()) as any;
+  const [{ data: existingApp }, { data: existingProfile }] = await Promise.all([
+    db.from("network_applications").select("id").ilike("email", email).maybeSingle(),
+    db.from("profiles").select("id").ilike("email", email).maybeSingle(),
+  ]);
+  if (existingApp) return { ok: false as const, error: "An application with this email already exists." };
+  if (existingProfile) return { ok: false as const, error: "A portal user with this email already exists." };
+
+  const { data, error } = await db
+    .from("network_applications")
+    .insert(prospectRow(input.prospect, "manual"))
+    .select("id")
+    .single();
+  if (error || !data) return { ok: false as const, error: "Prospect could not be created." };
+
+  await logAuditEvent({
+    actor: input.actor,
+    action: "network_application_prospect_added",
+    detail: `Manually added ${email}`,
+    entityType: "network_application",
+    entityId: data.id,
+  });
+  revalidatePath("/portal/admin/network-applications");
+  return { ok: true as const, id: data.id };
+}
+
+/** Bulk-import prospects (already parsed client-side from CSV/XLSX). */
+export async function importProspects(input: {
+  actor: SessionUser;
+  source: "csv_import" | "xlsx_import";
+  rows: ProspectInput[];
+}) {
+  const db = (await createServiceClient()) as any;
+  const batchId = `${input.source === "csv_import" ? "csv" : "xlsx"}-${Date.now()}`;
+
+  const seen = new Set<string>();
+  const valid: ProspectInput[] = [];
+  let skipped = 0;
+  for (const row of input.rows) {
+    const email = row.email?.trim().toLowerCase() ?? "";
+    if (!row.full_name?.trim() || !validEmail(email) || seen.has(email)) {
+      skipped += 1;
+      continue;
+    }
+    seen.add(email);
+    valid.push({ ...row, email });
+  }
+
+  const emails = valid.map((r) => r.email);
+  let duplicates = 0;
+  let toInsert = valid;
+  if (emails.length) {
+    const [{ data: existingApps }, { data: existingProfiles }] = await Promise.all([
+      db.from("network_applications").select("email").in("email", emails),
+      db.from("profiles").select("email").in("email", emails),
+    ]);
+    const existing = new Set(
+      [...(existingApps ?? []), ...(existingProfiles ?? [])].map((r: { email: string | null }) =>
+        (r.email ?? "").toLowerCase()
+      )
+    );
+    toInsert = valid.filter((r) => !existing.has(r.email));
+    duplicates = valid.length - toInsert.length;
+  }
+
+  let imported = 0;
+  if (toInsert.length) {
+    const { error, data } = await db
+      .from("network_applications")
+      .insert(toInsert.map((r) => prospectRow(r, input.source, batchId)))
+      .select("id");
+    if (error) return { ok: false as const, error: "Import failed while inserting rows." };
+    imported = (data ?? []).length;
+  }
+
+  await logAuditEvent({
+    actor: input.actor,
+    action: "network_application_prospects_imported",
+    detail: `${imported} imported, ${duplicates} duplicates, ${skipped} skipped (${batchId})`,
+    entityType: "network_application",
+    entityId: null,
+  });
+  revalidatePath("/portal/admin/network-applications");
+  return { ok: true as const, imported, duplicates, skipped, batchId };
 }
 
 export async function getNetworkApplicationFileSignedUrl(input: {
@@ -778,4 +924,19 @@ export function calculateCrewProfileCompletion(input: {
     Boolean(input.availability && JSON.stringify(input.availability) !== "{}"),
   ];
   return Math.round((checks.filter(Boolean).length / checks.length) * 100);
+}
+
+/** Portal account state per approved applicant: finished setup or still pending. */
+export async function getCrewAccountStates(
+  crewUserIds: string[]
+): Promise<Record<string, "active" | "setup_pending">> {
+  const ids = crewUserIds.filter(Boolean);
+  if (!ids.length) return {};
+  const db = (await createServiceClient()) as any;
+  const { data } = await db.from("profiles").select("id, invitation_status").in("id", ids);
+  const out: Record<string, "active" | "setup_pending"> = {};
+  for (const row of (data ?? []) as { id: string; invitation_status: string | null }[]) {
+    out[row.id] = row.invitation_status === "password_created" ? "active" : "setup_pending";
+  }
+  return out;
 }
