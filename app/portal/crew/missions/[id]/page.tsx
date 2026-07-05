@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/portal/session";
-import { PageHeader, SectionCard, DetailRow, Notice } from "@/components/portal/ui/primitives";
+import { SectionCard, DetailRow, Notice } from "@/components/portal/ui/primitives";
+import { DescriptionList } from "@/components/portal/ui/description-list";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { getMissionDetail } from "@/lib/portal/queries";
@@ -45,13 +46,23 @@ export default async function CrewMissionDetailPage({
         </Notice>
       ) : null}
 
-      <PageHeader
-        eyebrow={mission.ref}
-        title={`Crew Brief — ${formatRoute(mission.departure_airport, mission.arrival_airport)}`}
-        actions={
-          <StatusBadge label={labelFor(MISSION_STATUS_LABEL, mission.status)} tone={toneFor(MISSION_STATUS_TONE, mission.status)} />
-        }
-      />
+      {/* Detail-archetype summary header */}
+      <div className="flex flex-col gap-4 pb-2 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <p className="deck-eyebrow">Crew Mission Brief</p>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <h1 className="deck-title text-[1.65rem] sm:text-[2rem]">{mission.ref}</h1>
+            <StatusBadge label={labelFor(MISSION_STATUS_LABEL, mission.status)} tone={toneFor(MISSION_STATUS_TONE, mission.status)} />
+          </div>
+          <p className="deck-mono mt-2.5 !text-[0.8rem] text-[var(--deck-text-2)]">
+            {formatRoute(mission.departure_airport, mission.arrival_airport)}
+            {" · DEP "}
+            {formatDateTime(mission.requested_departure)}
+            {" · "}
+            {labelFor(MISSION_TYPE_LABEL, mission.mission_type)}
+          </p>
+        </div>
+      </div>
 
       {canRespond ? (
         <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] p-4">
@@ -77,22 +88,34 @@ export default async function CrewMissionDetailPage({
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="space-y-6">
           <SectionCard title="Mission Details" icon="plane">
-            <dl>
-              <DetailRow label="Type">{labelFor(MISSION_TYPE_LABEL, mission.mission_type)}</DetailRow>
-              <DetailRow label="Route">{formatRoute(mission.departure_airport, mission.arrival_airport)}</DetailRow>
-              {mission.alternate_airport ? <DetailRow label="Alternate">{mission.alternate_airport}</DetailRow> : null}
-              <DetailRow label="Aircraft">{mission.tail_number ?? "—"}</DetailRow>
-              <DetailRow label="Departure">{formatDateTime(mission.requested_departure)}</DetailRow>
-              <DetailRow label="Arrival">{formatDateTime(mission.requested_arrival)}</DetailRow>
-              {mission.urgency !== "standard" ? (
-                <DetailRow label="Urgency"><StatusBadge label={labelFor(URGENCY_LABEL, mission.urgency)} tone={toneFor(URGENCY_TONE, mission.urgency)} /></DetailRow>
-              ) : null}
-              {mission.fbo_preference ? <DetailRow label="FBO">{mission.fbo_preference}</DetailRow> : null}
-              <DetailRow label="Passengers">{mission.passenger_count}</DetailRow>
-              <DetailRow label="Ground Transport">{mission.ground_transport ? "Requested" : "No"}</DetailRow>
-              <DetailRow label="Catering">{mission.catering ? "Requested" : "No"}</DetailRow>
-              <DetailRow label="International">{mission.is_international ? "Yes" : "No"}</DetailRow>
-            </dl>
+            <DescriptionList
+              items={[
+                { label: "Type", value: labelFor(MISSION_TYPE_LABEL, mission.mission_type) },
+                { label: "Route", value: formatRoute(mission.departure_airport, mission.arrival_airport), mono: true },
+                ...(mission.alternate_airport
+                  ? [{ label: "Alternate", value: mission.alternate_airport, mono: true }]
+                  : []),
+                { label: "Aircraft", value: mission.tail_number ?? "—", mono: true },
+                { label: "Departure", value: formatDateTime(mission.requested_departure) },
+                { label: "Arrival", value: formatDateTime(mission.requested_arrival) },
+                ...(mission.urgency !== "standard"
+                  ? [{
+                      label: "Urgency",
+                      value: (
+                        <StatusBadge
+                          label={labelFor(URGENCY_LABEL, mission.urgency)}
+                          tone={toneFor(URGENCY_TONE, mission.urgency)}
+                        />
+                      ),
+                    }]
+                  : []),
+                ...(mission.fbo_preference ? [{ label: "FBO", value: mission.fbo_preference }] : []),
+                { label: "Passengers", value: mission.passenger_count },
+                { label: "Ground Transport", value: mission.ground_transport ? "Requested" : "No" },
+                { label: "Catering", value: mission.catering ? "Requested" : "No" },
+                { label: "International", value: mission.is_international ? "Yes" : "No" },
+              ]}
+            />
           </SectionCard>
 
           {showAssignedDetails && mission.client_notes ? (

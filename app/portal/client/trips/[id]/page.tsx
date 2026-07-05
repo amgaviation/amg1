@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/portal/session";
-import { PageHeader, SectionCard, DetailRow, Timeline, Notice } from "@/components/portal/ui/primitives";
+import { SectionCard, Timeline, Notice } from "@/components/portal/ui/primitives";
+import { DescriptionList } from "@/components/portal/ui/description-list";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { Button } from "@/components/ui/button";
@@ -50,35 +51,47 @@ export default async function ClientTripDetailPage({
       {sp.success === "cancelled" ? <Notice tone="success">Mission cancelled.</Notice> : null}
       {sp.success === "passenger" ? <Notice tone="success">Passenger list updated.</Notice> : null}
 
-      <PageHeader
-        eyebrow={mission.ref}
-        title={formatRoute(mission.departure_airport, mission.arrival_airport)}
-        actions={
-          <div className="flex items-center gap-2">
+      {/* Detail-archetype summary header */}
+      <div className="flex flex-col gap-4 pb-2 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <p className="deck-eyebrow">Trip Detail</p>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <h1 className="deck-title text-[1.65rem] sm:text-[2rem]">{mission.ref}</h1>
             <StatusBadge label={labelFor(MISSION_STATUS_LABEL, mission.status)} tone={toneFor(MISSION_STATUS_TONE, mission.status)} />
             {mission.urgency !== "standard" ? (
               <StatusBadge label={labelFor(URGENCY_LABEL, mission.urgency)} tone={toneFor(URGENCY_TONE, mission.urgency)} />
             ) : null}
           </div>
-        }
-      />
+          <p className="deck-mono mt-2.5 !text-[0.8rem] text-[var(--deck-text-2)]">
+            {formatRoute(mission.departure_airport, mission.arrival_airport)}
+            {" · DEP "}
+            {formatDateTime(mission.requested_departure)}
+            {" · "}
+            {labelFor(MISSION_TYPE_LABEL, mission.mission_type)}
+          </p>
+        </div>
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="space-y-6">
           <SectionCard title="Mission Summary" icon="plane">
-            <dl>
-              <DetailRow label="Type">{labelFor(MISSION_TYPE_LABEL, mission.mission_type)}</DetailRow>
-              <DetailRow label="Route">{formatRoute(mission.departure_airport, mission.arrival_airport)}</DetailRow>
-              {mission.alternate_airport ? <DetailRow label="Alternate">{mission.alternate_airport}</DetailRow> : null}
-              <DetailRow label="Aircraft">{mission.tail_number ?? "—"}</DetailRow>
-              <DetailRow label="Departure">{formatDateTime(mission.requested_departure)}</DetailRow>
-              <DetailRow label="Arrival">{formatDateTime(mission.requested_arrival)}</DetailRow>
-              <DetailRow label="Passengers">{mission.passenger_count}</DetailRow>
-              {mission.fbo_preference ? <DetailRow label="FBO">{mission.fbo_preference}</DetailRow> : null}
-              <DetailRow label="Ground Transport">{mission.ground_transport ? "Requested" : "Not requested"}</DetailRow>
-              <DetailRow label="Catering">{mission.catering ? "Requested" : "Not requested"}</DetailRow>
-              <DetailRow label="International">{mission.is_international ? "Yes" : "No"}</DetailRow>
-            </dl>
+            <DescriptionList
+              items={[
+                { label: "Type", value: labelFor(MISSION_TYPE_LABEL, mission.mission_type) },
+                { label: "Route", value: formatRoute(mission.departure_airport, mission.arrival_airport), mono: true },
+                ...(mission.alternate_airport
+                  ? [{ label: "Alternate", value: mission.alternate_airport, mono: true }]
+                  : []),
+                { label: "Aircraft", value: mission.tail_number ?? "—", mono: true },
+                { label: "Departure", value: formatDateTime(mission.requested_departure) },
+                { label: "Arrival", value: formatDateTime(mission.requested_arrival) },
+                { label: "Passengers", value: mission.passenger_count },
+                ...(mission.fbo_preference ? [{ label: "FBO", value: mission.fbo_preference }] : []),
+                { label: "Ground Transport", value: mission.ground_transport ? "Requested" : "Not requested" },
+                { label: "Catering", value: mission.catering ? "Requested" : "Not requested" },
+                { label: "International", value: mission.is_international ? "Yes" : "No" },
+              ]}
+            />
           </SectionCard>
 
           {mission.passengers.length > 0 ? (

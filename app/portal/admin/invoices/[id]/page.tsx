@@ -2,7 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { DataTable } from "@/components/portal/ui/data-table";
-import { DetailRow, Notice, PageHeader, SectionCard, Timeline } from "@/components/portal/ui/primitives";
+import { DetailRow, Notice, SectionCard, Timeline } from "@/components/portal/ui/primitives";
+import { DescriptionList } from "@/components/portal/ui/description-list";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
@@ -78,50 +79,69 @@ export default async function AdminInvoiceDetailPage({
       {flash.error === "revision" ? <Notice tone="danger">An invoice revision could not be created.</Notice> : null}
       {flash.error === "configuration" ? <Notice tone="danger">Stripe is not configured. Add STRIPE_SECRET_KEY before generating payment links.</Notice> : null}
       {flash.error === "stripe" ? <Notice tone="danger">Stripe could not create a payment session for this invoice.</Notice> : null}
-      <PageHeader
-        eyebrow="Invoice"
-        title={invoice.invoice_number}
-        actions={
-          <div className="flex items-center gap-3">
-            {editableInvoice ? (
-              <Link href={`/portal/admin/invoices/${invoice.id}/edit`} className="text-xs text-accent hover:underline">
-                Edit Draft
-              </Link>
-            ) : null}
-            {latestInvoiceDocument ? (
-              <Link
-                href={`/portal/billing-documents/${latestInvoiceDocument.id}/view`}
-                className="text-xs text-accent hover:underline"
-              >
-                View PDF
-              </Link>
-            ) : null}
-            <Link href="/portal/admin/invoices" className="text-xs text-muted-foreground hover:text-accent">Back to invoices</Link>
+      {/* Detail-archetype summary header */}
+      <div className="flex flex-col gap-4 pb-2 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <p className="deck-eyebrow">Invoice</p>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <h1 className="deck-title text-[1.65rem] sm:text-[2rem]">{invoice.invoice_number}</h1>
+            <StatusBadge label={INVOICE_STATUS_LABEL[invoice.status] ?? invoice.status} tone={toneFor(INVOICE_STATUS_TONE, invoice.status)} />
           </div>
-        }
-      />
+          <p className="deck-mono mt-2.5 !text-[0.8rem] text-[var(--deck-text-2)]">
+            {formatMoney(invoice.amount_due)} due
+            {" · "}
+            {invoice.client?.company_name ?? invoice.client?.full_name ?? invoice.client?.email ?? "Unassigned client"}
+            {invoice.due_date ? ` · Due ${formatDate(invoice.due_date)}` : ""}
+          </p>
+        </div>
+        <div data-portal-action-bar className="flex flex-wrap items-center gap-2">
+          {editableInvoice ? (
+            <Link
+              href={`/portal/admin/invoices/${invoice.id}/edit`}
+              className="rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-4 py-2 text-xs font-semibold text-[var(--deck-accent-ink)] transition-colors hover:border-[var(--deck-accent)]"
+            >
+              Edit Draft
+            </Link>
+          ) : null}
+          {latestInvoiceDocument ? (
+            <Link
+              href={`/portal/billing-documents/${latestInvoiceDocument.id}/view`}
+              className="rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
+            >
+              View PDF
+            </Link>
+          ) : null}
+          <Link
+            href="/portal/admin/invoices"
+            className="rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
+          >
+            All Invoices
+          </Link>
+        </div>
+      </div>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_24rem]">
         <div className="space-y-6">
           <SectionCard title="Invoice Summary" icon="wallet">
-            <dl>
-              <DetailRow label="Status"><StatusBadge label={INVOICE_STATUS_LABEL[invoice.status] ?? invoice.status} tone={toneFor(INVOICE_STATUS_TONE, invoice.status)} /></DetailRow>
-              <DetailRow label="Client">{invoice.client?.company_name ?? invoice.client?.full_name ?? invoice.client?.email ?? "-"}</DetailRow>
-              <DetailRow label="Mission">{invoice.mission?.ref ?? "-"}</DetailRow>
-              <DetailRow label="Quote">{invoice.quote?.ref ?? "-"}</DetailRow>
-              <DetailRow label="Issued">{formatDateTime(invoice.issued_at)}</DetailRow>
-              <DetailRow label="Due">{formatDate(invoice.due_date)}</DetailRow>
-              <DetailRow label="Total">{formatMoney(invoice.total)}</DetailRow>
-              <DetailRow label="Discount">{formatMoney((invoice as any).discount_total ?? invoice.discount)}</DetailRow>
-              <DetailRow label="Tax">{formatMoney((invoice as any).tax_total ?? invoice.tax)}</DetailRow>
-              <DetailRow label="Deposit">{formatMoney((invoice as any).deposit_amount ?? 0)}</DetailRow>
-              <DetailRow label="Paid">{formatMoney(invoice.amount_paid)}</DetailRow>
-              <DetailRow label="Amount Due">{formatMoney(invoice.amount_due)}</DetailRow>
-              <DetailRow label="Stripe Status">{(invoice as any).stripe_payment_status ?? (invoice as any).payment_status ?? "-"}</DetailRow>
-              <DetailRow label="Stripe Session">{(invoice as any).stripe_checkout_session_id ?? (invoice as any).payment_provider_session_id ?? "-"}</DetailRow>
-              <DetailRow label="Terms">{invoice.terms ?? "-"}</DetailRow>
-              <DetailRow label="Payment Instructions">{(invoice as any).payment_instructions ?? "-"}</DetailRow>
-            </dl>
+            <DescriptionList
+              items={[
+                { label: "Client", value: invoice.client?.company_name ?? invoice.client?.full_name ?? invoice.client?.email ?? "-" },
+                { label: "Mission", value: invoice.mission?.ref ?? "-", mono: true },
+                { label: "Quote", value: invoice.quote?.ref ?? "-", mono: true },
+                { label: "Issued", value: formatDateTime(invoice.issued_at) },
+                { label: "Due", value: formatDate(invoice.due_date) },
+                { label: "Total", value: formatMoney(invoice.total), mono: true },
+                { label: "Discount", value: formatMoney((invoice as any).discount_total ?? invoice.discount), mono: true },
+                { label: "Tax", value: formatMoney((invoice as any).tax_total ?? invoice.tax), mono: true },
+                { label: "Deposit", value: formatMoney((invoice as any).deposit_amount ?? 0), mono: true },
+                { label: "Paid", value: formatMoney(invoice.amount_paid), mono: true },
+                { label: "Amount Due", value: formatMoney(invoice.amount_due), mono: true },
+                { label: "Stripe Status", value: (invoice as any).stripe_payment_status ?? (invoice as any).payment_status ?? "-" },
+                { label: "Stripe Session", value: (invoice as any).stripe_checkout_session_id ?? (invoice as any).payment_provider_session_id ?? "-", mono: true },
+                { label: "Terms", value: invoice.terms ?? "-", wide: true },
+                { label: "Payment Instructions", value: (invoice as any).payment_instructions ?? "-", wide: true },
+              ]}
+            />
           </SectionCard>
 
           <SectionCard title="Line Items" icon="receipt">
