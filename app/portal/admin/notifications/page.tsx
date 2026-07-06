@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { NotificationsList } from "@/components/portal/ui/notifications-list";
 import { listNotifications, markNotificationsRead } from "@/lib/portal/queries";
@@ -6,7 +6,7 @@ import { listNotifications, markNotificationsRead } from "@/lib/portal/queries";
 export const metadata = { title: "Notifications - Admin Portal" };
 
 export default async function AdminNotificationsPage() {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "notifications");
   const notifications = await listNotifications(user.id);
 
   // Mark unread notifications as read (fire-and-forget on server side)

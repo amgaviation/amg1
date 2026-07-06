@@ -14,7 +14,7 @@ import {
   listClients,
 } from "@/lib/portal/queries";
 import { dependencyConfirmMessage } from "@/lib/portal/record-safety";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 
 export const metadata = { title: "Clients - Admin Portal" };
 
@@ -61,7 +61,7 @@ export default async function AdminClientsPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "clients");
   const params = await searchParams;
   const [clients, aircraft, missions, quotes, invoices, documents, subscriptions] = await Promise.all([
     listClients(),

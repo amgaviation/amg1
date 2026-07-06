@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { createClientSubscription } from "@/app/portal/actions/subscriptions";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { ClientPickerField } from "@/components/portal/ui/combobox";
@@ -15,7 +15,7 @@ export default async function NewSubscriptionPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "subscriptions", "add");
   const params = await searchParams;
   const [clients, aircraft, plans] = await Promise.all([listClients(), listAllAircraft(), listSubscriptionPlans()]);
   const tierOptions = plans.flatMap((plan) =>

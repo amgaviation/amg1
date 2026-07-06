@@ -20,7 +20,7 @@ function statusValue(value: string): NetworkApplicationStatus | null {
 }
 
 export async function saveNetworkApplicationStatus(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "network_applications.edit");
   const applicationId = str(formData, "application_id");
   const backTo = safeRedirectPath(str(formData, "back_to"), `/portal/admin/network-applications/${applicationId}`);
   const status = statusValue(str(formData, "status"));
@@ -49,7 +49,7 @@ export async function saveNetworkApplicationStatus(formData: FormData) {
 }
 
 export async function resendNetworkApplicationEmail(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "network_applications.edit");
   const applicationId = str(formData, "application_id");
   const backTo = safeRedirectPath(str(formData, "back_to"), `/portal/admin/network-applications/${applicationId}`);
   const result = await resendNetworkDecisionEmail({ actor: admin, applicationId });
@@ -58,7 +58,7 @@ export async function resendNetworkApplicationEmail(formData: FormData) {
 }
 
 export async function addNetworkProspect(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "network_applications.add");
   const backTo = "/portal/admin/network-applications";
   const result = await addManualProspect({
     actor: admin,
@@ -77,7 +77,7 @@ export async function addNetworkProspect(formData: FormData) {
 }
 
 export async function importNetworkProspects(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "network_applications.add");
   const backTo = "/portal/admin/network-applications";
   const source = str(formData, "source") === "xlsx_import" ? ("xlsx_import" as const) : ("csv_import" as const);
 
@@ -96,7 +96,7 @@ export async function importNetworkProspects(formData: FormData) {
 }
 
 export async function saveNetworkApplicationNotes(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "network_applications.edit");
   const applicationId = str(formData, "application_id");
   const backTo = safeRedirectPath(str(formData, "back_to"), `/portal/admin/network-applications/${applicationId}`);
   const result = await updateNetworkApplicationInternalNotes({
@@ -109,7 +109,7 @@ export async function saveNetworkApplicationNotes(formData: FormData) {
 }
 
 export async function openNetworkApplicationFile(formData: FormData) {
-  await actor(["admin"]);
+  await actor(["admin"], "network_applications.view");
   const fileId = str(formData, "file_id");
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/network-applications");
   if (!fileId) redirect(`${backTo}?error=file`);

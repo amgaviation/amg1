@@ -10,7 +10,7 @@ import { safeRedirectPath } from "./_helpers";
 const TASKS_PATH = "/portal/admin/tasks";
 
 export async function createTask(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "tasks.add");
   const title = str(formData, "title");
   const backTo = safeRedirectPath(str(formData, "back_to"), TASKS_PATH);
   if (!title) redirect(`${backTo}?error=missing`);
@@ -57,7 +57,7 @@ export async function createTask(formData: FormData) {
 }
 
 export async function setTaskStatus(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "tasks.edit");
   const taskId = str(formData, "task_id");
   const status = str(formData, "status");
   const backTo = safeRedirectPath(str(formData, "back_to"), TASKS_PATH);

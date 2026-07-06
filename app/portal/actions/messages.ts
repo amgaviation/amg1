@@ -50,7 +50,7 @@ async function verifyThreadMissionReference(
 
 /** Post a message into an existing thread. */
 export async function postMessage(formData: FormData) {
-  const user = await actor();
+  const user = await actor(undefined, "messages.add");
   const db = await createServiceClient();
   const threadId = str(formData, "thread_id");
   const body = str(formData, "body");
@@ -130,7 +130,7 @@ export async function postMessage(formData: FormData) {
 
 /** Open a new thread to AMG Operations (client / crew / partner). */
 export async function startThread(formData: FormData) {
-  const user = await actor(["client", "crew", "partner"]);
+  const user = await actor(["client", "crew", "partner"], "messages.add");
   const db = await createServiceClient();
   const title = str(formData, "title") || "AMG Operations";
   const body = str(formData, "body");

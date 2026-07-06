@@ -107,7 +107,7 @@ function quotePayload(formData: FormData, settings: Awaited<ReturnType<typeof ge
 }
 
 export async function createQuote(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "quotes.add");
   const db = await createServiceClient();
   const billingDb = db as any;
   const missionId = str(formData, "mission_id") || null;
@@ -199,7 +199,7 @@ export async function createQuote(formData: FormData) {
 }
 
 export async function updateQuoteDraft(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "quotes.edit");
   const db = await createServiceClient();
   const billingDb = db as any;
   const quoteId = str(formData, "quote_id");
@@ -240,7 +240,7 @@ export async function updateQuoteDraft(formData: FormData) {
 }
 
 export async function createQuoteRevision(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "quotes.add");
   const db = await createServiceClient();
   const billingDb = db as any;
   const quoteId = str(formData, "quote_id");
@@ -328,7 +328,7 @@ export async function createQuoteRevision(formData: FormData) {
 }
 
 export async function previewQuotePdf(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "quotes.view");
   const quoteId = str(formData, "quote_id");
   if (!quoteId) redirect("/portal/admin/quotes?error=missing");
   const pdf = await generateAndStoreQuotePdf(quoteId, admin.id);
@@ -336,7 +336,7 @@ export async function previewQuotePdf(formData: FormData) {
 }
 
 export async function sendQuote(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "quotes.edit");
   const db = await createServiceClient();
   const billingDb = db as any;
   const quoteId = str(formData, "quote_id");
@@ -372,7 +372,7 @@ export async function sendQuote(formData: FormData) {
 }
 
 export async function convertApprovedQuoteToInvoice(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "invoices.add");
   const db = await createServiceClient();
   const billingDb = db as any;
   const quoteId = str(formData, "quote_id");
@@ -385,7 +385,7 @@ export async function convertApprovedQuoteToInvoice(formData: FormData) {
 }
 
 export async function respondToQuote(formData: FormData) {
-  const user = await actor(["client", "admin"]);
+  const user = await actor(["client", "admin"], "quotes.edit");
   const db = await createServiceClient();
   const billingDb = db as any;
   const quoteId = str(formData, "quote_id");

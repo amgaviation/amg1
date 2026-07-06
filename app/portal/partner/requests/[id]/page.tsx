@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { Notice, SectionCard } from "@/components/portal/ui/primitives";
 import { DescriptionList } from "@/components/portal/ui/description-list";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -20,7 +20,7 @@ export default async function PartnerRequestDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRole("partner");
+  const user = await requireRolePermission("partner", "partners");
   const { id } = await params;
   const flash = await searchParams;
   const assignment = await getPartnerAssignment(id);

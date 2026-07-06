@@ -8,7 +8,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { actor, str } from "./_helpers";
 
 export async function resendReceiptPdf(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "expenses.edit");
   const db = (await createServiceClient()) as any;
   const paymentId = str(formData, "payment_id");
   if (!paymentId) redirect("/portal/admin/receipts?error=missing");

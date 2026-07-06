@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { SectionCard, Timeline, Notice } from "@/components/portal/ui/primitives";
 import { DescriptionList } from "@/components/portal/ui/description-list";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -29,7 +29,7 @@ export default async function ClientTripDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ success?: string }>;
 }) {
-  const user = await requireRole("client");
+  const user = await requireRolePermission("client", "missions");
   const { id } = await params;
   const sp = await searchParams;
 

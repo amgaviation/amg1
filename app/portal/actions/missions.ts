@@ -100,7 +100,7 @@ async function requireMissionAccessForMutation(
 }
 
 export async function createMission(formData: FormData) {
-  const user = await actor(["client", "admin"]);
+  const user = await actor(["client", "admin"], "missions.add");
   const db = await createServiceClient();
 
   const departure = str(formData, "departure_airport").toUpperCase();
@@ -251,7 +251,7 @@ export async function createMission(formData: FormData) {
 }
 
 export async function updateMissionStatus(formData: FormData) {
-  const user = await actor(["admin"]);
+  const user = await actor(["admin"], "missions.edit");
   const db = await createServiceClient();
   const missionId = str(formData, "mission_id");
   const status = str(formData, "status");
@@ -310,7 +310,7 @@ export async function updateMissionStatus(formData: FormData) {
 }
 
 export async function updateMissionNotes(formData: FormData) {
-  const user = await actor(["admin"]);
+  const user = await actor(["admin"], "missions.edit");
   const db = await createServiceClient();
   const missionId = str(formData, "mission_id");
   await db
@@ -332,7 +332,7 @@ export async function updateMissionNotes(formData: FormData) {
 }
 
 export async function cancelMission(formData: FormData) {
-  const user = await actor(["client", "admin"]);
+  const user = await actor(["client", "admin"], "missions.edit");
   const db = await createServiceClient();
   const missionId = str(formData, "mission_id");
 
@@ -378,7 +378,7 @@ export async function cancelMission(formData: FormData) {
 }
 
 export async function addPassenger(formData: FormData) {
-  const user = await actor(["client", "admin"]);
+  const user = await actor(["client", "admin"], "missions.edit");
   const db = await createServiceClient();
   const missionId = str(formData, "mission_id");
   const fullName = str(formData, "full_name");
@@ -406,7 +406,7 @@ export async function addPassenger(formData: FormData) {
 }
 
 export async function removePassenger(formData: FormData) {
-  const user = await actor(["client", "admin"]);
+  const user = await actor(["client", "admin"], "missions.edit");
   const db = await createServiceClient();
   const id = str(formData, "passenger_id");
   const missionId = str(formData, "mission_id");
@@ -431,7 +431,7 @@ function csvList(formData: FormData, key: string): string[] {
 
 /** Publish/unpublish a mission to the crew Open Pool and set its requirements. */
 export async function updateMissionPool(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "missions.edit");
   const db = await createServiceClient();
   const missionId = str(formData, "mission_id");
   const visible = bool(formData, "pool_visible");
@@ -476,7 +476,7 @@ export async function updateMissionPool(formData: FormData) {
 
 /** Approve or deny a crew member's pool request. Approval creates the assignment. */
 export async function decideCrewPoolRequest(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "missions.edit");
   const db = await createServiceClient();
   const requestId = str(formData, "request_id");
   const decision = str(formData, "decision") === "approved" ? "approved" : "denied";

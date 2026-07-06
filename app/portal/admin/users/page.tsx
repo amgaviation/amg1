@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { BulkResultNotice } from "@/components/portal/ui/bulk-result-notice";
 import {
   AdminRecordManager,
@@ -233,7 +233,7 @@ export default async function AdminUsersPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string; status?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "users");
   const params = await searchParams;
   const allowedStatuses = ["approved", "pending_approval", "denied", "suspended", "deleted"];
   const currentStatus = params.status ?? "approved";

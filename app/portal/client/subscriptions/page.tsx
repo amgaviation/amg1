@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { manageSubscriptionBilling } from "@/app/portal/actions/subscriptions";
 import { EmptyState, Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -11,7 +11,7 @@ import { formatDate, formatMoney } from "@/lib/portal/format";
 export const metadata = { title: "Subscriptions - Client Portal" };
 
 export default async function ClientSubscriptionsPage() {
-  const user = await requireRole("client");
+  const user = await requireRolePermission("client", "subscriptions");
   const subscriptions = await listSubscriptionsForClient(user.id);
   const active = subscriptions.filter((subscription) => ["active", "trialing", "renewal_pending"].includes(subscription.status));
   const creditBalance = subscriptions.reduce((sum, subscription) => sum + Number(subscription.credit_balance ?? 0), 0);

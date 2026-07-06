@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { addSubscriptionCredit, addSubscriptionUsage, cancelStripeSubscriptionAtPeriodEnd, ignoreNeedsReviewSubscription, linkNeedsReviewSubscription, refreshStripeSubscription, resendSubscriptionSetupLink, updateSubscriptionStatus } from "@/app/portal/actions/subscriptions";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
@@ -22,7 +22,7 @@ export default async function AdminSubscriptionDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "subscriptions");
   const { id } = await params;
   const flash = await searchParams;
   const [subscription, missions, clients] = await Promise.all([getSubscriptionDetail(id), listAllMissions(), listClients()]);

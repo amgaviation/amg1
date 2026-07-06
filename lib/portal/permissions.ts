@@ -3,7 +3,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { unstable_cache } from "next/cache";
 import { createServiceClient } from "@/lib/supabase/server";
-import { requireUser, type SessionUser } from "@/lib/portal/session";
+import { requireRole, requireUser, type SessionUser } from "@/lib/portal/session";
 import type { PortalRole } from "@/lib/portal/constants";
 import {
   defaultFlags,
@@ -114,6 +114,23 @@ export async function requirePermission(
   action: PermissionAction = "view"
 ): Promise<SessionUser> {
   const user = await requireUser();
+  if (!(await can(user.role, module, action))) {
+    redirect(noAccessPath(module, action));
+  }
+  return user;
+}
+
+/**
+ * Combined page guard: existing role gate (admins pass role checks as
+ * before) plus the module permission, with a single session fetch. Use on
+ * module pages in place of requireRole.
+ */
+export async function requireRolePermission(
+  allowed: PortalRole | PortalRole[],
+  module: PermissionModule,
+  action: PermissionAction = "view"
+): Promise<SessionUser> {
+  const user = await requireRole(allowed);
   if (!(await can(user.role, module, action))) {
     redirect(noAccessPath(module, action));
   }

@@ -16,7 +16,7 @@ import {
 import { formatDate, formatDateTime } from "@/lib/portal/format";
 import { listAllCredentials, listAllCrew, listAllDocuments, listAllMissions } from "@/lib/portal/queries";
 import { dependencyConfirmMessage } from "@/lib/portal/record-safety";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 
 export const metadata = { title: "Crew - Admin Portal" };
 
@@ -82,7 +82,7 @@ export default async function AdminCrewPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "crew");
   const params = await searchParams;
   const [crew, credentials, missions, documents] = await Promise.all([
     listAllCrew(),

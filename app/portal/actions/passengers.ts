@@ -10,7 +10,7 @@ import { actor, str } from "./_helpers";
 const PASSENGERS_PATH = "/portal/client/passengers";
 
 export async function createPassengerProfile(formData: FormData) {
-  const user = await actor(["client"]);
+  const user = await actor(["client"], "passengers.add");
   const fullName = str(formData, "full_name");
   if (!fullName) redirect(`${PASSENGERS_PATH}?error=missing`);
 
@@ -45,7 +45,7 @@ export async function createPassengerProfile(formData: FormData) {
 }
 
 export async function updatePassengerProfile(formData: FormData) {
-  const user = await actor(["client"]);
+  const user = await actor(["client"], "passengers.edit");
   const passengerId = str(formData, "passenger_id");
   const fullName = str(formData, "full_name");
   if (!passengerId || !fullName) redirect(`${PASSENGERS_PATH}?error=missing`);
@@ -79,7 +79,7 @@ export async function updatePassengerProfile(formData: FormData) {
 }
 
 export async function deletePassengerProfile(formData: FormData) {
-  const user = await actor(["client"]);
+  const user = await actor(["client"], "passengers.delete");
   const passengerId = str(formData, "passenger_id");
   if (!passengerId) redirect(`${PASSENGERS_PATH}?error=missing`);
 

@@ -35,7 +35,7 @@ async function recordActivity(
 }
 
 export async function createLead(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "crm.add");
   const fullName = str(formData, "full_name");
   if (!fullName) redirect(`${BOARD}?error=missing`);
 
@@ -87,7 +87,7 @@ export async function createLead(formData: FormData) {
 }
 
 export async function updateLead(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "crm.edit");
   const leadId = str(formData, "lead_id");
   if (!leadId) redirect(`${BOARD}?error=missing`);
 
@@ -122,7 +122,7 @@ export async function updateLead(formData: FormData) {
 }
 
 export async function moveLeadStage(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "crm.edit");
   const leadId = str(formData, "lead_id");
   const stage = str(formData, "stage");
   const backTo = str(formData, "back_to") || BOARD;
@@ -151,7 +151,7 @@ export async function moveLeadStage(formData: FormData) {
 }
 
 export async function addLeadActivity(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "crm.add");
   const leadId = str(formData, "lead_id");
   const body = str(formData, "body");
   const type = str(formData, "activity_type") || "note";
@@ -169,7 +169,7 @@ export async function addLeadActivity(formData: FormData) {
 
 /** Link a lead to an existing portal profile and mark it won. */
 export async function linkLeadToProfile(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "crm.edit");
   const leadId = str(formData, "lead_id");
   const profileId = str(formData, "profile_id");
   if (!leadId || !profileId) redirect(`${leadPath(leadId)}?error=missing`);
@@ -218,7 +218,7 @@ export async function importLeads(input: {
   fileName?: string;
   rows: unknown[];
 }): Promise<LeadImportResult> {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "crm.add");
   const fileName = String(input?.fileName ?? "uploaded file").slice(0, 120);
   const rawRows = Array.isArray(input?.rows) ? input.rows : [];
   if (!rawRows.length) {
@@ -327,7 +327,7 @@ export async function importLeads(input: {
 
 /** Send a templated outreach email to a lead and log it to the activity history. */
 export async function sendLeadEmailAction(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "crm.edit");
   const leadId = str(formData, "lead_id");
   const backTo = safeRedirectPath(str(formData, "back_to"), leadId ? leadPath(leadId) : BOARD);
   const separator = backTo.includes("?") ? "&" : "?";
@@ -352,7 +352,7 @@ export async function sendLeadEmailAction(formData: FormData) {
 
 /** Create a lead from a public website form submission. */
 export async function createLeadFromSubmission(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "crm.add");
   const submissionId = str(formData, "submission_id");
   const backTo = str(formData, "back_to") || "/portal/admin/form-submissions";
   if (!submissionId) redirect(`${backTo}?error=missing`);

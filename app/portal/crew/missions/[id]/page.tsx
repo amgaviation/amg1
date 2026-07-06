@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { SectionCard, DetailRow, Notice } from "@/components/portal/ui/primitives";
 import { DescriptionList } from "@/components/portal/ui/description-list";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -23,7 +23,7 @@ export default async function CrewMissionDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ success?: string }>;
 }) {
-  const user = await requireRole("crew");
+  const user = await requireRolePermission("crew", "missions");
   const { id } = await params;
   const sp = await searchParams;
   const mission = await getMissionDetail(id);

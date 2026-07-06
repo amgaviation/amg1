@@ -1,5 +1,5 @@
 import { PageHeader } from "@/components/portal/ui/primitives";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { getFinancialAnalytics, type AnalyticsRangeKey } from "@/lib/portal/financial-analytics";
 import { FinancialAnalyticsDashboard } from "./financial-analytics-dashboard";
 
@@ -10,7 +10,7 @@ export default async function AdminFinancialAnalyticsPage({
 }: {
   searchParams: Promise<{ range?: string; from?: string; to?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "financial_analytics");
   const params = await searchParams;
   const data = await getFinancialAnalytics({
     range: (params.range as AnalyticsRangeKey | undefined) ?? "month_to_date",

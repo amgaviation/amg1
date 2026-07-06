@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PROFILE_STATUS, PROFILE_STATUS_LABEL, PROFILE_STATUS_TONE, toneFor } from "@/lib/portal/constants";
 import { formatDateTime, formatMoney } from "@/lib/portal/format";
 import { listAllDocuments, listAllPartnerAssignments, listAllPartners } from "@/lib/portal/queries";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 
 export const metadata = { title: "Partner Detail - Admin Portal" };
 
@@ -49,7 +49,7 @@ export default async function AdminPartnerDetailPage({
   params: Promise<{ partnerId: string }>;
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "partners");
   const { partnerId } = await params;
   const query = await searchParams;
   const [partners, assignments, documents] = await Promise.all([

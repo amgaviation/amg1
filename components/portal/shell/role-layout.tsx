@@ -1,6 +1,7 @@
 import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { getSessionUser } from "@/lib/portal/session";
 import { countUnread } from "@/lib/portal/queries";
+import { permissionsForRole } from "@/lib/portal/permissions";
 import type { PortalRole } from "@/lib/portal/constants";
 
 /**
@@ -27,8 +28,20 @@ export async function RolePortalLayout({
     unread = 0;
   }
 
+  // Nav filtering by the role-permission matrix. Undefined on failure so the
+  // shell fails open (chrome only — pages still enforce).
+  let moduleView: Record<string, boolean> | undefined;
+  try {
+    const perms = await permissionsForRole(user.role);
+    moduleView = Object.fromEntries(
+      Object.entries(perms).map(([moduleKey, flags]) => [moduleKey, flags.view])
+    );
+  } catch {
+    moduleView = undefined;
+  }
+
   return (
-    <PortalShell role={role} user={user} unread={unread}>
+    <PortalShell role={role} user={user} unread={unread} moduleView={moduleView}>
       {children}
     </PortalShell>
   );

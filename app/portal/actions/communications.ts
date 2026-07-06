@@ -32,7 +32,7 @@ function redirectForResult(
 }
 
 export async function sendCommunicationEmailAction(formData: FormData) {
-  const user = await actor(["admin"]);
+  const user = await actor(["admin"], "communications.edit");
   const backTo = safeRedirectPath(String(formData.get("back_to") ?? ""), "/portal/admin/messages");
   const result = await sendCommunicationEmail(formData, user);
   const base = result.threadId ? `/portal/admin/messages?thread=${result.threadId}` : backTo;
@@ -40,7 +40,7 @@ export async function sendCommunicationEmailAction(formData: FormData) {
 }
 
 export async function addCommunicationInternalNoteAction(formData: FormData) {
-  const user = await actor(["admin"]);
+  const user = await actor(["admin"], "communications.add");
   const threadId = String(formData.get("thread_id") ?? "").trim();
   const backTo = threadId ? `/portal/admin/messages?thread=${threadId}` : "/portal/admin/messages";
   const result = await addCommunicationInternalNote(formData, user);
@@ -48,7 +48,7 @@ export async function addCommunicationInternalNoteAction(formData: FormData) {
 }
 
 export async function updateCommunicationThreadAction(formData: FormData) {
-  const user = await actor(["admin"]);
+  const user = await actor(["admin"], "communications.edit");
   const threadId = String(formData.get("thread_id") ?? "").trim();
   const backTo = threadId ? `/portal/admin/messages?thread=${threadId}` : "/portal/admin/messages";
   const result = await updateCommunicationThread(formData, user);
@@ -56,7 +56,7 @@ export async function updateCommunicationThreadAction(formData: FormData) {
 }
 
 export async function linkCommunicationThreadAction(formData: FormData) {
-  const user = await actor(["admin"]);
+  const user = await actor(["admin"], "communications.edit");
   const threadId = String(formData.get("thread_id") ?? "").trim();
   const backTo = threadId ? `/portal/admin/messages?thread=${threadId}` : "/portal/admin/messages";
   const result = await linkCommunicationThread(formData, user);

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { ClientPickerField } from "@/components/portal/ui/combobox";
@@ -40,7 +40,7 @@ function LineItemRows() {
 }
 
 export default async function NewQuotePage() {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "quotes", "add");
   const [clients, missions] = await Promise.all([listClients(), listAllMissions()]);
 
   return (

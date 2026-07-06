@@ -23,6 +23,7 @@ import {
   type NavGroup,
   type PortalRole,
 } from "@/lib/portal/constants";
+import { navModuleForHref } from "@/lib/portal/permissions-catalog";
 
 /**
  * Flight Deck Console shell — the chrome every portal page renders inside.
@@ -68,20 +69,42 @@ function resolveNavGroups(role: PortalRole, userRole: PortalRole): NavGroup[] {
   return base;
 }
 
+/**
+ * Hide nav items whose module the role cannot view (role-permission matrix).
+ * Chrome only — pages and actions remain the enforcement boundary. Items with
+ * no module mapping (dashboards, personal settings) always show, and a
+ * missing map fails open so the shell never blanks out on a lookup error.
+ */
+function filterNavGroups(groups: NavGroup[], moduleView?: Record<string, boolean>): NavGroup[] {
+  if (!moduleView) return groups;
+  return groups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => {
+        const moduleKey = navModuleForHref(item.href);
+        return !moduleKey || moduleView[moduleKey] !== false;
+      }),
+    }))
+    .filter((group) => group.items.length > 0);
+}
+
 export function PortalShell({
   role,
   user,
   unread = 0,
+  moduleView,
   children,
 }: {
   role: PortalRole;
   user: ShellUser;
   unread?: number;
+  /** module → can-view flags from the role-permission matrix (server-resolved). */
+  moduleView?: Record<string, boolean>;
   children: React.ReactNode;
 }) {
   const nested = useContext(ShellNestingContext);
   const [open, setOpen] = useState(false);
-  const navGroups = resolveNavGroups(role, user.role);
+  const navGroups = filterNavGroups(resolveNavGroups(role, user.role), moduleView);
 
   // Mobile drawer ergonomics: lock body scroll while open, close on Escape.
   useEffect(() => {

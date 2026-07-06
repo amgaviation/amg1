@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { isThreadMember } from "@/lib/portal/queries";
@@ -15,7 +15,7 @@ import {
 export const metadata = { title: "Thread — Client Portal" };
 
 export default async function ClientThreadPage({ params }: { params: Promise<{ id: string }> }) {
-  const user = await requireRole("client");
+  const user = await requireRolePermission("client", "messages");
   const { id } = await params;
   const member = await isThreadMember(id, user.id);
   if (!member) notFound();

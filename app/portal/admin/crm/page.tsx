@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import {
   FilterTabs,
   Notice,
@@ -42,7 +42,7 @@ export default async function CrmPipelinePage({
 }: {
   searchParams: Promise<{ success?: string; error?: string; q?: string; stage?: string; page?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "crm");
   const params = await searchParams;
   const [leads, metrics, admins] = await Promise.all([
     listLeads({ q: params.q }),

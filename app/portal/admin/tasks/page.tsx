@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import {
   EmptyState,
   FilterTabs,
@@ -49,7 +49,7 @@ export default async function OpsTasksPage({
 }: {
   searchParams: Promise<{ view?: string; success?: string; error?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "tasks");
   const params = await searchParams;
   const view = (params.view ?? "active") as "active" | "mine" | "done";
   const [tasks, admins] = await Promise.all([

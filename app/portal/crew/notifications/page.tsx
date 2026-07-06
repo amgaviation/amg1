@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { NotificationsList } from "@/components/portal/ui/notifications-list";
 import { listNotifications, markNotificationsRead } from "@/lib/portal/queries";
@@ -6,7 +6,7 @@ import { listNotifications, markNotificationsRead } from "@/lib/portal/queries";
 export const metadata = { title: "Notifications - Crew Portal" };
 
 export default async function CrewNotificationsPage() {
-  const user = await requireRole("crew");
+  const user = await requireRolePermission("crew", "notifications");
   const notifications = await listNotifications(user.id);
 
   const unread = notifications.filter((n) => !n.is_read).map((n) => n.id);

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { payInvoiceWithStripe } from "@/app/portal/actions/invoice-payments";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { DetailRow, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
@@ -19,7 +19,7 @@ export default async function ClientInvoicePage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRole("client");
+  const user = await requireRolePermission("client", "invoices");
   const { id } = await params;
   const flash = await searchParams;
   const invoice = await getInvoiceDetail(id);

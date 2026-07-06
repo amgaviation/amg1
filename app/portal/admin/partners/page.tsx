@@ -1,7 +1,7 @@
 import { archivePartnerRecord, bulkDeletePortalAccounts, savePartnerRecord } from "@/app/portal/actions/admin";
 import { BulkResultNotice } from "@/components/portal/ui/bulk-result-notice";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -36,7 +36,7 @@ export default async function AdminPartnersPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "partners");
   const params = await searchParams;
   const [partners, assignments] = await Promise.all([listAllPartners(), listAllPartnerAssignments()]);
 

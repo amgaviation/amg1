@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { AccountSecurityForm } from "@/components/portal/account-security-form";
 import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
@@ -14,7 +14,7 @@ export default async function PartnerProfilePage({
 }: {
   searchParams: Promise<{ success?: string; accountSuccess?: string; accountError?: string }>;
 }) {
-  const user = await requireRole("partner");
+  const user = await requireRolePermission("partner", "partners");
   const params = await searchParams;
   const profile = await getPartnerProfile(user.id);
   const accountErrorMessage =

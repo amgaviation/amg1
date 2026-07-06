@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import {
   EmptyState,
   PageHeader,
@@ -13,7 +13,7 @@ import { formatDate, formatMoney } from "@/lib/portal/format";
 export const metadata = { title: "Quotes - Client Portal" };
 
 export default async function ClientQuotesPage() {
-  const user = await requireRole("client");
+  const user = await requireRolePermission("client", "quotes");
   const quotes = await listQuotesForClient(user.id);
 
   return (

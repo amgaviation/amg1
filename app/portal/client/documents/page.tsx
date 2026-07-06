@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard, EmptyState, Notice, RecordRow } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -17,7 +17,7 @@ export default async function ClientDocumentsPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string; upload?: string }>;
 }) {
-  const user = await requireRole("client");
+  const user = await requireRolePermission("client", "documents");
   const params = await searchParams;
   const docs = await listDocumentsForUser({ userId: user.id, role: user.role });
 

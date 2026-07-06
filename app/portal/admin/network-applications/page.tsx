@@ -13,7 +13,7 @@ import {
 } from "@/lib/portal/network-applications";
 import { NETWORK_SOURCE_LABELS } from "@/lib/portal/network-application-constants";
 import { formatDate } from "@/lib/portal/format";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 
 export const metadata = { title: "Network Applications - Admin" };
 
@@ -30,7 +30,7 @@ export default async function NetworkApplicationsPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string; warning?: string; imported?: string; duplicates?: string; skipped?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "network_applications");
   const params = await searchParams;
   const applications = await listNetworkApplications();
   const accountStates = await getCrewAccountStates(

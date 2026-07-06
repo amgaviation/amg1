@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { TableSelectionScope } from "@/components/portal/ui/data-table-selection";
 import { BulkResultNotice } from "@/components/portal/ui/bulk-result-notice";
@@ -31,7 +31,7 @@ export default async function AdminDocumentsPage({
     search?: string;
   }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "documents");
   const params = await searchParams;
   const filters = {
     status: params.status || undefined,

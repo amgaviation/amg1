@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { EmptyState, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -14,7 +14,7 @@ function daysOverdue(due: string | null): number {
 }
 
 export default async function ClientBillingPage() {
-  const user = await requireRole("client");
+  const user = await requireRolePermission("client", "invoices");
   const invoices = await listInvoicesForClient(user.id);
   const open = invoices.filter((invoice) => ["sent", "viewed", "partially_paid", "overdue"].includes(invoice.status));
   const paid = invoices.filter((invoice) => invoice.status === "paid");

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { manageSubscriptionBilling } from "@/app/portal/actions/subscriptions";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { DetailRow, Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
@@ -19,7 +19,7 @@ export default async function ClientSubscriptionDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRole("client");
+  const user = await requireRolePermission("client", "subscriptions");
   const { id } = await params;
   const flash = await searchParams;
   const subscription = await getSubscriptionDetail(id);

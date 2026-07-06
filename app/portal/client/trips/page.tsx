@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import {
   EmptyState,
   FilterTabs,
@@ -41,7 +41,7 @@ export default async function ClientTripsPage({
 }: {
   searchParams: Promise<{ success?: string; status?: string }>;
 }) {
-  const user = await requireRole("client");
+  const user = await requireRolePermission("client", "missions");
   const params = await searchParams;
   const missions = await listMissionsForClient(user.id);
   const filtered = params.status

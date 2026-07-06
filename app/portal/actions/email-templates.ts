@@ -20,7 +20,7 @@ function withStatus(base: string, key: string, value: string) {
 
 /** Save a global override for an email template (upsert by template_key). */
 export async function saveEmailTemplate(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "settings.edit");
   const backTo = backPath(formData);
   const key = str(formData, "template_key");
   const subject = str(formData, "subject").slice(0, 300);
@@ -80,7 +80,7 @@ export async function saveEmailTemplate(formData: FormData) {
 
 /** Remove an override so the template falls back to the shipped default. */
 export async function resetEmailTemplate(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "settings.edit");
   const backTo = backPath(formData);
   const key = str(formData, "template_key");
   const defaults = buildEmailTemplateDefaults();

@@ -14,7 +14,7 @@ function arr(formData: FormData, key: string): string[] {
 }
 
 export async function respondToServiceRequest(formData: FormData) {
-  const user = await actor(["partner"]);
+  const user = await actor(["partner"], "partners.edit");
   const db = await createServiceClient();
   const id = str(formData, "assignment_id");
   const decision = str(formData, "decision"); // accepted | declined
@@ -48,7 +48,7 @@ export async function respondToServiceRequest(formData: FormData) {
 }
 
 export async function submitServiceQuote(formData: FormData) {
-  const user = await actor(["partner"]);
+  const user = await actor(["partner"], "partners.edit");
   const db = await createServiceClient();
   const id = str(formData, "assignment_id");
   const amount = num(formData, "quote_amount");
@@ -85,7 +85,7 @@ export async function submitServiceQuote(formData: FormData) {
 }
 
 export async function updateServiceMilestone(formData: FormData) {
-  const user = await actor(["partner"]);
+  const user = await actor(["partner"], "partners.edit");
   const db = await createServiceClient();
   const id = str(formData, "assignment_id");
   const status = str(formData, "status");
@@ -106,7 +106,7 @@ export async function updateServiceMilestone(formData: FormData) {
 }
 
 export async function savePartnerProfile(formData: FormData) {
-  const user = await actor(["partner"]);
+  const user = await actor(["partner"], "partners.edit");
   const db = await createServiceClient();
   await db.from("partner_profiles").upsert({
     id: user.id,

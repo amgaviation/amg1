@@ -4,7 +4,7 @@ import { DetailRow, EmptyState, Notice, PageHeader, SectionCard } from "@/compon
 import { PageToolbar } from "@/components/portal/ui/page-toolbar";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { Button } from "@/components/ui/button";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { formatDateTime } from "@/lib/portal/format";
 import { listFormSubmissions, type FormSubmission } from "@/lib/portal/form-submissions";
 import { submissionStatuses } from "@/lib/public-form-options";
@@ -117,7 +117,7 @@ export default async function AdminFormSubmissionsPage({
 }: {
   searchParams: Promise<{ source?: string; status?: string; q?: string; success?: string; error?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "form_submissions");
   const params = await searchParams;
   const submissions = await listFormSubmissions({
     source: params.source || "All",

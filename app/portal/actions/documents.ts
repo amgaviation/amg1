@@ -58,7 +58,7 @@ async function verifyMissionReferenceForUploader(
 }
 
 export async function uploadDocument(formData: FormData) {
-  const user = await actor();
+  const user = await actor(undefined, "documents.add");
   const db = (await createServiceClient()) as any;
   const file = formData.get("file");
   const name = str(formData, "name");

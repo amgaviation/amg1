@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { createServiceClient } from "@/lib/supabase/server";
 import { PortalDocumentViewer } from "@/components/portal/document-viewer";
 
 export default async function NetworkApplicationFileViewPage({ params }: { params: Promise<{ id: string }> }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "network_applications");
   const { id } = await params;
   const db = (await createServiceClient()) as any;
   const { data: file } = await db.from("network_application_files").select("*").eq("id", id).maybeSingle();

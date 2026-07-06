@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { listAuditEvents } from "@/lib/portal/queries";
@@ -7,7 +7,7 @@ import { formatDateTime } from "@/lib/portal/format";
 export const metadata = { title: "Audit Log - Admin Portal" };
 
 export default async function AdminAuditLogPage() {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "audit_log");
   const events = await listAuditEvents(200);
   return (
     <>

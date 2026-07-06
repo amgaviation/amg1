@@ -6,7 +6,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { submissionStatuses } from "@/lib/public-form-options";
 
 export async function updateFormSubmission(formData: FormData) {
-  await actor(["admin"]);
+  await actor(["admin"], "form_submissions.edit");
   const id = str(formData, "id");
   const status = str(formData, "status");
   const adminNotes = str(formData, "admin_notes");

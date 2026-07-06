@@ -19,7 +19,7 @@ export async function billingSettingsConfirmed() {
 }
 
 export async function confirmBillingSettingsAccess(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "settings.view");
   const password = str(formData, "password");
   if (!password) redirect("/portal/admin/settings/billing?error=confirm");
 
@@ -52,7 +52,7 @@ export async function confirmBillingSettingsAccess(formData: FormData) {
 }
 
 export async function updateBillingSettings(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "settings.edit");
   if (!(await billingSettingsConfirmed())) {
     redirect("/portal/admin/settings/billing?error=confirm");
   }
