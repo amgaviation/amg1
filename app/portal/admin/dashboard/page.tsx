@@ -389,32 +389,42 @@ export default async function AdminDashboardPage() {
             )}
           </SectionCard>
 
-          <SectionCard title="Business" icon="trendingUp" bodyClassName="grid gap-3">
-            <QuickLink
-              href="/portal/admin/crm"
-              icon="trendingUp"
-              label="Sales Pipeline"
-              description={pipeline.openCount ? `${pipeline.openCount} open leads` : "No open leads"}
-            />
-            <QuickLink
-              href="/portal/admin/receivables"
-              icon="alert"
-              label="Receivables"
-              description="Aging + payment reminders"
-            />
-            <QuickLink
-              href="/portal/admin/subscriptions"
-              icon="creditCard"
-              label="Subscriptions"
-              description={`${metrics.activeSubscriptions} active`}
-            />
-            <QuickLink
-              href="/portal/admin/calendar"
-              icon="calendar"
-              label="Ops Calendar"
-              description="Departures by day"
-            />
-          </SectionCard>
+          {perms.crm.view || perms.invoices.view || perms.subscriptions.view || perms.missions.view ? (
+            <SectionCard title="Business" icon="trendingUp" bodyClassName="grid gap-3">
+              {perms.crm.view ? (
+                <QuickLink
+                  href="/portal/admin/crm"
+                  icon="trendingUp"
+                  label="Sales Pipeline"
+                  description={pipeline.openCount ? `${pipeline.openCount} open leads` : "No open leads"}
+                />
+              ) : null}
+              {perms.invoices.view ? (
+                <QuickLink
+                  href="/portal/admin/receivables"
+                  icon="alert"
+                  label="Receivables"
+                  description="Aging + payment reminders"
+                />
+              ) : null}
+              {perms.subscriptions.view ? (
+                <QuickLink
+                  href="/portal/admin/subscriptions"
+                  icon="creditCard"
+                  label="Subscriptions"
+                  description={`${metrics.activeSubscriptions} active`}
+                />
+              ) : null}
+              {perms.missions.view ? (
+                <QuickLink
+                  href="/portal/admin/calendar"
+                  icon="calendar"
+                  label="Ops Calendar"
+                  description="Departures by day"
+                />
+              ) : null}
+            </SectionCard>
+          ) : null}
         </div>
       </div>
     </>

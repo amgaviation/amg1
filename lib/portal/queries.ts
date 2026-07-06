@@ -305,11 +305,19 @@ export async function listAllMissions(filter?: {
   const CHUNK = 1000;
   const MAX_CHUNKS = 10;
   const all: MissionListItem[] = [];
+  const seen = new Set<string>();
   for (let chunk = 0; chunk < MAX_CHUNKS; chunk++) {
     const from = chunk * CHUNK;
     const { data } = await buildQuery().range(from, from + CHUNK - 1).returns<MissionListItem[]>();
     const rows = data ?? [];
-    all.push(...rows);
+    // Offset windows can shift if a row is inserted between chunk fetches —
+    // dedup by id so a boundary row never renders twice.
+    for (const row of rows) {
+      if (!seen.has(row.id)) {
+        seen.add(row.id);
+        all.push(row);
+      }
+    }
     if (rows.length < CHUNK) return all;
   }
   console.warn(`[queries] listAllMissions truncated at ${MAX_CHUNKS * CHUNK} rows — move this view to DB-side pagination`);

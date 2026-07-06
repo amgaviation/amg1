@@ -502,59 +502,10 @@ export async function updateInvoiceStatus(formData: FormData) {
       console.error("[billing] failed to email invoice PDF after status update", invoiceId, error);
     });
   }
-  if (invoice.client_id && status === "paid" && Number(invoice.amount_due ?? 0) > 0) {
-    const amount = Number(invoice.amount_due ?? 0);
-    const paidTotal = Number(invoice.amount_paid ?? 0) + amount;
-    const receiptNumber = await nextBillingDocumentNumber("receipt");
-    const { data: payment } = await billingDb
-      .from("payments")
-      .insert({
-        invoice_id: invoiceId,
-        amount,
-        payment_method: "manual",
-        payment_reference: "Marked paid in admin portal",
-        receipt_number: receiptNumber,
-        notes: str(formData, "internal_notes") || null,
-        recorded_by: admin.id,
-        status: "recorded",
-      })
-      .select("id")
-      .single();
-    await billingDb
-      .from("invoices")
-      .update({
-        amount_paid: paidTotal,
-        amount_due: 0,
-        paid_at: new Date().toISOString(),
-      })
-      .eq("id", invoiceId);
-    // Mirror recordInvoicePayment: a payment created via the status shortcut
-    // needs the same audit + compliance trail as one recorded explicitly.
-    await logAuditEvent({
-      actor: admin,
-      action: "invoice_payment_recorded",
-      detail: `Marked ${invoice.invoice_number} paid in full (${amount}) via status update`,
-      entityType: "invoice",
-      entityId: invoiceId,
-    });
-    await recordComplianceEvidence({
-      actor: admin,
-      audience: "admin",
-      eventType: "payment_marked_paid",
-      eventArea: "billing",
-      relatedRecordType: "invoice",
-      relatedRecordId: invoiceId,
-      policyKey: POLICY_KEYS.noOnlinePayment,
-      policyVersion: COMPLIANCE_POLICY_VERSION,
-      acknowledgmentText: ACKNOWLEDGMENT_TEXT.noOnlinePayment,
-      metadata: { amount, status: "paid", paymentId: payment?.id ?? null, via: "status_update" },
-    });
-    if (payment?.id) {
-      await emailReceiptPdf(payment.id, admin.id).catch((error) => {
-        console.error("[billing] failed to email paid-status receipt PDF", payment.id, error);
-      });
-    }
-  }
+  // No mark-paid shortcut here: status === "paid" is rejected up front
+  // (payment-required guard) — payments are recorded only through
+  // recordInvoicePayment or the Stripe webhook, which both carry the full
+  // audit + compliance trail.
   revalidatePath(`/portal/admin/invoices/${invoiceId}`);
   revalidatePath("/portal/admin/invoices");
   revalidatePath("/portal/client/billing");

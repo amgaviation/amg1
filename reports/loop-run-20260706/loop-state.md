@@ -23,3 +23,7 @@ Branch: claude/new-session-mt12tj (designated session branch; plan's `loop/<date
 - T+52: typecheck 0, build green
 - permissions: reviewed ✓ (single pass complete — will not repeat)
 - T+54: audit cycle 1 dispatched (five agents, broad sweep per §2 charters)
+- T+62..T+70: cycle 1 fixes committed (5af2752 batch, missions-cap fix, status validation + client label)
+- T+64: cycle 2 scoped to single verification agent (window too small for 5-agent sweep) — logged as deviation
+- T+78: verification returned — 9/12 clusters verified, 3 problems found and fixed (V-2-01..03)
+- T+82: wind-down — SUMMARY.md finalized, final verify + commit + push, PR #97 updated

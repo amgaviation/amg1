@@ -21,3 +21,8 @@
 - A-1-01 P1: listAllMissions chunked fetch (no more silent 1000-row cap) + status/type/urgency filters pushed to DB for admin trips; q-search + sort remain in-memory over the filtered set. Full keyset pagination for invoices/quotes/clients logged as open.
 - B-1-09 (partial) P2: updateMissionStatus validates status against MISSION_STATUS vocabulary
 - C-1-04 P2: client surfaces label a just-filed request "Submitted" (was ops-word "New") via CLIENT_MISSION_STATUS_LABEL
+
+## Cycle 2 (verification pass)
+- V-2-01: removed unreachable mark-paid dead code in updateInvoiceStatus (paid is guard-rejected; payments flow through audited paths only)
+- V-2-02: dashboard Business quick links now gated by module view permissions (completes C-P-01)
+- V-2-03: listAllMissions chunk fetch dedups by id (boundary-row duplication under concurrent inserts)
