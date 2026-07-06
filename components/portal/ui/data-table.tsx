@@ -10,6 +10,7 @@ import {
 import {
   RowSelectCheckbox,
   SelectAllCheckbox,
+  SelectionPrune,
 } from "@/components/portal/ui/data-table-selection";
 import { cn } from "@/lib/utils";
 
@@ -56,6 +57,7 @@ export function DataTable<T>({
   const rowKeys = rows.map((row) => getKey(row));
   return (
     <div className="deck-card overflow-hidden">
+      {selectable ? <SelectionPrune keys={rowKeys} /> : null}
       {/* Mobile: stacked cards */}
       <div className="grid gap-3 p-3 md:hidden">
         {rows.map((row) => {

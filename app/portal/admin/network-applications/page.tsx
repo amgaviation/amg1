@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BulkResultNotice } from "@/components/portal/ui/bulk-result-notice";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
 import { bulkDeleteNetworkApplications } from "@/app/portal/actions/admin";
 import { NetworkProspectTools } from "@/components/portal/admin/network-prospect-tools";
@@ -153,6 +154,7 @@ export default async function NetworkApplicationsPage({
 
       <NetworkProspectTools />
 
+      <BulkResultNotice params={params} entityLabel="application" />
       <AdminRecordManager
         title="Review Queue"
         description="Crew network submissions by applicant, airport, total time, certificates, status, and submission date."

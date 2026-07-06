@@ -1,4 +1,5 @@
 import { archivePartnerRecord, bulkDeletePortalAccounts, savePartnerRecord } from "@/app/portal/actions/admin";
+import { BulkResultNotice } from "@/components/portal/ui/bulk-result-notice";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
 import { requireRole } from "@/lib/portal/session";
 import { DataTable } from "@/components/portal/ui/data-table";
@@ -131,6 +132,7 @@ export default async function AdminPartnersPage({
 
       <PageHeader eyebrow="AMG Operations" title="Partners" description="Vendor and service partner records, capabilities, contacts, and service request history." />
 
+      <BulkResultNotice params={params} entityLabel="partner" />
       <AdminRecordManager
         title="Partner Directory"
         description="Partner records by company, service area, capability, coverage, and assignment history."

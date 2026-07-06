@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { TableSelectionScope } from "@/components/portal/ui/data-table-selection";
+import { BulkResultNotice } from "@/components/portal/ui/bulk-result-notice";
 import { bulkDeleteDocuments } from "@/app/portal/actions/bulk-records";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -142,6 +143,7 @@ export default async function AdminDocumentsPage({
         </form>
       </SectionCard>
 
+      <BulkResultNotice params={params} entityLabel="document" />
       <SectionCard title="Document Review Queue" icon="fileText">
         <TableSelectionScope
           action={bulkDeleteDocuments}

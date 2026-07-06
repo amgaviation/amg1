@@ -1,6 +1,7 @@
 import { requireRole } from "@/lib/portal/session";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { TableSelectionScope } from "@/components/portal/ui/data-table-selection";
+import { BulkResultNotice } from "@/components/portal/ui/bulk-result-notice";
 import { bulkDeleteInvoices } from "@/app/portal/actions/bulk-records";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -91,6 +92,7 @@ export default async function AdminInvoicesPage({
         </SectionCard>
       </div>
 
+      <BulkResultNotice params={params} entityLabel="invoice" />
       <SectionCard title="Invoice Register" icon="wallet">
         <TableSelectionScope
           action={bulkDeleteInvoices}

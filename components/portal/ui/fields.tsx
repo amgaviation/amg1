@@ -166,7 +166,7 @@ export function AirportField({
         maxLength={4}
         pattern="[A-Za-z0-9]{3,4}"
         placeholder="KTEB"
-        className="deck-input deck-mono max-sm:!text-base sm:!text-sm uppercase [letter-spacing:0.24em]"
+        className="deck-input deck-mono max-md:!text-base md:!text-sm uppercase [letter-spacing:0.24em]"
       />
     </Field>
   );

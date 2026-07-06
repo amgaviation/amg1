@@ -23,18 +23,35 @@ import { actor, safeRedirectPath, str } from "./_helpers";
  * deliberately NOT bulk-deletable.
  */
 
+/** Serverless-friendly ceiling: each row costs several sequential DB round
+ * trips, so an unbounded batch could time out mid-loop with no result. */
+const MAX_BULK_IDS = 200;
+
 function formIds(formData: FormData): string[] {
   return Array.from(
     new Set(formData.getAll("ids").map((value) => String(value).trim()).filter(Boolean))
   );
 }
 
+/** Merge result params into back_to without corrupting an existing query string. */
+function redirectWith(backTo: string, extra: Record<string, string>): never {
+  const [path, existing = ""] = backTo.split("?");
+  const params = new URLSearchParams(existing);
+  for (const [key, value] of Object.entries(extra)) params.set(key, value);
+  redirect(`${path}?${params.toString()}`);
+}
+
 function bulkResultRedirect(backTo: string, deleted: number, skipped: number): never {
-  const params = new URLSearchParams();
-  params.set("bulk", "deleted");
-  params.set("deleted", String(deleted));
-  if (skipped) params.set("skipped", String(skipped));
-  redirect(`${backTo}?${params.toString()}`);
+  redirectWith(backTo, {
+    bulk: "deleted",
+    deleted: String(deleted),
+    ...(skipped ? { skipped: String(skipped) } : {}),
+  });
+}
+
+function guardBatch(ids: string[], backTo: string): void {
+  if (!ids.length) redirectWith(backTo, { error: "none-selected" });
+  if (ids.length > MAX_BULK_IDS) redirectWith(backTo, { error: "too-many-selected" });
 }
 
 /** CRM leads: cheap prospect records. Won/converted leads carry conversion history — skipped. */
@@ -43,7 +60,7 @@ export async function bulkDeleteLeads(formData: FormData) {
   const db = await createServiceClient();
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/crm");
   const ids = formIds(formData);
-  if (!ids.length) redirect(`${backTo}?error=none-selected`);
+  guardBatch(ids, backTo);
 
   let deleted = 0;
   let skipped = 0;
@@ -65,8 +82,9 @@ export async function bulkDeleteLeads(formData: FormData) {
       continue;
     }
 
-    // Child cascade is unverified in the live schema — clear activities explicitly.
-    await db.from("crm_activities").delete().eq("lead_id", id);
+    // crm_activities.lead_id is ON DELETE CASCADE (verified on the live DB),
+    // so the single parent delete removes the activity history atomically —
+    // no separate child delete that could destroy history if this row fails.
     const { error } = await db.from("crm_leads").delete().eq("id", id);
     if (error) {
       skipped += 1;
@@ -93,7 +111,7 @@ export async function bulkDeleteDocuments(formData: FormData) {
   const db = await createServiceClient();
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/documents");
   const ids = formIds(formData);
-  if (!ids.length) redirect(`${backTo}?error=none-selected`);
+  guardBatch(ids, backTo);
 
   let deleted = 0;
   let skipped = 0;
@@ -121,22 +139,33 @@ export async function bulkDeleteDocuments(formData: FormData) {
       continue;
     }
 
-    if (document.storage_path) {
-      // Best effort — a missing object (legacy bucket fallback rows) must not
-      // strand the database row.
-      try {
-        await db.storage
-          .from(document.storage_bucket || "documents")
-          .remove([document.storage_path]);
-      } catch (error) {
-        console.warn("[bulk-records] storage removal failed", error);
-      }
-    }
-
+    // Row first, storage second: if the row delete fails the document is
+    // reported as skipped and must still be fully intact (openable file).
     const { error } = await db.from("documents").delete().eq("id", id);
     if (error) {
       skipped += 1;
       continue;
+    }
+
+    if (document.storage_path) {
+      // storage.remove() returns { data, error } rather than throwing. Legacy
+      // rows may say storage_bucket="documents" while the object actually
+      // lives in "crew-credentials" (mirrors the download route's fallback),
+      // so retry there when the primary bucket removes nothing.
+      const primaryBucket = document.storage_bucket || "documents";
+      const { data: removed, error: removeError } = await db.storage
+        .from(primaryBucket)
+        .remove([document.storage_path]);
+      if (removeError) {
+        console.warn("[bulk-records] storage removal failed", removeError.message);
+      } else if (!removed?.length && primaryBucket === "documents") {
+        const { error: fallbackError } = await db.storage
+          .from("crew-credentials")
+          .remove([document.storage_path]);
+        if (fallbackError) {
+          console.warn("[bulk-records] fallback storage removal failed", fallbackError.message);
+        }
+      }
     }
 
     await logAuditEvent({
@@ -161,7 +190,7 @@ export async function bulkDeleteQuotes(formData: FormData) {
   const db = await createServiceClient();
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/quotes");
   const ids = formIds(formData);
-  if (!ids.length) redirect(`${backTo}?error=none-selected`);
+  guardBatch(ids, backTo);
 
   let deleted = 0;
   let skipped = 0;
@@ -169,11 +198,13 @@ export async function bulkDeleteQuotes(formData: FormData) {
   for (const id of ids) {
     const { data: quote } = await db
       .from("quotes")
-      .select("id, quote_number, status")
+      .select("id, quote_number, status, sent_at")
       .eq("id", id)
       .maybeSingle();
 
-    if (!quote || !DELETABLE_QUOTE_STATUSES.has(String(quote.status))) {
+    // sent_at backstops the status check: a quote that ever reached a client
+    // stays undeletable even if its status was walked back to draft.
+    if (!quote || !DELETABLE_QUOTE_STATUSES.has(String(quote.status)) || quote.sent_at) {
       skipped += 1;
       continue;
     }
@@ -207,7 +238,7 @@ export async function bulkDeleteInvoices(formData: FormData) {
   const db = await createServiceClient();
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/invoices");
   const ids = formIds(formData);
-  if (!ids.length) redirect(`${backTo}?error=none-selected`);
+  guardBatch(ids, backTo);
 
   let deleted = 0;
   let skipped = 0;
@@ -216,17 +247,22 @@ export async function bulkDeleteInvoices(formData: FormData) {
     const { data: invoice } = await db
       .from("invoices")
       .select(
-        "id, invoice_number, status, amount_paid, stripe_checkout_session_id, stripe_payment_intent_id"
+        "id, invoice_number, status, amount_paid, sent_at, stripe_checkout_session_id, stripe_payment_intent_id, payment_provider_session_id"
       )
       .eq("id", id)
       .maybeSingle();
 
+    // sent_at backstops the status check (updateInvoiceStatus allows walking a
+    // sent invoice back to draft); payment_provider_session_id is the legacy
+    // column stripe-invoices.ts still treats as a live Checkout session.
     if (
       !invoice ||
       !DELETABLE_INVOICE_STATUSES.has(String(invoice.status)) ||
       Number(invoice.amount_paid ?? 0) !== 0 ||
+      invoice.sent_at ||
       invoice.stripe_checkout_session_id ||
-      invoice.stripe_payment_intent_id
+      invoice.stripe_payment_intent_id ||
+      invoice.payment_provider_session_id
     ) {
       skipped += 1;
       continue;
@@ -239,6 +275,19 @@ export async function bulkDeleteInvoices(formData: FormData) {
       .eq("invoice_id", id);
 
     if ((paymentCount ?? 0) > 0) {
+      skipped += 1;
+      continue;
+    }
+
+    // Line items carrying crew expenses would strand those expenses forever
+    // (status stays "added_to_invoice", so they could never be re-billed).
+    const { count: expenseLineCount } = await db
+      .from("invoice_line_items")
+      .select("id", { count: "exact", head: true })
+      .eq("invoice_id", id)
+      .not("expense_id", "is", null);
+
+    if ((expenseLineCount ?? 0) > 0) {
       skipped += 1;
       continue;
     }

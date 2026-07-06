@@ -280,12 +280,14 @@ export function RecordRow({
   const inner = (
     <div
       className={cn(
-        "deck-inset flex flex-wrap items-start justify-between gap-3 p-4 sm:gap-4",
+        // Wrap (trailing badges drop under the body) only on phones — desktop
+        // keeps the classic single-line row with the trailing pinned right.
+        "deck-inset flex items-start justify-between gap-3 p-4 max-sm:flex-wrap sm:gap-4",
         href && "deck-card-hover",
         toneCls
       )}
     >
-      <div className="min-w-0 flex-1 basis-52">
+      <div className="min-w-0 flex-1 max-sm:basis-52">
         {refLabel ? (
           <p className="deck-mono text-[var(--deck-accent-ink)]">{refLabel}</p>
         ) : null}
