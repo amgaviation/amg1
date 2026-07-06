@@ -24,6 +24,10 @@ const contentSecurityPolicy = [
   "form-action 'self'",
   "object-src 'none'",
   "upgrade-insecure-requests",
+  // Violations are POSTed to the app/api/csp-report route (server-side logging).
+  // report-to is the modern channel; report-uri is the legacy fallback.
+  "report-to csp-endpoint",
+  "report-uri /api/csp-report",
 ].join("; ");
 
 // Applied to every route. HSTS is already emitted by Vercel; we restate it with
@@ -39,6 +43,11 @@ const securityHeaders = [
   {
     key: "Strict-Transport-Security",
     value: "max-age=63072000; includeSubDomains",
+  },
+  // Names the reporting group referenced by the CSP `report-to` directive.
+  {
+    key: "Reporting-Endpoints",
+    value: 'csp-endpoint="/api/csp-report"',
   },
   {
     key: "Content-Security-Policy",
