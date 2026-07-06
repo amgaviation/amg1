@@ -1,4 +1,5 @@
 import { archiveCrewRecord, bulkDeletePortalAccounts, saveCrewRecord } from "@/app/portal/actions/admin";
+import { BulkResultNotice } from "@/components/portal/ui/bulk-result-notice";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import {
@@ -330,6 +331,7 @@ export default async function AdminCrewPage({
         description="Manage crew profiles, approval status, qualifications, aircraft experience, credentials, and assignment readiness."
       />
 
+      <BulkResultNotice params={params} entityLabel="crew member" />
       <AdminRecordManager
         title="Crew Roster"
         description="Crew records by approval status, availability, credentials, aircraft experience, and home base."

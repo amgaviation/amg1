@@ -55,7 +55,42 @@ export default async function ClientQuoteDetailPage({
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="space-y-6">
           <SectionCard title="Line Items" icon="receipt">
-            <div className="overflow-x-auto rounded-md border border-border">
+            {/* Phone: stacked line-item cards with the totals always in view —
+                the pricing a client approves must never hide behind a
+                horizontal scroll. The table renders from sm up. */}
+            <div className="space-y-3 sm:hidden">
+              {quote.items.map((item) => (
+                <div key={item.id} className="rounded-md border border-border p-4">
+                  <p className="font-medium">{item.category}</p>
+                  {item.description ? <p className="mt-0.5 text-xs text-muted-foreground">{item.description}</p> : null}
+                  <div className="mt-2 flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      {item.quantity} × {formatMoney(item.unit_price)}
+                    </span>
+                    <span className="font-medium">{formatMoney(item.amount)}</span>
+                  </div>
+                </div>
+              ))}
+              <div className="rounded-md border border-border bg-background/60 p-4 text-sm">
+                {Number((quote as any).discount_total ?? 0) ? (
+                  <div className="flex items-center justify-between py-1">
+                    <span className="font-medium">Discount</span>
+                    <span className="font-medium">-{formatMoney((quote as any).discount_total ?? 0)}</span>
+                  </div>
+                ) : null}
+                {Number((quote as any).tax_total ?? 0) ? (
+                  <div className="flex items-center justify-between py-1">
+                    <span className="font-medium">Tax</span>
+                    <span className="font-medium">{formatMoney((quote as any).tax_total ?? 0)}</span>
+                  </div>
+                ) : null}
+                <div className="flex items-center justify-between py-1">
+                  <span className="font-bold">Total</span>
+                  <span className="font-bold text-accent">{formatMoney(quote.total)}</span>
+                </div>
+              </div>
+            </div>
+            <div className="hidden overflow-x-auto rounded-md border border-border sm:block">
               <table className="w-full text-sm">
                 <thead className="bg-background/60">
                   <tr className="border-b border-border">

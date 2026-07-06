@@ -692,6 +692,8 @@ export async function bulkDeletePortalAccounts(formData: FormData) {
   );
 
   if (!ids.length) redirect(`${backTo}?error=none-selected`);
+  // Serverless-friendly ceiling: each row costs several sequential DB calls.
+  if (ids.length > 200) redirect(`${backTo}?error=too-many-selected`);
 
   const { count: approvedAdminCount } = await db
     .from("profiles")
@@ -793,6 +795,8 @@ export async function bulkDeleteNetworkApplications(formData: FormData) {
   );
 
   if (!ids.length) redirect(`${backTo}?error=none-selected`);
+  // Serverless-friendly ceiling: each row costs several sequential DB calls.
+  if (ids.length > 200) redirect(`${backTo}?error=too-many-selected`);
 
   let deleted = 0;
   let releasedAccounts = 0;

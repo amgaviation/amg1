@@ -250,7 +250,7 @@ export default async function AdminTripDetailPage({
                   <form action={decideCrewPoolRequest} className="space-y-3">
                     <input type="hidden" name="request_id" value={request.id} />
                     <SelectField label="Crew Role" name="crew_role" defaultValue="pic" options={CREW_ROLE.map((r) => ({ value: r.value, label: r.label }))} />
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <SubmitButton name="decision" value="approved" pendingText="Approving...">Approve &amp; Assign</SubmitButton>
                       <SubmitButton name="decision" value="denied" variant="outline" pendingText="Denying...">Deny</SubmitButton>
                     </div>

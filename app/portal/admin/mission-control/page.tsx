@@ -49,10 +49,11 @@ export default async function AdminMissionControlPage({
         description="Every open request on one board, laid out the way work actually moves: intake, quote, crew, flight."
       />
 
-      {/* Flow strip — same vocabulary as the Command Center */}
-      <div className="deck-card flex flex-wrap items-stretch overflow-hidden">
+      {/* Flow strip — same vocabulary as the Command Center. Horizontal scroll
+          strip on phones (see admin dashboard flow band). */}
+      <div className="deck-card deck-scroll-x flex items-stretch overflow-x-auto sm:flex-wrap sm:overflow-hidden">
         {lanes.map((lane, index) => (
-          <div key={lane.key} className="flex min-w-[10rem] flex-1 items-center">
+          <div key={lane.key} className="flex w-[10rem] flex-none items-center sm:w-auto sm:min-w-[10rem] sm:flex-1">
             {index > 0 ? (
               <span className="deck-mono px-1 text-[var(--deck-text-3)]" aria-hidden>
                 →
@@ -70,10 +71,10 @@ export default async function AdminMissionControlPage({
         ))}
       </div>
 
-      {/* Lanes */}
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      {/* Lanes — a swipeable snap board on phones, a grid from md up. */}
+      <div className="deck-scroll-x -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:snap-none md:grid-cols-2 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-4">
         {lanes.map((lane) => (
-          <section key={lane.key} id={`lane-${lane.key}`} className="deck-card flex min-h-[20rem] flex-col overflow-hidden">
+          <section key={lane.key} id={`lane-${lane.key}`} className="deck-card flex min-h-[20rem] w-[85vw] max-w-[22rem] flex-none snap-start flex-col overflow-hidden md:w-auto md:max-w-none">
             <header className="flex items-center justify-between gap-2 border-b border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-4 py-3">
               <div className="min-w-0">
                 <p className="deck-micro text-[var(--deck-text-2)]">{lane.label}</p>

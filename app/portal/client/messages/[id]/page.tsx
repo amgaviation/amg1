@@ -45,11 +45,11 @@ export default async function ClientThreadPage({ params }: { params: Promise<{ i
             );
           })}
         </div>
-        <form action={postMessage} className="mt-6 flex gap-3 border-t border-border pt-5">
+        <form action={postMessage} className="mt-6 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row">
           <input type="hidden" name="thread_id" value={thread.id} />
           <input type="hidden" name="back_to" value="/portal/client/messages" />
           <textarea name="body" required placeholder="Type your message…" className="deck-input flex-1" rows={3} />
-          <div className="flex items-end">
+          <div className="flex items-end max-sm:[&_button]:w-full max-sm:[&>*]:w-full">
             <SubmitButton pendingText="Sending…">Send</SubmitButton>
           </div>
         </form>

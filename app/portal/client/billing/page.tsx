@@ -66,8 +66,10 @@ export default async function ClientBillingPage() {
             getHref={(row) => `/portal/client/billing/${row.id}`}
             columns={[
               { header: "Invoice", priority: "primary", cell: (row) => <span className="font-mono text-xs text-accent">{row.invoice_number}</span> },
-              { header: "Mission", cell: (row) => row.mission?.ref ?? "—" },
-              { header: "Quote", cell: (row) => row.quote?.ref ?? "—" },
+              // hideOnMobile keeps Due Date, Amount Due, and Status inside the
+              // 4-field mobile card — the fields a client decides from.
+              { header: "Mission", hideOnMobile: true, cell: (row) => row.mission?.ref ?? "—" },
+              { header: "Quote", hideOnMobile: true, cell: (row) => row.quote?.ref ?? "—" },
               {
                 header: "Due Date",
                 cell: (row) => {

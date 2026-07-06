@@ -10,6 +10,9 @@ import {
 } from "@/components/portal/ui/primitives";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { DataTable } from "@/components/portal/ui/data-table";
+import { TableSelectionScope } from "@/components/portal/ui/data-table-selection";
+import { BulkResultNotice } from "@/components/portal/ui/bulk-result-notice";
+import { bulkDeleteLeads } from "@/app/portal/actions/bulk-records";
 import { PageToolbar } from "@/components/portal/ui/page-toolbar";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -177,8 +180,18 @@ export default async function CrmPipelinePage({
         }
       />
 
+      <BulkResultNotice params={params} entityLabel="lead" />
+
       {/* Lead list */}
+      <TableSelectionScope
+        action={bulkDeleteLeads}
+        entity="crm_lead"
+        backTo="/portal/admin/crm"
+        entityLabel="lead"
+        confirm="Delete the selected leads? Their activity history is removed with them, and this cannot be undone. Leads marked Won or already converted to a client are skipped automatically."
+      >
       <DataTable
+        selectable
         rows={paged}
         getKey={(lead) => lead.id}
         getHref={(lead) => `/portal/admin/crm/${lead.id}`}
@@ -232,6 +245,7 @@ export default async function CrmPipelinePage({
           },
         ]}
       />
+      </TableSelectionScope>
 
       <Pagination
         basePath="/portal/admin/crm"

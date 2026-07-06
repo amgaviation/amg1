@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BulkResultNotice } from "@/components/portal/ui/bulk-result-notice";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
 import { bulkDeleteNetworkApplications } from "@/app/portal/actions/admin";
 import { NetworkProspectTools } from "@/components/portal/admin/network-prospect-tools";
@@ -153,6 +154,7 @@ export default async function NetworkApplicationsPage({
 
       <NetworkProspectTools />
 
+      <BulkResultNotice params={params} entityLabel="application" />
       <AdminRecordManager
         title="Review Queue"
         description="Crew network submissions by applicant, airport, total time, certificates, status, and submission date."
@@ -177,7 +179,13 @@ export default async function NetworkApplicationsPage({
         editLabel="Review Application"
         recordIdName="application_id"
         backTo="/portal/admin/network-applications"
-        bulkDelete={{ action: bulkDeleteNetworkApplications, entity: "network_application", entityLabel: "application" }}
+        bulkDelete={{
+          action: bulkDeleteNetworkApplications,
+          entity: "network_application",
+          entityLabel: "application",
+          confirm:
+            "Delete the selected applications? The application and its uploaded files are removed, and any crew account created from it is released so the person can apply or register again. This cannot be undone.",
+        }}
         emptyTitle="No network applications"
         emptyDescription="Public crew network applications will appear here after submission."
         detailEyebrow="Network Application"

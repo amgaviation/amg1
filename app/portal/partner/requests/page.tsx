@@ -23,9 +23,10 @@ export default async function PartnerRequestsPage() {
           emptyLabel="No service requests assigned."
           columns={[
             { header: "Request", priority: "primary", cell: (row) => <span className="font-mono text-xs text-accent">{row.ref}</span> },
-            { header: "Mission", cell: (row) => row.mission?.ref ?? "-" },
+            // hideOnMobile keeps Status and Quote inside the 4-field mobile card.
+            { header: "Mission", hideOnMobile: true, cell: (row) => row.mission?.ref ?? "-" },
             { header: "Service", cell: (row) => row.service_type },
-            { header: "Location", cell: (row) => row.location ?? "-" },
+            { header: "Location", hideOnMobile: true, cell: (row) => row.location ?? "-" },
             { header: "Quote", cell: (row) => formatMoney(row.quote_amount), align: "right" },
             { header: "Status", cell: (row) => <StatusBadge label={PARTNER_STATUS_LABEL[row.status] ?? row.status} tone={toneFor(PARTNER_STATUS_TONE, row.status)} /> },
             { header: "Created", cell: (row) => formatDateTime(row.created_at) },

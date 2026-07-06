@@ -41,11 +41,11 @@ export default async function PartnerThreadPage({ params }: { params: Promise<{ 
             );
           })}
         </div>
-        <form action={postMessage} className="mt-6 flex gap-3 border-t border-border pt-5">
+        <form action={postMessage} className="mt-6 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row">
           <input type="hidden" name="thread_id" value={result.thread.id} />
           <input type="hidden" name="back_to" value="/portal/partner/messages" />
           <textarea name="body" required placeholder="Type your message..." className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-accent" rows={3} />
-          <div className="flex items-end"><SubmitButton className="rounded-full" pendingText="Sending...">Send</SubmitButton></div>
+          <div className="flex items-end max-sm:[&_button]:w-full max-sm:[&>*]:w-full"><SubmitButton className="rounded-full" pendingText="Sending...">Send</SubmitButton></div>
         </form>
       </SectionCard>
     </>

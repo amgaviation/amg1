@@ -153,7 +153,7 @@ export function Combobox({
               tabIndex={-1}
               aria-label="Clear selection"
               onClick={clear}
-              className="rounded p-0.5 text-[var(--deck-text-3)] transition-colors hover:text-[var(--deck-text)]"
+              className="rounded p-2 text-[var(--deck-text-3)] transition-colors hover:text-[var(--deck-text)] sm:p-0.5"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -182,7 +182,7 @@ export function Combobox({
                 role="option"
                 aria-selected={option.value === selected}
                 className={cn(
-                  "cursor-pointer rounded-sm px-3 py-2 text-sm text-[var(--deck-text)]",
+                  "cursor-pointer rounded-sm px-3 py-2.5 text-sm text-[var(--deck-text)] sm:py-2",
                   index === active && "bg-[var(--deck-accent-tint)]",
                   option.value === selected && "font-semibold"
                 )}

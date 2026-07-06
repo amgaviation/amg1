@@ -1,4 +1,5 @@
 import { approveWaitlistedUser, bulkDeletePortalAccounts, denyWaitlistedUser, sendWaitlistContactEmail } from "@/app/portal/actions/admin";
+import { BulkResultNotice } from "@/components/portal/ui/bulk-result-notice";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import {
@@ -155,6 +156,7 @@ export default async function AdminWaitlistPage({
         description="Review waitlisted portal access requests using the same list, search, filter, and detail workflow as Crew Management."
       />
 
+      <BulkResultNotice params={params} entityLabel="waitlisted user" />
       <AdminRecordManager
         title="Waitlisted Access Requests"
         description="Waitlisted portal access requests by requester, company, business purpose, assigned role, waitlisted date, and contact status."

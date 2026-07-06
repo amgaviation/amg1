@@ -1,4 +1,5 @@
 import { requireRole } from "@/lib/portal/session";
+import { BulkResultNotice } from "@/components/portal/ui/bulk-result-notice";
 import {
   AdminRecordManager,
   type AdminRecordField,
@@ -262,6 +263,7 @@ export default async function AdminUsersPage({
         ]}
       />
 
+      <BulkResultNotice params={params} entityLabel="user" />
       <AdminRecordManager
         title="User Directory"
         description={`Showing ${PROFILE_STATUS_LABEL[statusFilter] ?? statusFilter} portal users. Data refreshes from Supabase each time this tab is opened.`}

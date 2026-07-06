@@ -71,7 +71,7 @@ export function SubmitButton({
           aria-modal="true"
           aria-labelledby="confirm-action-title"
         >
-          <div className="deck-card w-full max-w-md p-6">
+          <div className="deck-card max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto p-6">
             <div className="flex items-start gap-4">
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)]">
                 <AlertTriangle className="h-5 w-5 text-[var(--deck-warn)]" />

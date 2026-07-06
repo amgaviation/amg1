@@ -79,7 +79,7 @@ export default async function CrewExpensesPage({
           unrelated sensitive data. Review the{" "}
           <Link href="/legal/document-upload-terms" className="font-semibold text-accent hover:underline">Document Upload Terms</Link>.
         </Notice>
-        <form action={submitExpense} encType="multipart/form-data" className="grid gap-4 lg:grid-cols-4">
+        <form action={submitExpense} encType="multipart/form-data" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <SelectField label="Mission" name="mission_id" defaultValue="" options={[{ value: "", label: "General / unassigned" }, ...missions.map((m) => ({ value: m.id, label: `${m.ref} - ${m.departure_airport ?? ""}-${m.arrival_airport ?? ""}` }))]} />
           <SelectField label="Category" name="category" required defaultValue="" placeholder="Select category..." options={EXPENSE_CATEGORIES.map((c) => ({ value: c.value, label: c.label }))} />
           <TextField label="Amount" name="amount" type="number" min="0" step="0.01" required />

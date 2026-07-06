@@ -72,10 +72,10 @@ export default async function PartnerRequestDetailPage({
 
         <div className="space-y-6">
           <SectionCard title="Respond" icon="handshake">
-            <form action={respondToServiceRequest} className="flex gap-3">
+            <form action={respondToServiceRequest} className="grid grid-cols-2 gap-3 sm:flex">
               <input type="hidden" name="assignment_id" value={assignment.id} />
-              <button name="decision" value="accepted" className="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground">Accept</button>
-              <button name="decision" value="declined" className="rounded-full border border-border px-4 py-2 text-sm font-semibold">Decline</button>
+              <button name="decision" value="accepted" className="rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground sm:py-2">Accept</button>
+              <button name="decision" value="declined" className="rounded-full border border-border px-4 py-2.5 text-sm font-semibold sm:py-2">Decline</button>
             </form>
           </SectionCard>
           <SectionCard title="Submit Quote" icon="receipt">

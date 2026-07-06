@@ -1240,6 +1240,38 @@ html {
     min-height: 6rem;
     padding: 0.65rem 0.85rem;
   }
+
+  /* ---- Portal mobile ergonomics (<=767px, matching the 767px breakpoint at the
+     public-header rule). Kept in @layer components so JSX utilities still win.
+     Two goals: (1) >=16px font on every focusable field so iOS Safari stops
+     auto-zooming on focus; (2) >=44px touch targets on the controls people
+     actually tap on a phone. ---- */
+  @media (max-width: 767px) {
+    .amg-portal .deck-input {
+      min-height: 2.75rem;
+      font-size: 1rem;
+    }
+    .amg-portal .deck-nav-link {
+      min-height: 2.75rem;
+      padding: 0.6rem 0.75rem;
+      font-size: 0.92rem;
+    }
+    .amg-portal [data-slot="button"] {
+      min-height: 2.75rem;
+    }
+    .amg-portal .deck-card-header {
+      flex-wrap: wrap;
+    }
+    /* Horizontal scroll strips (filter pills, flow bands) — hide the scrollbar
+       but keep momentum scrolling. */
+    .amg-portal .deck-scroll-x {
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .amg-portal .deck-scroll-x::-webkit-scrollbar {
+      display: none;
+    }
+  }
 }
 
 /* ---- Tables (element-level, kept outside layers to theme legacy tables) ---- */

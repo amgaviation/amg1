@@ -5,6 +5,7 @@ import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/portal/format";
+import { cn } from "@/lib/utils";
 import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 import type { ErrorCategory } from "@/lib/errors/user-facing-errors";
 import {
@@ -497,7 +498,9 @@ export default async function AdminMessagesPage({
         </div>
 
         <div className="grid xl:grid-cols-[minmax(20rem,28rem)_minmax(0,1fr)]">
-          <section className="border-b border-[var(--deck-line)] xl:border-b-0 xl:border-r">
+          {/* Below xl this is single-column; with a thread open the inbox list
+              hides so the conversation is what you land on, phone-app style. */}
+          <section className={cn("border-b border-[var(--deck-line)] xl:border-b-0 xl:border-r", params.thread && "hidden xl:block")}>
             <div className="border-b border-[var(--deck-line)] p-4">
               <p className="text-sm font-semibold text-[var(--deck-text)]">{threads.length} thread{threads.length === 1 ? "" : "s"}</p>
               <p className="mt-1 text-xs text-[var(--deck-text-3)]">Unread, failed, and linked operational messages surface here.</p>
@@ -526,7 +529,15 @@ export default async function AdminMessagesPage({
 
           <section className="min-w-0 p-5">
             {params.thread || detail ? (
-              <ThreadDetail detail={detail} templates={templates} records={records} providerConfigured={providerConfigured} />
+              <>
+                <Link
+                  href={hrefWith(query, { thread: null, compose: null })}
+                  className="mb-4 inline-flex items-center gap-1.5 rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)] xl:hidden"
+                >
+                  ← Back to inbox
+                </Link>
+                <ThreadDetail detail={detail} templates={templates} records={records} providerConfigured={providerConfigured} />
+              </>
             ) : (
               <EmptyState
                 icon="messageSquare"

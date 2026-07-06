@@ -83,6 +83,21 @@ export function PortalShell({
   const [open, setOpen] = useState(false);
   const navGroups = resolveNavGroups(role, user.role);
 
+  // Mobile drawer ergonomics: lock body scroll while open, close on Escape.
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
   // A shell already wraps this subtree (per-role layout): stay out of the way.
   if (nested) return <>{children}</>;
 
@@ -96,15 +111,15 @@ export function PortalShell({
 
         {/* Mobile drawer */}
         {open && (
-          <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation menu">
             <div
-              className="absolute inset-0 bg-[rgba(4,8,16,0.66)] backdrop-blur-sm"
+              className="absolute inset-0 bg-[rgba(4,8,16,0.66)] backdrop-blur-sm animate-in fade-in duration-200"
               onClick={() => setOpen(false)}
             />
-            <aside className="deck-chrome-surface absolute left-0 top-0 flex h-full w-[18rem] flex-col border-r border-[var(--deck-chrome-line)] shadow-2xl">
+            <aside className="deck-chrome-surface absolute left-0 top-0 flex h-[100dvh] w-[18rem] max-w-[85vw] flex-col border-r border-[var(--deck-chrome-line)] shadow-2xl animate-in slide-in-from-left duration-200 [padding-left:env(safe-area-inset-left)]">
               <button
                 onClick={() => setOpen(false)}
-                className="absolute right-3 top-3 z-10 rounded-md border border-[var(--deck-chrome-line)] p-2 text-[var(--deck-chrome-muted)] transition-colors hover:text-[var(--deck-chrome-text)]"
+                className="absolute right-3 top-3 z-10 rounded-md border border-[var(--deck-chrome-line)] p-2.5 text-[var(--deck-chrome-muted)] transition-colors hover:text-[var(--deck-chrome-text)]"
                 aria-label="Close menu"
               >
                 <X className="h-5 w-5" />
@@ -114,6 +129,7 @@ export function PortalShell({
                 user={user}
                 navGroups={navGroups}
                 onNavigate={() => setOpen(false)}
+                showWorkspaceSwitch
               />
             </aside>
           </div>
@@ -125,10 +141,10 @@ export function PortalShell({
             <div className="flex min-w-0 items-center gap-3">
               <button
                 onClick={() => setOpen(true)}
-                className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-1.5 text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)] lg:hidden"
+                className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-2.5 text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)] lg:hidden"
                 aria-label="Open menu"
               >
-                <Menu className="h-4 w-4" />
+                <Menu className="h-5 w-5" />
               </button>
               <div className="hidden min-w-0 md:block">
                 <Breadcrumbs role={role} />
@@ -149,7 +165,7 @@ export function PortalShell({
 
               <Link
                 href={NOTIFICATIONS_HREF[role]}
-                className="relative rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-1.5 text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)]"
+                className="relative rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-2.5 text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)] lg:p-1.5"
                 aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ""}`}
               >
                 <PortalIcon name="bell" className="h-4 w-4" />
@@ -313,11 +329,13 @@ function SidebarContent({
   user,
   navGroups,
   onNavigate,
+  showWorkspaceSwitch = false,
 }: {
   role: PortalRole;
   user: ShellUser;
   navGroups: NavGroup[];
   onNavigate?: () => void;
+  showWorkspaceSwitch?: boolean;
 }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
@@ -419,6 +437,38 @@ function SidebarContent({
             );
           })}
         </div>
+
+        {/* Workspace quick-switch — the header ViewSwitcher is hidden below md,
+            so the mobile drawer is where admins change workspaces on a phone. */}
+        {showWorkspaceSwitch && isAdminRole(user.role) ? (
+          <div className="mt-3 border-t border-[var(--deck-chrome-line)] pt-3">
+            <p className="deck-nav-group px-3 pb-1.5">Switch Workspace</p>
+            <div className="space-y-0.5">
+              {(
+                [
+                  { role: "admin", label: "Operations Command" },
+                  { role: "client", label: "Client Portal" },
+                  { role: "crew", label: "Crew Portal" },
+                  { role: "partner", label: "Partner Portal" },
+                ] as { role: PortalRole; label: string }[]
+              ).map((target) => (
+                <Link
+                  key={target.role}
+                  href={ROLE_HOME[target.role]}
+                  onClick={onNavigate}
+                  data-active={target.role === role}
+                  className="deck-nav-link"
+                >
+                  <PortalIcon name="layers" className="h-4 w-4 shrink-0 opacity-80" />
+                  <span className="min-w-0 flex-1 truncate">{target.label}</span>
+                  {target.role === role ? (
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--deck-accent)]" aria-hidden />
+                  ) : null}
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </nav>
 
       {/* User card */}

@@ -1,4 +1,5 @@
 import { archiveClientRecord, bulkDeletePortalAccounts, saveClientRecord } from "@/app/portal/actions/admin";
+import { BulkResultNotice } from "@/components/portal/ui/bulk-result-notice";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import { PROFILE_STATUS, PROFILE_STATUS_LABEL, PROFILE_STATUS_TONE, type Tone, toneFor } from "@/lib/portal/constants";
@@ -224,6 +225,7 @@ export default async function AdminClientsPage({
         description="Client identities, company records, billing contacts, linked aircraft, missions, documents, and account activity."
       />
 
+      <BulkResultNotice params={params} entityLabel="client" />
       <AdminRecordManager
         title="Client Directory"
         description="Client records by account status, authorized requesters, aircraft, billing context, and mission history."
