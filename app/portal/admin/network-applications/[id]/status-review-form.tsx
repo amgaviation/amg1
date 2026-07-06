@@ -13,6 +13,9 @@ import {
 } from "@/lib/portal/network-application-constants";
 import {
   buildNetworkDecisionEmailCopy,
+  decisionReasonFor,
+  mergeTemplateTokens,
+  networkDecisionTemplateKey,
   renderDecisionEmailText,
   NETWORK_EMAIL_DISCLAIMER,
 } from "@/lib/portal/network-application-email-copy";
@@ -34,6 +37,7 @@ export function StatusReviewForm({
   missingInformation,
   otherStatusReason,
   denialReason,
+  templateOverrides,
 }: {
   applicationId: string;
   applicantName: string;
@@ -42,6 +46,8 @@ export function StatusReviewForm({
   missingInformation?: string | null;
   otherStatusReason?: string | null;
   denialReason?: string | null;
+  /** Globally customized decision templates (Settings → Email Templates), keyed by template key. */
+  templateOverrides?: Record<string, { subject: string; body: string }>;
 }) {
   const [status, setStatus] = useState<NetworkApplicationStatus>(currentStatus);
   const [denialChoice, setDenialChoice] = useState<string>(denialReason && !NETWORK_DENIAL_REASONS.includes(denialReason as (typeof NETWORK_DENIAL_REASONS)[number]) ? "custom" : denialReason ?? NETWORK_DENIAL_REASONS[0]);
@@ -57,12 +63,34 @@ export function StatusReviewForm({
     denialReason: effectiveDenialReason,
     otherStatusReason: otherReason,
   });
+  const overrideKey = networkDecisionTemplateKey(status);
+  const override = overrideKey ? templateOverrides?.[overrideKey] : undefined;
+  const overridePreview = override
+    ? (() => {
+        const variables = {
+          first_name: applicantName.split(/\s+/)[0] || applicantName,
+          full_name: applicantName,
+          reason: decisionReasonFor({
+            status,
+            denialReason: effectiveDenialReason,
+            otherStatusReason: otherReason,
+          }),
+        };
+        const parts = [
+          `Subject: ${mergeTemplateTokens(override.subject, variables)}`,
+          mergeTemplateTokens(override.body, variables),
+        ];
+        if (copy?.cta) parts.push(`${copy.cta.label}: (secure setup link included in the email)`);
+        parts.push(NETWORK_EMAIL_DISCLAIMER);
+        return parts.join("\n\n");
+      })()
+    : null;
   const previewText =
     status === "additional_information_needed"
       ? `Subject: Additional Information Needed for AMG Crew Network Review\n\nHello ${applicantName.split(/\s+/)[0]}, AMG needs additional information before crew-network review can continue.\n\nInformation requested:\n${missingInformation ?? "(from the field above)"}\n\n${NETWORK_EMAIL_DISCLAIMER}`
-      : copy
+      : overridePreview ?? (copy
         ? `Subject: ${copy.subject}\n\n${renderDecisionEmailText(copy)}`
-        : "No email is sent for this status.";
+        : "No email is sent for this status.");
 
   return (
     <form ref={formRef} action={saveNetworkApplicationStatus} className="grid gap-4">

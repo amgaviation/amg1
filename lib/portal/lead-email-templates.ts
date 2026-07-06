@@ -67,7 +67,7 @@ const COMMITMENTS = `- Itemized quote within 24 business hours of your request.
 - AMG's fee is a flat, published coordination fee per mission.
 - No mission proceeds until the pilot is named or approved on the owner's insurance policy.`;
 
-type TemplateCopy = { subject: string; body: string };
+export type TemplateCopy = { subject: string; body: string };
 
 const INTRO_PITCH: Record<LeadBusinessType, { subject: string; pitch: string; extra: string }> = {
   mro: {
@@ -256,6 +256,29 @@ const BUILDERS: Record<LeadEmailStage, (type: LeadBusinessType) => TemplateCopy>
   won: wonTemplate,
   lost: lostTemplate,
 };
+
+export const LEAD_EMAIL_TEMPLATE_VARIABLES = [
+  "first_name",
+  "full_name",
+  "company",
+  "sender_name",
+  "ops_email",
+  "pricing_url",
+  "site_url",
+] as const;
+
+/** Raw (unmerged) default copy for a stage + business type — used by the
+ * template registry so admins can edit these globally. */
+export function getLeadEmailTemplateCopy(
+  stage: LeadEmailStage,
+  businessType: LeadBusinessType
+): TemplateCopy {
+  return BUILDERS[stage](businessType);
+}
+
+export function leadEmailTemplateKey(stage: LeadEmailStage, businessType: LeadBusinessType) {
+  return `lead_outreach_${stage}_${businessType}`;
+}
 
 export function mergeLeadEmailText(
   template: string,

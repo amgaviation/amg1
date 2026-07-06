@@ -61,6 +61,20 @@ export default async function AdminSettingsPage({
           </p>
         </div>
       </SectionCard>
+      <SectionCard title="Email Templates" icon="mail">
+        <div className="grid gap-3 text-sm text-muted-foreground">
+          <p>
+            Edit the copy of every templated email the portal sends — crew communications,
+            sales-pipeline lead outreach, Crew Network application decisions, and
+            communications-composer starters. Saved changes apply globally and immediately.
+          </p>
+          <p>
+            <Link href="/portal/admin/settings/email-templates" className="text-accent hover:underline">
+              Edit email templates
+            </Link>
+          </p>
+        </div>
+      </SectionCard>
       <AccountSecurityForm email={user.email} backTo="/portal/admin/settings" />
     </>
   );

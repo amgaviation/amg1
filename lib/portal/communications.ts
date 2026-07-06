@@ -173,12 +173,26 @@ async function addAudit(input: {
   });
 }
 
+/** Composer-picker categories. Template-override rows managed in Settings →
+ * Email Templates use family categories (crew/lead/network/system) and are
+ * excluded here so they don't flood the composer dropdown. */
+const COMPOSER_TEMPLATE_CATEGORIES = [
+  "support_request",
+  "crew_coordination",
+  "billing",
+  "documents",
+  "maintenance",
+  "general",
+  "status_update",
+];
+
 export async function listCommunicationTemplates(): Promise<CommunicationTemplate[]> {
   const client = await db();
   const { data } = await client
     .from("communication_templates")
     .select("id,name,category,subject_template,body_template_text,body_template_html,active")
     .eq("active", true)
+    .in("category", COMPOSER_TEMPLATE_CATEGORIES)
     .order("category")
     .order("name");
   return data ?? [];
