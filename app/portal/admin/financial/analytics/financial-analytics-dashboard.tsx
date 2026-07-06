@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Download, RefreshCw } from "lucide-react";
 import { DataTable } from "@/components/portal/ui/data-table";
-import { EmptyState, Notice, SectionCard } from "@/components/portal/ui/primitives";
+import { EmptyState, Notice, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { cn } from "@/lib/utils";
 import type { AnalyticsRangeKey, BreakdownPoint, ChartPoint, FinancialAnalyticsData, FinancialMetric } from "@/lib/portal/financial-analytics";
@@ -227,9 +227,51 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
     download(`amg-financial-analytics-${Date.now()}.json`, JSON.stringify(data, null, 2), "application/json;charset=utf-8");
   };
 
+  const kpis = data.kpis;
+
   return (
     <div className="space-y-6">
       {error ? <Notice tone="danger">{error}</Notice> : null}
+
+      {/* KPI cards live inside the client dashboard so they track the same
+          range/refresh state as every chart below — a server-rendered grid
+          would silently keep the initial period after a range change. */}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          label="Quote Turnaround"
+          icon="history"
+          value={kpis.quoteTurnaroundHours === null ? "—" : `${kpis.quoteTurnaroundHours.toFixed(1)} h`}
+          detail={
+            kpis.quoteTurnaroundHours === null
+              ? "No quotes with both sent and approved timestamps were approved in this period."
+              : `Average sent-to-approved time across ${kpis.quoteTurnaroundSampleSize} quote${kpis.quoteTurnaroundSampleSize === 1 ? "" : "s"} approved in this period.`
+          }
+        />
+        <StatCard
+          label="Quote Win Rate"
+          icon="receipt"
+          value={kpis.quoteWinRatePct === null ? "—" : `${Math.round(kpis.quoteWinRatePct)}%`}
+          detail={
+            kpis.quoteWinRatePct === null
+              ? "No quotes were approved, rejected, or expired in this period."
+              : `${kpis.quoteCounts.approved} won, ${kpis.quoteCounts.rejected} rejected, ${kpis.quoteCounts.expired} expired in this period.`
+          }
+          tone={kpis.quoteWinRatePct !== null && kpis.quoteWinRatePct < 50 ? "warn" : "default"}
+        />
+        <StatCard
+          label="Gross Margin"
+          icon="wallet"
+          value={kpis.grossMarginPct === null ? "—" : `${Math.round(kpis.grossMarginPct)}%`}
+          detail="Invoice line items do not record an internal cost yet, so margin is left blank rather than estimated."
+        />
+        <StatCard
+          label="Credit Liability"
+          icon="wallet"
+          value={formatMoney(kpis.creditLiability)}
+          detail={`Outstanding credit balances across ${kpis.creditLiabilitySubscriptionCount} live subscription${kpis.creditLiabilitySubscriptionCount === 1 ? "" : "s"}.`}
+          tone={kpis.creditLiability > 0 ? "warn" : "default"}
+        />
+      </div>
 
       <section className="rounded-md border border-[var(--deck-chrome-line)] bg-[var(--deck-ink)] p-4 text-[var(--deck-chrome-text)] shadow-[var(--deck-shadow-card)]">
         <div className="grid gap-4 xl:grid-cols-[1fr_auto] xl:items-center">

@@ -66,6 +66,8 @@ export default async function ClientTripDetailPage({
         <Notice tone="danger">This request is no longer awaiting information from you.</Notice>
       ) : sp.error === "payment-data" ? (
         <Notice tone="danger">Remove full card numbers, CVV codes, bank account numbers, or routing numbers before sending.</Notice>
+      ) : sp.error === "failed" ? (
+        <Notice tone="danger">Your information could not be sent. Please try again — nothing was submitted.</Notice>
       ) : null}
 
       {/* Detail-archetype summary header */}

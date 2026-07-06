@@ -36,3 +36,4 @@ Branch: claude/new-session-mt12tj (designated session branch; plan's `loop/<date
   F3 financial KPIs (turnaround, win rate, margin, credit liability), F4 awaiting-info client affordance.
 - Budget note: original T+120 window nearly consumed by wall-clock gaps between wakeups; treating the
   user instruction as a bounded extension (~1 feature cycle + review + wind-down).
+- feature cycle: implementation committed 5a3c428; adversarial review (11 findings) fixed; verify green; final commit + push; PR updated

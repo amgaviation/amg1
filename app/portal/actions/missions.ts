@@ -425,13 +425,24 @@ export async function provideRequestedInfo(formData: FormData) {
   }
 
   const entry = `[Client info · ${new Date().toISOString()}]\n${info}`;
-  await db
+  // Status predicate rides on the write: a double-submit (or admin change
+  // mid-flight) matches zero rows instead of re-appending or clobbering a
+  // status transition. The write is confirmed before any audit/notification
+  // fires so the success notice never lies.
+  const { data: updated, error: updateError } = await db
     .from("missions")
     .update({
       status: "under_review",
       client_notes: mission.client_notes ? `${mission.client_notes}\n\n${entry}` : entry,
     })
-    .eq("id", missionId);
+    .eq("id", missionId)
+    .eq("status", "awaiting_client_info")
+    .select("id");
+  if (updateError) {
+    console.error("[missions] provideRequestedInfo update failed", updateError);
+    redirect(`${backTo}?error=failed`);
+  }
+  if (!updated?.length) redirect(`${backTo}?error=not-awaiting`);
 
   await logAuditEvent({
     actor: user,
