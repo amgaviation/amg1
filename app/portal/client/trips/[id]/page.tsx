@@ -5,6 +5,7 @@ import { SectionCard, Timeline, Notice } from "@/components/portal/ui/primitives
 import { DescriptionList } from "@/components/portal/ui/description-list";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
+import { TextAreaField } from "@/components/portal/ui/fields";
 import { Button } from "@/components/ui/button";
 import { getMissionDetail } from "@/lib/portal/queries";
 import {
@@ -18,7 +19,7 @@ import {
   labelFor,
 } from "@/lib/portal/constants";
 import { formatRoute, formatDateTime, formatDate } from "@/lib/portal/format";
-import { cancelMission } from "@/app/portal/actions/missions";
+import { cancelMission, provideRequestedInfo } from "@/app/portal/actions/missions";
 
 export const metadata = { title: "Trip Detail — Client Portal" };
 
@@ -27,7 +28,7 @@ export default async function ClientTripDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ success?: string }>;
+  searchParams: Promise<{ success?: string; error?: string }>;
 }) {
   const user = await requireRolePermission("client", "missions");
   const { id } = await params;
@@ -56,6 +57,16 @@ export default async function ClientTripDetailPage({
     <>
       {sp.success === "cancelled" ? <Notice tone="success">Mission cancelled.</Notice> : null}
       {sp.success === "passenger" ? <Notice tone="success">Passenger list updated.</Notice> : null}
+      {sp.success === "info-sent" ? (
+        <Notice tone="success">Information sent — your request is back under review with AMG Operations.</Notice>
+      ) : null}
+      {sp.error === "info-required" ? (
+        <Notice tone="danger">Enter the requested information before sending.</Notice>
+      ) : sp.error === "not-awaiting" ? (
+        <Notice tone="danger">This request is no longer awaiting information from you.</Notice>
+      ) : sp.error === "payment-data" ? (
+        <Notice tone="danger">Remove full card numbers, CVV codes, bank account numbers, or routing numbers before sending.</Notice>
+      ) : null}
 
       {/* Detail-archetype summary header */}
       <div className="flex flex-col gap-4 pb-2 sm:flex-row sm:items-end sm:justify-between">
@@ -80,6 +91,30 @@ export default async function ClientTripDetailPage({
 
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="space-y-6">
+          {mission.status === "awaiting_client_info" ? (
+            <SectionCard
+              title="AMG needs more information"
+              description="AMG Operations paused this request until you provide additional detail — see the note under Mission Status."
+              icon="alert"
+            >
+              <form action={provideRequestedInfo} className="grid gap-4">
+                <input type="hidden" name="mission_id" value={mission.id} />
+                <TextAreaField
+                  label="Requested Information"
+                  name="info"
+                  required
+                  rows={5}
+                  maxLength={4000}
+                  placeholder="Type the details AMG Operations asked for…"
+                  hint="Sending puts this request back under review. Do not include card or bank account numbers."
+                />
+                <div>
+                  <SubmitButton pendingText="Sending…">Send to AMG Operations</SubmitButton>
+                </div>
+              </form>
+            </SectionCard>
+          ) : null}
+
           <SectionCard title="Mission Summary" icon="plane">
             <DescriptionList
               items={[

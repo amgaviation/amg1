@@ -381,6 +381,80 @@ export async function cancelMission(formData: FormData) {
   redirect(`${base}/${missionId}?success=cancelled`);
 }
 
+/**
+ * Client answers an "Awaiting Client Info" request. The mission moves back to
+ * under_review; the text itself is preserved without a schema change — it is
+ * appended to the client-visible notes, sent to every admin, and recorded in
+ * the audit trail.
+ */
+export async function provideRequestedInfo(formData: FormData) {
+  const user = await actor(["client"], "missions.edit");
+  const db = await createServiceClient();
+  const missionId = str(formData, "mission_id");
+  if (!missionId) redirect("/portal/client/trips?error=missing");
+  const backTo = `/portal/client/trips/${missionId}`;
+
+  const info = str(formData, "info").slice(0, 4000);
+  if (!info) redirect(`${backTo}?error=info-required`);
+  const paymentFindings = detectProhibitedPaymentData({ info });
+  if (paymentFindings.length) {
+    await recordComplianceEvidence({
+      actor: user,
+      audience: user.role,
+      eventType: "no_online_payment_notice_acknowledged",
+      eventArea: "security",
+      policyKey: POLICY_KEYS.noOnlinePayment,
+      policyVersion: COMPLIANCE_POLICY_VERSION,
+      acknowledgmentText: ACKNOWLEDGMENT_TEXT.noOnlinePayment,
+      metadata: { action: "portal_client_info_blocked", fields: paymentFindings.map((finding) => finding.field) },
+    });
+    redirect(`${backTo}?error=payment-data`);
+  }
+
+  const { data: mission } = await db
+    .from("missions")
+    .select("client_id, ref, status, client_notes")
+    .eq("id", missionId)
+    .maybeSingle();
+  if (!mission) redirect("/portal/client/trips?error=notfound");
+  if (user.role !== "admin" && mission.client_id !== user.id) {
+    redirect("/portal/client/trips?error=forbidden");
+  }
+  if (mission.status !== "awaiting_client_info") {
+    redirect(`${backTo}?error=not-awaiting`);
+  }
+
+  const entry = `[Client info · ${new Date().toISOString()}]\n${info}`;
+  await db
+    .from("missions")
+    .update({
+      status: "under_review",
+      client_notes: mission.client_notes ? `${mission.client_notes}\n\n${entry}` : entry,
+    })
+    .eq("id", missionId);
+
+  await logAuditEvent({
+    actor: user,
+    action: "mission_client_info_provided",
+    detail: info.slice(0, 2000),
+    entityType: "mission",
+    entityId: missionId,
+  });
+  await notifyAdmins({
+    title: `Client provided requested info — ${mission.ref}`,
+    body: info,
+    type: "mission_client_info",
+    entityType: "mission",
+    entityId: missionId,
+  });
+
+  revalidatePath(backTo);
+  revalidatePath("/portal/client/trips");
+  revalidatePath(`/portal/admin/trips/${missionId}`);
+  revalidatePath("/portal/admin/mission-control");
+  redirect(`${backTo}?success=info-sent`);
+}
+
 export async function addPassenger(formData: FormData) {
   const user = await actor(["client", "admin"], "missions.edit");
   const db = await createServiceClient();

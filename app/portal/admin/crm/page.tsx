@@ -19,14 +19,21 @@ import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { Button } from "@/components/ui/button";
 import { createLead } from "@/app/portal/actions/crm";
 import { CrmLeadImportExport } from "@/components/portal/admin/crm-lead-import-export";
-import { LEAD_SOURCES, LEAD_STAGES, getPipelineMetrics, listLeads } from "@/lib/portal/crm";
+import {
+  LEAD_SOURCES,
+  LEAD_STAGES,
+  OPEN_STAGES,
+  STALE_LEAD_DAYS,
+  getPipelineMetrics,
+  isLeadStale,
+  listLeads,
+} from "@/lib/portal/crm";
 import { listAllUsers } from "@/lib/portal/queries";
 import { formatDate, formatMoney, titleCase } from "@/lib/portal/format";
 
 export const metadata = { title: "Sales Pipeline - AMG Operations" };
 export const dynamic = "force-dynamic";
 
-const OPEN_STAGES = ["new", "contacted", "qualified", "proposal"];
 const PAGE_SIZE = 20;
 
 function stageTone(stage: string) {
@@ -53,22 +60,24 @@ export default async function CrmPipelinePage({
     .filter((row) => row.role === "admin" || row.role === "super_admin")
     .map((row) => ({ value: row.id, label: row.full_name ?? row.email }));
 
+  const now = new Date();
   const stageParam = params.stage ?? "";
   const filtered = leads.filter((lead) => {
     if (!stageParam) return true;
     if (stageParam === "open") return OPEN_STAGES.includes(lead.stage);
+    if (stageParam === "stale") return isLeadStale(lead, now);
     return lead.stage === stageParam;
   });
-  const countFor = (value: string) =>
-    value === "open"
-      ? leads.filter((lead) => OPEN_STAGES.includes(lead.stage)).length
-      : leads.filter((lead) => lead.stage === value).length;
+  const countFor = (value: string) => {
+    if (value === "open") return leads.filter((lead) => OPEN_STAGES.includes(lead.stage)).length;
+    if (value === "stale") return leads.filter((lead) => isLeadStale(lead, now)).length;
+    return leads.filter((lead) => lead.stage === value).length;
+  };
 
   const currentPage = Math.max(1, Number(params.page ?? "1") || 1);
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(currentPage, pageCount);
   const paged = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-  const now = new Date();
 
   return (
     <>
@@ -83,7 +92,7 @@ export default async function CrmPipelinePage({
         description="Track inquiries from first contact to won business. Convert website submissions into leads and leads into portal clients."
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
         <StatCard label="Open leads" value={metrics.openCount} icon="users" />
         <StatCard
           label="Pipeline value"
@@ -97,6 +106,14 @@ export default async function CrmPipelinePage({
           icon="alert"
           tone={metrics.needsFollowUp ? "warn" : "default"}
           detail="Next action date reached"
+        />
+        <StatCard
+          label="Stale / no next step"
+          value={metrics.staleCount}
+          icon="clock"
+          tone={metrics.staleCount ? "danger" : "default"}
+          detail={`Open, no upcoming action, quiet ${STALE_LEAD_DAYS}+ days`}
+          href="/portal/admin/crm?stage=stale"
         />
         <StatCard label="Won this month" value={metrics.wonThisMonth} icon="check" tone={metrics.wonThisMonth ? "accent" : "default"} />
         <StatCard label="Won value (month)" value={formatMoney(metrics.wonValueThisMonth)} icon="dollar" />
@@ -141,6 +158,7 @@ export default async function CrmPipelinePage({
             options={[
               { value: "", label: `All (${leads.length})` },
               { value: "open", label: `Open (${countFor("open")})` },
+              { value: "stale", label: `Stale (${countFor("stale")})` },
               ...LEAD_STAGES.map((stage) => ({
                 value: stage.value,
                 label: `${stage.label} (${countFor(stage.value)})`,
@@ -195,7 +213,13 @@ export default async function CrmPipelinePage({
         rows={paged}
         getKey={(lead) => lead.id}
         getHref={(lead) => `/portal/admin/crm/${lead.id}`}
-        emptyLabel={params.q ? "No leads match the current search." : "No leads in this stage yet."}
+        emptyLabel={
+          params.q
+            ? "No leads match the current search."
+            : stageParam === "stale"
+              ? "No stale leads — every open lead has a next step or recent activity."
+              : "No leads in this stage yet."
+        }
         columns={[
           {
             header: "Lead",

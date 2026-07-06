@@ -27,3 +27,12 @@ Branch: claude/new-session-mt12tj (designated session branch; plan's `loop/<date
 - T+64: cycle 2 scoped to single verification agent (window too small for 5-agent sweep) — logged as deviation
 - T+78: verification returned — 9/12 clusters verified, 3 problems found and fixed (V-2-01..03)
 - T+82: wind-down — SUMMARY.md finalized, final verify + commit + push, PR #97 updated
+
+## Continuation (user-directed, T+94)
+- User instructed: "continue loop, focus on new features more than before" — overrides §6 stop and the
+  portal feature-freeze (Rule 3). Public-site freeze and no-schema-migrations rules remain in force.
+- Feature cycle: 4 zero-schema portal features from BACKLOG built in parallel (workflow wf_bc10651f):
+  F1 nightly ops cron (overdue/quote-expiry/credential-currency/stale-sync), F2 CRM stale-lead queue,
+  F3 financial KPIs (turnaround, win rate, margin, credit liability), F4 awaiting-info client affordance.
+- Budget note: original T+120 window nearly consumed by wall-clock gaps between wakeups; treating the
+  user instruction as a bounded extension (~1 feature cycle + review + wind-down).

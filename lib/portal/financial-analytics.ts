@@ -124,6 +124,20 @@ export type StripeHealthRow = {
   error: string | null;
 };
 
+export type FinancialKpis = {
+  /** Average hours from sent_at to approved_at for quotes approved in the period; null when no quote has both timestamps. */
+  quoteTurnaroundHours: number | null;
+  quoteTurnaroundSampleSize: number;
+  /** approved / (approved + rejected + expired) as a 0-100 percentage over quotes resolved in the period; null when none resolved. */
+  quoteWinRatePct: number | null;
+  quoteCounts: { approved: number; rejected: number; expired: number };
+  /** Always null: invoice_line_items has no internal cost column, so margin is never estimated. See dataGaps. */
+  grossMarginPct: number | null;
+  /** Outstanding credit_balance across non-cancelled client subscriptions (point in time, not period-scoped). */
+  creditLiability: number;
+  creditLiabilitySubscriptionCount: number;
+};
+
 export type FinancialAnalyticsData = {
   reportedAt: string;
   dateRange: {
@@ -135,6 +149,7 @@ export type FinancialAnalyticsData = {
     previousTo: string;
   };
   metrics: Record<string, FinancialMetric>;
+  kpis: FinancialKpis;
   charts: {
     revenueOverTime: ChartPoint[];
     moneyInOut: ChartPoint[];
@@ -222,6 +237,8 @@ type QuoteRow = {
   subtotal: number | string | null;
   created_at: string;
   approved_at?: string | null;
+  rejected_at?: string | null;
+  expires_at?: string | null;
   sent_at?: string | null;
   client: MiniProfile | null;
 };
@@ -251,6 +268,7 @@ type SubscriptionRow = {
   annual_price: number | string | null;
   custom_price: number | string | null;
   amount_cents?: number | null;
+  credit_balance?: number | string | null;
   plan_name?: string | null;
   created_at: string;
   current_period_end?: string | null;
@@ -610,6 +628,18 @@ export async function getFinancialAnalytics(filters: FinancialAnalyticsFilters =
   const quoteValue = inRangeQuotes.reduce((sum, quote) => sum + dollars(quote.total), 0);
   const approvedQuoteValue = inRangeQuotes.filter((quote) => ["approved", "accepted", "converted"].includes(quote.status)).reduce((sum, quote) => sum + dollars(quote.total), 0);
 
+  // Quote KPIs use resolution timestamps: approved_at survives conversion, rejected_at is set on
+  // rejection, and the nightly cron flips past-expiry quotes to "expired" at expires_at.
+  const approvedQuotesInRange = quotes.filter((quote) => isBetween(quote.approved_at, dateRange.from, dateRange.to));
+  const rejectedQuotesInRange = quotes.filter((quote) => isBetween(quote.rejected_at, dateRange.from, dateRange.to)).length;
+  const expiredQuotesInRange = quotes.filter((quote) => quote.status === "expired" && isBetween(quote.expires_at, dateRange.from, dateRange.to)).length;
+  const resolvedQuoteCount = approvedQuotesInRange.length + rejectedQuotesInRange + expiredQuotesInRange;
+  const quoteWinRatePct = resolvedQuoteCount ? (approvedQuotesInRange.length / resolvedQuoteCount) * 100 : null;
+  const turnaroundSamples = approvedQuotesInRange
+    .map((quote) => (quote.sent_at && quote.approved_at ? (new Date(quote.approved_at).getTime() - new Date(quote.sent_at).getTime()) / 3_600_000 : null))
+    .filter((hours): hours is number => hours !== null && Number.isFinite(hours) && hours >= 0);
+  const quoteTurnaroundHours = turnaroundSamples.length ? turnaroundSamples.reduce((sum, value) => sum + value, 0) / turnaroundSamples.length : null;
+
   const pendingInvoices = invoices.filter((invoice) => dollars(invoice.amount_due) > 0 && !["draft", "void", "written_off", "paid", "refunded"].includes(invoice.status));
   const pendingPayments = pendingInvoices.reduce((sum, invoice) => sum + dollars(invoice.amount_due), 0);
   const overdueInvoices = pendingInvoices.filter((invoice) => invoice.due_date && daysBetween(invoice.due_date, new Date().toISOString()) > 0);
@@ -618,6 +648,10 @@ export async function getFinancialAnalytics(filters: FinancialAnalyticsFilters =
 
   const activeSubscriptions = subscriptions.filter((subscription) => ["active", "trialing"].includes(subscription.status));
   const mrr = activeSubscriptions.reduce((sum, subscription) => sum + subscriptionMrr(subscription), 0);
+  // Both "canceled" (Stripe) and "cancelled" (portal) spellings exist in SUBSCRIPTION_STATUS.
+  const creditSubscriptions = subscriptions.filter((subscription) => !["canceled", "cancelled"].includes(subscription.status));
+  const creditLiability = creditSubscriptions.reduce((sum, subscription) => sum + dollars(subscription.credit_balance), 0);
+  const creditLiabilitySubscriptionCount = creditSubscriptions.filter((subscription) => dollars(subscription.credit_balance) > 0).length;
   const failedSubscriptionPayments = subscriptions.filter((subscription) => ["failed", "past_due", "unpaid"].includes(subscription.stripe_payment_status ?? subscription.status)).length;
   const syncIssueCount = subscriptions.filter((subscription) => ["sync_error", "price_mismatch", "disconnected", "needs_review"].includes(subscription.stripe_sync_status ?? "")).length;
 
@@ -819,6 +853,7 @@ export async function getFinancialAnalytics(filters: FinancialAnalyticsFilters =
   if (!subscriptionInvoices.length) dataGaps.push("Stripe subscription invoice sync has no recorded billing invoices yet; subscription revenue may be limited to portal subscription setup data.");
   if (!stripeEvents.length) dataGaps.push("No Stripe webhook events are recorded yet; Stripe health metrics will stay unavailable until webhooks arrive.");
   if (!invoices.some((invoice) => invoice.paid_at) && !payments.length) dataGaps.push("No paid invoice records were found; collected revenue will remain zero until payments are recorded.");
+  dataGaps.push("Invoice line items do not record an internal cost, so gross margin is left blank rather than estimated.");
 
   return {
     reportedAt: new Date().toISOString(),
@@ -838,6 +873,15 @@ export async function getFinancialAnalytics(filters: FinancialAnalyticsFilters =
       quoteValue: metric({ label: "Quote Value Created", value: quoteValue, previous: null, detail: `${money(approvedQuoteValue)} approved or converted.`, source: "quotes" }),
       averageInvoiceValue: metric({ label: "Average Invoice Value", value: inRangeInvoices.length ? invoiceSales / inRangeInvoices.length : 0, previous: null, detail: `${inRangeInvoices.length} invoices in range.`, source: "invoices" }),
       averageDaysToPayment: metric({ label: "Average Days To Payment", value: averageDaysToPayment, kind: "number", previous: null, detail: "Calculated from invoice issue/send date to paid_at.", source: "invoices" }),
+    },
+    kpis: {
+      quoteTurnaroundHours,
+      quoteTurnaroundSampleSize: turnaroundSamples.length,
+      quoteWinRatePct,
+      quoteCounts: { approved: approvedQuotesInRange.length, rejected: rejectedQuotesInRange, expired: expiredQuotesInRange },
+      grossMarginPct: null,
+      creditLiability,
+      creditLiabilitySubscriptionCount,
     },
     charts: {
       revenueOverTime: [...revenueBuckets.entries()].sort().map(([label, value]) => ({ label, value })),
