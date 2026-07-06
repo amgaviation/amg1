@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createServiceClient } from "@/lib/supabase/server";
+import type { Json } from "@/lib/supabase/database.types";
 import type { SessionUser } from "@/lib/portal/session";
 import { replyToAddress } from "@/lib/email/config";
 import { getEmailProvider, emailProviderStatus } from "@/lib/email/provider";
@@ -169,7 +170,7 @@ async function addAudit(input: {
     message_id: input.messageId ?? null,
     actor_user_id: input.actorUserId ?? null,
     event_type: input.eventType,
-    metadata: input.metadata ?? {},
+    metadata: (input.metadata ?? {}) as Json,
   });
 }
 
@@ -840,8 +841,8 @@ export async function storeInboundCommunication(inbound: NormalizedInboundMessag
       subject: inbound.subject,
       body_text: bodyText,
       body_html: inbound.bodyHtml ?? null,
-      raw_headers: inbound.rawHeaders ?? null,
-      raw_payload: inbound.rawPayload ?? null,
+      raw_headers: (inbound.rawHeaders ?? null) as Json,
+      raw_payload: (inbound.rawPayload ?? null) as Json,
       received_at: inbound.receivedAt ?? now(),
     })
     .select("*")
