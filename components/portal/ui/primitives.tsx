@@ -24,7 +24,7 @@ export function PageHeader({
     <div className="flex flex-col gap-4 pb-2 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
         {eyebrow ? <p className="deck-eyebrow">{eyebrow}</p> : null}
-        <h1 className="deck-title mt-2 text-[1.65rem] sm:text-[2rem]">{title}</h1>
+        <h1 className="deck-title mt-2 break-words text-[1.65rem] sm:text-[2rem]">{title}</h1>
         {description ? (
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--deck-text-2)]">
             {description}
@@ -192,11 +192,11 @@ export function DetailRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-[9.5rem_1fr] gap-4 border-b border-[var(--deck-line)] py-3 last:border-0">
-      <dt className="deck-eyebrow self-center !text-[0.6rem] !text-[var(--deck-text-3)]">
+    <div className="grid gap-1 border-b border-[var(--deck-line)] py-3 last:border-0 sm:grid-cols-[9.5rem_1fr] sm:gap-4">
+      <dt className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-3)] sm:self-center">
         {label}
       </dt>
-      <dd className="min-w-0 text-sm text-[var(--deck-text)]">{children}</dd>
+      <dd className="min-w-0 break-words text-sm text-[var(--deck-text)]">{children}</dd>
     </div>
   );
 }
@@ -280,12 +280,12 @@ export function RecordRow({
   const inner = (
     <div
       className={cn(
-        "deck-inset flex items-start justify-between gap-4 p-4",
+        "deck-inset flex flex-wrap items-start justify-between gap-3 p-4 sm:gap-4",
         href && "deck-card-hover",
         toneCls
       )}
     >
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1 basis-52">
         {refLabel ? (
           <p className="deck-mono text-[var(--deck-accent-ink)]">{refLabel}</p>
         ) : null}
@@ -297,7 +297,9 @@ export function RecordRow({
         ) : null}
       </div>
       {trailing ? (
-        <div className="flex shrink-0 flex-col items-end gap-1.5 text-right">{trailing}</div>
+        <div className="flex shrink-0 flex-col items-end gap-1.5 text-right max-sm:w-full max-sm:flex-row max-sm:flex-wrap max-sm:items-center max-sm:justify-start max-sm:text-left">
+          {trailing}
+        </div>
       ) : null}
     </div>
   );
@@ -366,7 +368,7 @@ export function FilterTabs({
   preserve?: Record<string, string | undefined>;
 }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="deck-scroll-x -mx-1 flex gap-2 overflow-x-auto px-1 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
       {options.map((option) => {
         const active = (current ?? "") === option.value;
         const search = new URLSearchParams();
@@ -380,7 +382,7 @@ export function FilterTabs({
             key={option.value || "all"}
             href={qs ? `${basePath}?${qs}` : basePath}
             className={cn(
-              "rounded-[0.25rem] border px-3 py-1.5 font-mono text-[0.68rem] font-semibold uppercase [letter-spacing:0.08em] transition-colors",
+              "shrink-0 rounded-[0.25rem] border px-3 py-2 font-mono text-[0.68rem] font-semibold uppercase [letter-spacing:0.08em] transition-colors sm:py-1.5",
               active
                 ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]"
                 : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"
@@ -417,7 +419,7 @@ export function Pagination({
   };
   const linkCls = (disabled: boolean) =>
     cn(
-      "rounded-md border px-4 py-2 text-xs font-semibold transition-colors",
+      "rounded-md border px-4 py-2.5 text-xs font-semibold transition-colors sm:py-2",
       disabled
         ? "pointer-events-none border-[var(--deck-line)] text-[var(--deck-text-3)] opacity-50"
         : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"

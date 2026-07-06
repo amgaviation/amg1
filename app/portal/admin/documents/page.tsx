@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { DataTable } from "@/components/portal/ui/data-table";
+import { TableSelectionScope } from "@/components/portal/ui/data-table-selection";
+import { bulkDeleteDocuments } from "@/app/portal/actions/bulk-records";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -141,7 +143,15 @@ export default async function AdminDocumentsPage({
       </SectionCard>
 
       <SectionCard title="Document Review Queue" icon="fileText">
+        <TableSelectionScope
+          action={bulkDeleteDocuments}
+          entity="document"
+          backTo="/portal/admin/documents"
+          entityLabel="document"
+          confirm="Delete the selected documents? The stored files are removed with them and this cannot be undone. Documents attached to a crew credential are skipped automatically."
+        >
         <DataTable
+          selectable
           rows={docs}
           getKey={(row) => row.id}
           emptyLabel="No documents uploaded."
@@ -163,6 +173,7 @@ export default async function AdminDocumentsPage({
             ) },
           ]}
         />
+        </TableSelectionScope>
       </SectionCard>
     </>
   );

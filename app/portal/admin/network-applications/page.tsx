@@ -177,7 +177,13 @@ export default async function NetworkApplicationsPage({
         editLabel="Review Application"
         recordIdName="application_id"
         backTo="/portal/admin/network-applications"
-        bulkDelete={{ action: bulkDeleteNetworkApplications, entity: "network_application", entityLabel: "application" }}
+        bulkDelete={{
+          action: bulkDeleteNetworkApplications,
+          entity: "network_application",
+          entityLabel: "application",
+          confirm:
+            "Delete the selected applications? The application and its uploaded files are removed, and any crew account created from it is released so the person can apply or register again. This cannot be undone.",
+        }}
         emptyTitle="No network applications"
         emptyDescription="Public crew network applications will appear here after submission."
         detailEyebrow="Network Application"

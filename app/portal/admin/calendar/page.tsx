@@ -98,7 +98,10 @@ export default async function OpsCalendarPage({
             <div
               key={index}
               className={cn(
-                "min-h-24 bg-[var(--deck-panel)] p-1.5",
+                // Phone cells are ~50px wide, so the grid is a glanceable count
+                // overview there; per-mission chips only render from md up and
+                // the day list below is the phone-first detail surface.
+                "min-h-12 bg-[var(--deck-panel)] p-1.5 md:min-h-24",
                 day === null && "bg-[var(--deck-panel-2)]",
                 day !== null && isToday(day) && "bg-[var(--deck-accent-tint)]"
               )}
@@ -115,7 +118,12 @@ export default async function OpsCalendarPage({
                   >
                     {day}
                   </p>
-                  <div className="mt-1 space-y-1">
+                  {(byDay.get(day)?.length ?? 0) > 0 ? (
+                    <span className="deck-num mt-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--deck-accent)] px-1 text-[0.62rem] font-bold text-white md:hidden">
+                      {byDay.get(day)!.length}
+                    </span>
+                  ) : null}
+                  <div className="mt-1 hidden space-y-1 md:block">
                     {(byDay.get(day) ?? []).slice(0, 3).map((mission) => (
                       <Link
                         key={mission.id}

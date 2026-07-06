@@ -33,7 +33,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       onClick={toggle}
       className={
         className ??
-        "rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-2 text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"
+        "rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-2.5 text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)] lg:p-2"
       }
       aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
       title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}

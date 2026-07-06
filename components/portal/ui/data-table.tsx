@@ -7,6 +7,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  RowSelectCheckbox,
+  SelectAllCheckbox,
+} from "@/components/portal/ui/data-table-selection";
 import { cn } from "@/lib/utils";
 
 export type Column<T> = {
@@ -21,6 +25,11 @@ export type Column<T> = {
 /**
  * Operations Deck data table: desktop table with hairline rows and a
  * stacked card list on mobile. Row-level `getHref` makes rows navigable.
+ *
+ * `selectable` adds a leading checkbox column (and a card-corner checkbox on
+ * mobile) wired to the nearest TableSelectionScope — see
+ * data-table-selection.tsx. Without a surrounding scope the checkboxes render
+ * nothing, so the prop is inert unless a page opts in.
  */
 export function DataTable<T>({
   columns,
@@ -28,12 +37,14 @@ export function DataTable<T>({
   getKey,
   getHref,
   emptyLabel = "No records.",
+  selectable = false,
 }: {
   columns: Column<T>[];
   rows: T[];
   getKey: (row: T) => string;
   getHref?: (row: T) => string | undefined;
   emptyLabel?: string;
+  selectable?: boolean;
 }) {
   if (!rows.length) {
     return (
@@ -42,6 +53,7 @@ export function DataTable<T>({
       </div>
     );
   }
+  const rowKeys = rows.map((row) => getKey(row));
   return (
     <div className="deck-card overflow-hidden">
       {/* Mobile: stacked cards */}
@@ -54,7 +66,7 @@ export function DataTable<T>({
             .filter((column) => column !== primary && !column.hideOnMobile)
             .slice(0, 4);
           const card = (
-            <div className="deck-inset deck-card-hover p-4">
+            <div className={cn("deck-inset deck-card-hover p-4", selectable && "pr-12")}>
               <div className="text-sm font-semibold text-[var(--deck-text)]">
                 {primary.cell(row)}
               </div>
@@ -78,16 +90,27 @@ export function DataTable<T>({
             </div>
           );
 
-          return href ? (
+          const linkedCard = href ? (
             <Link
-              key={getKey(row)}
               href={href}
               className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
             >
               {card}
             </Link>
           ) : (
-            <div key={getKey(row)}>{card}</div>
+            card
+          );
+
+          // The checkbox sits OUTSIDE the Link so tapping it never navigates.
+          return selectable ? (
+            <div key={getKey(row)} className="relative">
+              {linkedCard}
+              <div className="absolute right-2 top-2">
+                <RowSelectCheckbox rowKey={getKey(row)} label="Select row" />
+              </div>
+            </div>
+          ) : (
+            <div key={getKey(row)}>{linkedCard}</div>
           );
         })}
       </div>
@@ -97,6 +120,11 @@ export function DataTable<T>({
         <Table className="border-0">
           <TableHeader>
             <TableRow className="border-[var(--deck-line)] bg-[var(--deck-panel-2)] hover:bg-[var(--deck-panel-2)]">
+              {selectable ? (
+                <TableHead className="h-10 w-12">
+                  <SelectAllCheckbox keys={rowKeys} />
+                </TableHead>
+              ) : null}
               {columns.map((c, i) => (
                 <TableHead
                   key={i}
@@ -123,6 +151,11 @@ export function DataTable<T>({
                     href && "cursor-pointer"
                   )}
                 >
+                  {selectable ? (
+                    <TableCell className="w-12">
+                      <RowSelectCheckbox rowKey={getKey(row)} label="Select row" />
+                    </TableCell>
+                  ) : null}
                   {columns.map((c, i) => (
                     <TableCell
                       key={i}

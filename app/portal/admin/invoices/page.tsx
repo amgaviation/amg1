@@ -1,5 +1,7 @@
 import { requireRole } from "@/lib/portal/session";
 import { DataTable } from "@/components/portal/ui/data-table";
+import { TableSelectionScope } from "@/components/portal/ui/data-table-selection";
+import { bulkDeleteInvoices } from "@/app/portal/actions/bulk-records";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -90,7 +92,15 @@ export default async function AdminInvoicesPage({
       </div>
 
       <SectionCard title="Invoice Register" icon="wallet">
+        <TableSelectionScope
+          action={bulkDeleteInvoices}
+          entity="invoice"
+          backTo="/portal/admin/invoices"
+          entityLabel="invoice"
+          confirm="Delete the selected invoices? Only unsent drafts with no payments and no Stripe activity are deleted — every other invoice is skipped automatically (void or write off those instead)."
+        >
         <DataTable
+          selectable
           rows={invoices}
           getKey={(row) => row.id}
           getHref={(row) => `/portal/admin/invoices/${row.id}`}
@@ -106,6 +116,7 @@ export default async function AdminInvoicesPage({
             { header: "Status", cell: (row) => <StatusBadge label={INVOICE_STATUS_LABEL[row.status] ?? row.status} tone={toneFor(INVOICE_STATUS_TONE, row.status)} /> },
           ]}
         />
+        </TableSelectionScope>
       </SectionCard>
     </>
   );

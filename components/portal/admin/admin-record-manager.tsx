@@ -97,6 +97,8 @@ type AdminRecordManagerProps = {
     action: (formData: FormData) => void | Promise<void>;
     entity: string;
     entityLabel?: string;
+    /** Override the confirm-dialog copy (defaults to account-release wording). */
+    confirm?: string;
   };
 };
 
@@ -293,9 +295,22 @@ export function AdminRecordManager({
     });
   }
 
-  const bulkConfirmText = `Delete ${selectionCount} selected ${
-    selectionCount === 1 ? bulkEntityLabel : `${bulkEntityLabel}s`
-  }? Their accounts are soft-deleted and the email / login identifiers that would otherwise block re-registration are released. Linked history is preserved, and this action is recorded in the audit log.`;
+  const bulkConfirmText =
+    bulkDelete?.confirm ??
+    `Delete ${selectionCount} selected ${
+      selectionCount === 1 ? bulkEntityLabel : `${bulkEntityLabel}s`
+    }? Their accounts are soft-deleted and the email / login identifiers that would otherwise block re-registration are released. Linked history is preserved, and this action is recorded in the audit log.`;
+
+  // Rows can change under a live selection (refresh, server action revalidate);
+  // drop selected ids that no longer exist so stale ids are never submitted.
+  useEffect(() => {
+    setSelectedIds((current) => {
+      if (!current.size) return current;
+      const live = new Set(rows.map((row) => row.id));
+      const next = new Set(Array.from(current).filter((id) => live.has(id)));
+      return next.size === current.size ? current : next;
+    });
+  }, [rows]);
 
   return (
     <section className="deck-card w-full max-w-full overflow-hidden">
@@ -597,30 +612,91 @@ export function AdminRecordManager({
               </div>
             </div>
             <div className="grid gap-3 p-4 md:hidden">
-              {pagedRows.map((row) => (
-                <button
-                  key={row.id}
-                  type="button"
-                  onClick={() => openRecord(row)}
-                  className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4 text-left outline-none transition-colors hover:border-[var(--deck-accent-line)] focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate font-semibold text-[var(--deck-text)]">{row.title}</p>
-                      <p className="mt-1 truncate text-sm text-[var(--deck-text-3)]">{valueText(row.cells.email)}</p>
+              {pagedRows.map((row) => {
+                const rowArchived =
+                  ["archived", "suspended", "inactive", "deleted"].includes(row.status?.label.toLowerCase() ?? "");
+                return (
+                  // Not a <button>: the card holds nested interactive controls
+                  // (checkbox, action forms), which are invalid inside a button.
+                  <div
+                    key={row.id}
+                    className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4 transition-colors hover:border-[var(--deck-accent-line)]"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      {selectionEnabled ? (
+                        <label
+                          className="-m-2 shrink-0 p-2"
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 cursor-pointer accent-[var(--deck-accent)]"
+                            checked={selectedIds.has(row.id)}
+                            onChange={() => toggleRowSelection(row.id)}
+                            aria-label={`Select ${row.title}`}
+                          />
+                        </label>
+                      ) : null}
+                      <button
+                        type="button"
+                        onClick={() => openRecord(row)}
+                        className="min-w-0 flex-1 text-left outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
+                      >
+                        <p className="truncate font-semibold text-[var(--deck-text)]">{row.title}</p>
+                        <p className="mt-1 truncate text-sm text-[var(--deck-text-3)]">
+                          {row.subtitle ?? valueText(row.cells.email)}
+                        </p>
+                      </button>
+                      {row.status ? <StatusBadge label={row.status.label} tone={row.status.tone} /> : null}
                     </div>
-                    {row.status ? <StatusBadge label={row.status.label} tone={row.status.tone} /> : null}
+                    <dl className="mt-3 grid gap-2 text-sm text-[var(--deck-text-2)]">
+                      {columns.slice(2, 6).map((column) => (
+                        <div key={column.key} className="grid grid-cols-[7rem_1fr] gap-2">
+                          <dt className="text-xs font-semibold uppercase text-[var(--deck-text-3)]">{column.label}</dt>
+                          <dd className="min-w-0 truncate">{valueText(row.cells[column.key])}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                    <div data-portal-action-bar className="mt-3 flex flex-wrap gap-2 border-t border-[var(--deck-line)] pt-3">
+                      <Button type="button" variant="outline" size="sm" className="gap-1" onClick={() => openRecord(row)}>
+                        <Eye className="h-3.5 w-3.5" />
+                        {detailHrefBase ? "Open" : "View"}
+                      </Button>
+                      {recordActions.map((action) => (
+                        <form key={`${row.id}-card-${action.label}`} action={action.action}>
+                          <input type="hidden" name={recordIdName} value={row.id} />
+                          <input type="hidden" name="user_id" value={row.id} />
+                          <input type="hidden" name="back_to" value={backTo} />
+                          <SubmitButton
+                            variant={action.variant ?? "outline"}
+                            size="sm"
+                            className={action.className}
+                            confirm={action.confirm}
+                            pendingText={action.pendingText ?? "Saving..."}
+                          >
+                            {action.label}
+                          </SubmitButton>
+                        </form>
+                      ))}
+                      {archiveAction && !(rowArchived && archiveDisabledReason) ? (
+                        <form action={archiveAction}>
+                          <input type="hidden" name={recordIdName} value={row.id} />
+                          <input type="hidden" name="back_to" value={backTo} />
+                          <SubmitButton
+                            variant="ghost"
+                            size="sm"
+                            className="text-[var(--deck-text-2)] hover:text-[var(--deck-danger)]"
+                            confirm={row.archiveConfirm ?? archiveConfirm}
+                            pendingText="Saving..."
+                          >
+                            {archiveLabel}
+                          </SubmitButton>
+                        </form>
+                      ) : null}
+                    </div>
                   </div>
-                  <dl className="mt-3 grid gap-2 text-sm text-[var(--deck-text-2)]">
-                    {columns.slice(2, 6).map((column) => (
-                      <div key={column.key} className="grid grid-cols-[7rem_1fr] gap-2">
-                        <dt className="text-xs font-semibold uppercase text-[var(--deck-text-3)]">{column.label}</dt>
-                        <dd className="min-w-0 truncate">{valueText(row.cells[column.key])}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </button>
-              ))}
+                );
+              })}
             </div>
             </>
           ) : (
@@ -693,7 +769,7 @@ export function AdminRecordManager({
             </header>
 
             <div className="grid gap-4 p-5">
-              {recordActions.length ? (
+              {recordActions.length || archiveAction ? (
                 <section className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4">
                   <h4 className="text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]">Review Actions</h4>
                   <div data-portal-action-bar className="mt-3 flex flex-wrap gap-2">
@@ -712,6 +788,24 @@ export function AdminRecordManager({
                         </SubmitButton>
                       </form>
                     ))}
+                    {archiveAction &&
+                    !(
+                      ["archived", "suspended", "inactive", "deleted"].includes(selected.status?.label.toLowerCase() ?? "") &&
+                      archiveDisabledReason
+                    ) ? (
+                      <form action={archiveAction}>
+                        <input type="hidden" name={recordIdName} value={selected.id} />
+                        <input type="hidden" name="back_to" value={backTo} />
+                        <SubmitButton
+                          variant="ghost"
+                          className="text-[var(--deck-text-2)] hover:text-[var(--deck-danger)]"
+                          confirm={selected.archiveConfirm ?? archiveConfirm}
+                          pendingText="Saving..."
+                        >
+                          {archiveLabel}
+                        </SubmitButton>
+                      </form>
+                    ) : null}
                   </div>
                 </section>
               ) : null}
@@ -753,8 +847,10 @@ export function AdminRecordManager({
 
       {editor ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(10,19,34,0.55)] p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
-          <div className="max-h-[92vh] w-full max-w-4xl overflow-hidden rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] text-[var(--deck-text)]">
-            <header className="flex items-start justify-between gap-4 border-b border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-5 py-4">
+          {/* flex column so the form scrolls inside whatever height the header
+              actually takes — a wrapped title can no longer clip the footer. */}
+          <div className="flex max-h-[92dvh] w-full max-w-4xl flex-col overflow-hidden rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] text-[var(--deck-text)]">
+            <header className="flex shrink-0 items-start justify-between gap-4 border-b border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-5 py-4">
               <div>
                 <p className="text-[0.62rem] font-bold uppercase [letter-spacing:0.18em] text-[var(--deck-accent-ink)]">
                   {editor.mode === "create" ? "Create Record" : "Edit Record"}
@@ -770,7 +866,7 @@ export function AdminRecordManager({
             <form
               key={`${editor.mode}-${editor.row?.id ?? "new"}`}
               action={editor.mode === "create" ? createAction! : updateAction!}
-              className="max-h-[calc(92vh-5rem)] overflow-y-auto p-5"
+              className="min-h-0 flex-1 overflow-y-auto p-5"
             >
               {editor.mode === "edit" && editor.row ? <input type="hidden" name={recordIdName} value={editor.row.id} /> : null}
               <input type="hidden" name="back_to" value={backTo} />

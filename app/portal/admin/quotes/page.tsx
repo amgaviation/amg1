@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { DataTable } from "@/components/portal/ui/data-table";
+import { TableSelectionScope } from "@/components/portal/ui/data-table-selection";
+import { bulkDeleteQuotes } from "@/app/portal/actions/bulk-records";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { listAllQuotes } from "@/lib/portal/queries";
@@ -21,7 +23,15 @@ export default async function AdminQuotesPage() {
         actions={<Link href="/portal/admin/quotes/new" className="text-xs text-accent hover:underline">New Quote</Link>}
       />
       <SectionCard title="Quote Register" icon="receipt">
+        <TableSelectionScope
+          action={bulkDeleteQuotes}
+          entity="quote"
+          backTo="/portal/admin/quotes"
+          entityLabel="quote"
+          confirm="Delete the selected quotes? Only Draft and Internal Review quotes are deleted — anything already sent to a client, approved, or converted is skipped automatically (void those instead)."
+        >
         <DataTable
+          selectable
           rows={quotes}
           getKey={(row) => row.id}
           emptyLabel="No quotes created."
@@ -46,6 +56,7 @@ export default async function AdminQuotesPage() {
             },
           ]}
         />
+        </TableSelectionScope>
       </SectionCard>
     </>
   );

@@ -126,10 +126,12 @@ export default async function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Mission flow band — the pipeline the whole portal is organized around */}
-      <div className="deck-card flex flex-wrap items-stretch overflow-hidden">
+      {/* Mission flow band — the pipeline the whole portal is organized around.
+          On phones it becomes one horizontal scroll strip so the stage arrows
+          keep their meaning instead of wrapping into ragged rows. */}
+      <div className="deck-card deck-scroll-x flex items-stretch overflow-x-auto sm:flex-wrap sm:overflow-hidden">
         {flowStages.map((stage, index) => (
-          <div key={stage.key} className="flex min-w-[9rem] flex-1 items-center">
+          <div key={stage.key} className="flex w-[9rem] flex-none items-center sm:w-auto sm:min-w-[9rem] sm:flex-1">
             {index > 0 ? (
               <span className="deck-mono px-1 text-[var(--deck-text-3)]" aria-hidden>
                 →

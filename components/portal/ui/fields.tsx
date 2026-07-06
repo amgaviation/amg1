@@ -115,7 +115,7 @@ export function DeckSelect(
           <SelectItem
             key={o.value}
             value={o.value}
-            className="focus:bg-[var(--deck-accent-tint)] focus:text-[var(--deck-text)] data-[state=checked]:font-semibold"
+            className="py-2.5 focus:bg-[var(--deck-accent-tint)] focus:text-[var(--deck-text)] data-[state=checked]:font-semibold sm:py-1.5"
           >
             {o.label}
           </SelectItem>
@@ -166,7 +166,7 @@ export function AirportField({
         maxLength={4}
         pattern="[A-Za-z0-9]{3,4}"
         placeholder="KTEB"
-        className="deck-input deck-mono !text-sm uppercase [letter-spacing:0.24em]"
+        className="deck-input deck-mono max-sm:!text-base sm:!text-sm uppercase [letter-spacing:0.24em]"
       />
     </Field>
   );
@@ -212,7 +212,7 @@ export function FileField({
   return (
     <Field label={label} hint={hint} required={required}>
       <div className="flex items-center gap-3">
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2 text-sm font-medium text-[var(--deck-text)] transition-colors hover:border-[var(--deck-accent)]">
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2.5 text-sm font-medium text-[var(--deck-text)] transition-colors hover:border-[var(--deck-accent)] sm:py-2">
           Choose file
           <input
             type="file"
