@@ -1,4 +1,4 @@
-import { approveUser, denyUser, waitlistUser } from "@/app/portal/actions/admin";
+import { approveUser, bulkDeletePortalAccounts, denyUser, waitlistUser } from "@/app/portal/actions/admin";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import {
@@ -181,6 +181,7 @@ export default async function AdminUserApprovalsPage({
         editLabel="Review Access"
         recordIdName="user_id"
         backTo="/portal/admin/user-approvals"
+        bulkDelete={{ action: bulkDeletePortalAccounts, entity: "approval", entityLabel: "pending user" }}
         emptyTitle="No pending access requests"
         emptyDescription="New portal access requests will appear here after submission."
         detailEyebrow="Access Request"

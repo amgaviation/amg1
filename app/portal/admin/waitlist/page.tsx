@@ -1,4 +1,4 @@
-import { approveWaitlistedUser, denyWaitlistedUser, sendWaitlistContactEmail } from "@/app/portal/actions/admin";
+import { approveWaitlistedUser, bulkDeletePortalAccounts, denyWaitlistedUser, sendWaitlistContactEmail } from "@/app/portal/actions/admin";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import {
@@ -204,6 +204,7 @@ export default async function AdminWaitlistPage({
         editLabel="Review Access"
         recordIdName="user_id"
         backTo="/portal/admin/waitlist"
+        bulkDelete={{ action: bulkDeletePortalAccounts, entity: "waitlist", entityLabel: "waitlisted user" }}
         emptyTitle="No waitlisted access requests"
         emptyDescription="Waitlisted portal access requests will appear here after review."
         detailEyebrow="Waitlist Request"
