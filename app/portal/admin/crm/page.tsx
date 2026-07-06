@@ -1,26 +1,30 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import {
-  EmptyState,
+  FilterTabs,
   Notice,
   PageHeader,
+  Pagination,
   SectionCard,
   StatCard,
 } from "@/components/portal/ui/primitives";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
+import { DataTable } from "@/components/portal/ui/data-table";
+import { PageToolbar } from "@/components/portal/ui/page-toolbar";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
-import { createLead, moveLeadStage } from "@/app/portal/actions/crm";
+import { Button } from "@/components/ui/button";
+import { createLead } from "@/app/portal/actions/crm";
 import { CrmLeadImportExport } from "@/components/portal/admin/crm-lead-import-export";
 import { LEAD_SOURCES, LEAD_STAGES, getPipelineMetrics, listLeads } from "@/lib/portal/crm";
 import { listAllUsers } from "@/lib/portal/queries";
-import { formatDate, formatMoney } from "@/lib/portal/format";
-import { DeckSelect } from "@/components/portal/ui/fields";
+import { formatDate, formatMoney, titleCase } from "@/lib/portal/format";
 
 export const metadata = { title: "Sales Pipeline - AMG Operations" };
 export const dynamic = "force-dynamic";
 
-const BOARD_STAGES = LEAD_STAGES.filter((stage) => stage.value !== "lost");
+const OPEN_STAGES = ["new", "contacted", "qualified", "proposal"];
+const PAGE_SIZE = 20;
 
 function stageTone(stage: string) {
   if (stage === "won") return "success" as const;
@@ -33,7 +37,7 @@ function stageTone(stage: string) {
 export default async function CrmPipelinePage({
   searchParams,
 }: {
-  searchParams: Promise<{ success?: string; error?: string; q?: string }>;
+  searchParams: Promise<{ success?: string; error?: string; q?: string; stage?: string; page?: string }>;
 }) {
   const user = await requireRole("admin");
   const params = await searchParams;
@@ -45,7 +49,23 @@ export default async function CrmPipelinePage({
   const adminOptions = admins
     .filter((row) => row.role === "admin" || row.role === "super_admin")
     .map((row) => ({ value: row.id, label: row.full_name ?? row.email }));
-  const lost = leads.filter((lead) => lead.stage === "lost");
+
+  const stageParam = params.stage ?? "";
+  const filtered = leads.filter((lead) => {
+    if (!stageParam) return true;
+    if (stageParam === "open") return OPEN_STAGES.includes(lead.stage);
+    return lead.stage === stageParam;
+  });
+  const countFor = (value: string) =>
+    value === "open"
+      ? leads.filter((lead) => OPEN_STAGES.includes(lead.stage)).length
+      : leads.filter((lead) => lead.stage === value).length;
+
+  const currentPage = Math.max(1, Number(params.page ?? "1") || 1);
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, pageCount);
+  const paged = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const now = new Date();
 
   return (
     <>
@@ -107,99 +127,118 @@ export default async function CrmPipelinePage({
       {/* Bulk import & export */}
       <CrmLeadImportExport />
 
-      {/* Search */}
-      <form className="flex flex-wrap items-end gap-3">
-        <div className="w-full max-w-sm">
-          <TextField label="Search leads" name="q" defaultValue={params.q ?? ""} placeholder="Name, company, email…" />
-        </div>
-        <SubmitButton variant="outline" pendingText="Searching…">Search</SubmitButton>
-        {params.q ? (
-          <Link href="/portal/admin/crm" className="pb-2 text-xs font-semibold text-[var(--deck-accent-ink)] hover:underline">
-            Clear
-          </Link>
-        ) : null}
-      </form>
-
-      {/* Pipeline board */}
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        {BOARD_STAGES.map((stage) => {
-          const rows = leads.filter((lead) => lead.stage === stage.value);
-          const stageValue = rows.reduce((sum, lead) => sum + Number(lead.estimated_value ?? 0), 0);
-          return (
-            <SectionCard
-              key={stage.value}
-              title={stage.label}
-              className="min-h-56"
-              description={stageValue > 0 ? formatMoney(stageValue) : undefined}
-              actions={
-                <span className="deck-num flex h-7 w-7 items-center justify-center rounded-[0.25rem] bg-[var(--deck-accent-tint)] text-xs font-bold text-[var(--deck-accent-ink)]">
-                  {rows.length}
-                </span>
-              }
-              bodyClassName="p-3"
-            >
-              {rows.length === 0 ? (
-                <p className="px-2 py-6 text-center text-xs text-[var(--deck-text-3)]">Empty</p>
-              ) : (
-                <div className="space-y-3">
-                  {rows.map((lead) => (
-                    <div key={lead.id} className="deck-inset deck-card-hover p-3.5">
-                      <Link href={`/portal/admin/crm/${lead.id}`} className="block focus:outline-none">
-                        <p className="truncate text-sm font-semibold text-[var(--deck-text)]">{lead.full_name}</p>
-                        <p className="mt-0.5 truncate text-xs text-[var(--deck-text-3)]">
-                          {lead.company ?? lead.email ?? "—"}
-                        </p>
-                        <div className="mt-2 flex flex-wrap items-center gap-2">
-                          {lead.estimated_value ? (
-                            <span className="deck-num text-xs font-bold text-[var(--deck-accent-ink)]">
-                              {formatMoney(lead.estimated_value)}
-                            </span>
-                          ) : null}
-                          {lead.next_action_at ? (
-                            <span
-                              className={`text-[0.66rem] ${new Date(lead.next_action_at) <= new Date() ? "font-semibold text-[var(--deck-danger)]" : "text-[var(--deck-text-3)]"}`}
-                            >
-                              Next: {formatDate(lead.next_action_at)}
-                            </span>
-                          ) : null}
-                        </div>
-                      </Link>
-                      <form action={moveLeadStage} className="mt-3 flex items-end gap-2">
-                        <input type="hidden" name="lead_id" value={lead.id} />
-                        <DeckSelect name="stage" defaultValue={lead.stage} aria-label="Move lead to stage" className="!min-h-9 flex-1 !text-xs" options={LEAD_STAGES.map((s) => ({ value: s.value, label: s.label }))} />
-                        <SubmitButton variant="outline" size="sm" pendingText="…">Move</SubmitButton>
-                      </form>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </SectionCard>
-          );
-        })}
-      </div>
-
-      {/* Lost leads */}
-      <SectionCard title="Lost" icon="archive" description="Closed-lost leads kept for reporting.">
-        {lost.length === 0 ? (
-          <EmptyState icon="archive" title="No lost leads" description="Leads moved to Lost appear here." />
-        ) : (
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {lost.map((lead) => (
-              <Link key={lead.id} href={`/portal/admin/crm/${lead.id}`} className="deck-inset deck-card-hover block p-3.5">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-[var(--deck-text)]">{lead.full_name}</p>
-                    <p className="mt-0.5 truncate text-xs text-[var(--deck-text-3)]">
-                      {lead.lost_reason ?? lead.company ?? "—"}
-                    </p>
-                  </div>
-                  <StatusBadge label="Lost" tone={stageTone("lost")} />
-                </div>
+      {/* Stage tabs + search */}
+      <PageToolbar
+        filters={
+          <FilterTabs
+            basePath="/portal/admin/crm"
+            param="stage"
+            current={stageParam}
+            preserve={{ q: params.q }}
+            options={[
+              { value: "", label: `All (${leads.length})` },
+              { value: "open", label: `Open (${countFor("open")})` },
+              ...LEAD_STAGES.map((stage) => ({
+                value: stage.value,
+                label: `${stage.label} (${countFor(stage.value)})`,
+              })),
+            ]}
+          />
+        }
+        search={
+          <form className="flex flex-wrap items-center gap-2">
+            {stageParam ? <input type="hidden" name="stage" value={stageParam} /> : null}
+            <input
+              name="q"
+              defaultValue={params.q ?? ""}
+              placeholder="Name, company, email…"
+              aria-label="Search leads"
+              className="deck-input min-w-[12rem] flex-1 sm:max-w-xs"
+            />
+            <Button type="submit" size="sm">
+              Search
+            </Button>
+            {params.q ? (
+              <Link
+                href={stageParam ? `/portal/admin/crm?stage=${stageParam}` : "/portal/admin/crm"}
+                className="rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3.5 py-1.5 text-xs font-medium text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
+              >
+                Clear
               </Link>
-            ))}
-          </div>
-        )}
-      </SectionCard>
+            ) : null}
+            <span className="deck-micro ml-auto text-[var(--deck-text-3)]">
+              {filtered.length} / {leads.length} leads
+              {(() => {
+                const total = filtered.reduce((sum, lead) => sum + Number(lead.estimated_value ?? 0), 0);
+                return total > 0 ? ` · ${formatMoney(total)}` : "";
+              })()}
+            </span>
+          </form>
+        }
+      />
+
+      {/* Lead list */}
+      <DataTable
+        rows={paged}
+        getKey={(lead) => lead.id}
+        getHref={(lead) => `/portal/admin/crm/${lead.id}`}
+        emptyLabel={params.q ? "No leads match the current search." : "No leads in this stage yet."}
+        columns={[
+          {
+            header: "Lead",
+            priority: "primary",
+            cell: (lead) => (
+              <span className="font-semibold text-[var(--deck-text)]">{lead.full_name}</span>
+            ),
+          },
+          { header: "Company", cell: (lead) => lead.company ?? "—" },
+          { header: "Email", cell: (lead) => lead.email ?? "—" },
+          { header: "Phone", hideOnMobile: true, cell: (lead) => lead.phone ?? "—" },
+          { header: "Source", hideOnMobile: true, cell: (lead) => titleCase(lead.source) },
+          {
+            header: "Value",
+            align: "right",
+            cell: (lead) =>
+              lead.estimated_value ? (
+                <span className="deck-num font-bold text-[var(--deck-accent-ink)]">
+                  {formatMoney(lead.estimated_value)}
+                </span>
+              ) : (
+                "—"
+              ),
+          },
+          {
+            header: "Next Action",
+            cell: (lead) =>
+              lead.next_action_at ? (
+                <span
+                  className={
+                    new Date(lead.next_action_at) <= now
+                      ? "font-semibold text-[var(--deck-danger)]"
+                      : undefined
+                  }
+                >
+                  {formatDate(lead.next_action_at)}
+                </span>
+              ) : (
+                "—"
+              ),
+          },
+          {
+            header: "Stage",
+            cell: (lead) => (
+              <StatusBadge label={titleCase(lead.stage)} tone={stageTone(lead.stage)} />
+            ),
+          },
+        ]}
+      />
+
+      <Pagination
+        basePath="/portal/admin/crm"
+        page={safePage}
+        pageCount={pageCount}
+        params={{ stage: stageParam || undefined, q: params.q }}
+      />
     </>
   );
 }
