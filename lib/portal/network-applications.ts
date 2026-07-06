@@ -20,8 +20,12 @@ export {
 import { NETWORK_APPLICATION_STATUSES, type NetworkApplicationSource, type NetworkApplicationStatus } from "@/lib/portal/network-application-constants";
 import {
   buildNetworkDecisionEmailCopy,
+  decisionReasonFor,
+  mergeTemplateTokens,
+  networkDecisionTemplateKey,
   renderDecisionEmailText,
 } from "@/lib/portal/network-application-email-copy";
+import { getEmailTemplateCopies } from "@/lib/portal/email-template-registry";
 
 export const CERTIFICATE_OPTIONS = [
   "Private Pilot",
@@ -350,6 +354,8 @@ function emailBodyForStatus(input: {
   >;
   status: NetworkApplicationStatus;
   setupLink?: string | null;
+  /** Global template override from Settings → Email Templates, if any. */
+  override?: { subject: string; body: string } | null;
 }) {
   const name = firstName(input.application.full_name);
   const portalLink = absolutePortalUrl("/login");
@@ -383,6 +389,33 @@ function emailBodyForStatus(input: {
   if (!copy) return null;
 
   const ctaHref = input.setupLink ?? portalLink;
+
+  // A customized template replaces the structured copy with edited flat text;
+  // the disclaimer and (for approvals) the setup CTA still apply.
+  if (input.override) {
+    const variables = {
+      first_name: name,
+      full_name: input.application.full_name,
+      reason: decisionReasonFor({
+        status: input.status,
+        denialReason: input.application.denial_reason,
+        otherStatusReason: input.application.other_status_reason,
+      }),
+    };
+    const subject = mergeTemplateTokens(input.override.subject, variables);
+    const body = mergeTemplateTokens(input.override.body, variables);
+    return {
+      subject,
+      text: [body, ...(copy.cta ? [`${copy.cta.label}: ${ctaHref}`] : []), DISCLAIM].join("\n\n"),
+      html: amgEmailLayout({
+        ...common,
+        title: subject,
+        intro: body,
+        ...(copy.cta ? { cta: { label: copy.cta.label, href: ctaHref } } : {}),
+      }),
+    };
+  }
+
   return {
     subject: copy.subject,
     text: renderDecisionEmailText(copy, { ctaHref: copy.cta ? ctaHref : null }),
@@ -397,7 +430,16 @@ function emailBodyForStatus(input: {
 }
 
 async function sendStatusEmail(application: NetworkApplication, setupLink?: string | null) {
-  const template = emailBodyForStatus({ application, status: application.status, setupLink });
+  const overrideKey = networkDecisionTemplateKey(application.status);
+  const override = overrideKey
+    ? (await getEmailTemplateCopies([overrideKey])).get(overrideKey)
+    : null;
+  const template = emailBodyForStatus({
+    application,
+    status: application.status,
+    setupLink,
+    override: override?.overridden ? override : null,
+  });
   if (!template) return { sent: false, error: null };
   const result = await sendEmail({
     to: application.email,

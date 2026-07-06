@@ -14,6 +14,10 @@ import {
   type NetworkApplicationFile,
 } from "@/lib/portal/network-applications";
 import { formatDate, formatDateTime } from "@/lib/portal/format";
+import {
+  NETWORK_DECISION_STATUSES,
+  getEmailTemplateCopies,
+} from "@/lib/portal/email-template-registry";
 import { StatusReviewForm } from "./status-review-form";
 
 export const metadata = { title: "Network Application Detail - Admin" };
@@ -66,6 +70,16 @@ export default async function NetworkApplicationDetailPage({
   const application = await getNetworkApplicationDetails(id);
   if (!application) notFound();
   const backTo = `/portal/admin/network-applications/${application.id}`;
+
+  // Globally customized decision templates, so the preview modal shows the
+  // exact copy the send path will use.
+  const decisionCopies = await getEmailTemplateCopies(
+    NETWORK_DECISION_STATUSES.map((entry) => entry.key)
+  );
+  const templateOverrides: Record<string, { subject: string; body: string }> = {};
+  for (const [key, copy] of decisionCopies) {
+    if (copy.overridden) templateOverrides[key] = { subject: copy.subject, body: copy.body };
+  }
 
   return (
     <>
@@ -176,6 +190,7 @@ export default async function NetworkApplicationDetailPage({
               missingInformation={application.missing_information}
               otherStatusReason={application.other_status_reason}
               denialReason={application.denial_reason}
+              templateOverrides={templateOverrides}
             />
             <form action={resendNetworkApplicationEmail} className="mt-4 border-t border-[var(--deck-line)] pt-4">
               <input type="hidden" name="application_id" value={application.id} />

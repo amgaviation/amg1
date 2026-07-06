@@ -9,7 +9,8 @@ import { ASSIGNABLE_PORTAL_ROLES, isPortalRole, PORTAL_PERMISSIONS, PROFILE_STAT
 import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
 import { getEmailProvider } from "@/lib/email/provider";
 import { defaultSender, replyToAddress } from "@/lib/email/config";
-import { waitlistContactRequestTemplate } from "@/lib/email/templates/access-management";
+import { WAITLIST_CONTACT_TEMPLATE_KEY, waitlistContactRequestTemplate } from "@/lib/email/templates/access-management";
+import { getEmailTemplateCopies } from "@/lib/portal/email-template-registry";
 import {
   ensurePortalAuthUserForProfile,
   generatePortalPasswordSetupLink,
@@ -425,7 +426,12 @@ export async function sendWaitlistContactEmail(formData: FormData) {
 
   if (!profile?.email || profile.status !== "waitlisted") redirect(`${backTo}?error=user`);
 
-  const template = waitlistContactRequestTemplate({ fullName: profile.full_name, email: profile.email });
+  const waitlistCopies = await getEmailTemplateCopies([WAITLIST_CONTACT_TEMPLATE_KEY]);
+  const waitlistOverride = waitlistCopies.get(WAITLIST_CONTACT_TEMPLATE_KEY);
+  const template = waitlistContactRequestTemplate(
+    { fullName: profile.full_name, email: profile.email },
+    waitlistOverride?.overridden ? waitlistOverride : null
+  );
   const provider = getEmailProvider();
   const result = await provider.sendEmail({
     from: defaultSender("operations"),

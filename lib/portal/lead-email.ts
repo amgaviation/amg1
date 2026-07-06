@@ -6,7 +6,18 @@ import { operationalEmailHtml, operationalEmailText } from "@/lib/email/template
 import { isValidEmailAddress } from "@/lib/email/threading";
 import { logServerError } from "@/lib/errors/user-facing-errors";
 import { logAuditEvent } from "@/lib/portal/audit";
-import { buildLeadEmailVariables, type LeadEmailVariables } from "@/lib/portal/lead-email-templates";
+import { getEmailTemplateCopies } from "@/lib/portal/email-template-registry";
+import {
+  LEAD_BUSINESS_TYPES,
+  LEAD_EMAIL_STAGES,
+  buildLeadEmailVariables,
+  leadEmailTemplateKey,
+  mergeLeadEmailText,
+  type LeadBusinessType,
+  type LeadEmailStage,
+  type LeadEmailVariables,
+  type TemplateCopy,
+} from "@/lib/portal/lead-email-templates";
 import type { SessionUser } from "@/lib/portal/session";
 import { createServiceClient } from "@/lib/supabase/server";
 
@@ -35,6 +46,40 @@ export function leadEmailVariablesFor(
     opsEmail: AMG_EMAIL_BRAND.contactEmail,
     siteUrl: SITE_URL,
   });
+}
+
+export type LeadEmailTemplateMap = Record<LeadEmailStage, Record<LeadBusinessType, TemplateCopy>>;
+
+/**
+ * Every stage × business-type outreach template for this lead, with global
+ * overrides applied and variables already merged — ready for the composer.
+ */
+export async function getLeadEmailTemplates(
+  lead: { full_name: string; company: string | null },
+  sender: SessionUser
+): Promise<LeadEmailTemplateMap> {
+  const variables = leadEmailVariablesFor(lead, sender);
+  const keys: string[] = [];
+  for (const stage of LEAD_EMAIL_STAGES) {
+    for (const type of LEAD_BUSINESS_TYPES) {
+      keys.push(leadEmailTemplateKey(stage.value, type.value));
+    }
+  }
+  const copies = await getEmailTemplateCopies(keys);
+
+  const map = {} as LeadEmailTemplateMap;
+  for (const stage of LEAD_EMAIL_STAGES) {
+    const perType = {} as Record<LeadBusinessType, TemplateCopy>;
+    for (const type of LEAD_BUSINESS_TYPES) {
+      const copy = copies.get(leadEmailTemplateKey(stage.value, type.value));
+      perType[type.value] = {
+        subject: mergeLeadEmailText(copy?.subject ?? "", variables),
+        body: mergeLeadEmailText(copy?.body ?? "", variables),
+      };
+    }
+    map[stage.value] = perType;
+  }
+  return map;
 }
 
 export async function sendLeadEmail(

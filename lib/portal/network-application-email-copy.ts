@@ -26,6 +26,40 @@ export function firstNameOf(fullName: string): string {
   return fullName.trim().split(/\s+/)[0] || fullName;
 }
 
+/** Template key for a status's globally editable override (Settings → Email
+ * Templates), or null when the status has no decision email of its own. */
+export function networkDecisionTemplateKey(status: NetworkApplicationStatus): string | null {
+  if (status === "approved") return "network_app_approved";
+  if (status === "denied") return "network_app_denied";
+  if (status === "waitlist") return "network_app_waitlist";
+  if (status === "awaiting_review" || status === "in_review") return "network_app_in_review";
+  if (status === "other") return "network_app_other";
+  return null;
+}
+
+/** Fill {{token}} placeholders; unknown tokens are left untouched. */
+export function mergeTemplateTokens(
+  template: string,
+  variables: Record<string, string | null | undefined>
+): string {
+  return template.replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (token, key: string) => {
+    const value = variables[key];
+    return value === null || value === undefined || value === "" ? token : String(value);
+  });
+}
+
+/** The reason text a decision template's {{reason}} resolves to. */
+export function decisionReasonFor(input: {
+  status: NetworkApplicationStatus;
+  denialReason?: string | null;
+  otherStatusReason?: string | null;
+}): string {
+  if (input.status === "denied") {
+    return input.denialReason?.trim() || "Your experience profile does not align with the positions we are currently staffing.";
+  }
+  return input.otherStatusReason?.trim() || "AMG Operations has updated your crew-network application status.";
+}
+
 /**
  * Build the copy for a status email. Returns null for statuses that keep
  * their existing template (additional_information_needed) or send nothing.

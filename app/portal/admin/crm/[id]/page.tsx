@@ -21,7 +21,7 @@ import {
 } from "@/app/portal/actions/crm";
 import { LeadEmailComposer } from "@/components/portal/admin/lead-email-composer";
 import { LEAD_SOURCES, LEAD_STAGES, getLead, listLeadActivities } from "@/lib/portal/crm";
-import { emailProviderStatus, leadEmailVariablesFor } from "@/lib/portal/lead-email";
+import { emailProviderStatus, getLeadEmailTemplates } from "@/lib/portal/lead-email";
 import { detectLeadBusinessType } from "@/lib/portal/lead-email-templates";
 import { listAllUsers, listClients } from "@/lib/portal/queries";
 import { formatDateTime, formatMoney, titleCase, toDatetimeLocal } from "@/lib/portal/format";
@@ -66,7 +66,7 @@ export default async function LeadDetailPage({
     .filter((row) => row.role === "admin" || row.role === "super_admin")
     .map((row) => ({ value: row.id, label: row.full_name ?? row.email }));
 
-  const emailVariables = leadEmailVariablesFor(lead, user);
+  const emailTemplates = await getLeadEmailTemplates(lead, user);
   const businessType = detectLeadBusinessType(lead);
   const emailProvider = emailProviderStatus();
 
@@ -145,7 +145,7 @@ export default async function LeadDetailPage({
             recipientEmail={lead.email}
             leadStage={lead.stage}
             defaultBusinessType={businessType}
-            variables={emailVariables}
+            templates={emailTemplates}
             providerConfigured={emailProvider.configured || emailProvider.mockEnabled}
             backTo={`/portal/admin/crm/${lead.id}`}
           />

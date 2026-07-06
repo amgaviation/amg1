@@ -8,10 +8,9 @@ import { SubmitButton } from "@/components/portal/ui/submit-button";
 import {
   LEAD_BUSINESS_TYPES,
   LEAD_EMAIL_STAGES,
-  buildLeadEmail,
   type LeadBusinessType,
   type LeadEmailStage,
-  type LeadEmailVariables,
+  type TemplateCopy,
 } from "@/lib/portal/lead-email-templates";
 
 const STAGE_OPTIONS = LEAD_EMAIL_STAGES.map((stage) => ({ value: stage.value, label: stage.label }));
@@ -26,7 +25,7 @@ export function LeadEmailComposer({
   recipientEmail,
   leadStage,
   defaultBusinessType,
-  variables,
+  templates,
   providerConfigured,
   backTo,
 }: {
@@ -34,19 +33,20 @@ export function LeadEmailComposer({
   recipientEmail: string | null;
   leadStage: string;
   defaultBusinessType: LeadBusinessType;
-  variables: LeadEmailVariables;
+  /** Stage × business-type template copy, overrides applied and variables merged server-side. */
+  templates: Record<LeadEmailStage, Record<LeadBusinessType, TemplateCopy>>;
   providerConfigured: boolean;
   backTo: string;
 }) {
   const initialStage: LeadEmailStage = isStage(leadStage) ? leadStage : "new";
   const [businessType, setBusinessType] = useState<LeadBusinessType>(defaultBusinessType);
   const [templateStage, setTemplateStage] = useState<LeadEmailStage>(initialStage);
-  const initial = buildLeadEmail(initialStage, defaultBusinessType, variables);
+  const initial = templates[initialStage][defaultBusinessType];
   const [subject, setSubject] = useState(initial.subject);
   const [body, setBody] = useState(initial.body);
 
   function applyTemplate(stage: LeadEmailStage, type: LeadBusinessType) {
-    const next = buildLeadEmail(stage, type, variables);
+    const next = templates[stage][type];
     setSubject(next.subject);
     setBody(next.body);
   }
