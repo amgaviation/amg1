@@ -27,6 +27,12 @@ import {
   summarizeProfileDependencies,
 } from "@/lib/portal/record-safety";
 import { updateAuthEmailIfPresent } from "@/lib/portal/auth-email-sync";
+import {
+  assessProfileDeletion,
+  isReleasedEmail,
+  releaseProfileIdentity,
+  type DeletionSkip,
+} from "@/lib/portal/account-release";
 import { actor, num, safeRedirectPath, str } from "./_helpers";
 
 const INITIAL_SUPER_ADMIN_EMAIL = "tony@amgaviationgroup.com";
@@ -135,40 +141,6 @@ async function ensureUniqueProfileEmail(
     .maybeSingle();
 
   if (duplicate && duplicate.id !== currentId) redirect(`${backTo}?error=duplicate`);
-}
-
-function releasedEmail(originalEmail: string, userId: string) {
-  const timestamp = Date.now();
-  const safeId = userId.replace(/[^a-zA-Z0-9]/g, "").slice(0, 12);
-  const [local, ...domainParts] = originalEmail.split("@");
-  const domain = domainParts.join("@");
-
-  if (!local || !domain) {
-    return `released-${timestamp}-${safeId}@released.amg.invalid`;
-  }
-
-  return `${local}+released-${timestamp}-${safeId}@${domain}`;
-}
-
-function isReleasedEmail(email: string) {
-  return email.includes("+released-") || email.includes("__released__");
-}
-
-async function releaseAuthEmail(
-  db: Awaited<ReturnType<typeof createServiceClient>>,
-  userId: string,
-  archivedEmail: string
-) {
-  const { error } = await db.auth.admin.updateUserById(userId, {
-    email: archivedEmail,
-    email_confirm: true,
-  });
-
-  if (error && !/not found|not.*exist/i.test(error.message)) {
-    return false;
-  }
-
-  return true;
 }
 
 async function preventAdminSelfOrLastAdminAction(
@@ -646,40 +618,19 @@ export async function deletePortalUser(formData: FormData) {
     backTo
   );
 
-  const archivedEmail = isReleasedEmail(target.email)
-    ? target.email
-    : releasedEmail(target.email, userId);
   const dependencies = await summarizeProfileDependencies(db, userId, target.role);
 
-  if (!isReleasedEmail(target.email)) {
-    const authReleased = await releaseAuthEmail(db, userId, archivedEmail);
+  const release = await releaseProfileIdentity(db, {
+    profileId: userId,
+    actorId: admin.id,
+    targetEmail: target.email,
+  });
 
-    if (!authReleased) {
+  if (!release.ok) {
+    if (release.stage === "auth-release") {
       redirect(`${backTo}?error=auth-release`);
     }
-  }
 
-  const now = new Date().toISOString();
-  const { data: deletedProfile, error } = await db
-    .from("profiles")
-    .update({
-      email: archivedEmail,
-      status: "deleted",
-      is_active: false,
-      is_deleted: true,
-      invitation_status: "deleted_email_released",
-      deleted_at: now,
-      deleted_by: admin.id,
-      status_updated_at: now,
-      status_updated_by: admin.id,
-      last_login_at: null,
-      updated_at: now,
-    } as any)
-    .eq("id", userId)
-    .select("id")
-    .maybeSingle();
-
-  if (error || !deletedProfile) {
     await logAuditEvent({
       actor: admin,
       action: "user_delete_failed_email_released",
@@ -688,7 +639,7 @@ export async function deletePortalUser(formData: FormData) {
       entityId: userId,
     });
 
-    redirect(`${backTo}?error=${error ? "delete" : "stale"}`);
+    redirect(`${backTo}?error=delete`);
   }
 
   await recordProfileStatusEvent({
@@ -710,6 +661,192 @@ export async function deletePortalUser(formData: FormData) {
   revalidatePath("/portal/admin/users");
   revalidatePath("/portal/admin/user-approvals");
   redirect(`${backTo}?success=deleted`);
+}
+
+// Default landing path per people-tab entity, used when a bulk action can't
+// trust the submitted back_to.
+const BULK_ACCOUNT_BACK_TO: Record<string, string> = {
+  user: "/portal/admin/users",
+  client: "/portal/admin/clients",
+  crew: "/portal/admin/crew",
+  partner: "/portal/admin/partners",
+  waitlist: "/portal/admin/waitlist",
+  approval: "/portal/admin/user-approvals",
+};
+
+/**
+ * Bulk soft-delete profile-backed people (users/clients/crew/partners/waitlist/
+ * approvals). Each row is guarded (self/last-admin/super_admin) and released via
+ * the shared identity-release path so the deleted person can register again.
+ * Guard failures skip that row instead of aborting the batch.
+ */
+export async function bulkDeletePortalAccounts(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const entity = str(formData, "entity");
+  const fallback = BULK_ACCOUNT_BACK_TO[entity] ?? "/portal/admin/users";
+  const backTo = safeRedirectPath(str(formData, "back_to"), fallback);
+
+  const ids = Array.from(
+    new Set(formData.getAll("ids").map((value) => String(value).trim()).filter(Boolean))
+  );
+
+  if (!ids.length) redirect(`${backTo}?error=none-selected`);
+
+  const { count: approvedAdminCount } = await db
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("role", "admin")
+    .eq("status", "approved")
+    .eq("is_active", true);
+  let remainingApprovedAdmins = approvedAdminCount ?? 0;
+
+  let released = 0;
+  const skipped: Record<DeletionSkip | "error", number> = {
+    self: 0,
+    "not-found": 0,
+    "super-admin": 0,
+    "last-admin": 0,
+    error: 0,
+  };
+
+  for (const id of ids) {
+    const assessment = await assessProfileDeletion(db, {
+      actorId: admin.id,
+      actorRole: admin.role,
+      targetId: id,
+      remainingApprovedAdmins,
+    });
+
+    if (!assessment.ok) {
+      skipped[assessment.reason] += 1;
+      continue;
+    }
+
+    const target = assessment.target;
+    const dependencies = await summarizeProfileDependencies(db, id, target.role);
+    const result = await releaseProfileIdentity(db, {
+      profileId: id,
+      actorId: admin.id,
+      targetEmail: target.email,
+    });
+
+    if (!result.ok) {
+      skipped.error += 1;
+      continue;
+    }
+
+    if (target.role === "admin" && target.status === "approved") {
+      remainingApprovedAdmins = Math.max(0, remainingApprovedAdmins - 1);
+    }
+
+    await recordProfileStatusEvent({
+      db,
+      profileId: id,
+      previousStatus: target.status,
+      newStatus: "deleted",
+      changedBy: admin.id,
+    });
+
+    await logAuditEvent({
+      actor: admin,
+      action: "user_soft_deleted_email_released",
+      detail: `Bulk soft deleted ${target.email} and released email for future access requests. ${dependencyAuditDetail(dependencies)}`,
+      entityType: "profile",
+      entityId: id,
+    });
+
+    released += 1;
+  }
+
+  const skippedTotal = Object.values(skipped).reduce((sum, value) => sum + value, 0);
+
+  revalidatePath("/portal/admin/users");
+  revalidatePath("/portal/admin/user-approvals");
+  revalidatePath("/portal/admin/clients");
+  revalidatePath("/portal/admin/crew");
+  revalidatePath("/portal/admin/partners");
+  revalidatePath("/portal/admin/waitlist");
+
+  const params = new URLSearchParams();
+  params.set("bulk", "deleted");
+  params.set("released", String(released));
+  if (skippedTotal) params.set("skipped", String(skippedTotal));
+  redirect(`${backTo}?${params.toString()}`);
+}
+
+/**
+ * Bulk delete crew-network applications. Removes the application row (cascading
+ * its files/status events) and, when the applicant was already provisioned into
+ * a crew account, releases that account's identity too.
+ */
+export async function bulkDeleteNetworkApplications(formData: FormData) {
+  const admin = await actor(["admin"]);
+  const db = await createServiceClient();
+  const backTo = safeRedirectPath(
+    str(formData, "back_to"),
+    "/portal/admin/network-applications"
+  );
+
+  const ids = Array.from(
+    new Set(formData.getAll("ids").map((value) => String(value).trim()).filter(Boolean))
+  );
+
+  if (!ids.length) redirect(`${backTo}?error=none-selected`);
+
+  let deleted = 0;
+  let releasedAccounts = 0;
+
+  for (const id of ids) {
+    const { data: application } = await db
+      .from("network_applications")
+      .select("id, email, crew_user_id")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (!application) continue;
+
+    if (application.crew_user_id) {
+      const { data: profile } = await db
+        .from("profiles")
+        .select("id, email")
+        .eq("id", application.crew_user_id)
+        .maybeSingle();
+
+      if (profile?.email && !isReleasedEmail(profile.email)) {
+        const result = await releaseProfileIdentity(db, {
+          profileId: profile.id,
+          actorId: admin.id,
+          targetEmail: profile.email,
+        });
+        if (result.ok) releasedAccounts += 1;
+      }
+    }
+
+    const { error } = await db.from("network_applications").delete().eq("id", id);
+    if (error) continue;
+
+    await logAuditEvent({
+      actor: admin,
+      action: "network_application_deleted",
+      detail: `Deleted network application ${application.email}${
+        application.crew_user_id ? " and released the linked crew account" : ""
+      }`,
+      entityType: "network_application",
+      entityId: id,
+    });
+
+    deleted += 1;
+  }
+
+  revalidatePath("/portal/admin/network-applications");
+  revalidatePath("/portal/admin/crew");
+
+  const params = new URLSearchParams();
+  params.set("bulk", "deleted");
+  params.set("deleted", String(deleted));
+  if (releasedAccounts) params.set("released", String(releasedAccounts));
+  redirect(`${backTo}?${params.toString()}`);
 }
 
 export async function createPortalUser(formData: FormData) {

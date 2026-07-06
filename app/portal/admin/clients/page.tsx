@@ -1,4 +1,4 @@
-import { archiveClientRecord, saveClientRecord } from "@/app/portal/actions/admin";
+import { archiveClientRecord, bulkDeletePortalAccounts, saveClientRecord } from "@/app/portal/actions/admin";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import { PROFILE_STATUS, PROFILE_STATUS_LABEL, PROFILE_STATUS_TONE, type Tone, toneFor } from "@/lib/portal/constants";
@@ -264,6 +264,7 @@ export default async function AdminClientsPage({
         archiveDisabledReason="Client is already inactive."
         recordIdName="profile_id"
         backTo="/portal/admin/clients"
+        bulkDelete={{ action: bulkDeletePortalAccounts, entity: "client", entityLabel: "client" }}
         emptyTitle="No clients match"
         emptyDescription="Adjust search or filters, or create a new client record."
         detailEyebrow="Client Detail"

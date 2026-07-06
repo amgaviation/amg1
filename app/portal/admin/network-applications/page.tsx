@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
+import { bulkDeleteNetworkApplications } from "@/app/portal/actions/admin";
 import { NetworkProspectTools } from "@/components/portal/admin/network-prospect-tools";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import {
@@ -176,6 +177,7 @@ export default async function NetworkApplicationsPage({
         editLabel="Review Application"
         recordIdName="application_id"
         backTo="/portal/admin/network-applications"
+        bulkDelete={{ action: bulkDeleteNetworkApplications, entity: "network_application", entityLabel: "application" }}
         emptyTitle="No network applications"
         emptyDescription="Public crew network applications will appear here after submission."
         detailEyebrow="Network Application"

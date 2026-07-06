@@ -8,6 +8,7 @@ import {
 import { FilterTabs, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import {
+  bulkDeletePortalAccounts,
   changePortalUserPassword,
   createPortalUser,
   deletePortalUser,
@@ -287,6 +288,7 @@ export default async function AdminUsersPage({
         archiveDisabledReason="This record is already inactive."
         recordIdName="profile_id"
         backTo="/portal/admin/users"
+        bulkDelete={{ action: bulkDeletePortalAccounts, entity: "user", entityLabel: "user" }}
         emptyTitle={`No ${PROFILE_STATUS_LABEL[statusFilter] ?? statusFilter} Users`}
         emptyDescription="No portal users match this status filter."
         detailEyebrow="User Detail"

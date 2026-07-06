@@ -1,4 +1,4 @@
-import { archivePartnerRecord, savePartnerRecord } from "@/app/portal/actions/admin";
+import { archivePartnerRecord, bulkDeletePortalAccounts, savePartnerRecord } from "@/app/portal/actions/admin";
 import { AdminRecordManager, type AdminRecordFilter, type AdminRecordRow } from "@/components/portal/admin/admin-record-manager";
 import { requireRole } from "@/lib/portal/session";
 import { DataTable } from "@/components/portal/ui/data-table";
@@ -173,6 +173,7 @@ export default async function AdminPartnersPage({
         archiveDisabledReason="Partner is already inactive."
         recordIdName="profile_id"
         backTo="/portal/admin/partners"
+        bulkDelete={{ action: bulkDeletePortalAccounts, entity: "partner", entityLabel: "partner" }}
         emptyTitle="No partners match"
         emptyDescription="Adjust search or filters, or create a new partner record."
         detailEyebrow="Partner Detail"

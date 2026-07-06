@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowDown, ArrowUp, Edit3, Eye, Filter, Plus, RefreshCw, Search, X } from "lucide-react";
@@ -93,6 +93,11 @@ type AdminRecordManagerProps = {
   pageSize?: number;
   detailHrefBase?: string;
   allowCreate?: boolean;
+  bulkDelete?: {
+    action: (formData: FormData) => void | Promise<void>;
+    entity: string;
+    entityLabel?: string;
+  };
 };
 
 function valueText(value: RecordValue) {
@@ -178,6 +183,7 @@ export function AdminRecordManager({
   pageSize = 12,
   detailHrefBase,
   allowCreate = true,
+  bulkDelete,
 }: AdminRecordManagerProps) {
   const router = useRouter();
   const [isRefreshing, startRefresh] = useTransition();
@@ -191,6 +197,8 @@ export function AdminRecordManager({
   const [page, setPage] = useState(1);
   const [selectedId, setSelectedId] = useState("");
   const [editor, setEditor] = useState<{ mode: "create" | "edit"; row?: AdminRecordRow } | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
+  const selectAllRef = useRef<HTMLInputElement>(null);
   const selected = rows.find((row) => row.id === selectedId) ?? null;
 
   const visibleRows = useMemo(() => {
@@ -253,6 +261,41 @@ export function AdminRecordManager({
     }
     setSelectedId(row.id);
   }
+
+  const selectionEnabled = Boolean(bulkDelete);
+  const bulkEntityLabel = bulkDelete?.entityLabel ?? "record";
+  const pageIds = pagedRows.map((row) => row.id);
+  const allOnPageSelected = pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id));
+  const someOnPageSelected = pageIds.some((id) => selectedIds.has(id));
+  const selectionCount = selectedIds.size;
+
+  useEffect(() => {
+    if (selectAllRef.current) {
+      selectAllRef.current.indeterminate = someOnPageSelected && !allOnPageSelected;
+    }
+  }, [someOnPageSelected, allOnPageSelected]);
+
+  function toggleRowSelection(id: string) {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAllOnPage() {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (allOnPageSelected) pageIds.forEach((id) => next.delete(id));
+      else pageIds.forEach((id) => next.add(id));
+      return next;
+    });
+  }
+
+  const bulkConfirmText = `Delete ${selectionCount} selected ${
+    selectionCount === 1 ? bulkEntityLabel : `${bulkEntityLabel}s`
+  }? Their accounts are soft-deleted and the email / login identifiers that would otherwise block re-registration are released. Linked history is preserved, and this action is recorded in the audit log.`;
 
   return (
     <section className="deck-card w-full max-w-full overflow-hidden">
@@ -359,6 +402,40 @@ export function AdminRecordManager({
         </p>
       </div>
 
+      {selectionEnabled && selectionCount > 0 ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--deck-line)] bg-[var(--deck-accent-tint)] px-5 py-3">
+          <span className="text-sm font-semibold text-[var(--deck-text)]">
+            {selectionCount} selected
+          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedIds(new Set())}
+            >
+              Clear
+            </Button>
+            <form action={bulkDelete!.action}>
+              <input type="hidden" name="entity" value={bulkDelete!.entity} />
+              <input type="hidden" name="back_to" value={backTo} />
+              {Array.from(selectedIds).map((id) => (
+                <input key={id} type="hidden" name="ids" value={id} />
+              ))}
+              <SubmitButton
+                variant="default"
+                size="sm"
+                className="bg-[var(--deck-danger)] text-white hover:opacity-90"
+                confirm={bulkConfirmText}
+                pendingText="Deleting..."
+              >
+                Delete {selectionCount} {selectionCount === 1 ? bulkEntityLabel : `${bulkEntityLabel}s`}
+              </SubmitButton>
+            </form>
+          </div>
+        </div>
+      ) : null}
+
       <div className="min-h-[34rem] w-full max-w-full bg-[var(--deck-panel)]">
         <div className="w-full max-w-full overflow-hidden bg-[var(--deck-panel)]">
           {visibleRows.length ? (
@@ -368,6 +445,18 @@ export function AdminRecordManager({
               <table className="min-w-[88rem] w-full table-fixed border-collapse bg-[var(--deck-panel)] text-sm">
                 <thead className="sticky top-0 z-10 bg-[var(--deck-panel-2)] shadow-[0_1px_0_rgba(15,23,42,0.08)]">
                   <tr className="bg-[var(--deck-panel-2)]">
+                    {selectionEnabled ? (
+                      <th className="w-12 bg-[var(--deck-panel-2)] px-4 py-3 text-left">
+                        <input
+                          ref={selectAllRef}
+                          type="checkbox"
+                          className="h-4 w-4 cursor-pointer accent-[var(--deck-accent)]"
+                          checked={allOnPageSelected}
+                          onChange={toggleSelectAllOnPage}
+                          aria-label="Select all rows on this page"
+                        />
+                      </th>
+                    ) : null}
                     {columns.map((column) => (
                       <th key={column.key} className={cn("whitespace-nowrap bg-[var(--deck-panel-2)] px-4 py-3 text-left text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]", column.className)}>
                         {column.sortable ? (
@@ -404,6 +493,20 @@ export function AdminRecordManager({
                         }
                       }}
                     >
+                      {selectionEnabled ? (
+                        <td
+                          className="w-12 bg-inherit px-4 py-3 align-middle"
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 cursor-pointer accent-[var(--deck-accent)]"
+                            checked={selectedIds.has(row.id)}
+                            onChange={() => toggleRowSelection(row.id)}
+                            aria-label={`Select ${row.title}`}
+                          />
+                        </td>
+                      ) : null}
                       {columns.map((column, index) => (
                         <td key={column.key} className={cn("bg-inherit px-4 py-3 align-middle text-[var(--deck-text-2)]", column.className)}>
                           {index === 0 ? (
