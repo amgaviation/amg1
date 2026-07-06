@@ -396,22 +396,38 @@ export async function respondToQuote(formData: FormData) {
 
   const { data: quote } = await db
     .from("quotes")
-    .select("ref, mission_id, client_id")
+    .select("ref, mission_id, client_id, status, expires_at")
     .eq("id", quoteId)
     .maybeSingle();
   if (!quote) redirect("/portal/client/quotes?error=notfound");
   if (user.role !== "admin" && quote.client_id !== user.id) {
     redirect("/portal/client/quotes?error=forbidden");
   }
+  // A response is only meaningful on a live, delivered quote. Approving a
+  // rejected/void/converted revision would resurrect stale pricing into a
+  // real invoice; approving past expires_at honors a lapsed offer.
+  if (!["sent", "viewed"].includes(quote.status ?? "")) {
+    redirect(`/portal/client/quotes/${quoteId}?error=locked`);
+  }
+  if (
+    decision === "approved" &&
+    quote.expires_at &&
+    new Date(quote.expires_at).getTime() < Date.now()
+  ) {
+    redirect(`/portal/client/quotes/${quoteId}?error=expired`);
+  }
 
+  const respondedAt = new Date().toISOString();
   await billingDb
     .from("quotes")
     .update({
       status: decision === "approved" ? "approved" : decision === "revision_requested" ? "revision_requested" : "rejected",
       approved_by: decision === "approved" ? user.id : null,
-      approved_at: decision === "approved" ? new Date().toISOString() : null,
-      rejected_by: decision !== "approved" ? user.id : null,
-      rejected_at: decision !== "approved" ? new Date().toISOString() : null,
+      approved_at: decision === "approved" ? respondedAt : null,
+      // Revision requests are not rejections — keep those fields for real
+      // rejections only, or downstream reporting counts revisions as losses.
+      rejected_by: decision === "rejected" ? user.id : null,
+      rejected_at: decision === "rejected" ? respondedAt : null,
     })
     .eq("id", quoteId);
 

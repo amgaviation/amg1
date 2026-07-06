@@ -155,12 +155,12 @@ export function PortalLogin({
                     Forgot password
                   </Link>
 
-                  <Link
-                    href="/contact"
+                  <a
+                    href="mailto:ops@amgaviationgroup.com?subject=AMG%20Connect%20account%20email%20issue"
                     className="inline-flex min-h-10 items-center justify-center rounded-full border border-white/15 px-4 text-xs font-semibold uppercase text-white/75 hover:border-primary hover:text-white"
                   >
                     Wrong email
-                  </Link>
+                  </a>
                 </div>
               </div>
             ) : null}

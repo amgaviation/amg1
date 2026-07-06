@@ -444,6 +444,23 @@ async function markInvoicePaidFromCheckoutSession(
     })
     .eq("id", invoice.id);
 
+  // The canonical audit log must include the highest-volume payment channel,
+  // not just admin-recorded payments. The paying client is the actor.
+  await db
+    .from("audit_events")
+    .insert({
+      actor_id: invoice.client_id ?? null,
+      actor_email: session.customer_details?.email ?? "stripe-checkout",
+      actor_role: "client",
+      action: "invoice_payment_recorded",
+      detail: `Stripe Checkout payment ${amount} on ${invoice.invoice_number ?? invoice.id} (receipt ${receiptNumber}, session ${session.id})`,
+      entity_type: "invoice",
+      entity_id: invoice.id,
+    })
+    .then(({ error }: { error: unknown }) => {
+      if (error) console.error("[stripe] failed to audit-log payment", payment.id, error);
+    });
+
   const { emailReceiptPdf } = await import("@/lib/portal/billing-emails");
   await emailReceiptPdf(payment.id, null).catch((error) => {
     console.error("[stripe] failed to email Stripe receipt", payment.id, error);

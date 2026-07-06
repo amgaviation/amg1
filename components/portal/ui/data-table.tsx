@@ -64,9 +64,17 @@ export function DataTable<T>({
           const href = getHref?.(row);
           const primary =
             columns.find((column) => column.priority === "primary") ?? columns[0];
+          // Show every non-hidden column on the card, secondary-priority
+          // first — a hard cap silently dropped the trailing Status/Total
+          // columns, the row's most important signal. Pages trim cards with
+          // hideOnMobile, not by column position.
           const visible = columns
             .filter((column) => column !== primary && !column.hideOnMobile)
-            .slice(0, 4);
+            .sort((a, b) => {
+              const rank = (c: Column<T>) =>
+                c.priority === "secondary" ? 0 : c.priority === "meta" ? 2 : 1;
+              return rank(a) - rank(b);
+            });
           const card = (
             <div className={cn("deck-inset deck-card-hover p-4", selectable && "pr-12")}>
               <div className="text-sm font-semibold text-[var(--deck-text)]">

@@ -50,7 +50,7 @@ export default function WorkedExample() {
             <Link
               href="/pricing"
               prefetch={false}
-              className="fd-navlink font-mono text-[11px] uppercase tracking-widecap text-instrument"
+              className="fd-navlink font-mono text-[11px] uppercase tracking-widecap text-instrument-ink"
             >
               See all plans &amp; pricing
             </Link>

@@ -189,6 +189,7 @@
   /* Flight-deck design tokens (public-site rebuild) */
   --color-canvas: var(--canvas);
   --color-instrument: var(--instrument);
+  --color-instrument-ink: var(--instrument-ink);
   --color-amber: var(--amber);
   --color-t1: var(--t1);
   --color-t2: var(--t2);

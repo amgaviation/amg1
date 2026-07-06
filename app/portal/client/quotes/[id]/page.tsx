@@ -33,6 +33,8 @@ export default async function ClientQuoteDetailPage({
       {sp.success === "approved" ? <Notice tone="success">Quote approved. AMG Operations will continue the required operational review before any request is considered accepted.</Notice> : null}
       {sp.success === "rejected" ? <Notice tone="warn">Quote rejected. AMG Operations will follow up.</Notice> : null}
       {sp.error === "terms" ? <Notice tone="danger">Confirm the quote terms and operational review notice before approving.</Notice> : null}
+      {sp.error === "locked" ? <Notice tone="warn">This quote is no longer open for a response. If anything changed on your side, message AMG Operations and we&apos;ll issue a fresh revision.</Notice> : null}
+      {sp.error === "expired" ? <Notice tone="warn">This quote has expired and can no longer be approved. AMG Operations can reissue current pricing on request.</Notice> : null}
 
       <PageHeader
         eyebrow={quote.ref}

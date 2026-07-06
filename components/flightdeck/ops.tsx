@@ -108,7 +108,7 @@ export default function Ops() {
                       </span>
                       <span
                         className={`font-display text-xl transition-colors duration-300 ${
-                          isOpen ? "text-instrument" : "text-t1"
+                          isOpen ? "text-instrument-ink" : "text-t1"
                         }`}
                       >
                         {item.title}

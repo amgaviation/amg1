@@ -21,7 +21,10 @@ async function requestContext(): Promise<PublicFormRequestContext> {
 }
 
 export async function submitQuoteRequest(formData: FormData) {
-  if (String(formData.get("website") ?? "").trim()) {
+  // Honeypot: obfuscated name so browser/password-manager autofill never
+  // matches it (a filled trap used to silently swallow real submissions).
+  if (String(formData.get("ops_ref_code") ?? "").trim()) {
+    console.warn("[request] honeypot triggered — dropping submission");
     redirect("/request?success=1");
   }
 

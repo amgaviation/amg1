@@ -99,18 +99,21 @@ export async function notifyAdmins(params: {
 
     if (!admins?.length) return;
 
-    for (const admin of admins) {
-      await notifyUser({
-        userId: admin.id,
-        title: params.title,
-        body: params.body,
-        html: params.html,
-        type: params.type,
-        entityType: params.entityType,
-        entityId: params.entityId,
-        replyTo: params.replyTo,
-      });
-    }
+    // Independent fan-out — one slow email must not serialize the rest.
+    await Promise.all(
+      admins.map((admin) =>
+        notifyUser({
+          userId: admin.id,
+          title: params.title,
+          body: params.body,
+          html: params.html,
+          type: params.type,
+          entityType: params.entityType,
+          entityId: params.entityId,
+          replyTo: params.replyTo,
+        })
+      )
+    );
   } catch (error) {
     console.error("[notify] failed to notify admins", params.title, error);
   }

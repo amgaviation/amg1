@@ -67,7 +67,7 @@ export default function Doors() {
               <Link
                 href={door.href}
                 prefetch={false}
-                className="fd-navlink mt-5 inline-flex min-h-9 w-fit items-center gap-2 font-mono text-[11px] uppercase tracking-widecap text-instrument"
+                className="fd-navlink mt-5 inline-flex min-h-9 w-fit items-center gap-2 font-mono text-[11px] uppercase tracking-widecap text-instrument-ink"
               >
                 {door.cta}
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">

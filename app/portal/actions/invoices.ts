@@ -528,6 +528,27 @@ export async function updateInvoiceStatus(formData: FormData) {
         paid_at: new Date().toISOString(),
       })
       .eq("id", invoiceId);
+    // Mirror recordInvoicePayment: a payment created via the status shortcut
+    // needs the same audit + compliance trail as one recorded explicitly.
+    await logAuditEvent({
+      actor: admin,
+      action: "invoice_payment_recorded",
+      detail: `Marked ${invoice.invoice_number} paid in full (${amount}) via status update`,
+      entityType: "invoice",
+      entityId: invoiceId,
+    });
+    await recordComplianceEvidence({
+      actor: admin,
+      audience: "admin",
+      eventType: "payment_marked_paid",
+      eventArea: "billing",
+      relatedRecordType: "invoice",
+      relatedRecordId: invoiceId,
+      policyKey: POLICY_KEYS.noOnlinePayment,
+      policyVersion: COMPLIANCE_POLICY_VERSION,
+      acknowledgmentText: ACKNOWLEDGMENT_TEXT.noOnlinePayment,
+      metadata: { amount, status: "paid", paymentId: payment?.id ?? null, via: "status_update" },
+    });
     if (payment?.id) {
       await emailReceiptPdf(payment.id, admin.id).catch((error) => {
         console.error("[billing] failed to email paid-status receipt PDF", payment.id, error);

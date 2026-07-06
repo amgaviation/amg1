@@ -211,8 +211,8 @@ export function FileField({
   const [fileName, setFileName] = useState<string>("");
   return (
     <Field label={label} hint={hint} required={required}>
-      <div className="flex items-center gap-3">
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2.5 text-sm font-medium text-[var(--deck-text)] transition-colors hover:border-[var(--deck-accent)] sm:py-2">
+      <div className="flex min-w-0 items-center gap-3">
+        <label className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2.5 text-sm font-medium text-[var(--deck-text)] transition-colors hover:border-[var(--deck-accent)] sm:py-2">
           Choose file
           <input
             type="file"
