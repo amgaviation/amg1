@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard, Notice } from "@/components/portal/ui/primitives";
 import { AirportField, CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -16,7 +16,7 @@ export default async function NewTripPage({
 }: {
   searchParams: Promise<{ type?: string; error?: string }>;
 }) {
-  const user = await requireRole("client");
+  const user = await requireRolePermission("client", "missions", "add");
   const params = await searchParams;
   const [aircraft, savedPassengers] = await Promise.all([
     listAircraftForClient(user.id),

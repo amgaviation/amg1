@@ -1,6 +1,7 @@
 import { PortalShell } from "@/components/portal/shell/portal-shell";
 import { getSessionUser } from "@/lib/portal/session";
 import { countUnread } from "@/lib/portal/queries";
+import { permissionsForRole } from "@/lib/portal/permissions";
 import type { PortalRole } from "@/lib/portal/constants";
 
 /**
@@ -20,15 +21,22 @@ export async function RolePortalLayout({
   const user = await getSessionUser();
   if (!user) return <>{children}</>;
 
-  let unread = 0;
-  try {
-    unread = await countUnread(user.id);
-  } catch {
-    unread = 0;
-  }
+  // Unread badge and nav filtering (role-permission matrix view flags) are
+  // independent — resolve them concurrently. Both fail open: the shell is
+  // chrome only, pages and actions enforce.
+  const [unread, moduleView] = await Promise.all([
+    countUnread(user.id).catch(() => 0),
+    permissionsForRole(user.role)
+      .then((perms) =>
+        Object.fromEntries(
+          Object.entries(perms).map(([moduleKey, flags]) => [moduleKey, flags.view])
+        )
+      )
+      .catch(() => undefined),
+  ]);
 
   return (
-    <PortalShell role={role} user={user} unread={unread}>
+    <PortalShell role={role} user={user} unread={unread} moduleView={moduleView}>
       {children}
     </PortalShell>
   );

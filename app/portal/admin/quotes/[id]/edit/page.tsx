@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { ClientPickerField } from "@/components/portal/ui/combobox";
@@ -12,7 +12,7 @@ import { BILLING_COST_TYPES, PDF_TEMPLATES, QUOTE_CATEGORIES } from "@/lib/porta
 export const metadata = { title: "Edit Quote Draft - Admin Portal" };
 
 export default async function EditQuotePage({ params }: { params: Promise<{ id: string }> }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "quotes");
   const { id } = await params;
   const [quote, clients, missions] = await Promise.all([getQuoteDetail(id), listClients(), listAllMissions()]);
   if (!quote) notFound();

@@ -332,6 +332,14 @@ export const MISSION_STATUS: Choice[] = [
 ];
 export const MISSION_STATUS_LABEL = buildLabelMap(MISSION_STATUS);
 export const MISSION_STATUS_TONE = buildToneMap(MISSION_STATUS);
+/**
+ * Client-facing label overrides: an owner's just-filed request reads
+ * "Submitted" (matching the list filter), not the ops-queue word "New".
+ */
+export const CLIENT_MISSION_STATUS_LABEL: Record<string, string> = {
+  ...MISSION_STATUS_LABEL,
+  submitted: "Submitted",
+};
 /** Ordered columns for the admin mission-control board. */
 export const MISSION_BOARD_COLUMNS = MISSION_STATUS.map((s) => s.value).filter(
   (v) => v !== "draft"

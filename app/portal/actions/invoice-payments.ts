@@ -10,7 +10,9 @@ function failurePath(invoiceId: string, reason: string) {
 }
 
 export async function payInvoiceWithStripe(formData: FormData) {
-  const user = await actor(["client", "admin"]);
+  // view, not edit: a client who can see an invoice must be able to pay it;
+  // ownership is enforced inside createInvoiceCheckoutSessionForUser.
+  const user = await actor(["client", "admin"], "invoices.view");
   const invoiceId = str(formData, "invoice_id");
   const returnTo = str(formData, "return_to") || `/portal/client/billing/${invoiceId}`;
   if (!invoiceId) redirect("/portal/client/billing?error=missing");

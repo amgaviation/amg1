@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -9,7 +9,7 @@ import { formatDateTime, formatMoney } from "@/lib/portal/format";
 export const metadata = { title: "Payments - Admin Portal" };
 
 export default async function AdminPaymentsPage() {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "invoices");
   const payments = await listAllPayments();
 
   return (

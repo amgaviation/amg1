@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -17,7 +17,7 @@ export default async function EditInvoicePage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ error?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "invoices");
   const { id } = await params;
   const flash = await searchParams;
   const invoice = await getInvoiceDetail(id);

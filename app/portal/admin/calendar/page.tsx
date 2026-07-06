@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { listAllMissions } from "@/lib/portal/queries";
@@ -28,7 +28,7 @@ export default async function OpsCalendarPage({
 }: {
   searchParams: Promise<{ month?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "missions");
   const params = await searchParams;
 
   const now = new Date();

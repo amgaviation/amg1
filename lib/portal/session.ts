@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ROLE_HOME, isAdminRole, isPortalRole, type PortalRole } from "@/lib/portal/constants";
@@ -18,8 +19,10 @@ export type SessionUser = {
 /**
  * Resolve the authenticated portal user from the Supabase session + profile.
  * Returns null when there is no valid Supabase session or profile row.
+ * Memoized per request (React cache) — the shell layout and the page guard
+ * share one auth + profile read instead of paying it twice.
  */
-export async function getSessionUser(): Promise<SessionUser | null> {
+export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -44,7 +47,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     phone: profile.phone,
     homeBase: profile.home_base,
   };
-}
+});
 
 /** Require any authenticated, approved user. Redirects otherwise. */
 export async function requireUser(): Promise<SessionUser> {

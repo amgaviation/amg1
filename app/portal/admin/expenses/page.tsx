@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -17,7 +17,7 @@ export default async function AdminExpensesPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "expenses");
   const params = await searchParams;
   const [expenses, invoices] = await Promise.all([listAllExpenses(), listAllInvoices()]);
   return (

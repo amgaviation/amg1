@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import {
   DetailRow,
   Notice,
@@ -51,7 +51,7 @@ export default async function LeadDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ success?: string; error?: string; email?: string; email_error?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "crm");
   const { id } = await params;
   const sp = await searchParams;
   const [lead, activities, admins, clients] = await Promise.all([

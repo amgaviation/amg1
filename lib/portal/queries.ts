@@ -281,16 +281,47 @@ export async function listAllMissions(filter?: {
   status?: string;
   statusIn?: string[];
   type?: string;
+  urgency?: string;
   limit?: number;
 }): Promise<MissionListItem[]> {
   const db = await createServiceClient();
-  let q = db.from("missions").select(MISSION_LIST_SELECT).order("created_at", { ascending: false });
-  if (filter?.status) q = q.eq("status", filter.status);
-  if (filter?.statusIn?.length) q = q.in("status", filter.statusIn);
-  if (filter?.type) q = q.eq("mission_type", filter.type);
-  if (filter?.limit) q = q.limit(filter.limit);
-  const { data } = await q.returns<MissionListItem[]>();
-  return data ?? [];
+  const buildQuery = () => {
+    let q = db.from("missions").select(MISSION_LIST_SELECT).order("created_at", { ascending: false });
+    if (filter?.status) q = q.eq("status", filter.status);
+    if (filter?.statusIn?.length) q = q.in("status", filter.statusIn);
+    if (filter?.type) q = q.eq("mission_type", filter.type);
+    if (filter?.urgency) q = q.eq("urgency", filter.urgency);
+    return q;
+  };
+
+  if (filter?.limit) {
+    const { data } = await buildQuery().limit(filter.limit).returns<MissionListItem[]>();
+    return data ?? [];
+  }
+
+  // No explicit limit means "all rows". PostgREST silently caps a single
+  // response at 1000 rows, which made missions past the cap vanish from the
+  // admin list — fetch in explicit ranges until a short chunk instead.
+  const CHUNK = 1000;
+  const MAX_CHUNKS = 10;
+  const all: MissionListItem[] = [];
+  const seen = new Set<string>();
+  for (let chunk = 0; chunk < MAX_CHUNKS; chunk++) {
+    const from = chunk * CHUNK;
+    const { data } = await buildQuery().range(from, from + CHUNK - 1).returns<MissionListItem[]>();
+    const rows = data ?? [];
+    // Offset windows can shift if a row is inserted between chunk fetches —
+    // dedup by id so a boundary row never renders twice.
+    for (const row of rows) {
+      if (!seen.has(row.id)) {
+        seen.add(row.id);
+        all.push(row);
+      }
+    }
+    if (rows.length < CHUNK) return all;
+  }
+  console.warn(`[queries] listAllMissions truncated at ${MAX_CHUNKS * CHUNK} rows — move this view to DB-side pagination`);
+  return all;
 }
 
 /** Missions a crew member is offered/assigned to. */

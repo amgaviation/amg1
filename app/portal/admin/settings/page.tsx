@@ -11,6 +11,9 @@ export default async function AdminSettingsPage({
 }: {
   searchParams: Promise<{ accountSuccess?: string; accountError?: string }>;
 }) {
+  // Intentionally role-gated, not module-gated: this page carries the admin's
+  // personal account security form, which must stay reachable even when the
+  // settings module is hidden from the nav.
   const user = await requireRole("admin");
   const params = await searchParams;
   const accountErrorMessage =
@@ -47,6 +50,11 @@ export default async function AdminSettingsPage({
           <p>
             <Link href="/portal/admin/settings/billing" className="text-accent hover:underline">
               Manage protected billing settings
+            </Link>
+          </p>
+          <p>
+            <Link href="/portal/admin/settings/permissions" className="text-accent hover:underline">
+              Manage role permissions (view / add / edit / delete per module)
             </Link>
           </p>
           <p>

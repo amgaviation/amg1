@@ -1,5 +1,7 @@
 "use client";
 
+import { useFormStatus } from "react-dom";
+
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { submitQuoteRequest } from "./actions";
@@ -46,7 +48,7 @@ export function QuoteRequestForm({ error }: { error?: string }) {
         </p>
       ) : null}
 
-      <input id="quote-website" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+      <input id="quote-ops-ref" name="ops_ref_code" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
 
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="Name">
@@ -122,11 +124,18 @@ export function QuoteRequestForm({ error }: { error?: string }) {
       </label>
 
       <div>
-        <button type="submit" className="oc-btn oc-btn-light">
-          Request a Quote
-          <ArrowRight className="h-4 w-4" />
-        </button>
+        <SubmitQuoteButton />
       </div>
     </form>
+  );
+}
+
+function SubmitQuoteButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button type="submit" disabled={pending} className="oc-btn oc-btn-light disabled:cursor-not-allowed disabled:opacity-60">
+      {pending ? "Sending…" : "Request a Quote"}
+      <ArrowRight className="h-4 w-4" />
+    </button>
   );
 }

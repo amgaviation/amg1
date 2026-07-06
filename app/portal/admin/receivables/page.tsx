@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { DataTable } from "@/components/portal/ui/data-table";
 import {
   EmptyState,
@@ -29,7 +29,7 @@ export default async function ReceivablesPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "invoices");
   const params = await searchParams;
   const ar = await getArSummary();
 

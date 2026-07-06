@@ -8,7 +8,7 @@ import { listAllUsers } from "@/lib/portal/queries";
 import { actor, str } from "@/app/portal/actions/_helpers";
 
 export async function completeAdminSecurityReview(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "compliance.edit");
   const notes = str(formData, "notes") || null;
   const users = await listAllUsers();
   const reviewedAccounts = users.map((user) => ({

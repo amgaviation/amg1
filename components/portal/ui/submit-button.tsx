@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -38,6 +38,23 @@ export function SubmitButton({
   const { pending } = useFormStatus();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
+
+  // Keyboard support for the confirm dialog: focus lands on Cancel when it
+  // opens, Escape closes, and focus returns to the trigger on close.
+  useEffect(() => {
+    if (!confirmOpen) return;
+    cancelRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        setConfirmOpen(false);
+        buttonRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [confirmOpen]);
 
   function confirmSubmit() {
     setConfirmOpen(false);
@@ -70,6 +87,7 @@ export function SubmitButton({
           role="dialog"
           aria-modal="true"
           aria-labelledby="confirm-action-title"
+          aria-describedby="confirm-action-desc"
         >
           <div className="deck-card max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto p-6">
             <div className="flex items-start gap-4">
@@ -84,13 +102,21 @@ export function SubmitButton({
                 >
                   Review before continuing
                 </h2>
-                <p className="mt-2.5 text-sm leading-6 text-[var(--deck-text-2)]">
+                <p id="confirm-action-desc" className="mt-2.5 text-sm leading-6 text-[var(--deck-text-2)]">
                   {confirm}
                 </p>
               </div>
             </div>
             <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-              <Button type="button" variant="outline" onClick={() => setConfirmOpen(false)}>
+              <Button
+                ref={cancelRef}
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setConfirmOpen(false);
+                  buttonRef.current?.focus();
+                }}
+              >
                 Cancel
               </Button>
               <Button

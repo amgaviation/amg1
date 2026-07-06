@@ -28,7 +28,7 @@ function money(formData: FormData, key: string) {
 }
 
 export async function createSubscriptionPlan(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "subscriptions.add");
   const db = (await createServiceClient()) as any;
   const name = str(formData, "name");
   const tierName = str(formData, "tier_name") || "Standard";
@@ -89,7 +89,7 @@ export async function createSubscriptionPlan(formData: FormData) {
 }
 
 export async function createClientSubscription(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "subscriptions.add");
   const db = (await createServiceClient()) as any;
   const clientId = str(formData, "client_id");
   const planId = str(formData, "plan_id");
@@ -174,7 +174,7 @@ export async function createClientSubscription(formData: FormData) {
 }
 
 export async function updateSubscriptionStatus(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "subscriptions.edit");
   const db = (await createServiceClient()) as any;
   const subscriptionId = str(formData, "subscription_id");
   const status = str(formData, "status");
@@ -215,7 +215,7 @@ export async function updateSubscriptionStatus(formData: FormData) {
 }
 
 export async function refreshStripeSubscription(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "subscriptions.edit");
   const subscriptionId = str(formData, "subscription_id");
   if (!subscriptionId) redirect("/portal/admin/subscriptions?error=missing");
   const dbCheck = (await createServiceClient()) as any;
@@ -239,7 +239,7 @@ export async function refreshStripeSubscription(formData: FormData) {
 }
 
 export async function cancelStripeSubscriptionAtPeriodEnd(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "subscriptions.edit");
   const subscriptionId = str(formData, "subscription_id");
   if (!subscriptionId) redirect("/portal/admin/subscriptions?error=missing");
   const result = await cancelSubscriptionAtPeriodEnd(subscriptionId, admin);
@@ -248,7 +248,7 @@ export async function cancelStripeSubscriptionAtPeriodEnd(formData: FormData) {
 }
 
 export async function resendSubscriptionSetupLink(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "subscriptions.edit");
   const subscriptionId = str(formData, "subscription_id");
   if (!subscriptionId) redirect("/portal/admin/subscriptions?error=missing");
   const result = await createSubscriptionCheckoutSession(subscriptionId, admin);
@@ -257,7 +257,7 @@ export async function resendSubscriptionSetupLink(formData: FormData) {
 }
 
 export async function linkNeedsReviewSubscription(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "subscriptions.edit");
   const subscriptionId = str(formData, "subscription_id");
   const clientId = str(formData, "client_id");
   if (!subscriptionId || !clientId) redirect("/portal/admin/subscriptions?error=missing");
@@ -268,7 +268,7 @@ export async function linkNeedsReviewSubscription(formData: FormData) {
 }
 
 export async function ignoreNeedsReviewSubscription(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "subscriptions.edit");
   const subscriptionId = str(formData, "subscription_id");
   if (!subscriptionId) redirect("/portal/admin/subscriptions?error=missing");
   const result = await markStripeSubscriptionIgnored(subscriptionId, admin);
@@ -278,7 +278,7 @@ export async function ignoreNeedsReviewSubscription(formData: FormData) {
 }
 
 export async function manageSubscriptionBilling(formData: FormData) {
-  const user = await actor(["client", "admin"]);
+  const user = await actor(["client", "admin"], "subscriptions.edit");
   const returnPath = str(formData, "return_to") || "/portal/client/subscriptions";
   const result = await createCustomerPortalSessionForUser(user.id, returnPath);
   if (!result.ok) redirect(`${returnPath}?error=${result.reason}`);
@@ -287,7 +287,7 @@ export async function manageSubscriptionBilling(formData: FormData) {
 }
 
 export async function addSubscriptionUsage(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "subscriptions.add");
   const db = (await createServiceClient()) as any;
   const subscriptionId = str(formData, "subscription_id");
   const clientId = str(formData, "client_id");
@@ -327,7 +327,7 @@ export async function addSubscriptionUsage(formData: FormData) {
 }
 
 export async function addSubscriptionCredit(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "subscriptions.add");
   const db = (await createServiceClient()) as any;
   const subscriptionId = str(formData, "subscription_id");
   const clientId = str(formData, "client_id");
@@ -370,7 +370,7 @@ export async function addSubscriptionCredit(formData: FormData) {
 // ─── Custom + test subscriptions ────────────────────────────────────
 
 export async function createCustomClientSubscription(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "subscriptions.add");
   const clientId = str(formData, "client_id");
   const name = str(formData, "custom_name");
   const interval = str(formData, "custom_interval");
@@ -399,7 +399,7 @@ export async function createCustomClientSubscription(formData: FormData) {
 }
 
 export async function createTestSubscriptionAction(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "subscriptions.add");
   const result = await createTestSubscription({
     admin,
     confirmText: str(formData, "confirm_text") || null,
@@ -412,7 +412,7 @@ export async function createTestSubscriptionAction(formData: FormData) {
 }
 
 export async function cleanupTestSubscriptionsAction() {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "subscriptions.delete");
   const result = await cleanupTestSubscriptions(admin);
   if (!result.ok) {
     redirect(`/portal/admin/subscriptions?error=${encodeURIComponent(result.error)}`);
@@ -422,7 +422,7 @@ export async function cleanupTestSubscriptionsAction() {
 }
 
 export async function refreshTestSubscriptionAction(formData: FormData) {
-  await actor(["admin"]);
+  await actor(["admin"], "subscriptions.edit");
   const subscriptionId = str(formData, "subscription_id");
   const result = await refreshTestSubscription(subscriptionId);
   if (!result.ok) {

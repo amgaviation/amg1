@@ -367,43 +367,121 @@ export type Database = {
       }
       documents: {
         Row: {
+          access_level: string
+          archived_at: string | null
+          compliance_category: string
           created_at: string
           doc_type: string
           expiration_date: string | null
+          file_size: number | null
           id: string
           is_current: boolean
+          mime_type: string | null
           mission_id: string | null
           name: string
+          notes: string | null
+          original_file_name: string | null
+          policy_version: string | null
+          rejection_reason: string | null
           review_notes: string | null
+          reviewed_at: string | null
           reviewed_by: string | null
           scope_id: string | null
           scope_type: string
           status: string
+          storage_bucket: string
           storage_path: string
+          terms_acknowledged_at: string | null
+          updated_at: string
           uploaded_by: string | null
           version: number
           visibility: string
         }
         Insert: {
+          access_level?: string
+          archived_at?: string | null
+          compliance_category?: string
           created_at?: string
           doc_type: string
           expiration_date?: string | null
+          file_size?: number | null
           id?: string
           is_current?: boolean
+          mime_type?: string | null
           mission_id?: string | null
           name: string
+          notes?: string | null
+          original_file_name?: string | null
+          policy_version?: string | null
+          rejection_reason?: string | null
           review_notes?: string | null
+          reviewed_at?: string | null
           reviewed_by?: string | null
           scope_id?: string | null
           scope_type: string
           status?: string
+          storage_bucket?: string
           storage_path: string
+          terms_acknowledged_at?: string | null
+          updated_at?: string
           uploaded_by?: string | null
           version?: number
           visibility?: string
         }
-        Update: Partial<Database["public"]["Tables"]["documents"]["Insert"]>
-        Relationships: []
+        Update: {
+          access_level?: string
+          archived_at?: string | null
+          compliance_category?: string
+          created_at?: string
+          doc_type?: string
+          expiration_date?: string | null
+          file_size?: number | null
+          id?: string
+          is_current?: boolean
+          mime_type?: string | null
+          mission_id?: string | null
+          name?: string
+          notes?: string | null
+          original_file_name?: string | null
+          policy_version?: string | null
+          rejection_reason?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scope_id?: string | null
+          scope_type?: string
+          status?: string
+          storage_bucket?: string
+          storage_path?: string
+          terms_acknowledged_at?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+          version?: number
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       expenses: {
         Row: {
@@ -490,58 +568,305 @@ export type Database = {
           aircraft_id: string | null
           amount_due: number
           amount_paid: number
+          billing_contact_company: string | null
+          billing_contact_name: string | null
+          billing_contact_phone: string | null
+          cc_emails: string[] | null
           client_id: string | null
           client_notes: string | null
+          closing_note: string | null
           created_at: string
           created_by: string | null
           currency: string
+          deposit_amount: number
+          deposit_paid: number
+          deposit_required: boolean
           discount: number
+          discount_total: number
           due_date: string | null
+          footer_note: string | null
+          group_line_items_by_category: boolean
           id: string
           internal_notes: string | null
           invoice_number: string
           issued_at: string | null
           mission_id: string | null
+          opening_note: string | null
           paid_at: string | null
+          payment_amount_cents: number | null
+          payment_currency: string
+          payment_error: string | null
+          payment_instructions: string | null
+          payment_link_url: string | null
+          payment_provider: string | null
+          payment_provider_session_id: string | null
+          payment_status: string | null
+          pdf_document_id: string | null
+          pdf_template: string
           quote_id: string | null
+          recipient_email: string | null
+          revised_from_invoice_id: string | null
+          revision_reason: string | null
           sent_at: string | null
+          show_aircraft_block: boolean
+          show_deposit_block: boolean
+          show_line_item_details: boolean
+          show_mission_block: boolean
+          show_route_block: boolean
+          show_tax_line: boolean
           status: string
+          stripe_checkout_session_id: string | null
+          stripe_customer_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_payment_status: string | null
+          stripe_payment_url: string | null
           subtotal: number
+          superseded_by_invoice_id: string | null
           tax: number
+          tax_total: number
           terms: string | null
           total: number
           updated_at: string
+          version_number: number
           viewed_at: string | null
         }
         Insert: {
           aircraft_id?: string | null
           amount_due?: number
           amount_paid?: number
+          billing_contact_company?: string | null
+          billing_contact_name?: string | null
+          billing_contact_phone?: string | null
+          cc_emails?: string[] | null
           client_id?: string | null
           client_notes?: string | null
+          closing_note?: string | null
           created_at?: string
           created_by?: string | null
           currency?: string
+          deposit_amount?: number
+          deposit_paid?: number
+          deposit_required?: boolean
           discount?: number
+          discount_total?: number
           due_date?: string | null
+          footer_note?: string | null
+          group_line_items_by_category?: boolean
           id?: string
           internal_notes?: string | null
           invoice_number?: string
           issued_at?: string | null
           mission_id?: string | null
+          opening_note?: string | null
           paid_at?: string | null
+          payment_amount_cents?: number | null
+          payment_currency?: string
+          payment_error?: string | null
+          payment_instructions?: string | null
+          payment_link_url?: string | null
+          payment_provider?: string | null
+          payment_provider_session_id?: string | null
+          payment_status?: string | null
+          pdf_document_id?: string | null
+          pdf_template?: string
           quote_id?: string | null
+          recipient_email?: string | null
+          revised_from_invoice_id?: string | null
+          revision_reason?: string | null
           sent_at?: string | null
+          show_aircraft_block?: boolean
+          show_deposit_block?: boolean
+          show_line_item_details?: boolean
+          show_mission_block?: boolean
+          show_route_block?: boolean
+          show_tax_line?: boolean
           status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_payment_status?: string | null
+          stripe_payment_url?: string | null
           subtotal?: number
+          superseded_by_invoice_id?: string | null
           tax?: number
+          tax_total?: number
           terms?: string | null
           total?: number
           updated_at?: string
+          version_number?: number
           viewed_at?: string | null
         }
-        Update: Partial<Database["public"]["Tables"]["invoices"]["Insert"]>
-        Relationships: []
+        Update: {
+          aircraft_id?: string | null
+          amount_due?: number
+          amount_paid?: number
+          billing_contact_company?: string | null
+          billing_contact_name?: string | null
+          billing_contact_phone?: string | null
+          cc_emails?: string[] | null
+          client_id?: string | null
+          client_notes?: string | null
+          closing_note?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          deposit_amount?: number
+          deposit_paid?: number
+          deposit_required?: boolean
+          discount?: number
+          discount_total?: number
+          due_date?: string | null
+          footer_note?: string | null
+          group_line_items_by_category?: boolean
+          id?: string
+          internal_notes?: string | null
+          invoice_number?: string
+          issued_at?: string | null
+          mission_id?: string | null
+          opening_note?: string | null
+          paid_at?: string | null
+          payment_amount_cents?: number | null
+          payment_currency?: string
+          payment_error?: string | null
+          payment_instructions?: string | null
+          payment_link_url?: string | null
+          payment_provider?: string | null
+          payment_provider_session_id?: string | null
+          payment_status?: string | null
+          pdf_document_id?: string | null
+          pdf_template?: string
+          quote_id?: string | null
+          recipient_email?: string | null
+          revised_from_invoice_id?: string | null
+          revision_reason?: string | null
+          sent_at?: string | null
+          show_aircraft_block?: boolean
+          show_deposit_block?: boolean
+          show_line_item_details?: boolean
+          show_mission_block?: boolean
+          show_route_block?: boolean
+          show_tax_line?: boolean
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_payment_status?: string | null
+          stripe_payment_url?: string | null
+          subtotal?: number
+          superseded_by_invoice_id?: string | null
+          tax?: number
+          tax_total?: number
+          terms?: string | null
+          total?: number
+          updated_at?: string
+          version_number?: number
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_aircraft_id_fkey"
+            columns: ["aircraft_id"]
+            isOneToOne: false
+            referencedRelation: "aircraft"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_pdf_document_id_fkey"
+            columns: ["pdf_document_id"]
+            isOneToOne: false
+            referencedRelation: "billing_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_revised_from_invoice_id_fkey"
+            columns: ["revised_from_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_superseded_by_invoice_id_fkey"
+            columns: ["superseded_by_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      role_permissions: {
+        Row: {
+          can_add: boolean
+          can_delete: boolean
+          can_edit: boolean
+          can_view: boolean
+          created_at: string
+          id: string
+          module: string
+          role: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          can_add?: boolean
+          can_delete?: boolean
+          can_edit?: boolean
+          can_view?: boolean
+          created_at?: string
+          id?: string
+          module: string
+          role: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          can_add?: boolean
+          can_delete?: boolean
+          can_edit?: boolean
+          can_view?: boolean
+          created_at?: string
+          id?: string
+          module?: string
+          role?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       message_threads: {
         Row: {
@@ -1133,37 +1458,262 @@ export type Database = {
       }
       quotes: {
         Row: {
+          aircraft_summary: string | null
+          approved_at: string | null
           approved_by: string | null
+          balance_due_timing: string | null
+          billing_contact_company: string | null
+          billing_contact_name: string | null
+          billing_contact_phone: string | null
+          cc_emails: string[] | null
           client_id: string | null
           client_notes: string | null
+          closing_note: string | null
+          converted_invoice_id: string | null
           created_at: string
           created_by: string | null
+          deposit_amount: number
+          deposit_due_date: string | null
+          deposit_percent: number | null
+          deposit_required: boolean
+          deposit_terms: string | null
+          discount_total: number
+          expires_at: string | null
+          footer_note: string | null
+          group_line_items_by_category: boolean
           id: string
           internal_notes: string | null
+          manual_client_company: string | null
+          manual_client_email: string | null
+          manual_client_name: string | null
+          manual_client_phone: string | null
           mission_id: string | null
+          opening_note: string | null
+          payment_due_date: string | null
+          payment_instructions: string | null
+          payment_method_notes: string | null
+          payment_terms: string | null
+          pdf_document_id: string | null
+          pdf_template: string
+          quote_number: string | null
+          recipient_email: string | null
           ref: string
+          rejected_at: string | null
+          rejected_by: string | null
+          requested_timing: string | null
+          revised_from_quote_id: string | null
+          revision_reason: string | null
+          route_summary: string | null
+          sent_at: string | null
+          service_scope: string | null
+          show_aircraft_block: boolean
+          show_deposit_block: boolean
+          show_line_item_details: boolean
+          show_mission_block: boolean
+          show_route_block: boolean
+          show_tax_line: boolean
           status: string
           subtotal: number
+          superseded_by_quote_id: string | null
+          tail_number: string | null
+          tax_total: number
           total: number
           updated_at: string
+          version_number: number
         }
         Insert: {
+          aircraft_summary?: string | null
+          approved_at?: string | null
           approved_by?: string | null
+          balance_due_timing?: string | null
+          billing_contact_company?: string | null
+          billing_contact_name?: string | null
+          billing_contact_phone?: string | null
+          cc_emails?: string[] | null
           client_id?: string | null
           client_notes?: string | null
+          closing_note?: string | null
+          converted_invoice_id?: string | null
           created_at?: string
           created_by?: string | null
+          deposit_amount?: number
+          deposit_due_date?: string | null
+          deposit_percent?: number | null
+          deposit_required?: boolean
+          deposit_terms?: string | null
+          discount_total?: number
+          expires_at?: string | null
+          footer_note?: string | null
+          group_line_items_by_category?: boolean
           id?: string
           internal_notes?: string | null
+          manual_client_company?: string | null
+          manual_client_email?: string | null
+          manual_client_name?: string | null
+          manual_client_phone?: string | null
           mission_id?: string | null
+          opening_note?: string | null
+          payment_due_date?: string | null
+          payment_instructions?: string | null
+          payment_method_notes?: string | null
+          payment_terms?: string | null
+          pdf_document_id?: string | null
+          pdf_template?: string
+          quote_number?: string | null
+          recipient_email?: string | null
           ref?: string
+          rejected_at?: string | null
+          rejected_by?: string | null
+          requested_timing?: string | null
+          revised_from_quote_id?: string | null
+          revision_reason?: string | null
+          route_summary?: string | null
+          sent_at?: string | null
+          service_scope?: string | null
+          show_aircraft_block?: boolean
+          show_deposit_block?: boolean
+          show_line_item_details?: boolean
+          show_mission_block?: boolean
+          show_route_block?: boolean
+          show_tax_line?: boolean
           status?: string
           subtotal?: number
+          superseded_by_quote_id?: string | null
+          tail_number?: string | null
+          tax_total?: number
           total?: number
           updated_at?: string
+          version_number?: number
         }
-        Update: Partial<Database["public"]["Tables"]["quotes"]["Insert"]>
-        Relationships: []
+        Update: {
+          aircraft_summary?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          balance_due_timing?: string | null
+          billing_contact_company?: string | null
+          billing_contact_name?: string | null
+          billing_contact_phone?: string | null
+          cc_emails?: string[] | null
+          client_id?: string | null
+          client_notes?: string | null
+          closing_note?: string | null
+          converted_invoice_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deposit_amount?: number
+          deposit_due_date?: string | null
+          deposit_percent?: number | null
+          deposit_required?: boolean
+          deposit_terms?: string | null
+          discount_total?: number
+          expires_at?: string | null
+          footer_note?: string | null
+          group_line_items_by_category?: boolean
+          id?: string
+          internal_notes?: string | null
+          manual_client_company?: string | null
+          manual_client_email?: string | null
+          manual_client_name?: string | null
+          manual_client_phone?: string | null
+          mission_id?: string | null
+          opening_note?: string | null
+          payment_due_date?: string | null
+          payment_instructions?: string | null
+          payment_method_notes?: string | null
+          payment_terms?: string | null
+          pdf_document_id?: string | null
+          pdf_template?: string
+          quote_number?: string | null
+          recipient_email?: string | null
+          ref?: string
+          rejected_at?: string | null
+          rejected_by?: string | null
+          requested_timing?: string | null
+          revised_from_quote_id?: string | null
+          revision_reason?: string | null
+          route_summary?: string | null
+          sent_at?: string | null
+          service_scope?: string | null
+          show_aircraft_block?: boolean
+          show_deposit_block?: boolean
+          show_line_item_details?: boolean
+          show_mission_block?: boolean
+          show_route_block?: boolean
+          show_tax_line?: boolean
+          status?: string
+          subtotal?: number
+          superseded_by_quote_id?: string | null
+          tail_number?: string | null
+          tax_total?: number
+          total?: number
+          updated_at?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_converted_invoice_id_fkey"
+            columns: ["converted_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_pdf_document_id_fkey"
+            columns: ["pdf_document_id"]
+            isOneToOne: false
+            referencedRelation: "billing_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_rejected_by_fkey"
+            columns: ["rejected_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_revised_from_quote_id_fkey"
+            columns: ["revised_from_quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_superseded_by_quote_id_fkey"
+            columns: ["superseded_by_quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       thread_members: {
         Row: {
@@ -1177,6 +1727,3060 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["thread_members"]["Insert"]>
         Relationships: []
       }
+      access_request_status: {
+        Row: {
+          approval_stage: Database["public"]["Enums"]["access_request_stage"]
+          request_id: string
+          status: Database["public"]["Enums"]["approval_status"]
+          status_message: string | null
+          status_token: string
+          updated_at: string
+        }
+        Insert: {
+          approval_stage?: Database["public"]["Enums"]["access_request_stage"]
+          request_id: string
+          status?: Database["public"]["Enums"]["approval_status"]
+          status_message?: string | null
+          status_token: string
+          updated_at?: string
+        }
+        Update: {
+          approval_stage?: Database["public"]["Enums"]["access_request_stage"]
+          request_id?: string
+          status?: Database["public"]["Enums"]["approval_status"]
+          status_message?: string | null
+          status_token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_request_status_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: true
+            referencedRelation: "access_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      access_requests: {
+        Row: {
+          admin_notes: string | null
+          approval_stage: Database["public"]["Enums"]["access_request_stage"]
+          assigned_role: string | null
+          business_purpose: string
+          company_name: string | null
+          created_at: string
+          decision_notes: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          denied_at: string | null
+          denied_by: string | null
+          email: string
+          full_name: string
+          id: string
+          is_deleted: boolean
+          last_waitlist_email_sent_at: string | null
+          operational_notes: string | null
+          phone: string | null
+          requested_role: Database["public"]["Enums"]["user_role"]
+          reviewed_at: string | null
+          reviewed_by: string | null
+          stage_updated_at: string
+          status: Database["public"]["Enums"]["approval_status"]
+          status_token: string
+          status_updated_at: string | null
+          status_updated_by: string | null
+          suspended_at: string | null
+          suspended_by: string | null
+          waitlisted_at: string | null
+          waitlisted_by: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          approval_stage?: Database["public"]["Enums"]["access_request_stage"]
+          assigned_role?: string | null
+          business_purpose?: string
+          company_name?: string | null
+          created_at?: string
+          decision_notes?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          denied_at?: string | null
+          denied_by?: string | null
+          email: string
+          full_name: string
+          id?: string
+          is_deleted?: boolean
+          last_waitlist_email_sent_at?: string | null
+          operational_notes?: string | null
+          phone?: string | null
+          requested_role: Database["public"]["Enums"]["user_role"]
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          stage_updated_at?: string
+          status?: Database["public"]["Enums"]["approval_status"]
+          status_token?: string
+          status_updated_at?: string | null
+          status_updated_by?: string | null
+          suspended_at?: string | null
+          suspended_by?: string | null
+          waitlisted_at?: string | null
+          waitlisted_by?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          approval_stage?: Database["public"]["Enums"]["access_request_stage"]
+          assigned_role?: string | null
+          business_purpose?: string
+          company_name?: string | null
+          created_at?: string
+          decision_notes?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          denied_at?: string | null
+          denied_by?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          is_deleted?: boolean
+          last_waitlist_email_sent_at?: string | null
+          operational_notes?: string | null
+          phone?: string | null
+          requested_role?: Database["public"]["Enums"]["user_role"]
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          stage_updated_at?: string
+          status?: Database["public"]["Enums"]["approval_status"]
+          status_token?: string
+          status_updated_at?: string | null
+          status_updated_by?: string | null
+          suspended_at?: string | null
+          suspended_by?: string | null
+          waitlisted_at?: string | null
+          waitlisted_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_requests_deleted_by_fkey"
+            columns: ["deleted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "access_requests_denied_by_fkey"
+            columns: ["denied_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "access_requests_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "access_requests_status_updated_by_fkey"
+            columns: ["status_updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "access_requests_suspended_by_fkey"
+            columns: ["suspended_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "access_requests_waitlisted_by_fkey"
+            columns: ["waitlisted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      billing_document_sequences: {
+        Row: {
+          document_type: string
+          last_number: number
+          period_start: string
+          updated_at: string
+        }
+        Insert: {
+          document_type: string
+          last_number?: number
+          period_start: string
+          updated_at?: string
+        }
+        Update: {
+          document_type?: string
+          last_number?: number
+          period_start?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      billing_documents: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          document_number: string
+          document_type: string
+          emailed_at: string | null
+          emailed_to: string[]
+          file_name: string
+          file_size: number | null
+          generated_at: string
+          generated_by: string | null
+          id: string
+          invoice_id: string | null
+          is_latest: boolean
+          is_locked: boolean
+          mime_type: string
+          payment_id: string | null
+          quote_id: string | null
+          resend_count: number
+          sent_at: string | null
+          status: string
+          storage_bucket: string
+          storage_path: string
+          version_number: number
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          document_number: string
+          document_type: string
+          emailed_at?: string | null
+          emailed_to?: string[]
+          file_name: string
+          file_size?: number | null
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          invoice_id?: string | null
+          is_latest?: boolean
+          is_locked?: boolean
+          mime_type?: string
+          payment_id?: string | null
+          quote_id?: string | null
+          resend_count?: number
+          sent_at?: string | null
+          status?: string
+          storage_bucket?: string
+          storage_path: string
+          version_number?: number
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          document_number?: string
+          document_type?: string
+          emailed_at?: string | null
+          emailed_to?: string[]
+          file_name?: string
+          file_size?: number | null
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          invoice_id?: string | null
+          is_latest?: boolean
+          is_locked?: boolean
+          mime_type?: string
+          payment_id?: string | null
+          quote_id?: string | null
+          resend_count?: number
+          sent_at?: string | null
+          status?: string
+          storage_bucket?: string
+          storage_path?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_documents_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "billing_documents_generated_by_fkey"
+            columns: ["generated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "billing_documents_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "billing_documents_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "billing_documents_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      billing_settings: {
+        Row: {
+          ach_instructions: string | null
+          auto_send_invoice_on_quote_approval: boolean
+          check_instructions: string | null
+          company_address: string | null
+          company_email: string | null
+          company_legal_name: string | null
+          company_name: string
+          company_phone: string | null
+          created_at: string
+          default_deposit_percent: number
+          id: string
+          invoice_disclaimer: string | null
+          invoice_terms: string | null
+          logo_path: string
+          payment_instructions: string | null
+          quote_disclaimer: string | null
+          quote_terms: string | null
+          receipt_disclaimer: string | null
+          tax_rate: number
+          updated_at: string
+          updated_by: string | null
+          wire_instructions: string | null
+        }
+        Insert: {
+          ach_instructions?: string | null
+          auto_send_invoice_on_quote_approval?: boolean
+          check_instructions?: string | null
+          company_address?: string | null
+          company_email?: string | null
+          company_legal_name?: string | null
+          company_name?: string
+          company_phone?: string | null
+          created_at?: string
+          default_deposit_percent?: number
+          id?: string
+          invoice_disclaimer?: string | null
+          invoice_terms?: string | null
+          logo_path?: string
+          payment_instructions?: string | null
+          quote_disclaimer?: string | null
+          quote_terms?: string | null
+          receipt_disclaimer?: string | null
+          tax_rate?: number
+          updated_at?: string
+          updated_by?: string | null
+          wire_instructions?: string | null
+        }
+        Update: {
+          ach_instructions?: string | null
+          auto_send_invoice_on_quote_approval?: boolean
+          check_instructions?: string | null
+          company_address?: string | null
+          company_email?: string | null
+          company_legal_name?: string | null
+          company_name?: string
+          company_phone?: string | null
+          created_at?: string
+          default_deposit_percent?: number
+          id?: string
+          invoice_disclaimer?: string | null
+          invoice_terms?: string | null
+          logo_path?: string
+          payment_instructions?: string | null
+          quote_disclaimer?: string | null
+          quote_terms?: string | null
+          receipt_disclaimer?: string | null
+          tax_rate?: number
+          updated_at?: string
+          updated_by?: string | null
+          wire_instructions?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_subscriptions: {
+        Row: {
+          aircraft_id: string | null
+          amount_cents: number | null
+          annual_price: number
+          billing_cadence: string
+          cancel_at: string | null
+          cancel_at_period_end: boolean
+          canceled_at: string | null
+          client_id: string | null
+          created_at: string
+          created_by: string | null
+          credit_balance: number
+          currency: string
+          current_period_end: string | null
+          current_period_start: string | null
+          custom_description: string | null
+          custom_interval: string | null
+          custom_interval_count: number | null
+          custom_name: string | null
+          custom_price: number | null
+          end_date: string | null
+          ended_at: string | null
+          id: string
+          ignored_at: string | null
+          included_admin_hours: number
+          included_flights: number
+          included_mx_repositions: number
+          is_custom: boolean
+          is_test: boolean
+          monthly_price: number
+          notes: string | null
+          plan_code: string | null
+          plan_id: string | null
+          plan_name: string | null
+          renewal_date: string | null
+          source: string
+          start_date: string
+          status: string
+          stripe_checkout_session_id: string | null
+          stripe_checkout_url: string | null
+          stripe_customer_id: string | null
+          stripe_last_event_at: string | null
+          stripe_last_event_id: string | null
+          stripe_last_event_type: string | null
+          stripe_last_synced_at: string | null
+          stripe_latest_invoice_id: string | null
+          stripe_mode: string | null
+          stripe_payment_status: string | null
+          stripe_price_id: string | null
+          stripe_product_id: string | null
+          stripe_subscription_id: string | null
+          stripe_sync_status: string
+          stripe_sync_warning: string | null
+          tier_id: string | null
+          tier_key: string | null
+          trial_days: number | null
+          trial_end: string | null
+          trial_start: string | null
+          updated_at: string
+        }
+        Insert: {
+          aircraft_id?: string | null
+          amount_cents?: number | null
+          annual_price?: number
+          billing_cadence?: string
+          cancel_at?: string | null
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          credit_balance?: number
+          currency?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          custom_description?: string | null
+          custom_interval?: string | null
+          custom_interval_count?: number | null
+          custom_name?: string | null
+          custom_price?: number | null
+          end_date?: string | null
+          ended_at?: string | null
+          id?: string
+          ignored_at?: string | null
+          included_admin_hours?: number
+          included_flights?: number
+          included_mx_repositions?: number
+          is_custom?: boolean
+          is_test?: boolean
+          monthly_price?: number
+          notes?: string | null
+          plan_code?: string | null
+          plan_id?: string | null
+          plan_name?: string | null
+          renewal_date?: string | null
+          source?: string
+          start_date?: string
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_checkout_url?: string | null
+          stripe_customer_id?: string | null
+          stripe_last_event_at?: string | null
+          stripe_last_event_id?: string | null
+          stripe_last_event_type?: string | null
+          stripe_last_synced_at?: string | null
+          stripe_latest_invoice_id?: string | null
+          stripe_mode?: string | null
+          stripe_payment_status?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          stripe_subscription_id?: string | null
+          stripe_sync_status?: string
+          stripe_sync_warning?: string | null
+          tier_id?: string | null
+          tier_key?: string | null
+          trial_days?: number | null
+          trial_end?: string | null
+          trial_start?: string | null
+          updated_at?: string
+        }
+        Update: {
+          aircraft_id?: string | null
+          amount_cents?: number | null
+          annual_price?: number
+          billing_cadence?: string
+          cancel_at?: string | null
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          credit_balance?: number
+          currency?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          custom_description?: string | null
+          custom_interval?: string | null
+          custom_interval_count?: number | null
+          custom_name?: string | null
+          custom_price?: number | null
+          end_date?: string | null
+          ended_at?: string | null
+          id?: string
+          ignored_at?: string | null
+          included_admin_hours?: number
+          included_flights?: number
+          included_mx_repositions?: number
+          is_custom?: boolean
+          is_test?: boolean
+          monthly_price?: number
+          notes?: string | null
+          plan_code?: string | null
+          plan_id?: string | null
+          plan_name?: string | null
+          renewal_date?: string | null
+          source?: string
+          start_date?: string
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_checkout_url?: string | null
+          stripe_customer_id?: string | null
+          stripe_last_event_at?: string | null
+          stripe_last_event_id?: string | null
+          stripe_last_event_type?: string | null
+          stripe_last_synced_at?: string | null
+          stripe_latest_invoice_id?: string | null
+          stripe_mode?: string | null
+          stripe_payment_status?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          stripe_subscription_id?: string | null
+          stripe_sync_status?: string
+          stripe_sync_warning?: string | null
+          tier_id?: string | null
+          tier_key?: string | null
+          trial_days?: number | null
+          trial_end?: string | null
+          trial_start?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_subscriptions_aircraft_id_fkey"
+            columns: ["aircraft_id"]
+            isOneToOne: false
+            referencedRelation: "aircraft"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_subscriptions_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_subscriptions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_subscriptions_tier_id_fkey"
+            columns: ["tier_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plan_tiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      communication_attachments: {
+        Row: {
+          content_type: string | null
+          created_at: string
+          file_name: string
+          file_size_bytes: number | null
+          id: string
+          message_id: string
+          source: string
+          storage_bucket: string
+          storage_path: string
+          thread_id: string
+          uploaded_by_user_id: string | null
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string
+          file_name: string
+          file_size_bytes?: number | null
+          id?: string
+          message_id: string
+          source: string
+          storage_bucket: string
+          storage_path: string
+          thread_id: string
+          uploaded_by_user_id?: string | null
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string
+          file_name?: string
+          file_size_bytes?: number | null
+          id?: string
+          message_id?: string
+          source?: string
+          storage_bucket?: string
+          storage_path?: string
+          thread_id?: string
+          uploaded_by_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_attachments_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "communication_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_attachments_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "communication_threads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_attachments_uploaded_by_user_id_fkey"
+            columns: ["uploaded_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      communication_audit_log: {
+        Row: {
+          actor_user_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          message_id: string | null
+          metadata: Json
+          thread_id: string | null
+        }
+        Insert: {
+          actor_user_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          message_id?: string | null
+          metadata?: Json
+          thread_id?: string | null
+        }
+        Update: {
+          actor_user_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          message_id?: string | null
+          metadata?: Json
+          thread_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_audit_log_actor_user_id_fkey"
+            columns: ["actor_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_audit_log_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "communication_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_audit_log_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "communication_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      communication_messages: {
+        Row: {
+          bcc_emails: string[]
+          body_html: string | null
+          body_preview: string | null
+          body_text: string | null
+          cc_emails: string[]
+          created_at: string
+          created_by_user_id: string | null
+          delivered_at: string | null
+          direction: string
+          email_category: string | null
+          failed_at: string | null
+          failure_reason: string | null
+          from_email: string | null
+          from_name: string | null
+          id: string
+          in_reply_to: string | null
+          inbound_webhook_event_id: string | null
+          message_type: string
+          provider: string | null
+          provider_message_id: string | null
+          provider_thread_id: string | null
+          public_id: string
+          raw_headers: Json | null
+          raw_payload: Json | null
+          received_at: string | null
+          references_header: string | null
+          reply_to_email: string | null
+          sent_at: string | null
+          sent_by_user_id: string | null
+          status: string
+          subject: string | null
+          template_id: string | null
+          template_name: string | null
+          thread_id: string
+          to_emails: string[]
+          visibility: string
+        }
+        Insert: {
+          bcc_emails?: string[]
+          body_html?: string | null
+          body_preview?: string | null
+          body_text?: string | null
+          cc_emails?: string[]
+          created_at?: string
+          created_by_user_id?: string | null
+          delivered_at?: string | null
+          direction: string
+          email_category?: string | null
+          failed_at?: string | null
+          failure_reason?: string | null
+          from_email?: string | null
+          from_name?: string | null
+          id?: string
+          in_reply_to?: string | null
+          inbound_webhook_event_id?: string | null
+          message_type: string
+          provider?: string | null
+          provider_message_id?: string | null
+          provider_thread_id?: string | null
+          public_id: string
+          raw_headers?: Json | null
+          raw_payload?: Json | null
+          received_at?: string | null
+          references_header?: string | null
+          reply_to_email?: string | null
+          sent_at?: string | null
+          sent_by_user_id?: string | null
+          status?: string
+          subject?: string | null
+          template_id?: string | null
+          template_name?: string | null
+          thread_id: string
+          to_emails?: string[]
+          visibility?: string
+        }
+        Update: {
+          bcc_emails?: string[]
+          body_html?: string | null
+          body_preview?: string | null
+          body_text?: string | null
+          cc_emails?: string[]
+          created_at?: string
+          created_by_user_id?: string | null
+          delivered_at?: string | null
+          direction?: string
+          email_category?: string | null
+          failed_at?: string | null
+          failure_reason?: string | null
+          from_email?: string | null
+          from_name?: string | null
+          id?: string
+          in_reply_to?: string | null
+          inbound_webhook_event_id?: string | null
+          message_type?: string
+          provider?: string | null
+          provider_message_id?: string | null
+          provider_thread_id?: string | null
+          public_id?: string
+          raw_headers?: Json | null
+          raw_payload?: Json | null
+          received_at?: string | null
+          references_header?: string | null
+          reply_to_email?: string | null
+          sent_at?: string | null
+          sent_by_user_id?: string | null
+          status?: string
+          subject?: string | null
+          template_id?: string | null
+          template_name?: string | null
+          thread_id?: string
+          to_emails?: string[]
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_messages_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_messages_sent_by_user_id_fkey"
+            columns: ["sent_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_messages_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "communication_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "communication_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      communication_participants: {
+        Row: {
+          client_id: string | null
+          contact_id: string | null
+          created_at: string
+          crew_id: string | null
+          email: string | null
+          id: string
+          is_primary: boolean
+          name: string | null
+          participant_type: string
+          role_label: string | null
+          thread_id: string
+          user_id: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          crew_id?: string | null
+          email?: string | null
+          id?: string
+          is_primary?: boolean
+          name?: string | null
+          participant_type: string
+          role_label?: string | null
+          thread_id: string
+          user_id?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          crew_id?: string | null
+          email?: string | null
+          id?: string
+          is_primary?: boolean
+          name?: string | null
+          participant_type?: string
+          role_label?: string | null
+          thread_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_participants_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_participants_crew_id_fkey"
+            columns: ["crew_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_participants_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "communication_threads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_participants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      communication_templates: {
+        Row: {
+          active: boolean
+          allowed_roles: string[]
+          body_template_html: string | null
+          body_template_text: string | null
+          category: string
+          created_at: string
+          id: string
+          name: string
+          subject_template: string
+          template_key: string | null
+          updated_at: string
+          variables: Json
+        }
+        Insert: {
+          active?: boolean
+          allowed_roles?: string[]
+          body_template_html?: string | null
+          body_template_text?: string | null
+          category: string
+          created_at?: string
+          id?: string
+          name: string
+          subject_template: string
+          template_key?: string | null
+          updated_at?: string
+          variables?: Json
+        }
+        Update: {
+          active?: boolean
+          allowed_roles?: string[]
+          body_template_html?: string | null
+          body_template_text?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          name?: string
+          subject_template?: string
+          template_key?: string | null
+          updated_at?: string
+          variables?: Json
+        }
+        Relationships: []
+      }
+      communication_threads: {
+        Row: {
+          assigned_to_user_id: string | null
+          channel: string
+          closed_at: string | null
+          created_at: string
+          created_by_user_id: string | null
+          id: string
+          is_archived: boolean
+          last_message_at: string | null
+          priority: string
+          public_id: string
+          related_aircraft_id: string | null
+          related_client_id: string | null
+          related_crew_assignment_id: string | null
+          related_invoice_id: string | null
+          related_quote_id: string | null
+          related_request_id: string | null
+          status: string
+          subject: string | null
+          unread_count: number
+          updated_at: string
+        }
+        Insert: {
+          assigned_to_user_id?: string | null
+          channel?: string
+          closed_at?: string | null
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+          is_archived?: boolean
+          last_message_at?: string | null
+          priority?: string
+          public_id: string
+          related_aircraft_id?: string | null
+          related_client_id?: string | null
+          related_crew_assignment_id?: string | null
+          related_invoice_id?: string | null
+          related_quote_id?: string | null
+          related_request_id?: string | null
+          status?: string
+          subject?: string | null
+          unread_count?: number
+          updated_at?: string
+        }
+        Update: {
+          assigned_to_user_id?: string | null
+          channel?: string
+          closed_at?: string | null
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+          is_archived?: boolean
+          last_message_at?: string | null
+          priority?: string
+          public_id?: string
+          related_aircraft_id?: string | null
+          related_client_id?: string | null
+          related_crew_assignment_id?: string | null
+          related_invoice_id?: string | null
+          related_quote_id?: string | null
+          related_request_id?: string | null
+          status?: string
+          subject?: string | null
+          unread_count?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_threads_assigned_to_user_id_fkey"
+            columns: ["assigned_to_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_threads_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_threads_related_aircraft_id_fkey"
+            columns: ["related_aircraft_id"]
+            isOneToOne: false
+            referencedRelation: "aircraft"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_threads_related_client_id_fkey"
+            columns: ["related_client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_threads_related_crew_assignment_id_fkey"
+            columns: ["related_crew_assignment_id"]
+            isOneToOne: false
+            referencedRelation: "mission_crew_assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_threads_related_invoice_id_fkey"
+            columns: ["related_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_threads_related_quote_id_fkey"
+            columns: ["related_quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_threads_related_request_id_fkey"
+            columns: ["related_request_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      communication_user_state: {
+        Row: {
+          created_at: string
+          id: string
+          last_read_at: string | null
+          muted: boolean
+          pinned: boolean
+          thread_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_read_at?: string | null
+          muted?: boolean
+          pinned?: boolean
+          thread_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_read_at?: string | null
+          muted?: boolean
+          pinned?: boolean
+          thread_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_user_state_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "communication_threads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_user_state_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      compliance_audit_events: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          area: string
+          created_at: string
+          id: string
+          metadata: Json
+          subject_id: string | null
+          subject_type: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          area: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          subject_id?: string | null
+          subject_type?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          area?: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          subject_id?: string | null
+          subject_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_audit_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      compliance_evidence_events: {
+        Row: {
+          acknowledgment_text: string | null
+          actor_email: string | null
+          actor_role: string | null
+          actor_user_id: string | null
+          audience: string
+          consent_categories: Json | null
+          created_at: string
+          event_area: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json
+          policy_key: string | null
+          policy_version: string | null
+          public_id: string
+          related_record_id: string | null
+          related_record_type: string | null
+          session_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          acknowledgment_text?: string | null
+          actor_email?: string | null
+          actor_role?: string | null
+          actor_user_id?: string | null
+          audience: string
+          consent_categories?: Json | null
+          created_at?: string
+          event_area: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json
+          policy_key?: string | null
+          policy_version?: string | null
+          public_id: string
+          related_record_id?: string | null
+          related_record_type?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          acknowledgment_text?: string | null
+          actor_email?: string | null
+          actor_role?: string | null
+          actor_user_id?: string | null
+          audience?: string
+          consent_categories?: Json | null
+          created_at?: string
+          event_area?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json
+          policy_key?: string | null
+          policy_version?: string | null
+          public_id?: string
+          related_record_id?: string | null
+          related_record_type?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_evidence_events_actor_user_id_fkey"
+            columns: ["actor_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consent_events: {
+        Row: {
+          categories: Json
+          consent_source: string
+          consent_version: string
+          created_at: string
+          gpc_enabled: boolean
+          id: string
+          ip_hash: string | null
+          page_path: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          categories?: Json
+          consent_source: string
+          consent_version: string
+          created_at?: string
+          gpc_enabled?: boolean
+          id?: string
+          ip_hash?: string | null
+          page_path?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          categories?: Json
+          consent_source?: string
+          consent_version?: string
+          created_at?: string
+          gpc_enabled?: boolean
+          id?: string
+          ip_hash?: string | null
+          page_path?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      contact_form_submissions: {
+        Row: {
+          acknowledgement: boolean
+          acknowledgment: boolean
+          aircraft: string | null
+          aircraft_category: string | null
+          aircraft_make_model: string | null
+          aircraft_status: string | null
+          aircraft_tail_number: string | null
+          aircraft_type: string | null
+          arrival: string | null
+          arrival_airport: string | null
+          arrival_date: string | null
+          company: string | null
+          confirmation_email_sent: boolean
+          confirmation_email_sent_at: string | null
+          consent: string | null
+          contact_name: string | null
+          created_at: string
+          crew_need: string | null
+          date_time: string | null
+          departure: string | null
+          departure_airport: string | null
+          departure_date: string | null
+          destination: string | null
+          email: string | null
+          email_address: string | null
+          email_error: string | null
+          email_sent: boolean
+          email_sent_at: string | null
+          first_name: string | null
+          form_name: string | null
+          full_name: string | null
+          id: string
+          inquiry_type: string | null
+          internal_email_sent: boolean
+          internal_email_sent_at: string | null
+          ip_address: string | null
+          last_name: string | null
+          marketing_consent: boolean
+          message: string | null
+          mission_type: string | null
+          name: string | null
+          notes: string | null
+          organization: string | null
+          origin: string | null
+          page_url: string | null
+          passenger_context: string | null
+          payload: Json
+          phone: string | null
+          phone_number: string | null
+          preferred_contact_method: string | null
+          privacy_acknowledgement: boolean
+          referrer: string | null
+          request_type: string | null
+          requested_date: string | null
+          requested_time: string | null
+          requester_name: string | null
+          route: string | null
+          service_interest: string | null
+          service_type: string | null
+          sms_consent: boolean
+          source_page: string
+          source_path: string | null
+          source_url: string | null
+          status: string
+          subject: string | null
+          submission_type: string
+          support_type: string | null
+          tail_number: string | null
+          timing: string | null
+          updated_at: string
+          user_agent: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          acknowledgement?: boolean
+          acknowledgment?: boolean
+          aircraft?: string | null
+          aircraft_category?: string | null
+          aircraft_make_model?: string | null
+          aircraft_status?: string | null
+          aircraft_tail_number?: string | null
+          aircraft_type?: string | null
+          arrival?: string | null
+          arrival_airport?: string | null
+          arrival_date?: string | null
+          company?: string | null
+          confirmation_email_sent?: boolean
+          confirmation_email_sent_at?: string | null
+          consent?: string | null
+          contact_name?: string | null
+          created_at?: string
+          crew_need?: string | null
+          date_time?: string | null
+          departure?: string | null
+          departure_airport?: string | null
+          departure_date?: string | null
+          destination?: string | null
+          email?: string | null
+          email_address?: string | null
+          email_error?: string | null
+          email_sent?: boolean
+          email_sent_at?: string | null
+          first_name?: string | null
+          form_name?: string | null
+          full_name?: string | null
+          id?: string
+          inquiry_type?: string | null
+          internal_email_sent?: boolean
+          internal_email_sent_at?: string | null
+          ip_address?: string | null
+          last_name?: string | null
+          marketing_consent?: boolean
+          message?: string | null
+          mission_type?: string | null
+          name?: string | null
+          notes?: string | null
+          organization?: string | null
+          origin?: string | null
+          page_url?: string | null
+          passenger_context?: string | null
+          payload?: Json
+          phone?: string | null
+          phone_number?: string | null
+          preferred_contact_method?: string | null
+          privacy_acknowledgement?: boolean
+          referrer?: string | null
+          request_type?: string | null
+          requested_date?: string | null
+          requested_time?: string | null
+          requester_name?: string | null
+          route?: string | null
+          service_interest?: string | null
+          service_type?: string | null
+          sms_consent?: boolean
+          source_page?: string
+          source_path?: string | null
+          source_url?: string | null
+          status?: string
+          subject?: string | null
+          submission_type?: string
+          support_type?: string | null
+          tail_number?: string | null
+          timing?: string | null
+          updated_at?: string
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          acknowledgement?: boolean
+          acknowledgment?: boolean
+          aircraft?: string | null
+          aircraft_category?: string | null
+          aircraft_make_model?: string | null
+          aircraft_status?: string | null
+          aircraft_tail_number?: string | null
+          aircraft_type?: string | null
+          arrival?: string | null
+          arrival_airport?: string | null
+          arrival_date?: string | null
+          company?: string | null
+          confirmation_email_sent?: boolean
+          confirmation_email_sent_at?: string | null
+          consent?: string | null
+          contact_name?: string | null
+          created_at?: string
+          crew_need?: string | null
+          date_time?: string | null
+          departure?: string | null
+          departure_airport?: string | null
+          departure_date?: string | null
+          destination?: string | null
+          email?: string | null
+          email_address?: string | null
+          email_error?: string | null
+          email_sent?: boolean
+          email_sent_at?: string | null
+          first_name?: string | null
+          form_name?: string | null
+          full_name?: string | null
+          id?: string
+          inquiry_type?: string | null
+          internal_email_sent?: boolean
+          internal_email_sent_at?: string | null
+          ip_address?: string | null
+          last_name?: string | null
+          marketing_consent?: boolean
+          message?: string | null
+          mission_type?: string | null
+          name?: string | null
+          notes?: string | null
+          organization?: string | null
+          origin?: string | null
+          page_url?: string | null
+          passenger_context?: string | null
+          payload?: Json
+          phone?: string | null
+          phone_number?: string | null
+          preferred_contact_method?: string | null
+          privacy_acknowledgement?: boolean
+          referrer?: string | null
+          request_type?: string | null
+          requested_date?: string | null
+          requested_time?: string | null
+          requester_name?: string | null
+          route?: string | null
+          service_interest?: string | null
+          service_type?: string | null
+          sms_consent?: boolean
+          source_page?: string
+          source_path?: string | null
+          source_url?: string | null
+          status?: string
+          subject?: string | null
+          submission_type?: string
+          support_type?: string | null
+          tail_number?: string | null
+          timing?: string | null
+          updated_at?: string
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
+      content_approvals: {
+        Row: {
+          aircraft_photo_allowed: boolean
+          aircraft_tail_allowed: boolean
+          approval_status: string
+          approved_at: string | null
+          approved_by_user_id: string | null
+          company_name_allowed: boolean
+          compensation_or_material_connection: string | null
+          content_text: string | null
+          content_type: string
+          created_at: string
+          display_name_allowed: boolean
+          expires_at: string | null
+          id: string
+          notes: string | null
+          person_or_company_name: string | null
+          release_document_path: string | null
+          updated_at: string
+        }
+        Insert: {
+          aircraft_photo_allowed?: boolean
+          aircraft_tail_allowed?: boolean
+          approval_status?: string
+          approved_at?: string | null
+          approved_by_user_id?: string | null
+          company_name_allowed?: boolean
+          compensation_or_material_connection?: string | null
+          content_text?: string | null
+          content_type: string
+          created_at?: string
+          display_name_allowed?: boolean
+          expires_at?: string | null
+          id?: string
+          notes?: string | null
+          person_or_company_name?: string | null
+          release_document_path?: string | null
+          updated_at?: string
+        }
+        Update: {
+          aircraft_photo_allowed?: boolean
+          aircraft_tail_allowed?: boolean
+          approval_status?: string
+          approved_at?: string | null
+          approved_by_user_id?: string | null
+          company_name_allowed?: boolean
+          compensation_or_material_connection?: string | null
+          content_text?: string | null
+          content_type?: string
+          created_at?: string
+          display_name_allowed?: boolean
+          expires_at?: string | null
+          id?: string
+          notes?: string | null
+          person_or_company_name?: string | null
+          release_document_path?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_approvals_approved_by_user_id_fkey"
+            columns: ["approved_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_activities: {
+        Row: {
+          activity_type: string
+          body: string
+          created_at: string
+          created_by: string | null
+          created_by_email: string | null
+          id: string
+          lead_id: string
+        }
+        Insert: {
+          activity_type?: string
+          body: string
+          created_at?: string
+          created_by?: string | null
+          created_by_email?: string | null
+          id?: string
+          lead_id: string
+        }
+        Update: {
+          activity_type?: string
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          created_by_email?: string | null
+          id?: string
+          lead_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_activities_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "crm_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_leads: {
+        Row: {
+          company: string | null
+          converted_profile_id: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          estimated_value: number | null
+          form_submission_id: string | null
+          full_name: string
+          id: string
+          lost_reason: string | null
+          next_action_at: string | null
+          notes: string | null
+          owner_id: string | null
+          phone: string | null
+          source: string
+          stage: string
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          converted_profile_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          estimated_value?: number | null
+          form_submission_id?: string | null
+          full_name: string
+          id?: string
+          lost_reason?: string | null
+          next_action_at?: string | null
+          notes?: string | null
+          owner_id?: string | null
+          phone?: string | null
+          source?: string
+          stage?: string
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          converted_profile_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          estimated_value?: number | null
+          form_submission_id?: string | null
+          full_name?: string
+          id?: string
+          lost_reason?: string | null
+          next_action_at?: string | null
+          notes?: string | null
+          owner_id?: string | null
+          phone?: string | null
+          source?: string
+          stage?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_leads_converted_profile_id_fkey"
+            columns: ["converted_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_leads_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_leads_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_consents: {
+        Row: {
+          consent_channel: string
+          consent_source: string
+          consent_status: string
+          consent_text: string | null
+          consent_version: string
+          created_at: string
+          email: string
+          id: string
+          phone: string | null
+          related_submission_id: string | null
+          requester_name: string | null
+          source_url: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          consent_channel: string
+          consent_source: string
+          consent_status: string
+          consent_text?: string | null
+          consent_version?: string
+          created_at?: string
+          email: string
+          id?: string
+          phone?: string | null
+          related_submission_id?: string | null
+          requester_name?: string | null
+          source_url?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          consent_channel?: string
+          consent_source?: string
+          consent_status?: string
+          consent_text?: string | null
+          consent_version?: string
+          created_at?: string
+          email?: string
+          id?: string
+          phone?: string | null
+          related_submission_id?: string | null
+          requester_name?: string | null
+          source_url?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_consents_related_submission_id_fkey"
+            columns: ["related_submission_id"]
+            isOneToOne: false
+            referencedRelation: "contact_form_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      network_application_files: {
+        Row: {
+          application_id: string
+          content_type: string | null
+          file_kind: string
+          file_size: number | null
+          id: string
+          original_filename: string
+          storage_bucket: string
+          storage_path: string
+          uploaded_at: string
+        }
+        Insert: {
+          application_id: string
+          content_type?: string | null
+          file_kind: string
+          file_size?: number | null
+          id?: string
+          original_filename: string
+          storage_bucket: string
+          storage_path: string
+          uploaded_at?: string
+        }
+        Update: {
+          application_id?: string
+          content_type?: string | null
+          file_kind?: string
+          file_size?: number | null
+          id?: string
+          original_filename?: string
+          storage_bucket?: string
+          storage_path?: string
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "network_application_files_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "network_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      network_application_status_events: {
+        Row: {
+          application_id: string
+          changed_at: string
+          changed_by: string | null
+          email_error: string | null
+          email_sent: boolean
+          email_sent_at: string | null
+          id: string
+          missing_information: string | null
+          new_status: Database["public"]["Enums"]["network_application_status"]
+          note: string | null
+          other_status_reason: string | null
+          previous_status:
+            | Database["public"]["Enums"]["network_application_status"]
+            | null
+        }
+        Insert: {
+          application_id: string
+          changed_at?: string
+          changed_by?: string | null
+          email_error?: string | null
+          email_sent?: boolean
+          email_sent_at?: string | null
+          id?: string
+          missing_information?: string | null
+          new_status: Database["public"]["Enums"]["network_application_status"]
+          note?: string | null
+          other_status_reason?: string | null
+          previous_status?:
+            | Database["public"]["Enums"]["network_application_status"]
+            | null
+        }
+        Update: {
+          application_id?: string
+          changed_at?: string
+          changed_by?: string | null
+          email_error?: string | null
+          email_sent?: boolean
+          email_sent_at?: string | null
+          id?: string
+          missing_information?: string | null
+          new_status?: Database["public"]["Enums"]["network_application_status"]
+          note?: string | null
+          other_status_reason?: string | null
+          previous_status?:
+            | Database["public"]["Enums"]["network_application_status"]
+            | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "network_application_status_events_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "network_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      network_applications: {
+        Row: {
+          additional_notes: string | null
+          approved_at: string | null
+          approved_by: string | null
+          certificates_held: string[]
+          closest_major_airport: string
+          commute_time: string
+          created_at: string
+          crew_profile_id: string | null
+          crew_user_id: string | null
+          decision_email_sent_at: string | null
+          denial_reason: string | null
+          desired_day_rate: number | null
+          email: string
+          full_name: string
+          home_airport: string
+          id: string
+          import_batch_id: string | null
+          instrument_time: number | null
+          internal_notes: string | null
+          international_ops: boolean | null
+          jet_time: number | null
+          medical_certificate: string
+          medical_expiration_date: string | null
+          minimum_call_time: string
+          missing_information: string | null
+          multi_engine_time: number | null
+          other_status_reason: string | null
+          passport_available: boolean | null
+          phone: string
+          pic_time: number | null
+          position_applied: string | null
+          preferred_assignment_types: string[]
+          ratings_held: string[]
+          reviewed_at: string | null
+          reviewed_by: string | null
+          sic_time: number | null
+          source: string
+          status: Database["public"]["Enums"]["network_application_status"]
+          status_updated_at: string | null
+          status_updated_by: string | null
+          submitted_at: string
+          total_time: number
+          turbine_time: number | null
+          type_ratings: string | null
+          updated_at: string
+          work_authorization_status: string
+        }
+        Insert: {
+          additional_notes?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          certificates_held?: string[]
+          closest_major_airport: string
+          commute_time: string
+          created_at?: string
+          crew_profile_id?: string | null
+          crew_user_id?: string | null
+          decision_email_sent_at?: string | null
+          denial_reason?: string | null
+          desired_day_rate?: number | null
+          email: string
+          full_name: string
+          home_airport: string
+          id?: string
+          import_batch_id?: string | null
+          instrument_time?: number | null
+          internal_notes?: string | null
+          international_ops?: boolean | null
+          jet_time?: number | null
+          medical_certificate: string
+          medical_expiration_date?: string | null
+          minimum_call_time: string
+          missing_information?: string | null
+          multi_engine_time?: number | null
+          other_status_reason?: string | null
+          passport_available?: boolean | null
+          phone: string
+          pic_time?: number | null
+          position_applied?: string | null
+          preferred_assignment_types?: string[]
+          ratings_held?: string[]
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sic_time?: number | null
+          source?: string
+          status?: Database["public"]["Enums"]["network_application_status"]
+          status_updated_at?: string | null
+          status_updated_by?: string | null
+          submitted_at?: string
+          total_time: number
+          turbine_time?: number | null
+          type_ratings?: string | null
+          updated_at?: string
+          work_authorization_status: string
+        }
+        Update: {
+          additional_notes?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          certificates_held?: string[]
+          closest_major_airport?: string
+          commute_time?: string
+          created_at?: string
+          crew_profile_id?: string | null
+          crew_user_id?: string | null
+          decision_email_sent_at?: string | null
+          denial_reason?: string | null
+          desired_day_rate?: number | null
+          email?: string
+          full_name?: string
+          home_airport?: string
+          id?: string
+          import_batch_id?: string | null
+          instrument_time?: number | null
+          internal_notes?: string | null
+          international_ops?: boolean | null
+          jet_time?: number | null
+          medical_certificate?: string
+          medical_expiration_date?: string | null
+          minimum_call_time?: string
+          missing_information?: string | null
+          multi_engine_time?: number | null
+          other_status_reason?: string | null
+          passport_available?: boolean | null
+          phone?: string
+          pic_time?: number | null
+          position_applied?: string | null
+          preferred_assignment_types?: string[]
+          ratings_held?: string[]
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sic_time?: number | null
+          source?: string
+          status?: Database["public"]["Enums"]["network_application_status"]
+          status_updated_at?: string | null
+          status_updated_by?: string | null
+          submitted_at?: string
+          total_time?: number
+          turbine_time?: number | null
+          type_ratings?: string | null
+          updated_at?: string
+          work_authorization_status?: string
+        }
+        Relationships: []
+      }
+      ops_tasks: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          detail: string | null
+          due_at: string | null
+          id: string
+          priority: string
+          related_id: string | null
+          related_label: string | null
+          related_type: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          detail?: string | null
+          due_at?: string | null
+          id?: string
+          priority?: string
+          related_id?: string | null
+          related_label?: string | null
+          related_type?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          detail?: string | null
+          due_at?: string | null
+          id?: string
+          priority?: string
+          related_id?: string | null
+          related_label?: string | null
+          related_type?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_tasks_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_tasks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portal_user_status_events: {
+        Row: {
+          access_request_id: string | null
+          business_purpose: string | null
+          changed_at: string
+          changed_by: string | null
+          id: string
+          new_role: string | null
+          new_status: string
+          note: string | null
+          portal_user_id: string | null
+          previous_role: string | null
+          previous_status: string | null
+        }
+        Insert: {
+          access_request_id?: string | null
+          business_purpose?: string | null
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          new_role?: string | null
+          new_status: string
+          note?: string | null
+          portal_user_id?: string | null
+          previous_role?: string | null
+          previous_status?: string | null
+        }
+        Update: {
+          access_request_id?: string | null
+          business_purpose?: string | null
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          new_role?: string | null
+          new_status?: string
+          note?: string | null
+          portal_user_id?: string | null
+          previous_role?: string | null
+          previous_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portal_user_status_events_access_request_id_fkey"
+            columns: ["access_request_id"]
+            isOneToOne: false
+            referencedRelation: "access_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "portal_user_status_events_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "portal_user_status_events_portal_user_id_fkey"
+            columns: ["portal_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      privacy_requests: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string
+          details: string | null
+          email: string
+          id: string
+          phone: string | null
+          relationship: string | null
+          request_type: string
+          requester_name: string
+          response_notes: string | null
+          source_url: string | null
+          status: string
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          details?: string | null
+          email: string
+          id?: string
+          phone?: string | null
+          relationship?: string | null
+          request_type: string
+          requester_name: string
+          response_notes?: string | null
+          source_url?: string | null
+          status?: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          details?: string | null
+          email?: string
+          id?: string
+          phone?: string | null
+          relationship?: string | null
+          request_type?: string
+          requester_name?: string
+          response_notes?: string | null
+          source_url?: string | null
+          status?: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "privacy_requests_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      public_support_requests: {
+        Row: {
+          aircraft_base: string | null
+          aircraft_display: string | null
+          aircraft_make: string | null
+          aircraft_model: string | null
+          archived_at: string | null
+          arrival_airport: string | null
+          assigned_admin_id: string | null
+          category_details: Json
+          client_id: string | null
+          company_name: string | null
+          created_at: string
+          departure_airport: string | null
+          email: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          mission_id: string
+          operational_summary: string | null
+          phone: string | null
+          portal_account_status: string
+          portal_account_user_id: string | null
+          portal_invitation_sent_at: string | null
+          preferred_contact_method: string | null
+          raw_form: Json
+          requested_service_category: string
+          requested_timing: string | null
+          requester_name: string
+          route: string | null
+          source_form_type: string
+          source_submission_id: string | null
+          tail_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          aircraft_base?: string | null
+          aircraft_display?: string | null
+          aircraft_make?: string | null
+          aircraft_model?: string | null
+          archived_at?: string | null
+          arrival_airport?: string | null
+          assigned_admin_id?: string | null
+          category_details?: Json
+          client_id?: string | null
+          company_name?: string | null
+          created_at?: string
+          departure_airport?: string | null
+          email: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          mission_id: string
+          operational_summary?: string | null
+          phone?: string | null
+          portal_account_status?: string
+          portal_account_user_id?: string | null
+          portal_invitation_sent_at?: string | null
+          preferred_contact_method?: string | null
+          raw_form?: Json
+          requested_service_category: string
+          requested_timing?: string | null
+          requester_name: string
+          route?: string | null
+          source_form_type?: string
+          source_submission_id?: string | null
+          tail_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          aircraft_base?: string | null
+          aircraft_display?: string | null
+          aircraft_make?: string | null
+          aircraft_model?: string | null
+          archived_at?: string | null
+          arrival_airport?: string | null
+          assigned_admin_id?: string | null
+          category_details?: Json
+          client_id?: string | null
+          company_name?: string | null
+          created_at?: string
+          departure_airport?: string | null
+          email?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          mission_id?: string
+          operational_summary?: string | null
+          phone?: string | null
+          portal_account_status?: string
+          portal_account_user_id?: string | null
+          portal_invitation_sent_at?: string | null
+          preferred_contact_method?: string | null
+          raw_form?: Json
+          requested_service_category?: string
+          requested_timing?: string | null
+          requester_name?: string
+          route?: string | null
+          source_form_type?: string
+          source_submission_id?: string | null
+          tail_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_support_requests_assigned_admin_id_fkey"
+            columns: ["assigned_admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_support_requests_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_support_requests_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: true
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_support_requests_portal_account_user_id_fkey"
+            columns: ["portal_account_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_support_requests_source_submission_id_fkey"
+            columns: ["source_submission_id"]
+            isOneToOne: false
+            referencedRelation: "contact_form_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_template_line_items: {
+        Row: {
+          billable: boolean
+          category: string
+          client_visible: boolean
+          cost_type: string | null
+          created_at: string
+          description: string | null
+          id: string
+          included_in_total: boolean
+          quantity: number
+          sort_order: number
+          taxable: boolean
+          template_id: string
+          unit: string | null
+          unit_price: number
+        }
+        Insert: {
+          billable?: boolean
+          category: string
+          client_visible?: boolean
+          cost_type?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          included_in_total?: boolean
+          quantity?: number
+          sort_order?: number
+          taxable?: boolean
+          template_id: string
+          unit?: string | null
+          unit_price?: number
+        }
+        Update: {
+          billable?: boolean
+          category?: string
+          client_visible?: boolean
+          cost_type?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          included_in_total?: boolean
+          quantity?: number
+          sort_order?: number
+          taxable?: boolean
+          template_id?: string
+          unit?: string | null
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_template_line_items_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "quote_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_templates: {
+        Row: {
+          client_notes: string | null
+          created_at: string
+          description: string | null
+          id: string
+          internal_notes: string | null
+          is_active: boolean
+          name: string
+        }
+        Insert: {
+          client_notes?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          internal_notes?: string | null
+          is_active?: boolean
+          name: string
+        }
+        Update: {
+          client_notes?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          internal_notes?: string | null
+          is_active?: boolean
+          name?: string
+        }
+        Relationships: []
+      }
+      stripe_webhook_events: {
+        Row: {
+          created_at: string
+          error: string | null
+          event_type: string | null
+          id: string
+          portal_subscription_id: string | null
+          processed_at: string | null
+          received_at: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_event_id: string
+          stripe_invoice_id: string | null
+          stripe_subscription_id: string | null
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event_type?: string | null
+          id?: string
+          portal_subscription_id?: string | null
+          processed_at?: string | null
+          received_at?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_event_id: string
+          stripe_invoice_id?: string | null
+          stripe_subscription_id?: string | null
+          type: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event_type?: string | null
+          id?: string
+          portal_subscription_id?: string | null
+          processed_at?: string | null
+          received_at?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_event_id?: string
+          stripe_invoice_id?: string | null
+          stripe_subscription_id?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_webhook_events_portal_subscription_id_fkey"
+            columns: ["portal_subscription_id"]
+            isOneToOne: false
+            referencedRelation: "client_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_billing_invoices: {
+        Row: {
+          amount_due: number
+          amount_paid: number
+          client_id: string | null
+          created_at: string
+          currency: string
+          hosted_invoice_url: string | null
+          id: string
+          invoice_pdf_url: string | null
+          paid_at: string | null
+          payment_status: string | null
+          period_end: string | null
+          period_start: string | null
+          status: string | null
+          stripe_customer_id: string | null
+          stripe_invoice_id: string
+          stripe_invoice_number: string | null
+          stripe_subscription_id: string | null
+          subscription_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_due?: number
+          amount_paid?: number
+          client_id?: string | null
+          created_at?: string
+          currency?: string
+          hosted_invoice_url?: string | null
+          id?: string
+          invoice_pdf_url?: string | null
+          paid_at?: string | null
+          payment_status?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_invoice_id: string
+          stripe_invoice_number?: string | null
+          stripe_subscription_id?: string | null
+          subscription_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_due?: number
+          amount_paid?: number
+          client_id?: string | null
+          created_at?: string
+          currency?: string
+          hosted_invoice_url?: string | null
+          id?: string
+          invoice_pdf_url?: string | null
+          paid_at?: string | null
+          payment_status?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_invoice_id?: string
+          stripe_invoice_number?: string | null
+          stripe_subscription_id?: string | null
+          subscription_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_billing_invoices_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_billing_invoices_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "client_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_credits: {
+        Row: {
+          amount: number
+          applied_to_invoice_id: string | null
+          client_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          expires_at: string | null
+          id: string
+          source_type: string
+          subscription_id: string
+        }
+        Insert: {
+          amount?: number
+          applied_to_invoice_id?: string | null
+          client_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          source_type?: string
+          subscription_id: string
+        }
+        Update: {
+          amount?: number
+          applied_to_invoice_id?: string | null
+          client_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          source_type?: string
+          subscription_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_credits_applied_to_invoice_id_fkey"
+            columns: ["applied_to_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_credits_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_credits_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_credits_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "client_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_plan_tiers: {
+        Row: {
+          annual_price: number
+          created_at: string
+          crew_day_rate: number | null
+          id: string
+          included_admin_hours: number
+          included_flights: number
+          included_mx_repositions: number
+          lodging_policy: string | null
+          monthly_price: number
+          name: string
+          plan_id: string
+          priority_level: string | null
+          sort_order: number
+          stripe_annual_price_id: string | null
+          stripe_live_annual_price_id: string | null
+          stripe_live_monthly_price_id: string | null
+          stripe_live_product_id: string | null
+          stripe_monthly_price_id: string | null
+          stripe_product_id: string | null
+          stripe_test_annual_price_id: string | null
+          stripe_test_monthly_price_id: string | null
+          stripe_test_product_id: string | null
+          travel_policy: string | null
+          updated_at: string
+        }
+        Insert: {
+          annual_price?: number
+          created_at?: string
+          crew_day_rate?: number | null
+          id?: string
+          included_admin_hours?: number
+          included_flights?: number
+          included_mx_repositions?: number
+          lodging_policy?: string | null
+          monthly_price?: number
+          name: string
+          plan_id: string
+          priority_level?: string | null
+          sort_order?: number
+          stripe_annual_price_id?: string | null
+          stripe_live_annual_price_id?: string | null
+          stripe_live_monthly_price_id?: string | null
+          stripe_live_product_id?: string | null
+          stripe_monthly_price_id?: string | null
+          stripe_product_id?: string | null
+          stripe_test_annual_price_id?: string | null
+          stripe_test_monthly_price_id?: string | null
+          stripe_test_product_id?: string | null
+          travel_policy?: string | null
+          updated_at?: string
+        }
+        Update: {
+          annual_price?: number
+          created_at?: string
+          crew_day_rate?: number | null
+          id?: string
+          included_admin_hours?: number
+          included_flights?: number
+          included_mx_repositions?: number
+          lodging_policy?: string | null
+          monthly_price?: number
+          name?: string
+          plan_id?: string
+          priority_level?: string | null
+          sort_order?: number
+          stripe_annual_price_id?: string | null
+          stripe_live_annual_price_id?: string | null
+          stripe_live_monthly_price_id?: string | null
+          stripe_live_product_id?: string | null
+          stripe_monthly_price_id?: string | null
+          stripe_product_id?: string | null
+          stripe_test_annual_price_id?: string | null
+          stripe_test_monthly_price_id?: string | null
+          stripe_test_product_id?: string | null
+          travel_policy?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_plan_tiers_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_plans: {
+        Row: {
+          aircraft_category: string | null
+          annual_discount_percent: number
+          base_admin_fee_annual: number
+          base_admin_fee_monthly: number
+          billing_cadence_supported: string[]
+          created_at: string
+          default_terms: string | null
+          description: string | null
+          id: string
+          name: string
+          plan_code: string | null
+          status: string
+          stripe_live_product_id: string | null
+          stripe_product_id: string | null
+          stripe_test_product_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          aircraft_category?: string | null
+          annual_discount_percent?: number
+          base_admin_fee_annual?: number
+          base_admin_fee_monthly?: number
+          billing_cadence_supported?: string[]
+          created_at?: string
+          default_terms?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          plan_code?: string | null
+          status?: string
+          stripe_live_product_id?: string | null
+          stripe_product_id?: string | null
+          stripe_test_product_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          aircraft_category?: string | null
+          annual_discount_percent?: number
+          base_admin_fee_annual?: number
+          base_admin_fee_monthly?: number
+          billing_cadence_supported?: string[]
+          created_at?: string
+          default_terms?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          plan_code?: string | null
+          status?: string
+          stripe_live_product_id?: string | null
+          stripe_product_id?: string | null
+          stripe_test_product_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscription_usage_events: {
+        Row: {
+          client_id: string
+          covered_amount: number
+          covered_quantity: number
+          created_at: string
+          created_by: string | null
+          id: string
+          mission_id: string | null
+          notes: string | null
+          overage_amount: number
+          overage_quantity: number
+          quantity: number
+          subscription_id: string
+          unit: string | null
+          unit_rate: number
+          usage_type: string
+        }
+        Insert: {
+          client_id: string
+          covered_amount?: number
+          covered_quantity?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          mission_id?: string | null
+          notes?: string | null
+          overage_amount?: number
+          overage_quantity?: number
+          quantity?: number
+          subscription_id: string
+          unit?: string | null
+          unit_rate?: number
+          usage_type?: string
+        }
+        Update: {
+          client_id?: string
+          covered_amount?: number
+          covered_quantity?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          mission_id?: string | null
+          notes?: string | null
+          overage_amount?: number
+          overage_quantity?: number
+          quantity?: number
+          subscription_id?: string
+          unit?: string | null
+          unit_rate?: number
+          usage_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_usage_events_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_usage_events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_usage_events_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_usage_events_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "client_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          approval_status: Database["public"]["Enums"]["approval_status"]
+          company_name: string | null
+          created_at: string
+          email: string
+          full_name: string | null
+          home_airport: string | null
+          id: string
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+        }
+        Insert: {
+          approval_status?: Database["public"]["Enums"]["approval_status"]
+          company_name?: string | null
+          created_at?: string
+          email: string
+          full_name?: string | null
+          home_airport?: string | null
+          id: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Update: {
+          approval_status?: Database["public"]["Enums"]["approval_status"]
+          company_name?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          home_airport?: string | null
+          id?: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      website_content_drafts: {
+        Row: {
+          base_git_sha: string | null
+          branch_name: string | null
+          content_json: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          last_preview_url: string | null
+          notes: string | null
+          page_slug: string
+          pull_request_url: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          base_git_sha?: string | null
+          branch_name?: string | null
+          content_json: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          last_preview_url?: string | null
+          notes?: string | null
+          page_slug: string
+          pull_request_url?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          base_git_sha?: string | null
+          branch_name?: string | null
+          content_json?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          last_preview_url?: string | null
+          notes?: string | null
+          page_slug?: string
+          pull_request_url?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      website_publish_events: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_user_id: string | null
+          created_at: string
+          draft_id: string | null
+          error_message: string | null
+          github_branch: string | null
+          github_commit_sha: string | null
+          github_pr_url: string | null
+          id: string
+          page_slug: string
+          result: string | null
+          vercel_preview_url: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          draft_id?: string | null
+          error_message?: string | null
+          github_branch?: string | null
+          github_commit_sha?: string | null
+          github_pr_url?: string | null
+          id?: string
+          page_slug: string
+          result?: string | null
+          vercel_preview_url?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          draft_id?: string | null
+          error_message?: string | null
+          github_branch?: string | null
+          github_commit_sha?: string | null
+          github_pr_url?: string | null
+          id?: string
+          page_slug?: string
+          result?: string | null
+          vercel_preview_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "website_publish_events_draft_id_fkey"
+            columns: ["draft_id"]
+            isOneToOne: false
+            referencedRelation: "website_content_drafts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: { [_ in never]: never }
     Functions: {
@@ -1185,7 +4789,55 @@ export type Database = {
       is_crew_on_mission: { Args: { p_mission: string }; Returns: boolean }
       is_partner_on_mission: { Args: { p_mission: string }; Returns: boolean }
     }
-    Enums: { [_ in never]: never }
+    Enums: {
+      access_request_stage: "submitted" | "in_review" | "decision"
+      approval_status:
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "disabled"
+        | "pending_approval"
+        | "denied"
+        | "waitlisted"
+        | "suspended"
+        | "deleted"
+      assignment_status:
+        | "offered"
+        | "accepted"
+        | "declined"
+        | "completed"
+        | "cancelled"
+      network_application_status:
+        | "awaiting_review"
+        | "in_review"
+        | "additional_information_needed"
+        | "approved"
+        | "denied"
+        | "waitlist"
+        | "other"
+      review_status: "pending_review" | "approved" | "rejected" | "expired"
+      trip_status:
+        | "requested"
+        | "pending_amg_review"
+        | "crew_assigned"
+        | "scheduled"
+        | "completed"
+        | "cancelled"
+      trip_type:
+        | "owner_trip"
+        | "ferry"
+        | "maintenance_flight"
+        | "repositioning"
+        | "contract_pilot"
+        | "delivery_flight"
+        | "other"
+      user_role:
+        | "client_owner"
+        | "crew_pilot"
+        | "maintenance_center"
+        | "broker"
+        | "amg_operations"
+    }
     CompositeTypes: { [_ in never]: never }
   }
 }

@@ -107,7 +107,7 @@ function quotePayload(formData: FormData, settings: Awaited<ReturnType<typeof ge
 }
 
 export async function createQuote(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "quotes.add");
   const db = await createServiceClient();
   const billingDb = db as any;
   const missionId = str(formData, "mission_id") || null;
@@ -199,7 +199,7 @@ export async function createQuote(formData: FormData) {
 }
 
 export async function updateQuoteDraft(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "quotes.edit");
   const db = await createServiceClient();
   const billingDb = db as any;
   const quoteId = str(formData, "quote_id");
@@ -240,7 +240,7 @@ export async function updateQuoteDraft(formData: FormData) {
 }
 
 export async function createQuoteRevision(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "quotes.add");
   const db = await createServiceClient();
   const billingDb = db as any;
   const quoteId = str(formData, "quote_id");
@@ -328,7 +328,7 @@ export async function createQuoteRevision(formData: FormData) {
 }
 
 export async function previewQuotePdf(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "quotes.view");
   const quoteId = str(formData, "quote_id");
   if (!quoteId) redirect("/portal/admin/quotes?error=missing");
   const pdf = await generateAndStoreQuotePdf(quoteId, admin.id);
@@ -336,7 +336,7 @@ export async function previewQuotePdf(formData: FormData) {
 }
 
 export async function sendQuote(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "quotes.edit");
   const db = await createServiceClient();
   const billingDb = db as any;
   const quoteId = str(formData, "quote_id");
@@ -372,7 +372,7 @@ export async function sendQuote(formData: FormData) {
 }
 
 export async function convertApprovedQuoteToInvoice(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "invoices.add");
   const db = await createServiceClient();
   const billingDb = db as any;
   const quoteId = str(formData, "quote_id");
@@ -385,7 +385,7 @@ export async function convertApprovedQuoteToInvoice(formData: FormData) {
 }
 
 export async function respondToQuote(formData: FormData) {
-  const user = await actor(["client", "admin"]);
+  const user = await actor(["client", "admin"], "quotes.edit");
   const db = await createServiceClient();
   const billingDb = db as any;
   const quoteId = str(formData, "quote_id");
@@ -396,22 +396,38 @@ export async function respondToQuote(formData: FormData) {
 
   const { data: quote } = await db
     .from("quotes")
-    .select("ref, mission_id, client_id")
+    .select("ref, mission_id, client_id, status, expires_at")
     .eq("id", quoteId)
     .maybeSingle();
   if (!quote) redirect("/portal/client/quotes?error=notfound");
   if (user.role !== "admin" && quote.client_id !== user.id) {
     redirect("/portal/client/quotes?error=forbidden");
   }
+  // A response is only meaningful on a live, delivered quote. Approving a
+  // rejected/void/converted revision would resurrect stale pricing into a
+  // real invoice; approving past expires_at honors a lapsed offer.
+  if (!["sent", "viewed"].includes(quote.status ?? "")) {
+    redirect(`/portal/client/quotes/${quoteId}?error=locked`);
+  }
+  if (
+    decision === "approved" &&
+    quote.expires_at &&
+    new Date(quote.expires_at).getTime() < Date.now()
+  ) {
+    redirect(`/portal/client/quotes/${quoteId}?error=expired`);
+  }
 
+  const respondedAt = new Date().toISOString();
   await billingDb
     .from("quotes")
     .update({
       status: decision === "approved" ? "approved" : decision === "revision_requested" ? "revision_requested" : "rejected",
       approved_by: decision === "approved" ? user.id : null,
-      approved_at: decision === "approved" ? new Date().toISOString() : null,
-      rejected_by: decision !== "approved" ? user.id : null,
-      rejected_at: decision !== "approved" ? new Date().toISOString() : null,
+      approved_at: decision === "approved" ? respondedAt : null,
+      // Revision requests are not rejections — keep those fields for real
+      // rejections only, or downstream reporting counts revisions as losses.
+      rejected_by: decision === "rejected" ? user.id : null,
+      rejected_at: decision === "rejected" ? respondedAt : null,
     })
     .eq("id", quoteId);
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { EmptyState, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -415,7 +415,7 @@ export default async function AdminMessagesPage({
 }: {
   searchParams: Promise<{ thread?: string; view?: string; q?: string; status?: string; priority?: string; compose?: string; success?: string; error?: string; ref?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "messages");
   const params = await searchParams;
   const provider = emailProviderStatus();
   const query = new URLSearchParams();

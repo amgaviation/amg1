@@ -20,7 +20,7 @@ function arr(formData: FormData, key: string): string[] {
 }
 
 export async function respondToAssignment(formData: FormData) {
-  const user = await actor(["crew"]);
+  const user = await actor(["crew"], "missions.edit");
   const db = await createServiceClient();
   const assignmentId = str(formData, "assignment_id");
   const decision = str(formData, "decision"); // accepted | declined
@@ -77,7 +77,7 @@ export async function respondToAssignment(formData: FormData) {
 }
 
 export async function saveCrewProfile(formData: FormData) {
-  const user = await actor(["crew"]);
+  const user = await actor(["crew"], "crew.edit");
   const db = (await createServiceClient()) as any;
   const weeklyAvailability = {
     monday: formData.getAll("weekly_monday"),
@@ -149,7 +149,7 @@ export async function saveCrewProfile(formData: FormData) {
 }
 
 export async function setAvailabilityStatus(formData: FormData) {
-  const user = await actor(["crew"]);
+  const user = await actor(["crew"], "crew.edit");
   const db = await createServiceClient();
   const status = str(formData, "availability_status") || "available";
   await db.from("crew_profiles").upsert({ id: user.id, availability_status: status });
@@ -158,7 +158,7 @@ export async function setAvailabilityStatus(formData: FormData) {
 }
 
 export async function addAvailabilityWindow(formData: FormData) {
-  const user = await actor(["crew"]);
+  const user = await actor(["crew"], "crew.add");
   const db = await createServiceClient();
   const start = str(formData, "start_date");
   const end = str(formData, "end_date") || start;
@@ -180,7 +180,7 @@ export async function addAvailabilityWindow(formData: FormData) {
 }
 
 export async function removeAvailabilityWindow(formData: FormData) {
-  const user = await actor(["crew"]);
+  const user = await actor(["crew"], "crew.edit");
   const db = await createServiceClient();
   await db
     .from("crew_availability")
@@ -192,7 +192,7 @@ export async function removeAvailabilityWindow(formData: FormData) {
 }
 
 export async function addCredential(formData: FormData) {
-  const user = await actor(["crew"]);
+  const user = await actor(["crew"], "crew.add");
   const db = (await createServiceClient()) as any;
   const type = str(formData, "credential_type");
   if (!type) redirect("/portal/crew/credentials?error=missing");
@@ -305,7 +305,7 @@ export async function addCredential(formData: FormData) {
 }
 
 export async function submitExpense(formData: FormData) {
-  const user = await actor(["crew"]);
+  const user = await actor(["crew"], "expenses.add");
   const db = await createServiceClient();
   const amount = num(formData, "amount");
   const category = str(formData, "category");
@@ -392,7 +392,7 @@ export async function submitExpense(formData: FormData) {
  * approval in the trip's Crew Pool panel.
  */
 export async function requestPoolMission(formData: FormData) {
-  const user = await actor(["crew"]);
+  const user = await actor(["crew"], "missions.edit");
   const db = await createServiceClient();
   const missionId = str(formData, "mission_id");
   const message = str(formData, "message");

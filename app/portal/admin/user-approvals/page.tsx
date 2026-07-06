@@ -13,7 +13,7 @@ import {
 } from "@/lib/portal/constants";
 import { formatDateTime } from "@/lib/portal/format";
 import { listPendingUsers } from "@/lib/portal/queries";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 
 export const metadata = { title: "User Approvals - Admin Portal" };
 
@@ -36,7 +36,7 @@ export default async function AdminUserApprovalsPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "users");
   const params = await searchParams;
   const pendingUsers = await listPendingUsers();
 

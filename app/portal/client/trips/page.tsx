@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import {
   EmptyState,
   FilterTabs,
@@ -13,7 +13,7 @@ import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { listMissionsForClient } from "@/lib/portal/queries";
 import {
-  MISSION_STATUS_LABEL,
+  CLIENT_MISSION_STATUS_LABEL,
   MISSION_STATUS_TONE,
   MISSION_TYPE_LABEL,
   URGENCY_LABEL,
@@ -41,7 +41,7 @@ export default async function ClientTripsPage({
 }: {
   searchParams: Promise<{ success?: string; status?: string }>;
 }) {
-  const user = await requireRole("client");
+  const user = await requireRolePermission("client", "missions");
   const params = await searchParams;
   const missions = await listMissionsForClient(user.id);
   const filtered = params.status
@@ -105,7 +105,7 @@ export default async function ClientTripsPage({
                 trailing={
                   <>
                     <StatusBadge
-                      label={MISSION_STATUS_LABEL[m.status] ?? m.status}
+                      label={CLIENT_MISSION_STATUS_LABEL[m.status] ?? m.status}
                       tone={toneFor(MISSION_STATUS_TONE, m.status)}
                     />
                     {m.urgency !== "standard" ? (

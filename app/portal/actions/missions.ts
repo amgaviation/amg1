@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { logAuditEvent, notifyAdmins, notifyUser } from "@/lib/portal/audit";
-import { MISSION_TYPE_LABEL } from "@/lib/portal/constants";
+import { MISSION_STATUS, MISSION_TYPE_LABEL } from "@/lib/portal/constants";
 import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
 import { recordComplianceEvidence, recordSupportRequestDisclaimerAcknowledgment } from "@/lib/compliance/evidence";
 import { detectProhibitedPaymentData } from "@/lib/compliance/payment-data-guard";
@@ -100,7 +100,7 @@ async function requireMissionAccessForMutation(
 }
 
 export async function createMission(formData: FormData) {
-  const user = await actor(["client", "admin"]);
+  const user = await actor(["client", "admin"], "missions.add");
   const db = await createServiceClient();
 
   const departure = str(formData, "departure_airport").toUpperCase();
@@ -251,12 +251,16 @@ export async function createMission(formData: FormData) {
 }
 
 export async function updateMissionStatus(formData: FormData) {
-  const user = await actor(["admin"]);
+  const user = await actor(["admin"], "missions.edit");
   const db = await createServiceClient();
   const missionId = str(formData, "mission_id");
   const status = str(formData, "status");
   const internalNote = str(formData, "internal_notes");
   if (!missionId || !status) redirect("/portal/admin/mission-control?error=missing");
+  // A malformed submission must not write a status no surface can render.
+  if (!MISSION_STATUS.some((s) => s.value === status)) {
+    redirect("/portal/admin/mission-control?error=invalid-status");
+  }
 
   const patch: Database["public"]["Tables"]["missions"]["Update"] = { status };
   if (internalNote) patch.internal_notes = internalNote;
@@ -310,7 +314,7 @@ export async function updateMissionStatus(formData: FormData) {
 }
 
 export async function updateMissionNotes(formData: FormData) {
-  const user = await actor(["admin"]);
+  const user = await actor(["admin"], "missions.edit");
   const db = await createServiceClient();
   const missionId = str(formData, "mission_id");
   await db
@@ -332,7 +336,7 @@ export async function updateMissionNotes(formData: FormData) {
 }
 
 export async function cancelMission(formData: FormData) {
-  const user = await actor(["client", "admin"]);
+  const user = await actor(["client", "admin"], "missions.edit");
   const db = await createServiceClient();
   const missionId = str(formData, "mission_id");
 
@@ -377,8 +381,82 @@ export async function cancelMission(formData: FormData) {
   redirect(`${base}/${missionId}?success=cancelled`);
 }
 
+/**
+ * Client answers an "Awaiting Client Info" request. The mission moves back to
+ * under_review; the text itself is preserved without a schema change — it is
+ * appended to the client-visible notes, sent to every admin, and recorded in
+ * the audit trail.
+ */
+export async function provideRequestedInfo(formData: FormData) {
+  const user = await actor(["client"], "missions.edit");
+  const db = await createServiceClient();
+  const missionId = str(formData, "mission_id");
+  if (!missionId) redirect("/portal/client/trips?error=missing");
+  const backTo = `/portal/client/trips/${missionId}`;
+
+  const info = str(formData, "info").slice(0, 4000);
+  if (!info) redirect(`${backTo}?error=info-required`);
+  const paymentFindings = detectProhibitedPaymentData({ info });
+  if (paymentFindings.length) {
+    await recordComplianceEvidence({
+      actor: user,
+      audience: user.role,
+      eventType: "no_online_payment_notice_acknowledged",
+      eventArea: "security",
+      policyKey: POLICY_KEYS.noOnlinePayment,
+      policyVersion: COMPLIANCE_POLICY_VERSION,
+      acknowledgmentText: ACKNOWLEDGMENT_TEXT.noOnlinePayment,
+      metadata: { action: "portal_client_info_blocked", fields: paymentFindings.map((finding) => finding.field) },
+    });
+    redirect(`${backTo}?error=payment-data`);
+  }
+
+  const { data: mission } = await db
+    .from("missions")
+    .select("client_id, ref, status, client_notes")
+    .eq("id", missionId)
+    .maybeSingle();
+  if (!mission) redirect("/portal/client/trips?error=notfound");
+  if (user.role !== "admin" && mission.client_id !== user.id) {
+    redirect("/portal/client/trips?error=forbidden");
+  }
+  if (mission.status !== "awaiting_client_info") {
+    redirect(`${backTo}?error=not-awaiting`);
+  }
+
+  const entry = `[Client info · ${new Date().toISOString()}]\n${info}`;
+  await db
+    .from("missions")
+    .update({
+      status: "under_review",
+      client_notes: mission.client_notes ? `${mission.client_notes}\n\n${entry}` : entry,
+    })
+    .eq("id", missionId);
+
+  await logAuditEvent({
+    actor: user,
+    action: "mission_client_info_provided",
+    detail: info.slice(0, 2000),
+    entityType: "mission",
+    entityId: missionId,
+  });
+  await notifyAdmins({
+    title: `Client provided requested info — ${mission.ref}`,
+    body: info,
+    type: "mission_client_info",
+    entityType: "mission",
+    entityId: missionId,
+  });
+
+  revalidatePath(backTo);
+  revalidatePath("/portal/client/trips");
+  revalidatePath(`/portal/admin/trips/${missionId}`);
+  revalidatePath("/portal/admin/mission-control");
+  redirect(`${backTo}?success=info-sent`);
+}
+
 export async function addPassenger(formData: FormData) {
-  const user = await actor(["client", "admin"]);
+  const user = await actor(["client", "admin"], "missions.edit");
   const db = await createServiceClient();
   const missionId = str(formData, "mission_id");
   const fullName = str(formData, "full_name");
@@ -406,7 +484,7 @@ export async function addPassenger(formData: FormData) {
 }
 
 export async function removePassenger(formData: FormData) {
-  const user = await actor(["client", "admin"]);
+  const user = await actor(["client", "admin"], "missions.edit");
   const db = await createServiceClient();
   const id = str(formData, "passenger_id");
   const missionId = str(formData, "mission_id");
@@ -431,7 +509,7 @@ function csvList(formData: FormData, key: string): string[] {
 
 /** Publish/unpublish a mission to the crew Open Pool and set its requirements. */
 export async function updateMissionPool(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "missions.edit");
   const db = await createServiceClient();
   const missionId = str(formData, "mission_id");
   const visible = bool(formData, "pool_visible");
@@ -476,7 +554,7 @@ export async function updateMissionPool(formData: FormData) {
 
 /** Approve or deny a crew member's pool request. Approval creates the assignment. */
 export async function decideCrewPoolRequest(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "missions.edit");
   const db = await createServiceClient();
   const requestId = str(formData, "request_id");
   const decision = str(formData, "decision") === "approved" ? "approved" : "denied";

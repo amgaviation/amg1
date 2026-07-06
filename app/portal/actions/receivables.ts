@@ -11,7 +11,7 @@ const AR_PATH = "/portal/admin/receivables";
 
 /** Re-send an open invoice to the client as a payment reminder. */
 export async function sendInvoiceReminder(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "invoices.edit");
   const invoiceId = str(formData, "invoice_id");
   if (!invoiceId) redirect(`${AR_PATH}?error=missing`);
 
@@ -69,7 +69,7 @@ export async function sendInvoiceReminder(formData: FormData) {
 
 /** Mark an open invoice overdue explicitly (surface it in client + admin views). */
 export async function markInvoiceOverdue(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "invoices.edit");
   const invoiceId = str(formData, "invoice_id");
   if (!invoiceId) redirect(`${AR_PATH}?error=missing`);
 

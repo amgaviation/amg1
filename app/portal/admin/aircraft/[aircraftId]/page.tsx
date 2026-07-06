@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Tone } from "@/lib/portal/constants";
 import { formatDateTime } from "@/lib/portal/format";
 import { listAllAircraft, listAllDocuments, listAllMissions, listClients } from "@/lib/portal/queries";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 
 export const metadata = { title: "Aircraft Detail - Admin Portal" };
 
@@ -57,7 +57,7 @@ export default async function AdminAircraftDetailPage({
   params: Promise<{ aircraftId: string }>;
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "aircraft");
   const { aircraftId } = await params;
   const query = await searchParams;
   const [aircraftRows, clients, missions, documents] = await Promise.all([

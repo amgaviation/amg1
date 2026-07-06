@@ -56,7 +56,7 @@ function guardBatch(ids: string[], backTo: string): void {
 
 /** CRM leads: cheap prospect records. Won/converted leads carry conversion history — skipped. */
 export async function bulkDeleteLeads(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "crm.delete");
   const db = await createServiceClient();
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/crm");
   const ids = formIds(formData);
@@ -107,7 +107,7 @@ export async function bulkDeleteLeads(formData: FormData) {
 
 /** Documents: remove the storage object with the row; credential evidence is protected. */
 export async function bulkDeleteDocuments(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "documents.delete");
   const db = await createServiceClient();
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/documents");
   const ids = formIds(formData);
@@ -186,7 +186,7 @@ const DELETABLE_QUOTE_STATUSES = new Set(["draft", "internal_review"]);
 
 /** Quotes: drafts only. Sent/approved/converted quotes are client-facing — void them instead. */
 export async function bulkDeleteQuotes(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "quotes.delete");
   const db = await createServiceClient();
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/quotes");
   const ids = formIds(formData);
@@ -234,7 +234,7 @@ const DELETABLE_INVOICE_STATUSES = new Set(["draft", "ready_to_send"]);
 
 /** Invoices: only unsent, unpaid, Stripe-untouched drafts. Everything else → void/write off. */
 export async function bulkDeleteInvoices(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "invoices.delete");
   const db = await createServiceClient();
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/invoices");
   const ids = formIds(formData);

@@ -96,7 +96,7 @@ export default function Connect() {
                 <span className="flex-1 truncate text-[13px] text-t1">{kind}</span>
                 <span
                   className={`font-mono text-[10px] uppercase tracking-widecap ${
-                    status === "SCHEDULED" ? "text-instrument" : "text-amber"
+                    status === "SCHEDULED" ? "text-instrument-ink" : "text-amber"
                   }`}
                 >
                   {status}

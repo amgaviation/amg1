@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -37,7 +37,7 @@ export default async function AdminSecurityReviewPage({
 }: {
   searchParams: Promise<{ success?: string; q?: string; role?: string; status?: string; sensitive?: string; invalid_email?: string; pending?: string; page?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "compliance");
   const params = await searchParams;
   const users = await listAllUsers();
   const currentPage = Math.max(1, Number(params.page ?? "1") || 1);

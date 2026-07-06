@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard, DetailRow, Notice } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -19,7 +19,7 @@ export default async function ClientQuoteDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRole("client");
+  const user = await requireRolePermission("client", "quotes");
   const { id } = await params;
   const sp = await searchParams;
   const quote = await getQuoteDetail(id);
@@ -33,6 +33,8 @@ export default async function ClientQuoteDetailPage({
       {sp.success === "approved" ? <Notice tone="success">Quote approved. AMG Operations will continue the required operational review before any request is considered accepted.</Notice> : null}
       {sp.success === "rejected" ? <Notice tone="warn">Quote rejected. AMG Operations will follow up.</Notice> : null}
       {sp.error === "terms" ? <Notice tone="danger">Confirm the quote terms and operational review notice before approving.</Notice> : null}
+      {sp.error === "locked" ? <Notice tone="warn">This quote is no longer open for a response. If anything changed on your side, message AMG Operations and we&apos;ll issue a fresh revision.</Notice> : null}
+      {sp.error === "expired" ? <Notice tone="warn">This quote has expired and can no longer be approved. AMG Operations can reissue current pricing on request.</Notice> : null}
 
       <PageHeader
         eyebrow={quote.ref}

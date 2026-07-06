@@ -133,6 +133,7 @@ export function Combobox({
           role="combobox"
           aria-expanded={open}
           aria-controls={listboxId}
+          aria-activedescendant={open && filtered[active] ? `${listboxId}-${active}` : undefined}
           aria-autocomplete="list"
           aria-required={required || undefined}
           disabled={disabled}
@@ -179,6 +180,7 @@ export function Combobox({
             filtered.map((option, index) => (
               <li
                 key={option.value}
+                id={`${listboxId}-${index}`}
                 role="option"
                 aria-selected={option.value === selected}
                 className={cn(

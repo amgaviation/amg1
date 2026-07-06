@@ -4,7 +4,7 @@ import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import { formatDateTime } from "@/lib/portal/format";
 import { listAllAircraft, listAllDocuments, listAllMissions, listClients } from "@/lib/portal/queries";
 import { dependencyConfirmMessage } from "@/lib/portal/record-safety";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import type { Tone } from "@/lib/portal/constants";
 
 export const metadata = { title: "Aircraft - Admin Portal" };
@@ -52,7 +52,7 @@ export default async function AdminAircraftPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "aircraft");
   const params = await searchParams;
   const [aircraft, clients, missions, documents] = await Promise.all([
     listAllAircraft(),

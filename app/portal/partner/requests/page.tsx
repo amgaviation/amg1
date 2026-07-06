@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -9,7 +9,7 @@ import { formatDateTime, formatMoney } from "@/lib/portal/format";
 export const metadata = { title: "Service Requests - Partner Portal" };
 
 export default async function PartnerRequestsPage() {
-  const user = await requireRole("partner");
+  const user = await requireRolePermission("partner", "partners");
   const assignments = await listPartnerAssignments(user.id);
 
   return (

@@ -1,0 +1,10 @@
+# Agent D — UI/Layout (permissions single pass)
+
+[D-P-01] P0 — TabsContent unmounts inactive panels → save wipes the 3 non-active roles to deny-all. Fix: forceMount + data-[state=inactive]:hidden. (bug — applying)
+[D-P-02] P2 — TabsList clipped at <375px inside overflow-hidden SectionCard. Fix: scroll wrapper. (applying)
+[D-P-03] P2 — module column/header not sticky; horizontal pan loses row identity. Fix: sticky cells. (applying)
+[D-P-04] P2 — SubmitButton confirm dialog: no focus management/Escape/describedby (shared component, affects portal-wide). Fix: partial (escape, initial focus, describedby, restore); full trap logged. (applying)
+[D-P-05] P3 — row borders too faint (border-border/60). Fix: deck-line + row hover. (applying)
+[D-P-06] P3 — no-access page renders two identical "Back to my dashboard" links. Fix: drop duplicate. (applying)
+[D-P-07] P3 — checkbox lacks kit focus ring; read-only state subtle. Fix: focus-visible ring (chip idea logged). (applying)
+[D-P-08] P3 — off-palette accent fallback + redundant dirty-count span. Fix: deck-accent, drop span. (applying)

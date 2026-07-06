@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard, EmptyState, Notice, RecordRow } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { TextAreaField, TextField } from "@/components/portal/ui/fields";
@@ -15,7 +15,7 @@ export default async function ClientMessagesPage({
 }: {
   searchParams: Promise<{ new?: string; error?: string }>;
 }) {
-  const user = await requireRole("client");
+  const user = await requireRolePermission("client", "messages");
   const params = await searchParams;
   const threads = await listThreadsForUser(user.id, false);
 

@@ -193,7 +193,7 @@ async function preventAdminSelfOrLastAdminAction(
 
 // ─── User approvals & role management ───────────────────────────────
 export async function approveUser(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "users.edit");
   const db = await createServiceClient();
   const userId = str(formData, "user_id");
   const role = str(formData, "role");
@@ -274,7 +274,7 @@ export async function approveUser(formData: FormData) {
 }
 
 export async function setUserStatus(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "users.edit");
   const db = await createServiceClient();
   const userId = str(formData, "user_id");
   const status = str(formData, "status");
@@ -385,7 +385,7 @@ export async function denyWaitlistedUser(formData: FormData) {
 }
 
 export async function sendWaitlistContactEmail(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "users.edit");
   const db = await createServiceClient();
   const userId = str(formData, "user_id");
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/waitlist");
@@ -506,7 +506,7 @@ export async function sendWaitlistContactEmail(formData: FormData) {
 }
 
 export async function setUserRole(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "users.edit");
   const db = await createServiceClient();
   const userId = str(formData, "user_id");
   const role = str(formData, "role");
@@ -550,7 +550,7 @@ export async function setUserRole(formData: FormData) {
 }
 
 export async function deactivatePortalUser(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "users.edit");
   const db = await createServiceClient();
   const backTo = "/portal/admin/users";
   const userId = str(formData, "user_id");
@@ -604,7 +604,7 @@ export async function deactivatePortalUser(formData: FormData) {
 }
 
 export async function deletePortalUser(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "users.delete");
   const db = await createServiceClient();
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/users");
   const userId = str(formData, "user_id") || str(formData, "profile_id");
@@ -681,7 +681,7 @@ const BULK_ACCOUNT_BACK_TO: Record<string, string> = {
  * Guard failures skip that row instead of aborting the batch.
  */
 export async function bulkDeletePortalAccounts(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "users.delete");
   const db = await createServiceClient();
   const entity = str(formData, "entity");
   const fallback = BULK_ACCOUNT_BACK_TO[entity] ?? "/portal/admin/users";
@@ -783,7 +783,7 @@ export async function bulkDeletePortalAccounts(formData: FormData) {
  * a crew account, releases that account's identity too.
  */
 export async function bulkDeleteNetworkApplications(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "network_applications.delete");
   const db = await createServiceClient();
   const backTo = safeRedirectPath(
     str(formData, "back_to"),
@@ -854,7 +854,7 @@ export async function bulkDeleteNetworkApplications(formData: FormData) {
 }
 
 export async function createPortalUser(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "users.add");
   const db = await createServiceClient();
   const email = normalizeEmail(formData, "email");
   const fullName = str(formData, "full_name");
@@ -920,7 +920,7 @@ export async function createPortalUser(formData: FormData) {
 }
 
 export async function resendPortalInvitation(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "users.edit");
   const db = await createServiceClient();
   const userId = str(formData, "user_id");
   const backTo = "/portal/admin/users";
@@ -956,7 +956,7 @@ export async function resendPortalInvitation(formData: FormData) {
 }
 
 export async function sendPortalPasswordReset(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "users.edit");
   const db = await createServiceClient();
   const userId = str(formData, "user_id");
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/users");
@@ -993,7 +993,7 @@ export async function sendPortalPasswordReset(formData: FormData) {
 }
 
 export async function changePortalUserPassword(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "users.edit");
   const db = await createServiceClient();
   const userId = str(formData, "user_id");
   const password = str(formData, "password");
@@ -1028,7 +1028,7 @@ export async function changePortalUserPassword(formData: FormData) {
 }
 
 export async function updatePortalUser(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "users.edit");
   const db = await createServiceClient();
   const userId = str(formData, "profile_id");
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/users");
@@ -1104,7 +1104,7 @@ export async function updatePortalUser(formData: FormData) {
 
 // ─── Crew & partner assignment ──────────────────────────────────────
 export async function assignCrew(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "missions.edit");
   const db = await createServiceClient();
   const missionId = str(formData, "mission_id");
   const crewIds = allStrings(formData, "crew_id[]").filter(Boolean);
@@ -1169,7 +1169,7 @@ export async function assignCrew(formData: FormData) {
 }
 
 export async function assignPartner(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "missions.edit");
   const db = await createServiceClient();
   const missionId = str(formData, "mission_id");
   const partnerId = str(formData, "partner_id");
@@ -1230,7 +1230,7 @@ export async function assignPartner(formData: FormData) {
 
 // ─── Aircraft management ────────────────────────────────────────────
 export async function saveAircraft(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "aircraft.edit");
   const db = await createServiceClient();
   const id = str(formData, "aircraft_id");
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/aircraft");
@@ -1313,7 +1313,7 @@ export async function saveAircraft(formData: FormData) {
 }
 
 export async function archiveAircraft(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "aircraft.edit");
   const db = await createServiceClient();
   const id = str(formData, "aircraft_id");
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/aircraft");
@@ -1347,7 +1347,7 @@ export async function archiveAircraft(formData: FormData) {
 
 // ─── Client record management ──────────────────────────────────────
 export async function saveClientRecord(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "clients.edit");
   const db = (await createServiceClient()) as any;
   const id = str(formData, "profile_id");
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/clients");
@@ -1440,7 +1440,7 @@ export async function saveClientRecord(formData: FormData) {
 }
 
 export async function archiveClientRecord(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "clients.edit");
   const db = await createServiceClient();
   const id = str(formData, "profile_id");
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/clients");
@@ -1474,7 +1474,7 @@ export async function archiveClientRecord(formData: FormData) {
 
 // ─── Crew record management ────────────────────────────────────────
 export async function saveCrewRecord(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "crew.edit");
   const db = (await createServiceClient()) as any;
   const id = str(formData, "profile_id");
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/crew");
@@ -1618,7 +1618,7 @@ export async function saveCrewRecord(formData: FormData) {
 }
 
 export async function archiveCrewRecord(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "crew.edit");
   const db = await createServiceClient();
   const id = str(formData, "profile_id");
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/crew");
@@ -1652,7 +1652,7 @@ export async function archiveCrewRecord(formData: FormData) {
 
 // ─── Partner record management ─────────────────────────────────────
 export async function savePartnerRecord(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "partners.edit");
   const db = (await createServiceClient()) as any;
   const id = str(formData, "profile_id");
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/partners");
@@ -1751,7 +1751,7 @@ export async function savePartnerRecord(formData: FormData) {
 }
 
 export async function archivePartnerRecord(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "partners.edit");
   const db = await createServiceClient();
   const id = str(formData, "profile_id");
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/partners");
@@ -1785,7 +1785,7 @@ export async function archivePartnerRecord(formData: FormData) {
 
 // ─── Document review ────────────────────────────────────────────────
 export async function reviewDocument(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "documents.edit");
   const db = (await createServiceClient()) as any;
   const docId = str(formData, "document_id");
   const decision = str(formData, "decision");
@@ -1821,7 +1821,7 @@ export async function reviewDocument(formData: FormData) {
 
 // ─── Expense review ─────────────────────────────────────────────────
 export async function reviewExpense(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "expenses.edit");
   const db = await createServiceClient();
   const expenseId = str(formData, "expense_id");
   const status = str(formData, "status");

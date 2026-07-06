@@ -12,7 +12,7 @@ function appendStatus(base: string, key: string, value: string, referenceId?: st
 }
 
 export async function sendCrewEmailAction(formData: FormData) {
-  const user = await actor(["admin"]);
+  const user = await actor(["admin"], "communications.edit");
   const crewId = str(formData, "crew_id");
   const backTo = safeRedirectPath(str(formData, "back_to"), crewId ? `/portal/admin/crew/${crewId}` : "/portal/admin/crew");
 

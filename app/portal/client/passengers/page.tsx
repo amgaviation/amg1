@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import {
   EmptyState,
   Notice,
@@ -24,7 +24,7 @@ export default async function ClientPassengersPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRole("client");
+  const user = await requireRolePermission("client", "passengers");
   const params = await searchParams;
   const passengers = await listPassengersForOwner(user.id);
   const frequent = passengers.filter((passenger) => passenger.is_frequent);

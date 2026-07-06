@@ -104,9 +104,27 @@ export type PipelineMetrics = {
   wonThisMonth: number;
   wonValueThisMonth: number;
   needsFollowUp: number;
+  staleCount: number;
 };
 
-const OPEN_STAGES = ["new", "contacted", "qualified", "proposal"];
+export const OPEN_STAGES: LeadStage[] = ["new", "contacted", "qualified", "proposal"];
+
+export const STALE_LEAD_DAYS = 14;
+
+/**
+ * A stale lead is an open lead with no upcoming next action (none scheduled, or the
+ * scheduled one already passed) that hasn't been touched in STALE_LEAD_DAYS days.
+ * Complements needsFollowUp, which only catches leads with a past-due next_action_at.
+ */
+export function isLeadStale(
+  lead: Pick<Lead, "stage" | "next_action_at" | "updated_at">,
+  now: Date = new Date()
+): boolean {
+  if (!OPEN_STAGES.includes(lead.stage)) return false;
+  if (lead.next_action_at && lead.next_action_at > now.toISOString()) return false;
+  const cutoff = new Date(now.getTime() - STALE_LEAD_DAYS * 24 * 60 * 60 * 1000);
+  return lead.updated_at < cutoff.toISOString();
+}
 
 export async function getPipelineMetrics(): Promise<PipelineMetrics> {
   const db = (await createServiceClient()) as any;
@@ -123,7 +141,8 @@ export async function getPipelineMetrics(): Promise<PipelineMetrics> {
   const wonThisMonth = rows.filter(
     (row) => row.stage === "won" && row.updated_at >= monthStart.toISOString()
   );
-  const now = new Date().toISOString();
+  const now = new Date();
+  const nowIso = now.toISOString();
 
   return {
     openCount: open.length,
@@ -133,6 +152,7 @@ export async function getPipelineMetrics(): Promise<PipelineMetrics> {
       (sum, row) => sum + Number(row.estimated_value ?? 0),
       0
     ),
-    needsFollowUp: open.filter((row) => row.next_action_at && row.next_action_at <= now).length,
+    needsFollowUp: open.filter((row) => row.next_action_at && row.next_action_at <= nowIso).length,
+    staleCount: rows.filter((row) => isLeadStale(row, now)).length,
   };
 }

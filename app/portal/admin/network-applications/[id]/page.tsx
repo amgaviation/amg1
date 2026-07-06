@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { DetailRow, EmptyState, Notice, PageHeader, SectionCard, Timeline } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -64,7 +64,7 @@ export default async function NetworkApplicationDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ success?: string; error?: string; warning?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "network_applications");
   const { id } = await params;
   const query = await searchParams;
   const application = await getNetworkApplicationDetails(id);

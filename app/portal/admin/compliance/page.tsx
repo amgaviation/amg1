@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { DetailRow, Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { createServiceClient } from "@/lib/supabase/server";
 import { consentScriptRegistry } from "@/lib/compliance/consent";
@@ -34,7 +34,7 @@ async function complianceCounts() {
 }
 
 export default async function AdminCompliancePage() {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "compliance");
   const counts = await complianceCounts();
 
   return (

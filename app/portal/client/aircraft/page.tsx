@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard, EmptyState, DetailRow } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { listAircraftForClient } from "@/lib/portal/queries";
@@ -6,7 +6,7 @@ import { listAircraftForClient } from "@/lib/portal/queries";
 export const metadata = { title: "Aircraft Profiles — Client Portal" };
 
 export default async function ClientAircraftPage() {
-  const user = await requireRole("client");
+  const user = await requireRolePermission("client", "aircraft");
   const aircraft = await listAircraftForClient(user.id);
 
   return (

@@ -44,7 +44,7 @@ function invoiceItemsFromForm(formData: FormData) {
 }
 
 export async function createInvoiceFromQuote(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "invoices.add");
   const db = await createServiceClient();
   const quoteId = str(formData, "quote_id");
   if (!quoteId) redirect("/portal/admin/invoices?error=missing");
@@ -111,7 +111,7 @@ export async function createInvoiceFromQuote(formData: FormData) {
 }
 
 export async function createStandaloneInvoice(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "invoices.add");
   const db = await createServiceClient();
   const billingDb = db as any;
   const clientId = str(formData, "client_id");
@@ -172,7 +172,7 @@ export async function createStandaloneInvoice(formData: FormData) {
 }
 
 export async function updateInvoiceDraft(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "invoices.edit");
   const db = await createServiceClient();
   const billingDb = db as any;
   const invoiceId = str(formData, "invoice_id");
@@ -244,7 +244,7 @@ export async function updateInvoiceDraft(formData: FormData) {
 }
 
 export async function createInvoiceRevision(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "invoices.add");
   const db = await createServiceClient();
   const billingDb = db as any;
   const invoiceId = str(formData, "invoice_id");
@@ -324,7 +324,7 @@ export async function createInvoiceRevision(formData: FormData) {
 }
 
 export async function previewInvoicePdf(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "invoices.view");
   const invoiceId = str(formData, "invoice_id");
   if (!invoiceId) redirect("/portal/admin/invoices?error=missing");
   const pdf = await generateAndStoreInvoicePdf(invoiceId, admin.id);
@@ -332,7 +332,7 @@ export async function previewInvoicePdf(formData: FormData) {
 }
 
 export async function sendInvoicePdf(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "invoices.edit");
   const db = await createServiceClient();
   const billingDb = db as any;
   const invoiceId = str(formData, "invoice_id");
@@ -369,7 +369,7 @@ export async function sendInvoicePdf(formData: FormData) {
 }
 
 export async function recordInvoicePayment(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "invoices.edit");
   const db = await createServiceClient();
   const billingDb = db as any;
   const invoiceId = str(formData, "invoice_id");
@@ -472,7 +472,7 @@ export async function recordInvoicePayment(formData: FormData) {
 }
 
 export async function updateInvoiceStatus(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "invoices.edit");
   const db = await createServiceClient();
   const billingDb = db as any;
   const invoiceId = str(formData, "invoice_id");
@@ -502,38 +502,10 @@ export async function updateInvoiceStatus(formData: FormData) {
       console.error("[billing] failed to email invoice PDF after status update", invoiceId, error);
     });
   }
-  if (invoice.client_id && status === "paid" && Number(invoice.amount_due ?? 0) > 0) {
-    const amount = Number(invoice.amount_due ?? 0);
-    const paidTotal = Number(invoice.amount_paid ?? 0) + amount;
-    const receiptNumber = await nextBillingDocumentNumber("receipt");
-    const { data: payment } = await billingDb
-      .from("payments")
-      .insert({
-        invoice_id: invoiceId,
-        amount,
-        payment_method: "manual",
-        payment_reference: "Marked paid in admin portal",
-        receipt_number: receiptNumber,
-        notes: str(formData, "internal_notes") || null,
-        recorded_by: admin.id,
-        status: "recorded",
-      })
-      .select("id")
-      .single();
-    await billingDb
-      .from("invoices")
-      .update({
-        amount_paid: paidTotal,
-        amount_due: 0,
-        paid_at: new Date().toISOString(),
-      })
-      .eq("id", invoiceId);
-    if (payment?.id) {
-      await emailReceiptPdf(payment.id, admin.id).catch((error) => {
-        console.error("[billing] failed to email paid-status receipt PDF", payment.id, error);
-      });
-    }
-  }
+  // No mark-paid shortcut here: status === "paid" is rejected up front
+  // (payment-required guard) — payments are recorded only through
+  // recordInvoicePayment or the Stripe webhook, which both carry the full
+  // audit + compliance trail.
   revalidatePath(`/portal/admin/invoices/${invoiceId}`);
   revalidatePath("/portal/admin/invoices");
   revalidatePath("/portal/client/billing");
@@ -541,7 +513,7 @@ export async function updateInvoiceStatus(formData: FormData) {
 }
 
 export async function addExpenseToInvoice(formData: FormData) {
-  const admin = await actor(["admin"]);
+  const admin = await actor(["admin"], "invoices.edit");
   const db = await createServiceClient();
   const expenseId = str(formData, "expense_id");
   const invoiceId = str(formData, "invoice_id");

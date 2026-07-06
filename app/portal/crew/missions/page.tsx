@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard, EmptyState, Notice } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -109,7 +109,7 @@ export default async function CrewMissionsPage({
 }: {
   searchParams: Promise<{ pool?: string; success?: string; error?: string }>;
 }) {
-  const user = await requireRole("crew");
+  const user = await requireRolePermission("crew", "missions");
   const params = await searchParams;
   const poolView = params.pool === "open";
   const [myMissions, openPool] = await Promise.all([

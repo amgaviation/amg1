@@ -14,6 +14,8 @@ export default async function PartnerProfilePage({
 }: {
   searchParams: Promise<{ success?: string; accountSuccess?: string; accountError?: string }>;
 }) {
+  // Role gate only (no module perm): /portal/partner/settings re-exports this
+  // page, and a partner's own account surface must never be permission-locked.
   const user = await requireRole("partner");
   const params = await searchParams;
   const profile = await getPartnerProfile(user.id);
