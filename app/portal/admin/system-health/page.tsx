@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { createServiceClient } from "@/lib/supabase/server";
 import { DetailRow, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 
@@ -46,7 +46,7 @@ async function getHealth() {
 }
 
 export default async function AdminSystemHealthPage() {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "settings");
   const health = await getHealth();
   const commit = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? "local";
   const environment = process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? "unknown";

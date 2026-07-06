@@ -28,6 +28,12 @@ export default async function RolePermissionsPage({
         <Notice tone="success">Permissions saved. Changes apply to every portal session immediately.</Notice>
       ) : null}
       {params.success === "no-changes" ? <Notice tone="info">No permission changes to save.</Notice> : null}
+      {params.success === "saved-audit-failed" ? (
+        <Notice tone="warn">
+          Permissions saved and active, but the audit-log entry could not be written. Re-save to
+          retry, or note this change manually for the compliance record.
+        </Notice>
+      ) : null}
       {params.error === "super-admin-only" ? (
         <Notice tone="danger">Only the Super Admin can change role permissions.</Notice>
       ) : null}
@@ -47,6 +53,11 @@ export default async function RolePermissionsPage({
           <p>
             The Super Admin always has full access and never appears here, so governance can never be
             locked out. Ownership rules (own records only) still apply on top of these switches.
+          </p>
+          <p>
+            Saving applies to all active portal sessions immediately — there is no preview. Removing
+            View from the AMG Operations row hides that area from every admin; the Super Admin can
+            restore access here or with Restore defaults.
           </p>
         </div>
         <PermissionsMatrix initial={initial} canEdit={canEdit} action={saveRolePermissions} />

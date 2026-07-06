@@ -36,26 +36,25 @@ function rowToFlags(row: RolePermissionRow): ActionFlags {
 
 /**
  * Load every role_permissions row into a role → module → flags map.
- * Returns null when the table is unreachable (missing migration, no service
- * key) so callers fall back to the code defaults instead of failing.
+ * Throws when the table is unreachable (missing migration, no service key) —
+ * a throw is never written to the Data Cache, so one failed read can't pin
+ * "no custom permissions" for the whole revalidate window.
  */
-async function fetchPermissionMatrix(): Promise<PermissionMatrix | null> {
-  try {
-    const supabase = await createServiceClient();
-    const { data, error } = await supabase
-      .from("role_permissions")
-      .select("role, module, can_view, can_add, can_edit, can_delete");
-    if (error || !data) return null;
-
-    const matrix: PermissionMatrix = { client: {}, crew: {}, partner: {}, admin: {} };
-    for (const row of data as RolePermissionRow[]) {
-      if (!isMatrixRole(row.role) || !isPermissionModule(row.module)) continue;
-      matrix[row.role][row.module] = rowToFlags(row);
-    }
-    return matrix;
-  } catch {
-    return null;
+async function fetchPermissionMatrix(): Promise<PermissionMatrix> {
+  const supabase = await createServiceClient();
+  const { data, error } = await supabase
+    .from("role_permissions")
+    .select("role, module, can_view, can_add, can_edit, can_delete");
+  if (error || !data) {
+    throw new Error(`role_permissions read failed: ${error?.message ?? "no data"}`);
   }
+
+  const matrix: PermissionMatrix = { client: {}, crew: {}, partner: {}, admin: {} };
+  for (const row of data as RolePermissionRow[]) {
+    if (!isMatrixRole(row.role) || !isPermissionModule(row.module)) continue;
+    matrix[row.role][row.module] = rowToFlags(row);
+  }
+  return matrix;
 }
 
 const loadPermissionMatrix = unstable_cache(fetchPermissionMatrix, ["role-permissions-matrix"], {
@@ -63,10 +62,19 @@ const loadPermissionMatrix = unstable_cache(fetchPermissionMatrix, ["role-permis
   revalidate: 300,
 });
 
+/** Cached matrix, or null for this request only when the DB is unreachable. */
+async function safeLoadPermissionMatrix(): Promise<PermissionMatrix | null> {
+  try {
+    return await loadPermissionMatrix();
+  } catch {
+    return null;
+  }
+}
+
 /** Effective flags for one role/module: DB row → code default → deny. */
 export async function effectiveFlags(role: PortalRole, module: PermissionModule): Promise<ActionFlags> {
   if (role === "super_admin") return { view: true, add: true, edit: true, delete: true };
-  const matrix = await loadPermissionMatrix();
+  const matrix = await safeLoadPermissionMatrix();
   const row = isMatrixRole(role) ? matrix?.[role]?.[module] : undefined;
   return row ?? defaultFlags(role, module);
 }
@@ -89,7 +97,7 @@ export async function can(
 export async function permissionsForRole(
   role: PortalRole
 ): Promise<Record<PermissionModule, ActionFlags>> {
-  const matrix = role === "super_admin" ? null : await loadPermissionMatrix();
+  const matrix = role === "super_admin" ? null : await safeLoadPermissionMatrix();
   const result = {} as Record<PermissionModule, ActionFlags>;
   for (const module of PERMISSION_MODULE_KEYS) {
     if (role === "super_admin") {

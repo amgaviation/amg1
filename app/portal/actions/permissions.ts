@@ -3,7 +3,6 @@
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
-import { logAuditEvent } from "@/lib/portal/audit";
 import { ROLE_PERMISSIONS_CACHE_TAG } from "@/lib/portal/permissions";
 import {
   DEFAULT_PERMISSIONS,
@@ -46,8 +45,8 @@ export async function saveRolePermissions(formData: FormData) {
   const user = await actor();
   if (user.role !== "super_admin") redirect(`${PAGE}?error=super-admin-only`);
 
-  const desired: Matrix =
-    formData.get("reset") === "defaults" ? DEFAULT_PERMISSIONS : matrixFromForm(formData);
+  const isReset = formData.get("reset") === "defaults";
+  const desired: Matrix = isReset ? DEFAULT_PERMISSIONS : matrixFromForm(formData);
 
   const db = await createServiceClient();
   const { data: existingRows, error: readError } = await db
@@ -101,18 +100,23 @@ export async function saveRolePermissions(formData: FormData) {
     redirect(`${PAGE}?error=save-failed`);
   }
 
-  const summary =
-    changes.length > 40
-      ? `${changes.slice(0, 40).join("; ")}; … and ${changes.length - 40} more`
-      : changes.join("; ");
-  await logAuditEvent({
-    actor: user,
-    action: "role_permissions_updated",
-    detail: `${changes.length} permission cell(s) changed: ${summary}`,
-    entityType: "role_permissions",
+  // Privilege changes need a complete, verifiable trail: record every
+  // changed cell (no truncation), distinguish a bulk reset from a manual
+  // edit, and surface an audit-write failure instead of swallowing it.
+  const { error: auditError } = await db.from("audit_events").insert({
+    actor_id: user.id,
+    actor_email: user.email,
+    actor_role: user.role,
+    action: isReset ? "role_permissions_reset_to_defaults" : "role_permissions_updated",
+    detail: `${changes.length} permission cell(s) changed: ${changes.join("; ")}`,
+    entity_type: "role_permissions",
+    entity_id: null,
   });
+  if (auditError) {
+    console.error("[permissions] audit write failed after save", auditError);
+  }
 
   updateTag(ROLE_PERMISSIONS_CACHE_TAG);
   revalidatePath(PAGE);
-  redirect(`${PAGE}?success=saved`);
+  redirect(`${PAGE}?success=${auditError ? "saved-audit-failed" : "saved"}`);
 }

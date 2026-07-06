@@ -21,24 +21,19 @@ export async function RolePortalLayout({
   const user = await getSessionUser();
   if (!user) return <>{children}</>;
 
-  let unread = 0;
-  try {
-    unread = await countUnread(user.id);
-  } catch {
-    unread = 0;
-  }
-
-  // Nav filtering by the role-permission matrix. Undefined on failure so the
-  // shell fails open (chrome only — pages still enforce).
-  let moduleView: Record<string, boolean> | undefined;
-  try {
-    const perms = await permissionsForRole(user.role);
-    moduleView = Object.fromEntries(
-      Object.entries(perms).map(([moduleKey, flags]) => [moduleKey, flags.view])
-    );
-  } catch {
-    moduleView = undefined;
-  }
+  // Unread badge and nav filtering (role-permission matrix view flags) are
+  // independent — resolve them concurrently. Both fail open: the shell is
+  // chrome only, pages and actions enforce.
+  const [unread, moduleView] = await Promise.all([
+    countUnread(user.id).catch(() => 0),
+    permissionsForRole(user.role)
+      .then((perms) =>
+        Object.fromEntries(
+          Object.entries(perms).map(([moduleKey, flags]) => [moduleKey, flags.view])
+        )
+      )
+      .catch(() => undefined),
+  ]);
 
   return (
     <PortalShell role={role} user={user} unread={unread} moduleView={moduleView}>

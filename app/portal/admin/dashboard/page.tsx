@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
+import { permissionsForRole } from "@/lib/portal/permissions";
 import { ProfileSetupNotice } from "@/components/portal/profile-setup-notice";
 import {
   EmptyState,
@@ -28,13 +29,17 @@ const ACTIVE_MISSION_STATUSES = MISSION_FLOW_STAGES.flatMap((stage) => stage.sta
 
 export default async function AdminDashboardPage() {
   const user = await requireRole("admin");
+  // The Command Center mirrors the permission matrix: widgets, counts, and
+  // quick links for a module the admin role can't view are omitted — the nav
+  // hides them, so the landing page must not dead-end into them either.
+  const perms = await permissionsForRole(user.role);
   const [metrics, missions, pendingUsers, recentSubmissions, myTasks, pipeline] =
     await Promise.all([
       getAdminMetrics(),
-      listAllMissions(),
-      listPendingUsers(),
-      listFormSubmissions({ status: "new" }),
-      listMyOpenTasks(user.id),
+      perms.missions.view ? listAllMissions() : [],
+      perms.users.view ? listPendingUsers() : [],
+      perms.form_submissions.view ? listFormSubmissions({ status: "new" }) : [],
+      perms.tasks.view ? listMyOpenTasks(user.id) : [],
       getPipelineMetrics(),
     ]);
 
@@ -56,53 +61,71 @@ export default async function AdminDashboardPage() {
     .slice(0, 3);
 
   const flowStages = [
-    ...MISSION_FLOW_STAGES.map((stage) => ({
-      key: stage.key,
-      label: stage.label,
-      count: missions.filter((m) => stage.statuses.includes(m.status)).length,
-      href: `/portal/admin/trips?status=${stage.statuses.join(",")}`,
-    })),
-    {
-      key: "billing",
-      label: "Billing",
-      count: metrics.openInvoices,
-      href: "/portal/admin/invoices",
-    },
+    ...(perms.missions.view
+      ? MISSION_FLOW_STAGES.map((stage) => ({
+          key: stage.key,
+          label: stage.label,
+          count: missions.filter((m) => stage.statuses.includes(m.status)).length,
+          href: `/portal/admin/trips?status=${stage.statuses.join(",")}`,
+        }))
+      : []),
+    ...(perms.invoices.view
+      ? [
+          {
+            key: "billing",
+            label: "Billing",
+            count: metrics.openInvoices,
+            href: "/portal/admin/invoices",
+          },
+        ]
+      : []),
   ];
 
   // Everything that needs a human decision today, one strip, worst first.
   const actionQueue = [
-    metrics.submittedMissions > 0 && {
-      href: "/portal/admin/trips?status=submitted",
-      count: metrics.submittedMissions,
-      label: "Unreviewed requests",
-    },
-    metrics.pendingUsers > 0 && {
-      href: "/portal/admin/user-approvals",
-      count: metrics.pendingUsers,
-      label: "User approvals",
-    },
-    metrics.newFormSubmissions > 0 && {
-      href: "/portal/admin/form-submissions?status=new",
-      count: metrics.newFormSubmissions,
-      label: "New submissions",
-    },
-    metrics.pendingDocuments > 0 && {
-      href: "/portal/admin/documents?status=pending_review",
-      count: metrics.pendingDocuments,
-      label: "Document reviews",
-    },
-    metrics.pendingExpenses > 0 && {
-      href: "/portal/admin/expenses?status=submitted",
-      count: metrics.pendingExpenses,
-      label: "Expense reviews",
-    },
-    metrics.subscriptionOverages > 0 && {
-      href: "/portal/admin/subscriptions?view=overages",
-      count: metrics.subscriptionOverages,
-      label: "Subscription overages",
-    },
+    perms.missions.view &&
+      metrics.submittedMissions > 0 && {
+        href: "/portal/admin/trips?status=submitted",
+        count: metrics.submittedMissions,
+        label: "Unreviewed requests",
+      },
+    perms.users.view &&
+      metrics.pendingUsers > 0 && {
+        href: "/portal/admin/user-approvals",
+        count: metrics.pendingUsers,
+        label: "User approvals",
+      },
+    perms.form_submissions.view &&
+      metrics.newFormSubmissions > 0 && {
+        href: "/portal/admin/form-submissions?status=new",
+        count: metrics.newFormSubmissions,
+        label: "New submissions",
+      },
+    perms.documents.view &&
+      metrics.pendingDocuments > 0 && {
+        href: "/portal/admin/documents?status=pending_review",
+        count: metrics.pendingDocuments,
+        label: "Document reviews",
+      },
+    perms.expenses.view &&
+      metrics.pendingExpenses > 0 && {
+        href: "/portal/admin/expenses?status=submitted",
+        count: metrics.pendingExpenses,
+        label: "Expense reviews",
+      },
+    perms.subscriptions.view &&
+      metrics.subscriptionOverages > 0 && {
+        href: "/portal/admin/subscriptions?view=overages",
+        count: metrics.subscriptionOverages,
+        label: "Subscription overages",
+      },
   ].filter(Boolean) as { href: string; count: number; label: string }[];
+
+  const headerCounts = [
+    perms.missions.view ? `${metrics.activeMissions} active` : null,
+    perms.invoices.view ? `${metrics.openInvoices} open invoices` : null,
+    perms.crm.view ? `${pipeline.openCount ?? 0} open leads` : null,
+  ].filter(Boolean);
 
   return (
     <>
@@ -112,23 +135,30 @@ export default async function AdminDashboardPage() {
         <div className="min-w-0">
           <p className="deck-eyebrow">AMG Operations</p>
           <h1 className="deck-title mt-2 text-[1.65rem] sm:text-[2rem]">Command Center</h1>
-          <p className="deck-mono mt-2.5 !text-[0.8rem] text-[var(--deck-text-2)]">
-            {metrics.activeMissions} active · {metrics.openInvoices} open invoices · {pipeline.openCount ?? 0} open leads
-          </p>
+          {headerCounts.length > 0 ? (
+            <p className="deck-mono mt-2.5 !text-[0.8rem] text-[var(--deck-text-2)]">
+              {headerCounts.join(" · ")}
+            </p>
+          ) : null}
         </div>
         <div data-portal-action-bar className="flex flex-wrap items-center gap-2">
-          <Button asChild variant="outline" size="sm">
-            <Link href="/portal/admin/mission-control">Mission Control</Link>
-          </Button>
-          <Button asChild size="sm">
-            <Link href="/portal/admin/quotes/new">New Quote</Link>
-          </Button>
+          {perms.missions.view ? (
+            <Button asChild variant="outline" size="sm">
+              <Link href="/portal/admin/mission-control">Mission Control</Link>
+            </Button>
+          ) : null}
+          {perms.quotes.add ? (
+            <Button asChild size="sm">
+              <Link href="/portal/admin/quotes/new">New Quote</Link>
+            </Button>
+          ) : null}
         </div>
       </div>
 
       {/* Mission flow band — the pipeline the whole portal is organized around.
           On phones it becomes one horizontal scroll strip so the stage arrows
           keep their meaning instead of wrapping into ragged rows. */}
+      {flowStages.length > 0 ? (
       <div className="deck-card deck-scroll-x flex items-stretch overflow-x-auto sm:flex-wrap sm:overflow-hidden">
         {flowStages.map((stage, index) => (
           <div key={stage.key} className="flex w-[9rem] flex-none items-center sm:w-auto sm:min-w-[9rem] sm:flex-1">
@@ -148,6 +178,7 @@ export default async function AdminDashboardPage() {
           </div>
         ))}
       </div>
+      ) : null}
 
       {/* Action queue */}
       {actionQueue.length > 0 ? (

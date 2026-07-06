@@ -52,6 +52,12 @@ export function PermissionsMatrix({
     return count;
   }, [matrix, initial]);
 
+  // Clearing View on governance-critical modules for the Operations role
+  // locks every admin out of that surface at once — make Save confirm it.
+  const criticalCleared = (["users", "settings"] as PermissionModule[]).filter(
+    (m) => initial.admin[m].view && !matrix.admin[m].view
+  );
+
   function toggle(role: MatrixRole, module: PermissionModule, actionKey: PermissionAction, value: boolean) {
     setMatrix((prev) => {
       const flags = { ...prev[role][module], [actionKey]: value };
@@ -68,20 +74,30 @@ export function PermissionsMatrix({
   return (
     <form action={action} className="grid gap-4">
       <Tabs defaultValue="client">
-        <TabsList>
-          {MATRIX_ROLES.map((role) => (
-            <TabsTrigger key={role} value={role}>
-              {ROLE_TAB_LABELS[role]}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div className="-mx-1 overflow-x-auto px-1">
+          <TabsList>
+            {MATRIX_ROLES.map((role) => (
+              <TabsTrigger key={role} value={role} className="shrink-0">
+                {ROLE_TAB_LABELS[role]}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
         {MATRIX_ROLES.map((role) => (
-          <TabsContent key={role} value={role}>
+          // forceMount keeps every role's checkboxes in the DOM: native form
+          // submission only serializes mounted inputs, and the server treats
+          // a missing cell as false — an unmounted tab would be wiped on save.
+          <TabsContent
+            key={role}
+            value={role}
+            forceMount
+            className="data-[state=inactive]:hidden"
+          >
             <div className="overflow-x-auto">
               <table className="w-full min-w-[36rem] text-sm">
                 <thead>
-                  <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
-                    <th className="py-2 pr-4 font-medium">Module</th>
+                  <tr className="border-b border-[var(--deck-line)] text-left text-xs uppercase tracking-wide text-muted-foreground">
+                    <th className="sticky left-0 z-10 bg-[var(--deck-panel)] py-2 pr-4 font-medium">Module</th>
                     {PERMISSION_ACTIONS.map((a) => (
                       <th key={a} className="px-3 py-2 text-center font-medium">
                         {PERMISSION_ACTION_LABELS[a]}
@@ -91,8 +107,11 @@ export function PermissionsMatrix({
                 </thead>
                 <tbody>
                   {PERMISSION_MODULES.map(({ key, label, description }) => (
-                    <tr key={key} className="border-b border-border/60 last:border-b-0">
-                      <td className="py-2.5 pr-4">
+                    <tr
+                      key={key}
+                      className="border-b border-[var(--deck-line)] last:border-b-0 hover:bg-[var(--deck-row-hover)]"
+                    >
+                      <td className="sticky left-0 z-10 bg-[var(--deck-panel)] py-2.5 pr-4">
                         <div className="font-medium text-foreground">{label}</div>
                         <div className="text-xs text-muted-foreground">{description}</div>
                       </td>
@@ -105,7 +124,7 @@ export function PermissionsMatrix({
                             disabled={!canEdit}
                             onChange={(e) => toggle(role, key, a, e.target.checked)}
                             aria-label={`${ROLE_TAB_LABELS[role]} — ${label} — ${PERMISSION_ACTION_LABELS[a]}`}
-                            className="h-4 w-4 cursor-pointer accent-[var(--accent,#2563eb)] disabled:cursor-not-allowed disabled:opacity-50"
+                            className="h-4 w-4 cursor-pointer accent-[var(--deck-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)] focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                           />
                         </td>
                       ))}
@@ -120,7 +139,14 @@ export function PermissionsMatrix({
 
       {canEdit ? (
         <div className="flex flex-wrap items-center gap-3">
-          <SubmitButton pendingText="Saving permissions…">
+          <SubmitButton
+            pendingText="Saving permissions…"
+            confirm={
+              criticalCleared.length > 0
+                ? `You are removing AMG Operations' access to: ${criticalCleared.join(", ")}. Every admin loses that area immediately, and only the Super Admin can restore it (here, or via Restore defaults). Continue?`
+                : undefined
+            }
+          >
             {dirtyCount > 0 ? `Save ${dirtyCount} change${dirtyCount === 1 ? "" : "s"}` : "Save permissions"}
           </SubmitButton>
           <SubmitButton
@@ -132,9 +158,6 @@ export function PermissionsMatrix({
           >
             Restore defaults
           </SubmitButton>
-          {dirtyCount > 0 ? (
-            <span className="text-xs text-muted-foreground">{dirtyCount} unsaved change{dirtyCount === 1 ? "" : "s"}</span>
-          ) : null}
         </div>
       ) : (
         <p className="text-xs text-muted-foreground">

@@ -180,7 +180,7 @@ export async function addAvailabilityWindow(formData: FormData) {
 }
 
 export async function removeAvailabilityWindow(formData: FormData) {
-  const user = await actor(["crew"], "crew.delete");
+  const user = await actor(["crew"], "crew.edit");
   const db = await createServiceClient();
   await db
     .from("crew_availability")

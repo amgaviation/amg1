@@ -148,7 +148,9 @@ export const DEFAULT_PERMISSIONS: Record<MatrixRole, Record<PermissionModule, Ac
     aircraft: NONE,
     passengers: NONE,
     clients: NONE,
-    crew: FULL,
+    // view/add/edit own records; hard-deleting credential/compliance
+    // artifacts stays admin-only (availability removal is wired as edit)
+    crew: VAE,
     partners: NONE,
     users: NONE,
     crm: NONE,
@@ -219,6 +221,10 @@ export function defaultFlags(role: PortalRole, module: PermissionModule): Action
 
 export function parsePermissionKey(key: PermissionKey): { module: PermissionModule; action: PermissionAction } {
   const dot = key.lastIndexOf(".");
+  if (dot < 0) {
+    // Unreachable for literal PermissionKeys; guards a future dynamic key.
+    throw new Error(`Invalid permission key: ${key}`);
+  }
   return {
     module: key.slice(0, dot) as PermissionModule,
     action: key.slice(dot + 1) as PermissionAction,
@@ -260,6 +266,7 @@ export const NAV_MODULE_PREFIXES: [string, PermissionModule][] = [
   ["/portal/admin/compliance", "compliance"],
   ["/portal/admin/security-review", "compliance"],
   ["/portal/admin/audit-log", "audit_log"],
+  ["/portal/admin/system-health", "settings"],
   ["/portal/admin/settings", "settings"],
   ["/portal/client/trips", "missions"],
   ["/portal/client/aircraft", "aircraft"],

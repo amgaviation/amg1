@@ -72,7 +72,7 @@ values
   ('crew', 'aircraft', false, false, false, false),
   ('crew', 'passengers', false, false, false, false),
   ('crew', 'clients', false, false, false, false),
-  ('crew', 'crew', true, true, true, true),
+  ('crew', 'crew', true, true, true, false),
   ('crew', 'partners', false, false, false, false),
   ('crew', 'users', false, false, false, false),
   ('crew', 'crm', false, false, false, false),
