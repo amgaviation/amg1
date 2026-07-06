@@ -64,17 +64,20 @@ export default async function AdminTripsPage({
 }) {
   const user = await requireRolePermission("admin", "missions");
   const params = await searchParams;
-  const missions = await listAllMissions();
   const statuses = parseStatuses(params.status);
+  // Exact filters run in the database; free-text search and sort stay in
+  // memory over the (much smaller) matching set.
+  const missions = await listAllMissions({
+    statusIn: statuses.length ? statuses : undefined,
+    type: params.type || undefined,
+    urgency: params.urgency || undefined,
+  });
   const sortKey = params.sort ?? "created";
   const direction = params.dir === "asc" ? "asc" : "desc";
   const currentPage = Math.max(1, Number(params.page ?? "1") || 1);
 
   const filtered = missions
     .filter((m) => {
-      if (statuses.length && !statuses.includes(m.status)) return false;
-      if (params.type && m.mission_type !== params.type) return false;
-      if (params.urgency && m.urgency !== params.urgency) return false;
       if (params.q) {
         const q = params.q.toLowerCase();
         return (

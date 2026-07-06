@@ -18,3 +18,4 @@
 - A-1-08 P3: removed unused material-dashboard dependency
 - C-1-05 P3: signup "Wrong email" no longer dead-ends into quote form (mailto ops@)
 - D-1-06 P3: FileField long-filename truncation fixed (min-w-0)
+- A-1-01 P1: listAllMissions chunked fetch (no more silent 1000-row cap) + status/type/urgency filters pushed to DB for admin trips; q-search + sort remain in-memory over the filtered set. Full keyset pagination for invoices/quotes/clients logged as open.
