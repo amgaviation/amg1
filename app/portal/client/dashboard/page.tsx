@@ -23,7 +23,7 @@ import {
 } from "@/lib/portal/queries";
 import { listPassengersForOwner } from "@/lib/portal/passengers";
 import {
-  MISSION_STATUS_LABEL,
+  CLIENT_MISSION_STATUS_LABEL,
   MISSION_STATUS_TONE,
   toneFor,
 } from "@/lib/portal/constants";
@@ -175,7 +175,7 @@ export default async function ClientDashboardPage({
               <p className="mt-2 text-sm text-[var(--deck-chrome-muted)]">
                 {nextDeparture.tail_number ?? "Aircraft TBD"} ·{" "}
                 {formatDateTime(nextDeparture.requested_departure)} ·{" "}
-                {MISSION_STATUS_LABEL[nextDeparture.status] ?? nextDeparture.status}
+                {CLIENT_MISSION_STATUS_LABEL[nextDeparture.status] ?? nextDeparture.status}
               </p>
             </div>
             <div className="text-right">
@@ -273,7 +273,7 @@ export default async function ClientDashboardPage({
                   }
                   trailing={
                     <StatusBadge
-                      label={MISSION_STATUS_LABEL[m.status] ?? m.status}
+                      label={CLIENT_MISSION_STATUS_LABEL[m.status] ?? m.status}
                       tone={toneFor(MISSION_STATUS_TONE, m.status)}
                     />
                   }

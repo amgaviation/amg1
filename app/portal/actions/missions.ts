@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { logAuditEvent, notifyAdmins, notifyUser } from "@/lib/portal/audit";
-import { MISSION_TYPE_LABEL } from "@/lib/portal/constants";
+import { MISSION_STATUS, MISSION_TYPE_LABEL } from "@/lib/portal/constants";
 import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
 import { recordComplianceEvidence, recordSupportRequestDisclaimerAcknowledgment } from "@/lib/compliance/evidence";
 import { detectProhibitedPaymentData } from "@/lib/compliance/payment-data-guard";
@@ -257,6 +257,10 @@ export async function updateMissionStatus(formData: FormData) {
   const status = str(formData, "status");
   const internalNote = str(formData, "internal_notes");
   if (!missionId || !status) redirect("/portal/admin/mission-control?error=missing");
+  // A malformed submission must not write a status no surface can render.
+  if (!MISSION_STATUS.some((s) => s.value === status)) {
+    redirect("/portal/admin/mission-control?error=invalid-status");
+  }
 
   const patch: Database["public"]["Tables"]["missions"]["Update"] = { status };
   if (internalNote) patch.internal_notes = internalNote;

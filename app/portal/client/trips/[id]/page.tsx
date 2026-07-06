@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { getMissionDetail } from "@/lib/portal/queries";
 import {
   MISSION_STATUS,
-  MISSION_STATUS_LABEL,
+  CLIENT_MISSION_STATUS_LABEL,
   MISSION_STATUS_TONE,
   MISSION_TYPE_LABEL,
   URGENCY_LABEL,
@@ -63,7 +63,7 @@ export default async function ClientTripDetailPage({
           <p className="deck-eyebrow">Trip Detail</p>
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <h1 className="deck-title text-[1.65rem] sm:text-[2rem]">{mission.ref}</h1>
-            <StatusBadge label={labelFor(MISSION_STATUS_LABEL, mission.status)} tone={toneFor(MISSION_STATUS_TONE, mission.status)} />
+            <StatusBadge label={labelFor(CLIENT_MISSION_STATUS_LABEL, mission.status)} tone={toneFor(MISSION_STATUS_TONE, mission.status)} />
             {mission.urgency !== "standard" ? (
               <StatusBadge label={labelFor(URGENCY_LABEL, mission.urgency)} tone={toneFor(URGENCY_TONE, mission.urgency)} />
             ) : null}
