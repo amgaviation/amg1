@@ -50,6 +50,11 @@ export default async function AdminSettingsPage({
             </Link>
           </p>
           <p>
+            <Link href="/portal/admin/settings/permissions" className="text-accent hover:underline">
+              Manage role permissions (view / add / edit / delete per module)
+            </Link>
+          </p>
+          <p>
             <Link href="/portal/admin/compliance" className="text-accent hover:underline">
               Review legal notices, privacy requests, consent events, and compliance controls
             </Link>
