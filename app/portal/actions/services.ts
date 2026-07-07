@@ -37,6 +37,11 @@ import { actor, bool, num, safeRedirectPath, str } from "./_helpers";
 
 const BASE = "/portal/admin/financial/pricing";
 
+// Upper bound for any money figure: the columns are numeric(12,2), so
+// anything above this overflows at insert time. Validating here keeps a
+// fat-fingered price from passing validation and then failing the write.
+const MAX_PRICE = 9_999_999_999.99;
+
 // DB check-constraint vocabularies (must match the services migration).
 const COST_TYPES = ["coordination", "pass_through", "plan_fee"] as const;
 const SERVICE_STATUSES = ["draft", "active", "archived"] as const;
@@ -139,6 +144,7 @@ function normalizeVariants(raw: string): Parsed<VariantInput> {
   const arr = parseJsonArray(raw);
   if (!arr) return { rows: null, error: "variants-json" };
   const rows: VariantInput[] = [];
+  const seenAxes = new Set<string>();
   for (const entry of arr) {
     if (!isRecord(entry)) return { rows: null, error: "variants-json" };
     const band = asString(entry.aircraft_band) || null;
@@ -148,15 +154,24 @@ function normalizeVariants(raw: string): Parsed<VariantInput> {
     const unitPrice = asNumberOrNull(entry.unit_price);
     // Pass-through law: for cost_type 'pass_through' this figure is the
     // vendor's at-cost amount — zero AMG markup may be embedded in it.
-    if (unitPrice === null || unitPrice < 0) return { rows: null, error: "variant-price" };
+    if (unitPrice === null || unitPrice < 0 || unitPrice > MAX_PRICE) return { rows: null, error: "variant-price" };
     const annualPrice = asNumberOrNull(entry.annual_price);
-    if (annualPrice !== null && annualPrice < 0) return { rows: null, error: "variant-price" };
+    if (annualPrice !== null && (annualPrice < 0 || annualPrice > MAX_PRICE)) return { rows: null, error: "variant-price" };
+    const aircraftCategory = asString(entry.aircraft_category) || null;
+    const planTierMatch = asString(entry.plan_tier_match) || null;
+    // Two open variants with identical axes are ambiguous to the pricing
+    // engine's resolver — reject them at the door.
+    const axes = [aircraftCategory, band, planTierMatch]
+      .map((part) => (part ?? "").trim().toLowerCase())
+      .join("|");
+    if (seenAxes.has(axes)) return { rows: null, error: "variant-duplicate-axes" };
+    seenAxes.add(axes);
     rows.push({
       id: asString(entry.id) || null,
       label: asString(entry.label) || null,
-      aircraft_category: asString(entry.aircraft_category) || null,
+      aircraft_category: aircraftCategory,
       aircraft_band: (band as VariantInput["aircraft_band"]) ?? null,
-      plan_tier_match: asString(entry.plan_tier_match) || null,
+      plan_tier_match: planTierMatch,
       unit_price: unitPrice,
       annual_price: annualPrice,
       sort_order: asNumberOrNull(entry.sort_order) ?? rows.length,
@@ -221,7 +236,9 @@ function normalizeAttachments(raw: string): Parsed<AttachmentInput> {
     const quantity = asNumberOrNull(entry.quantity) ?? 1;
     if (quantity <= 0) return { rows: null, error: "attachment-quantity" };
     const priceOverride = asNumberOrNull(entry.price_override);
-    if (priceOverride !== null && priceOverride < 0) return { rows: null, error: "attachment-price" };
+    if (priceOverride !== null && (priceOverride < 0 || priceOverride > MAX_PRICE)) {
+      return { rows: null, error: "attachment-price" };
+    }
     rows.push({
       id: asString(entry.id) || null,
       child_service_id: childId,
@@ -250,8 +267,11 @@ async function attachmentDepthError(
     return "attachment-self";
   }
   const childIds = [...new Set(rows.map((row) => row.child_service_id))];
-  const { data: children } = await db.from("services").select("id").in("id", childIds);
+  const { data: children } = await db.from("services").select("id, status").in("id", childIds);
   if ((children ?? []).length !== childIds.length) return "attachment-child";
+  // Only publishable services may join new quotes — the form picker offers
+  // active services only, so a draft/archived child here is a forged post.
+  if ((children ?? []).some((child) => child.status !== "active")) return "attachment-child-inactive";
   const { count: grandchildren } = await db
     .from("service_attachments")
     .select("id", { count: "exact", head: true })
@@ -301,7 +321,17 @@ function readCorePayload(formData: FormData): { payload: CorePayload | null; err
     return { payload: null, error: "status" };
   }
   const defaultUnitPrice = num(formData, "default_unit_price");
-  if (defaultUnitPrice !== null && defaultUnitPrice < 0) return { payload: null, error: "price-invalid" };
+  if (defaultUnitPrice !== null && (defaultUnitPrice < 0 || defaultUnitPrice > MAX_PRICE)) {
+    return { payload: null, error: "price-invalid" };
+  }
+  const intervalCount = num(formData, "recurring_interval_count");
+  if (
+    frequency === "recurring" &&
+    intervalCount !== null &&
+    (!Number.isInteger(intervalCount) || intervalCount < 1 || intervalCount > 60)
+  ) {
+    return { payload: null, error: "recurring-interval-count" };
+  }
   const minQuantity = num(formData, "min_quantity");
   const maxQuantity = num(formData, "max_quantity");
   if (minQuantity !== null && maxQuantity !== null && minQuantity > maxQuantity) {
@@ -324,7 +354,7 @@ function readCorePayload(formData: FormData): { payload: CorePayload | null; err
     default_unit_price: defaultUnitPrice,
     frequency,
     recurring_interval: frequency === "recurring" ? recurringInterval : null,
-    recurring_interval_count: frequency === "recurring" ? (num(formData, "recurring_interval_count") ?? 1) : null,
+    recurring_interval_count: frequency === "recurring" ? (intervalCount ?? 1) : null,
     min_quantity: minQuantity,
     max_quantity: maxQuantity,
     taxable: bool(formData, "taxable"),
@@ -392,9 +422,18 @@ export async function createService(formData: FormData) {
     redirect(withCode(backTo, "error", insertError?.code === "23505" ? "code-taken" : "create-failed"));
   }
 
+  // Child writes are checked: a failed variant/variable/attachment insert
+  // removes the service row created in THIS call (cascade clears whatever
+  // children did land) so a retry starts clean instead of a half-created
+  // service silently reading as "created".
+  const failCreate = async (): Promise<never> => {
+    await db.from("services").delete().eq("id", service.id);
+    redirect(withCode(backTo, "error", "children-save-failed"));
+  };
+
   const effectiveFrom = today();
   if (variants.rows?.length) {
-    await db.from("service_price_variants").insert(
+    const { error } = await db.from("service_price_variants").insert(
       variants.rows.map((row) => ({
         service_id: service.id,
         label: row.label,
@@ -407,16 +446,19 @@ export async function createService(formData: FormData) {
         sort_order: row.sort_order,
       })),
     );
+    if (error) await failCreate();
   }
   if (variables.rows?.length) {
-    await db.from("service_variables").insert(
+    const { error } = await db.from("service_variables").insert(
       variables.rows.map(({ id: _id, ...row }) => ({ ...row, service_id: service.id })),
     );
+    if (error) await failCreate();
   }
   if (attachments.rows?.length) {
-    await db.from("service_attachments").insert(
+    const { error } = await db.from("service_attachments").insert(
       attachments.rows.map(({ id: _id, ...row }) => ({ ...row, parent_service_id: service.id })),
     );
+    if (error) await failCreate();
   }
 
   await logAuditEvent({
@@ -530,20 +572,33 @@ export async function updateService(formData: FormData) {
 
   // ── variant reconciliation (§5.3: prices are history, never edited) ──
   if (variants?.rows) {
-    const { data: openRows } = await db
+    const { data: openRows, error: openReadError } = await db
       .from("service_price_variants")
       .select("*")
       .eq("service_id", serviceId)
       .is("effective_to", null);
+    if (openReadError) redirect(withCode(backTo, "error", "variant-save-failed"));
     const open: VariantRow[] = openRows ?? [];
     const effectiveDate = today();
-    const submittedIds = new Set(variants.rows.map((row) => row.id).filter(Boolean));
+
+    // Open rows are matched by id first, then by pricing axes. The axes
+    // fallback absorbs stale form ids (double-submit, a second tab): a
+    // superseded row's id no longer matches anything open, but its axes
+    // find the row that replaced it — without this, a resubmit inserts a
+    // duplicate open row with identical axes and variant resolution
+    // becomes ambiguous.
+    const axesKey = (v: Pick<VariantRow, "aircraft_category" | "aircraft_band" | "plan_tier_match">) =>
+      [v.aircraft_category, v.aircraft_band, v.plan_tier_match]
+        .map((part) => (part ?? "").trim().toLowerCase())
+        .join("|");
+    const claimed = new Set<string>();
 
     for (const row of variants.rows) {
-      const match = row.id ? open.find((v) => v.id === row.id) : undefined;
+      let match = row.id ? open.find((v) => v.id === row.id && !claimed.has(v.id)) : undefined;
+      if (!match) match = open.find((v) => !claimed.has(v.id) && axesKey(v) === axesKey(row));
       if (!match) {
-        // New variant (or a stale id from a superseded row): insert fresh.
-        await db.from("service_price_variants").insert({
+        // Genuinely new axes: open a fresh price row.
+        const { error: insertError } = await db.from("service_price_variants").insert({
           service_id: serviceId,
           label: row.label,
           aircraft_category: row.aircraft_category,
@@ -554,8 +609,10 @@ export async function updateService(formData: FormData) {
           effective_from: effectiveDate,
           sort_order: row.sort_order,
         });
+        if (insertError) redirect(withCode(backTo, "error", "variant-save-failed"));
         continue;
       }
+      claimed.add(match.id);
       const priceChanged =
         Number(match.unit_price) !== row.unit_price ||
         (match.annual_price === null ? null : Number(match.annual_price)) !== row.annual_price;
@@ -564,8 +621,12 @@ export async function updateService(formData: FormData) {
         // so every historical quote line keeps pointing at the price that
         // was actually offered. New rows get no Stripe price ids — Phase 2
         // mints a fresh Stripe price per price row.
-        await db.from("service_price_variants").update({ effective_to: effectiveDate }).eq("id", match.id);
-        await db.from("service_price_variants").insert({
+        const { error: closeError } = await db
+          .from("service_price_variants")
+          .update({ effective_to: effectiveDate })
+          .eq("id", match.id);
+        if (closeError) redirect(withCode(backTo, "error", "variant-save-failed"));
+        const { error: reopenError } = await db.from("service_price_variants").insert({
           service_id: serviceId,
           label: row.label,
           aircraft_category: row.aircraft_category,
@@ -576,6 +637,12 @@ export async function updateService(formData: FormData) {
           effective_from: effectiveDate,
           sort_order: row.sort_order,
         });
+        if (reopenError) {
+          // Compensate: reopen the row we just closed so the service does
+          // not silently lose its open price, then surface the failure.
+          await db.from("service_price_variants").update({ effective_to: null }).eq("id", match.id);
+          redirect(withCode(backTo, "error", "variant-save-failed"));
+        }
         priceChanges.push(
           `${row.label ?? match.label ?? "variant"}: ${money(Number(match.unit_price))} → ${money(row.unit_price)}` +
             (row.annual_price !== null || match.annual_price !== null
@@ -584,7 +651,7 @@ export async function updateService(formData: FormData) {
         );
       } else {
         // Metadata-only edits (label/axes/sort) are allowed in place.
-        await db
+        const { error: metaError } = await db
           .from("service_price_variants")
           .update({
             label: row.label,
@@ -595,14 +662,19 @@ export async function updateService(formData: FormData) {
             updated_at: new Date().toISOString(),
           })
           .eq("id", match.id);
+        if (metaError) redirect(withCode(backTo, "error", "variant-save-failed"));
       }
     }
 
     // Variants removed in the form are CLOSED, never deleted — price rows
     // are history and may be referenced by quote/invoice snapshots.
     for (const variant of open) {
-      if (!submittedIds.has(variant.id)) {
-        await db.from("service_price_variants").update({ effective_to: effectiveDate }).eq("id", variant.id);
+      if (!claimed.has(variant.id)) {
+        const { error: closeError } = await db
+          .from("service_price_variants")
+          .update({ effective_to: effectiveDate })
+          .eq("id", variant.id);
+        if (closeError) redirect(withCode(backTo, "error", "variant-save-failed"));
         priceChanges.push(`${variant.label ?? "variant"}: ${money(Number(variant.unit_price))} → closed`);
       }
     }
@@ -617,17 +689,20 @@ export async function updateService(formData: FormData) {
     const submittedIds = new Set(variables.rows.map((row) => row.id).filter(Boolean));
     const removed = (existingVariables ?? []).filter((row) => !submittedIds.has(row.id)).map((row) => row.id);
     if (removed.length) {
-      await db.from("service_variables").delete().in("id", removed);
+      const { error } = await db.from("service_variables").delete().in("id", removed);
+      if (error) redirect(withCode(backTo, "error", "children-save-failed"));
     }
     for (const row of variables.rows) {
       const { id, ...fields } = row;
       if (id && (existingVariables ?? []).some((v) => v.id === id)) {
-        await db
+        const { error } = await db
           .from("service_variables")
           .update({ ...fields, updated_at: new Date().toISOString() })
           .eq("id", id);
+        if (error) redirect(withCode(backTo, "error", "children-save-failed"));
       } else {
-        await db.from("service_variables").insert({ ...fields, service_id: serviceId });
+        const { error } = await db.from("service_variables").insert({ ...fields, service_id: serviceId });
+        if (error) redirect(withCode(backTo, "error", "children-save-failed"));
       }
     }
   }
@@ -641,14 +716,17 @@ export async function updateService(formData: FormData) {
     const submittedIds = new Set(attachments.rows.map((row) => row.id).filter(Boolean));
     const removed = (existingAttachments ?? []).filter((row) => !submittedIds.has(row.id)).map((row) => row.id);
     if (removed.length) {
-      await db.from("service_attachments").delete().in("id", removed);
+      const { error } = await db.from("service_attachments").delete().in("id", removed);
+      if (error) redirect(withCode(backTo, "error", "children-save-failed"));
     }
     for (const row of attachments.rows) {
       const { id, ...fields } = row;
       if (id && (existingAttachments ?? []).some((a) => a.id === id)) {
-        await db.from("service_attachments").update(fields).eq("id", id);
+        const { error } = await db.from("service_attachments").update(fields).eq("id", id);
+        if (error) redirect(withCode(backTo, "error", "children-save-failed"));
       } else {
-        await db.from("service_attachments").insert({ ...fields, parent_service_id: serviceId });
+        const { error } = await db.from("service_attachments").insert({ ...fields, parent_service_id: serviceId });
+        if (error) redirect(withCode(backTo, "error", "children-save-failed"));
       }
     }
   }
@@ -713,10 +791,11 @@ export async function archiveService(formData: FormData) {
     }
   }
 
-  await db
+  const { error: archiveError } = await db
     .from("services")
     .update({ status: "archived", updated_at: new Date().toISOString() })
     .eq("id", serviceId);
+  if (archiveError) redirect(withCode(backTo, "error", "save-failed"));
 
   const refSummary = `${quoteRefs ?? 0} quote line(s), ${invoiceRefs ?? 0} invoice line(s), ${subscriptionRefs} linked subscription(s)`;
   await logAuditEvent({
@@ -793,9 +872,16 @@ export async function duplicateService(formData: FormData) {
     .single();
   if (insertError || !copy) redirect(withCode(backTo, "error", "duplicate-failed"));
 
+  // Same compensation as createService: a failed child copy removes the
+  // half-made duplicate so it never reads as a finished copy.
+  const failDuplicate = async (): Promise<never> => {
+    await db.from("services").delete().eq("id", copy.id);
+    redirect(withCode(backTo, "error", "duplicate-failed"));
+  };
+
   const effectiveFrom = today();
   if (openVariants?.length) {
-    await db.from("service_price_variants").insert(
+    const { error } = await db.from("service_price_variants").insert(
       openVariants.map((variant) => ({
         service_id: copy.id,
         label: variant.label,
@@ -808,22 +894,25 @@ export async function duplicateService(formData: FormData) {
         sort_order: variant.sort_order,
       })),
     );
+    if (error) await failDuplicate();
   }
   if (sourceVariables?.length) {
-    await db.from("service_variables").insert(
+    const { error } = await db.from("service_variables").insert(
       sourceVariables.map(({ id: _vid, created_at: _vc, updated_at: _vu, ...variable }) => ({
         ...variable,
         service_id: copy.id,
       })),
     );
+    if (error) await failDuplicate();
   }
   if (sourceAttachments?.length) {
-    await db.from("service_attachments").insert(
+    const { error } = await db.from("service_attachments").insert(
       sourceAttachments.map(({ id: _aid, created_at: _ac, ...attachment }) => ({
         ...attachment,
         parent_service_id: copy.id,
       })),
     );
+    if (error) await failDuplicate();
   }
 
   await logAuditEvent({
@@ -857,10 +946,11 @@ export async function retryStripeSync(formData: FormData) {
 
   // Phase 1: no live Stripe call — just re-queue. Phase 2's sync worker
   // consumes 'pending' rows and flips them to 'synced'/'error'.
-  await db
+  const { error: requeueError } = await db
     .from("services")
     .update({ stripe_sync_status: "pending", stripe_sync_error: null, updated_at: new Date().toISOString() })
     .eq("id", serviceId);
+  if (requeueError) redirect(withCode(backTo, "error", "save-failed"));
 
   await logAuditEvent({
     actor: admin,

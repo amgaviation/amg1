@@ -139,12 +139,16 @@ async function openVariantsByService(
 ): Promise<Map<string, ServiceVariantRow[]>> {
   const grouped = new Map<string, ServiceVariantRow[]>();
   if (!serviceIds.length) return grouped;
+  // PostgREST silently caps unbounded selects at 1000 rows; an explicit
+  // limit raises the ceiling far past any realistic open-variant count so
+  // list/picker price summaries never quietly drop variants.
   const { data } = await db
     .from("service_price_variants")
     .select("*")
     .in("service_id", serviceIds)
     .is("effective_to", null)
-    .order("sort_order", { ascending: true });
+    .order("sort_order", { ascending: true })
+    .limit(5000);
   for (const variant of data ?? []) {
     const bucket = grouped.get(variant.service_id);
     if (bucket) bucket.push(variant);
@@ -376,12 +380,20 @@ const ERROR_MESSAGES: Record<string, string> = {
   frequency: "Choose a valid frequency.",
   "recurring-interval": "Recurring services need a monthly or yearly interval.",
   status: "Choose a valid status.",
-  "price-invalid": "Prices cannot be negative.",
+  "price-invalid": "Prices must be between $0 and $9,999,999,999.99.",
+  "recurring-interval-count": "Recurring interval count must be a whole number between 1 and 60.",
   "quantity-range": "Minimum quantity cannot exceed maximum quantity.",
   "deposit-percent": "Deposit percent must be between 0 and 100.",
   "variants-json": "The price variants could not be read. Nothing was saved.",
   "variant-band": "Aircraft band must be A or B.",
-  "variant-price": "Every price variant needs a non-negative unit price.",
+  "variant-price": "Every price variant needs a unit price between $0 and $9,999,999,999.99.",
+  "variant-duplicate-axes":
+    "Two price variants share the same aircraft category, band, and plan tier — the calculator could not tell them apart. Give each variant distinct axes.",
+  "variant-save-failed":
+    "A price variant could not be saved. Re-open the form to see exactly what was stored, then try again.",
+  "children-save-failed":
+    "The service's price variants, variables, or attachments could not be saved. Re-open the form and try again.",
+  "attachment-child-inactive": "Only active services can be attached.",
   "variables-json": "The variables could not be read. Nothing was saved.",
   "variable-key": "Every variable needs a label and a key like fuel_stops (letters, numbers, underscores).",
   "variable-duplicate-key": "Variable keys must be unique per service.",

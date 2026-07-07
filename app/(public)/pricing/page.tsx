@@ -147,7 +147,9 @@ export default function PricingPage() {
                       scope="col"
                       className="oc-display whitespace-nowrap px-4 py-5 text-left text-xl text-[var(--oc-paper)]"
                     >
-                      {plan}
+                      {/* Non-breaking hyphen: table min-content sizing breaks
+                          "On-Demand" at the hyphen even under nowrap. */}
+                      {plan.replace(/-/g, "‑")}
                     </th>
                   ))}
                 </tr>

@@ -30,3 +30,10 @@ payments authority (7), per-user overrides (8).
 - ✅ Stripe price-mismatch hold (B-1-06) — built
 - ✅ Loading/error boundaries (B-1-12) — built
 Remaining top items: crew mission-pay tracking (schema), per-user permission overrides (schema), /contact page (owner), tax computation (owner rules).
+
+## From session-3 review (deferred LOWs)
+- C-3-01: service-form variable options round-trip drops per-option multiplier metadata (optionsToText flattens objects); boolean multiplier variables have no factor input (always ×1) — needed before calculator-heavy catalog services
+- C-3-02: axis edits (band/category/tier) allowed in place on open variant rows reinterpret that row's history since effective_from — consider close+reopen for axis changes too
+- C-3-03: request pill slightly overlaps mission-deck bottom spec row / ops ramp-cam at 390px — nudge offset or add section to its hide list
+- C-3-04: variant history on service detail truncates past 1000 rows (newest kept) — paginate if catalogs ever grow that far
+- C-3-05: client-facing catalog read path (when quote calculator ships client-side surfaces): narrow RLS + column-restricted view, NOT the dropped broad policies

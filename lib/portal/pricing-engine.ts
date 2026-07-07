@@ -691,7 +691,9 @@ export function expandAttachments(
     if (attachment.child_service_id === service.id) continue; // cycle guard
     const child = allServices.find((candidate) => candidate.id === attachment.child_service_id);
     if (!child) continue;
-    if (child.status === "archived") continue; // archived services never join new quotes
+    // Only active services join new quotes: archived is history, draft is
+    // unpublished. (Historical snapshots keep their lines either way.)
+    if (child.status && child.status !== "active") continue;
 
     const mode = asAttachmentMode(attachment.attachment_mode);
     const quantityFactor = toNumber(attachment.quantity) ?? 1;
