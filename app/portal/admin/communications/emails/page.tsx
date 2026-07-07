@@ -1,8 +1,17 @@
 import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
-import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
+import {
+  DetailRow,
+  EmptyState,
+  FilterTabs,
+  Notice,
+} from "@/components/portal/ui/primitives";
+import { RecordListShell } from "@/components/portal/ui/record-list-shell";
+import { FormModal, RecordModal } from "@/components/portal/ui/record-modal";
+import { DataTable } from "@/components/portal/ui/data-table";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
+import { Button } from "@/components/ui/button";
 import { sendCommunicationEmailAction } from "@/app/portal/actions/communications";
 import { listAllUsers } from "@/lib/portal/queries";
 import {
@@ -10,10 +19,12 @@ import {
   listCommunicationRecordOptions,
   listCommunicationTemplates,
   listEmailCommunicationLogs,
+  type CommunicationMessage,
 } from "@/lib/portal/communications";
 import { formatDateTime } from "@/lib/portal/format";
 import { DeckSelect } from "@/components/portal/ui/fields";
 import { Combobox } from "@/components/portal/ui/combobox";
+import { RecipientPicker } from "@/components/portal/admin/recipient-picker";
 
 export const metadata = { title: "Emails - Admin Portal" };
 
@@ -32,7 +43,8 @@ const CATEGORIES = [
   "Other",
 ];
 
-const STATUSES = ["queued", "sent", "delivered", "failed", "bounced", "received"];
+const STATUSES = ["sent", "delivered", "queued", "failed", "bounced", "received"];
+const PAGE_SIZE = 25;
 
 function tone(status: string) {
   if (status === "failed" || status === "bounced") return "danger" as const;
@@ -41,28 +53,55 @@ function tone(status: string) {
   return "info" as const;
 }
 
-function optionLabel(user: { full_name: string | null; email: string; company_name: string | null; role: string }) {
-  return `${user.company_name ?? user.full_name ?? user.email} - ${user.email}`;
+type Params = {
+  success?: string;
+  error?: string;
+  q?: string;
+  user?: string;
+  date_from?: string;
+  date_to?: string;
+  time?: string;
+  category?: string;
+  template?: string;
+  status?: string;
+  sender?: string;
+  page?: string;
+  record?: string;
+  compose?: string;
+};
+
+function listQuery(params: Params, overrides: Record<string, string | undefined> = {}) {
+  const keep: (keyof Params)[] = [
+    "q",
+    "user",
+    "date_from",
+    "date_to",
+    "time",
+    "category",
+    "template",
+    "status",
+    "sender",
+    "page",
+  ];
+  const search = new URLSearchParams();
+  for (const key of keep) {
+    const value = params[key];
+    if (value) search.set(key, value);
+  }
+  for (const [key, value] of Object.entries(overrides)) {
+    if (value) search.set(key, value);
+    else search.delete(key);
+  }
+  const qs = search.toString();
+  return qs ? `?${qs}` : "";
 }
 
 export default async function AdminEmailsPage({
   searchParams,
 }: {
-  searchParams: Promise<{
-    success?: string;
-    error?: string;
-    q?: string;
-    user?: string;
-    date_from?: string;
-    date_to?: string;
-    time?: string;
-    category?: string;
-    template?: string;
-    status?: string;
-    sender?: string;
-  }>;
+  searchParams: Promise<Params>;
 }) {
-  const user = await requireRolePermission("admin", "communications");
+  await requireRolePermission("admin", "communications");
   const params = await searchParams;
   const [templates, records, users, logs] = await Promise.all([
     listCommunicationTemplates(),
@@ -81,172 +120,464 @@ export default async function AdminEmailsPage({
     }),
   ]);
   const provider = emailProviderStatus();
-  const clients = users.filter((row) => row.role === "client");
-  const crew = users.filter((row) => row.role === "crew");
-  const partners = users.filter((row) => row.role === "partner");
-  const allPortalUsers = users.filter((row) => !row.email.includes("+released-"));
+  const basePath = "/portal/admin/communications/emails";
+
+  // Selected record for the detail window. Filters usually contain it; a
+  // deep link whose filters exclude the record falls back to one unfiltered
+  // fetch so shared `?record=` URLs always resolve.
+  let record: (typeof logs)[number] | null = params.record
+    ? logs.find((log) => log.id === params.record) ?? null
+    : null;
+  if (params.record && !record) {
+    const all = await listEmailCommunicationLogs({});
+    record = all.find((log) => log.id === params.record) ?? null;
+  }
+
+  const currentPage = Math.max(1, Number(params.page ?? "1") || 1);
+  const pageCount = Math.max(1, Math.ceil(logs.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, pageCount);
+  const paged = logs.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const hasFilters = Boolean(
+    params.q ||
+      params.user ||
+      params.date_from ||
+      params.date_to ||
+      params.category ||
+      params.template ||
+      params.status ||
+      params.sender
+  );
+
+  const audienceGroups = [
+    {
+      label: "Clients",
+      options: users
+        .filter((row) => row.role === "client")
+        .map((row) => ({
+          email: row.email,
+          label: row.company_name ?? row.full_name ?? row.email,
+          description: row.full_name && row.company_name ? row.full_name : undefined,
+        })),
+    },
+    {
+      label: "Crew",
+      options: users
+        .filter((row) => row.role === "crew")
+        .map((row) => ({
+          email: row.email,
+          label: row.full_name ?? row.email,
+          description: row.company_name ?? undefined,
+        })),
+    },
+    {
+      label: "Vendors & Partners",
+      options: users
+        .filter((row) => row.role === "partner")
+        .map((row) => ({
+          email: row.email,
+          label: row.company_name ?? row.full_name ?? row.email,
+          description: row.full_name && row.company_name ? row.full_name : undefined,
+        })),
+    },
+    {
+      label: "AMG Team",
+      options: users
+        .filter((row) => row.role === "admin" || row.role === "super_admin")
+        .map((row) => ({
+          email: row.email,
+          label: row.full_name ?? row.email,
+        })),
+    },
+  ].map((group) => ({
+    ...group,
+    options: group.options.filter((option) => !option.email.includes("+released-")),
+  }));
+
+  const validationNotice =
+    params.error === "validation" ? (
+      <Notice tone="danger">
+        Choose at least one valid recipient, a subject and body (or a template), and a
+        related record or the general thread.
+      </Notice>
+    ) : params.error === "configuration" ? (
+      <Notice tone="danger">Email provider is not configured.</Notice>
+    ) : params.error === "failed" ? (
+      <Notice tone="danger">Email could not be sent. Check the log for the failed entry.</Notice>
+    ) : null;
+
+  const composeHref = `${basePath}${listQuery(params, { compose: "1", page: undefined })}`;
+  const composeOpen = params.compose === "1";
+  const recordHref = (id: string) => `${basePath}${listQuery(params, { record: id })}`;
 
   return (
-    <>
-      {params.success === "sent" ? <Notice tone="success">Email sent and logged.</Notice> : null}
-      {params.error === "validation" ? <Notice tone="danger">Choose at least one valid recipient, subject, body or template, and a related/general thread option.</Notice> : null}
-      {params.error === "configuration" ? <Notice tone="danger">Email provider is not configured.</Notice> : null}
-      {params.error === "failed" ? <Notice tone="danger">Email could not be sent. Check the log for the failed entry.</Notice> : null}
-
-      <PageHeader
-        eyebrow="Communications"
-        title="Emails"
-        description="Send templated or custom AMG emails and review searchable email communications."
-      />
-
-      <SectionCard title="Compose Email" icon="messageSquare">
-        <form action={sendCommunicationEmailAction} className="grid gap-5">
-          <input type="hidden" name="back_to" value="/portal/admin/communications/emails" />
-          <input type="hidden" name="general_thread" value="on" />
-
-          <div className="grid gap-4 lg:grid-cols-3">
-            <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
-              Template
-              <DeckSelect name="template_id" aria-label="Template" className="font-normal normal-case" placeholder="Custom Email" options={templates.map((template) => ({ value: template.id, label: template.name }))} />
-            </label>
-            <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
-              Category
-              <DeckSelect name="category" defaultValue="General" aria-label="Category" className="font-normal normal-case" options={CATEGORIES.map((category) => ({ value: category, label: category }))} />
-            </label>
-            <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
-              Related Client
-              <Combobox name="related_client_id" placeholder="General thread — or search a client…" options={records.clients.map((client) => ({ value: client.id, label: client.label }))} className="font-normal normal-case" />
-            </label>
-          </div>
-
-          <div className="grid gap-4 xl:grid-cols-4">
-            <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
-              Clients
-              <select name="to" multiple className="min-h-36 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 py-2 text-sm font-normal normal-case text-[var(--deck-text)]">
-                {clients.map((item) => (
-                  <option key={item.id} value={item.email}>{optionLabel(item)}</option>
-                ))}
-              </select>
-            </label>
-            <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
-              Crew
-              <select name="to" multiple className="min-h-36 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 py-2 text-sm font-normal normal-case text-[var(--deck-text)]">
-                {crew.map((item) => (
-                  <option key={item.id} value={item.email}>{optionLabel(item)}</option>
-                ))}
-              </select>
-            </label>
-            <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
-              Vendors / Partners
-              <select name="to" multiple className="min-h-36 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 py-2 text-sm font-normal normal-case text-[var(--deck-text)]">
-                {partners.map((item) => (
-                  <option key={item.id} value={item.email}>{optionLabel(item)}</option>
-                ))}
-              </select>
-            </label>
-            <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
-              All Users
-              <select name="to" multiple className="min-h-36 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 py-2 text-sm font-normal normal-case text-[var(--deck-text)]">
-                {allPortalUsers.map((item) => (
-                  <option key={item.id} value={item.email}>{optionLabel(item)}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
-            Manual Email
-            <input name="to" type="text" placeholder="name@example.com, another@example.com" className="min-h-11 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 text-sm font-normal normal-case text-[var(--deck-text)]" />
-          </label>
-
-          <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
-            Subject
-            <input name="subject" placeholder="Leave blank to use selected template subject" className="min-h-11 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 text-sm font-normal normal-case text-[var(--deck-text)]" />
-          </label>
-
-          <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
-            Body
-            <textarea name="body" rows={8} placeholder="Leave blank to use selected template body. Custom content is rendered through the AMG operational email wrapper." className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 py-2 text-sm font-normal normal-case leading-6 text-[var(--deck-text)]" />
-          </label>
-
-          {!provider.configured ? (
-            <Notice tone="warn">Email sending is disabled until the Resend provider is configured.</Notice>
+    <RecordListShell
+      eyebrow="Communications"
+      title="Emails"
+      description="Every email AMG sends and receives — searchable, with sending in one place."
+      actions={
+        <Button asChild size="sm">
+          <Link href={composeHref}>+ Compose Email</Link>
+        </Button>
+      }
+      notices={
+        <>
+          {params.success === "sent" ? (
+            <Notice tone="success">Email sent and logged.</Notice>
           ) : null}
-
-          <div className="flex justify-end">
-            <SubmitButton disabled={!provider.configured} pendingText="Sending...">
-              Send Email
-            </SubmitButton>
-          </div>
-        </form>
-      </SectionCard>
-
-      <SectionCard title="Email Log" icon="history">
-        <form className="grid gap-3 border-b border-[var(--deck-line)] pb-4 lg:grid-cols-4">
-          <input name="q" defaultValue={params.q ?? ""} placeholder="Search subject, user, status, provider" className="min-h-11 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 text-sm text-[var(--deck-text)]" />
-          <input name="user" defaultValue={params.user ?? ""} placeholder="User or recipient email" className="min-h-11 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 text-sm text-[var(--deck-text)]" />
-          <input name="date_from" type="date" defaultValue={params.date_from ?? ""} className="min-h-11 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 text-sm text-[var(--deck-text)]" />
-          <input name="date_to" type="date" defaultValue={params.date_to ?? ""} className="min-h-11 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 text-sm text-[var(--deck-text)]" />
-          <input name="time" type="time" defaultValue={params.time ?? ""} className="min-h-11 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 text-sm text-[var(--deck-text)]" />
-          <DeckSelect name="category" defaultValue={params.category ?? ""} aria-label="Category filter" options={[{ value: "", label: "All categories" }, ...CATEGORIES.map((category) => ({ value: category, label: category }))]} />
-          <DeckSelect name="template" defaultValue={params.template ?? ""} aria-label="Template filter" options={[{ value: "", label: "All templates" }, ...templates.map((template) => ({ value: template.id, label: template.name }))]} />
-          <DeckSelect name="status" defaultValue={params.status ?? ""} aria-label="Status filter" options={[{ value: "", label: "All statuses" }, ...STATUSES.map((status) => ({ value: status, label: status }))]} />
-          <DeckSelect name="sender" defaultValue={params.sender ?? ""} aria-label="Sender filter" options={[{ value: "", label: "All senders" }, ...users.filter((row) => row.role === "admin").map((admin) => ({ value: admin.id, label: admin.full_name ?? admin.email }))]} />
-          <div className="flex gap-2 lg:col-span-3">
-            <SubmitButton variant="outline" pendingText="Filtering...">
-              Filter Log
-            </SubmitButton>
-            <Link href="/portal/admin/communications/emails" className="inline-flex min-h-10 items-center rounded-md border border-[var(--deck-line)] px-4 text-sm font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-accent-ink)]">
+          {!composeOpen ? validationNotice : null}
+        </>
+      }
+      chips={
+        <FilterTabs
+          basePath={basePath}
+          param="status"
+          current={params.status ?? ""}
+          preserve={{
+            q: params.q,
+            category: params.category,
+            template: params.template,
+            sender: params.sender,
+            date_from: params.date_from,
+            date_to: params.date_to,
+          }}
+          options={[
+            { value: "", label: "All" },
+            { value: "sent", label: "Sent" },
+            { value: "delivered", label: "Delivered" },
+            { value: "queued", label: "Queued" },
+            { value: "failed", label: "Failed" },
+            { value: "bounced", label: "Bounced" },
+            { value: "received", label: "Received" },
+          ]}
+        />
+      }
+      filterRow={
+        <form className="flex flex-wrap items-center gap-2">
+          {params.status ? <input type="hidden" name="status" value={params.status} /> : null}
+          <input
+            name="q"
+            defaultValue={params.q ?? ""}
+            placeholder="Subject, recipient, body…"
+            aria-label="Search email log"
+            className="deck-input min-w-[12rem] flex-1 sm:max-w-xs"
+          />
+          <DeckSelect
+            name="category"
+            defaultValue={params.category ?? ""}
+            aria-label="Category"
+            className="w-auto min-w-[9.5rem]"
+            options={[
+              { value: "", label: "All Categories" },
+              ...CATEGORIES.map((category) => ({ value: category, label: category })),
+            ]}
+          />
+          <DeckSelect
+            name="template"
+            defaultValue={params.template ?? ""}
+            aria-label="Template"
+            className="w-auto min-w-[9.5rem]"
+            options={[
+              { value: "", label: "All Templates" },
+              ...templates.map((template) => ({ value: template.id, label: template.name })),
+            ]}
+          />
+          <DeckSelect
+            name="sender"
+            defaultValue={params.sender ?? ""}
+            aria-label="Sender"
+            className="w-auto min-w-[9rem]"
+            options={[
+              { value: "", label: "All Senders" },
+              ...users
+                .filter((row) => row.role === "admin" || row.role === "super_admin")
+                .map((admin) => ({ value: admin.id, label: admin.full_name ?? admin.email })),
+            ]}
+          />
+          <input
+            name="date_from"
+            type="date"
+            defaultValue={params.date_from ?? ""}
+            aria-label="From date"
+            className="deck-input w-auto"
+          />
+          <input
+            name="date_to"
+            type="date"
+            defaultValue={params.date_to ?? ""}
+            aria-label="To date"
+            className="deck-input w-auto"
+          />
+          <Button type="submit" size="sm">
+            Apply
+          </Button>
+          {hasFilters ? (
+            <Link
+              href={basePath}
+              className="rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3.5 py-1.5 text-xs font-medium text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
+            >
               Clear
             </Link>
-          </div>
+          ) : null}
         </form>
-
-        {logs.length ? (
-          <div className="mt-4 overflow-hidden rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)]">
-            <div className="overflow-x-auto">
-              <table className="min-w-[1100px] w-full border-collapse text-sm">
-                <thead className="bg-[var(--deck-panel-2)] text-left text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]">
-                  <tr>
-                    <th className="px-4 py-3">Timestamp</th>
-                    <th className="px-4 py-3">Subject</th>
-                    <th className="px-4 py-3">Recipient</th>
-                    <th className="px-4 py-3">Category</th>
-                    <th className="px-4 py-3">Template</th>
-                    <th className="px-4 py-3">Sender</th>
-                    <th className="px-4 py-3">Provider</th>
-                    <th className="px-4 py-3">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {logs.map((log) => (
-                    <tr key={log.id} className="border-t border-[var(--deck-line)] bg-[var(--deck-panel)]">
-                      <td className="whitespace-nowrap px-4 py-3 text-[var(--deck-text-2)]">{formatDateTime(log.sent_at ?? log.created_at)}</td>
-                      <td className="px-4 py-3">
-                        <p className="font-semibold text-[var(--deck-text)]">{log.subject ?? "AMG Operations"}</p>
-                        <p className="mt-1 line-clamp-1 text-xs text-[var(--deck-text-3)]">{log.body_preview ?? log.failure_reason ?? "-"}</p>
-                      </td>
-                      <td className="px-4 py-3 text-[var(--deck-text-2)]">
-                        <p>{log.recipient_name ?? log.to_emails[0] ?? "-"}</p>
-                        <p className="text-xs text-[var(--deck-text-3)]">{log.to_emails.join(", ")}</p>
-                      </td>
-                      <td className="px-4 py-3 text-[var(--deck-text-2)]">{log.email_category ?? "-"}</td>
-                      <td className="px-4 py-3 text-[var(--deck-text-2)]">{log.template_name ?? "Custom Email"}</td>
-                      <td className="px-4 py-3 text-[var(--deck-text-2)]">{log.sender_name ?? "-"}</td>
-                      <td className="px-4 py-3 text-[var(--deck-text-2)]">{log.provider ?? "resend"}</td>
-                      <td className="px-4 py-3"><StatusBadge label={log.status} tone={tone(log.status)} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      }
+      count={`${logs.length} ${logs.length === 1 ? "entry" : "entries"}`}
+      table={
+        logs.length === 0 ? (
+          <EmptyState
+            icon="messageSquare"
+            title="No email log entries"
+            description={
+              hasFilters
+                ? "No emails match the current filters."
+                : "Emails sent through the portal will appear here."
+            }
+          />
+        ) : (
+          <DataTable
+            rows={paged}
+            getKey={(row) => row.id}
+            getHref={(row) => recordHref(row.id)}
+            emptyLabel="No email log entries."
+            columns={[
+              {
+                header: "Sent",
+                priority: "secondary",
+                cell: (row) => (
+                  <span className="deck-mono whitespace-nowrap text-[var(--deck-text-2)]">
+                    {formatDateTime(row.sent_at ?? row.created_at)}
+                  </span>
+                ),
+              },
+              {
+                header: "Subject",
+                priority: "primary",
+                cell: (row) => (
+                  <div className="min-w-0 max-w-[26rem]">
+                    <p className="truncate font-semibold text-[var(--deck-text)]">
+                      {row.subject ?? "AMG Operations"}
+                    </p>
+                    <p className="mt-0.5 truncate text-xs text-[var(--deck-text-3)]">
+                      {row.body_preview ?? row.failure_reason ?? "—"}
+                    </p>
+                  </div>
+                ),
+              },
+              {
+                header: "Recipient",
+                cell: (row) => {
+                  const extra = row.to_emails.length - 1;
+                  return (
+                    <div className="min-w-0 max-w-[16rem]">
+                      <p className="truncate text-[var(--deck-text-2)]">
+                        {row.recipient_name ?? row.to_emails[0] ?? "—"}
+                      </p>
+                      <p className="truncate text-xs text-[var(--deck-text-3)]">
+                        {row.to_emails[0] ?? ""}
+                        {extra > 0 ? ` +${extra} more` : ""}
+                      </p>
+                    </div>
+                  );
+                },
+              },
+              {
+                header: "Category",
+                hideOnMobile: true,
+                cell: (row) => (
+                  <span className="whitespace-nowrap text-[var(--deck-text-2)]">
+                    {row.email_category ?? "—"}
+                  </span>
+                ),
+              },
+              {
+                header: "Status",
+                cell: (row) => <StatusBadge label={row.status} tone={tone(row.status)} />,
+              },
+            ]}
+          />
+        )
+      }
+      pagination={{
+        basePath,
+        page: safePage,
+        pageCount,
+        params: {
+          q: params.q,
+          user: params.user,
+          date_from: params.date_from,
+          date_to: params.date_to,
+          category: params.category,
+          template: params.template,
+          status: params.status,
+          sender: params.sender,
+        },
+      }}
+    >
+      {record ? (
+        <RecordModal
+          eyebrow={record.direction === "inbound" ? "Received email" : "Sent email"}
+          title={record.subject ?? "AMG Operations"}
+          meta={`${formatDateTime(record.sent_at ?? record.created_at)}${
+            record.sender_name ? ` · sent by ${record.sender_name}` : ""
+          }`}
+          badge={<StatusBadge label={record.status} tone={tone(record.status)} />}
+          actions={
+            <>
+              {record.thread_id ? (
+                <Button asChild size="sm" variant="outline">
+                  <Link href={`/portal/admin/messages?thread=${record.thread_id}`}>
+                    Open thread
+                  </Link>
+                </Button>
+              ) : null}
+              <Button asChild size="sm" variant="outline">
+                <Link href={composeHref}>Compose new</Link>
+              </Button>
+            </>
+          }
+        >
+          {record.failure_reason ? (
+            <div className="mb-4">
+              <Notice tone="danger">{record.failure_reason}</Notice>
+            </div>
+          ) : null}
+          <dl>
+            <DetailRow label="To">{record.to_emails.join(", ") || "—"}</DetailRow>
+            {record.cc_emails.length ? (
+              <DetailRow label="Cc">{record.cc_emails.join(", ")}</DetailRow>
+            ) : null}
+            {record.bcc_emails.length ? (
+              <DetailRow label="Bcc">{record.bcc_emails.join(", ")}</DetailRow>
+            ) : null}
+            {record.from_email ? (
+              <DetailRow label="From">
+                {record.from_name ? `${record.from_name} · ` : ""}
+                {record.from_email}
+              </DetailRow>
+            ) : null}
+            <DetailRow label="Category">{record.email_category ?? "General"}</DetailRow>
+            <DetailRow label="Template">{record.template_name ?? "Custom email"}</DetailRow>
+            <DetailRow label="Provider">
+              {record.provider ?? "resend"}
+              {record.provider_message_id ? (
+                <span className="deck-mono ml-2 text-xs text-[var(--deck-text-3)]">
+                  {record.provider_message_id}
+                </span>
+              ) : null}
+            </DetailRow>
+            <DetailRow label="Timeline">
+              <span className="grid gap-0.5 text-sm">
+                <span>Created {formatDateTime(record.created_at)}</span>
+                {record.sent_at ? <span>Sent {formatDateTime(record.sent_at)}</span> : null}
+                {record.delivered_at ? (
+                  <span>Delivered {formatDateTime(record.delivered_at)}</span>
+                ) : null}
+                {record.failed_at ? <span>Failed {formatDateTime(record.failed_at)}</span> : null}
+                {record.received_at ? (
+                  <span>Received {formatDateTime(record.received_at)}</span>
+                ) : null}
+              </span>
+            </DetailRow>
+          </dl>
+          <div className="mt-5">
+            <p className="deck-eyebrow mb-2">Message</p>
+            <div className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-4 py-3 text-sm leading-6 text-[var(--deck-text-2)] whitespace-pre-wrap break-words">
+              {record.body_text?.trim() || record.body_preview || "No message body stored."}
             </div>
           </div>
-        ) : (
-          <div className="mt-4 rounded-md border border-dashed border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] px-4 py-8 text-center text-sm text-[var(--deck-text-3)]">
-            No email log entries match the current filters.
-          </div>
-        )}
-      </SectionCard>
-    </>
+        </RecordModal>
+      ) : null}
+
+      {composeOpen ? (
+        <FormModal
+          eyebrow="Communications"
+          title="Compose email"
+          meta="Templated or custom — sent through the AMG operational wrapper and logged here."
+          paramKeys={["compose"]}
+          wide
+        >
+          {validationNotice ? <div className="mb-4">{validationNotice}</div> : null}
+          {!provider.configured ? (
+            <div className="mb-4">
+              <Notice tone="warn">
+                Email sending is disabled until the Resend provider is configured.
+              </Notice>
+            </div>
+          ) : null}
+          <form action={sendCommunicationEmailAction} className="grid gap-5">
+            <input type="hidden" name="back_to" value={composeHref} />
+            <input type="hidden" name="general_thread" value="on" />
+
+            <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
+              Recipients
+              <RecipientPicker name="to" groups={audienceGroups} />
+            </label>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
+                Template
+                <DeckSelect
+                  name="template_id"
+                  aria-label="Template"
+                  className="font-normal normal-case"
+                  placeholder="Custom Email"
+                  options={templates.map((template) => ({
+                    value: template.id,
+                    label: template.name,
+                  }))}
+                />
+              </label>
+              <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
+                Category
+                <DeckSelect
+                  name="category"
+                  defaultValue="General"
+                  aria-label="Category"
+                  className="font-normal normal-case"
+                  options={CATEGORIES.map((category) => ({ value: category, label: category }))}
+                />
+              </label>
+            </div>
+
+            <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
+              Related Client
+              <Combobox
+                name="related_client_id"
+                placeholder="General thread — or search a client…"
+                options={records.clients.map((client) => ({
+                  value: client.id,
+                  label: client.label,
+                }))}
+                className="font-normal normal-case"
+              />
+            </label>
+
+            <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
+              Subject
+              <input
+                name="subject"
+                placeholder="Leave blank to use the selected template's subject"
+                className="deck-input font-normal normal-case"
+              />
+            </label>
+
+            <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
+              Body
+              <textarea
+                name="body"
+                rows={8}
+                placeholder="Leave blank to use the selected template's body. Custom content is rendered through the AMG operational email wrapper."
+                className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-3 py-2 text-sm font-normal normal-case leading-6 text-[var(--deck-text)]"
+              />
+            </label>
+
+            <div className="flex justify-end">
+              <SubmitButton disabled={!provider.configured} pendingText="Sending...">
+                Send Email
+              </SubmitButton>
+            </div>
+          </form>
+        </FormModal>
+      ) : null}
+    </RecordListShell>
   );
 }
