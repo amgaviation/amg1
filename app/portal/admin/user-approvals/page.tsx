@@ -140,13 +140,10 @@ export default async function AdminUserApprovalsPage({
         description="Pending portal access requests by requester, company, business purpose, requested role, and submitted date."
         rows={rows}
         columns={[
-          { key: "name", label: "Name", sortable: true, className: "w-[15rem]" },
-          { key: "email", label: "Email", sortable: true, className: "w-[18rem]" },
-          { key: "company", label: "Company", sortable: true, className: "w-[13rem]" },
-          { key: "businessPurpose", label: "Purpose", sortable: true, className: "w-[10rem]" },
-          { key: "requestedRole", label: "Requested Role", sortable: true, className: "w-[12rem]" },
-          { key: "requested", label: "Requested", sortable: true, className: "w-[12rem]" },
-          { key: "status", label: "Status", sortable: true, className: "w-[10rem]" },
+          { key: "name", label: "Name", sortable: true, className: "w-[16rem]" },
+          { key: "company", label: "Company", sortable: true, className: "w-[14rem]" },
+          { key: "requestedRole", label: "Requested Role", sortable: true, className: "w-[11rem]" },
+          { key: "status", label: "Status", sortable: true, className: "w-[11rem]" },
         ]}
         filters={filters}
         fields={[

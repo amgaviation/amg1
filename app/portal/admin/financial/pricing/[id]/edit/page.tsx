@@ -4,7 +4,13 @@ import { requireRolePermission } from "@/lib/portal/permissions";
 import { retryStripeSync, updateService } from "@/app/portal/actions/services";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import { ServiceForm } from "@/components/portal/admin/service-form";
-import { getServiceDetail, listActiveServicesForPicker, listPlanTierOptions, serviceFlashMessage } from "@/lib/portal/services";
+import {
+  getServiceDetail,
+  listActiveServicesForPicker,
+  listPlanTierOptions,
+  listServiceCategories,
+  serviceFlashMessage,
+} from "@/lib/portal/services";
 
 export const metadata = { title: "Edit Service - Admin Portal" };
 
@@ -20,10 +26,11 @@ export default async function EditServicePage({
   await requireRolePermission("admin", "settings");
   const { id } = await params;
   const flashParams = await searchParams;
-  const [detail, tierOptions, attachableServices] = await Promise.all([
+  const [detail, tierOptions, attachableServices, categories] = await Promise.all([
     getServiceDetail(id),
     listPlanTierOptions(),
     listActiveServicesForPicker(),
+    listServiceCategories(),
   ]);
   if (!detail) notFound();
   const { service, variants, variables, attachments } = detail;
@@ -38,7 +45,7 @@ export default async function EditServicePage({
       <PageHeader
         eyebrow="Service Catalog"
         title={`Edit ${service.code}`}
-        description={`${service.name} — cost type is permanent; price changes close the old price row and open a new one effective today.`}
+        description={`${service.name} — cost type is permanent; price changes close the old price row and open a new one on the start date you choose (today by default).`}
         actions={
           <>
             <Link href={`${BASE}/${service.id}`} className="text-xs text-muted-foreground hover:text-accent">
@@ -86,6 +93,8 @@ export default async function EditServicePage({
         }))}
         tierOptions={tierOptions}
         attachableServices={attachableServices}
+        categories={categories}
+        restoreDraft={Boolean(flashParams.error)}
         redirectTo={`${BASE}/${service.id}/edit`}
         cancelHref={`${BASE}/${service.id}`}
       />

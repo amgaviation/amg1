@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LineItemsEditor } from "@/components/portal/admin/line-items-editor";
 import { notFound, redirect } from "next/navigation";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
@@ -24,20 +25,6 @@ export default async function EditInvoicePage({
   if (!invoice) notFound();
   if (!["draft", "ready_to_send"].includes(invoice.status)) redirect(`/portal/admin/invoices/${invoice.id}?error=locked`);
 
-  const rows = [
-    ...invoice.items,
-    ...Array.from({ length: Math.max(0, 6 - invoice.items.length) }).map(
-      (_, index) =>
-        ({
-          id: `new-${index}`,
-          category: "",
-          description: "",
-          quantity: 1,
-          unit_price: 0,
-          amount: 0,
-        }) as any,
-    ),
-  ].slice(0, 8);
   const editableStatuses = INVOICE_STATUS.filter((status) => ["draft", "ready_to_send"].includes(status.value));
 
   return (
@@ -68,20 +55,22 @@ export default async function EditInvoicePage({
         </SectionCard>
 
         <SectionCard title="Line Items" icon="receipt">
-          <div className="space-y-3">
-            {rows.map((item) => (
-              <div key={item.id} className="grid gap-3 rounded-md border border-border p-3 md:grid-cols-[1.2fr_1.5fr_.7fr_.7fr_.8fr]">
-                <SelectField label="Category" name="category[]" defaultValue={item.category} options={[{ value: "", label: "No line" }, ...QUOTE_CATEGORIES.map((value) => ({ value, label: value }))]} />
-                <TextField label="Description" name="description[]" defaultValue={item.description ?? ""} />
-                <TextField label="Qty" name="quantity[]" type="number" min="0" step="0.01" defaultValue={String(item.quantity ?? 1)} />
-                <TextField label="Unit Price" name="unit_price[]" type="number" min="0" step="0.01" defaultValue={String(item.unit_price ?? 0)} />
-                <SelectField label="Cost Type" name="cost_type[]" defaultValue={(item as any).cost_type ?? "Fixed Fee"} options={BILLING_COST_TYPES.map((value) => ({ value, label: value }))} />
-                <TextField label="Unit" name="unit[]" defaultValue={(item as any).unit ?? ""} />
-                <TextAreaField label="Client Note" name="client_notes[]" defaultValue={(item as any).client_notes ?? ""} />
-                <TextAreaField label="Internal Note" name="internal_notes[]" defaultValue={(item as any).internal_notes ?? ""} />
-              </div>
-            ))}
-          </div>
+          <LineItemsEditor
+            categories={[...QUOTE_CATEGORIES]}
+            costTypes={[...BILLING_COST_TYPES]}
+            showCostType
+            showNotes
+            initialItems={invoice.items.map((item) => ({
+              category: item.category,
+              description: item.description,
+              quantity: item.quantity,
+              unit_price: item.unit_price,
+              unit: (item as any).unit,
+              cost_type: (item as any).cost_type,
+              client_notes: (item as any).client_notes,
+              internal_notes: (item as any).internal_notes,
+            }))}
+          />
         </SectionCard>
 
         <SectionCard title="Totals & Terms" icon="wallet">

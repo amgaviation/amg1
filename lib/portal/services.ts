@@ -300,7 +300,7 @@ export async function getServiceDetail(id: string): Promise<ServiceDetail | null
 
 // ── plan tiers (linked-tier dropdown) ─────────────────────────────────
 
-export type PlanTierOption = { value: string; label: string };
+export type PlanTierOption = { value: string; label: string; tierName?: string };
 
 export async function listPlanTierOptions(): Promise<PlanTierOption[]> {
   const db = await createServiceClient();
@@ -311,6 +311,7 @@ export async function listPlanTierOptions(): Promise<PlanTierOption[]> {
   return (data ?? []).map((tier) => ({
     value: tier.id,
     label: `${(tier.plan as { name: string } | null)?.name ?? "Plan"} — ${tier.name}`,
+    tierName: tier.name,
   }));
 }
 
@@ -389,6 +390,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   "variant-price": "Every price variant needs a unit price between $0 and $9,999,999,999.99.",
   "variant-duplicate-axes":
     "Two price variants share the same aircraft category, band, and plan tier — the calculator could not tell them apart. Give each variant distinct axes.",
+  "variant-effective-date":
+    "A scheduled price date must be a real date no earlier than today. Nothing was saved.",
   "variant-save-failed":
     "A price variant could not be saved. Re-open the form to see exactly what was stored, then try again.",
   "children-save-failed":
