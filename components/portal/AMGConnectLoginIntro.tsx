@@ -62,7 +62,9 @@ export function AMGConnectLoginIntro({ onComplete }: { onComplete: () => void })
   }, [finish]);
 
   useEffect(() => {
-    const skipTimer = window.setTimeout(() => setShowSkip(true), 1000);
+    // Skip is available almost immediately — the portal behind the intro is
+    // already rendered, so a returning user should never be held by the video.
+    const skipTimer = window.setTimeout(() => setShowSkip(true), 150);
     return () => window.clearTimeout(skipTimer);
   }, []);
 

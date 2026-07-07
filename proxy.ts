@@ -41,16 +41,22 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims verifies the session JWT locally against the project's
+  // asymmetric signing key (JWKS cached per instance) instead of calling the
+  // Auth server, and still performs the token refresh when the access token
+  // has expired. This removes a blocking network round trip from EVERY portal
+  // navigation and prefetch. Authorization (suspended/pending status) is
+  // enforced by the page guards against the profiles table, so a revoked but
+  // unexpired token cannot reach anything the DB status doesn't allow.
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const userId = claimsData?.claims?.sub ?? null;
 
-  if (user) {
+  if (userId) {
     if (request.nextUrl.searchParams.get("intro") === "1") {
       const { data: profile } = await supabase
         .from("profiles")
         .select("status")
-        .eq("id", user.id)
+        .eq("id", userId)
         .maybeSingle();
 
       if (isApprovedPortalIntroStatus(profile?.status)) {

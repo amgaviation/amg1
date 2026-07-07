@@ -24,15 +24,18 @@ export type SessionUser = {
  */
 export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
+  // Local JWT verification (asymmetric signing key, JWKS cached) instead of a
+  // network round trip to the Auth server — the profile read below is the
+  // real authorization source (role/status), and requireUser redirects on any
+  // suspended/pending status, so a revoked-but-unexpired token gains nothing.
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const userId = claimsData?.claims?.sub;
+  if (!userId) return null;
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("id, email, full_name, role, status, company_name, phone, home_base")
-    .eq("id", user.id)
+    .eq("id", userId)
     .single();
 
   if (!profile || !isPortalRole(profile.role)) return null;
