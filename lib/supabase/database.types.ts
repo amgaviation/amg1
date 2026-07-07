@@ -1454,6 +1454,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_path: string | null
           company_name: string | null
           created_at: string
           admin_notes: string | null
@@ -1490,6 +1491,7 @@ export type Database = {
           waitlisted_by: string | null
         }
         Insert: {
+          avatar_path?: string | null
           admin_notes?: string | null
           assigned_role?: string | null
           business_purpose?: string
@@ -4898,6 +4900,223 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      vendor_invoice_lines: {
+        Row: {
+          amount: number
+          description: string
+          id: string
+          invoice_id: string
+          position: number
+          quantity: number
+          unit_amount: number
+        }
+        Insert: {
+          amount?: number
+          description: string
+          id?: string
+          invoice_id: string
+          position?: number
+          quantity?: number
+          unit_amount?: number
+        }
+        Update: {
+          amount?: number
+          description?: string
+          id?: string
+          invoice_id?: string
+          position?: number
+          quantity?: number
+          unit_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_invoice_lines_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vendor_invoices: {
+        Row: {
+          bill_from_address: string | null
+          bill_from_company: string | null
+          bill_from_email: string | null
+          bill_from_name: string
+          bill_from_phone: string | null
+          bill_from_tax_id: string | null
+          created_at: string
+          currency: string
+          due_date: string | null
+          id: string
+          invoice_date: string
+          invoice_number: string | null
+          mission_id: string | null
+          notes: string | null
+          paid_at: string | null
+          payment_instructions: string | null
+          payment_reference: string | null
+          ref: string
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitter_id: string
+          submitter_role: string
+          subtotal: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          bill_from_address?: string | null
+          bill_from_company?: string | null
+          bill_from_email?: string | null
+          bill_from_name: string
+          bill_from_phone?: string | null
+          bill_from_tax_id?: string | null
+          created_at?: string
+          currency?: string
+          due_date?: string | null
+          id?: string
+          invoice_date?: string
+          invoice_number?: string | null
+          mission_id?: string | null
+          notes?: string | null
+          paid_at?: string | null
+          payment_instructions?: string | null
+          payment_reference?: string | null
+          ref: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitter_id: string
+          submitter_role: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          bill_from_address?: string | null
+          bill_from_company?: string | null
+          bill_from_email?: string | null
+          bill_from_name?: string
+          bill_from_phone?: string | null
+          bill_from_tax_id?: string | null
+          created_at?: string
+          currency?: string
+          due_date?: string | null
+          id?: string
+          invoice_date?: string
+          invoice_number?: string | null
+          mission_id?: string | null
+          notes?: string | null
+          paid_at?: string | null
+          payment_instructions?: string | null
+          payment_reference?: string | null
+          ref?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitter_id?: string
+          submitter_role?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_invoices_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_invoices_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_invoices_submitter_id_fkey"
+            columns: ["submitter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vendor_receipts: {
+        Row: {
+          amount: number | null
+          created_at: string
+          description: string | null
+          file_name: string
+          file_size: number | null
+          id: string
+          invoice_id: string | null
+          mime_type: string | null
+          mission_id: string | null
+          storage_bucket: string
+          storage_path: string
+          uploader_id: string
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          description?: string | null
+          file_name: string
+          file_size?: number | null
+          id?: string
+          invoice_id?: string | null
+          mime_type?: string | null
+          mission_id?: string | null
+          storage_bucket?: string
+          storage_path: string
+          uploader_id: string
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          file_size?: number | null
+          id?: string
+          invoice_id?: string | null
+          mime_type?: string | null
+          mission_id?: string | null
+          storage_bucket?: string
+          storage_path?: string
+          uploader_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_receipts_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_receipts_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_receipts_uploader_id_fkey"
+            columns: ["uploader_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       website_content_drafts: {
         Row: {

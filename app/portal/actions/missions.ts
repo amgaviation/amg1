@@ -283,7 +283,12 @@ export async function updateMissionStatus(formData: FormData) {
   // Same-status submits stay legal — admins use this form to save an
   // internal note without moving the mission.
   const isTransition = current!.status !== status;
-  if (isTransition && !canTransition(current!.status, status)) {
+  const hasOverrideReason = overrideReason.length >= MIN_GATE_OVERRIDE_REASON_LENGTH;
+  // The transition map fails closed by default, but an admin with an explicit
+  // override reason may force ANY move — same loud audit + all-admin notify
+  // as a gate override, so nothing slips through quietly.
+  const illegalTransition = isTransition && !canTransition(current!.status, status);
+  if (illegalTransition && !hasOverrideReason) {
     redirect(`${backTo}?error=illegal-transition&from=${current!.status}&to=${status}`);
   }
 
@@ -293,8 +298,8 @@ export async function updateMissionStatus(formData: FormData) {
   const gates = isTransition
     ? await checkMissionGates(db, missionId, status)
     : { blockers: [], warnings: [] };
-  const overridden = gates.blockers.length > 0;
-  if (overridden && overrideReason.length < MIN_GATE_OVERRIDE_REASON_LENGTH) {
+  const overridden = gates.blockers.length > 0 || illegalTransition;
+  if (gates.blockers.length > 0 && !hasOverrideReason) {
     redirect(`${backTo}?error=gate-blocked&gate=${gateNameFor(status) ?? "mission"}`);
   }
 
@@ -320,17 +325,21 @@ export async function updateMissionStatus(formData: FormData) {
 
   if (overridden) {
     // Loud, explicit trail: the override is its own audit event and every
-    // admin is notified, so a forced gate never passes quietly.
+    // admin is notified, so a forced move never passes quietly.
+    const forced = [
+      ...(illegalTransition ? [`out-of-flow transition (${current!.status} → ${status})`] : []),
+      ...gates.blockers,
+    ];
     await logAuditEvent({
       actor: user,
       action: "mission_gate_overridden",
-      detail: `${mission?.ref ?? missionId}: ${current!.status} → ${status} forced past ${gates.blockers.length} blocker(s): ${gates.blockers.join("; ")} — Override reason: ${overrideReason}`,
+      detail: `${mission?.ref ?? missionId}: ${current!.status} → ${status} forced past ${forced.length} blocker(s): ${forced.join("; ")} — Override reason: ${overrideReason}`,
       entityType: "mission",
       entityId: missionId,
     });
     await notifyAdmins({
       title: `Gate override — ${mission?.ref ?? "mission"} moved to ${status.replace(/_/g, " ")}`,
-      body: `${user.name} overrode ${gates.blockers.length} readiness blocker(s) on ${mission?.ref ?? missionId}: ${gates.blockers.join("; ")}. Reason: ${overrideReason}`,
+      body: `${user.name} overrode ${forced.length} blocker(s) on ${mission?.ref ?? missionId}: ${forced.join("; ")}. Reason: ${overrideReason}`,
       type: "mission_gate_overridden",
       entityType: "mission",
       entityId: missionId,
