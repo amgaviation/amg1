@@ -22,13 +22,20 @@ export default function Proof() {
     if (prefersReducedMotion() || !missions.length) return;
 
     const ctx = gsap.context(() => {
+      // Trigger-once entrance — never scrubbed, so copy always lands at
+      // full opacity without further scrolling.
       gsap.from(".proof-in", {
         y: 50,
         opacity: 0,
-        duration: 1,
+        duration: 0.6,
         ease: "power3.out",
         stagger: 0.1,
-        scrollTrigger: { trigger: root.current, start: "top 74%" },
+        scrollTrigger: {
+          trigger: root.current,
+          start: "top 74%",
+          toggleActions: "play none none none",
+          once: true,
+        },
       });
     }, root);
     return () => ctx.revert();

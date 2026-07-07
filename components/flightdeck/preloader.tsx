@@ -2,9 +2,7 @@
 
 import { useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import { markRevealed, prefersReducedMotion } from "./reveal";
-
-const SESSION_KEY = "amg-flightdeck-boot";
+import { BOOT_SESSION_KEY, hasBooted, markRevealed, prefersReducedMotion } from "./reveal";
 
 /**
  * Opening boot sequence — shown once per session:
@@ -18,12 +16,9 @@ export default function Preloader() {
   const [active, setActive] = useState(true);
 
   useLayoutEffect(() => {
-    let seen = false;
-    try {
-      seen = window.sessionStorage.getItem(SESSION_KEY) === "true";
-    } catch {
-      // Session storage unavailable — play the boot once for this render.
-    }
+    // Session storage unavailable reads as "not seen" — the boot simply
+    // plays once for this render.
+    const seen = hasBooted();
 
     if (seen || prefersReducedMotion()) {
       setActive(false);
@@ -36,7 +31,7 @@ export default function Preloader() {
 
     const finish = () => {
       try {
-        window.sessionStorage.setItem(SESSION_KEY, "true");
+        window.sessionStorage.setItem(BOOT_SESSION_KEY, "true");
       } catch {
         // Ignore — the boot simply plays again next time.
       }

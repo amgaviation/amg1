@@ -58,6 +58,11 @@ check(
   "DECK_NAV should define the Flight Deck Console admin navigation groups rendered by PortalShell.",
 );
 check(
+  "Finance nav exposes Pricing & Services catalog",
+  constants.includes('label: "Pricing & Services"') && constants.includes("/portal/admin/financial/pricing"),
+  "Add Finance > Pricing & Services nav item pointing at /portal/admin/financial/pricing.",
+);
+check(
   "Emails nav route exists",
   constants.includes("/portal/admin/communications/emails") && exists("app/portal/admin/communications/emails/page.tsx"),
   "Add Communications > Emails route and nav item.",

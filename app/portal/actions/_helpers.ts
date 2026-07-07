@@ -19,7 +19,9 @@ export function num(fd: FormData, key: string): number | null {
   const v = str(fd, key);
   if (!v) return null;
   const n = Number(v);
-  return Number.isNaN(n) ? null : n;
+  // isFinite, not isNaN: "Infinity" must read as absent, not as a number
+  // that passes range checks and then overflows at the database.
+  return Number.isFinite(n) ? n : null;
 }
 
 export function isoOrNull(fd: FormData, key: string): string | null {

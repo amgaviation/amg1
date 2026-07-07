@@ -60,13 +60,20 @@ export default function Ops() {
     if (prefersReducedMotion()) return;
 
     const ctx = gsap.context(() => {
+      // Trigger-once entrance — never scrubbed, so every row (including
+      // "Fly, tracked") always lands at full opacity without further scrolling.
       gsap.from(".bw-in", {
         y: 50,
         opacity: 0,
-        duration: 1,
+        duration: 0.6,
         ease: "power3.out",
         stagger: 0.08,
-        scrollTrigger: { trigger: root.current, start: "top 70%" },
+        scrollTrigger: {
+          trigger: root.current,
+          start: "top 70%",
+          toggleActions: "play none none none",
+          once: true,
+        },
       });
     }, root);
     return () => ctx.revert();

@@ -36,3 +36,24 @@ Open (logged, not fixed this pass):
   0.18.x with no fix), which the sandbox correctly refused to install without owner approval.
   Practical exposure meanwhile: server export path is write-only (not the vulnerable parse paths);
   the import parse runs in the admin's own browser on a file the admin chose. One-line owner action.
+
+---
+
+## Session-3 single-agent review (dual-plan cycle, per owner instruction)
+
+Verdicts: visual SHIP (1 fix), catalog FIX-FIRST (3 MED + LOWs). All confirmed findings fixed same-session:
+
+| # | Sev | Finding | Resolution |
+|---|-----|---------|-----------|
+| 1 | MED | "On-Demand" pricing header still wrapped at the hyphen despite whitespace-nowrap | Non-breaking hyphen at render time (copy string unchanged) |
+| 4 | MED | services.ts child-table writes unchecked; oversized price could close the open variant row then fail the replacement insert, silently reverting the price | Every child write error-checked; price-change path compensates (reopens closed row) on failure; create/duplicate roll back the half-made service; prices bounded to numeric(12,2) range |
+| 5 | MED | Stale variants_json ids (double-submit / second tab) inserted duplicate open price rows with identical axes | Reconciliation matches by id then by axes; unclaimed open rows close; duplicate axes within one submission rejected |
+| 6 | MED | RLS "active read" policies exposed notes_internal + client_visible=false services to ALL authenticated users via PostgREST | Migration 20260707160000 (applied to prod) drops the four policies; portal reads use the service-role client, so nothing consumed them; client catalog phase must add a narrow column-restricted path instead |
+| 8 | LOW | Draft children expanded into quotes via attachments | Engine skips non-active children; server rejects non-active child ids (attachment-child-inactive) |
+| 9 | LOW | recurring_interval_count unvalidated; "Infinity" passed num() | Integer 1–60 check; num() now Number.isFinite |
+| 11 | LOW | PostgREST 1000-row cap on open-variant summary query | Explicit .limit(5000) + comment |
+| — | LOW | archive/retry status updates unchecked (audit could log a write that failed) | Error-checked before audit/redirect |
+
+Review items ratified as plan-sanctioned, no action: receipt-card removal (Phase 6 explicitly offered "cut it"), team founder facts column (Phase 7 spec), connect mockup content (Phase 5 spec). Finding 7 (doc 'standard' tier vs live 'Essentials') already flagged in seed notes_internal — owner follow-up.
+
+Deferred to backlog: variable-options multiplier metadata lost on form round-trip (no current data uses it); axis edits on open variant rows reinterpret history (letter of §5.3 honored, snapshots unaffected); request pill overlaps mission-deck spec row at 390px (content readable); variant-history pagination past 1000 rows.

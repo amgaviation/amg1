@@ -42,3 +42,19 @@ export function prefersReducedMotion() {
     window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
 }
+
+/**
+ * sessionStorage flag set by the preloader once the boot sequence has
+ * played. Sections use it to skip their entrance animation on repeat
+ * navigation within the same session, so pages render instantly.
+ */
+export const BOOT_SESSION_KEY = "amg-flightdeck-boot";
+
+export function hasBooted(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.sessionStorage.getItem(BOOT_SESSION_KEY) === "true";
+  } catch {
+    return false;
+  }
+}

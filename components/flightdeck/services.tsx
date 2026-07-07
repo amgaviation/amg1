@@ -46,20 +46,32 @@ export default function Services() {
     if (prefersReducedMotion()) return;
 
     const ctx = gsap.context(() => {
+      // Trigger-once entrances — never scrubbed, so copy always lands at
+      // full opacity without further scrolling.
       gsap.from(".feat-card", {
         y: 60,
         opacity: 0,
-        duration: 1.1,
+        duration: 0.7,
         ease: "power3.out",
         stagger: 0.12,
-        scrollTrigger: { trigger: root.current, start: "top 70%" },
+        scrollTrigger: {
+          trigger: root.current,
+          start: "top 70%",
+          toggleActions: "play none none none",
+          once: true,
+        },
       });
       gsap.from(".feat-brand", {
         x: -40,
         opacity: 0,
-        duration: 1.2,
+        duration: 0.7,
         ease: "power3.out",
-        scrollTrigger: { trigger: root.current, start: "top 70%" },
+        scrollTrigger: {
+          trigger: root.current,
+          start: "top 70%",
+          toggleActions: "play none none none",
+          once: true,
+        },
       });
     }, root);
     return () => ctx.revert();
@@ -71,12 +83,6 @@ export default function Services() {
         {/* brand block */}
         <div className="feat-brand">
           <div className="hud-frame inline-flex items-center gap-3 p-4">
-            <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden="true">
-              <circle cx="17" cy="17" r="15" stroke="#0b5ed4" strokeOpacity="0.6" />
-              <circle cx="17" cy="17" r="15" stroke="#A9B4C6" strokeOpacity="0.2" strokeDasharray="3 5" />
-              <path d="M17 6v22M6 17h22" stroke="#0b5ed4" strokeOpacity="0.35" />
-              <path d="M17 10l5 9h-10l5-9z" fill="#0b5ed4" />
-            </svg>
             <div>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

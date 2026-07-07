@@ -14,7 +14,7 @@ import GlobalFooter from "./global-footer";
 
 /**
  * The flight-deck home experience — a single scroll-choreographed page
- * carrying the Business Plan home content: porthole dive (the 24-hour
+ * carrying the Business Plan home content: full-bleed hero (the 24-hour
  * promise) → transparency statement → worked example → services → three
  * doors → published-pricing deck → how-it-works → proof (data-gated) →
  * AMG Connect → pinned global footer.

@@ -59,3 +59,16 @@ Adversarial review (3 skeptics, 12 findings — all addressed):
 - HIGH credits: expiry sweep batch permanently clogged by processed rows → originals annotated + excluded from candidates
 - MED: credit application now writes compliance evidence like every payment path; invoice-rollup failure unwinds the payment; balance-cap loop no longer strands smaller credits; clamp-at-zero drift alerts admins; same-status note saves no longer email clients; movement gate fails closed on read errors; accept_stripe wrapped + mode-guarded
 - LOW-MED: quote writers can no longer drag moving missions backward; client cancel restricted once crew committed (ops-request notice); re-notify noise after keep_local fixed; cadence switch zeroes the stale price column
+
+## Dual-plan cycle (user-directed, session 3): public visual fixes + service catalog phase 1
+Public site (owner-approved plan lifted the visual freeze for this scope; copy verbatim except three spec'd allowances):
+- Grid backgrounds removed site-wide (globals.css public selectors + home-hangar-entry overlay) → soft radial vignettes; portal CSS untouched
+- Hero reworked: one "Quoted in 24 hours." lockup, full-bleed sky media (porthole pin removed, ~90vh shorter, SVG deleted), ≤600ms first-visit-only reveal (shared sessionStorage boot flag), SERVING strip contrast raised
+- Scroll reveals in services/doors/proof/ops/connect converted to trigger-once tweens — no more text parked at partial opacity
+- Mission deck rebalanced (single composition, blueprint anchor, pin 195vh→120vh); Global footer: ticker scrim, receipt docked, links on clear ground, pin shortened
+- Connect mockup populated (static rows/thread/reminder); team founder card null-photo layout; pricing header nowrap + padding compression + worked-example lead-in; request pill visibility logic + solid backdrop; branded 404 at (public) boundary AND root
+Service catalog phase 1 (pre-authorized additive migration APPLIED to prod; catalog seeded via MCP):
+- 4 new tables (services, effective-dated price variants, calculator variables, attachments) + nullable catalog columns on quote/invoice line items, quotes, client_subscriptions; RLS mirrors subscription_plans
+- Pure zero-import pricing engine + 22-check verify script (npm run pricing:verify — all pass)
+- Admin CRUD at /portal/admin/financial/pricing (settings.add/edit gated, cost_type immutable, close-and-reopen price history, archive warns on usage, full audit)
+- Seed: COORD-MISSION 6-variant matrix, 3 plan-fee mirrors of live tiers, 5 pass-throughs, 2 draft placeholders; doc-vs-live tier-name mismatch flagged in notes_internal (members fail safe to On-Demand until owner confirms)
