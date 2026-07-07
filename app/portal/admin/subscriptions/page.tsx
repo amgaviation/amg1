@@ -1,25 +1,93 @@
 import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
-import { cleanupTestSubscriptionsAction, createSubscriptionPlan, createTestSubscriptionAction } from "@/app/portal/actions/subscriptions";
+import {
+  cleanupTestSubscriptionsAction,
+  createSubscriptionPlan,
+  createTestSubscriptionAction,
+} from "@/app/portal/actions/subscriptions";
 import { currentStripeMode } from "@/lib/portal/stripe-mode";
 import { resolveTestStripeKey } from "@/lib/portal/stripe-custom-subscriptions";
 import { DataTable } from "@/components/portal/ui/data-table";
-import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
-import { EmptyState, Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
+import { DeckSelect, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
+import {
+  DetailRow,
+  EmptyState,
+  FilterTabs,
+  Notice,
+  SectionCard,
+  StatCard,
+} from "@/components/portal/ui/primitives";
+import { RecordListShell } from "@/components/portal/ui/record-list-shell";
+import { FormModal, RecordModal } from "@/components/portal/ui/record-modal";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
-import { getSubscriptionOverageTotal, listAllSubscriptions, listStripeSubscriptionEvents, listSubscriptionPlans } from "@/lib/portal/queries";
-import { SUBSCRIPTION_PLAN_STATUS, SUBSCRIPTION_PLAN_STATUS_LABEL, SUBSCRIPTION_PLAN_STATUS_TONE, SUBSCRIPTION_STATUS_LABEL, SUBSCRIPTION_STATUS_TONE, SUBSCRIPTION_SYNC_STATUS_LABEL, SUBSCRIPTION_SYNC_STATUS_TONE, toneFor } from "@/lib/portal/constants";
+import { Button } from "@/components/ui/button";
+import {
+  getSubscriptionOverageTotal,
+  listAllSubscriptions,
+  listStripeSubscriptionEvents,
+  listSubscriptionPlans,
+} from "@/lib/portal/queries";
+import {
+  SUBSCRIPTION_PLAN_STATUS,
+  SUBSCRIPTION_PLAN_STATUS_LABEL,
+  SUBSCRIPTION_PLAN_STATUS_TONE,
+  SUBSCRIPTION_STATUS_LABEL,
+  SUBSCRIPTION_STATUS_TONE,
+  SUBSCRIPTION_SYNC_STATUS,
+  SUBSCRIPTION_SYNC_STATUS_LABEL,
+  SUBSCRIPTION_SYNC_STATUS_TONE,
+  toneFor,
+} from "@/lib/portal/constants";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/portal/format";
 
 export const metadata = { title: "Subscriptions - Admin Portal" };
 
+const PAGE_SIZE = 25;
+
+type Params = {
+  success?: string;
+  error?: string;
+  q?: string;
+  status?: string;
+  sync?: string;
+  plan?: string;
+  page?: string;
+  record?: string;
+  new_plan?: string;
+};
+
+function listQuery(params: Params, overrides: Record<string, string | undefined> = {}) {
+  const keep: (keyof Params)[] = ["q", "status", "sync", "plan", "page"];
+  const search = new URLSearchParams();
+  for (const key of keep) {
+    const value = params[key];
+    if (value) search.set(key, value);
+  }
+  for (const [key, value] of Object.entries(overrides)) {
+    if (value) search.set(key, value);
+    else search.delete(key);
+  }
+  const qs = search.toString();
+  return qs ? `?${qs}` : "";
+}
+
+type SubscriptionRow = Awaited<ReturnType<typeof listAllSubscriptions>>[number];
+
+function clientLabel(row: SubscriptionRow) {
+  return row.client?.company_name ?? row.client?.full_name ?? row.client?.email ?? null;
+}
+
+function planLabel(row: SubscriptionRow) {
+  return (row as any).custom_name ?? row.plan?.name ?? "Custom subscription";
+}
+
 export default async function AdminSubscriptionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ success?: string; error?: string }>;
+  searchParams: Promise<Params>;
 }) {
-  const user = await requireRolePermission("admin", "subscriptions");
+  await requireRolePermission("admin", "subscriptions");
   const params = await searchParams;
   const [subscriptions, plans, overageTotal, stripeEvents] = await Promise.all([
     listAllSubscriptions(),
@@ -27,6 +95,8 @@ export default async function AdminSubscriptionsPage({
     getSubscriptionOverageTotal(),
     listStripeSubscriptionEvents(),
   ]);
+  const basePath = "/portal/admin/subscriptions";
+
   // Test subscriptions never count toward operations/revenue numbers.
   const realSubscriptions = subscriptions.filter((subscription) => !(subscription as any).is_test);
   const testCount = subscriptions.length - realSubscriptions.length;
@@ -38,71 +108,250 @@ export default async function AdminSubscriptionsPage({
   const stripeMode = currentStripeMode();
   const hasTestKey = Boolean(resolveTestStripeKey());
 
+  const q = params.q?.trim().toLowerCase();
+  const filtered = subscriptions.filter((row) => {
+    if (params.status && row.status !== params.status) return false;
+    if (params.sync && (row.stripe_sync_status ?? "manual") !== params.sync) return false;
+    if (params.plan && row.plan_id !== params.plan) return false;
+    if (q) {
+      const haystack = [
+        clientLabel(row),
+        planLabel(row),
+        row.tier?.name,
+        row.aircraft?.tail_number,
+        row.source,
+        row.stripe_subscription_id,
+        row.stripe_customer_id,
+        row.stripe_sync_warning,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+
+  const record = params.record
+    ? subscriptions.find((row) => row.id === params.record) ?? null
+    : null;
+
+  const currentPage = Math.max(1, Number(params.page ?? "1") || 1);
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, pageCount);
+  const paged = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const hasFilters = Boolean(params.q || params.status || params.sync || params.plan);
+  const recordHref = (id: string) => `${basePath}${listQuery(params, { record: id })}`;
+  const newPlanHref = `${basePath}${listQuery(params, { new_plan: "1", page: undefined })}`;
+
+  const statusBadge = (row: SubscriptionRow) => (
+    <StatusBadge
+      label={SUBSCRIPTION_STATUS_LABEL[row.status] ?? row.status}
+      tone={toneFor(SUBSCRIPTION_STATUS_TONE, row.status)}
+    />
+  );
+  const syncBadge = (row: SubscriptionRow) => (
+    <StatusBadge
+      label={SUBSCRIPTION_SYNC_STATUS_LABEL[row.stripe_sync_status ?? "manual"] ?? row.stripe_sync_status ?? "manual"}
+      tone={toneFor(SUBSCRIPTION_SYNC_STATUS_TONE, row.stripe_sync_status ?? "manual")}
+    />
+  );
+
   return (
-    <>
-      {params.success === "plan" ? <Notice tone="success">Subscription plan created.</Notice> : null}
-      {params.success === "test-cleanup" ? <Notice tone="success">Test subscriptions cleaned up.</Notice> : null}
-      {params.error ? <Notice tone="danger">{decodeURIComponent(params.error)}</Notice> : null}
-      <PageHeader
-        eyebrow="AMG Billing"
-        title="Subscriptions"
-        description="Manage client support subscriptions, allowances, usage, renewal status, and credits."
-        actions={<Link href="/portal/admin/subscriptions/new" className="text-xs text-accent hover:underline">Create Client Subscription</Link>}
-      />
-
-      <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-6">
-        <StatCard label="Active subscriptions" value={activeCount} href="/portal/admin/subscriptions" tone={activeCount ? "accent" : "default"} />
-        <StatCard label="Trialing" value={trialingCount} href="/portal/admin/subscriptions" />
-        <StatCard label="Pending checkout" value={pendingCheckoutCount} href="/portal/admin/subscriptions" tone={pendingCheckoutCount ? "warn" : "default"} />
-        <StatCard label="Needs review" value={needsReviewCount} href="/portal/admin/subscriptions" tone={needsReviewCount ? "danger" : "default"} />
-        <StatCard label="Sync issues" value={syncErrorCount} href="/portal/admin/subscriptions" tone={syncErrorCount ? "danger" : "default"} />
-        <StatCard label="Tracked overages" value={formatMoney(overageTotal)} href="/portal/admin/subscriptions" />
-      </div>
-
-      {needsReviewCount || syncErrorCount || pendingCheckoutCount ? (
-        <Notice tone={syncErrorCount || needsReviewCount ? "danger" : "warn"}>
-          {needsReviewCount ? "Stripe subscription exists but is not linked to a portal client. " : ""}
-          {syncErrorCount ? "Webhook failed, price mismatch, or disconnected record needs review. " : ""}
-          {pendingCheckoutCount ? "Checkout session created but not completed." : ""}
-        </Notice>
-      ) : null}
-
-      <SectionCard title="Client Subscriptions" icon="clipboard">
-        {subscriptions.length === 0 ? (
+    <RecordListShell
+      eyebrow="AMG Billing"
+      title="Subscriptions"
+      description="Manage client support subscriptions, allowances, usage, renewal status, and credits."
+      actions={
+        <>
+          <Button asChild size="sm" variant="outline">
+            <Link href={newPlanHref}>+ New Plan</Link>
+          </Button>
+          <Button asChild size="sm">
+            <Link href={`${basePath}/new`}>+ New Subscription</Link>
+          </Button>
+        </>
+      }
+      notices={
+        <>
+          {params.success === "plan" ? <Notice tone="success">Subscription plan created.</Notice> : null}
+          {params.success === "test-cleanup" ? <Notice tone="success">Test subscriptions cleaned up.</Notice> : null}
+          {params.error ? <Notice tone="danger">{decodeURIComponent(params.error)}</Notice> : null}
+          {needsReviewCount || syncErrorCount || pendingCheckoutCount ? (
+            <Notice tone={syncErrorCount || needsReviewCount ? "danger" : "warn"}>
+              {needsReviewCount ? "Stripe subscription exists but is not linked to a portal client. " : ""}
+              {syncErrorCount ? "Webhook failed, price mismatch, or disconnected record needs review. " : ""}
+              {pendingCheckoutCount ? "Checkout session created but not completed." : ""}
+            </Notice>
+          ) : null}
+        </>
+      }
+      kpis={
+        <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-6">
+          <StatCard label="Active subscriptions" value={activeCount} href={`${basePath}?status=active`} tone={activeCount ? "accent" : "default"} />
+          <StatCard label="Trialing" value={trialingCount} href={`${basePath}?status=trialing`} />
+          <StatCard label="Pending checkout" value={pendingCheckoutCount} href={`${basePath}?sync=pending_checkout`} tone={pendingCheckoutCount ? "warn" : "default"} />
+          <StatCard label="Needs review" value={needsReviewCount} href={`${basePath}?sync=needs_review`} tone={needsReviewCount ? "danger" : "default"} />
+          <StatCard label="Sync issues" value={syncErrorCount} href={`${basePath}?sync=sync_error`} tone={syncErrorCount ? "danger" : "default"} />
+          <StatCard label="Tracked overages" value={formatMoney(overageTotal)} href={basePath} />
+        </div>
+      }
+      chips={
+        <FilterTabs
+          basePath={basePath}
+          param="status"
+          current={params.status ?? ""}
+          preserve={{ q: params.q, sync: params.sync, plan: params.plan }}
+          options={[
+            { value: "", label: "All" },
+            { value: "active", label: "Active" },
+            { value: "trialing", label: "Trialing" },
+            { value: "pending_checkout", label: "Pending Checkout" },
+            { value: "paused", label: "Paused" },
+            { value: "past_due", label: "Past Due" },
+            { value: "canceled", label: "Canceled" },
+            { value: "needs_review", label: "Needs Review" },
+          ]}
+        />
+      }
+      filterRow={
+        <form className="flex flex-wrap items-center gap-2">
+          {params.status ? <input type="hidden" name="status" value={params.status} /> : null}
+          <input
+            name="q"
+            defaultValue={params.q ?? ""}
+            placeholder="Client, plan, tail number, Stripe ID…"
+            aria-label="Search subscriptions"
+            className="deck-input min-w-[12rem] flex-1 sm:max-w-xs"
+          />
+          <DeckSelect
+            name="sync"
+            defaultValue={params.sync ?? ""}
+            aria-label="Sync status"
+            className="w-auto min-w-[9.5rem]"
+            options={[
+              { value: "", label: "All Sync States" },
+              ...SUBSCRIPTION_SYNC_STATUS.map((status) => ({
+                value: status.value,
+                label: status.label,
+              })),
+            ]}
+          />
+          <DeckSelect
+            name="plan"
+            defaultValue={params.plan ?? ""}
+            aria-label="Plan"
+            className="w-auto min-w-[9.5rem]"
+            options={[
+              { value: "", label: "All Plans" },
+              ...plans.map((plan) => ({ value: plan.id, label: plan.name })),
+            ]}
+          />
+          <Button type="submit" size="sm">
+            Apply
+          </Button>
+          {hasFilters ? (
+            <Link
+              href={basePath}
+              className="rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3.5 py-1.5 text-xs font-medium text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
+            >
+              Clear
+            </Link>
+          ) : null}
+        </form>
+      }
+      count={`${filtered.length} / ${subscriptions.length} records`}
+      table={
+        filtered.length === 0 ? (
           <EmptyState
             icon="clipboard"
             title="No client subscriptions"
-            description="Create a subscription to track included support, usage, overages, and client credits."
-            action={<Link href="/portal/admin/subscriptions/new" className="rounded-md bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground">Create Subscription</Link>}
+            description={
+              hasFilters
+                ? "No subscriptions match the current filters."
+                : "Create a subscription to track included support, usage, overages, and client credits."
+            }
+            action={
+              <Button asChild size="sm">
+                <Link href={`${basePath}/new`}>Create Subscription</Link>
+              </Button>
+            }
           />
         ) : (
           <DataTable
-            rows={subscriptions}
+            rows={paged}
             getKey={(row) => row.id}
+            getHref={(row) => recordHref(row.id)}
             emptyLabel="No client subscriptions."
             columns={[
-              { header: "Client", cell: (row) => (row as any).is_test ? <span className="deck-chip border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] text-[var(--deck-warn)]">TEST</span> : row.client?.company_name ?? row.client?.full_name ?? row.client?.email ?? "-" },
-              { header: "Plan", cell: (row) => (
-                <span className="inline-flex items-center gap-2">
-                  <Link href={`/portal/admin/subscriptions/${row.id}`} className="text-accent hover:underline">
-                    {(row as any).custom_name ?? row.plan?.name ?? "Custom subscription"}
-                  </Link>
-                  {(row as any).is_test ? <StatusBadge label="TEST" tone="warn" /> : (row as any).is_custom ? <StatusBadge label="CUSTOM" tone="accent" /> : null}
-                </span>
-              ) },
-              { header: "Tier", cell: (row) => row.tier?.name ?? "-" },
-              { header: "Aircraft", cell: (row) => row.aircraft?.tail_number ?? "-" },
-              { header: "Stripe", cell: (row) => <StatusBadge label={SUBSCRIPTION_STATUS_LABEL[row.status] ?? row.status} tone={toneFor(SUBSCRIPTION_STATUS_TONE, row.status)} /> },
-              { header: "Sync", cell: (row) => <StatusBadge label={SUBSCRIPTION_SYNC_STATUS_LABEL[row.stripe_sync_status ?? "manual"] ?? row.stripe_sync_status ?? "manual"} tone={toneFor(SUBSCRIPTION_SYNC_STATUS_TONE, row.stripe_sync_status ?? "manual")} /> },
-              { header: "Source", cell: (row) => row.source ?? "manual" },
-              { header: "Last Sync", cell: (row) => formatDateTime(row.stripe_last_synced_at ?? row.updated_at) },
-              { header: "Renewal", cell: (row) => formatDate(row.renewal_date) },
-              { header: "Warning", cell: (row) => row.stripe_sync_warning ?? "-" },
+              {
+                header: "Client",
+                priority: "primary",
+                cell: (row) =>
+                  (row as any).is_test ? (
+                    <StatusBadge label="TEST" tone="warn" />
+                  ) : (
+                    <span className="font-semibold text-[var(--deck-text)]">
+                      {clientLabel(row) ?? "—"}
+                    </span>
+                  ),
+              },
+              {
+                header: "Plan",
+                priority: "secondary",
+                cell: (row) => (
+                  <span className="inline-flex flex-wrap items-center gap-2 text-[var(--deck-text-2)]">
+                    {planLabel(row)}
+                    {(row as any).is_test ? (
+                      <StatusBadge label="TEST" tone="warn" />
+                    ) : (row as any).is_custom ? (
+                      <StatusBadge label="CUSTOM" tone="accent" />
+                    ) : null}
+                  </span>
+                ),
+              },
+              {
+                header: "Tier",
+                hideOnMobile: true,
+                cell: (row) => (
+                  <span className="text-[var(--deck-text-2)]">{row.tier?.name ?? "—"}</span>
+                ),
+              },
+              {
+                header: "Monthly Fee",
+                align: "right",
+                priority: "secondary",
+                cell: (row) => (
+                  <span className="deck-num">
+                    {formatMoney(row.custom_price ?? row.monthly_price)}
+                  </span>
+                ),
+              },
+              {
+                header: "Renewal",
+                cell: (row) => (
+                  <span className="deck-mono whitespace-nowrap text-[var(--deck-text-2)]">
+                    {formatDate(row.renewal_date)}
+                  </span>
+                ),
+              },
+              { header: "Status", cell: (row) => statusBadge(row) },
             ]}
           />
-        )}
-      </SectionCard>
-
+        )
+      }
+      pagination={{
+        basePath,
+        page: safePage,
+        pageCount,
+        params: {
+          q: params.q,
+          status: params.status,
+          sync: params.sync,
+          plan: params.plan,
+        },
+      }}
+    >
       <SectionCard
         title="Subscription Testing"
         icon="shield"
@@ -157,48 +406,121 @@ export default async function AdminSubscriptionsPage({
             { header: "Received", cell: (row) => formatDateTime(row.received_at ?? row.created_at) },
             { header: "Processed", cell: (row) => formatDateTime(row.processed_at) },
             { header: "Status", cell: (row) => <StatusBadge label={row.status} tone={row.status === "failed" || row.status === "retry_needed" ? "danger" : row.status === "processed" ? "success" : "neutral"} /> },
-            { header: "Subscription", cell: (row) => row.portal_subscription_id ? <Link href={`/portal/admin/subscriptions/${row.portal_subscription_id}`} className="text-accent hover:underline">Open</Link> : row.stripe_subscription_id ?? "-" },
+            { header: "Subscription", cell: (row) => row.portal_subscription_id ? <Link href={`${basePath}/${row.portal_subscription_id}`} className="text-accent hover:underline">Open</Link> : row.stripe_subscription_id ?? "-" },
             { header: "Invoice", cell: (row) => row.stripe_invoice_id ?? "-" },
             { header: "Error", cell: (row) => row.error ?? "-" },
           ]}
         />
       </SectionCard>
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_26rem]">
-        <SectionCard title="Plans & Tiers" icon="clipboard">
-          {plans.length === 0 ? (
-            <EmptyState icon="clipboard" title="No subscription plans" description="Create the first AMG plan using the form on this page." />
-          ) : (
-            <div className="space-y-3">
-              {plans.map((plan) => (
-                <div key={plan.id} className="rounded-lg border border-border bg-[var(--deck-panel-2)] p-4">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold">{plan.name}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">{plan.aircraft_category ?? "All aircraft"} · {plan.description ?? "No description"}</p>
-                    </div>
-                    <StatusBadge label={SUBSCRIPTION_PLAN_STATUS_LABEL[plan.status] ?? plan.status} tone={toneFor(SUBSCRIPTION_PLAN_STATUS_TONE, plan.status)} />
+      <SectionCard title="Plans & Tiers" icon="clipboard">
+        {plans.length === 0 ? (
+          <EmptyState
+            icon="clipboard"
+            title="No subscription plans"
+            description="Create the first AMG plan with the + New Plan window."
+            action={
+              <Button asChild size="sm">
+                <Link href={newPlanHref}>+ New Plan</Link>
+              </Button>
+            }
+          />
+        ) : (
+          <div className="space-y-3">
+            {plans.map((plan) => (
+              <div key={plan.id} className="rounded-lg border border-border bg-[var(--deck-panel-2)] p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold">{plan.name}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{plan.aircraft_category ?? "All aircraft"} · {plan.description ?? "No description"}</p>
                   </div>
-                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                    {plan.tiers.map((tier) => (
-                      <div key={tier.id} className="rounded-md border border-border/70 p-3 text-xs text-muted-foreground">
-                        <p className="font-semibold text-foreground">{tier.name}</p>
-                        <p>{tier.included_flights} flights · {tier.included_mx_repositions} MX repositions · {tier.included_admin_hours} admin hrs</p>
-                        <p>{formatMoney(tier.monthly_price)} monthly · {formatMoney(tier.annual_price)} annual</p>
-                        <p>Test monthly: {tier.stripe_test_monthly_price_id ?? tier.stripe_monthly_price_id ?? "not mapped"}</p>
-                        <p>Test annual: {tier.stripe_test_annual_price_id ?? tier.stripe_annual_price_id ?? "not mapped"}</p>
-                        <p>Live monthly: {tier.stripe_live_monthly_price_id ?? "not mapped"}</p>
-                        <p>Live annual: {tier.stripe_live_annual_price_id ?? "not mapped"}</p>
-                      </div>
-                    ))}
-                  </div>
+                  <StatusBadge label={SUBSCRIPTION_PLAN_STATUS_LABEL[plan.status] ?? plan.status} tone={toneFor(SUBSCRIPTION_PLAN_STATUS_TONE, plan.status)} />
                 </div>
-              ))}
-            </div>
-          )}
-        </SectionCard>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {plan.tiers.map((tier) => (
+                    <div key={tier.id} className="rounded-md border border-border/70 p-3 text-xs text-muted-foreground">
+                      <p className="font-semibold text-foreground">{tier.name}</p>
+                      <p>{tier.included_flights} flights · {tier.included_mx_repositions} MX repositions · {tier.included_admin_hours} admin hrs</p>
+                      <p>{formatMoney(tier.monthly_price)} monthly · {formatMoney(tier.annual_price)} annual</p>
+                      <p>Test monthly: {tier.stripe_test_monthly_price_id ?? tier.stripe_monthly_price_id ?? "not mapped"}</p>
+                      <p>Test annual: {tier.stripe_test_annual_price_id ?? tier.stripe_annual_price_id ?? "not mapped"}</p>
+                      <p>Live monthly: {tier.stripe_live_monthly_price_id ?? "not mapped"}</p>
+                      <p>Live annual: {tier.stripe_live_annual_price_id ?? "not mapped"}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </SectionCard>
 
-        <SectionCard title="Create Plan" icon="settings">
+      {record ? (
+        <RecordModal
+          eyebrow={(record as any).is_test ? "TEST subscription" : (record as any).is_custom ? "Custom subscription" : "Client subscription"}
+          title={planLabel(record)}
+          meta={clientLabel(record) ?? ((record as any).is_test ? "Stripe test-mode customer" : "Client")}
+          badge={statusBadge(record)}
+          actions={
+            <>
+              <Button asChild size="sm">
+                <Link href={`${basePath}/${record.id}`}>Open full record</Link>
+              </Button>
+              {record.client_id ? (
+                <Button asChild size="sm" variant="outline">
+                  <Link href={`/portal/admin/clients/${record.client_id}`}>Open client</Link>
+                </Button>
+              ) : null}
+            </>
+          }
+        >
+          {record.stripe_sync_warning ? (
+            <div className="mb-4">
+              <Notice tone="warn">{record.stripe_sync_warning}</Notice>
+            </div>
+          ) : null}
+          <dl>
+            <DetailRow label="Client">{clientLabel(record) ?? "—"}</DetailRow>
+            <DetailRow label="Plan">
+              <span className="inline-flex flex-wrap items-center gap-2">
+                {planLabel(record)}
+                {(record as any).is_test ? (
+                  <StatusBadge label="TEST" tone="warn" />
+                ) : (record as any).is_custom ? (
+                  <StatusBadge label="CUSTOM" tone="accent" />
+                ) : null}
+              </span>
+            </DetailRow>
+            <DetailRow label="Tier">{record.tier?.name ?? "—"}</DetailRow>
+            <DetailRow label="Aircraft">{record.aircraft?.tail_number ?? "—"}</DetailRow>
+            <DetailRow label="Stripe Status">{statusBadge(record)}</DetailRow>
+            <DetailRow label="Sync Status">{syncBadge(record)}</DetailRow>
+            <DetailRow label="Cadence">{record.billing_cadence}</DetailRow>
+            <DetailRow label="Monthly Fee">
+              <span className="deck-num">{formatMoney(record.custom_price ?? record.monthly_price)}</span>
+            </DetailRow>
+            <DetailRow label="Annual Fee">
+              <span className="deck-num">{formatMoney(record.annual_price)}</span>
+            </DetailRow>
+            <DetailRow label="Start">{formatDate(record.start_date)}</DetailRow>
+            <DetailRow label="Renewal">{formatDate(record.renewal_date)}</DetailRow>
+            <DetailRow label="Source">{record.source ?? "manual"}</DetailRow>
+            <DetailRow label="Last Sync">
+              {formatDateTime(record.stripe_last_synced_at ?? record.updated_at)}
+            </DetailRow>
+            <DetailRow label="Warning">{record.stripe_sync_warning ?? "—"}</DetailRow>
+          </dl>
+        </RecordModal>
+      ) : null}
+
+      {params.new_plan === "1" ? (
+        <FormModal
+          eyebrow="AMG Billing"
+          title="Create plan"
+          meta="Define an AMG subscription plan and its default tier, allowances, prices, and Stripe mappings."
+          paramKeys={["new_plan"]}
+          wide
+        >
           <form action={createSubscriptionPlan} className="space-y-4">
             <TextField label="Plan Name" name="name" required placeholder="Managed Owner Support" />
             <TextField label="Plan Code" name="plan_code" placeholder="managed-owner-support" />
@@ -226,10 +548,12 @@ export default async function AdminSubscriptionsPage({
             <TextAreaField label="Travel Policy" name="travel_policy" />
             <TextAreaField label="Lodging Policy" name="lodging_policy" />
             <TextAreaField label="Default Terms" name="default_terms" />
-            <SubmitButton pendingText="Creating...">Create Plan</SubmitButton>
+            <div className="flex justify-end">
+              <SubmitButton pendingText="Creating...">Create Plan</SubmitButton>
+            </div>
           </form>
-        </SectionCard>
-      </div>
-    </>
+        </FormModal>
+      ) : null}
+    </RecordListShell>
   );
 }
