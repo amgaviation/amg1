@@ -18,6 +18,8 @@ export function SiteFooter() {
               alt="AMG Aviation Group"
               width="1110"
               height="242"
+              loading="lazy"
+              decoding="async"
               className="h-9 w-auto"
             />
             <p className="mt-3 font-mono text-[10px] uppercase [letter-spacing:0.22em] text-[var(--t3)]">

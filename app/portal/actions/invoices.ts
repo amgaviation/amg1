@@ -11,6 +11,7 @@ import { nextBillingDocumentNumber } from "@/lib/portal/billing-numbering";
 import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
 import { recordComplianceEvidence } from "@/lib/compliance/evidence";
 import { detectProhibitedPaymentData } from "@/lib/compliance/payment-data-guard";
+import { can, noAccessPath } from "@/lib/portal/permissions";
 import { actor, bool, num, str } from "./_helpers";
 
 function money(formData: FormData, key: string): number {
@@ -369,7 +370,7 @@ export async function sendInvoicePdf(formData: FormData) {
 }
 
 export async function recordInvoicePayment(formData: FormData) {
-  const admin = await actor(["admin"], "invoices.edit");
+  const admin = await actor(["admin"], "payments.add");
   const db = await createServiceClient();
   const billingDb = db as any;
   const invoiceId = str(formData, "invoice_id");
@@ -479,6 +480,11 @@ export async function updateInvoiceStatus(formData: FormData) {
   const status = str(formData, "status");
   if (!invoiceId || !status) redirect("/portal/admin/invoices?error=missing");
   if (status === "paid") redirect(`/portal/admin/invoices/${invoiceId}?error=payment-required`);
+  // Voiding / writing off / refunding a receivable is a payments-authority
+  // action (separation of duties) on top of the invoices.edit base gate.
+  if (["void", "written_off", "refunded"].includes(status) && !(await can(admin.role, "payments", "edit"))) {
+    redirect(noAccessPath("payments", "edit"));
+  }
   const { data: invoice } = await billingDb
     .from("invoices")
     .update({

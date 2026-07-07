@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard, EmptyState, Notice, RecordRow } from "@/components/portal/ui/primitives";
+import { MessageUnreadBadge } from "@/components/portal/ui/message-unread-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { listThreadsForUser } from "@/lib/portal/queries";
@@ -63,9 +64,12 @@ export default async function ClientMessagesPage({
                   ) : undefined
                 }
                 trailing={
-                  <span className="deck-mono text-[var(--deck-text-3)]">
-                    {formatDateTime(t.last_message_at)}
-                  </span>
+                  <>
+                    <span className="deck-mono text-[var(--deck-text-3)]">
+                      {formatDateTime(t.last_message_at)}
+                    </span>
+                    <MessageUnreadBadge count={t.unread_count} />
+                  </>
                 }
               />
             ))}

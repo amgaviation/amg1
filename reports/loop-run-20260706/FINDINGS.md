@@ -27,3 +27,12 @@ Open (logged, not fixed this pass):
 - D-P-04 remainder P3: full focus trap for confirm dialog
 - D-P-07 remainder P3: read-only chip for non-super admins on matrix
 - A-P-05 note: self-hosted multi-instance would need shared cacheHandler (Vercel unaffected)
+
+## Features+speed cycle notes
+- A-1-04 (xlsx high-severity advisories) — DEFERRED TO OWNER. Removing the dep would break the CRM
+  spreadsheet IMPORT (client-side XLSX.read of admin-chosen files), a real feature. The recommended
+  fix is switching package.json to the maintainer's patched build
+  ("xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz" — npm registry copy is abandoned at
+  0.18.x with no fix), which the sandbox correctly refused to install without owner approval.
+  Practical exposure meanwhile: server export path is write-only (not the vulnerable parse paths);
+  the import parse runs in the admin's own browser on a file the admin chose. One-line owner action.

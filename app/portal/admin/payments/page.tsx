@@ -9,7 +9,7 @@ import { formatDateTime, formatMoney } from "@/lib/portal/format";
 export const metadata = { title: "Payments - Admin Portal" };
 
 export default async function AdminPaymentsPage() {
-  const user = await requireRolePermission("admin", "invoices");
+  const user = await requireRolePermission("admin", "payments");
   const payments = await listAllPayments();
 
   return (

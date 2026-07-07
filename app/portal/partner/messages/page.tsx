@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { EmptyState, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
+import { MessageUnreadBadge } from "@/components/portal/ui/message-unread-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { startThread } from "@/app/portal/actions/messages";
@@ -37,7 +38,7 @@ export default async function PartnerMessagesPage({
         {threads.length === 0 ? <EmptyState icon="messageSquare" title="No messages yet" description="Start a thread above to contact AMG Operations." /> : (
           <div className="space-y-2">{threads.map((thread) => (
             <Link key={thread.id} href={`/portal/partner/messages/${thread.id}`} className="block rounded-md border border-border bg-background/50 p-4 hover:border-accent/60">
-              <div className="flex items-center justify-between gap-3"><p className="text-sm font-semibold">{thread.title ?? "AMG Operations"}</p><span className="text-xs text-muted-foreground">{formatDateTime(thread.last_message_at)}</span></div>
+              <div className="flex items-center justify-between gap-3"><p className="flex min-w-0 items-center gap-2 text-sm font-semibold"><span className="truncate">{thread.title ?? "AMG Operations"}</span><MessageUnreadBadge count={thread.unread_count} /></p><span className="text-xs text-muted-foreground">{formatDateTime(thread.last_message_at)}</span></div>
               {thread.last_body ? <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">{thread.last_body}</p> : null}
             </Link>
           ))}</div>

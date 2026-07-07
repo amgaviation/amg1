@@ -3,7 +3,7 @@ import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
-import { isThreadMember } from "@/lib/portal/queries";
+import { isThreadMember, markThreadRead } from "@/lib/portal/queries";
 import { postMessage } from "@/app/portal/actions/messages";
 import { formatDateTime, initials } from "@/lib/portal/format";
 import {
@@ -22,6 +22,9 @@ export default async function ClientThreadPage({ params }: { params: Promise<{ i
   const result = await getThreadWithMessagesForDisplay(id);
   if (!result) notFound();
   const { thread, messages } = result;
+
+  // Mark the thread read for this member (fire-and-forget on server side)
+  await markThreadRead(id, user.id).catch(() => null);
 
   return (
     <>
