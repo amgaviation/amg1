@@ -122,10 +122,10 @@ const STATUS_OPTIONS = [
 ];
 
 const PRICING_MODEL_OPTIONS = [
-  { value: "flat", label: "Flat fee" },
-  { value: "per_unit", label: "Per unit" },
-  { value: "variant_matrix", label: "Variant matrix (by tier / aircraft)" },
-  { value: "passthrough_estimate", label: "Pass-through estimate (priced at quote time)" },
+  { value: "flat", label: "Flat fee — one price" },
+  { value: "per_unit", label: "Per unit — price × quantity (day, hour, leg)" },
+  { value: "variant_matrix", label: "Different price by client tier / aircraft" },
+  { value: "passthrough_estimate", label: "No fixed price — billed at vendor cost" },
 ];
 
 const FREQUENCY_OPTIONS = [
@@ -143,8 +143,8 @@ const INTERVAL_OPTIONS = [
 // is an explicit sentinel that serializes to null.
 const BAND_OPTIONS = [
   { value: "any", label: "Any band" },
-  { value: "A", label: "Band A" },
-  { value: "B", label: "Band B" },
+  { value: "A", label: "Band A (smaller aircraft)" },
+  { value: "B", label: "Band B (larger aircraft)" },
 ];
 
 const VARIABLE_INPUT_OPTIONS = [
@@ -154,9 +154,9 @@ const VARIABLE_INPUT_OPTIONS = [
 ];
 
 const VARIABLE_ROLE_OPTIONS = [
-  { value: "quantity", label: "Quantity (multiplies price)" },
-  { value: "multiplier", label: "Multiplier (scales price)" },
-  { value: "info", label: "Info only (no math)" },
+  { value: "quantity", label: "Quantity — count × price (e.g. fuel stops)" },
+  { value: "multiplier", label: "Multiplier — scales the price (e.g. 1.25× intl)" },
+  { value: "info", label: "Info only — recorded, no price effect" },
 ];
 
 const ATTACHMENT_MODE_OPTIONS = [
@@ -307,7 +307,7 @@ export function ServiceForm({
   initialVariants?: ServiceFormVariant[];
   initialVariables?: ServiceFormVariable[];
   initialAttachments?: ServiceFormAttachment[];
-  tierOptions: { value: string; label: string }[];
+  tierOptions: { value: string; label: string; tierName?: string }[];
   attachableServices: AttachableService[];
   redirectTo: string;
   cancelHref: string;
@@ -322,6 +322,12 @@ export function ServiceForm({
   // "none" sentinel: Radix selects cannot re-post an empty value, so the
   // real (possibly empty) tier id travels in a hidden field below.
   const [linkedTierId, setLinkedTierId] = useState(service?.linked_plan_tier_id ?? "none");
+  const [taxable, setTaxable] = useState<boolean>(service?.taxable ?? false);
+  // Variant tier pricing matches the tier NAME (engine compares names, not
+  // ids) — offer the live tier names instead of free text.
+  const tierNameOptions = Array.from(
+    new Set(tierOptions.map((tier) => tier.tierName).filter((name): name is string => Boolean(name)))
+  ).map((name) => ({ value: name, label: name }));
 
   const [variantRows, setVariantRows] = useState<VariantRowState[]>(() =>
     initialVariants.map((variant) => ({
@@ -453,48 +459,15 @@ export function ServiceForm({
         <input type="hidden" name="variables_json" value={variablesJson} />
         <input type="hidden" name="attachments_json" value={attachmentsJson} />
         <input type="hidden" name="client_visible" value={clientVisible ? "true" : "false"} />
+        <input type="hidden" name="taxable" value={taxable ? "true" : "false"} />
         <input type="hidden" name="billable" value={billable ? "true" : "false"} />
         <input type="hidden" name="linked_plan_tier_id" value={linkedTierId === "none" ? "" : linkedTierId} />
 
-        {/* 1 — Identity */}
-        <SectionCard title="Identity" icon="fileText" description="How this service is named in the catalog, on quotes, and to clients.">
-          <div className="grid gap-4 md:grid-cols-2">
-            <TextField
-              label="Code"
-              name="code"
-              required
-              defaultValue={service?.code ?? ""}
-              placeholder="COORD-INTL"
-              hint="Unique short code used on quote and invoice lines."
-              className="deck-mono uppercase"
-            />
-            <TextField label="Name" name="name" required defaultValue={service?.name ?? ""} placeholder="International Trip Coordination" />
-            <TextField
-              label="Category"
-              name="category"
-              defaultValue={service?.category ?? ""}
-              placeholder="Trip Coordination"
-              hint="Free-text group used for catalog filtering and quote sections."
-            />
-            <SelectField label="Status" name="status" defaultValue={service?.status ?? "draft"} options={STATUS_OPTIONS} hint="Only active services are offerable. Archiving never deletes history." />
-            <div className="md:col-span-2">
-              <TextAreaField label="Internal Description" name="description" rows={2} defaultValue={service?.description ?? ""} hint="Ops-facing. Never shown to clients." />
-            </div>
-            <div className="md:col-span-2">
-              <TextAreaField label="Client Description" name="client_description" rows={2} defaultValue={service?.client_description ?? ""} hint="Shown on client-facing quotes and invoices." />
-            </div>
-            <TextField label="Sort Order" name="sort_order" type="number" step="1" defaultValue={numStr(service?.sort_order ?? 0)} />
-            <div className="md:col-span-2">
-              <TextAreaField label="Internal Notes" name="notes_internal" rows={2} defaultValue={service?.notes_internal ?? ""} />
-            </div>
-          </div>
-        </SectionCard>
-
-        {/* 2 — Financial classification */}
+        {/* 1 — Financial classification (permanent — so it comes first) */}
         <SectionCard
           title="Financial Classification"
           icon="wallet"
-          description="Flat-fee rule: AMG margin lives ONLY in coordination fees and plan retainers; pass-through items are re-billed at vendor cost with zero markup."
+          description="Step 1 — this one is permanent. AMG margin lives only in coordination fees and plan retainers; pass-throughs re-bill at vendor cost. A code, a name, and this choice are all you need to save a draft."
         >
           <div className="grid gap-3 md:grid-cols-3">
             {COST_TYPE_CHOICES.map((choice) => {
@@ -533,6 +506,40 @@ export function ServiceForm({
           </p>
         </SectionCard>
 
+        {/* 2 — Identity */}
+        <SectionCard title="Identity" icon="fileText" description="How this service is named in the catalog, on quotes, and to clients.">
+          <div className="grid gap-4 md:grid-cols-2">
+            <TextField
+              label="Code"
+              name="code"
+              required
+              defaultValue={service?.code ?? ""}
+              placeholder="COORD-INTL"
+              hint="Unique short code used on quote and invoice lines."
+              className="deck-mono uppercase"
+            />
+            <TextField label="Name" name="name" required defaultValue={service?.name ?? ""} placeholder="International Trip Coordination" />
+            <TextField
+              label="Category"
+              name="category"
+              defaultValue={service?.category ?? ""}
+              placeholder="Trip Coordination"
+              hint="Free-text group used for catalog filtering and quote sections."
+            />
+            <SelectField label="Status" name="status" defaultValue={service?.status ?? "draft"} options={STATUS_OPTIONS} hint="Only active services are offerable. Archiving never deletes history." />
+            <TextField label="Sort Order" name="sort_order" type="number" step="1" defaultValue={numStr(service?.sort_order ?? 0)} hint="Lower numbers list first in the catalog and on quotes." />
+            <div className="md:col-span-2">
+              <TextAreaField label="Internal Description" name="description" rows={2} defaultValue={service?.description ?? ""} hint="Ops-facing. Never shown to clients." />
+            </div>
+            <div className="md:col-span-2">
+              <TextAreaField label="Client Description" name="client_description" rows={2} defaultValue={service?.client_description ?? ""} hint="Shown on client-facing quotes and invoices." />
+            </div>
+            <div className="md:col-span-2">
+              <TextAreaField label="Internal Notes" name="notes_internal" rows={2} defaultValue={service?.notes_internal ?? ""} />
+            </div>
+          </div>
+        </SectionCard>
+
         {/* 3 — Pricing */}
         <SectionCard title="Pricing" icon="receipt" description={priceHint}>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -543,27 +550,39 @@ export function ServiceForm({
               onChange={(event) => setPricingModel(event.target.value)}
               options={PRICING_MODEL_OPTIONS}
             />
-            <TextField label="Unit" name="unit" defaultValue={service?.unit ?? ""} placeholder="trip, hour, day, each" />
+            {pricingModel === "flat" ? (
+              // Flat fee has no unit — post the stored value unchanged.
+              <input type="hidden" name="unit" value={service?.unit ?? ""} />
+            ) : (
+              <TextField label="Unit" name="unit" defaultValue={service?.unit ?? ""} placeholder="trip, hour, day, each" hint="What one quantity means on the quote." />
+            )}
             <TextField
-              label="Default Unit Price"
+              label={pricingModel === "flat" ? "Price ($)" : "Default Unit Price ($)"}
               name="default_unit_price"
               type="number"
               min="0"
               step="0.01"
               defaultValue={numStr(service?.default_unit_price)}
-              hint={pricingModel === "passthrough_estimate" ? "Optional estimate — the real amount is the vendor cost." : "Used when no variant matches."}
+              hint={
+                pricingModel === "passthrough_estimate"
+                  ? "Optional estimate — the real amount is the vendor cost."
+                  : pricingModel === "flat"
+                    ? "The price clients are quoted."
+                    : "Used when no variant matches."
+              }
             />
-            <div className="grid grid-cols-2 gap-3">
-              <TextField label="Min Qty" name="min_quantity" type="number" min="0" step="0.01" defaultValue={numStr(service?.min_quantity)} />
-              <TextField label="Max Qty" name="max_quantity" type="number" min="0" step="0.01" defaultValue={numStr(service?.max_quantity)} />
+            <div className="grid grid-cols-2 gap-4">
+              <TextField label="Min Qty" name="min_quantity" type="number" min="0" step="0.01" defaultValue={numStr(service?.min_quantity)} hint="Optional." />
+              <TextField label="Max Qty" name="max_quantity" type="number" min="0" step="0.01" defaultValue={numStr(service?.max_quantity)} hint="Optional." />
             </div>
           </div>
 
-          <div className="mt-5 border-t border-[var(--deck-line)] pt-4">
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <p className="text-sm font-semibold text-[var(--deck-text)]">Price Variant Matrix</p>
-              <p className="text-[0.7rem] leading-5 text-[var(--deck-text-3)]">
-                Prices are history, never edited in place: changing a price closes the old row (effective through today) and opens a new row effective today.
+          {/* Hidden for simple pricing models — but never hide EXISTING rows. */}
+          <div className={pricingModel === "variant_matrix" || variantRows.length > 0 ? "mt-5 border-t border-[var(--deck-line)] pt-4" : "hidden"}>
+            <div>
+              <p className="text-sm font-semibold text-[var(--deck-text)]">Tier / Aircraft Prices</p>
+              <p className="mt-1 max-w-2xl text-[0.7rem] leading-5 text-[var(--deck-text-3)]">
+                Changing a price keeps the old one as history (closed today) and starts the new price today.
               </p>
             </div>
             <div className="mt-3 space-y-3">
@@ -594,30 +613,36 @@ export function ServiceForm({
                     }
                     options={BAND_OPTIONS}
                   />
-                  <TextField
-                    label="Plan Tier Match"
-                    value={row.plan_tier_match}
-                    onChange={(event) => updateVariant(row.uid, { plan_tier_match: event.target.value })}
-                    placeholder="Tier 2"
-                    hint="Matches the client's subscription tier name."
+                  <SelectField
+                    label="Member Tier"
+                    value={row.plan_tier_match || "any"}
+                    onChange={(event) =>
+                      updateVariant(row.uid, { plan_tier_match: event.target.value === "any" ? "" : event.target.value })
+                    }
+                    options={[
+                      { value: "any", label: "Everyone (non-member rate)" },
+                      ...tierNameOptions,
+                    ]}
+                    hint="Members of this tier get this price."
                   />
                   <TextField
-                    label="Unit Price"
+                    label="Unit Price ($)"
                     type="number"
                     min="0"
                     step="0.01"
                     required
                     value={row.unit_price}
                     onChange={(event) => updateVariant(row.uid, { unit_price: event.target.value })}
+                    hint="What this tier / aircraft pays."
                   />
                   <TextField
-                    label="Annual Price"
+                    label="Annual Price ($)"
                     type="number"
                     min="0"
                     step="0.01"
                     value={row.annual_price}
                     onChange={(event) => updateVariant(row.uid, { annual_price: event.target.value })}
-                    hint="Optional yearly figure for recurring services."
+                    hint="Optional — yearly amount if billed annually."
                   />
                   <div className="flex items-center justify-between gap-2 md:col-span-3 lg:col-span-6">
                     <span className="text-[0.68rem] text-[var(--deck-text-3)]">
@@ -662,7 +687,7 @@ export function ServiceForm({
 
         {/* 4 — Frequency & billing */}
         <SectionCard title="Frequency & Billing" icon="calendar" description="How often the service bills and how it lands on invoices.">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-3">
             <SelectField
               label="Frequency"
               name="frequency"
@@ -670,25 +695,28 @@ export function ServiceForm({
               onChange={(event) => setFrequency(event.target.value)}
               options={FREQUENCY_OPTIONS}
             />
-            {frequency === "recurring" ? (
-              <>
-                <SelectField
-                  label="Recurring Interval"
-                  name="recurring_interval"
-                  defaultValue={service?.recurring_interval ?? "month"}
-                  options={INTERVAL_OPTIONS}
-                />
-                <TextField
-                  label="Interval Count"
-                  name="recurring_interval_count"
-                  type="number"
-                  min="1"
-                  step="1"
-                  defaultValue={numStr(service?.recurring_interval_count ?? 1)}
-                  hint="1 = every month/year, 3 = quarterly, etc."
-                />
-              </>
-            ) : null}
+            {/* Disabled (not hidden) when not recurring so the row never
+                reflows; disabled inputs do not post. */}
+            <SelectField
+              label="Recurring Interval"
+              name="recurring_interval"
+              disabled={frequency !== "recurring"}
+              defaultValue={service?.recurring_interval ?? "month"}
+              options={INTERVAL_OPTIONS}
+              hint={frequency === "recurring" ? undefined : "Recurring services only."}
+            />
+            <TextField
+              label="Interval Count"
+              name="recurring_interval_count"
+              type="number"
+              min="1"
+              step="1"
+              disabled={frequency !== "recurring"}
+              defaultValue={numStr(service?.recurring_interval_count ?? 1)}
+              hint={frequency === "recurring" ? "1 = every month/year, 3 = quarterly, etc." : "Recurring services only."}
+            />
+          </div>
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
             <TextField
               label="Deposit Required %"
               name="requires_deposit_percent"
@@ -697,6 +725,7 @@ export function ServiceForm({
               max="100"
               step="0.01"
               defaultValue={numStr(service?.requires_deposit_percent)}
+              hint="Optional — leave blank for no deposit."
             />
             <SelectField
               label="Linked Plan Tier"
@@ -707,7 +736,12 @@ export function ServiceForm({
             />
           </div>
           <div className="mt-4 grid gap-3 md:grid-cols-3">
-            <CheckboxField label="Taxable" name="taxable" defaultChecked={service?.taxable ?? false} />
+            <BoolToggle
+              label="Taxable"
+              hint="Adds this line to the taxable subtotal on quotes."
+              checked={taxable}
+              onChange={setTaxable}
+            />
             <BoolToggle
               label="Billable"
               hint="Unbillable services appear on quotes as $0 informational lines."
@@ -738,20 +772,28 @@ export function ServiceForm({
             {variableRows.map((row) => (
               <div key={row.uid} className="deck-inset grid gap-3 p-3 md:grid-cols-3 lg:grid-cols-4">
                 <TextField
+                  label="Label"
+                  required
+                  value={row.label}
+                  onChange={(event) => {
+                    const label = event.target.value;
+                    const derived = label.toLowerCase().trim().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+                    // Keep the machine key in lockstep until someone edits it by hand.
+                    const keyUntouched =
+                      !row.key || row.key === (row.label || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+                    updateVariable(row.uid, keyUntouched ? { label, key: derived } : { label });
+                  }}
+                  placeholder="Fuel stops"
+                  hint="What the calculator asks for."
+                />
+                <TextField
                   label="Key"
                   required
                   value={row.key}
                   onChange={(event) => updateVariable(row.uid, { key: event.target.value })}
                   placeholder="fuel_stops"
-                  hint="Letters, numbers, underscores. Unique per service."
+                  hint="Auto-filled from the label."
                   className="deck-mono"
-                />
-                <TextField
-                  label="Label"
-                  required
-                  value={row.label}
-                  onChange={(event) => updateVariable(row.uid, { label: event.target.value })}
-                  placeholder="Fuel stops"
                 />
                 <SelectField
                   label="Input Type"
@@ -770,20 +812,24 @@ export function ServiceForm({
                   value={row.default_value}
                   onChange={(event) => updateVariable(row.uid, { default_value: event.target.value })}
                 />
-                <TextField
-                  label="Min"
-                  type="number"
-                  step="0.01"
-                  value={row.min_value}
-                  onChange={(event) => updateVariable(row.uid, { min_value: event.target.value })}
-                />
-                <TextField
-                  label="Max"
-                  type="number"
-                  step="0.01"
-                  value={row.max_value}
-                  onChange={(event) => updateVariable(row.uid, { max_value: event.target.value })}
-                />
+                {row.input_type === "number" ? (
+                  <>
+                    <TextField
+                      label="Min"
+                      type="number"
+                      step="0.01"
+                      value={row.min_value}
+                      onChange={(event) => updateVariable(row.uid, { min_value: event.target.value })}
+                    />
+                    <TextField
+                      label="Max"
+                      type="number"
+                      step="0.01"
+                      value={row.max_value}
+                      onChange={(event) => updateVariable(row.uid, { max_value: event.target.value })}
+                    />
+                  </>
+                ) : null}
                 {row.input_type === "select" ? (
                   <TextField
                     label="Options"
@@ -840,7 +886,7 @@ export function ServiceForm({
         <SectionCard
           title="Attached Services"
           icon="layers"
-          description="Other active services pulled onto the quote alongside this one (depth 1 only). Price overrides follow the parent's cost-type rules."
+          description="Other active services pulled onto the quote alongside this one. Price overrides follow the parent's cost-type rules."
         >
           <div className="space-y-3">
             {attachmentRows.length === 0 ? (

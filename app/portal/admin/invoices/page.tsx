@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LineItemsEditor } from "@/components/portal/admin/line-items-editor";
 import { cn } from "@/lib/utils";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { DataTable } from "@/components/portal/ui/data-table";
@@ -539,34 +540,13 @@ export default async function AdminInvoicesPage({
                 step="0.01"
                 defaultValue="0"
               />
-              {Array.from({ length: 4 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="grid gap-3 rounded-md border border-[var(--deck-line)] p-3 sm:col-span-2 sm:grid-cols-[1.2fr_1.6fr_.7fr_.7fr_.7fr]"
-                >
-                  <SelectField
-                    label="Line Item Category"
-                    name="category[]"
-                    required={index === 0}
-                    defaultValue={index === 0 ? QUOTE_CATEGORIES[0] : ""}
-                    options={[
-                      { value: "", label: "No line" },
-                      ...QUOTE_CATEGORIES.map((item) => ({ value: item, label: item })),
-                    ]}
-                  />
-                  <TextField label="Description" name="description[]" />
-                  <TextField
-                    label="Qty"
-                    name="quantity[]"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    defaultValue={index === 0 ? "1" : ""}
-                  />
-                  <TextField label="Unit Price" name="unit_price[]" type="number" min="0" step="0.01" />
-                  <TextField label="Unit" name="unit[]" placeholder="day, trip" />
-                </div>
-              ))}
+              <div className="sm:col-span-2">
+                <LineItemsEditor
+                  categories={[...QUOTE_CATEGORIES]}
+                  defaultCategory={QUOTE_CATEGORIES[0]}
+                  requireFirst
+                />
+              </div>
               <div className="sm:col-span-2">
                 <TextAreaField label="Client Notes" name="client_notes" />
               </div>

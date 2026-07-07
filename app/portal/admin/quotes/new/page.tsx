@@ -7,37 +7,9 @@ import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { createQuote } from "@/app/portal/actions/quotes";
 import { listAllMissions, listClients } from "@/lib/portal/queries";
 import { BILLING_COST_TYPES, PDF_TEMPLATES, QUOTE_CATEGORIES } from "@/lib/portal/constants";
+import { LineItemsEditor } from "@/components/portal/admin/line-items-editor";
 
 export const metadata = { title: "New Quote - Admin Portal" };
-
-function LineItemRows() {
-  return (
-    <div className="space-y-3">
-      {Array.from({ length: 6 }).map((_, index) => (
-        <div key={index} className="grid gap-3 rounded-md border border-border p-3 md:grid-cols-[1.2fr_1.5fr_.7fr_.7fr_.8fr]">
-          <SelectField
-            label="Category"
-            name="category[]"
-            defaultValue={index === 0 ? "Crew Services" : ""}
-            options={[{ value: "", label: "No line" }, ...QUOTE_CATEGORIES.map((item) => ({ value: item, label: item }))]}
-          />
-          <TextField label="Description" name="description[]" placeholder="Pilot day rate, airline positioning, FBO handling..." />
-          <TextField label="Qty" name="quantity[]" type="number" min="0" step="0.01" defaultValue={index === 0 ? "1" : ""} />
-          <TextField label="Unit Price" name="unit_price[]" type="number" min="0" step="0.01" />
-          <SelectField
-            label="Cost Type"
-            name="cost_type[]"
-            defaultValue="Fixed Fee"
-            options={BILLING_COST_TYPES.map((item) => ({ value: item, label: item }))}
-          />
-          <TextField label="Unit" name="unit[]" placeholder="day, trip, each" />
-          <TextAreaField label="Client Note" name="client_notes[]" />
-          <TextAreaField label="Internal Note" name="internal_notes[]" />
-        </div>
-      ))}
-    </div>
-  );
-}
 
 export default async function NewQuotePage() {
   const user = await requireRolePermission("admin", "quotes", "add");
@@ -84,7 +56,13 @@ export default async function NewQuotePage() {
         </SectionCard>
 
         <SectionCard title="Line Items" icon="receipt">
-          <LineItemRows />
+          <LineItemsEditor
+            categories={[...QUOTE_CATEGORIES]}
+            costTypes={[...BILLING_COST_TYPES]}
+            showCostType
+            showNotes
+            defaultCategory="Crew Services"
+          />
         </SectionCard>
 
         <SectionCard title="Deposit & Terms" icon="wallet">

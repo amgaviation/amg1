@@ -300,7 +300,7 @@ export async function getServiceDetail(id: string): Promise<ServiceDetail | null
 
 // ── plan tiers (linked-tier dropdown) ─────────────────────────────────
 
-export type PlanTierOption = { value: string; label: string };
+export type PlanTierOption = { value: string; label: string; tierName?: string };
 
 export async function listPlanTierOptions(): Promise<PlanTierOption[]> {
   const db = await createServiceClient();
@@ -311,6 +311,7 @@ export async function listPlanTierOptions(): Promise<PlanTierOption[]> {
   return (data ?? []).map((tier) => ({
     value: tier.id,
     label: `${(tier.plan as { name: string } | null)?.name ?? "Plan"} — ${tier.name}`,
+    tierName: tier.name,
   }));
 }
 
