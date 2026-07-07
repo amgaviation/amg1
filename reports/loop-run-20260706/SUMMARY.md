@@ -161,3 +161,34 @@ zero-schema (prerequisite columns verified against prod first), each adversarial
 
 Skeptic pass: 12 findings (3 HIGH) — all fixed, including a batch-starvation bug in the credit expiry
 sweep and a movement-gate bypass on the primary crew-assignment path.
+
+---
+
+## Addendum 4 — dual-plan cycle (session 3, 2026-07-07)
+
+Two owner-uploaded plans executed in parallel workflows (14 agents total), landed as two commits on PR #97.
+
+**Public site visual fixes (phases 1–9 of 10):** the grid background is gone everywhere on the public
+site, the hero is one readable "Quoted in 24 hours." lockup over full-bleed sky media with a ≤600ms
+first-visit-only reveal, all scroll-fade copy now lands at 100% opacity via trigger-once tweens, the
+two long pinned sections were rebalanced and shortened (195vh→120vh mission deck; footer pin cut),
+the Connect mockup shows a plausible static ops view, the team founder card no longer ships an empty
+photo region, pricing got its polish, the request pill stays out of content's way, and both unmatched
+URLs and in-segment notFound() now render a branded 404. Copy verbatim except the three spec-allowed
+changes. Portal styling untouched.
+
+**Service catalog phase 1 (of 5):** the pre-authorized additive migration is applied to prod, the
+catalog is seeded (11 services: coordination fee matrix, 3 plan-fee mirrors of live tiers, 5
+pass-throughs, 2 unpriced drafts), and admins get full catalog management at
+/portal/admin/financial/pricing on top of a pure, test-covered pricing engine. Business rules are
+structural: zero markup on pass-through (no markup code path exists), cost_type immutable,
+archive-never-delete, price changes create effective-dated rows.
+
+**Owner follow-ups:** (1) confirm whether live tier "Essentials" should receive the doc's "Standard"
+member coordination rate — one variant edit in the new UI; until then Essentials members are quoted
+the On-Demand rate (never undercharged). (2) Fleet tier has no published coordination rate — confirm
+it's bundled in the retainer. Phases 2–5 of the catalog plan (Stripe sync, quote calculator,
+approval→subscription, analytics) and visual phase 10 verification remain.
+
+Per owner instruction this cycle closed with a single-agent review pass instead of the multi-skeptic
+panel; findings and resolutions are recorded below the review section marker in FINDINGS.md.
