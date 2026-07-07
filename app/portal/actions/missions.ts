@@ -309,10 +309,10 @@ export async function updateMissionStatus(formData: FormData) {
     .single();
 
   let notificationClientId = mission?.client_id ?? null;
-  if (status === "under_review") {
+  if (isTransition && status === "under_review") {
     notificationClientId = (await ensureClientAccountForMission(missionId, user.id)) ?? notificationClientId;
   }
-  if (status === "completed") {
+  if (isTransition && status === "completed") {
     await logCompletedMissionUsage(db as any, missionId, user);
     revalidatePath("/portal/admin/subscriptions");
     revalidatePath("/portal/client/subscriptions");
@@ -337,31 +337,43 @@ export async function updateMissionStatus(formData: FormData) {
     });
   }
 
-  await logAuditEvent({
-    actor: user,
-    action: "mission_status_changed",
-    detail: `${mission?.ref ?? missionId} → ${status}${gates.warnings.length ? ` (warnings: ${gates.warnings.join("; ")})` : ""}`,
-    entityType: "mission",
-    entityId: missionId,
-  });
-  if (notificationClientId) {
-    await notifyUser({
-      userId: notificationClientId,
+  // A same-status submit is a note save: no status-change audit, no client
+  // push, no client email — those fire only on real transitions.
+  if (isTransition) {
+    await logAuditEvent({
+      actor: user,
+      action: "mission_status_changed",
+      detail: `${mission?.ref ?? missionId} → ${status}${gates.warnings.length ? ` (warnings: ${gates.warnings.join("; ")})` : ""}`,
+      entityType: "mission",
+      entityId: missionId,
+    });
+    if (notificationClientId) {
+      await notifyUser({
+        userId: notificationClientId,
+        title: "Mission status updated",
+        body: `${mission?.ref ?? "Your AMG request"} is now ${status.replace(/_/g, " ")}.`,
+        type: "mission_status",
+        entityType: "mission",
+        entityId: missionId,
+      });
+    }
+
+    await notifyMissionContactByEmail({
+      missionId,
       title: "Mission status updated",
-      body: `${mission?.ref ?? "Your AMG request"} is now ${status.replace(/_/g, " ")}.`,
-      type: "mission_status",
+      eventLabel: "Status Update",
+      intro: `${mission?.ref ?? "Your AMG request"} is now ${status.replace(/_/g, " ")}.`,
+      details: [{ label: "New Status", value: status.replace(/_/g, " ") }],
+    });
+  } else if (internalNote) {
+    await logAuditEvent({
+      actor: user,
+      action: "mission_note_saved",
+      detail: `${mission?.ref ?? missionId}: internal note updated (status unchanged: ${status})`,
       entityType: "mission",
       entityId: missionId,
     });
   }
-
-  await notifyMissionContactByEmail({
-    missionId,
-    title: "Mission status updated",
-    eventLabel: "Status Update",
-    intro: `${mission?.ref ?? "Your AMG request"} is now ${status.replace(/_/g, " ")}.`,
-    details: [{ label: "New Status", value: status.replace(/_/g, " ") }],
-  });
 
   revalidatePath("/portal/admin/mission-control");
   revalidatePath(`/portal/admin/trips/${missionId}`);
@@ -411,6 +423,12 @@ export async function cancelMission(formData: FormData) {
   if (isTerminalMissionStatus(mission.status)) {
     const errorBase = user.role === "admin" ? "/portal/admin/trips" : "/portal/client/trips";
     redirect(`${errorBase}/${missionId}?error=illegal-transition&from=${mission.status}&to=cancelled`);
+  }
+  // Once crew are committed or the aircraft is moving, a stand-down is an
+  // ops decision — clients request it through AMG instead of one-clicking a
+  // mission out from under an assigned pilot.
+  if (user.role !== "admin" && ["crew_assigned", "scheduled", "in_progress"].includes(mission.status)) {
+    redirect(`/portal/client/trips/${missionId}?error=cancel-requires-ops`);
   }
 
   await db.from("missions").update({ status: "cancelled" }).eq("id", missionId);

@@ -29,7 +29,7 @@ export default async function AdminTripDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ success?: string; error?: string; gate?: string; from?: string; to?: string }>;
+  searchParams: Promise<{ success?: string; error?: string; gate?: string; from?: string; to?: string; who?: string }>;
 }) {
   const user = await requireRolePermission("admin", "missions");
   const { id } = await params;
@@ -69,6 +69,12 @@ export default async function AdminTripDetailPage({
       ) : null}
       {flash.error === "unassign" ? (
         <Notice tone="danger">Could not remove that crew member — the assignment may already be removed or completed.</Notice>
+      ) : null}
+      {flash.error === "crew-compliance" ? (
+        <Notice tone="danger">
+          Crew offer blocked — not assignment-ready: {flash.who ?? "insurance or credential issue"}. Resolve
+          insurance approval / expired credentials, then re-offer.
+        </Notice>
       ) : null}
       {flash.error === "no-new-offers" ? (
         <Notice tone="warn">No new offers were sent — the selected crew already accepted or completed this mission.</Notice>

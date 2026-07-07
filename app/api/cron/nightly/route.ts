@@ -290,12 +290,17 @@ async function expireSubscriptionCredits(db: SupabaseService, now: Date): Promis
   // column) is strictly before today — a credit expiring today stays usable
   // through the end of its expiry day, mirroring the application filter
   // (expires_at IS NULL OR expires_at >= today).
+  // Processed originals are annotated with the [expired-credit:…] marker at
+  // offset time and excluded here — otherwise already-offset rows (oldest
+  // expires_at) would permanently fill the batch window and starve newer
+  // expiries. The offset-row scan below stays as a second, independent guard.
   const { data: candidates, error } = await dbAny
     .from("subscription_credits")
-    .select("id, subscription_id, client_id, amount, expires_at")
+    .select("id, subscription_id, client_id, amount, expires_at, description")
     .is("applied_to_invoice_id", null)
     .gt("amount", 0)
     .lt("expires_at", today)
+    .not("description", "like", "%[expired-credit:%")
     .order("expires_at", { ascending: true })
     .limit(CREDIT_EXPIRY_BATCH_LIMIT);
   if (error) throw new Error(error.message);
@@ -344,14 +349,38 @@ async function expireSubscriptionCredits(db: SupabaseService, now: Date): Promis
       continue;
     }
 
+    // Annotate the original so it drops out of future candidate batches. The
+    // amount/expiry stay untouched — this is a processing marker, not a
+    // history mutation. A crash before this line is covered by the offset-row
+    // scan above.
+    await dbAny
+      .from("subscription_credits")
+      .update({
+        description: `${String(credit.description ?? "").trim()} ${expiredCreditMarker(credit.id)}`.trim(),
+      })
+      .eq("id", credit.id);
+
     const adjusted = await adjustCreditBalanceWithRetry(dbAny, credit.subscription_id, -amount, {
       clampAtZero: true,
     });
+    const clamped = adjusted.ok && round2(adjusted.oldBalance - amount) < 0;
     const balanceNote = adjusted.ok
-      ? `balance ${formatMoney(adjusted.oldBalance)} -> ${formatMoney(adjusted.newBalance)}`
+      ? `balance ${formatMoney(adjusted.oldBalance)} -> ${formatMoney(adjusted.newBalance)}${clamped ? " (CLAMPED — rollup was below the ledger; reconcile)" : ""}`
       : `balance decrement failed (${adjusted.reason}) — reconcile subscription ${credit.subscription_id}`;
     if (!adjusted.ok) {
       console.error("[cron/nightly] credit expiry balance decrement failed", credit.subscription_id, adjusted.reason);
+    }
+    if (clamped) {
+      // A clamp means the rollup was already below the ledger sum — valid
+      // credits behind it may now be hidden by the balance>0 prefilter.
+      console.error("[cron/nightly] credit balance clamped at zero — drift", credit.subscription_id);
+      await notifyAdmins({
+        title: "Subscription credit balance drift detected",
+        body: `Expiring credit ${credit.id} clamped subscription ${credit.subscription_id}'s balance at $0 — the rollup was below the ledger sum. Reconcile the subscription's credit balance so remaining valid credits stay spendable.`,
+        type: "subscription_credit_drift",
+        entityType: "client_subscription",
+        entityId: credit.subscription_id,
+      });
     }
 
     expired.push({

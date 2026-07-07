@@ -51,7 +51,16 @@ export default async function AdminSubscriptionDetailPage({
       ) : flash.success ? (
         <Notice tone="success">Subscription updated.</Notice>
       ) : null}
-      {flash.error ? <Notice tone="danger">Subscription action could not be completed.</Notice> : null}
+      {flash.error === "stripe_mode" ? (
+        <Notice tone="danger">
+          This subscription was created in the other Stripe mode (test vs live) than the
+          configured key — it cannot be resolved against the current environment.
+        </Notice>
+      ) : flash.error === "stripe_error" ? (
+        <Notice tone="danger">Stripe could not be reached to adopt the price. Nothing was changed — try again.</Notice>
+      ) : flash.error ? (
+        <Notice tone="danger">Subscription action could not be completed.</Notice>
+      ) : null}
       {priceMismatchHold ? (
         <Notice tone={subscription.stripe_sync_status === "price_mismatch" ? "danger" : "warn"}>
           <div className="space-y-3">
@@ -210,7 +219,7 @@ export default async function AdminSubscriptionDetailPage({
             </div>
           </SectionCard>
 
-          {subscription.stripe_sync_status === "needs_review" || !subscription.client_id ? (
+          {(subscription.stripe_sync_status === "needs_review" && !priceMismatchHold) || !subscription.client_id ? (
             <SectionCard title="Needs Review" icon="building">
               <form action={linkNeedsReviewSubscription} className="space-y-4">
                 <input type="hidden" name="subscription_id" value={subscription.id} />

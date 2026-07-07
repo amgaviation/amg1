@@ -208,6 +208,12 @@ export async function checkMissionGates(
         .in("status", ACTIVE_ASSIGNMENT_STATUSES),
       db.from("missions").select("assigned_crew_id").eq("id", missionId).maybeSingle(),
     ]);
+    // Fail CLOSED: a failed read must block movement, not silently pass an
+    // empty crew set through the compliance check.
+    if (assignmentsRes.error || missionRes.error) {
+      blockers.push("Crew compliance could not be verified (data unavailable) — retry before moving this mission.");
+      return { blockers, warnings };
+    }
     const crewIds = [
       ...(assignmentsRes.data ?? []).map((a) => a.crew_id),
       ...(missionRes.data?.assigned_crew_id ? [missionRes.data.assigned_crew_id] : []),

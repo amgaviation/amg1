@@ -2,6 +2,8 @@ import "server-only";
 
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
 import { nextBillingDocumentNumber } from "@/lib/portal/billing-numbering";
+import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
+import { recordComplianceEvidence } from "@/lib/compliance/evidence";
 import { formatMoney } from "@/lib/portal/format";
 import type { SessionUser } from "@/lib/portal/session";
 import { createServiceClient } from "@/lib/supabase/server";
@@ -145,7 +147,10 @@ async function loadApplicableSubscriptions(db: Db, clientId: string): Promise<Ap
       if (credit.subscription_id !== subscription.id) continue;
       const amount = round2(Number(credit.amount ?? 0));
       if (amount <= 0) continue;
-      if (round2(usable + amount) > creditBalance) break;
+      // Skip (don't stop at) rows that don't fit under the rollup cap: a
+      // drifted balance below one large old row must not strand every
+      // smaller, later row behind it.
+      if (round2(usable + amount) > creditBalance) continue;
       usable = round2(usable + amount);
       usableCredits.push({ ...credit, amount });
     }
@@ -247,15 +252,6 @@ export async function applyCreditsToInvoice(params: {
     );
   }
 
-  // Step 0 — reserve the receipt number before any state changes.
-  let receiptNumber: string;
-  try {
-    receiptNumber = await nextBillingDocumentNumber("receipt");
-  } catch (error) {
-    console.error("[subscription-credits] receipt number reservation failed", error);
-    return { ok: false, reason: "credit-conflict" };
-  }
-
   // Compensation bookkeeping for aborts after partial writes.
   const decremented: { subscriptionId: string; amount: number; oldBalance: number; newBalance: number }[] = [];
   let markedIds: string[] = [];
@@ -339,7 +335,16 @@ export async function applyCreditsToInvoice(params: {
   }
 
   // Step 4 — the money-visible step: payment row + invoice rollup, exactly
-  // mirroring recordInvoicePayment's math.
+  // mirroring recordInvoicePayment's math. The receipt number is reserved
+  // here, immediately before the insert, so ledger-step aborts never burn one.
+  let receiptNumber: string;
+  try {
+    receiptNumber = await nextBillingDocumentNumber("receipt");
+  } catch (error) {
+    console.error("[subscription-credits] receipt number reservation failed", error);
+    await rollback();
+    return { ok: false, reason: "credit-conflict" };
+  }
   const amountPaid = round2(Number(invoice.amount_paid ?? 0) + appliedTotal);
   const total = round2(Number(invoice.total ?? 0));
   const status = amountPaid >= total ? "paid" : "partially_paid";
@@ -362,7 +367,7 @@ export async function applyCreditsToInvoice(params: {
     await rollback();
     return { ok: false, reason: "credit-conflict" };
   }
-  await db
+  const { error: invoiceUpdateError } = await db
     .from("invoices")
     .update({
       amount_paid: amountPaid,
@@ -371,6 +376,14 @@ export async function applyCreditsToInvoice(params: {
       paid_at: paidAt,
     })
     .eq("id", invoiceId);
+  if (invoiceUpdateError) {
+    // The payment landed but the invoice rollup didn't: remove the payment
+    // and unwind the ledger so no half-applied state announces success.
+    console.error("[subscription-credits] invoice rollup failed after payment insert", invoiceUpdateError);
+    await db.from("payments").delete().eq("id", payment.id);
+    await rollback();
+    return { ok: false, reason: "credit-conflict" };
+  }
 
   const balanceDetail = decremented
     .map((entry) => `${entry.subscriptionId}: ${formatMoney(entry.oldBalance)} -> ${formatMoney(entry.newBalance)}`)
@@ -381,6 +394,19 @@ export async function applyCreditsToInvoice(params: {
     detail: `Applied ${formatMoney(appliedTotal)} in subscription credit to ${invoice.invoice_number} (credits ${consumedIds.join(", ")}; balance ${balanceDetail}).`,
     entityType: "invoice",
     entityId: invoiceId,
+  });
+  // Same compliance trail as every other payment-creating path.
+  await recordComplianceEvidence({
+    actor,
+    audience: "admin",
+    eventType: "payment_marked_paid",
+    eventArea: "billing",
+    relatedRecordType: "invoice",
+    relatedRecordId: invoiceId,
+    policyKey: POLICY_KEYS.noOnlinePayment,
+    policyVersion: COMPLIANCE_POLICY_VERSION,
+    acknowledgmentText: ACKNOWLEDGMENT_TEXT.noOnlinePayment,
+    metadata: { amount: appliedTotal, status, paymentId: payment.id, via: "subscription_credit" },
   });
   await notifyUser({
     userId: invoice.client_id,

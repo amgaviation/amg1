@@ -462,9 +462,13 @@ async function syncSubscription(
     portalSubscriptionId = data.id;
   }
 
-  // Notify once per mismatch episode — on the transition into price_mismatch,
-  // not on every subsequent event that re-confirms it.
-  if (syncStatus === "price_mismatch" && previousSyncStatus !== "price_mismatch") {
+  // Notify once per mismatch episode — on the transition into a held state.
+  // A keep-local resolution (needs_review + warning) is an acknowledged hold:
+  // further still-mismatched events must not re-page the admins.
+  const previouslyHeld =
+    previousSyncStatus === "price_mismatch" ||
+    (previousSyncStatus === "needs_review" && Boolean(portalSubscription?.stripe_sync_warning));
+  if (syncStatus === "price_mismatch" && !previouslyHeld) {
     await notifyAdmins({
       title: "Stripe subscription price mismatch",
       body: warning ?? `Stripe subscription ${subscription.id} is billing a price that does not match the portal record.`,
@@ -675,15 +679,19 @@ export async function linkStripeSubscriptionToClient(subscriptionId: string, cli
   const db = (await createServiceClient()) as any;
   const { data: subscription } = await db.from("client_subscriptions").select("*").eq("id", subscriptionId).maybeSingle();
   if (!subscription) return { ok: false, reason: "not_found" };
-  // Linking a client resolves the review state, not a price-mismatch hold —
-  // that hold stays until an admin resolves it or Stripe's price matches.
-  const priceMismatchHold = subscription.stripe_sync_status === "price_mismatch";
+  // Linking a client resolves the review state, not a price hold. A hold is
+  // price_mismatch OR needs_review still carrying a mismatch warning (the
+  // keep-local resolution) — both must survive linking, or the hold could be
+  // laundered to 'synced' through the needs-review card.
+  const priceHold =
+    subscription.stripe_sync_status === "price_mismatch" ||
+    (subscription.stripe_sync_status === "needs_review" && subscription.stripe_sync_warning);
   await db
     .from("client_subscriptions")
     .update({
       client_id: clientId,
-      stripe_sync_status: priceMismatchHold ? "price_mismatch" : "synced",
-      stripe_sync_warning: priceMismatchHold ? subscription.stripe_sync_warning ?? null : null,
+      stripe_sync_status: priceHold ? subscription.stripe_sync_status : "synced",
+      stripe_sync_warning: priceHold ? subscription.stripe_sync_warning ?? null : null,
       source: "webhook",
       updated_at: new Date().toISOString(),
     })
@@ -707,7 +715,8 @@ export async function markStripeSubscriptionIgnored(subscriptionId: string, admi
     .from("client_subscriptions")
     .update({
       stripe_sync_status: "ignored",
-      stripe_sync_warning: null,
+      // Keep any mismatch warning: 'ignored' is terminal, but the reason the
+      // record was on hold should stay readable in the row.
       ignored_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })
@@ -761,7 +770,18 @@ export async function resolveSubscriptionPriceMismatch(
   const stripe = stripeClient();
   if (!stripe) return { ok: false, reason: "configuration" };
   if (!subscription.stripe_subscription_id) return { ok: false, reason: "missing_subscription" };
-  const stripeSubscription = (await stripe.subscriptions.retrieve(subscription.stripe_subscription_id)) as any;
+  // The env holds one Stripe key; a record minted in the other mode can never
+  // resolve against it (retrieve would 404) — surface that instead of throwing.
+  if (subscription.stripe_mode && subscription.stripe_mode !== currentStripeMode()) {
+    return { ok: false, reason: "stripe_mode" };
+  }
+  let stripeSubscription: any;
+  try {
+    stripeSubscription = (await stripe.subscriptions.retrieve(subscription.stripe_subscription_id)) as any;
+  } catch (error) {
+    console.error("[stripe] price-mismatch resolve retrieve failed", subscriptionId, error);
+    return { ok: false, reason: "stripe_error" };
+  }
   const price = stripeSubscription.items?.data?.[0]?.price;
   if (!price?.id) return { ok: false, reason: "missing_price" };
   const interval = price.recurring?.interval === "year" ? "annual" : "monthly";
@@ -775,9 +795,11 @@ export async function resolveSubscriptionPriceMismatch(
       stripe_product_id: objectId(price.product),
       amount_cents: amountCents,
       currency: normalizedSubscriptionCurrency(price.currency ?? subscription.currency),
+      // Zero the non-active cadence so a cadence switch never leaves a stale
+      // figure rendering as current (insert path does the same).
       ...(interval === "annual"
-        ? { annual_price: dollarsFromCents(amountCents) }
-        : { monthly_price: dollarsFromCents(amountCents) }),
+        ? { annual_price: dollarsFromCents(amountCents), monthly_price: 0 }
+        : { monthly_price: dollarsFromCents(amountCents), annual_price: 0 }),
       ...(subscription.custom_price != null ? { custom_price: dollarsFromCents(amountCents) } : {}),
       stripe_sync_status: "synced",
       stripe_sync_warning: null,

@@ -33,6 +33,7 @@ import {
   releaseProfileIdentity,
   type DeletionSkip,
 } from "@/lib/portal/account-release";
+import { formatCrewComplianceBlockers, listCrewComplianceIssues } from "@/lib/portal/mission-lifecycle";
 import { actor, num, safeRedirectPath, str } from "./_helpers";
 
 const INITIAL_SUPER_ADMIN_EMAIL = "tony@amgaviationgroup.com";
@@ -1139,6 +1140,19 @@ export async function assignCrew(formData: FormData) {
   const offers = assignments.filter((assignment) => !lockedCrewIds.has(assignment.crew_id));
 
   if (!offers.length) redirect(`/portal/admin/trips/${missionId}?error=no-new-offers`);
+
+  // Insurance/credential gate at OFFER time — offering a non-assignment-ready
+  // pilot has no emergency case (the audited override exists at the status
+  // transition, not here). Blocks the whole batch so the admin sees exactly
+  // who is blocking and why.
+  const complianceIssues = await listCrewComplianceIssues(db, offers.map((offer) => offer.crew_id));
+  if (complianceIssues.length) {
+    redirect(
+      `/portal/admin/trips/${missionId}?error=crew-compliance&who=${encodeURIComponent(
+        formatCrewComplianceBlockers(complianceIssues).join("; ").slice(0, 300)
+      )}`
+    );
+  }
 
   await db
     .from("mission_crew_assignments")
