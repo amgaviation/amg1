@@ -64,27 +64,77 @@ export function PortalLogin({
   const isSignIn = mode === "signin";
 
   return (
-    <main className="grid min-h-svh bg-[#07111f] text-white lg:grid-cols-2">
-      <section className="flex min-h-svh flex-col px-6 py-16 md:px-10 lg:py-20">
-        <div className="flex flex-1 items-center justify-center py-12">
-          <div className={cn("w-full", isSignIn ? "max-w-md" : "max-w-xl")}>
-            <div className="mb-8">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/[0.10] bg-white/[0.06] px-3 py-1 text-xs uppercase tracking-[0.22em] text-[var(--oc-aluminum)]">
-                <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-                Approved Access
-              </div>
+    <div className="relative min-h-svh bg-[#07111f] text-white">
+      {/* Full-bleed backdrop, tinted toward the site navy so copy and glass stay legible. */}
+      <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+        <Image
+          src="/images/flightdeck/runway-dusk.webp"
+          alt=""
+          fill
+          priority
+          loading="eager"
+          fetchPriority="high"
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-[#07111f]/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#07111f]/65 via-[#07111f]/15 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#07111f]/75 via-transparent to-[#07111f]/45" />
+      </div>
 
-              <h1 className="font-display text-4xl font-semibold uppercase tracking-tight text-white sm:text-5xl">
-                AMG Connect
-              </h1>
+      <div className="relative mx-auto grid w-full max-w-6xl gap-10 px-6 pb-16 pt-[calc(var(--public-header-height)+2.5rem)] md:px-10 lg:min-h-svh lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:items-center lg:gap-16 lg:pb-20 lg:pt-[calc(var(--public-header-height)+3rem)]">
+        <section className="max-w-xl lg:pb-10">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/[0.10] bg-white/[0.06] px-3 py-1 text-xs uppercase tracking-[0.22em] text-[var(--oc-aluminum)] backdrop-blur-md">
+            <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+            AMG Connect · Approved Access
+          </div>
 
-              <p className="mt-4 text-sm leading-6 text-[var(--oc-aluminum)]">
-                Secure access for approved owners, crews, partners, and AMG
-                administrators. Portal access is reviewed and approved by AMG.
-              </p>
-            </div>
+          <h1 className="font-display text-5xl font-semibold uppercase tracking-tight text-white sm:text-6xl">
+            Welcome
+            <br />
+            back.
+          </h1>
 
-            <div className="mb-5 grid grid-cols-2 gap-1 rounded-full border border-white/[0.10] bg-white/[0.06] p-1 backdrop-blur-xl">
+          <p className="mt-5 max-w-md text-sm leading-6 text-[var(--oc-aluminum)]">
+            Secure access for approved owners, crews, partners, and AMG
+            administrators. Portal access is reviewed and approved by AMG.
+          </p>
+
+          <div className="mt-10 hidden gap-3 lg:grid lg:grid-cols-3">
+            {accessPanels.map((panel) => {
+              const Icon = panel.icon;
+
+              return (
+                <div
+                  key={panel.title}
+                  className="rounded-xl border border-white/[0.10] bg-white/[0.05] p-4 backdrop-blur-md"
+                >
+                  <Icon className="h-4 w-4 text-primary" />
+                  <p className="mt-3 font-display text-sm font-semibold uppercase tracking-wide text-white">
+                    {panel.title}
+                  </p>
+                  <p className="mt-1.5 text-xs leading-5 text-[var(--oc-aluminum)]">
+                    {panel.body}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          <p className="mt-8 hidden text-xs leading-5 text-[var(--oc-aluminum-2)] lg:block">
+            Questions about access?{" "}
+            <a
+              href="mailto:ops@amgaviationgroup.com?subject=AMG%20Connect%20portal%20access"
+              className="text-[var(--instrument-ink)] underline-offset-4 hover:underline"
+            >
+              Contact AMG Operations
+            </a>
+          </p>
+        </section>
+
+        <section className="w-full lg:justify-self-end">
+          <div className="rounded-2xl border border-white/[0.12] bg-white/[0.06] p-6 shadow-2xl backdrop-blur-2xl sm:p-8">
+            <div className="mb-6 grid grid-cols-2 gap-1 rounded-full border border-white/[0.10] bg-white/[0.06] p-1">
               <button
                 type="button"
                 onClick={() => setMode("signin")}
@@ -138,7 +188,7 @@ export function PortalLogin({
             ) : null}
 
             {error === "account_exists" ? (
-              <div className="mb-4 grid gap-3 rounded-xl border border-white/[0.10] bg-white/[0.06] px-4 py-4 backdrop-blur-xl">
+              <div className="mb-4 grid gap-3 rounded-xl border border-white/[0.10] bg-white/[0.06] px-4 py-4">
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                   <button
                     type="button"
@@ -166,10 +216,7 @@ export function PortalLogin({
             ) : null}
 
             {isSignIn ? (
-              <form
-                action={signIn}
-                className="rounded-2xl border border-white/[0.10] bg-white/[0.06] p-6 shadow-2xl backdrop-blur-xl sm:p-8"
-              >
+              <form action={signIn}>
                 <div className="grid gap-2">
                   <label
                     htmlFor="email"
@@ -202,7 +249,7 @@ export function PortalLogin({
 
                     <Link
                       href="/forgot-password"
-                      className="text-sm text-primary underline-offset-4 hover:underline"
+                      className="text-sm text-[var(--instrument-ink)] underline-offset-4 hover:underline"
                     >
                       Forgot password?
                     </Link>
@@ -232,10 +279,7 @@ export function PortalLogin({
                 </p>
               </form>
             ) : (
-              <form
-                action={signUp}
-                className="rounded-2xl border border-white/[0.10] bg-white/[0.06] p-6 shadow-2xl backdrop-blur-xl sm:p-8"
-              >
+              <form action={signUp}>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="grid gap-2 sm:col-span-2">
                     <label htmlFor="request-full-name" className="text-sm font-medium text-white/80">
@@ -329,67 +373,14 @@ export function PortalLogin({
                 </p>
               </form>
             )}
-
-            <p className="mt-6 text-xs leading-5 text-[var(--oc-aluminum-2)]">
-              Portal visibility does not replace operational approval, crew
-              confirmation, aircraft status review, or final support acceptance.
-            </p>
           </div>
-        </div>
-      </section>
 
-      <section className="relative hidden overflow-hidden bg-black lg:block">
-        <Image
-          src="/images/flightdeck/stratosphere.webp"
-          alt="Private aviation operations support"
-          fill
-          priority
-          loading="eager"
-          fetchPriority="high"
-          sizes="50vw"
-          className="object-cover opacity-80"
-        />
-
-        <div className="absolute inset-0 bg-gradient-to-t from-[#07111f] via-[#07111f]/45 to-[#07111f]/10" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#07111f]/70 via-transparent to-transparent" />
-
-        <div className="absolute bottom-10 left-10 right-10 rounded-2xl border border-white/[0.10] bg-black/35 p-6 backdrop-blur-md">
-          <p className="text-xs uppercase tracking-[0.24em] text-[var(--amg-light-gray)]/80">
-            Operations Portal
+          <p className="mt-5 text-xs leading-5 text-[var(--oc-aluminum-2)]">
+            Portal visibility does not replace operational approval, crew
+            confirmation, aircraft status review, or final support acceptance.
           </p>
-
-          <h2 className="mt-3 text-2xl font-semibold uppercase tracking-tight text-white">
-            Aircraft support visibility, organized by role.
-          </h2>
-
-          <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--oc-aluminum)]">
-            AMG Connect keeps support requests, aircraft context, crew review,
-            documents, quotes, invoices, and status updates in one approved
-            access environment.
-          </p>
-
-          <div className="mt-6 grid gap-3 xl:grid-cols-3">
-            {accessPanels.map((panel) => {
-              const Icon = panel.icon;
-
-              return (
-                <div
-                  key={panel.title}
-                  className="rounded-xl border border-white/[0.10] bg-white/[0.06] p-4"
-                >
-                  <Icon className="h-4 w-4 text-primary" />
-                  <p className="mt-4 font-display text-lg font-semibold uppercase text-white">
-                    {panel.title}
-                  </p>
-                  <p className="mt-2 text-xs leading-5 text-[var(--oc-aluminum)]">
-                    {panel.body}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-    </main>
+        </section>
+      </div>
+    </div>
   );
 }
