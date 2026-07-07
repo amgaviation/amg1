@@ -81,9 +81,10 @@ export default async function AdminTripDetailPage({
       ) : null}
       {flash.error === "illegal-transition" ? (
         <Notice tone="danger">
-          Status change rejected — {MISSION_STATUS_LABEL[flash.from ?? ""] ?? flash.from ?? "the current status"} cannot move
-          to {MISSION_STATUS_LABEL[flash.to ?? ""] ?? flash.to ?? "that status"}. Follow the mission flow, or cancel the
-          mission if it is no longer happening.
+          Status change rejected — {MISSION_STATUS_LABEL[flash.from ?? ""] ?? flash.from ?? "the current status"} does not
+          normally move to {MISSION_STATUS_LABEL[flash.to ?? ""] ?? flash.to ?? "that status"}. To force it anyway, enter an
+          Override Reason (minimum {MIN_GATE_OVERRIDE_REASON_LENGTH} characters) in the Status card and submit again —
+          overrides are audited and notify every admin.
         </Notice>
       ) : null}
       {flash.error === "gate-blocked" ? (
@@ -272,14 +273,12 @@ export default async function AdminTripDetailPage({
               <input type="hidden" name="mission_id" value={mission.id} />
               <SelectField label="Mission Status" name="status" defaultValue={mission.status} options={MISSION_STATUS.map((s) => ({ value: s.value, label: s.label }))} />
               <TextAreaField label="Internal Note" name="internal_notes" defaultValue={mission.internal_notes ?? ""} />
-              {readiness.blockers.length ? (
-                <TextAreaField
-                  label="Override Reason"
-                  name="override_reason"
-                  placeholder="Why is it safe to proceed despite the blockers above?"
-                  hint={`Required only to force past blockers (minimum ${MIN_GATE_OVERRIDE_REASON_LENGTH} characters). Overrides are audited and notify every admin.`}
-                />
-              ) : null}
+              <TextAreaField
+                label="Override Reason"
+                name="override_reason"
+                placeholder="Why is it safe to proceed despite blockers or out-of-flow moves?"
+                hint={`Leave blank for normal moves. Required (minimum ${MIN_GATE_OVERRIDE_REASON_LENGTH} characters) to force past readiness blockers or an out-of-flow status change — overrides are audited and notify every admin.`}
+              />
               <SubmitButton pendingText="Saving...">Update Status</SubmitButton>
             </form>
           </SectionCard>

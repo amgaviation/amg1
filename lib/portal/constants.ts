@@ -94,7 +94,10 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
     },
     {
       label: "Account",
-      items: [{ label: "Settings", href: "/portal/client/settings", icon: "settings" }],
+      items: [
+        { label: "Profile", href: "/portal/client/profile", icon: "users" },
+        { label: "Settings", href: "/portal/client/settings", icon: "settings" },
+      ],
     },
   ],
   crew: [
@@ -118,6 +121,13 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       ],
     },
     {
+      label: "Billing",
+      items: [
+        { label: "Invoices", href: "/portal/crew/invoices", icon: "wallet" },
+        { label: "Receipts", href: "/portal/crew/receipts", icon: "fileText" },
+      ],
+    },
+    {
       label: "Comms",
       items: [
         { label: "Messages", href: "/portal/crew/messages", icon: "messageSquare" },
@@ -126,7 +136,10 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
     },
     {
       label: "Account",
-      items: [{ label: "Settings", href: "/portal/crew/settings", icon: "settings" }],
+      items: [
+        { label: "Profile", href: "/portal/crew/profile", icon: "users" },
+        { label: "Settings", href: "/portal/crew/settings", icon: "settings" },
+      ],
     },
   ],
   admin: [
@@ -166,6 +179,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
         { label: "Quotes", href: "/portal/admin/quotes", icon: "receipt" },
         { label: "Invoices", href: "/portal/admin/invoices", icon: "wallet" },
         { label: "Payments", href: "/portal/admin/payments", icon: "dollar" },
+        { label: "Vendor Invoices", href: "/portal/admin/vendor-invoices", icon: "receipt" },
         { label: "Receivables", href: "/portal/admin/receivables", icon: "alert" },
         { label: "Subscriptions", href: "/portal/admin/subscriptions", icon: "creditCard" },
       ],
@@ -215,6 +229,13 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       items: [
         { label: "Company Profile", href: "/portal/partner/profile", icon: "building" },
         { label: "Documents", href: "/portal/partner/documents", icon: "fileText" },
+      ],
+    },
+    {
+      label: "Billing",
+      items: [
+        { label: "Invoices", href: "/portal/partner/invoices", icon: "wallet" },
+        { label: "Receipts", href: "/portal/partner/receipts", icon: "fileText" },
       ],
     },
     {

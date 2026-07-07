@@ -37,11 +37,27 @@ import { navModuleForHref } from "@/lib/portal/permissions-catalog";
  */
 
 type ShellUser = {
+  id?: string;
   name: string;
   email: string;
   role: PortalRole;
   companyName: string | null;
+  avatarPath?: string | null;
 };
+
+function Avatar({ user, className }: { user: ShellUser; className: string }) {
+  if (user.id && user.avatarPath) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={`/api/portal/avatars/${user.id}?v=${encodeURIComponent(user.avatarPath)}`}
+        alt=""
+        className={cn(className, "object-cover")}
+      />
+    );
+  }
+  return <span className={className}>{initials(user.name)}</span>;
+}
 
 const ShellNestingContext = createContext(false);
 
@@ -58,6 +74,14 @@ const SETTINGS_HREF: Record<PortalRole, string> = {
   crew: "/portal/crew/settings",
   admin: "/portal/admin/settings",
   partner: "/portal/partner/settings",
+  super_admin: "/portal/admin/settings",
+};
+
+const PROFILE_HREF: Record<PortalRole, string> = {
+  client: "/portal/client/profile",
+  crew: "/portal/crew/profile",
+  admin: "/portal/admin/settings",
+  partner: "/portal/partner/profile",
   super_admin: "/portal/admin/settings",
 };
 
@@ -303,9 +327,9 @@ function UserMenu({ role, user }: { role: PortalRole; user: ShellUser }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-label="Account menu"
-        className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] text-[0.68rem] font-bold text-[var(--deck-accent-ink)] transition-colors hover:border-[var(--deck-accent)]"
+        className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] text-[0.68rem] font-bold text-[var(--deck-accent-ink)] transition-colors hover:border-[var(--deck-accent)]"
       >
-        {initials(user.name)}
+        <Avatar user={user} className="flex h-full w-full items-center justify-center rounded-full" />
       </button>
       {open ? (
         <>
@@ -319,6 +343,14 @@ function UserMenu({ role, user }: { role: PortalRole; user: ShellUser }) {
               <p className="deck-micro mt-2 text-[var(--deck-text-3)]">{ROLE_LABELS[role]}</p>
             </div>
             <div className="p-1.5">
+              <Link
+                href={PROFILE_HREF[role]}
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-[var(--deck-text-2)] transition-colors hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)]"
+              >
+                <PortalIcon name="users" className="h-4 w-4" />
+                Profile
+              </Link>
               <Link
                 href={SETTINGS_HREF[role]}
                 onClick={() => setOpen(false)}
@@ -497,8 +529,8 @@ function SidebarContent({
       {/* User card */}
       <div className="shrink-0 border-t border-[var(--deck-chrome-line)] px-4 py-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] text-xs font-bold text-[#9FC5FF]">
-            {initials(user.name)}
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] text-xs font-bold text-[#9FC5FF]">
+            <Avatar user={user} className="flex h-full w-full items-center justify-center rounded-full" />
           </div>
           <div className="min-w-0">
             <p className="truncate text-xs font-semibold text-[var(--deck-chrome-text)]">

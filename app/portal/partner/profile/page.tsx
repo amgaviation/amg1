@@ -4,6 +4,7 @@ import { CheckboxField, SelectField, TextAreaField, TextField } from "@/componen
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { savePartnerProfile } from "@/app/portal/actions/partner";
+import { ProfileEditor } from "@/components/portal/profile-editor";
 import { getPartnerProfile } from "@/lib/portal/queries";
 import { PARTNER_TYPES } from "@/lib/portal/constants";
 
@@ -12,7 +13,7 @@ export const metadata = { title: "Company Profile - Partner Portal" };
 export default async function PartnerProfilePage({
   searchParams,
 }: {
-  searchParams: Promise<{ success?: string; accountSuccess?: string; accountError?: string }>;
+  searchParams: Promise<{ success?: string; error?: string; accountSuccess?: string; accountError?: string }>;
 }) {
   // Role gate only (no module perm): /portal/partner/settings re-exports this
   // page, and a partner's own account surface must never be permission-locked.
@@ -34,11 +35,17 @@ export default async function PartnerProfilePage({
 
   return (
     <>
-      {params.success ? <Notice tone="success">Partner profile saved.</Notice> : null}
+      {params.success === "profile" ? <Notice tone="success">Profile details saved.</Notice> : null}
+      {params.success === "avatar" ? <Notice tone="success">Profile picture updated.</Notice> : null}
+      {params.success && params.success !== "profile" && params.success !== "avatar" ? <Notice tone="success">Partner profile saved.</Notice> : null}
+      {params.error === "avatar-file" ? <Notice tone="danger">Profile pictures must be JPG, PNG, or WEBP up to 5 MB.</Notice> : null}
+      {params.error === "avatar-save" || params.error === "profile-save" ? <Notice tone="danger">That change could not be saved. Try again.</Notice> : null}
+      {params.error === "profile-name" ? <Notice tone="danger">Enter your name.</Notice> : null}
       {params.accountSuccess === "email" ? <Notice tone="success">Email change saved. Check your inbox if confirmation is required.</Notice> : null}
       {params.accountSuccess === "password" ? <Notice tone="success">Password updated for this portal account.</Notice> : null}
       {accountErrorMessage ? <Notice tone="danger">{accountErrorMessage}</Notice> : null}
-      <PageHeader eyebrow="Service Partner" title="Company Profile" description="Define the service capabilities AMG Operations can assign to your company." />
+      <PageHeader eyebrow="Service Partner" title="Company Profile" description="Your profile picture, contact details, and the service capabilities AMG Operations can assign to your company." />
+      <ProfileEditor user={user} backTo="/portal/partner/profile" />
       <SectionCard title="Service Profile" icon="building">
         <form action={savePartnerProfile} className="grid gap-4 lg:grid-cols-3">
           <TextField label="Company Name" name="company_name" defaultValue={profile?.company_name ?? user.companyName ?? ""} />
