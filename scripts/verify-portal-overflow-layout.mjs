@@ -35,10 +35,13 @@ assert.match(
   "AdminRecordManager desktop table must scroll horizontally inside an opaque panel-token scroller",
 );
 
+// Console Record Pattern: rows carry a single Open/View affordance — archive
+// and record actions live inside the record window — so the reserved action
+// width shrank from 17rem to one button's worth.
 assert.match(
   adminRecordManager,
-  /data-portal-table-actions[^>]*className="[^"]*min-w-\[17rem\]/,
-  "AdminRecordManager action cells must reserve enough width for multiple row actions",
+  /data-portal-table-actions[^>]*className="[^"]*min-w-\[6\.5rem\]/,
+  "AdminRecordManager action cells must reserve width for the row's Open control",
 );
 
 assert.match(
@@ -91,7 +94,7 @@ assert.match(
 
 assert.match(
   globals,
-  /\.amg-portal \[data-portal-table-actions\]\s*{\s*min-width:\s*17rem;/,
+  /\.amg-portal \[data-portal-table-actions\]\s*{[^}]*min-width:\s*6\.5rem;/,
   "Portal table action columns must have a global minimum width",
 );
 

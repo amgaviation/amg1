@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { ArrowDown, ArrowUp, Edit3, Eye, Filter, Plus, RefreshCw, Search, X } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ArrowDown, ArrowUp, Edit3, Eye, Plus, RefreshCw, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DeckSelect } from "@/components/portal/ui/fields";
 import { Combobox } from "@/components/portal/ui/combobox";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
+import { DialogShell, ModalHeader } from "@/components/portal/ui/record-modal";
 import type { Tone } from "@/lib/portal/constants";
 import { cn } from "@/lib/utils";
 
@@ -113,10 +114,6 @@ function inputValue(value: RecordValue) {
   return String(value);
 }
 
-function labelFor(options: { value: string; label: string }[], value: string) {
-  return options.find((item) => item.value === value)?.label ?? value;
-}
-
 const inputClassName = "deck-input";
 
 function fieldInput(field: AdminRecordField, values: Record<string, RecordValue>) {
@@ -188,20 +185,44 @@ export function AdminRecordManager({
   bulkDelete,
 }: AdminRecordManagerProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isRefreshing, startRefresh] = useTransition();
   const [search, setSearch] = useState("");
-  const [filterOpen, setFilterOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
   const [sort, setSort] = useState<{ key: string; direction: "asc" | "desc" }>({
     key: columns[0]?.key ?? "title",
     direction: "asc",
   });
   const [page, setPage] = useState(1);
-  const [selectedId, setSelectedId] = useState("");
+  // URL-synced detail window: `?record=<id>` is the source of truth, so
+  // refresh, back button, and shared links reopen the same record.
+  const recordParam = searchParams.get("record") ?? "";
+  const [selectedId, setSelectedId] = useState(recordParam);
   const [editor, setEditor] = useState<{ mode: "create" | "edit"; row?: AdminRecordRow } | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const selectAllRef = useRef<HTMLInputElement>(null);
   const selected = rows.find((row) => row.id === selectedId) ?? null;
+
+  useEffect(() => {
+    setSelectedId(recordParam);
+  }, [recordParam]);
+
+  const syncRecordParam = useCallback(
+    (id: string) => {
+      const next = new URLSearchParams(searchParams.toString());
+      if (id) next.set("record", id);
+      else next.delete("record");
+      const qs = next.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [router, pathname, searchParams]
+  );
+
+  const closeRecord = useCallback(() => {
+    setSelectedId("");
+    syncRecordParam("");
+  }, [syncRecordParam]);
 
   const visibleRows = useMemo(() => {
     const needle = search.trim().toLowerCase();
@@ -262,7 +283,24 @@ export function AdminRecordManager({
       return;
     }
     setSelectedId(row.id);
+    syncRecordParam(row.id);
   }
+
+  // The status-style filter (few known values) renders as the chip row; every
+  // other configured filter stays visible as an inline dropdown/keyword input.
+  const chipFilter =
+    filters.find(
+      (filter) =>
+        filter.type !== "text" &&
+        (filter.options?.length ?? 0) > 0 &&
+        (filter.options?.length ?? 0) <= 9 &&
+        (filter.key.toLowerCase().includes("status") || filter.key.toLowerCase().includes("stage"))
+    ) ??
+    filters.find(
+      (filter) => filter.type !== "text" && (filter.options?.length ?? 0) > 0 && (filter.options?.length ?? 0) <= 6
+    ) ??
+    null;
+  const inlineFilters = filters.filter((filter) => filter.key !== chipFilter?.key);
 
   const selectionEnabled = Boolean(bulkDelete);
   const bulkEntityLabel = bulkDelete?.entityLabel ?? "record";
@@ -340,8 +378,31 @@ export function AdminRecordManager({
           </div>
         </div>
 
-        <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center">
-          <label className="relative flex-1">
+        {chipFilter ? (
+          <div className="deck-scroll-x -mx-1 mt-4 flex gap-2 overflow-x-auto px-1 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
+            {[{ value: "", label: "All" }, ...(chipFilter.options ?? [])].map((option) => {
+              const active = (activeFilters[chipFilter.key] ?? "") === option.value;
+              return (
+                <button
+                  key={option.value || "all"}
+                  type="button"
+                  onClick={() => updateFilter(chipFilter.key, option.value)}
+                  className={cn(
+                    "shrink-0 rounded-[0.25rem] border px-3 py-2 font-mono text-[0.68rem] font-semibold uppercase [letter-spacing:0.08em] transition-colors sm:py-1.5",
+                    active
+                      ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]"
+                      : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"
+                  )}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <label className="relative min-w-[12rem] flex-1 sm:max-w-xs">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--deck-text-3)]" />
             <input
               value={search}
@@ -350,72 +411,49 @@ export function AdminRecordManager({
               className={cn(inputClassName, "pl-9")}
             />
           </label>
-          <Button type="button" variant="outline" className="gap-2" onClick={() => setFilterOpen((open) => !open)}>
-            <Filter className="h-4 w-4" />
-            Advanced Filters
-          </Button>
+          {inlineFilters.map((filter) =>
+            filter.type === "text" ? (
+              <input
+                key={filter.key}
+                value={activeFilters[filter.key] ?? ""}
+                onChange={(event) => updateFilter(filter.key, event.target.value)}
+                placeholder={filter.label}
+                aria-label={filter.label}
+                className={cn(inputClassName, "w-auto min-w-[9rem] flex-none")}
+              />
+            ) : (
+              <DeckSelect
+                key={filter.key}
+                aria-label={filter.label}
+                className="w-auto min-w-[9rem]"
+                value={activeFilters[filter.key] || "__all__"}
+                onChange={(event) =>
+                  updateFilter(filter.key, event.target.value === "__all__" ? "" : event.target.value)
+                }
+                options={[{ value: "__all__", label: `All ${filter.label}` }, ...(filter.options ?? [])]}
+              />
+            )
+          )}
+          {activeFilterBadges.length || search.trim() ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setActiveFilters({});
+                setSearch("");
+              }}
+            >
+              Clear
+            </Button>
+          ) : null}
+          <span className="deck-micro ml-auto shrink-0 text-[var(--deck-text-3)]">
+            {visibleRows.length !== rows.length
+              ? `${firstRow}-${lastRow} of ${visibleRows.length} · ${rows.length} total`
+              : `${firstRow}-${lastRow} of ${rows.length} record${rows.length === 1 ? "" : "s"}`}
+          </span>
         </div>
-
-        {filterOpen ? (
-          <div className="mt-4 grid gap-3 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4 md:grid-cols-2 xl:grid-cols-4">
-            {filters.map((filter) => (
-              <label key={filter.key} className="grid gap-2">
-                <span className="text-[0.64rem] font-bold uppercase [letter-spacing:0.18em] text-[var(--deck-text-3)]">{filter.label}</span>
-                {filter.type === "text" ? (
-                  <input
-                    value={activeFilters[filter.key] ?? ""}
-                    onChange={(event) => updateFilter(filter.key, event.target.value)}
-                    placeholder="Keyword"
-                    className={inputClassName}
-                  />
-                ) : (
-                  <DeckSelect
-                    aria-label={filter.label}
-                    value={activeFilters[filter.key] || "__all__"}
-                    onChange={(event) =>
-                      updateFilter(filter.key, event.target.value === "__all__" ? "" : event.target.value)
-                    }
-                    options={[{ value: "__all__", label: "All" }, ...(filter.options ?? [])]}
-                  />
-                )}
-              </label>
-            ))}
-            <div className="flex items-end">
-              <Button type="button" variant="ghost" onClick={() => setActiveFilters({})}>
-                Clear filters
-              </Button>
-            </div>
-          </div>
-        ) : null}
-
-        {activeFilterBadges.length ? (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {activeFilterBadges.map(([key, value]) => {
-              const filter = filters.find((item) => item.key === key);
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => updateFilter(key, "")}
-                  className="deck-chip border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-3 py-1 text-[var(--deck-accent-ink)] transition-colors hover:border-[var(--deck-accent)]"
-                >
-                  {filter?.label ?? key}: {filter?.options ? labelFor(filter.options, value) : value}
-                  <X className="h-3 w-3" />
-                </button>
-              );
-            })}
-          </div>
-        ) : null}
       </header>
-
-      <div className="flex flex-col gap-2 border-b border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-5 py-3 text-xs text-[var(--deck-text-3)] sm:flex-row sm:items-center sm:justify-between">
-        <p>
-          Showing {firstRow}-{lastRow} of {visibleRows.length} record{visibleRows.length === 1 ? "" : "s"}
-        </p>
-        <p>
-          {rows.length} total{activeFilterBadges.length || search.trim() ? " after filters" : ""}
-        </p>
-      </div>
 
       {selectionEnabled && selectionCount > 0 ? (
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--deck-line)] bg-[var(--deck-accent-tint)] px-5 py-3">
@@ -457,7 +495,7 @@ export function AdminRecordManager({
             <>
             <div className="hidden bg-[var(--deck-panel)] md:block">
               <div data-admin-record-table-scroller className="w-full max-w-full overflow-x-auto bg-[var(--deck-panel)]">
-              <table className="min-w-[88rem] w-full table-fixed border-collapse bg-[var(--deck-panel)] text-sm">
+              <table className="min-w-[56rem] w-full border-collapse bg-[var(--deck-panel)] text-sm">
                 <thead className="sticky top-0 z-10 bg-[var(--deck-panel-2)] shadow-[0_1px_0_rgba(15,23,42,0.08)]">
                   <tr className="bg-[var(--deck-panel-2)]">
                     {selectionEnabled ? (
@@ -486,7 +524,9 @@ export function AdminRecordManager({
                         )}
                       </th>
                     ))}
-                    <th data-portal-table-actions className="min-w-[17rem] bg-[var(--deck-panel-2)] px-4 py-3 text-right text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]">Actions</th>
+                    <th data-portal-table-actions className="min-w-[6.5rem] bg-[var(--deck-panel-2)] px-4 py-3 text-right text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]">
+                      <span className="sr-only">Open record</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-[var(--deck-panel)]">
@@ -560,49 +600,14 @@ export function AdminRecordManager({
                           )}
                         </td>
                       ))}
-                      <td data-portal-table-actions className="min-w-[17rem] bg-inherit px-4 py-3 text-right" onClick={(event) => event.stopPropagation()}>
+                      {/* Row click opens the record window; archive and record
+                          actions live inside it, keeping the table slim. */}
+                      <td data-portal-table-actions className="min-w-[6.5rem] bg-inherit px-4 py-3 text-right" onClick={(event) => event.stopPropagation()}>
                         <div data-portal-action-bar className="flex flex-wrap justify-end gap-2">
                           <Button type="button" variant="outline" size="sm" className="gap-1" onClick={() => openRecord(row)}>
                             <Eye className="h-3.5 w-3.5" />
                             {detailHrefBase ? "Open" : "View"}
                           </Button>
-                          {archiveAction ? (
-                            ["archived", "suspended", "inactive", "deleted"].includes(row.status?.label.toLowerCase() ?? "") && archiveDisabledReason ? (
-                              <Button type="button" variant="ghost" size="sm" disabled title={archiveDisabledReason}>
-                                {row.status?.label ?? "Inactive"}
-                              </Button>
-                            ) : (
-                              <form action={archiveAction}>
-                                <input type="hidden" name={recordIdName} value={row.id} />
-                                <input type="hidden" name="back_to" value={backTo} />
-                                <SubmitButton
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-[var(--deck-text-2)] hover:text-[var(--deck-danger)]"
-                                  confirm={row.archiveConfirm ?? archiveConfirm}
-                                  pendingText="Saving..."
-                                >
-                                  {archiveLabel}
-                                </SubmitButton>
-                              </form>
-                            )
-                          ) : null}
-                          {recordActions.map((action) => (
-                            <form key={`${row.id}-${action.label}`} action={action.action}>
-                              <input type="hidden" name={recordIdName} value={row.id} />
-                              <input type="hidden" name="user_id" value={row.id} />
-                              <input type="hidden" name="back_to" value={backTo} />
-                              <SubmitButton
-                                variant={action.variant ?? "outline"}
-                                size="sm"
-                                className={action.className}
-                                confirm={action.confirm}
-                                pendingText={action.pendingText ?? "Saving..."}
-                              >
-                                {action.label}
-                              </SubmitButton>
-                            </form>
-                          ))}
                         </div>
                       </td>
                     </tr>
@@ -613,8 +618,6 @@ export function AdminRecordManager({
             </div>
             <div className="grid gap-3 p-4 md:hidden">
               {pagedRows.map((row) => {
-                const rowArchived =
-                  ["archived", "suspended", "inactive", "deleted"].includes(row.status?.label.toLowerCase() ?? "");
                 return (
                   // Not a <button>: the card holds nested interactive controls
                   // (checkbox, action forms), which are invalid inside a button.
@@ -662,37 +665,6 @@ export function AdminRecordManager({
                         <Eye className="h-3.5 w-3.5" />
                         {detailHrefBase ? "Open" : "View"}
                       </Button>
-                      {recordActions.map((action) => (
-                        <form key={`${row.id}-card-${action.label}`} action={action.action}>
-                          <input type="hidden" name={recordIdName} value={row.id} />
-                          <input type="hidden" name="user_id" value={row.id} />
-                          <input type="hidden" name="back_to" value={backTo} />
-                          <SubmitButton
-                            variant={action.variant ?? "outline"}
-                            size="sm"
-                            className={action.className}
-                            confirm={action.confirm}
-                            pendingText={action.pendingText ?? "Saving..."}
-                          >
-                            {action.label}
-                          </SubmitButton>
-                        </form>
-                      ))}
-                      {archiveAction && !(rowArchived && archiveDisabledReason) ? (
-                        <form action={archiveAction}>
-                          <input type="hidden" name={recordIdName} value={row.id} />
-                          <input type="hidden" name="back_to" value={backTo} />
-                          <SubmitButton
-                            variant="ghost"
-                            size="sm"
-                            className="text-[var(--deck-text-2)] hover:text-[var(--deck-danger)]"
-                            confirm={row.archiveConfirm ?? archiveConfirm}
-                            pendingText="Saving..."
-                          >
-                            {archiveLabel}
-                          </SubmitButton>
-                        </form>
-                      ) : null}
                     </div>
                   </div>
                 );
@@ -740,35 +712,30 @@ export function AdminRecordManager({
       ) : null}
 
       {selected ? (
-        <div className="fixed inset-0 z-40 flex justify-end bg-[rgba(10,19,34,0.55)] backdrop-blur-sm" role="dialog" aria-modal="true" onClick={() => setSelectedId("")}>
-          <aside
-            className="h-full w-full overflow-y-auto border-l border-[var(--deck-line)] bg-[var(--deck-panel)] text-[var(--deck-text)] sm:max-w-[42rem]"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <header className="sticky top-0 z-10 border-b border-[var(--deck-line)] bg-[var(--deck-panel)]/95 px-5 py-4 backdrop-blur">
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="text-[0.62rem] font-bold uppercase [letter-spacing:0.18em] text-[var(--deck-accent-ink)]">{detailEyebrow}</p>
-                  <h3 className="mt-2 truncate text-2xl font-bold text-[var(--deck-text)]">{selected.title}</h3>
-                  {selected.subtitle ? <p className="mt-1 truncate text-sm text-[var(--deck-text-3)]">{selected.subtitle}</p> : null}
-                </div>
-                <Button type="button" variant="ghost" size="icon" onClick={() => setSelectedId("")} aria-label="Close details">
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-              <div data-portal-action-bar className="mt-4 flex flex-wrap items-center gap-2">
+        <DialogShell labelledBy="admin-record-title" onClose={closeRecord} wide>
+          <ModalHeader
+            id="admin-record-title"
+            eyebrow={detailEyebrow}
+            title={selected.title}
+            meta={selected.subtitle ?? undefined}
+            badge={
+              <>
                 {selected.status ? <StatusBadge label={selected.status.label} tone={selected.status.tone} /> : null}
                 {selected.secondaryStatus ? <StatusBadge label={selected.secondaryStatus.label} tone={selected.secondaryStatus.tone} /> : null}
-                {updateAction ? (
-                  <Button type="button" className="ml-auto gap-2" onClick={() => setEditor({ mode: "edit", row: selected })}>
-                    <Edit3 className="h-4 w-4" />
-                    {editLabel}
-                  </Button>
-                ) : null}
-              </div>
-            </header>
-
-            <div className="grid gap-4 p-5">
+              </>
+            }
+            onClose={closeRecord}
+          />
+          {updateAction ? (
+            <div data-portal-action-bar className="flex flex-wrap items-center gap-2 border-b border-[var(--deck-line)] px-5 py-3 sm:px-6">
+              <Button type="button" size="sm" className="gap-2" onClick={() => setEditor({ mode: "edit", row: selected })}>
+                <Edit3 className="h-4 w-4" />
+                {editLabel}
+              </Button>
+            </div>
+          ) : null}
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <div className="grid gap-4 p-5 sm:p-6">
               {recordActions.length || archiveAction ? (
                 <section className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4">
                   <h4 className="text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]">Review Actions</h4>
@@ -841,33 +808,23 @@ export function AdminRecordManager({
                 </section>
               ))}
             </div>
-          </aside>
-        </div>
+          </div>
+        </DialogShell>
       ) : null}
 
       {editor ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(10,19,34,0.55)] p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
-          {/* flex column so the form scrolls inside whatever height the header
-              actually takes — a wrapped title can no longer clip the footer. */}
-          <div className="flex max-h-[92dvh] w-full max-w-4xl flex-col overflow-hidden rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] text-[var(--deck-text)]">
-            <header className="flex shrink-0 items-start justify-between gap-4 border-b border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-5 py-4">
-              <div>
-                <p className="text-[0.62rem] font-bold uppercase [letter-spacing:0.18em] text-[var(--deck-accent-ink)]">
-                  {editor.mode === "create" ? "Create Record" : "Edit Record"}
-                </p>
-                <h3 className="mt-1 text-xl font-bold text-[var(--deck-text)]">
-                  {editor.mode === "create" ? createLabel : editor.row?.title}
-                </h3>
-              </div>
-              <Button type="button" variant="ghost" size="icon" onClick={() => setEditor(null)} aria-label="Close editor">
-                <X className="h-4 w-4" />
-              </Button>
-            </header>
-            <form
-              key={`${editor.mode}-${editor.row?.id ?? "new"}`}
-              action={editor.mode === "create" ? createAction! : updateAction!}
-              className="min-h-0 flex-1 overflow-y-auto p-5"
-            >
+        <DialogShell labelledBy="admin-record-editor-title" onClose={() => setEditor(null)} wide>
+          <ModalHeader
+            id="admin-record-editor-title"
+            eyebrow={editor.mode === "create" ? "Create Record" : "Edit Record"}
+            title={editor.mode === "create" ? createLabel : editor.row?.title ?? editLabel}
+            onClose={() => setEditor(null)}
+          />
+          <form
+            key={`${editor.mode}-${editor.row?.id ?? "new"}`}
+            action={editor.mode === "create" ? createAction! : updateAction!}
+            className="min-h-0 flex-1 overflow-y-auto p-5 sm:p-6"
+          >
               {editor.mode === "edit" && editor.row ? <input type="hidden" name={recordIdName} value={editor.row.id} /> : null}
               <input type="hidden" name="back_to" value={backTo} />
               <div className="grid gap-4 md:grid-cols-2">
@@ -890,8 +847,7 @@ export function AdminRecordManager({
                 </SubmitButton>
               </footer>
             </form>
-          </div>
-        </div>
+        </DialogShell>
       ) : null}
     </section>
   );

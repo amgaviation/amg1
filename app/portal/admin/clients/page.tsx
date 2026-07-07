@@ -93,6 +93,8 @@ export default async function AdminClientsPage({
     const company = client.company_name ?? "-";
     const statusLabel = PROFILE_STATUS_LABEL[client.status] ?? client.status;
     const homeAirport = row.home_base ?? row.preferred_airport ?? null;
+    const currentSubscription = clientSubscriptions[0];
+    const planTier = [currentSubscription?.plan?.name, currentSubscription?.tier?.name].filter(Boolean).join(" - ") || null;
 
     return {
       id: client.id,
@@ -107,6 +109,7 @@ export default async function AdminClientsPage({
         status: client.status,
         homeAirport,
         aircraftCount: clientAircraft.length,
+        planTier: planTier ?? "-",
         subscriptionStatus: clientSubscriptions[0]?.status ?? "-",
         updated: client.updated_at ? formatDateTime(client.updated_at) : "-",
       },
@@ -156,6 +159,8 @@ export default async function AdminClientsPage({
         { label: "Billing", value: labelFor(billingPreferenceOptions, row.billing_preference) },
         { label: "Billing Contact", value: row.billing_contact_name },
         { label: "Billing Email", value: row.billing_contact_email },
+        { label: "Plan Tier", value: planTier },
+        { label: "Subscription", value: clientSubscriptions[0]?.status },
         { label: "Updated", value: client.updated_at ? formatDateTime(client.updated_at) : null },
         { label: "Internal Notes", value: row.internal_notes },
       ],
@@ -231,12 +236,11 @@ export default async function AdminClientsPage({
         description="Client records by account status, authorized requesters, aircraft, billing context, and mission history."
         rows={rows}
         columns={[
-          { key: "name", label: "Name", sortable: true },
+          { key: "name", label: "Client", sortable: true },
           { key: "company", label: "Company", sortable: true },
-          { key: "email", label: "Email", sortable: true },
-          { key: "status", label: "Status", sortable: true },
+          { key: "planTier", label: "Plan Tier", sortable: true },
           { key: "aircraftCount", label: "Aircraft", sortable: true },
-          { key: "updated", label: "Updated", sortable: true },
+          { key: "status", label: "Status", sortable: true },
         ]}
         filters={filters}
         fields={[
