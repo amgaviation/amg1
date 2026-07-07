@@ -22,6 +22,7 @@ import {
   isCustomInterval,
   refreshTestSubscription,
 } from "@/lib/portal/stripe-custom-subscriptions";
+import { adjustCreditBalanceWithRetry, applyCreditsToInvoice } from "@/lib/portal/subscription-credits";
 
 function money(formData: FormData, key: string) {
   return num(formData, key) ?? 0;
@@ -334,26 +335,29 @@ export async function addSubscriptionCredit(formData: FormData) {
   const amount = money(formData, "amount");
   if (!subscriptionId || !clientId || amount === 0) redirect("/portal/admin/subscriptions?error=missing");
 
-  const { error } = await db.from("subscription_credits").insert({
-    subscription_id: subscriptionId,
-    client_id: clientId,
-    source_type: str(formData, "source_type") || "manual",
-    amount,
-    description: str(formData, "description") || null,
-    expires_at: str(formData, "expires_at") || null,
-    created_by: admin.id,
-  });
-  if (error) redirect(`/portal/admin/subscriptions/${subscriptionId}?error=credit`);
+  const { data: creditRow, error } = await db
+    .from("subscription_credits")
+    .insert({
+      subscription_id: subscriptionId,
+      client_id: clientId,
+      source_type: str(formData, "source_type") || "manual",
+      amount,
+      description: str(formData, "description") || null,
+      expires_at: str(formData, "expires_at") || null,
+      created_by: admin.id,
+    })
+    .select("id")
+    .single();
+  if (error || !creditRow) redirect(`/portal/admin/subscriptions/${subscriptionId}?error=credit`);
 
-  const { data: current } = await db
-    .from("client_subscriptions")
-    .select("credit_balance")
-    .eq("id", subscriptionId)
-    .maybeSingle();
-  await db
-    .from("client_subscriptions")
-    .update({ credit_balance: Number(current?.credit_balance ?? 0) + amount, updated_at: new Date().toISOString() })
-    .eq("id", subscriptionId);
+  // Optimistic-concurrency balance rollup (retried on conflict). If the
+  // rollup can't land, delete the just-inserted ledger row so the ledger and
+  // credit_balance never diverge.
+  const adjusted = await adjustCreditBalanceWithRetry(db, subscriptionId, amount);
+  if (!adjusted.ok) {
+    await db.from("subscription_credits").delete().eq("id", creditRow.id);
+    redirect(`/portal/admin/subscriptions/${subscriptionId}?error=credit-conflict`);
+  }
 
   await logAuditEvent({
     actor: admin,
@@ -365,6 +369,24 @@ export async function addSubscriptionCredit(formData: FormData) {
   revalidatePath(`/portal/admin/subscriptions/${subscriptionId}`);
   revalidatePath("/portal/client/subscriptions");
   redirect(`/portal/admin/subscriptions/${subscriptionId}?success=credit`);
+}
+
+export async function applySubscriptionCredits(formData: FormData) {
+  // Applying credit IS payment recording, so it carries the payments gate
+  // rather than the subscriptions one.
+  const admin = await actor(["admin"], "payments.add");
+  const invoiceId = str(formData, "invoice_id");
+  if (!invoiceId) redirect("/portal/admin/invoices?error=missing");
+
+  const result = await applyCreditsToInvoice({ invoiceId, actor: admin });
+  if (!result.ok) redirect(`/portal/admin/invoices/${invoiceId}?error=${result.reason}`);
+
+  revalidatePath(`/portal/admin/invoices/${invoiceId}`);
+  revalidatePath("/portal/admin/invoices");
+  revalidatePath("/portal/client/billing");
+  revalidatePath("/portal/admin/subscriptions");
+  revalidatePath("/portal/client/subscriptions");
+  redirect(`/portal/admin/invoices/${invoiceId}?success=credits-applied&amount=${result.applied}`);
 }
 
 // ─── Custom + test subscriptions ────────────────────────────────────

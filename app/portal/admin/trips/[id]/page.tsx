@@ -10,6 +10,7 @@ import { assignCrew, assignPartner, unassignCrew } from "@/app/portal/actions/ad
 import { createQuote } from "@/app/portal/actions/quotes";
 import { decideCrewPoolRequest, updateMissionNotes, updateMissionPool, updateMissionStatus } from "@/app/portal/actions/missions";
 import { getMissionDetail, listAllCrew, listAllPartners } from "@/lib/portal/queries";
+import { MIN_GATE_OVERRIDE_REASON_LENGTH, getCrewComplianceIssues, getMissionReadiness } from "@/lib/portal/mission-lifecycle";
 import { countQualifiedCrew, describePoolRequirements, listCrewRequestsForMission, parsePoolRequirements } from "@/lib/portal/pool";
 import { getPublicSupportRequestForMission, publicSupportLabel } from "@/lib/portal/public-support-requests";
 import { CREW_ROLE, MISSION_STATUS, MISSION_STATUS_LABEL, MISSION_STATUS_TONE, PARTNER_TYPES, QUOTE_CATEGORIES, toneFor } from "@/lib/portal/constants";
@@ -28,7 +29,7 @@ export default async function AdminTripDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ success?: string; error?: string }>;
+  searchParams: Promise<{ success?: string; error?: string; gate?: string; from?: string; to?: string }>;
 }) {
   const user = await requireRolePermission("admin", "missions");
   const { id } = await params;
@@ -43,9 +44,14 @@ export default async function AdminTripDetailPage({
   if (!mission) notFound();
 
   const poolRequirements = parsePoolRequirements(mission.pool_requirements);
-  const qualifiedCrewCount = await countQualifiedCrew(poolRequirements);
   const pendingPoolRequests = poolRequests.filter((r) => r.status === "pending");
   const decidedPoolRequests = poolRequests.filter((r) => r.status !== "pending");
+  const [qualifiedCrewCount, readiness, poolCrewIssues] = await Promise.all([
+    countQualifiedCrew(poolRequirements),
+    getMissionReadiness(mission.id, mission.status),
+    getCrewComplianceIssues(pendingPoolRequests.map((r) => r.crew_id)),
+  ]);
+  const crewIssueByCrewId = new Map(poolCrewIssues.map((issue) => [issue.crewId, issue]));
 
   const publicDetails = publicRequest?.category_details
     ? Object.entries(publicRequest.category_details).filter(([, value]) => Boolean(value))
@@ -66,6 +72,24 @@ export default async function AdminTripDetailPage({
       ) : null}
       {flash.error === "no-new-offers" ? (
         <Notice tone="warn">No new offers were sent — the selected crew already accepted or completed this mission.</Notice>
+      ) : null}
+      {flash.error === "illegal-transition" ? (
+        <Notice tone="danger">
+          Status change rejected — {MISSION_STATUS_LABEL[flash.from ?? ""] ?? flash.from ?? "the current status"} cannot move
+          to {MISSION_STATUS_LABEL[flash.to ?? ""] ?? flash.to ?? "that status"}. Follow the mission flow, or cancel the
+          mission if it is no longer happening.
+        </Notice>
+      ) : null}
+      {flash.error === "gate-blocked" ? (
+        <Notice tone="danger">
+          {flash.gate === "closeout"
+            ? "Closeout gate blocked this change — a non-void invoice must be linked to this mission first."
+            : flash.gate === "crew"
+              ? "Crew gate blocked this approval — the crew member is missing insurance approval or holds an expired credential."
+              : "Movement gate blocked this change — assigned crew are missing insurance approval or hold expired credentials."}{" "}
+          Resolve the blockers shown in the Readiness panel, or record an override reason (minimum{" "}
+          {MIN_GATE_OVERRIDE_REASON_LENGTH} characters) to force it. Overrides are audited and notify every admin.
+        </Notice>
       ) : null}
 
       {/* Detail-archetype summary header: ref + status + mono key facts */}
@@ -204,11 +228,52 @@ export default async function AdminTripDetailPage({
         </div>
 
         <div className="space-y-6">
+          <SectionCard
+            title="Readiness"
+            icon="shield"
+            description={
+              readiness.nextStatus
+                ? `Gate check for the next step: ${MISSION_STATUS_LABEL[readiness.nextStatus] ?? readiness.nextStatus}.`
+                : "This mission is closed — no further transitions."
+            }
+          >
+            {!readiness.nextStatus ? (
+              <p className="text-sm text-muted-foreground">No gates apply to completed or cancelled missions.</p>
+            ) : readiness.blockers.length === 0 && readiness.warnings.length === 0 ? (
+              <div className="rounded-md border border-[var(--deck-success-line)] bg-[var(--deck-success-tint)] px-3 py-2 text-sm font-semibold text-[var(--deck-success)]">
+                All gates clear.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {readiness.blockers.map((blocker) => (
+                  <div key={blocker} className="rounded-md border border-[var(--deck-danger-line)] bg-[var(--deck-danger-tint)] px-3 py-2 text-sm text-[var(--deck-danger)]">
+                    {blocker}
+                  </div>
+                ))}
+                {readiness.warnings.map((warning) => (
+                  <div key={warning} className="rounded-md border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] px-3 py-2 text-sm text-[var(--deck-warn)]">
+                    {warning}
+                  </div>
+                ))}
+                <p className="text-xs text-muted-foreground">
+                  Red blockers stop the transition unless an override reason is recorded. Amber warnings never block.
+                </p>
+              </div>
+            )}
+          </SectionCard>
           <SectionCard title="Status" icon="radar">
             <form action={updateMissionStatus} className="space-y-4">
               <input type="hidden" name="mission_id" value={mission.id} />
               <SelectField label="Mission Status" name="status" defaultValue={mission.status} options={MISSION_STATUS.map((s) => ({ value: s.value, label: s.label }))} />
               <TextAreaField label="Internal Note" name="internal_notes" defaultValue={mission.internal_notes ?? ""} />
+              {readiness.blockers.length ? (
+                <TextAreaField
+                  label="Override Reason"
+                  name="override_reason"
+                  placeholder="Why is it safe to proceed despite the blockers above?"
+                  hint={`Required only to force past blockers (minimum ${MIN_GATE_OVERRIDE_REASON_LENGTH} characters). Overrides are audited and notify every admin.`}
+                />
+              ) : null}
               <SubmitButton pendingText="Saving...">Update Status</SubmitButton>
             </form>
           </SectionCard>
@@ -263,26 +328,42 @@ export default async function AdminTripDetailPage({
               {pendingPoolRequests.length === 0 && decidedPoolRequests.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No crew requests yet.</p>
               ) : null}
-              {pendingPoolRequests.map((request) => (
-                <div key={request.id} className="rounded-md border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] p-3 space-y-3">
-                  <div>
-                    <p className="text-sm font-semibold">{request.crew?.full_name ?? request.crew?.email ?? request.crew_id}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {request.crew_qualifications?.total_time != null ? `${Number(request.crew_qualifications.total_time).toLocaleString()} hrs TT` : "TT n/a"}
-                      {request.crew_qualifications?.type_ratings?.length ? ` · ${request.crew_qualifications.type_ratings.join(", ")}` : ""}
-                    </p>
-                    {request.message ? <p className="mt-1 text-xs text-muted-foreground">“{request.message}”</p> : null}
-                  </div>
-                  <form action={decideCrewPoolRequest} className="space-y-3">
-                    <input type="hidden" name="request_id" value={request.id} />
-                    <SelectField label="Crew Role" name="crew_role" defaultValue="pic" options={CREW_ROLE.map((r) => ({ value: r.value, label: r.label }))} />
-                    <div className="flex flex-wrap gap-2">
-                      <SubmitButton name="decision" value="approved" pendingText="Approving...">Approve &amp; Assign</SubmitButton>
-                      <SubmitButton name="decision" value="denied" variant="outline" pendingText="Denying...">Deny</SubmitButton>
+              {pendingPoolRequests.map((request) => {
+                const crewIssue = crewIssueByCrewId.get(request.crew_id);
+                return (
+                  <div key={request.id} className="rounded-md border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] p-3 space-y-3">
+                    <div>
+                      <p className="text-sm font-semibold">{request.crew?.full_name ?? request.crew?.email ?? request.crew_id}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {request.crew_qualifications?.total_time != null ? `${Number(request.crew_qualifications.total_time).toLocaleString()} hrs TT` : "TT n/a"}
+                        {request.crew_qualifications?.type_ratings?.length ? ` · ${request.crew_qualifications.type_ratings.join(", ")}` : ""}
+                      </p>
+                      {request.message ? <p className="mt-1 text-xs text-muted-foreground">“{request.message}”</p> : null}
                     </div>
-                  </form>
-                </div>
-              ))}
+                    <form action={decideCrewPoolRequest} className="space-y-3">
+                      <input type="hidden" name="request_id" value={request.id} />
+                      <SelectField label="Crew Role" name="crew_role" defaultValue="pic" options={CREW_ROLE.map((r) => ({ value: r.value, label: r.label }))} />
+                      {crewIssue ? (
+                        <>
+                          <div className="rounded-md border border-[var(--deck-danger-line)] bg-[var(--deck-danger-tint)] px-3 py-2 text-xs text-[var(--deck-danger)]">
+                            Gate: {crewIssue.name} — {crewIssue.problems.join("; ")}. Approval is blocked without an override reason.
+                          </div>
+                          <TextAreaField
+                            label="Override Reason"
+                            name="override_reason"
+                            placeholder="Why is it safe to assign this crew member anyway?"
+                            hint={`Only needed to approve (minimum ${MIN_GATE_OVERRIDE_REASON_LENGTH} characters). Overrides are audited and notify every admin.`}
+                          />
+                        </>
+                      ) : null}
+                      <div className="flex flex-wrap gap-2">
+                        <SubmitButton name="decision" value="approved" pendingText="Approving...">Approve &amp; Assign</SubmitButton>
+                        <SubmitButton name="decision" value="denied" variant="outline" pendingText="Denying...">Deny</SubmitButton>
+                      </div>
+                    </form>
+                  </div>
+                );
+              })}
               {decidedPoolRequests.map((request) => (
                 <div key={request.id} className="rounded-md border border-border bg-[var(--deck-panel-2)] p-3">
                   <p className="text-sm font-semibold">{request.crew?.full_name ?? request.crew?.email ?? request.crew_id}</p>

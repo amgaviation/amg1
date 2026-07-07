@@ -48,3 +48,11 @@ Branch: claude/new-session-mt12tj (designated session branch; plan's `loop/<date
 - P1 done (crew lifecycle, guarded writes, pool re-open nuance, reviewDocument expiry). W2 done (video/image loading). W1 done: 66 files, 137 MiB freed (public/ 187→50 MB); spot-check clean; corrected earlier audit's tbm.jpg claim.
 - CRITICAL orchestrator catch: thread_members.last_read_at does NOT exist in prod (B-1-11 premise false; P2 hand-added it to types). P2 re-briefed: rework unread state on notifications table (type=message/entity=thread), revert types edit. Awaiting rework.
 - W2's portal intro preload flag investigated and REJECTED: intro video only mounts when actually playing (PortalIntroGate), preload="auto" is correct there.
+
+## Large-features cycle (user-directed, session 2 cont.)
+- User: "larger portal features". Four agents dispatched, zero-schema designs verified against prod columns first
+  (insurance_approved, applied_to_invoice_id, stripe_sync_warning all exist):
+  F1 subscription credit lifecycle (apply-to-invoice as 'credit' payment + cron expiry sweep, optimistic concurrency)
+  F2 mission state machine (LEGAL_TRANSITIONS) + insurance/closeout gates with audited override
+  F3 Stripe price-mismatch hold-and-confirm (stop silent self-heal; admin resolve action)
+  F4 loading/error boundaries for ~32 portal segments

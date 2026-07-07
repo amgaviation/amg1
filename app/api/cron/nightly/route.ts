@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { notifyAdmins, notifyUser } from "@/lib/portal/audit";
-import { formatDate } from "@/lib/portal/format";
+import { formatDate, formatMoney } from "@/lib/portal/format";
+import {
+  adjustCreditBalanceWithRetry,
+  EXPIRED_CREDIT_MARKER_PATTERN,
+  expiredCreditMarker,
+  round2,
+} from "@/lib/portal/subscription-credits";
 import { createServiceClient } from "@/lib/supabase/server";
 
 // Nightly operational sweep, invoked by Vercel Cron (see vercel.json).
@@ -10,6 +16,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 // 3. Keep crew credential currency honest ("expiring" / "expired").
 // 4. Flag Stripe-synced subscriptions whose billing period lapsed 7+ days
 //    ago without a renewal event.
+// 5. Expire unused subscription credits past their expires_at date.
 // All mutations are audit-logged as the synthetic "system-cron" actor.
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -271,6 +278,113 @@ async function flagStaleSubscriptions(db: SupabaseService, now: Date): Promise<n
   return subscriptions.length;
 }
 
+// Per-run ceiling matching the credential sweep's rationale: a large first
+// backlog drains over successive nights instead of one giant run.
+const CREDIT_EXPIRY_BATCH_LIMIT = 100;
+
+async function expireSubscriptionCredits(db: SupabaseService, now: Date): Promise<number> {
+  const dbAny = db as any;
+  const today = now.toISOString().slice(0, 10);
+
+  // Candidates: unapplied, positive ledger rows whose expires_at (a DATE
+  // column) is strictly before today — a credit expiring today stays usable
+  // through the end of its expiry day, mirroring the application filter
+  // (expires_at IS NULL OR expires_at >= today).
+  const { data: candidates, error } = await dbAny
+    .from("subscription_credits")
+    .select("id, subscription_id, client_id, amount, expires_at")
+    .is("applied_to_invoice_id", null)
+    .gt("amount", 0)
+    .lt("expires_at", today)
+    .order("expires_at", { ascending: true })
+    .limit(CREDIT_EXPIRY_BATCH_LIMIT);
+  if (error) throw new Error(error.message);
+  if (!candidates?.length) return 0;
+
+  // Idempotency guard: an expiry is recorded as a NEGATIVE source_type
+  // "adjustment" row whose description embeds `[expired-credit:<id>]`. The
+  // original row is never mutated (ledger history stays immutable) and
+  // applied_to_invoice_id can't hold a sentinel (FK to invoices), so the
+  // paired offset row IS the marker: any candidate whose id already appears
+  // in an offset description is skipped on subsequent runs.
+  const { data: offsets, error: offsetsError } = await dbAny
+    .from("subscription_credits")
+    .select("description")
+    .in("subscription_id", [...new Set(candidates.map((credit: any) => credit.subscription_id))])
+    .eq("source_type", "adjustment")
+    .lt("amount", 0)
+    .like("description", "%[expired-credit:%");
+  if (offsetsError) throw new Error(offsetsError.message);
+  const alreadyOffset = new Set<string>();
+  for (const offset of offsets ?? []) {
+    const match = EXPIRED_CREDIT_MARKER_PATTERN.exec(String(offset.description ?? ""));
+    if (match) alreadyOffset.add(match[1].toLowerCase());
+  }
+
+  const expired: { creditId: string; amount: number; detail: string }[] = [];
+  for (const credit of candidates) {
+    if (alreadyOffset.has(String(credit.id).toLowerCase())) continue;
+    const amount = round2(Number(credit.amount ?? 0));
+    if (amount <= 0) continue;
+
+    // Offset row FIRST, balance decrement second: the offset doubles as the
+    // idempotency marker, so a crash between the two leaves the balance
+    // rollup overstated (admin-visible drift, and unspendable — application
+    // consumes ledger rows, not the rollup) rather than risking a double
+    // decrement that silently takes credit from the client.
+    const { error: insertError } = await dbAny.from("subscription_credits").insert({
+      subscription_id: credit.subscription_id,
+      client_id: credit.client_id,
+      source_type: "adjustment",
+      amount: -amount,
+      description: `Expired unused credit ${credit.id} (${formatMoney(amount)}, expired ${formatDate(credit.expires_at)}) ${expiredCreditMarker(credit.id)}`,
+    });
+    if (insertError) {
+      console.error("[cron/nightly] credit expiry offset insert failed", credit.id, insertError.message);
+      continue;
+    }
+
+    const adjusted = await adjustCreditBalanceWithRetry(dbAny, credit.subscription_id, -amount, {
+      clampAtZero: true,
+    });
+    const balanceNote = adjusted.ok
+      ? `balance ${formatMoney(adjusted.oldBalance)} -> ${formatMoney(adjusted.newBalance)}`
+      : `balance decrement failed (${adjusted.reason}) — reconcile subscription ${credit.subscription_id}`;
+    if (!adjusted.ok) {
+      console.error("[cron/nightly] credit expiry balance decrement failed", credit.subscription_id, adjusted.reason);
+    }
+
+    expired.push({
+      creditId: credit.id,
+      amount,
+      detail: `Expired unused credit ${formatMoney(amount)} (credit ${credit.id}, expired ${formatDate(credit.expires_at)}; ${balanceNote}).`,
+    });
+  }
+  if (!expired.length) return 0;
+
+  await insertAuditRows(
+    db,
+    expired.map((entry) =>
+      systemAuditRow({
+        action: "subscription_credit_expired",
+        detail: entry.detail,
+        entityType: "subscription_credit",
+        entityId: entry.creditId,
+      })
+    )
+  );
+
+  const expiredTotal = round2(expired.reduce((sum, entry) => sum + entry.amount, 0));
+  await notifyAdmins({
+    title: `${expired.length} subscription credit${expired.length === 1 ? "" : "s"} expired (${formatMoney(expiredTotal)})`,
+    body: `Nightly ops expired unused plan credits past their expiry date and reduced the outstanding credit liability by ${formatMoney(expiredTotal)}. Details are in the audit log.`,
+    type: "subscription_credit_expired",
+    entityType: "subscription_credit",
+  });
+
+  return expired.length;
+}
+
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
   if (!secret) {
@@ -295,6 +409,7 @@ export async function GET(request: Request) {
     credentialsMarkedExpired: 0,
     credentialsMarkedExpiring: 0,
     subscriptionsMarkedStale: 0,
+    subscriptionCreditsExpired: 0,
   };
   const errors: Record<string, string> = {};
   const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
@@ -327,6 +442,13 @@ export async function GET(request: Request) {
   } catch (error) {
     errors.staleSubscriptions = message(error);
     console.error("[cron/nightly] stale subscription sweep failed", error);
+  }
+
+  try {
+    counts.subscriptionCreditsExpired = await expireSubscriptionCredits(db, now);
+  } catch (error) {
+    errors.expiredSubscriptionCredits = message(error);
+    console.error("[cron/nightly] subscription credit expiry sweep failed", error);
   }
 
   await insertAuditRows(db, [

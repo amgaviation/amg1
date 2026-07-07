@@ -9,7 +9,9 @@ import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { createInvoiceRevision, previewInvoicePdf, recordInvoicePayment, sendInvoicePdf, updateInvoiceStatus } from "@/app/portal/actions/invoices";
 import { payInvoiceWithStripe } from "@/app/portal/actions/invoice-payments";
+import { applySubscriptionCredits } from "@/app/portal/actions/subscriptions";
 import { getInvoiceDetail } from "@/lib/portal/queries";
+import { getAvailableSubscriptionCredit } from "@/lib/portal/subscription-credits";
 import { INVOICE_STATUS, INVOICE_STATUS_LABEL, INVOICE_STATUS_TONE, PAYMENT_METHODS, toneFor } from "@/lib/portal/constants";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/portal/format";
 
@@ -20,7 +22,7 @@ export default async function AdminInvoiceDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ success?: string; error?: string }>;
+  searchParams: Promise<{ success?: string; error?: string; amount?: string }>;
 }) {
   const user = await requireRolePermission("admin", "invoices");
   const { id } = await params;
@@ -35,6 +37,7 @@ export default async function AdminInvoiceDetailPage({
   const lockedInvoice = ["paid", "void", "written_off"].includes(invoice.status);
   const canRevise = !editableInvoice && !lockedInvoice;
   const canPay = ["sent", "viewed", "overdue", "partially_paid"].includes(invoice.status) && Number(invoice.amount_due ?? 0) > 0;
+  const availableCredit = canPay && invoice.client_id ? await getAvailableSubscriptionCredit(invoice.client_id) : 0;
   const activityItems = [
     ...invoice.documents.map((document) => ({
       at: document.created_at,
@@ -71,7 +74,11 @@ export default async function AdminInvoiceDetailPage({
 
   return (
     <>
-      {flash.success ? <Notice tone="success">Invoice updated.</Notice> : null}
+      {flash.success === "credits-applied" ? (
+        <Notice tone="success">{formatMoney(Number(flash.amount ?? 0))} in plan credit was applied to this invoice.</Notice>
+      ) : flash.success ? (
+        <Notice tone="success">Invoice updated.</Notice>
+      ) : null}
       {flash.error === "duplicate" ? <Notice tone="danger">This quote already has an active invoice.</Notice> : null}
       {flash.error === "payment-required" ? <Notice tone="danger">Record a payment to mark this invoice paid.</Notice> : null}
       {flash.error === "payment-data" ? <Notice tone="danger">Remove full card numbers, CVV codes, bank account numbers, or routing numbers before recording payment details.</Notice> : null}
@@ -79,6 +86,9 @@ export default async function AdminInvoiceDetailPage({
       {flash.error === "revision" ? <Notice tone="danger">An invoice revision could not be created.</Notice> : null}
       {flash.error === "configuration" ? <Notice tone="danger">Stripe is not configured. Add STRIPE_SECRET_KEY before generating payment links.</Notice> : null}
       {flash.error === "stripe" ? <Notice tone="danger">Stripe could not create a payment session for this invoice.</Notice> : null}
+      {flash.error === "no-credits" ? <Notice tone="danger">This client has no available plan credit to apply.</Notice> : null}
+      {flash.error === "not-eligible" ? <Notice tone="danger">Plan credit can only be applied to sent, open invoices with an amount due.</Notice> : null}
+      {flash.error === "credit-conflict" ? <Notice tone="danger">Plan credit could not be applied because the credit balance changed while applying. Refresh and try again.</Notice> : null}
       {/* Detail-archetype summary header */}
       <div className="flex flex-col gap-4 pb-2 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
@@ -244,6 +254,25 @@ export default async function AdminInvoiceDetailPage({
                 <SelectField label="Status" name="status" defaultValue={invoice.status} options={INVOICE_STATUS.filter((status) => status.value !== "paid").map((status) => ({ value: status.value, label: status.label }))} />
                 <TextAreaField label="Internal Notes" name="internal_notes" defaultValue={invoice.internal_notes ?? ""} />
                 <SubmitButton pendingText="Saving...">Save Status</SubmitButton>
+              </form>
+            </SectionCard>
+          ) : null}
+
+          {canPay && availableCredit > 0 ? (
+            <SectionCard title="Plan Credit" icon="creditCard">
+              <Notice tone="info">
+                This client has {formatMoney(availableCredit)} in available subscription credit. Applying it records a
+                credit payment against this invoice, oldest credits first.
+              </Notice>
+              <form action={applySubscriptionCredits}>
+                <input type="hidden" name="invoice_id" value={invoice.id} />
+                <SubmitButton
+                  className="w-full"
+                  pendingText="Applying..."
+                  confirm={`Apply ${formatMoney(Math.min(availableCredit, Number(invoice.amount_due ?? 0)))} of plan credit to ${invoice.invoice_number}? This records a credit payment and reduces the client's credit balance.`}
+                >
+                  Apply plan credit ({formatMoney(availableCredit)} available)
+                </SubmitButton>
               </form>
             </SectionCard>
           ) : null}
