@@ -182,7 +182,7 @@ export default function Hero() {
         <div className="flex h-full flex-col justify-center px-[5vw] pb-[10vh] pt-[8vh]">
           <div className="max-w-[860px]">
             <h2 className="display-lg text-balance font-display font-medium text-t1">
-              Quoted in <span className="whitespace-nowrap">24 hours.</span>
+              Our Responsibility. <span className="whitespace-nowrap">Your Mission.</span>
             </h2>
             <p className="mt-5 text-lg leading-snug text-t1">
               Reliable crew and aircraft
