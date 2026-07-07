@@ -262,6 +262,9 @@ export const NAV_MODULE_PREFIXES: [string, PermissionModule][] = [
   ["/portal/admin/payments", "payments"],
   ["/portal/admin/receivables", "invoices"],
   ["/portal/admin/subscriptions", "subscriptions"],
+  // Longest-prefix-wins: the pricing catalog rides "settings" while the rest
+  // of /portal/admin/financial stays under "financial_analytics".
+  ["/portal/admin/financial/pricing", "settings"],
   ["/portal/admin/financial", "financial_analytics"],
   ["/portal/admin/expenses", "expenses"],
   ["/portal/admin/receipts", "expenses"],

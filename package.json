@@ -21,6 +21,7 @@
     "stripe:subscriptions:verify": "tsx scripts/verify-stripe-subscriptions.ts",
     "stripe:live-readiness:verify": "tsx scripts/verify-stripe-live-readiness.ts",
     "portal:supabase-edit:verify": "node scripts/verify-portal-supabase-edit-contract.mjs",
+    "pricing:verify": "tsx scripts/verify-pricing-catalog.ts",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "npm run typecheck"

@@ -536,32 +536,130 @@ export type Database = {
       invoice_line_items: {
         Row: {
           amount: number
+          billable: boolean
+          billing_frequency: string | null
+          calculator_inputs: Json | null
           category: string
+          client_notes: string | null
+          client_visible: boolean
+          cost_type: string | null
           created_at: string
           description: string | null
           expense_id: string | null
           id: string
+          included_in_total: boolean
+          internal_cost: number | null
+          internal_notes: string | null
           invoice_id: string
+          item_code: string | null
+          markup_type: string
+          markup_value: number
+          notes: string | null
           quantity: number
+          recurring_interval: string | null
+          recurring_interval_count: number | null
+          service_date: string | null
+          service_id: string | null
+          service_variant_id: string | null
           sort_order: number
+          taxable: boolean
           unit: string | null
           unit_price: number
         }
         Insert: {
           amount?: number
+          billable?: boolean
+          billing_frequency?: string | null
+          calculator_inputs?: Json | null
           category: string
+          client_notes?: string | null
+          client_visible?: boolean
+          cost_type?: string | null
           created_at?: string
           description?: string | null
           expense_id?: string | null
           id?: string
+          included_in_total?: boolean
+          internal_cost?: number | null
+          internal_notes?: string | null
           invoice_id: string
+          item_code?: string | null
+          markup_type?: string
+          markup_value?: number
+          notes?: string | null
           quantity?: number
+          recurring_interval?: string | null
+          recurring_interval_count?: number | null
+          service_date?: string | null
+          service_id?: string | null
+          service_variant_id?: string | null
           sort_order?: number
+          taxable?: boolean
           unit?: string | null
           unit_price?: number
         }
-        Update: Partial<Database["public"]["Tables"]["invoice_line_items"]["Insert"]>
-        Relationships: []
+        Update: {
+          amount?: number
+          billable?: boolean
+          billing_frequency?: string | null
+          calculator_inputs?: Json | null
+          category?: string
+          client_notes?: string | null
+          client_visible?: boolean
+          cost_type?: string | null
+          created_at?: string
+          description?: string | null
+          expense_id?: string | null
+          id?: string
+          included_in_total?: boolean
+          internal_cost?: number | null
+          internal_notes?: string | null
+          invoice_id?: string
+          item_code?: string | null
+          markup_type?: string
+          markup_value?: number
+          notes?: string | null
+          quantity?: number
+          recurring_interval?: string | null
+          recurring_interval_count?: number | null
+          service_date?: string | null
+          service_id?: string | null
+          service_variant_id?: string | null
+          sort_order?: number
+          taxable?: boolean
+          unit?: string | null
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_line_items_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_line_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_line_items_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_line_items_service_variant_id_fkey"
+            columns: ["service_variant_id"]
+            isOneToOne: false
+            referencedRelation: "service_price_variants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invoices: {
         Row: {
@@ -1433,28 +1531,123 @@ export type Database = {
       quote_line_items: {
         Row: {
           amount: number
+          billable: boolean
+          billing_frequency: string | null
+          calculator_inputs: Json | null
           category: string
+          client_notes: string | null
+          client_visible: boolean
+          cost_type: string | null
           created_at: string
           description: string | null
           id: string
+          included_in_total: boolean
+          internal_cost: number | null
+          internal_notes: string | null
+          item_code: string | null
+          markup_type: string
+          markup_value: number
+          notes: string | null
+          price_locked: boolean | null
           quantity: number
           quote_id: string
+          recurring_interval: string | null
+          recurring_interval_count: number | null
+          service_date: string | null
+          service_id: string | null
+          service_variant_id: string | null
           sort_order: number
+          taxable: boolean
+          unit: string | null
           unit_price: number
         }
         Insert: {
           amount?: number
+          billable?: boolean
+          billing_frequency?: string | null
+          calculator_inputs?: Json | null
           category: string
+          client_notes?: string | null
+          client_visible?: boolean
+          cost_type?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          included_in_total?: boolean
+          internal_cost?: number | null
+          internal_notes?: string | null
+          item_code?: string | null
+          markup_type?: string
+          markup_value?: number
+          notes?: string | null
+          price_locked?: boolean | null
           quantity?: number
           quote_id: string
+          recurring_interval?: string | null
+          recurring_interval_count?: number | null
+          service_date?: string | null
+          service_id?: string | null
+          service_variant_id?: string | null
           sort_order?: number
+          taxable?: boolean
+          unit?: string | null
           unit_price?: number
         }
-        Update: Partial<Database["public"]["Tables"]["quote_line_items"]["Insert"]>
-        Relationships: []
+        Update: {
+          amount?: number
+          billable?: boolean
+          billing_frequency?: string | null
+          calculator_inputs?: Json | null
+          category?: string
+          client_notes?: string | null
+          client_visible?: boolean
+          cost_type?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          included_in_total?: boolean
+          internal_cost?: number | null
+          internal_notes?: string | null
+          item_code?: string | null
+          markup_type?: string
+          markup_value?: number
+          notes?: string | null
+          price_locked?: boolean | null
+          quantity?: number
+          quote_id?: string
+          recurring_interval?: string | null
+          recurring_interval_count?: number | null
+          service_date?: string | null
+          service_id?: string | null
+          service_variant_id?: string | null
+          sort_order?: number
+          taxable?: boolean
+          unit?: string | null
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_line_items_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_line_items_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_line_items_service_variant_id_fkey"
+            columns: ["service_variant_id"]
+            isOneToOne: false
+            referencedRelation: "service_price_variants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quotes: {
         Row: {
@@ -1470,6 +1663,7 @@ export type Database = {
           client_notes: string | null
           closing_note: string | null
           converted_invoice_id: string | null
+          converted_subscription_id: string | null
           created_at: string
           created_by: string | null
           deposit_amount: number
@@ -1497,6 +1691,8 @@ export type Database = {
           pdf_template: string
           quote_number: string | null
           recipient_email: string | null
+          recurring_total_annual: number | null
+          recurring_total_monthly: number | null
           ref: string
           rejected_at: string | null
           rejected_by: string | null
@@ -1534,6 +1730,7 @@ export type Database = {
           client_notes?: string | null
           closing_note?: string | null
           converted_invoice_id?: string | null
+          converted_subscription_id?: string | null
           created_at?: string
           created_by?: string | null
           deposit_amount?: number
@@ -1561,6 +1758,8 @@ export type Database = {
           pdf_template?: string
           quote_number?: string | null
           recipient_email?: string | null
+          recurring_total_annual?: number | null
+          recurring_total_monthly?: number | null
           ref?: string
           rejected_at?: string | null
           rejected_by?: string | null
@@ -1598,6 +1797,7 @@ export type Database = {
           client_notes?: string | null
           closing_note?: string | null
           converted_invoice_id?: string | null
+          converted_subscription_id?: string | null
           created_at?: string
           created_by?: string | null
           deposit_amount?: number
@@ -1625,6 +1825,8 @@ export type Database = {
           pdf_template?: string
           quote_number?: string | null
           recipient_email?: string | null
+          recurring_total_annual?: number | null
+          recurring_total_monthly?: number | null
           ref?: string
           rejected_at?: string | null
           rejected_by?: string | null
@@ -1669,6 +1871,13 @@ export type Database = {
             columns: ["converted_invoice_id"]
             isOneToOne: false
             referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_converted_subscription_id_fkey"
+            columns: ["converted_subscription_id"]
+            isOneToOne: false
+            referencedRelation: "client_subscriptions"
             referencedColumns: ["id"]
           },
           {
@@ -2152,6 +2361,7 @@ export type Database = {
           included_mx_repositions: number
           is_custom: boolean
           is_test: boolean
+          line_items_snapshot: Json | null
           monthly_price: number
           notes: string | null
           plan_code: string | null
@@ -2159,6 +2369,7 @@ export type Database = {
           plan_name: string | null
           renewal_date: string | null
           source: string
+          source_quote_id: string | null
           start_date: string
           status: string
           stripe_checkout_session_id: string | null
@@ -2212,6 +2423,7 @@ export type Database = {
           included_mx_repositions?: number
           is_custom?: boolean
           is_test?: boolean
+          line_items_snapshot?: Json | null
           monthly_price?: number
           notes?: string | null
           plan_code?: string | null
@@ -2219,6 +2431,7 @@ export type Database = {
           plan_name?: string | null
           renewal_date?: string | null
           source?: string
+          source_quote_id?: string | null
           start_date?: string
           status?: string
           stripe_checkout_session_id?: string | null
@@ -2272,6 +2485,7 @@ export type Database = {
           included_mx_repositions?: number
           is_custom?: boolean
           is_test?: boolean
+          line_items_snapshot?: Json | null
           monthly_price?: number
           notes?: string | null
           plan_code?: string | null
@@ -2279,6 +2493,7 @@ export type Database = {
           plan_name?: string | null
           renewal_date?: string | null
           source?: string
+          source_quote_id?: string | null
           start_date?: string
           status?: string
           stripe_checkout_session_id?: string | null
@@ -2330,6 +2545,13 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_subscriptions_source_quote_id_fkey"
+            columns: ["source_quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
           {
@@ -4777,6 +4999,289 @@ export type Database = {
             columns: ["draft_id"]
             isOneToOne: false
             referencedRelation: "website_content_drafts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_attachments: {
+        Row: {
+          attachment_mode: string
+          child_service_id: string
+          created_at: string
+          id: string
+          parent_service_id: string
+          price_override: number | null
+          quantity: number
+          sort_order: number | null
+        }
+        Insert: {
+          attachment_mode?: string
+          child_service_id: string
+          created_at?: string
+          id?: string
+          parent_service_id: string
+          price_override?: number | null
+          quantity?: number
+          sort_order?: number | null
+        }
+        Update: {
+          attachment_mode?: string
+          child_service_id?: string
+          created_at?: string
+          id?: string
+          parent_service_id?: string
+          price_override?: number | null
+          quantity?: number
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_attachments_child_service_id_fkey"
+            columns: ["child_service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_attachments_parent_service_id_fkey"
+            columns: ["parent_service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_price_variants: {
+        Row: {
+          aircraft_band: string | null
+          aircraft_category: string | null
+          annual_price: number | null
+          created_at: string
+          effective_from: string
+          effective_to: string | null
+          id: string
+          label: string | null
+          plan_tier_match: string | null
+          service_id: string
+          sort_order: number | null
+          stripe_price_id_live: string | null
+          stripe_price_id_test: string | null
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          aircraft_band?: string | null
+          aircraft_category?: string | null
+          annual_price?: number | null
+          created_at?: string
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          label?: string | null
+          plan_tier_match?: string | null
+          service_id: string
+          sort_order?: number | null
+          stripe_price_id_live?: string | null
+          stripe_price_id_test?: string | null
+          unit_price: number
+          updated_at?: string
+        }
+        Update: {
+          aircraft_band?: string | null
+          aircraft_category?: string | null
+          annual_price?: number | null
+          created_at?: string
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          label?: string | null
+          plan_tier_match?: string | null
+          service_id?: string
+          sort_order?: number | null
+          stripe_price_id_live?: string | null
+          stripe_price_id_test?: string | null
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_price_variants_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_variables: {
+        Row: {
+          created_at: string
+          default_value: string | null
+          id: string
+          input_type: string
+          key: string
+          label: string
+          max_value: number | null
+          min_value: number | null
+          options: Json | null
+          required: boolean
+          role: string
+          service_id: string
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_value?: string | null
+          id?: string
+          input_type?: string
+          key: string
+          label: string
+          max_value?: number | null
+          min_value?: number | null
+          options?: Json | null
+          required?: boolean
+          role?: string
+          service_id: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_value?: string | null
+          id?: string
+          input_type?: string
+          key?: string
+          label?: string
+          max_value?: number | null
+          min_value?: number | null
+          options?: Json | null
+          required?: boolean
+          role?: string
+          service_id?: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_variables_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      services: {
+        Row: {
+          billable: boolean
+          category: string | null
+          client_description: string | null
+          client_visible: boolean
+          code: string
+          cost_type: string
+          created_at: string
+          created_by: string | null
+          default_unit_price: number | null
+          description: string | null
+          frequency: string
+          id: string
+          linked_plan_tier_id: string | null
+          max_quantity: number | null
+          min_quantity: number | null
+          name: string
+          notes_internal: string | null
+          pricing_model: string
+          recurring_interval: string | null
+          recurring_interval_count: number | null
+          requires_deposit_percent: number | null
+          sort_order: number | null
+          status: string
+          stripe_product_id_live: string | null
+          stripe_product_id_test: string | null
+          stripe_sync_error: string | null
+          stripe_sync_status: string
+          taxable: boolean
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          billable?: boolean
+          category?: string | null
+          client_description?: string | null
+          client_visible?: boolean
+          code: string
+          cost_type: string
+          created_at?: string
+          created_by?: string | null
+          default_unit_price?: number | null
+          description?: string | null
+          frequency?: string
+          id?: string
+          linked_plan_tier_id?: string | null
+          max_quantity?: number | null
+          min_quantity?: number | null
+          name: string
+          notes_internal?: string | null
+          pricing_model?: string
+          recurring_interval?: string | null
+          recurring_interval_count?: number | null
+          requires_deposit_percent?: number | null
+          sort_order?: number | null
+          status?: string
+          stripe_product_id_live?: string | null
+          stripe_product_id_test?: string | null
+          stripe_sync_error?: string | null
+          stripe_sync_status?: string
+          taxable?: boolean
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          billable?: boolean
+          category?: string | null
+          client_description?: string | null
+          client_visible?: boolean
+          code?: string
+          cost_type?: string
+          created_at?: string
+          created_by?: string | null
+          default_unit_price?: number | null
+          description?: string | null
+          frequency?: string
+          id?: string
+          linked_plan_tier_id?: string | null
+          max_quantity?: number | null
+          min_quantity?: number | null
+          name?: string
+          notes_internal?: string | null
+          pricing_model?: string
+          recurring_interval?: string | null
+          recurring_interval_count?: number | null
+          requires_deposit_percent?: number | null
+          sort_order?: number | null
+          status?: string
+          stripe_product_id_live?: string | null
+          stripe_product_id_test?: string | null
+          stripe_sync_error?: string | null
+          stripe_sync_status?: string
+          taxable?: boolean
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_linked_plan_tier_id_fkey"
+            columns: ["linked_plan_tier_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plan_tiers"
             referencedColumns: ["id"]
           },
         ]

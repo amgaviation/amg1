@@ -56,3 +56,15 @@ Branch: claude/new-session-mt12tj (designated session branch; plan's `loop/<date
   F2 mission state machine (LEGAL_TRANSITIONS) + insurance/closeout gates with audited override
   F3 Stripe price-mismatch hold-and-confirm (stop silent self-heal; admin resolve action)
   F4 loading/error boundaries for ~32 portal segments
+
+## Session 3 — two uploaded plans (visual fixes + service catalog)
+- Visual-fixes plan: owner explicitly lifts the public freeze for this scope. Workflow wf_90806264 launched:
+  9 agents, phases 1-9 with strict file ownership (grid/globals, hero, fades, connect, mission-deck,
+  global-footer, team, pricing, pill+404, site-sweep). Phase 10 verification (build + Playwright
+  screenshots 1440/390) runs after landing.
+- Catalog plan: migration authorized (additive-only, Tony-confirmed). 20260707120000_services_catalog…
+  WRITTEN BY ORCHESTRATOR, applied to prod, types spliced (4 new tables + 4 refreshed blocks), typecheck 0.
+  Workflow wf_43199059 launched: engine+tests, actions+nav (settings-module permission decision),
+  queries+pages, seed script. Phases 2-4 follow after phase-1 verify.
+- Branch deviation as before: all work lands on claude/new-session-mt12tj / PR #97 (session constraint),
+  not per-phase branches.
