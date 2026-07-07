@@ -165,11 +165,11 @@ export default async function NetworkApplicationsPage({
         description="Crew network submissions by applicant, requested role, aircraft experience, submission date, and status."
         rows={rows}
         columns={[
-          { key: "name", label: "Applicant", sortable: true, className: "w-[16rem]" },
-          { key: "role", label: "Requested Role", sortable: true, className: "w-[13rem]" },
-          { key: "aircraft", label: "Aircraft / Types", sortable: true, className: "w-[14rem]" },
+          { key: "name", label: "Name", sortable: true, className: "w-[15rem]" },
+          { key: "email", label: "Email", sortable: true, className: "w-[16rem]" },
           { key: "submitted", label: "Submitted", sortable: true, className: "w-[9rem]" },
-          { key: "status", label: "Status", sortable: true, className: "w-[12rem]" },
+          { key: "totalTime", label: "Total Time", sortable: true, className: "w-[8rem]" },
+          { key: "status", label: "Status", sortable: true, className: "w-[11rem]" },
         ]}
         filters={filters}
         fields={[]}

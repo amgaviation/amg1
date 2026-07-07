@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { notifyAdmins, notifyUser } from "@/lib/portal/audit";
 import { formatDate, formatMoney } from "@/lib/portal/format";
+import { processDueScheduledEmails } from "@/lib/portal/scheduled-emails";
 import {
   adjustCreditBalanceWithRetry,
   EXPIRED_CREDIT_MARKER_PATTERN,
@@ -439,6 +440,7 @@ export async function GET(request: Request) {
     credentialsMarkedExpiring: 0,
     subscriptionsMarkedStale: 0,
     subscriptionCreditsExpired: 0,
+    scheduledEmailsSent: 0,
   };
   const errors: Record<string, string> = {};
   const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
@@ -471,6 +473,13 @@ export async function GET(request: Request) {
   } catch (error) {
     errors.staleSubscriptions = message(error);
     console.error("[cron/nightly] stale subscription sweep failed", error);
+  }
+
+  try {
+    counts.scheduledEmailsSent = await processDueScheduledEmails();
+  } catch (error) {
+    errors.scheduledEmails = message(error);
+    console.error("[cron/nightly] scheduled email dispatch failed", error);
   }
 
   try {

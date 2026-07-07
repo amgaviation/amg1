@@ -24,6 +24,7 @@ export function SubmitButton({
   name,
   value,
   disabled = false,
+  formAction,
 }: {
   children: React.ReactNode;
   pendingText?: string;
@@ -34,6 +35,8 @@ export function SubmitButton({
   name?: string;
   value?: string;
   disabled?: boolean;
+  /** Alternate server action for this button within the same form. */
+  formAction?: (formData: FormData) => void | Promise<void>;
 }) {
   const { pending } = useFormStatus();
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -70,6 +73,7 @@ export function SubmitButton({
         size={size}
         name={name}
         value={value}
+        formAction={formAction}
         disabled={pending || disabled}
         className={cn(className)}
         onClick={(event) => {

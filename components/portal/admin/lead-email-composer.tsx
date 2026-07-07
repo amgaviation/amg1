@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { sendLeadEmailAction } from "@/app/portal/actions/crm";
+import { scheduleLeadEmailAction, sendLeadEmailAction } from "@/app/portal/actions/crm";
 import { DeckSelect, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { Notice, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -118,13 +118,33 @@ export function LeadEmailComposer({
             onChange={(event) => setBody(event.target.value)}
           />
 
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-wrap items-end justify-between gap-3">
             <p className="text-[0.7rem] text-[var(--deck-text-3)]">
               Switching template or business type replaces the draft.
             </p>
-            <SubmitButton pendingText="Sending…" confirm={`Send this email to ${recipientEmail}?`}>
-              Send Email
-            </SubmitButton>
+            <div className="flex flex-wrap items-end gap-2">
+              <label className="grid gap-1.5">
+                <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">
+                  Send later
+                </span>
+                <input
+                  type="datetime-local"
+                  name="send_at"
+                  className="deck-input w-auto"
+                  aria-label="Schedule send time"
+                />
+              </label>
+              <SubmitButton
+                formAction={scheduleLeadEmailAction}
+                variant="outline"
+                pendingText="Scheduling…"
+              >
+                Schedule
+              </SubmitButton>
+              <SubmitButton pendingText="Sending…" confirm={`Send this email to ${recipientEmail}?`}>
+                Send Now
+              </SubmitButton>
+            </div>
           </div>
         </form>
       )}

@@ -1926,6 +1926,36 @@ export type Database = {
           },
         ]
       }
+      scheduled_emails: {
+        Row: {
+          id: string
+          lead_id: string | null
+          recipient_email: string
+          subject: string
+          body: string
+          send_at: string
+          status: string
+          created_by: string
+          sent_at: string | null
+          failure_reason: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          lead_id?: string | null
+          recipient_email: string
+          subject: string
+          body: string
+          send_at: string
+          status?: string
+          created_by: string
+          sent_at?: string | null
+          failure_reason?: string | null
+          created_at?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["scheduled_emails"]["Insert"]>
+        Relationships: []
+      }
       thread_members: {
         Row: {
           profile_id: string

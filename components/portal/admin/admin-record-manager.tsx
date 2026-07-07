@@ -94,6 +94,11 @@ type AdminRecordManagerProps = {
   pageSize?: number;
   detailHrefBase?: string;
   allowCreate?: boolean;
+  /**
+   * Status labels (case-insensitive) hidden from the default view — deleted /
+   * deactivated records stay reachable through the "Show inactive" toggle.
+   */
+  hiddenStatuses?: string[];
   bulkDelete?: {
     action: (formData: FormData) => void | Promise<void>;
     entity: string;
@@ -182,6 +187,7 @@ export function AdminRecordManager({
   pageSize = 12,
   detailHrefBase,
   allowCreate = true,
+  hiddenStatuses,
   bulkDelete,
 }: AdminRecordManagerProps) {
   const router = useRouter();
@@ -195,6 +201,11 @@ export function AdminRecordManager({
     direction: "asc",
   });
   const [page, setPage] = useState(1);
+  const [showHidden, setShowHidden] = useState(false);
+  const hiddenSet = useMemo(
+    () => new Set((hiddenStatuses ?? []).map((label) => label.toLowerCase())),
+    [hiddenStatuses]
+  );
   // URL-synced detail window: `?record=<id>` is the source of truth, so
   // refresh, back button, and shared links reopen the same record.
   const recordParam = searchParams.get("record") ?? "";
@@ -224,9 +235,15 @@ export function AdminRecordManager({
     syncRecordParam("");
   }, [syncRecordParam]);
 
+  const hiddenCount = useMemo(
+    () => (hiddenSet.size ? rows.filter((row) => hiddenSet.has(row.status?.label.toLowerCase() ?? "")).length : 0),
+    [rows, hiddenSet]
+  );
+
   const visibleRows = useMemo(() => {
     const needle = search.trim().toLowerCase();
     const filtered = rows.filter((row) => {
+      if (!showHidden && hiddenSet.size && hiddenSet.has(row.status?.label.toLowerCase() ?? "")) return false;
       if (needle && !row.searchText.toLowerCase().includes(needle)) return false;
       return Object.entries(activeFilters).every(([key, value]) => {
         if (!value) return true;
@@ -242,7 +259,7 @@ export function AdminRecordManager({
       const result = left.localeCompare(right, undefined, { numeric: true, sensitivity: "base" });
       return sort.direction === "asc" ? result : -result;
     });
-  }, [activeFilters, rows, search, sort]);
+  }, [activeFilters, rows, search, sort, showHidden, hiddenSet]);
 
   const pageCount = Math.max(1, Math.ceil(visibleRows.length / pageSize));
   const safePage = Math.min(page, pageCount);
@@ -378,15 +395,15 @@ export function AdminRecordManager({
           </div>
         </div>
 
-        {chipFilter ? (
+        {chipFilter || hiddenCount > 0 ? (
           <div className="deck-scroll-x -mx-1 mt-4 flex gap-2 overflow-x-auto px-1 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
-            {[{ value: "", label: "All" }, ...(chipFilter.options ?? [])].map((option) => {
-              const active = (activeFilters[chipFilter.key] ?? "") === option.value;
+            {(chipFilter ? [{ value: "", label: "All" }, ...(chipFilter.options ?? [])] : []).map((option) => {
+              const active = (activeFilters[chipFilter!.key] ?? "") === option.value;
               return (
                 <button
                   key={option.value || "all"}
                   type="button"
-                  onClick={() => updateFilter(chipFilter.key, option.value)}
+                  onClick={() => updateFilter(chipFilter!.key, option.value)}
                   className={cn(
                     "shrink-0 rounded-[0.25rem] border px-3 py-2 font-mono text-[0.68rem] font-semibold uppercase [letter-spacing:0.08em] transition-colors sm:py-1.5",
                     active
@@ -398,6 +415,21 @@ export function AdminRecordManager({
                 </button>
               );
             })}
+            {hiddenCount > 0 ? (
+              <button
+                type="button"
+                onClick={() => setShowHidden((value) => !value)}
+                aria-pressed={showHidden}
+                className={cn(
+                  "shrink-0 rounded-[0.25rem] border border-dashed px-3 py-2 font-mono text-[0.68rem] font-semibold uppercase [letter-spacing:0.08em] transition-colors sm:py-1.5",
+                  showHidden
+                    ? "border-[var(--deck-warn)] bg-[var(--deck-warn-tint)] text-[var(--deck-warn)]"
+                    : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-3)] hover:border-[var(--deck-warn-line)] hover:text-[var(--deck-text-2)]"
+                )}
+              >
+                {showHidden ? "Hide" : "Show"} inactive ({hiddenCount})
+              </button>
+            ) : null}
           </div>
         ) : null}
 
@@ -495,7 +527,7 @@ export function AdminRecordManager({
             <>
             <div className="hidden bg-[var(--deck-panel)] md:block">
               <div data-admin-record-table-scroller className="w-full max-w-full overflow-x-auto bg-[var(--deck-panel)]">
-              <table className="min-w-[56rem] w-full border-collapse bg-[var(--deck-panel)] text-sm">
+              <table className="min-w-[56rem] w-full table-fixed border-collapse bg-[var(--deck-panel)] text-sm">
                 <thead className="sticky top-0 z-10 bg-[var(--deck-panel-2)] shadow-[0_1px_0_rgba(15,23,42,0.08)]">
                   <tr className="bg-[var(--deck-panel-2)]">
                     {selectionEnabled ? (

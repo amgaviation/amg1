@@ -270,6 +270,7 @@ export default async function AdminClientsPage({
         archiveDisabledReason="Client is already inactive."
         recordIdName="profile_id"
         backTo="/portal/admin/clients"
+        hiddenStatuses={["Suspended", "Deleted"]}
         bulkDelete={{ action: bulkDeletePortalAccounts, entity: "client", entityLabel: "client" }}
         emptyTitle="No clients match"
         emptyDescription="Adjust search or filters, or create a new client record."

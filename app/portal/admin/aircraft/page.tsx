@@ -20,6 +20,7 @@ const maintenanceOptions = [
 
 const aircraftStatusOptions = [
   { value: "active", label: "Active" },
+  { value: "pending_review", label: "Pending Review" },
   { value: "inactive", label: "Inactive" },
   { value: "archived", label: "Archived" },
 ];
@@ -30,6 +31,7 @@ function labelFor(options: { value: string; label: string }[], value?: string | 
 
 function aircraftStatusTone(status?: string | null): Tone {
   if (status === "active") return "success";
+  if (status === "pending_review") return "warn";
   if (status === "archived") return "neutral";
   return "warn";
 }
@@ -233,6 +235,7 @@ export default async function AdminAircraftPage({
         archiveDisabledReason="Aircraft is already archived."
         recordIdName="aircraft_id"
         backTo="/portal/admin/aircraft"
+        hiddenStatuses={["Inactive", "Archived"]}
         emptyTitle="No aircraft match"
         emptyDescription="Adjust search or filters, or create a new aircraft record."
         detailEyebrow="Aircraft Detail"
