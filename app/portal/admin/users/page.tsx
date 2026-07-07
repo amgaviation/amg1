@@ -269,14 +269,12 @@ export default async function AdminUsersPage({
         description={`Showing ${PROFILE_STATUS_LABEL[statusFilter] ?? statusFilter} portal users. Data refreshes from Supabase each time this tab is opened.`}
         rows={rows}
         columns={[
-          { key: "name", label: "User", sortable: true },
+          { key: "name", label: "Name", sortable: true },
+          { key: "email", label: "Email", sortable: true },
           { key: "role", label: "Role", sortable: true },
-          { key: "status", label: "Status", sortable: true },
-          { key: "businessPurpose", label: "Business Purpose", sortable: true },
-          { key: "requested", label: "Created / Requested", sortable: true },
-          { key: "updated", label: "Last Status Update", sortable: true },
-          { key: "lastLogin", label: "Last Login", sortable: true },
           { key: "company", label: "Company", sortable: true },
+          { key: "lastLogin", label: "Last Active", sortable: true },
+          { key: "status", label: "Status", sortable: true },
         ]}
         filters={filters}
         fields={userFields}

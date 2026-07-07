@@ -47,6 +47,7 @@ export default async function AdminPartnersPage({
     const company = profile?.company_name ?? partner.company_name ?? partner.full_name ?? partner.email;
     const contactEmail = profile?.contact_email ?? partner.email;
     const partnerType = profile?.partner_type ?? profile?.service_type ?? "";
+    const contact = profile?.primary_contact ?? partner.full_name ?? contactEmail;
 
     return {
       id: partner.id,
@@ -56,6 +57,7 @@ export default async function AdminPartnersPage({
       cells: {
         company,
         type: partnerType,
+        contact,
         email: contactEmail,
         serviceArea: profile?.service_area,
         assignments: partnerAssignments.length,
@@ -101,6 +103,7 @@ export default async function AdminPartnersPage({
         { label: "Contact", value: profile?.primary_contact ?? partner.full_name },
         { label: "Email", value: contactEmail },
         { label: "Service Area", value: profile?.service_area },
+        { label: "Assignments", value: partnerAssignments.length },
       ],
       archiveConfirm: dependencyConfirmMessage({
         action: "Deactivate",
@@ -138,11 +141,10 @@ export default async function AdminPartnersPage({
         description="Partner records by company, service area, capability, coverage, and assignment history."
         rows={rows}
         columns={[
-          { key: "company", label: "Company", sortable: true },
-          { key: "type", label: "Type", sortable: true },
-          { key: "email", label: "Email", sortable: true },
-          { key: "serviceArea", label: "Service Area", sortable: true },
-          { key: "assignments", label: "Assignments", sortable: true },
+          { key: "company", label: "Partner", sortable: true },
+          { key: "type", label: "Partner Type", sortable: true },
+          { key: "contact", label: "Contact", sortable: true },
+          { key: "serviceArea", label: "Location", sortable: true },
           { key: "status", label: "Status", sortable: true },
         ]}
         filters={filters}

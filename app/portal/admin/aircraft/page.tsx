@@ -201,13 +201,11 @@ export default async function AdminAircraftPage({
         description="Aircraft records by tail number, client, status, maintenance window, location, and mission history."
         rows={rows}
         columns={[
-          { key: "tail", label: "Tail", sortable: true },
-          { key: "client", label: "Client", sortable: true },
-          { key: "makeModel", label: "Make / Model", sortable: true },
-          { key: "category", label: "Category", sortable: true },
-          { key: "homeBase", label: "Home Base", sortable: true },
+          { key: "tail", label: "Tail #", sortable: true },
+          { key: "makeModel", label: "Type / Model", sortable: true },
+          { key: "client", label: "Owner / Client", sortable: true },
+          { key: "homeBase", label: "Base", sortable: true },
           { key: "status", label: "Status", sortable: true },
-          { key: "updated", label: "Updated", sortable: true },
         ]}
         filters={filters}
         fields={[

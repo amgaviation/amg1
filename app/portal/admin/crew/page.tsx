@@ -124,6 +124,7 @@ export default async function AdminCrewPage({
         name,
         email: member.email,
         phone: member.phone,
+        certificates: certificatesRatings,
         location,
         aircraftExperience,
         totalTime: profile?.total_time,
@@ -338,16 +339,11 @@ export default async function AdminCrewPage({
         rows={rows}
         columns={[
           { key: "name", label: "Name", sortable: true, className: "w-[15rem]" },
-          { key: "email", label: "Email", sortable: true, className: "w-[17rem]" },
-          { key: "phone", label: "Phone", sortable: true, className: "hidden w-[9rem] 2xl:table-cell" },
+          { key: "certificates", label: "Certificates", sortable: true, className: "w-[14rem]" },
           { key: "location", label: "Location", sortable: true, className: "w-[10rem]" },
           { key: "aircraftExperience", label: "Aircraft / Type", sortable: true, className: "w-[14rem]" },
           { key: "totalTime", label: "Total Time", sortable: true, className: "w-[7rem]" },
-          { key: "reviewed", label: "Reviewed", sortable: true, className: "hidden w-[7rem] xl:table-cell" },
           { key: "approved", label: "Approved", sortable: true, className: "w-[7rem]" },
-          { key: "priority", label: "Priority", sortable: true, className: "hidden w-[7rem] 2xl:table-cell" },
-          { key: "insurance", label: "Insurance", sortable: true, className: "hidden w-[7rem] 2xl:table-cell" },
-          { key: "lastContacted", label: "Last Contacted", sortable: true, className: "hidden w-[9rem] 2xl:table-cell" },
         ]}
         filters={filters}
         fields={[
