@@ -16,3 +16,10 @@ BUILT this run (remove from future planning):
      margin per mission + pilot utilization still open (margin needs a cost column — schema)
 Still open, unchanged: credit drawdown (2), mission gates (3), crew pay tracking (4), /contact form (6),
 payments authority (7), per-user overrides (8).
+
+## Status update — features+speed cycle (session 2)
+- ✅ Payments authority (item 7 / E-P-01) — built, catalog-only
+- ✅ Message thread read-state (B-1-11) — built on notifications (last_read_at column does not exist; finding premise corrected)
+- ✅ Crew lifecycle repair (B-1-02/B-1-03 + reviewDocument expiry) — built
+- ✅ A-1-05 asset cleanup + A-1-06 media loading (code-side) — done; video transcode still open (no ffmpeg)
+- Owner one-liner pending: xlsx → https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz in package.json

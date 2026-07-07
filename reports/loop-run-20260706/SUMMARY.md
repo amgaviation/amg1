@@ -108,3 +108,32 @@ all fixed), verified green:
 
 Open note carried forward: reviewDocument approving an already-expired credential (cron flips it
 back nightly) — needs an expiration check in the admin review action.
+
+---
+
+## Addendum 2 — features + speed cycle (session 2, user-directed)
+
+User instruction: portal features + public-site speed. Five parallel agents, orchestrator verification
+between each landing:
+
+**Portal features**
+1. Crew assignment lifecycle repair (closes B-1-02/B-1-03): decline-after-assignment reverts the
+   mission and reopens auto-closed pools; no more silent downgrade of accepted crew; admin
+   unassign action with UI; credential review no longer approves lapsed credentials.
+2. Payments authority module (closes E-P-01): payment recording and void/write-off/refund are now
+   independently grantable from invoice editing — catalog-only, zero migration, admin defaults FULL
+   so nothing changes until the matrix is edited.
+3. Per-thread message unread badges + read-on-open (closes B-1-11) — **orchestrator caught the
+   original finding's premise was false** (thread_members.last_read_at does not exist in prod;
+   the first implementation would have broken message lists). Reworked onto the notifications
+   table, which also makes reading a thread clear its notifications.
+
+**Public-site speed**
+4. public/ cut from 187 MB to 50 MB (66 provably-unreferenced/duplicate files, per-file manifest in
+   asset-cleanup.md; deletions spot-checked; one earlier audit claim corrected — tbm.jpg is referenced).
+5. Media loading: hero video viewport-gated (deep links no longer pull 6 MB off-screen), interaction-
+   deferred showcase videos, LCP priority hints, lazy below-fold images. Portal login intro's
+   preload flag investigated and deliberately kept (video only mounts when playing).
+
+**Deferred to owner:** xlsx swap to SheetJS's patched CDN build — sandbox correctly refused an
+agent-initiated external tarball install; it's a one-line package.json change (details in FINDINGS.md).
