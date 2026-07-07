@@ -5,6 +5,19 @@ import { ArrowRight } from "lucide-react";
 import { PhoneLink } from "@/components/site/tracked-link";
 import { AFFILIATIONS, SITE, TEAM_ROSTER } from "@/lib/site-config";
 
+/**
+ * Supporting facts column for the no-photo founder card. Published numbers
+ * only — every value is already public on this page or in site-config
+ * (mission-deck commitments band, hero region line, bio).
+ */
+const FOUNDER_FACTS = [
+  { label: "Based in", value: SITE.cityState },
+  { label: "Serving", value: SITE.region.replace("the ", "") },
+  { label: "Quote response", value: "24 business hrs" },
+  { label: "Pilot payment", value: "Within 7 days" },
+  { label: "Pass-through markup", value: "$0" },
+] as const;
+
 export const metadata: Metadata = {
   title: "Team — The People Behind Every Mission",
   description:
@@ -30,7 +43,14 @@ export default function TeamPage() {
       <section className="oc-section">
         <div className="oc-shell grid gap-4">
           {TEAM_ROSTER.map((person) => (
-            <article key={person.name} className="oc-card-dark grid gap-8 p-8 lg:grid-cols-[minmax(220px,280px)_1fr] lg:p-10">
+            <article
+              key={person.name}
+              className={`oc-card-dark grid gap-8 p-8 lg:p-10 ${
+                person.photo
+                  ? "lg:grid-cols-[minmax(220px,280px)_1fr]"
+                  : "lg:grid-cols-[minmax(0,1fr)_minmax(240px,300px)] lg:gap-12"
+              }`}
+            >
               {person.photo ? (
                 <div className="oc-media aspect-[4/5] overflow-hidden rounded-lg">
                   <Image
@@ -52,6 +72,23 @@ export default function TeamPage() {
                   {person.bio}
                 </p>
               </div>
+              {!person.photo ? (
+                <dl className="grid content-start border-t border-[var(--oc-line-dark)] pt-6 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-10">
+                  {FOUNDER_FACTS.map((fact) => (
+                    <div
+                      key={fact.label}
+                      className="flex items-baseline justify-between gap-4 border-b border-[var(--oc-line-dark)] py-3 first:pt-0 last:border-b-0 last:pb-0"
+                    >
+                      <dt className="text-[0.7rem] font-semibold uppercase text-[var(--oc-aluminum)]">
+                        {fact.label}
+                      </dt>
+                      <dd className="oc-mono text-right text-sm uppercase text-[var(--oc-paper)]">
+                        {fact.value}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              ) : null}
             </article>
           ))}
         </div>

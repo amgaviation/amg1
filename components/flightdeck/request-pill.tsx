@@ -3,29 +3,86 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import gsap from "gsap";
-import { onReveal, prefersReducedMotion } from "./reveal";
+import { prefersReducedMotion } from "./reveal";
 
 /**
- * Persistent bottom-center CTA pill with magnetic hover
- * (position eases toward the cursor inside a proximity radius).
+ * Bottom-center CTA pill with magnetic hover (position eases toward the
+ * cursor inside a proximity radius).
+ *
+ * Visibility is scroll-aware so it never duplicates a nearby CTA: the
+ * pill stays hidden while the hero is on screen, and hides again whenever
+ * any section carrying its own /request link (the worked example, the
+ * global footer) is in view. It sits on a solid canvas plate — bg +
+ * border + shadow — so it never reads see-through over section copy.
  */
 export default function RequestPill() {
   const wrap = useRef<HTMLDivElement>(null);
-  const btn = useRef<HTMLAnchorElement>(null);
+  const plate = useRef<HTMLDivElement>(null);
 
+  // Scroll-aware visibility: one observer watches the hero plus every
+  // section that contains its own request CTA; the pill shows only while
+  // none of them intersect the viewport.
+  useEffect(() => {
+    const node = wrap.current;
+    if (!node || typeof IntersectionObserver === "undefined") return;
+
+    const reduced = prefersReducedMotion();
+    // Start hidden in both motion modes. The reduced-motion stylesheet
+    // forces [data-fd-hidden] back to opacity 1, so autoAlpha (visibility)
+    // is what actually gates the pill there.
+    gsap.set(node, { autoAlpha: 0, y: reduced ? 0 : 16 });
+
+    const watched: Element[] = [];
+    const hero = document.getElementById("top");
+    if (hero) watched.push(hero);
+    document
+      .querySelectorAll<HTMLAnchorElement>('.fd-site section a[href="/request"]')
+      .forEach((a) => {
+        const section = a.closest("section");
+        if (section && !watched.includes(section)) watched.push(section);
+      });
+
+    const inView = new Set<Element>();
+    let shown = false;
+
+    const apply = () => {
+      const show = inView.size === 0;
+      if (show === shown) return;
+      shown = show;
+      // The footer timeline also scrubs pointer-events on .fd-pill;
+      // restore it explicitly whenever the pill comes back.
+      node.style.pointerEvents = show ? "auto" : "none";
+      if (reduced) {
+        gsap.set(node, { autoAlpha: show ? 1 : 0 });
+      } else {
+        gsap.to(node, {
+          autoAlpha: show ? 1 : 0,
+          y: show ? 0 : 16,
+          duration: show ? 0.6 : 0.35,
+          ease: "power3.out",
+          overwrite: "auto",
+        });
+      }
+    };
+
+    const io = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) inView.add(entry.target);
+        else inView.delete(entry.target);
+      }
+      apply();
+    });
+    watched.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
+  // Magnetic hover, motion permitting — the whole plate eases toward the
+  // cursor, so the button never slides off its solid backdrop.
   useEffect(() => {
     if (prefersReducedMotion()) return;
 
-    const offReveal = onReveal(() => {
-      gsap.fromTo(
-        wrap.current,
-        { y: 40, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1.1, ease: "expo.out", delay: 0.45 }
-      );
-    });
-
-    const el = btn.current;
-    if (!el) return offReveal;
+    const el = plate.current;
+    if (!el) return;
     const xTo = gsap.quickTo(el, "x", { duration: 0.5, ease: "power3.out" });
     const yTo = gsap.quickTo(el, "y", { duration: 0.5, ease: "power3.out" });
 
@@ -42,10 +99,7 @@ export default function RequestPill() {
       }
     };
     window.addEventListener("mousemove", onMove);
-    return () => {
-      offReveal();
-      window.removeEventListener("mousemove", onMove);
-    };
+    return () => window.removeEventListener("mousemove", onMove);
   }, []);
 
   return (
@@ -54,26 +108,30 @@ export default function RequestPill() {
       data-fd-hidden
       className="fd-pill fixed bottom-6 left-1/2 z-40 -translate-x-1/2"
     >
-      <Link
-        ref={btn}
-        href="/request"
-        prefetch={false}
-        className="group flex items-center gap-2 rounded-full bg-instrument py-2 pl-6 pr-2 text-white shadow-[0_0_40px_rgba(11,94,212,0.35)] transition-shadow hover:shadow-[0_0_60px_rgba(11,94,212,0.55)]"
+      <div
+        ref={plate}
+        className="rounded-full border border-grid-silver bg-[#0A1322] p-1 shadow-[0_18px_50px_rgba(0,0,0,0.5)]"
       >
-        <span className="whitespace-nowrap font-mono text-xs font-medium uppercase tracking-widecap">
-          Get a Quote
-        </span>
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-canvas text-instrument transition-transform duration-500 ease-out-expo group-hover:rotate-45">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path
-              d="M21 3L9.5 14.5M21 3l-6.5 18-3-8.5L3 9.5 21 3z"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </span>
-      </Link>
+        <Link
+          href="/request"
+          prefetch={false}
+          className="group flex items-center gap-2 rounded-full bg-instrument py-2 pl-6 pr-2 text-white shadow-[0_0_40px_rgba(11,94,212,0.35)] transition-shadow hover:shadow-[0_0_60px_rgba(11,94,212,0.55)]"
+        >
+          <span className="whitespace-nowrap font-mono text-xs font-medium uppercase tracking-widecap">
+            Get a Quote
+          </span>
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-canvas text-instrument transition-transform duration-500 ease-out-expo group-hover:rotate-45">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M21 3L9.5 14.5M21 3l-6.5 18-3-8.5L3 9.5 21 3z"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+        </Link>
+      </div>
     </div>
   );
 }

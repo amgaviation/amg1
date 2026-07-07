@@ -40,13 +40,20 @@ export default function Doors() {
     if (prefersReducedMotion()) return;
 
     const ctx = gsap.context(() => {
+      // Trigger-once entrance — never scrubbed, so copy always lands at
+      // full opacity without further scrolling.
       gsap.from(".door-card", {
         y: 60,
         opacity: 0,
-        duration: 1.1,
+        duration: 0.7,
         ease: "power3.out",
         stagger: 0.12,
-        scrollTrigger: { trigger: root.current, start: "top 74%" },
+        scrollTrigger: {
+          trigger: root.current,
+          start: "top 74%",
+          toggleActions: "play none none none",
+          once: true,
+        },
       });
     }, root);
     return () => ctx.revert();

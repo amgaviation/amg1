@@ -131,7 +131,7 @@ export default function PricingPage() {
       </section>
 
       {/* §4.2 The plan table (Business Plan §6.2, real figures in every cell). */}
-      <section className="oc-section">
+      <section className="oc-section py-16">
         <div className="oc-shell">
           {/* Desktop table */}
           <div className="oc-card-dark hidden overflow-hidden md:block">
@@ -145,7 +145,7 @@ export default function PricingPage() {
                     <th
                       key={plan}
                       scope="col"
-                      className="oc-display px-4 py-5 text-left text-xl text-[var(--oc-paper)]"
+                      className="oc-display whitespace-nowrap px-4 py-5 text-left text-xl text-[var(--oc-paper)]"
                     >
                       {plan}
                     </th>
@@ -228,7 +228,7 @@ export default function PricingPage() {
       </section>
 
       {/* §4.3 What plans are for. */}
-      <section className="oc-section pt-0">
+      <section className="oc-section pt-0 pb-16">
         <div className="oc-shell">
           <h2 className="oc-display max-w-2xl text-4xl text-[var(--oc-paper)] sm:text-5xl">
             What each plan is actually for.
@@ -268,10 +268,16 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* §4.5 Worked example — same card, same numbers as Home. */}
-      <section className="oc-section">
+      {/* §4.5 Worked example — same numbers as Home, framed against the plan table above. */}
+      <section className="oc-section py-16">
         <div className="oc-shell">
-          <WorkedExample className="mx-auto max-w-2xl" />
+          <div className="mx-auto max-w-2xl">
+            <p className="text-base leading-relaxed text-[var(--oc-aluminum)]">
+              The table above, applied to a real mission — Standard membership, Band A,
+              priced line by line.
+            </p>
+            <WorkedExample className="mt-6" />
+          </div>
         </div>
       </section>
 

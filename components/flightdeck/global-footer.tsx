@@ -25,12 +25,12 @@ const CITIES = [
 const CITY_H = 44; // px row height for the vertical ticker
 
 /**
- * GLOBAL + FOOTER — pinned 350vh dark sequence:
- *  p 0.00–0.55 : "Support anywhere -> [city]" stepped vertical ticker,
+ * GLOBAL + FOOTER — pinned 140vh dark sequence:
+ *  p 0.00–0.50 : "Support anywhere -> [city]" stepped vertical ticker,
  *                giant GLOBAL watermark parallaxes up
- *  p 0.15–0.70 : support-route arcs line-draw across the globe
- *  p 0.45–0.70 : mission-record card rises through, then exits
- *  p 0.70–1.00 : footer contact + legal block fades up
+ *  p 0.10–0.55 : support-route arcs line-draw across the globe
+ *  p 0.60–0.85 : globe dims and settles; footer contact + legal block
+ *                fades up onto clear ground and rests fully opaque
  */
 export default function GlobalFooter() {
   const root = useRef<HTMLElement>(null);
@@ -52,42 +52,44 @@ export default function GlobalFooter() {
         },
       });
 
-      tl.to(".city-rail", { y: -CITY_H * steps, ease: `steps(${steps})`, duration: 0.55 }, 0)
-        .fromTo(".global-word", { yPercent: 30 }, { yPercent: -10, duration: 1 }, 0)
+      tl.to(".city-rail", { y: -CITY_H * steps, ease: `steps(${steps})`, duration: 0.5 }, 0)
+        .fromTo(".global-word", { yPercent: 24 }, { yPercent: -8, duration: 1 }, 0)
         .fromTo(
           ".globe-wrap",
-          { yPercent: 20, scale: 0.92 },
-          { yPercent: 0, scale: 1, duration: 0.8 },
+          { yPercent: 16, scale: 0.94 },
+          { yPercent: 0, scale: 1, duration: 0.6 },
           0
         )
-        .to(".flight-arc", { strokeDashoffset: 0, stagger: 0.08, duration: 0.5 }, 0.15)
-        .fromTo(
-          ".ticket-card",
-          { yPercent: 140, rotate: -10 },
-          { yPercent: 0, rotate: -4, duration: 0.22, ease: "power1.out" },
-          0.45
+        .to(".flight-arc", { strokeDashoffset: 0, stagger: 0.06, duration: 0.45 }, 0.1)
+        .to(".ticker-row", { opacity: 0, duration: 0.1 }, 0.52)
+        // The globe yields to the footer — dims and eases down so the
+        // contact links land on clear ground.
+        .to(
+          ".globe-wrap",
+          { opacity: 0.3, yPercent: 6, duration: 0.22, ease: "power1.out" },
+          0.6
         )
-        .to(".ticket-card", { yPercent: -160, rotate: 3, duration: 0.24 }, 0.72)
-        .to(".ticker-row", { opacity: 0, duration: 0.1 }, 0.62)
+        // Footer fade completes well before the pin releases, so the copy
+        // always rests at full opacity (fade rule).
         .fromTo(
           ".footer-block",
-          { opacity: 0, y: 60 },
-          { opacity: 1, y: 0, duration: 0.2, ease: "power1.out" },
-          0.74
+          { opacity: 0, y: 48 },
+          { opacity: 1, y: 0, duration: 0.22, ease: "power1.out" },
+          0.62
         )
         // The persistent CTA pill yields to the footer's own links.
         // Element reference: the pill lives outside this gsap.context scope.
         .to(
           document.querySelector<HTMLElement>(".fd-pill") ?? [],
           { opacity: 0, pointerEvents: "none", duration: 0.08 },
-          0.86
+          0.82
         );
     }, root);
     return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={root} id="global" className="fd-pin-section relative h-[225vh] bg-canvas">
+    <section ref={root} id="global" className="fd-pin-section relative h-[140vh] bg-canvas">
       <div className="global-stage radar-grid relative h-screen w-full overflow-hidden">
         {/* giant watermark */}
         <div className="global-word pointer-events-none absolute inset-x-0 top-[8vh] text-center will-change-transform">
@@ -107,8 +109,9 @@ export default function GlobalFooter() {
           <Globe className="w-full opacity-90" />
         </div>
 
-        {/* support-anywhere ticker */}
-        <div className="ticker-row absolute left-1/2 top-[24vh] flex w-max -translate-x-1/2 items-center gap-4 md:gap-6">
+        {/* support-anywhere ticker — backed by a scrim so it reads clear of
+            the watermark letterforms */}
+        <div className="ticker-row absolute left-1/2 top-[24vh] flex w-max max-w-[92vw] -translate-x-1/2 items-center gap-3 border border-grid-silver bg-canvas/85 px-4 py-2.5 backdrop-blur-sm md:gap-6 md:px-5">
           <span className="text-base text-t1 md:text-lg">Support anywhere</span>
           <svg
             width="20"
@@ -123,7 +126,7 @@ export default function GlobalFooter() {
           <div className="relative h-[44px] overflow-hidden">
             <div className="city-rail will-change-transform">
               {CITIES.map((c) => (
-                <div key={c} className="flex h-[44px] items-center font-display text-2xl text-t1">
+                <div key={c} className="flex h-[44px] items-center font-display text-xl text-t1 md:text-2xl">
                   {c}
                 </div>
               ))}
@@ -133,30 +136,12 @@ export default function GlobalFooter() {
           </div>
         </div>
 
-        {/* mission-record card */}
-        <div className="ticket-card absolute left-1/2 top-[30vh] w-[260px] -translate-x-1/2 bg-t1 p-6 text-canvas shadow-2xl will-change-transform">
-          <div className="flex items-start justify-between">
-            <p className="font-display text-4xl font-medium leading-none">
-              100%
-              <br />
-              reviewed
-            </p>
-            <div className="barcode h-24 w-6" />
-          </div>
-          <p className="mt-6 font-mono text-[9px] uppercase tracking-widecap text-canvas/60">
-            Acceptance review — every request
-          </p>
-          <div className="my-4 border-t border-dashed border-canvas/25" />
-          <p className="text-[10px] leading-relaxed text-canvas/70">
-            Aircraft status, crew availability, approvals, and operating
-            conditions are reviewed before any support is accepted — from a
-            single movement to recurring fleet coverage.
-          </p>
-          <p className="mt-4 font-mono text-[10px] text-[#B45309]">AMG // SUPPORT-COORD</p>
-        </div>
-
-        {/* footer block */}
-        <div className="footer-block absolute inset-x-0 bottom-0 opacity-0">
+        {/* footer block — canvas scrim rises over the globe's lower limb so
+            the contact links sit on clear ground */}
+        <div
+          className="footer-block absolute inset-x-0 bottom-0 bg-gradient-to-t from-canvas via-canvas/90 to-transparent pt-16"
+          data-fd-hidden
+        >
           <div className="mx-auto grid max-w-7xl gap-10 px-6 pb-16 md:grid-cols-3 md:px-10">
             <div>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -204,12 +189,12 @@ export default function GlobalFooter() {
               </Link>
             </div>
             <div className="md:text-right">
-              <p className="microlabel">{SITE.cityState}</p>
+              <p className="microlabel text-t2">{SITE.cityState}</p>
               <p className="microlabel-green mt-2">
                 {AFFILIATIONS.join(" // ").toUpperCase()} // SERVING{" "}
                 {SITE.region.replace("the ", "").toUpperCase()}
               </p>
-              <p className="mt-4 text-[10px] leading-relaxed text-t3">
+              <p className="mt-4 text-[11px] leading-relaxed text-t2">
                 {OPERATIONAL_CONTROL_STATEMENT} Details in{" "}
                 <Link href="/legal" prefetch={false} className="underline underline-offset-2 hover:text-t1">
                   Legal
@@ -219,7 +204,7 @@ export default function GlobalFooter() {
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 border-t border-grid-silver px-6 py-3 md:justify-between md:px-10">
-            <span className="microlabel">
+            <span className="microlabel text-t2">
               © {new Date().getFullYear()} {SITE.name}
             </span>
             <span className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
@@ -228,12 +213,12 @@ export default function GlobalFooter() {
                   key={link.href}
                   href={link.href}
                   prefetch={false}
-                  className="microlabel transition-colors hover:text-t1"
+                  className="microlabel text-t2 transition-colors hover:text-t1"
                 >
                   {link.label}
                 </Link>
               ))}
-              <CookiePreferencesButton className="microlabel transition-colors hover:text-t1" />
+              <CookiePreferencesButton className="microlabel text-t2 transition-colors hover:text-t1" />
             </span>
           </div>
         </div>
