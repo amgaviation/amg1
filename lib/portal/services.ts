@@ -390,6 +390,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   "variant-price": "Every price variant needs a unit price between $0 and $9,999,999,999.99.",
   "variant-duplicate-axes":
     "Two price variants share the same aircraft category, band, and plan tier — the calculator could not tell them apart. Give each variant distinct axes.",
+  "variant-effective-date":
+    "A scheduled price date must be a real date no earlier than today. Nothing was saved.",
   "variant-save-failed":
     "A price variant could not be saved. Re-open the form to see exactly what was stored, then try again.",
   "children-save-failed":

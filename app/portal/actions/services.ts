@@ -65,6 +65,8 @@ type VariantInput = {
   unit_price: number;
   annual_price: number | null;
   sort_order: number;
+  /** Optional scheduled start (YYYY-MM-DD, today or later). Null = today. */
+  effective_from: string | null;
 };
 
 type VariableInput = {
@@ -166,6 +168,15 @@ function normalizeVariants(raw: string): Parsed<VariantInput> {
       .join("|");
     if (seenAxes.has(axes)) return { rows: null, error: "variant-duplicate-axes" };
     seenAxes.add(axes);
+    // Scheduled price changes: an explicit effective_from must be a real
+    // date no earlier than today — history is never rewritten from a form.
+    const effectiveFromRaw = asString(entry.effective_from) || null;
+    if (effectiveFromRaw !== null) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(effectiveFromRaw) || Number.isNaN(new Date(effectiveFromRaw).getTime())) {
+        return { rows: null, error: "variant-effective-date" };
+      }
+      if (effectiveFromRaw < today()) return { rows: null, error: "variant-effective-date" };
+    }
     rows.push({
       id: asString(entry.id) || null,
       label: asString(entry.label) || null,
@@ -175,6 +186,7 @@ function normalizeVariants(raw: string): Parsed<VariantInput> {
       unit_price: unitPrice,
       annual_price: annualPrice,
       sort_order: asNumberOrNull(entry.sort_order) ?? rows.length,
+      effective_from: effectiveFromRaw,
     });
   }
   return { rows, error: null };
@@ -442,7 +454,7 @@ export async function createService(formData: FormData) {
         plan_tier_match: row.plan_tier_match,
         unit_price: row.unit_price,
         annual_price: row.annual_price,
-        effective_from: effectiveFrom,
+        effective_from: row.effective_from ?? effectiveFrom,
         sort_order: row.sort_order,
       })),
     );
@@ -606,7 +618,7 @@ export async function updateService(formData: FormData) {
           plan_tier_match: row.plan_tier_match,
           unit_price: row.unit_price,
           annual_price: row.annual_price,
-          effective_from: effectiveDate,
+          effective_from: row.effective_from ?? effectiveDate,
           sort_order: row.sort_order,
         });
         if (insertError) redirect(withCode(backTo, "error", "variant-save-failed"));
@@ -619,11 +631,14 @@ export async function updateService(formData: FormData) {
       if (priceChanged) {
         // NEVER in-place-edit a price: close the old row and open a new one
         // so every historical quote line keeps pointing at the price that
-        // was actually offered. New rows get no Stripe price ids — Phase 2
-        // mints a fresh Stripe price per price row.
+        // was actually offered. A scheduled effective_from closes the old
+        // price on that date and starts the new one the same day — the old
+        // rate keeps quoting until then ([from, to) windows). New rows get
+        // no Stripe price ids — Phase 2 mints a fresh Stripe price per row.
+        const changeDate = row.effective_from ?? effectiveDate;
         const { error: closeError } = await db
           .from("service_price_variants")
-          .update({ effective_to: effectiveDate })
+          .update({ effective_to: changeDate })
           .eq("id", match.id);
         if (closeError) redirect(withCode(backTo, "error", "variant-save-failed"));
         const { error: reopenError } = await db.from("service_price_variants").insert({
@@ -634,7 +649,7 @@ export async function updateService(formData: FormData) {
           plan_tier_match: row.plan_tier_match,
           unit_price: row.unit_price,
           annual_price: row.annual_price,
-          effective_from: effectiveDate,
+          effective_from: changeDate,
           sort_order: row.sort_order,
         });
         if (reopenError) {

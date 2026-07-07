@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SectionCard } from "@/components/portal/ui/primitives";
@@ -159,6 +159,9 @@ const VARIABLE_ROLE_OPTIONS = [
   { value: "info", label: "Info only — recorded, no price effect" },
 ];
 
+// Offered as datalist suggestions on the Unit field — free text still wins.
+const UNIT_PRESETS = ["day", "night", "hour", "leg", "trip", "each"];
+
 const ATTACHMENT_MODE_OPTIONS = [
   { value: "required", label: "Required (always added)" },
   { value: "default_on", label: "Default on (removable)" },
@@ -184,6 +187,8 @@ type VariantRowState = {
   unit_price: string;
   annual_price: string;
   effective_from: string | null;
+  /** Scheduled start for a new/changed price (YYYY-MM-DD); "" = today. */
+  starts_on: string;
 };
 
 type VariableRowState = {
@@ -218,6 +223,12 @@ function nextUid(): number {
 function numStr(value: number | string | null | undefined): string {
   if (value === null || value === undefined || value === "") return "";
   return String(value);
+}
+
+/** Local YYYY-MM-DD — used as the floor for scheduled price dates. */
+function todayIso(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 }
 
 function toNumOrNull(value: string): number | null {
@@ -298,6 +309,8 @@ export function ServiceForm({
   attachableServices,
   redirectTo,
   cancelHref,
+  categories = [],
+  restoreDraft = false,
 }: {
   mode: "create" | "edit";
   action: FormAction;
@@ -311,6 +324,10 @@ export function ServiceForm({
   attachableServices: AttachableService[];
   redirectTo: string;
   cancelHref: string;
+  /** Existing catalog categories, offered as suggestions. */
+  categories?: string[];
+  /** When the page reloaded with a validation error, restore the draft. */
+  restoreDraft?: boolean;
 }) {
   const isEdit = mode === "edit" && Boolean(service);
 
@@ -323,6 +340,9 @@ export function ServiceForm({
   // real (possibly empty) tier id travels in a hidden field below.
   const [linkedTierId, setLinkedTierId] = useState(service?.linked_plan_tier_id ?? "none");
   const [taxable, setTaxable] = useState<boolean>(service?.taxable ?? false);
+  const [status, setStatus] = useState(service?.status ?? "draft");
+  const [recurringInterval, setRecurringInterval] = useState(service?.recurring_interval ?? "month");
+  const formRef = useRef<HTMLFormElement>(null);
   // Variant tier pricing matches the tier NAME (engine compares names, not
   // ids) — offer the live tier names instead of free text.
   const tierNameOptions = Array.from(
@@ -340,6 +360,7 @@ export function ServiceForm({
       unit_price: numStr(variant.unit_price),
       annual_price: numStr(variant.annual_price),
       effective_from: variant.effective_from ?? null,
+      starts_on: "",
     })),
   );
   const [variableRows, setVariableRows] = useState<VariableRowState[]>(() =>
@@ -368,6 +389,124 @@ export function ServiceForm({
     })),
   );
 
+  // ── Draft persistence ────────────────────────────────────────────────
+  // Server-side validation redirects back with ?error= and an EMPTY form —
+  // on a form this size that must not cost the owner their work. Every
+  // submit snapshots the full draft to sessionStorage; when the page comes
+  // back with restoreDraft (an error flash), the snapshot is re-applied.
+  const draftKey = `amg-service-form/${service?.id ?? "new"}`;
+  const PLAIN_FIELDS = [
+    "code",
+    "name",
+    "category",
+    "sort_order",
+    "description",
+    "client_description",
+    "notes_internal",
+    "unit",
+    "default_unit_price",
+    "min_quantity",
+    "max_quantity",
+    "recurring_interval_count",
+    "requires_deposit_percent",
+  ];
+
+  useEffect(() => {
+    if (!restoreDraft) {
+      sessionStorage.removeItem(draftKey);
+      return;
+    }
+    try {
+      const raw = sessionStorage.getItem(draftKey);
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      if (draft.variantRows) setVariantRows(draft.variantRows);
+      if (draft.variableRows) setVariableRows(draft.variableRows);
+      if (draft.attachmentRows) setAttachmentRows(draft.attachmentRows);
+      if (!isEdit && draft.costType) setCostType(draft.costType);
+      if (draft.pricingModel) setPricingModel(draft.pricingModel);
+      if (draft.frequency) setFrequency(draft.frequency);
+      if (draft.status) setStatus(draft.status);
+      if (draft.recurringInterval) setRecurringInterval(draft.recurringInterval);
+      if (draft.linkedTierId) setLinkedTierId(draft.linkedTierId);
+      if (typeof draft.taxable === "boolean") setTaxable(draft.taxable);
+      if (typeof draft.billable === "boolean") setBillable(draft.billable);
+      if (typeof draft.clientVisible === "boolean") setClientVisible(draft.clientVisible);
+      // Plain (uncontrolled) inputs are restored imperatively after mount.
+      const form = formRef.current;
+      if (form && draft.fields) {
+        for (const name of PLAIN_FIELDS) {
+          const value = draft.fields[name];
+          const element = form.elements.namedItem(name);
+          if (
+            typeof value === "string" &&
+            (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement)
+          ) {
+            element.value = value;
+          }
+        }
+      }
+    } catch {
+      // A malformed draft must never break the form — fall through empty.
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function snapshotDraft(form: HTMLFormElement) {
+    try {
+      const data = new FormData(form);
+      const fields: Record<string, string> = {};
+      for (const name of PLAIN_FIELDS) {
+        const value = data.get(name);
+        if (typeof value === "string") fields[name] = value;
+      }
+      sessionStorage.setItem(
+        draftKey,
+        JSON.stringify({
+          fields,
+          variantRows,
+          variableRows,
+          attachmentRows,
+          costType,
+          pricingModel,
+          frequency,
+          status,
+          recurringInterval,
+          linkedTierId,
+          taxable,
+          billable,
+          clientVisible,
+        })
+      );
+    } catch {
+      // Snapshot is best-effort; never block a submit over storage limits.
+    }
+  }
+
+  function onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
+    // Zero-price guard: a fixed-price service with no price and no variants
+    // quotes at $0 — make that a deliberate choice, not an accident.
+    const form = event.currentTarget;
+    snapshotDraft(form);
+    if (
+      (pricingModel === "flat" || pricingModel === "per_unit") &&
+      costType !== "pass_through" &&
+      variantRows.length === 0
+    ) {
+      const priceField = form.elements.namedItem("default_unit_price") as HTMLInputElement | null;
+      const price = Number(priceField?.value ?? "");
+      if (!price) {
+        const proceed = window.confirm(
+          "No price is set — this service will quote at $0 until a price is added. Save anyway?"
+        );
+        if (!proceed) {
+          event.preventDefault();
+          return;
+        }
+      }
+    }
+  }
+
   const attachmentChoices = useMemo(
     () =>
       attachableServices
@@ -393,6 +532,7 @@ export function ServiceForm({
           unit_price: toNumOrNull(row.unit_price),
           annual_price: toNumOrNull(row.annual_price),
           sort_order: index,
+          effective_from: row.starts_on || null,
         })),
       ),
     [variantRows],
@@ -448,7 +588,7 @@ export function ServiceForm({
 
   return (
     <>
-      <form action={action} className="space-y-6">
+      <form ref={formRef} action={action} onSubmit={onFormSubmit} className="space-y-6">
         {isEdit && service ? <input type="hidden" name="service_id" value={service.id} /> : null}
         {/* On edit the radios are disabled (disabled inputs never post), so a
             hidden field re-submits the current value for the server's
@@ -524,9 +664,17 @@ export function ServiceForm({
               name="category"
               defaultValue={service?.category ?? ""}
               placeholder="Trip Coordination"
-              hint="Free-text group used for catalog filtering and quote sections."
+              hint="Free-text group used for catalog filtering and quote sections. Existing categories appear as you type — reuse one to keep the catalog tidy."
+              list="service-category-options"
             />
-            <SelectField label="Status" name="status" defaultValue={service?.status ?? "draft"} options={STATUS_OPTIONS} hint="Only active services are offerable. Archiving never deletes history." />
+            {categories.length ? (
+              <datalist id="service-category-options">
+                {categories.map((item) => (
+                  <option key={item} value={item} />
+                ))}
+              </datalist>
+            ) : null}
+            <SelectField label="Status" name="status" value={status} onChange={(event) => setStatus(event.target.value)} options={STATUS_OPTIONS} hint="Only active services are offerable. Archiving never deletes history." />
             <TextField label="Sort Order" name="sort_order" type="number" step="1" defaultValue={numStr(service?.sort_order ?? 0)} hint="Lower numbers list first in the catalog and on quotes." />
             <div className="md:col-span-2">
               <TextAreaField label="Internal Description" name="description" rows={2} defaultValue={service?.description ?? ""} hint="Ops-facing. Never shown to clients." />
@@ -554,7 +702,21 @@ export function ServiceForm({
               // Flat fee has no unit — post the stored value unchanged.
               <input type="hidden" name="unit" value={service?.unit ?? ""} />
             ) : (
-              <TextField label="Unit" name="unit" defaultValue={service?.unit ?? ""} placeholder="trip, hour, day, each" hint="What one quantity means on the quote." />
+              <>
+                <TextField
+                  label="Unit"
+                  name="unit"
+                  defaultValue={service?.unit ?? ""}
+                  placeholder="trip, hour, day, each"
+                  hint='What one quantity means on the quote — a crew day rate is unit "day", quantity = days worked.'
+                  list="service-unit-options"
+                />
+                <datalist id="service-unit-options">
+                  {UNIT_PRESETS.map((item) => (
+                    <option key={item} value={item} />
+                  ))}
+                </datalist>
+              </>
             )}
             <TextField
               label={pricingModel === "flat" ? "Price ($)" : "Default Unit Price ($)"}
@@ -644,11 +806,21 @@ export function ServiceForm({
                     onChange={(event) => updateVariant(row.uid, { annual_price: event.target.value })}
                     hint="Optional — yearly amount if billed annually."
                   />
-                  <div className="flex items-center justify-between gap-2 md:col-span-3 lg:col-span-6">
+                  <div className="grid gap-3 md:col-span-3 md:grid-cols-[minmax(0,14rem)_1fr_auto] md:items-center lg:col-span-6">
+                    <TextField
+                      label="Starts"
+                      type="date"
+                      min={todayIso()}
+                      value={row.starts_on}
+                      onChange={(event) => updateVariant(row.uid, { starts_on: event.target.value })}
+                      hint="Blank = today. A future date schedules the price change."
+                    />
                     <span className="text-[0.68rem] text-[var(--deck-text-3)]">
-                      {row.effective_from
-                        ? `Current price effective since ${row.effective_from}. Removing this row closes it (history kept).`
-                        : "New price row — effective today once saved."}
+                      {row.starts_on
+                        ? `This price takes effect ${row.starts_on} — the ${row.id ? "current" : "default"} price keeps quoting until then.`
+                        : row.effective_from
+                          ? `Current price effective since ${row.effective_from}. Removing this row closes it (history kept).`
+                          : "New price row — effective today once saved."}
                     </span>
                     <RemoveRowButton
                       label={row.id ? "Close variant" : "Remove"}
@@ -676,6 +848,7 @@ export function ServiceForm({
                     unit_price: "",
                     annual_price: "",
                     effective_from: null,
+                    starts_on: "",
                   },
                 ])
               }
@@ -701,7 +874,8 @@ export function ServiceForm({
               label="Recurring Interval"
               name="recurring_interval"
               disabled={frequency !== "recurring"}
-              defaultValue={service?.recurring_interval ?? "month"}
+              value={recurringInterval}
+              onChange={(event) => setRecurringInterval(event.target.value)}
               options={INTERVAL_OPTIONS}
               hint={frequency === "recurring" ? undefined : "Recurring services only."}
             />

@@ -3,7 +3,12 @@ import { requireRolePermission } from "@/lib/portal/permissions";
 import { createService } from "@/app/portal/actions/services";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import { ServiceForm } from "@/components/portal/admin/service-form";
-import { listActiveServicesForPicker, listPlanTierOptions, serviceFlashMessage } from "@/lib/portal/services";
+import {
+  listActiveServicesForPicker,
+  listPlanTierOptions,
+  listServiceCategories,
+  serviceFlashMessage,
+} from "@/lib/portal/services";
 
 export const metadata = { title: "New Service - Admin Portal" };
 
@@ -17,7 +22,11 @@ export default async function NewServicePage({
   await requireRolePermission("admin", "settings");
   const params = await searchParams;
   const flash = serviceFlashMessage(params);
-  const [tierOptions, attachableServices] = await Promise.all([listPlanTierOptions(), listActiveServicesForPicker()]);
+  const [tierOptions, attachableServices, categories] = await Promise.all([
+    listPlanTierOptions(),
+    listActiveServicesForPicker(),
+    listServiceCategories(),
+  ]);
 
   return (
     <>
@@ -37,6 +46,8 @@ export default async function NewServicePage({
         action={createService}
         tierOptions={tierOptions}
         attachableServices={attachableServices}
+        categories={categories}
+        restoreDraft={Boolean(params.error)}
         redirectTo={`${BASE}/new`}
         cancelHref={BASE}
       />
