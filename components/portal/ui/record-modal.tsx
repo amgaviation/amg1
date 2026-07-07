@@ -19,7 +19,12 @@ import { useRecordParam } from "@/components/portal/ui/use-record-param";
 const FOCUSABLE =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-function DialogShell({
+/**
+ * Shared dialog chrome (backdrop, focus trap, Esc, scroll lock, mobile
+ * sheet). Exported for client components that own their open state (e.g.
+ * AdminRecordManager); URL-synced pages use RecordModal / FormModal below.
+ */
+export function DialogShell({
   labelledBy,
   onClose,
   wide,
@@ -102,7 +107,7 @@ function DialogShell({
   );
 }
 
-function ModalHeader({
+export function ModalHeader({
   id,
   eyebrow,
   title,

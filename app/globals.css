@@ -1276,8 +1276,10 @@ html {
 }
 
 .amg-portal [data-portal-table-actions] {
-  min-width: 17rem;
-  width: 17rem;
+  /* Console Record Pattern: one Open control per row — record actions live
+     in the record window, so the column reserves a single button's width. */
+  min-width: 6.5rem;
+  width: 6.5rem;
 }
 
 .amg-portal td[data-portal-table-actions] [data-portal-action-bar] {
