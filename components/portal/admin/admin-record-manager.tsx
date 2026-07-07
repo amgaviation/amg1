@@ -50,6 +50,8 @@ export type AdminRecordRow = {
   searchText: string;
   filters: Record<string, string | null | undefined>;
   formValues: Record<string, RecordValue>;
+  /** Extra hidden fields posted with every record action (e.g. the requested role an Approve action assigns). */
+  actionValues?: Record<string, string>;
   details: { label: string; value: RecordValue }[];
   archiveConfirm?: string;
   detailSections?: {
@@ -83,6 +85,8 @@ type AdminRecordManagerProps = {
   }[];
   createLabel: string;
   editLabel: string;
+  /** Submit label for the edit form (defaults to "Save changes"). */
+  updateSubmitLabel?: string;
   archiveLabel?: string;
   archiveConfirm?: string;
   archiveDisabledReason?: string;
@@ -176,6 +180,7 @@ export function AdminRecordManager({
   recordActions = [],
   createLabel,
   editLabel,
+  updateSubmitLabel = "Save changes",
   archiveLabel = "Archive",
   archiveConfirm = "Archive this record?",
   archiveDisabledReason,
@@ -777,6 +782,9 @@ export function AdminRecordManager({
                         <input type="hidden" name={recordIdName} value={selected.id} />
                         <input type="hidden" name="user_id" value={selected.id} />
                         <input type="hidden" name="back_to" value={backTo} />
+                        {Object.entries(selected.actionValues ?? {}).map(([name, value]) => (
+                          <input key={name} type="hidden" name={name} value={value} />
+                        ))}
                         <SubmitButton
                           variant={action.variant ?? "outline"}
                           className={action.className}
@@ -875,7 +883,7 @@ export function AdminRecordManager({
                   Cancel
                 </Button>
                 <SubmitButton pendingText="Saving...">
-                  Save changes
+                  {editor.mode === "create" ? "Save changes" : updateSubmitLabel}
                 </SubmitButton>
               </footer>
             </form>

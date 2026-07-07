@@ -83,6 +83,12 @@ export default async function AdminUserApprovalsPage({
         role: requestedRole,
         admin_notes: profile.admin_notes ?? "",
       },
+      // The one-click Approve action assigns the role the user requested;
+      // "Review Access" is the path for approving under a different role.
+      actionValues: {
+        role: requestedRole,
+        admin_notes: profile.admin_notes ?? "",
+      },
       details: [
         { label: "Email", value: profile.email },
         { label: "Business Purpose", value: businessPurpose },
@@ -158,7 +164,15 @@ export default async function AdminUserApprovalsPage({
           { name: "admin_notes", label: "Admin Notes", type: "textarea", fullWidth: true },
         ]}
         updateAction={approveUser}
+        updateSubmitLabel="Approve access"
         recordActions={[
+          {
+            label: "Approve",
+            action: approveUser,
+            confirm: "Approve this request with the requested role and email the portal setup link?",
+            pendingText: "Approving...",
+            variant: "default",
+          },
           {
             label: "Waitlist",
             action: waitlistUser,
