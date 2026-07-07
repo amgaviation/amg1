@@ -183,6 +183,7 @@ export default async function AdminUserApprovalsPage({
         editLabel="Review Access"
         recordIdName="user_id"
         backTo="/portal/admin/user-approvals"
+        hiddenStatuses={["Suspended", "Deleted", "Denied"]}
         bulkDelete={{ action: bulkDeletePortalAccounts, entity: "approval", entityLabel: "pending user" }}
         emptyTitle="No pending access requests"
         emptyDescription="New portal access requests will appear here after submission."

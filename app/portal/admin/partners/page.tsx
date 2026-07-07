@@ -177,6 +177,7 @@ export default async function AdminPartnersPage({
         archiveDisabledReason="Partner is already inactive."
         recordIdName="profile_id"
         backTo="/portal/admin/partners"
+        hiddenStatuses={["Suspended", "Deleted"]}
         bulkDelete={{ action: bulkDeletePortalAccounts, entity: "partner", entityLabel: "partner" }}
         emptyTitle="No partners match"
         emptyDescription="Adjust search or filters, or create a new partner record."

@@ -17,7 +17,8 @@ import { DeckSelect, SelectField, TextAreaField, TextField } from "@/components/
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { Button } from "@/components/ui/button";
-import { createLead, moveLeadStage } from "@/app/portal/actions/crm";
+import { cancelScheduledEmailAction, createLead, moveLeadStage } from "@/app/portal/actions/crm";
+import { listScheduledEmails, processDueScheduledEmails } from "@/lib/portal/scheduled-emails";
 import { CrmLeadImportExport } from "@/components/portal/admin/crm-lead-import-export";
 import {
   LEAD_SOURCES,
@@ -49,6 +50,9 @@ function stageTone(stage: string) {
 }
 
 type Params = {
+  scheduled?: string;
+  email?: string;
+  email_error?: string;
   success?: string;
   error?: string;
   q?: string;
@@ -87,6 +91,16 @@ export default async function CrmPipelinePage({
 }) {
   const user = await requireRolePermission("admin", "crm");
   const params = await searchParams;
+  // Opportunistic dispatch: any due scheduled emails go out whenever an admin
+  // opens the pipeline (the nightly cron is the backstop). Guarded — a
+  // provider hiccup must never take the page down.
+  try {
+    await processDueScheduledEmails();
+  } catch (error) {
+    console.error("[crm] scheduled email dispatch failed", error);
+  }
+  const scheduledEmails = await listScheduledEmails({ includeRecent: true });
+  const pendingScheduled = scheduledEmails.filter((row) => row.status === "scheduled");
   const [leads, metrics, admins] = await Promise.all([
     listLeads({ q: params.q, ownerId: params.owner || undefined }),
     getPipelineMetrics(),
@@ -132,6 +146,8 @@ export default async function CrmPipelinePage({
 
   const newOpen = params.new === "1";
   const importOpen = params.import === "1";
+  const scheduledOpen = params.scheduled === "1";
+  const scheduledHref = `${basePath}${listQuery(params, { scheduled: "1", page: undefined })}`;
   const newHref = `${basePath}${listQuery(params, { new: "1", page: undefined })}`;
   const importHref = `${basePath}${listQuery(params, { import: "1", page: undefined })}`;
   const recordHref = (id: string) => `${basePath}${listQuery(params, { record: id })}`;
@@ -143,6 +159,11 @@ export default async function CrmPipelinePage({
       description="Track inquiries from first contact to won business — convert website submissions into leads and leads into portal clients."
       actions={
         <>
+          <Button asChild variant="outline" size="sm">
+            <Link href={scheduledHref}>
+              Scheduled{pendingScheduled.length ? ` (${pendingScheduled.length})` : ""}
+            </Link>
+          </Button>
           <Button asChild variant="outline" size="sm">
             <Link href={importHref}>Import / Export</Link>
           </Button>
@@ -157,6 +178,11 @@ export default async function CrmPipelinePage({
           {params.success === "moved" ? <Notice tone="success">Lead stage updated.</Notice> : null}
           {params.error === "missing" ? <Notice tone="danger">Lead name is required.</Notice> : null}
           {params.error === "save" ? <Notice tone="danger">Lead could not be saved.</Notice> : null}
+          {params.email === "scheduled" ? <Notice tone="success">Email scheduled — it sends automatically at the chosen time.</Notice> : null}
+          {params.email === "schedule-cancelled" ? <Notice tone="success">Scheduled email cancelled.</Notice> : null}
+          {params.email_error === "schedule-validation" ? <Notice tone="danger">Scheduling needs a recipient, subject, body, and a send time.</Notice> : null}
+          {params.email_error === "schedule-past" ? <Notice tone="danger">Pick a send time at least a minute in the future.</Notice> : null}
+          {params.email_error === "schedule-save" || params.email_error === "schedule-cancel" ? <Notice tone="danger">That scheduling change could not be saved.</Notice> : null}
           <BulkResultNotice params={params} entityLabel="lead" />
         </>
       }
@@ -522,6 +548,67 @@ export default async function CrmPipelinePage({
           wide
         >
           <CrmLeadImportExport />
+        </FormModal>
+      ) : null}
+
+      {scheduledOpen ? (
+        <FormModal
+          eyebrow="Sales Pipeline"
+          title="Scheduled emails"
+          meta="Compose from any lead's Email panel and pick a send time. Due emails go out automatically — on pipeline visits and the nightly sweep."
+          paramKeys={["scheduled"]}
+          wide
+        >
+          {scheduledEmails.length === 0 ? (
+            <p className="py-6 text-center text-sm text-[var(--deck-text-3)]">
+              Nothing scheduled yet. Open a lead and use “Send later” in the Email panel.
+            </p>
+          ) : (
+            <div className="overflow-hidden rounded-md border border-[var(--deck-line)]">
+              {scheduledEmails.map((row) => (
+                <div
+                  key={row.id}
+                  className="flex flex-wrap items-center gap-3 border-b border-[var(--deck-line)] px-4 py-3 last:border-0"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-[var(--deck-text)]">{row.subject}</p>
+                    <p className="mt-0.5 truncate text-xs text-[var(--deck-text-3)]">
+                      To {row.recipient_email}
+                      {row.lead ? ` · ${row.lead.company_name ?? row.lead.full_name ?? "lead"}` : ""}
+                      {row.creator ? ` · by ${row.creator.full_name ?? row.creator.email}` : ""}
+                    </p>
+                  </div>
+                  <span className="deck-mono shrink-0 text-xs text-[var(--deck-text-2)]">
+                    {formatDateTime(row.send_at)}
+                  </span>
+                  <StatusBadge
+                    label={row.status === "scheduled" ? "Scheduled" : row.status === "sent" ? "Sent" : row.status === "failed" ? "Failed" : row.status === "sending" ? "Sending" : "Cancelled"}
+                    tone={row.status === "scheduled" ? "info" : row.status === "sent" ? "success" : row.status === "failed" ? "danger" : "neutral"}
+                  />
+                  {row.lead ? (
+                    <Button asChild size="sm" variant="outline">
+                      <Link href={`/portal/admin/crm/${row.lead.id}`}>Open lead</Link>
+                    </Button>
+                  ) : null}
+                  {row.status === "scheduled" ? (
+                    <form action={cancelScheduledEmailAction}>
+                      <input type="hidden" name="scheduled_id" value={row.id} />
+                      <input type="hidden" name="back_to" value={scheduledHref} />
+                      <SubmitButton
+                        variant="ghost"
+                        size="sm"
+                        className="text-[var(--deck-text-2)] hover:text-[var(--deck-danger)]"
+                        confirm="Cancel this scheduled email? It will not be sent."
+                        pendingText="Cancelling…"
+                      >
+                        Cancel
+                      </SubmitButton>
+                    </form>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          )}
         </FormModal>
       ) : null}
     </RecordListShell>

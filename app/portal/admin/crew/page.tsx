@@ -399,6 +399,7 @@ export default async function AdminCrewPage({
         archiveDisabledReason="Crew member is already inactive."
         recordIdName="profile_id"
         backTo="/portal/admin/crew"
+        hiddenStatuses={["Suspended", "Deleted"]}
         bulkDelete={{ action: bulkDeletePortalAccounts, entity: "crew", entityLabel: "crew member" }}
         emptyTitle="No crew match"
         emptyDescription="Adjust search or filters, or create a new crew member."

@@ -7,11 +7,13 @@ import {
   QuickLink,
   RecordRow,
   SectionCard,
+  StatCard,
 } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { StatusDot } from "@/components/portal/ui/status-dot";
 import { Button } from "@/components/ui/button";
 import { getAdminMetrics, listAllMissions, listPendingUsers } from "@/lib/portal/queries";
+import { createServiceClient } from "@/lib/supabase/server";
 import { listFormSubmissions } from "@/lib/portal/form-submissions";
 import { getPipelineMetrics } from "@/lib/portal/crm";
 import { listMyOpenTasks } from "@/lib/portal/tasks";
@@ -33,7 +35,16 @@ export default async function AdminDashboardPage() {
   // quick links for a module the admin role can't view are omitted — the nav
   // hides them, so the landing page must not dead-end into them either.
   const perms = await permissionsForRole(user.role);
-  const [metrics, missions, pendingUsers, recentSubmissions, myTasks, pipeline] =
+  const countVendorInvoices = async () => {
+    if (!perms.invoices.view) return 0;
+    const db = await createServiceClient();
+    const { count } = await db
+      .from("vendor_invoices")
+      .select("id", { count: "exact", head: true })
+      .in("status", ["submitted", "under_review"]);
+    return count ?? 0;
+  };
+  const [metrics, missions, pendingUsers, recentSubmissions, myTasks, pipeline, vendorInvoicesOpen] =
     await Promise.all([
       getAdminMetrics(),
       perms.missions.view ? listAllMissions() : [],
@@ -41,6 +52,7 @@ export default async function AdminDashboardPage() {
       perms.form_submissions.view ? listFormSubmissions({ status: "new" }) : [],
       perms.tasks.view ? listMyOpenTasks(user.id) : [],
       getPipelineMetrics(),
+      countVendorInvoices(),
     ]);
 
   const active = missions
@@ -119,7 +131,66 @@ export default async function AdminDashboardPage() {
         count: metrics.subscriptionOverages,
         label: "Subscription overages",
       },
+    perms.invoices.view &&
+      vendorInvoicesOpen > 0 && {
+        href: "/portal/admin/vendor-invoices?status=submitted",
+        count: vendorInvoicesOpen,
+        label: "Vendor invoices to review",
+      },
   ].filter(Boolean) as { href: string; count: number; label: string }[];
+
+  // At-a-glance stats — every tile opens its page.
+  const quickStats = [
+    perms.missions.view && {
+      label: "Active requests",
+      value: metrics.activeMissions,
+      href: "/portal/admin/trips?status=active",
+      icon: "radar",
+    },
+    perms.missions.view && {
+      label: "New requests",
+      value: metrics.submittedMissions,
+      href: "/portal/admin/trips?status=submitted",
+      icon: "plane",
+      tone: metrics.submittedMissions > 0 ? ("warn" as const) : undefined,
+    },
+    perms.invoices.view && {
+      label: "Open invoices",
+      value: metrics.openInvoices,
+      href: "/portal/admin/invoices",
+      icon: "wallet",
+    },
+    perms.crm.view && {
+      label: "Open leads",
+      value: pipeline.openCount ?? 0,
+      href: "/portal/admin/crm?stage=open",
+      icon: "trendingUp",
+    },
+    perms.users.view && {
+      label: "Pending approvals",
+      value: metrics.pendingUsers,
+      href: "/portal/admin/user-approvals",
+      icon: "userCheck",
+      tone: metrics.pendingUsers > 0 ? ("warn" as const) : undefined,
+    },
+    perms.invoices.view && {
+      label: "Vendor invoices",
+      value: vendorInvoicesOpen,
+      href: "/portal/admin/vendor-invoices",
+      icon: "fileText",
+      tone: vendorInvoicesOpen > 0 ? ("warn" as const) : undefined,
+    },
+  ].filter(Boolean) as { label: string; value: number; href: string; icon: string; tone?: "warn" }[];
+
+  // One-click starts for the work admins begin most often.
+  const quickActions = [
+    perms.quotes.add && { href: "/portal/admin/quotes/new", icon: "receipt", label: "New Quote", description: "Price a support request" },
+    perms.invoices.add && { href: "/portal/admin/invoices?new=quote", icon: "wallet", label: "New Invoice", description: "From quote or standalone" },
+    perms.communications.view && { href: "/portal/admin/communications/emails?compose=1", icon: "mail", label: "Compose Email", description: "Templated or custom" },
+    perms.crm.add && { href: "/portal/admin/crm?new=1", icon: "trendingUp", label: "Add Prospect", description: "New pipeline lead" },
+    perms.tasks.add && { href: "/portal/admin/tasks", icon: "check", label: "New Task", description: "Assign ops work" },
+    perms.missions.view && { href: "/portal/admin/calendar", icon: "calendar", label: "Ops Calendar", description: "Departures by day" },
+  ].filter(Boolean) as { href: string; icon: string; label: string; description: string }[];
 
   const headerCounts = [
     perms.missions.view ? `${metrics.activeMissions} active` : null,
@@ -154,6 +225,35 @@ export default async function AdminDashboardPage() {
           ) : null}
         </div>
       </div>
+
+      {quickStats.length > 0 ? (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+          {quickStats.map((stat) => (
+            <StatCard
+              key={stat.label}
+              label={stat.label}
+              value={stat.value}
+              href={stat.href}
+              icon={stat.icon}
+              tone={stat.tone}
+            />
+          ))}
+        </div>
+      ) : null}
+
+      {quickActions.length > 0 ? (
+        <SectionCard title="Quick Actions" icon="zap" bodyClassName="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {quickActions.map((action) => (
+            <QuickLink
+              key={action.href}
+              href={action.href}
+              icon={action.icon}
+              label={action.label}
+              description={action.description}
+            />
+          ))}
+        </SectionCard>
+      ) : null}
 
       {/* Mission flow band — the pipeline the whole portal is organized around.
           On phones it becomes one horizontal scroll strip so the stage arrows

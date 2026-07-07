@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Loader2, Search, X } from "lucide-react";
 
@@ -36,11 +37,16 @@ export function CommandPalette() {
   }, []);
 
   useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 30);
-    else {
-      setQuery("");
-      setResults([]);
+    if (open) {
+      setTimeout(() => inputRef.current?.focus(), 30);
+      const { overflow } = document.body.style;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = overflow;
+      };
     }
+    setQuery("");
+    setResults([]);
   }, [open]);
 
   const search = useCallback((value: string) => {
@@ -106,9 +112,9 @@ export function CommandPalette() {
         </kbd>
       </button>
 
-      {open ? (
+      {open ? createPortal(
         <div
-          className="fixed inset-0 z-[70] flex items-start justify-center bg-[rgba(10,19,34,0.55)] p-4 pt-[12vh] backdrop-blur-sm"
+          className="fixed inset-0 z-[95] flex items-start justify-center bg-[rgba(10,19,34,0.55)] p-4 pt-[12vh] backdrop-blur-sm"
           onClick={() => setOpen(false)}
           role="dialog"
           aria-modal="true"
@@ -203,7 +209,8 @@ export function CommandPalette() {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       ) : null}
     </>
   );

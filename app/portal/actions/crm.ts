@@ -414,3 +414,71 @@ export async function createLeadFromSubmission(formData: FormData) {
   revalidatePath(BOARD);
   redirect(`${leadPath(lead.id)}?success=created`);
 }
+
+/** Schedule a pipeline email for later delivery (dispatched by cron / pipeline loads). */
+export async function scheduleLeadEmailAction(formData: FormData) {
+  const admin = await actor(["admin"], "crm.edit");
+  const leadId = str(formData, "lead_id");
+  const backTo = safeRedirectPath(str(formData, "back_to"), leadId ? leadPath(leadId) : BOARD);
+  const separator = backTo.includes("?") ? "&" : "?";
+
+  const recipient = str(formData, "recipient_email").trim().toLowerCase();
+  const subject = str(formData, "subject").trim();
+  const body = str(formData, "body").trim();
+  const sendAtRaw = str(formData, "send_at").trim();
+  const sendAt = sendAtRaw ? new Date(sendAtRaw) : null;
+  if (!leadId || !recipient || !subject || !body || !sendAt || Number.isNaN(sendAt.getTime())) {
+    redirect(`${backTo}${separator}email_error=schedule-validation`);
+  }
+  if (sendAt!.getTime() < Date.now() + 60 * 1000) {
+    redirect(`${backTo}${separator}email_error=schedule-past`);
+  }
+
+  const db = await createServiceClient();
+  const { error } = await db.from("scheduled_emails").insert({
+    lead_id: leadId,
+    recipient_email: recipient,
+    subject: subject.slice(0, 300),
+    body: body.slice(0, 10000),
+    send_at: sendAt!.toISOString(),
+    created_by: admin.id,
+  });
+  if (error) redirect(`${backTo}${separator}email_error=schedule-save`);
+
+  await logAuditEvent({
+    actor: admin,
+    action: "email_scheduled",
+    detail: `Scheduled "${subject}" to ${recipient} for ${sendAt!.toISOString()}`,
+    entityType: "crm_lead",
+    entityId: leadId,
+  });
+  revalidatePath(BOARD);
+  redirect(`${backTo}${separator}email=scheduled`);
+}
+
+/** Cancel a scheduled email that has not been sent yet. */
+export async function cancelScheduledEmailAction(formData: FormData) {
+  const admin = await actor(["admin"], "crm.edit");
+  const id = str(formData, "scheduled_id");
+  const backTo = safeRedirectPath(str(formData, "back_to"), BOARD);
+  const separator = backTo.includes("?") ? "&" : "?";
+  const db = await createServiceClient();
+  const { data, error } = await db
+    .from("scheduled_emails")
+    .update({ status: "cancelled" })
+    .eq("id", id)
+    .eq("status", "scheduled")
+    .select("subject, recipient_email")
+    .maybeSingle();
+  if (error || !data) redirect(`${backTo}${separator}email_error=schedule-cancel`);
+
+  await logAuditEvent({
+    actor: admin,
+    action: "scheduled_email_cancelled",
+    detail: `Cancelled scheduled email "${data!.subject}" to ${data!.recipient_email}`,
+    entityType: "scheduled_email",
+    entityId: id,
+  });
+  revalidatePath(BOARD);
+  redirect(`${backTo}${separator}email=schedule-cancelled`);
+}
