@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
+import { formatCrewComplianceBlockers, listCrewComplianceIssues } from "@/lib/portal/mission-lifecycle";
 import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
 import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
 import { normalizeDocumentCategory } from "@/lib/compliance/document-classification";
@@ -26,6 +27,22 @@ export async function respondToAssignment(formData: FormData) {
   const decision = str(formData, "decision"); // accepted | declined
   const status = decision === "accepted" ? "accepted" : "declined";
 
+  // Movement gate on the primary assignment path: an acceptance is what moves
+  // the mission to crew_assigned, so the same insurance/credential compliance
+  // check that guards status transitions and pool decisions applies here.
+  if (status === "accepted") {
+    const issues = await listCrewComplianceIssues(db, [user.id]);
+    if (issues.length) {
+      const blockers = formatCrewComplianceBlockers(issues).join("; ");
+      await notifyAdmins({
+        title: `Crew acceptance blocked — compliance issue`,
+        body: `${user.name} tried to accept an assignment but is not assignment-ready: ${blockers}. Resolve insurance/credentials, then re-offer.`,
+        type: "assignment_response",
+      });
+      redirect("/portal/crew/missions?error=compliance");
+    }
+  }
+
   const { data: assignment } = await db
     .from("mission_crew_assignments")
     .update({ status, responded_at: new Date().toISOString() })
@@ -41,10 +58,15 @@ export async function respondToAssignment(formData: FormData) {
       .eq("id", assignment.mission_id)
       .maybeSingle();
     if (status === "accepted") {
+      // Predicate on the write: only an approved mission moves to
+      // crew_assigned. A stale offer accepted after the mission progressed
+      // (scheduled/in_progress) must not regress it or steal assigned_crew_id
+      // — the acceptance itself still stands as an additional crew member.
       await db
         .from("missions")
         .update({ assigned_crew_id: user.id, status: "crew_assigned" })
-        .eq("id", assignment.mission_id);
+        .eq("id", assignment.mission_id)
+        .eq("status", "approved");
     } else if (mission?.assigned_crew_id === user.id) {
       // The mission's confirmed pilot backed out: clear the assignment and
       // revert to approved so ops can re-crew. The status predicate is on the

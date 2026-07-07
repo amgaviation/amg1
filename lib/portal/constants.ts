@@ -592,6 +592,7 @@ export const PAYMENT_METHODS = [
   { value: "ach", label: "ACH" },
   { value: "check", label: "Check" },
   { value: "cash", label: "Cash" },
+  { value: "credit", label: "Plan Credit" },
   { value: "other", label: "Other" },
   { value: "manual", label: "Manual" },
 ];

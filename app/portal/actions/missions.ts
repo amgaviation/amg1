@@ -6,6 +6,15 @@ import { createServiceClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { logAuditEvent, notifyAdmins, notifyUser } from "@/lib/portal/audit";
 import { MISSION_STATUS, MISSION_TYPE_LABEL } from "@/lib/portal/constants";
+import {
+  MIN_GATE_OVERRIDE_REASON_LENGTH,
+  canTransition,
+  checkMissionGates,
+  formatCrewComplianceBlockers,
+  gateNameFor,
+  isTerminalMissionStatus,
+  listCrewComplianceIssues,
+} from "@/lib/portal/mission-lifecycle";
 import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
 import { recordComplianceEvidence, recordSupportRequestDisclaimerAcknowledgment } from "@/lib/compliance/evidence";
 import { detectProhibitedPaymentData } from "@/lib/compliance/payment-data-guard";
@@ -256,10 +265,37 @@ export async function updateMissionStatus(formData: FormData) {
   const missionId = str(formData, "mission_id");
   const status = str(formData, "status");
   const internalNote = str(formData, "internal_notes");
+  const overrideReason = str(formData, "override_reason");
   if (!missionId || !status) redirect("/portal/admin/mission-control?error=missing");
   // A malformed submission must not write a status no surface can render.
   if (!MISSION_STATUS.some((s) => s.value === status)) {
     redirect("/portal/admin/mission-control?error=invalid-status");
+  }
+
+  const backTo = `/portal/admin/trips/${missionId}`;
+  const { data: current } = await db
+    .from("missions")
+    .select("status")
+    .eq("id", missionId)
+    .maybeSingle();
+  if (!current) redirect("/portal/admin/mission-control?error=missing");
+
+  // Same-status submits stay legal — admins use this form to save an
+  // internal note without moving the mission.
+  const isTransition = current!.status !== status;
+  if (isTransition && !canTransition(current!.status, status)) {
+    redirect(`${backTo}?error=illegal-transition&from=${current!.status}&to=${status}`);
+  }
+
+  // Enforced gates: insurance confirmed before movement, closeout file
+  // completeness before completed. Blockers stop the transition unless the
+  // admin records an explicit override reason; warnings never block.
+  const gates = isTransition
+    ? await checkMissionGates(db, missionId, status)
+    : { blockers: [], warnings: [] };
+  const overridden = gates.blockers.length > 0;
+  if (overridden && overrideReason.length < MIN_GATE_OVERRIDE_REASON_LENGTH) {
+    redirect(`${backTo}?error=gate-blocked&gate=${gateNameFor(status) ?? "mission"}`);
   }
 
   const patch: Database["public"]["Tables"]["missions"]["Update"] = { status };
@@ -273,40 +309,71 @@ export async function updateMissionStatus(formData: FormData) {
     .single();
 
   let notificationClientId = mission?.client_id ?? null;
-  if (status === "under_review") {
+  if (isTransition && status === "under_review") {
     notificationClientId = (await ensureClientAccountForMission(missionId, user.id)) ?? notificationClientId;
   }
-  if (status === "completed") {
+  if (isTransition && status === "completed") {
     await logCompletedMissionUsage(db as any, missionId, user);
     revalidatePath("/portal/admin/subscriptions");
     revalidatePath("/portal/client/subscriptions");
   }
 
-  await logAuditEvent({
-    actor: user,
-    action: "mission_status_changed",
-    detail: `${mission?.ref ?? missionId} → ${status}`,
-    entityType: "mission",
-    entityId: missionId,
-  });
-  if (notificationClientId) {
-    await notifyUser({
-      userId: notificationClientId,
-      title: "Mission status updated",
-      body: `${mission?.ref ?? "Your AMG request"} is now ${status.replace(/_/g, " ")}.`,
-      type: "mission_status",
+  if (overridden) {
+    // Loud, explicit trail: the override is its own audit event and every
+    // admin is notified, so a forced gate never passes quietly.
+    await logAuditEvent({
+      actor: user,
+      action: "mission_gate_overridden",
+      detail: `${mission?.ref ?? missionId}: ${current!.status} → ${status} forced past ${gates.blockers.length} blocker(s): ${gates.blockers.join("; ")} — Override reason: ${overrideReason}`,
+      entityType: "mission",
+      entityId: missionId,
+    });
+    await notifyAdmins({
+      title: `Gate override — ${mission?.ref ?? "mission"} moved to ${status.replace(/_/g, " ")}`,
+      body: `${user.name} overrode ${gates.blockers.length} readiness blocker(s) on ${mission?.ref ?? missionId}: ${gates.blockers.join("; ")}. Reason: ${overrideReason}`,
+      type: "mission_gate_overridden",
       entityType: "mission",
       entityId: missionId,
     });
   }
 
-  await notifyMissionContactByEmail({
-    missionId,
-    title: "Mission status updated",
-    eventLabel: "Status Update",
-    intro: `${mission?.ref ?? "Your AMG request"} is now ${status.replace(/_/g, " ")}.`,
-    details: [{ label: "New Status", value: status.replace(/_/g, " ") }],
-  });
+  // A same-status submit is a note save: no status-change audit, no client
+  // push, no client email — those fire only on real transitions.
+  if (isTransition) {
+    await logAuditEvent({
+      actor: user,
+      action: "mission_status_changed",
+      detail: `${mission?.ref ?? missionId} → ${status}${gates.warnings.length ? ` (warnings: ${gates.warnings.join("; ")})` : ""}`,
+      entityType: "mission",
+      entityId: missionId,
+    });
+    if (notificationClientId) {
+      await notifyUser({
+        userId: notificationClientId,
+        title: "Mission status updated",
+        body: `${mission?.ref ?? "Your AMG request"} is now ${status.replace(/_/g, " ")}.`,
+        type: "mission_status",
+        entityType: "mission",
+        entityId: missionId,
+      });
+    }
+
+    await notifyMissionContactByEmail({
+      missionId,
+      title: "Mission status updated",
+      eventLabel: "Status Update",
+      intro: `${mission?.ref ?? "Your AMG request"} is now ${status.replace(/_/g, " ")}.`,
+      details: [{ label: "New Status", value: status.replace(/_/g, " ") }],
+    });
+  } else if (internalNote) {
+    await logAuditEvent({
+      actor: user,
+      action: "mission_note_saved",
+      detail: `${mission?.ref ?? missionId}: internal note updated (status unchanged: ${status})`,
+      entityType: "mission",
+      entityId: missionId,
+    });
+  }
 
   revalidatePath("/portal/admin/mission-control");
   revalidatePath(`/portal/admin/trips/${missionId}`);
@@ -348,6 +415,20 @@ export async function cancelMission(formData: FormData) {
   if (!mission) redirect("/portal/client/trips?error=notfound");
   if (user.role !== "admin" && mission.client_id !== user.id) {
     redirect("/portal/client/trips?error=forbidden");
+  }
+
+  // Cancel is legal from any non-terminal status and is never gate-blocked —
+  // ops must always be able to stand a mission down. Completed/cancelled
+  // missions are immutable history.
+  if (isTerminalMissionStatus(mission.status)) {
+    const errorBase = user.role === "admin" ? "/portal/admin/trips" : "/portal/client/trips";
+    redirect(`${errorBase}/${missionId}?error=illegal-transition&from=${mission.status}&to=cancelled`);
+  }
+  // Once crew are committed or the aircraft is moving, a stand-down is an
+  // ops decision — clients request it through AMG instead of one-clicking a
+  // mission out from under an assigned pilot.
+  if (user.role !== "admin" && ["crew_assigned", "scheduled", "in_progress"].includes(mission.status)) {
+    redirect(`/portal/client/trips/${missionId}?error=cancel-requires-ops`);
   }
 
   await db.from("missions").update({ status: "cancelled" }).eq("id", missionId);
@@ -585,6 +666,20 @@ export async function decideCrewPoolRequest(formData: FormData) {
     redirect(`/portal/admin/trips/${missionId}?error=request-decided`);
   }
 
+  // MOVEMENT GATE (crew edition): approval commits this crew member to the
+  // mission, so their insurance approval + credential currency are checked
+  // before anything is written. Same override pattern as status changes.
+  const overrideReason = str(formData, "override_reason");
+  let crewBlockers: string[] = [];
+  if (decision === "approved") {
+    crewBlockers = formatCrewComplianceBlockers(
+      await listCrewComplianceIssues(db, [request!.crew_id as string])
+    );
+    if (crewBlockers.length && overrideReason.length < MIN_GATE_OVERRIDE_REASON_LENGTH) {
+      redirect(`/portal/admin/trips/${missionId}?error=gate-blocked&gate=crew`);
+    }
+  }
+
   await db
     .from("mission_crew_requests")
     .update({
@@ -644,6 +739,25 @@ export async function decideCrewPoolRequest(formData: FormData) {
         "AMG Operations has confirmed a crew assignment for your mission. We will continue coordinating the remaining operational details and will contact you if additional information is required.",
       details: [{ label: "Crew Status", value: "Confirmed" }],
     });
+
+    if (crewBlockers.length) {
+      // Loud override trail — mirrors updateMissionStatus so every forced
+      // gate is auditable and visible to the whole admin team.
+      await logAuditEvent({
+        actor: admin,
+        action: "mission_gate_overridden",
+        detail: `${missionRef}: crew pool approval forced past ${crewBlockers.length} blocker(s): ${crewBlockers.join("; ")} — Override reason: ${overrideReason}`,
+        entityType: "mission",
+        entityId: missionId,
+      });
+      await notifyAdmins({
+        title: `Gate override — crew approved on ${missionRef}`,
+        body: `${admin.name} approved a crew pool request on ${missionRef} over ${crewBlockers.length} readiness blocker(s): ${crewBlockers.join("; ")}. Reason: ${overrideReason}`,
+        type: "mission_gate_overridden",
+        entityType: "mission",
+        entityId: missionId,
+      });
+    }
   } else {
     await notifyUser({
       userId: request!.crew_id,

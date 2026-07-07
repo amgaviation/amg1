@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { addSubscriptionCredit, addSubscriptionUsage, cancelStripeSubscriptionAtPeriodEnd, ignoreNeedsReviewSubscription, linkNeedsReviewSubscription, refreshStripeSubscription, resendSubscriptionSetupLink, updateSubscriptionStatus } from "@/app/portal/actions/subscriptions";
+import { resolvePriceMismatch } from "@/app/portal/actions/subscription-sync";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { ClientPickerField } from "@/components/portal/ui/combobox";
@@ -37,12 +38,50 @@ export default async function AdminSubscriptionDetailPage({
   );
   const creditTotal = subscription.credits.reduce((sum, credit) => sum + Number(credit.amount ?? 0), 0);
   const dashboardUrl = stripeDashboardSubscriptionUrl(subscription.stripe_subscription_id);
+  const priceMismatchHold =
+    subscription.stripe_sync_status === "price_mismatch" ||
+    (subscription.stripe_sync_status === "needs_review" && Boolean(subscription.stripe_sync_warning));
 
   return (
     <>
-      {flash.success ? <Notice tone="success">Subscription updated.</Notice> : null}
-      {flash.error ? <Notice tone="danger">Subscription action could not be completed.</Notice> : null}
-      {subscription.stripe_sync_warning ? <Notice tone={subscription.stripe_sync_status === "pending_checkout" ? "warn" : "danger"}>{subscription.stripe_sync_warning}</Notice> : null}
+      {flash.success === "price-adopted" ? (
+        <Notice tone="success">Stripe price adopted — the portal record now matches what Stripe is billing.</Notice>
+      ) : flash.success === "price-kept" ? (
+        <Notice tone="success">Portal price kept. Correct the price in Stripe; the record stays flagged until a matching event arrives.</Notice>
+      ) : flash.success ? (
+        <Notice tone="success">Subscription updated.</Notice>
+      ) : null}
+      {flash.error === "stripe_mode" ? (
+        <Notice tone="danger">
+          This subscription was created in the other Stripe mode (test vs live) than the
+          configured key — it cannot be resolved against the current environment.
+        </Notice>
+      ) : flash.error === "stripe_error" ? (
+        <Notice tone="danger">Stripe could not be reached to adopt the price. Nothing was changed — try again.</Notice>
+      ) : flash.error ? (
+        <Notice tone="danger">Subscription action could not be completed.</Notice>
+      ) : null}
+      {priceMismatchHold ? (
+        <Notice tone={subscription.stripe_sync_status === "price_mismatch" ? "danger" : "warn"}>
+          <div className="space-y-3">
+            <p>{subscription.stripe_sync_warning ?? "Stripe price does not match the mapped AMG plan."}</p>
+            <div className="flex flex-wrap gap-2">
+              <form action={resolvePriceMismatch}>
+                <input type="hidden" name="subscription_id" value={subscription.id} />
+                <input type="hidden" name="resolution" value="accept_stripe" />
+                <SubmitButton confirm="Adopt Stripe's price into the portal record? This accepts the amount Stripe is actually billing as correct." pendingText="Adopting...">Adopt Stripe price</SubmitButton>
+              </form>
+              <form action={resolvePriceMismatch}>
+                <input type="hidden" name="subscription_id" value={subscription.id} />
+                <input type="hidden" name="resolution" value="keep_local" />
+                <SubmitButton variant="outline" pendingText="Saving...">Keep portal price — needs Stripe fix</SubmitButton>
+              </form>
+            </div>
+          </div>
+        </Notice>
+      ) : subscription.stripe_sync_warning ? (
+        <Notice tone={subscription.stripe_sync_status === "pending_checkout" ? "warn" : "danger"}>{subscription.stripe_sync_warning}</Notice>
+      ) : null}
       {(subscription as any).is_test ? (
         <Notice tone="warn">
           TEST subscription — Stripe test mode only. Excluded from revenue metrics and client views; remove it via “Delete All Test Subscriptions” on the Subscriptions page.
@@ -180,7 +219,7 @@ export default async function AdminSubscriptionDetailPage({
             </div>
           </SectionCard>
 
-          {subscription.stripe_sync_status === "needs_review" || !subscription.client_id ? (
+          {(subscription.stripe_sync_status === "needs_review" && !priceMismatchHold) || !subscription.client_id ? (
             <SectionCard title="Needs Review" icon="building">
               <form action={linkNeedsReviewSubscription} className="space-y-4">
                 <input type="hidden" name="subscription_id" value={subscription.id} />

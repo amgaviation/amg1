@@ -137,3 +137,27 @@ between each landing:
 
 **Deferred to owner:** xlsx swap to SheetJS's patched CDN build — sandbox correctly refused an
 agent-initiated external tarball install; it's a one-line package.json change (details in FINDINGS.md).
+
+---
+
+## Addendum 3 — large-features cycle (session 2, user-directed)
+
+User instruction: "larger portal features." The two remaining P1 business gaps plus two more, all
+zero-schema (prerequisite columns verified against prod first), each adversarially reviewed:
+
+1. **Subscription credit lifecycle** (closes P1 E-1-01): credits now actually reach invoices — an
+   admin applies available credit as an audited "credit" payment (payments.add authority) with
+   immutable ledger history and crash-safe write ordering; unused credits expire nightly with
+   idempotent offsets; balance drift is detected and alerted instead of silently accumulating.
+2. **Mission state machine + gates** (closes P1 E-1-04): illegal transitions rejected everywhere
+   (including sibling writers like quote creation), the insurance gate now guards ALL three paths to
+   crew commitment (offer, accept, pool decision) plus movement statuses, closeout requires an
+   invoice, and a 10-char-minimum override reason produces a loud audit + admin notify. Trip detail
+   gained a Readiness panel. Client cancels are ops-mediated once crew are committed.
+3. **Stripe price-mismatch hold-and-confirm** (closes B-1-06): mismatches hold local pricing until an
+   admin explicitly adopts Stripe's price or keeps the portal's — every path that could fake-resolve
+   the hold (webhooks, invoice events, linking, ignoring) is guarded.
+4. **Route boundaries** (closes B-1-12): 32 portal segments got loading skeletons + error boundaries.
+
+Skeptic pass: 12 findings (3 HIGH) — all fixed, including a batch-starvation bug in the credit expiry
+sweep and a movement-gate bypass on the primary crew-assignment path.

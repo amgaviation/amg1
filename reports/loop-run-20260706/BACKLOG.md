@@ -23,3 +23,10 @@ payments authority (7), per-user overrides (8).
 - ✅ Crew lifecycle repair (B-1-02/B-1-03 + reviewDocument expiry) — built
 - ✅ A-1-05 asset cleanup + A-1-06 media loading (code-side) — done; video transcode still open (no ffmpeg)
 - Owner one-liner pending: xlsx → https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz in package.json
+
+## Status update — large-features cycle
+- ✅ Subscription credit drawdown + expiry (item 2 / E-1-01) — built (reconciliation job for drifted balances is a small follow-up)
+- ✅ Mission gates (item 3 / E-1-04) — built with audited override
+- ✅ Stripe price-mismatch hold (B-1-06) — built
+- ✅ Loading/error boundaries (B-1-12) — built
+Remaining top items: crew mission-pay tracking (schema), per-user permission overrides (schema), /contact page (owner), tax computation (owner rules).

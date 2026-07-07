@@ -154,7 +154,13 @@ export async function createQuote(formData: FormData) {
       .insert(items.map((it) => ({ ...it, quote_id: quote.id })));
   }
   if (missionId) {
-    await db.from("missions").update({ status: "quoted" }).eq("id", missionId);
+    // Only pull the mission to 'quoted' from intake states — a supplemental
+    // quote on a moving/in-flight mission must not drag it backward.
+    await db
+      .from("missions")
+      .update({ status: "quoted" })
+      .eq("id", missionId)
+      .in("status", ["submitted", "under_review", "awaiting_client_info"]);
   }
 
   await logAuditEvent({
@@ -433,7 +439,14 @@ export async function respondToQuote(formData: FormData) {
 
   let invoiceId: string | null = null;
   if (decision === "approved") {
-    if (quote.mission_id) await db.from("missions").update({ status: "approved" }).eq("id", quote.mission_id);
+    if (quote.mission_id) {
+      // Approval advances the mission only from its quote-pending states.
+      await db
+        .from("missions")
+        .update({ status: "approved" })
+        .eq("id", quote.mission_id)
+        .in("status", ["quoted", "under_review"]);
+    }
     const settings = await getBillingSettings();
     invoiceId = await createInvoiceDraftFromQuote({
       quoteId,

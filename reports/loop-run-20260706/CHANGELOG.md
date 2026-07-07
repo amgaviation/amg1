@@ -48,3 +48,14 @@ Public-site speed:
 - 137 MiB deleted from public/ (187→50 MB): 66 unreferenced/duplicate assets incl. 13MB intro source + amg-custom mirror; full manifest in asset-cleanup.md; tbm.jpg kept (earlier audit wrong — it IS referenced)
 - Video/image loading: hero video IO-gated + preload="none", showcase videos deferred to interaction, LCP image fetchPriority, lazy below-fold logos
 Deferred to owner: xlsx patched-build swap (sandbox correctly blocked external tarball install; one-line package.json change documented in FINDINGS)
+
+## Large-features cycle (user-directed, session 2 cont.)
+Built: subscription credit lifecycle (apply-to-invoice as audited 'credit' payment + cron expiry), mission
+state machine + insurance/closeout gates with audited override + Readiness panel, Stripe price-mismatch
+hold-and-confirm, loading/error boundaries for 32 segments.
+Adversarial review (3 skeptics, 12 findings — all addressed):
+- HIGH sync: keep-local hold laundered to synced via needs-review Link/ignore → hold predicate unified, card gated
+- HIGH gates: offer→accept path bypassed the movement gate entirely → compliance check at offer AND accept, status predicate on accept write
+- HIGH credits: expiry sweep batch permanently clogged by processed rows → originals annotated + excluded from candidates
+- MED: credit application now writes compliance evidence like every payment path; invoice-rollup failure unwinds the payment; balance-cap loop no longer strands smaller credits; clamp-at-zero drift alerts admins; same-status note saves no longer email clients; movement gate fails closed on read errors; accept_stripe wrapped + mode-guarded
+- LOW-MED: quote writers can no longer drag moving missions backward; client cancel restricted once crew committed (ops-request notice); re-notify noise after keep_local fixed; cadence switch zeroes the stale price column
