@@ -68,3 +68,9 @@ Branch: claude/new-session-mt12tj (designated session branch; plan's `loop/<date
   queries+pages, seed script. Phases 2-4 follow after phase-1 verify.
 - Branch deviation as before: all work lands on claude/new-session-mt12tj / PR #97 (session constraint),
   not per-phase branches.
+
+### Session 3 correction — PR tracking
+PR #97 was merged by the owner on 2026-07-06 19:45 UTC, and sessions 2–3 work through d236df4 was
+merged via PR #99. The dual-plan cycle (4 commits: c0d30e1 visual, 74e792d catalog, 4ee6266 records,
+450541d review fixes) therefore lands on NEW draft PR #100 — earlier notes saying "PR #97" for this
+cycle refer to it.
