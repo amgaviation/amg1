@@ -233,21 +233,26 @@ export async function signIn(formData: FormData) {
 
   const role: PortalRole = isPortalRole(profile.role) ? profile.role : "client";
 
-  try {
-    const svc = await createServiceClient();
-    await svc
-      .from("profiles")
-      .update({ last_login_at: new Date().toISOString() })
-      .eq("id", data.user.id);
-  } catch {
-    // non-fatal
-  }
-
-  await logAuditEvent({
-    actor: { id: data.user.id, email, role },
-    action: "user_login",
-    detail: "Signed in to portal",
-  });
+  // last_login stamp and the audit event are independent bookkeeping writes —
+  // run them concurrently so a successful login pays one round trip, not two.
+  await Promise.all([
+    (async () => {
+      try {
+        const svc = await createServiceClient();
+        await svc
+          .from("profiles")
+          .update({ last_login_at: new Date().toISOString() })
+          .eq("id", data.user.id);
+      } catch {
+        // non-fatal
+      }
+    })(),
+    logAuditEvent({
+      actor: { id: data.user.id, email, role },
+      action: "user_login",
+      detail: "Signed in to portal",
+    }),
+  ]);
 
   if (isApprovedPortalIntroStatus(profile.status)) {
     await markPortalIntroPending();
