@@ -37,7 +37,7 @@ export async function respondToAssignment(formData: FormData) {
   if (assignment?.mission_id) {
     const { data: mission } = await db
       .from("missions")
-      .select("ref")
+      .select("ref, assigned_crew_id, pool_published_at")
       .eq("id", assignment.mission_id)
       .maybeSingle();
     if (status === "accepted") {
@@ -45,6 +45,40 @@ export async function respondToAssignment(formData: FormData) {
         .from("missions")
         .update({ assigned_crew_id: user.id, status: "crew_assigned" })
         .eq("id", assignment.mission_id);
+    } else if (mission?.assigned_crew_id === user.id) {
+      // The mission's confirmed pilot backed out: clear the assignment and
+      // revert to approved so ops can re-crew. The status predicate is on the
+      // write so a concurrent admin status change is never clobbered. Re-open
+      // the pool only when the mission is still published (pool_published_at
+      // survives the auto-close on assignment; manual unpublish clears it).
+      const { data: reverted } = await db
+        .from("missions")
+        .update({
+          assigned_crew_id: null,
+          status: "approved",
+          ...(mission.pool_published_at ? { pool_visible: true } : {}),
+        })
+        .eq("id", assignment.mission_id)
+        .eq("assigned_crew_id", user.id)
+        .eq("status", "crew_assigned")
+        .select("id")
+        .maybeSingle();
+      if (reverted) {
+        await logAuditEvent({
+          actor: user,
+          action: "mission_assignment_reverted",
+          detail: `${mission.ref ?? assignment.mission_id} reverted to approved after ${user.name} declined post-assignment`,
+          entityType: "mission",
+          entityId: assignment.mission_id,
+        });
+        await notifyAdmins({
+          title: `Crew declined after assignment — ${mission.ref ?? assignment.mission_id} needs a new pilot`,
+          body: `${user.name} declined after being assigned. The mission was reverted to approved${mission.pool_published_at ? " and re-opened in the crew pool" : ""}.`,
+          type: "assignment_response",
+          entityType: "mission",
+          entityId: assignment.mission_id,
+        });
+      }
     }
     await logAuditEvent({
       actor: user,

@@ -31,9 +31,29 @@ export default function Hero() {
   // The sky video only mounts client-side and only when motion is allowed;
   // everyone else keeps the still stratosphere plate. `?fdstill` forces the
   // still plate (QA hook: hardware video overlays blind pixel-capture tools).
+  // The mount is additionally gated on the hero being in (or near) the
+  // viewport so a deep link below the fold never downloads the 6MB loop.
   useEffect(() => {
     const forceStill = window.location.search.includes("fdstill");
-    if (!prefersReducedMotion() && !forceStill) setPlaySky(true);
+    if (prefersReducedMotion() || forceStill) return;
+
+    const node = section.current;
+    if (!node || typeof IntersectionObserver === "undefined") {
+      setPlaySky(true);
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setPlaySky(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "25% 0px" }
+    );
+    io.observe(node);
+    return () => io.disconnect();
   }, []);
 
   useLayoutEffect(() => {
@@ -147,6 +167,7 @@ export default function Hero() {
               className="absolute inset-0 h-full w-full object-cover opacity-90"
               src="/videos/flightdeck/porthole-sky.mp4"
               poster="/images/flightdeck/stratosphere.webp"
+              preload="none"
               autoPlay
               muted
               loop
@@ -158,6 +179,7 @@ export default function Hero() {
             <img
               src="/images/flightdeck/stratosphere.webp"
               alt=""
+              fetchPriority="high"
               className="absolute inset-0 h-full w-full object-cover opacity-90"
             />
           )}

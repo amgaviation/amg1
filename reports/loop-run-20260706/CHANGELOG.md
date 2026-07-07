@@ -26,3 +26,25 @@
 - V-2-01: removed unreachable mark-paid dead code in updateInvoiceStatus (paid is guard-rejected; payments flow through audited paths only)
 - V-2-02: dashboard Business quick links now gated by module view permissions (completes C-P-01)
 - V-2-03: listAllMissions chunk fetch dedups by id (boundary-row duplication under concurrent inserts)
+
+## Feature cycle (user-directed continuation)
+- Built: nightly ops cron (/api/cron/nightly + vercel.json), CRM stale-lead queue, financial KPIs (turnaround/win rate/credit liability; margin honestly omitted — no cost column), awaiting_client_info client affordance
+- Adversarial review (4 skeptics, 11 findings — all addressed):
+  - P1 stale-subs flapping → staleness re-based on current_period_end + 7d grace
+  - P1 KPI cards frozen vs dashboard range picker → cards moved into the client dashboard state
+  - P2 cron read-then-write races → single guarded UPDATE…RETURNING everywhere; audits built from actually-flipped rows
+  - P2 first-run fan-out → 100/run credential cap + bounded notify concurrency (flip and notify travel together)
+  - P2 converted-quote wins missed → status 'converted' counts as win with updated_at windowing
+  - P2 client-info append race/unchecked write → status predicate on the write, error surfaced before audit/notify (+ error notice)
+  - P2 CRM 1000-row truncation → chunked fetch in listLeads + getPipelineMetrics
+  - P3s: pending_review left to human review queue; expiry counting data-driven (no cron dependency); liability excludes never-activated subscriptions
+
+## Features + speed cycle (user-directed, session 2)
+Portal features:
+- Crew assignment lifecycle (B-1-02/03): decline-after-assignment reverts mission to approved + reopens auto-closed pool; assignCrew never downgrades accepted crew; new admin unassignCrew action + Remove button; reviewDocument writes 'expired' not 'approved' for lapsed credentials
+- Payments authority module (E-P-01): catalog-only 'payments' module (defaults-resolved, no migration); recordInvoicePayment → payments.add; void/write-off/refund require payments.edit; payments page gated
+- Message unread state (B-1-11): per-thread unread badges + mark-read-on-open, derived from the notifications table (orchestrator caught that thread_members.last_read_at does NOT exist in prod — original finding was wrong; feature reworked, types file pristine)
+Public-site speed:
+- 137 MiB deleted from public/ (187→50 MB): 66 unreferenced/duplicate assets incl. 13MB intro source + amg-custom mirror; full manifest in asset-cleanup.md; tbm.jpg kept (earlier audit wrong — it IS referenced)
+- Video/image loading: hero video IO-gated + preload="none", showcase videos deferred to interaction, LCP image fetchPriority, lazy below-fold logos
+Deferred to owner: xlsx patched-build swap (sandbox correctly blocked external tarball install; one-line package.json change documented in FINDINGS)

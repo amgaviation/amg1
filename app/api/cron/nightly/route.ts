@@ -8,7 +8,8 @@ import { createServiceClient } from "@/lib/supabase/server";
 // 1. Flip past-due open invoices to "overdue".
 // 2. Flip past-expiry open quotes to "expired".
 // 3. Keep crew credential currency honest ("expiring" / "expired").
-// 4. Flag Stripe-synced subscriptions with no webhook activity in 7 days.
+// 4. Flag Stripe-synced subscriptions whose billing period lapsed 7+ days
+//    ago without a renewal event.
 // All mutations are audit-logged as the synthetic "system-cron" actor.
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -46,19 +47,17 @@ async function insertAuditRows(
 
 async function markInvoicesOverdue(db: SupabaseService, now: Date): Promise<number> {
   const today = now.toISOString().slice(0, 10);
+  // Single guarded UPDATE … RETURNING: the status predicate travels with the
+  // write, so a payment landing mid-run can never be clobbered to overdue,
+  // and the audit trail is built from the rows that actually flipped.
   const { data: invoices, error } = await db
     .from("invoices")
-    .select("id, invoice_number, due_date")
+    .update({ status: "overdue", updated_at: now.toISOString() })
     .in("status", ["sent", "viewed", "partially_paid"])
-    .lt("due_date", today);
+    .lt("due_date", today)
+    .select("id, invoice_number, due_date");
   if (error) throw new Error(error.message);
   if (!invoices?.length) return 0;
-
-  const { error: updateError } = await db
-    .from("invoices")
-    .update({ status: "overdue", updated_at: now.toISOString() })
-    .in("id", invoices.map((invoice) => invoice.id));
-  if (updateError) throw new Error(updateError.message);
 
   await insertAuditRows(
     db,
@@ -89,19 +88,15 @@ async function markInvoicesOverdue(db: SupabaseService, now: Date): Promise<numb
 }
 
 async function markQuotesExpired(db: SupabaseService, now: Date): Promise<number> {
+  // Guarded UPDATE … RETURNING — see markInvoicesOverdue.
   const { data: quotes, error } = await db
     .from("quotes")
-    .select("id, quote_number, ref, expires_at")
+    .update({ status: "expired", updated_at: now.toISOString() })
     .in("status", ["sent", "viewed"])
-    .lt("expires_at", now.toISOString());
+    .lt("expires_at", now.toISOString())
+    .select("id, quote_number, ref, expires_at");
   if (error) throw new Error(error.message);
   if (!quotes?.length) return 0;
-
-  const { error: updateError } = await db
-    .from("quotes")
-    .update({ status: "expired", updated_at: now.toISOString() })
-    .in("id", quotes.map((quote) => quote.id));
-  if (updateError) throw new Error(updateError.message);
 
   await insertAuditRows(
     db,
@@ -136,6 +131,13 @@ type CredentialRow = {
   status: string;
 };
 
+// Per-run ceiling: a large first-run backlog drains over successive nights
+// instead of firing hundreds of parallel email/SMS sends that the providers
+// would rate-limit into the void. Rows are only flipped when they are also
+// notified, so nothing is silently skipped.
+const CREDENTIAL_BATCH_LIMIT = 100;
+const NOTIFY_CONCURRENCY = 5;
+
 async function sweepCredentialCurrency(
   db: SupabaseService,
   now: Date
@@ -144,34 +146,50 @@ async function sweepCredentialCurrency(
   const soon = new Date(now.getTime() + 30 * DAY_MS).toISOString().slice(0, 10);
   const columns = "id, crew_id, credential_type, identifier, expiration_date, status";
 
+  // The cron only owns statuses it set or previously verified: approved and
+  // expiring. pending_review stays with the human review queue — flipping it
+  // here would race the admin's decision and double-notify the crew member.
+  const CRON_OWNED_STATUSES = ["approved", "expiring"];
+
   const [{ data: lapsed, error: lapsedError }, { data: nearing, error: nearingError }] =
     await Promise.all([
       db
         .from("crew_credentials")
         .select(columns)
         .lt("expiration_date", today)
-        .not("status", "in", "(expired,rejected,not_uploaded)"),
+        .in("status", CRON_OWNED_STATUSES)
+        .order("expiration_date", { ascending: true })
+        .limit(CREDENTIAL_BATCH_LIMIT),
       db
         .from("crew_credentials")
         .select(columns)
         .gte("expiration_date", today)
         .lte("expiration_date", soon)
-        .eq("status", "approved"),
+        .eq("status", "approved")
+        .order("expiration_date", { ascending: true })
+        .limit(CREDENTIAL_BATCH_LIMIT),
     ]);
   if (lapsedError) throw new Error(lapsedError.message);
   if (nearingError) throw new Error(nearingError.message);
 
   const transition = async (rows: CredentialRow[] | null, nextStatus: "expired" | "expiring") => {
     if (!rows?.length) return 0;
-    const { error } = await db
+    // Guarded write: only rows still in a cron-owned status flip, so an
+    // admin decision landing mid-run is never overwritten.
+    const { data: flipped, error } = await db
       .from("crew_credentials")
       .update({ status: nextStatus, updated_at: now.toISOString() })
-      .in("id", rows.map((row) => row.id));
+      .in("id", rows.map((row) => row.id))
+      .in("status", CRON_OWNED_STATUSES)
+      .select("id");
     if (error) throw new Error(error.message);
+    const flippedIds = new Set((flipped ?? []).map((row) => row.id));
+    const actuallyFlipped = rows.filter((row) => flippedIds.has(row.id));
+    if (!actuallyFlipped.length) return 0;
 
     await insertAuditRows(
       db,
-      rows.map((row) =>
+      actuallyFlipped.map((row) =>
         systemAuditRow({
           action: "credential_expiry_transition",
           detail: `${row.credential_type}${row.identifier ? ` (${row.identifier})` : ""} ${row.status} -> ${nextStatus} (expiration ${formatDate(row.expiration_date)}).`,
@@ -181,27 +199,30 @@ async function sweepCredentialCurrency(
       )
     );
 
-    await Promise.all(
-      rows.map((row) => {
-        const label = `${row.credential_type}${row.identifier ? ` (${row.identifier})` : ""}`;
-        return notifyUser({
-          userId: row.crew_id,
-          title:
-            nextStatus === "expired"
-              ? `Credential expired: ${row.credential_type}`
-              : `Credential expiring soon: ${row.credential_type}`,
-          body:
-            nextStatus === "expired"
-              ? `Your ${label} expired on ${formatDate(row.expiration_date)}. Upload the renewed document under Credentials in the Crew Portal to stay assignment-ready.`
-              : `Your ${label} expires on ${formatDate(row.expiration_date)}. Renew it and upload the updated document under Credentials in the Crew Portal before it lapses.`,
-          type: "credential_expiry",
-          entityType: "crew_credential",
-          entityId: row.id,
-        });
-      })
-    );
+    // Bounded concurrency so provider rate limits don't swallow the batch.
+    for (let i = 0; i < actuallyFlipped.length; i += NOTIFY_CONCURRENCY) {
+      await Promise.all(
+        actuallyFlipped.slice(i, i + NOTIFY_CONCURRENCY).map((row) => {
+          const label = `${row.credential_type}${row.identifier ? ` (${row.identifier})` : ""}`;
+          return notifyUser({
+            userId: row.crew_id,
+            title:
+              nextStatus === "expired"
+                ? `Credential expired: ${row.credential_type}`
+                : `Credential expiring soon: ${row.credential_type}`,
+            body:
+              nextStatus === "expired"
+                ? `Your ${label} expired on ${formatDate(row.expiration_date)}. Upload the renewed document under Credentials in the Crew Portal to stay assignment-ready.`
+                : `Your ${label} expires on ${formatDate(row.expiration_date)}. Renew it and upload the updated document under Credentials in the Crew Portal before it lapses.`,
+            type: "credential_expiry",
+            entityType: "crew_credential",
+            entityId: row.id,
+          });
+        })
+      );
+    }
 
-    return rows.length;
+    return actuallyFlipped.length;
   };
 
   const expired = await transition(lapsed, "expired");
@@ -220,28 +241,27 @@ async function sweepCredentialCurrency(
 }
 
 async function flagStaleSubscriptions(db: SupabaseService, now: Date): Promise<number> {
+  // Staleness must key off the BILLING CYCLE, not a flat event-age window: a
+  // healthy monthly subscription only produces Stripe events at renewal, so
+  // "no event in 7 days" would flap every healthy subscription to stale for
+  // most of each cycle. A subscription is genuinely suspect only when its
+  // current period ended 7+ days ago and no webhook has rolled it forward.
+  // `.lt` excludes NULL current_period_end by SQL semantics.
   const cutoff = new Date(now.getTime() - 7 * DAY_MS).toISOString();
-  // `.lt` on stripe_last_event_at excludes NULLs by SQL semantics, so rows
-  // that have never received a webhook are left alone.
   const { data: subscriptions, error } = await db
     .from("client_subscriptions")
-    .select("id")
+    .update({ stripe_sync_status: "stale", updated_at: now.toISOString() })
     .eq("stripe_sync_status", "synced")
     .in("status", ["active", "trialing", "past_due"])
-    .lt("stripe_last_event_at", cutoff);
+    .lt("current_period_end", cutoff)
+    .select("id");
   if (error) throw new Error(error.message);
   if (!subscriptions?.length) return 0;
-
-  const { error: updateError } = await db
-    .from("client_subscriptions")
-    .update({ stripe_sync_status: "stale", updated_at: now.toISOString() })
-    .in("id", subscriptions.map((subscription) => subscription.id));
-  if (updateError) throw new Error(updateError.message);
 
   await insertAuditRows(db, [
     systemAuditRow({
       action: "subscription_sync_marked_stale",
-      detail: `Marked ${subscriptions.length} Stripe-synced subscription(s) stale — no Stripe event in 7+ days: ${subscriptions
+      detail: `Marked ${subscriptions.length} Stripe-synced subscription(s) stale — current period ended 7+ days ago with no renewal event: ${subscriptions
         .map((subscription) => subscription.id)
         .join(", ")}.`,
       entityType: "client_subscription",

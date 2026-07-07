@@ -4,7 +4,7 @@ import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { postMessage } from "@/app/portal/actions/messages";
-import { isThreadMember } from "@/lib/portal/queries";
+import { isThreadMember, markThreadRead } from "@/lib/portal/queries";
 import { formatDateTime, initials } from "@/lib/portal/format";
 import {
   getThreadWithMessagesForDisplay,
@@ -20,6 +20,9 @@ export default async function CrewThreadPage({ params }: { params: Promise<{ id:
   if (!(await isThreadMember(id, user.id))) notFound();
   const result = await getThreadWithMessagesForDisplay(id);
   if (!result) notFound();
+
+  // Mark the thread read for this member (fire-and-forget on server side)
+  await markThreadRead(id, user.id).catch(() => null);
 
   return (
     <>

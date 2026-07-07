@@ -6,3 +6,20 @@
 - E-P-07b: notify-all-admins email on any permission change; optional dual-control approval for matrix saves. Effort: ~1-2 days / ~1 week
 - A-P-04: split nav href→module map into its own module if bundle analysis shows the full catalog shipping client-side. Effort: hours
 - C-P-06 (done as copy note) + richer idea: staged "preview as role" mode for the matrix. Effort: ~2-3 days
+
+## Status update — feature cycle (2026-07-06, user-directed continuation)
+BUILT this run (remove from future planning):
+- ✅ Nightly ops cron (item 1) — /api/cron/nightly + vercel.json; needs CRON_SECRET env to activate
+- ✅ CRM stale-lead queue (item 9 / E-1-12) — pipeline tile + ?stage=stale filter
+- ✅ Client "provide requested info" affordance (item 10 / B-1-09)
+- ✅ Financial KPIs, partial (item 5 / E-1-07): turnaround, win rate, credit liability shipped;
+     margin per mission + pilot utilization still open (margin needs a cost column — schema)
+Still open, unchanged: credit drawdown (2), mission gates (3), crew pay tracking (4), /contact form (6),
+payments authority (7), per-user overrides (8).
+
+## Status update — features+speed cycle (session 2)
+- ✅ Payments authority (item 7 / E-P-01) — built, catalog-only
+- ✅ Message thread read-state (B-1-11) — built on notifications (last_read_at column does not exist; finding premise corrected)
+- ✅ Crew lifecycle repair (B-1-02/B-1-03 + reviewDocument expiry) — built
+- ✅ A-1-05 asset cleanup + A-1-06 media loading (code-side) — done; video transcode still open (no ffmpeg)
+- Owner one-liner pending: xlsx → https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz in package.json

@@ -1123,9 +1123,26 @@ export async function assignCrew(formData: FormData) {
 
   if (!assignments.length) redirect(`/portal/admin/trips/${missionId}?error=missing`);
 
+  // Never downgrade crew who already accepted (or completed) this mission —
+  // the upsert would reset them to "offered". Only offer to the rest.
+  const { data: existingAssignments } = await db
+    .from("mission_crew_assignments")
+    .select("crew_id, status")
+    .eq("mission_id", missionId)
+    .in("crew_id", crewIds);
+
+  const lockedCrewIds = new Set(
+    (existingAssignments ?? [])
+      .filter((row) => row.status === "accepted" || row.status === "completed")
+      .map((row) => row.crew_id)
+  );
+  const offers = assignments.filter((assignment) => !lockedCrewIds.has(assignment.crew_id));
+
+  if (!offers.length) redirect(`/portal/admin/trips/${missionId}?error=no-new-offers`);
+
   await db
     .from("mission_crew_assignments")
-    .upsert(assignments, { onConflict: "mission_id,crew_id" });
+    .upsert(offers, { onConflict: "mission_id,crew_id" });
 
   const { data: mission } = await db
     .from("missions")
@@ -1136,12 +1153,12 @@ export async function assignCrew(formData: FormData) {
   await logAuditEvent({
     actor: admin,
     action: "crew_assigned",
-    detail: `Offered ${assignments.length} crew assignment(s) on ${mission?.ref ?? missionId}`,
+    detail: `Offered ${offers.length} crew assignment(s) on ${mission?.ref ?? missionId}`,
     entityType: "mission",
     entityId: missionId,
   });
 
-  for (const assignment of assignments) {
+  for (const assignment of offers) {
     await notifyUser({
       userId: assignment.crew_id,
       title: "New mission offer",
@@ -1159,13 +1176,76 @@ export async function assignCrew(formData: FormData) {
     intro:
       "AMG Operations has started the crew assignment process for your request. Crew members have been offered the mission and AMG will continue coordinating availability and operational readiness.",
     details: [
-      { label: "Crew Offers Sent", value: assignments.length },
-      { label: "Crew Roles", value: assignments.map((item) => item.crew_role.toUpperCase()).join(", ") },
+      { label: "Crew Offers Sent", value: offers.length },
+      { label: "Crew Roles", value: offers.map((item) => item.crew_role.toUpperCase()).join(", ") },
     ],
   });
 
   revalidatePath(`/portal/admin/trips/${missionId}`);
   redirect(`/portal/admin/trips/${missionId}?success=crew`);
+}
+
+/**
+ * Remove a crew member from a mission. Marks the assignment "removed" and,
+ * when they were the mission's confirmed pilot, clears assigned_crew_id and
+ * reverts the mission from crew_assigned back to approved so ops can re-crew.
+ */
+export async function unassignCrew(formData: FormData) {
+  const admin = await actor(["admin"], "missions.edit");
+  const db = await createServiceClient();
+  const missionId = str(formData, "mission_id");
+  const crewId = str(formData, "crew_id");
+  const reason = str(formData, "reason");
+
+  if (!missionId || !crewId) redirect(`/portal/admin/trips/${missionId}?error=missing`);
+
+  const { data: removed } = await db
+    .from("mission_crew_assignments")
+    .update({ status: "removed" })
+    .eq("mission_id", missionId)
+    .eq("crew_id", crewId)
+    .in("status", ["offered", "accepted"])
+    .select("id")
+    .maybeSingle();
+
+  if (!removed) redirect(`/portal/admin/trips/${missionId}?error=unassign`);
+
+  const { data: mission } = await db
+    .from("missions")
+    .select("ref, assigned_crew_id")
+    .eq("id", missionId)
+    .maybeSingle();
+
+  if (mission?.assigned_crew_id === crewId) {
+    // Status predicate on the write so a concurrent admin status change is
+    // never clobbered.
+    await db
+      .from("missions")
+      .update({ assigned_crew_id: null, status: "approved" })
+      .eq("id", missionId)
+      .eq("assigned_crew_id", crewId)
+      .eq("status", "crew_assigned");
+  }
+
+  await logAuditEvent({
+    actor: admin,
+    action: "crew_unassigned",
+    detail: `Removed crew ${crewId} from ${mission?.ref ?? missionId}${reason ? ` — ${reason}` : ""}`,
+    entityType: "mission",
+    entityId: missionId,
+  });
+
+  await notifyUser({
+    userId: crewId,
+    title: `You were removed from ${mission?.ref ?? "a mission"}`,
+    body: `You were removed from ${mission?.ref ?? "the mission"}.${reason ? ` Reason: ${reason}` : ""}`,
+    type: "crew_unassigned",
+    entityType: "mission",
+    entityId: missionId,
+  });
+
+  revalidatePath(`/portal/admin/trips/${missionId}`);
+  redirect(`/portal/admin/trips/${missionId}?success=crew-unassigned`);
 }
 
 export async function assignPartner(formData: FormData) {
@@ -1802,18 +1882,46 @@ export async function reviewDocument(formData: FormData) {
     })
     .eq("id", docId);
 
+  // A credential whose expiration date has already passed can be reviewed,
+  // but must not come out "approved" — record it as expired instead so it
+  // reads as needing renewal.
+  const { data: credential } = await db
+    .from("crew_credentials")
+    .select("id, crew_id, credential_type, expiration_date")
+    .eq("document_id", docId)
+    .maybeSingle();
+
+  const credentialExpired =
+    decision === "approved" &&
+    Boolean(credential?.expiration_date) &&
+    credential.expiration_date < new Date().toISOString().slice(0, 10);
+
   await db
     .from("crew_credentials")
-    .update({ status: decision === "approved" ? "approved" : "rejected", reviewed_by: admin.id })
+    .update({
+      status: decision === "approved" ? (credentialExpired ? "expired" : "approved") : "rejected",
+      reviewed_by: admin.id,
+    })
     .eq("document_id", docId);
 
   await logAuditEvent({
     actor: admin,
     action: decision === "approved" ? "document_approved" : "document_rejected",
-    detail: `${decision} document ${docId}`,
+    detail: `${decision} document ${docId}${credentialExpired ? " (credential expired — renewal required)" : ""}`,
     entityType: "document",
     entityId: docId,
   });
+
+  if (credentialExpired && credential?.crew_id) {
+    await notifyUser({
+      userId: credential.crew_id,
+      title: "Credential reviewed — renewal required",
+      body: `Your ${credential.credential_type ?? "credential"} document was reviewed, but the credential expired on ${credential.expiration_date} and needs to be renewed before it can be approved.`,
+      type: "credential_review",
+      entityType: "credential",
+      entityId: credential.id,
+    });
+  }
 
   revalidatePath("/portal/admin/documents");
   redirect("/portal/admin/documents?success=reviewed");

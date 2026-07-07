@@ -84,6 +84,8 @@ export default function Services() {
                 alt="AMG"
                 width="1110"
                 height="242"
+                loading="lazy"
+                decoding="async"
                 className="h-5 w-auto"
               />
               <p className="microlabel mt-1.5">Aircraft support coordination</p>

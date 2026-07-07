@@ -36,3 +36,15 @@ Branch: claude/new-session-mt12tj (designated session branch; plan's `loop/<date
   F3 financial KPIs (turnaround, win rate, margin, credit liability), F4 awaiting-info client affordance.
 - Budget note: original T+120 window nearly consumed by wall-clock gaps between wakeups; treating the
   user instruction as a bounded extension (~1 feature cycle + review + wind-down).
+- feature cycle: implementation committed 5a3c428; adversarial review (11 findings) fixed; verify green; final commit + push; PR updated
+
+## Features+speed cycle (user-directed, session 2)
+- Focus per user: portal features + public-site speed/optimization. Five agents dispatched:
+  P1 crew-assignment lifecycle, P2 message read-state (uses existing thread_members.last_read_at),
+  P3 payments authority module, W1 public asset cleanup (DB-reference check done first: none),
+  W2 media loading optimization. Inline: xlsx CDN-pin blocked by sandbox → deferred to owner (FINDINGS).
+- P3 done: payments module (catalog-only, defaults-resolved), recordInvoicePayment → payments.add,
+  void/write-off/refund additionally require payments.edit, payments page guard swapped. tsc clean.
+- P1 done (crew lifecycle, guarded writes, pool re-open nuance, reviewDocument expiry). W2 done (video/image loading). W1 done: 66 files, 137 MiB freed (public/ 187→50 MB); spot-check clean; corrected earlier audit's tbm.jpg claim.
+- CRITICAL orchestrator catch: thread_members.last_read_at does NOT exist in prod (B-1-11 premise false; P2 hand-added it to types). P2 re-briefed: rework unread state on notifications table (type=message/entity=thread), revert types edit. Awaiting rework.
+- W2's portal intro preload flag investigated and REJECTED: intro video only mounts when actually playing (PortalIntroGate), preload="auto" is correct there.

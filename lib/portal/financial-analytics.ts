@@ -628,11 +628,31 @@ export async function getFinancialAnalytics(filters: FinancialAnalyticsFilters =
   const quoteValue = inRangeQuotes.reduce((sum, quote) => sum + dollars(quote.total), 0);
   const approvedQuoteValue = inRangeQuotes.filter((quote) => ["approved", "accepted", "converted"].includes(quote.status)).reduce((sum, quote) => sum + dollars(quote.total), 0);
 
-  // Quote KPIs use resolution timestamps: approved_at survives conversion, rejected_at is set on
-  // rejection, and the nightly cron flips past-expiry quotes to "expired" at expires_at.
-  const approvedQuotesInRange = quotes.filter((quote) => isBetween(quote.approved_at, dateRange.from, dateRange.to));
+  // Quote KPIs use resolution facts, not just timestamps the happy path sets:
+  // - Wins: approved_at when present; a quote converted straight to invoice
+  //   without a client approval (admin "create + send") never gets
+  //   approved_at, so status "converted" counts as a win windowed on its
+  //   updated_at fallback — otherwise verbal-approval deals vanish from the
+  //   numerator while losses still count.
+  // - Expiries are data-driven (expires_at in the past) rather than relying
+  //   on the nightly cron having flipped status, so the rate is correct even
+  //   before CRON_SECRET is configured and for same-day windows.
+  const approvedQuotesInRange = quotes.filter((quote) =>
+    quote.approved_at
+      ? isBetween(quote.approved_at, dateRange.from, dateRange.to)
+      : quote.status === "converted" && isBetween((quote as any).updated_at ?? quote.created_at, dateRange.from, dateRange.to)
+  );
   const rejectedQuotesInRange = quotes.filter((quote) => isBetween(quote.rejected_at, dateRange.from, dateRange.to)).length;
-  const expiredQuotesInRange = quotes.filter((quote) => quote.status === "expired" && isBetween(quote.expires_at, dateRange.from, dateRange.to)).length;
+  const nowIso = new Date().toISOString();
+  const expiredQuotesInRange = quotes.filter(
+    (quote) =>
+      ["sent", "viewed", "expired"].includes(quote.status) &&
+      !quote.approved_at &&
+      !quote.rejected_at &&
+      quote.expires_at &&
+      quote.expires_at < nowIso &&
+      isBetween(quote.expires_at, dateRange.from, dateRange.to)
+  ).length;
   const resolvedQuoteCount = approvedQuotesInRange.length + rejectedQuotesInRange + expiredQuotesInRange;
   const quoteWinRatePct = resolvedQuoteCount ? (approvedQuotesInRange.length / resolvedQuoteCount) * 100 : null;
   const turnaroundSamples = approvedQuotesInRange
@@ -648,8 +668,22 @@ export async function getFinancialAnalytics(filters: FinancialAnalyticsFilters =
 
   const activeSubscriptions = subscriptions.filter((subscription) => ["active", "trialing"].includes(subscription.status));
   const mrr = activeSubscriptions.reduce((sum, subscription) => sum + subscriptionMrr(subscription), 0);
-  // Both "canceled" (Stripe) and "cancelled" (portal) spellings exist in SUBSCRIPTION_STATUS.
-  const creditSubscriptions = subscriptions.filter((subscription) => !["canceled", "cancelled"].includes(subscription.status));
+  // Liability only counts subscriptions that are (or were) live. Terminal and
+  // never-activated states are excluded — an operator-seeded starting credit
+  // on an abandoned pending_checkout is not money AMG owes anyone. Both
+  // "canceled" (Stripe) and "cancelled" (portal) spellings exist.
+  const NON_LIABILITY_STATUSES = [
+    "canceled",
+    "cancelled",
+    "draft",
+    "pending_checkout",
+    "incomplete",
+    "incomplete_expired",
+    "expired",
+  ];
+  const creditSubscriptions = subscriptions.filter(
+    (subscription) => !NON_LIABILITY_STATUSES.includes(subscription.status)
+  );
   const creditLiability = creditSubscriptions.reduce((sum, subscription) => sum + dollars(subscription.credit_balance), 0);
   const creditLiabilitySubscriptionCount = creditSubscriptions.filter((subscription) => dollars(subscription.credit_balance) > 0).length;
   const failedSubscriptionPayments = subscriptions.filter((subscription) => ["failed", "past_due", "unpaid"].includes(subscription.stripe_payment_status ?? subscription.status)).length;

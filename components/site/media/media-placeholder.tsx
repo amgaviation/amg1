@@ -57,7 +57,7 @@ export function CinematicVideoFrame({ assetId, className, priority = false, over
           muted
           loop
           playsInline
-          preload={priority ? "auto" : "metadata"}
+          preload={priority ? "auto" : "none"}
           aria-label={asset.altText}
           className="h-full w-full object-cover motion-reduce:hidden"
           style={{ objectPosition: asset.objectPosition ?? "center center" }}

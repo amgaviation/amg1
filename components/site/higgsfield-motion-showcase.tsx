@@ -197,7 +197,7 @@ export function HiggsfieldMotionShowcase() {
                     muted
                     playsInline
                     loop
-                    preload="metadata"
+                    preload="none"
                     poster={asset.poster}
                     className="h-full w-full object-cover opacity-75 transition duration-500 group-hover:scale-105 group-focus:scale-105"
                   >
@@ -257,7 +257,7 @@ export function HiggsfieldMotionShowcase() {
               ref={cockpitVideoRef}
               muted
               playsInline
-              preload="metadata"
+              preload="none"
               poster="/images/flightdeck/cabin-night.webp"
               className={cn(
                 "aspect-video w-full object-cover transition duration-500",

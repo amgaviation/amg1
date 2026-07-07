@@ -82,3 +82,58 @@ All work committed per phase/cycle; typecheck 0 errors and `next build` green at
 - The `role_permissions` migration (pre-approved) was applied to prod; one data-only seed correction (crew.crew delete → false) applied to the same table before any customization existed.
 - The initial repo-map Explore agent never returned; REPO_MAP.md was not produced — review agents received inline context instead (no impact on coverage).
 - Cycle 2 was scoped to a single fix-verification agent rather than a full five-agent sweep: the remaining window couldn't absorb five new reports before mandatory wind-down.
+
+---
+
+## Addendum — user-directed feature cycle (post-wind-down)
+
+User instruction: "continue loop, focus on new features more than before." Four zero-schema portal
+features built (workflow-parallelized), adversarially reviewed by four skeptic agents (11 findings,
+all fixed), verified green:
+
+1. **Nightly ops cron** `/api/cron/nightly` + `vercel.json` (06:00 UTC): overdue invoices, quote
+   expiry, credential currency (30-day warning + expiry with crew/admin notifications, 100/run cap),
+   billing-cycle-based stale-subscription flagging. Guarded single-statement updates; every mutation
+   audited as `system-cron`. **Requires CRON_SECRET env in Vercel — returns 503 until set.**
+   No client dunning emails (policy decision still pending).
+2. **CRM stale-lead queue**: open leads with no/lapsed next action, quiet 14+ days — StatCard +
+   `?stage=stale` filter on the pipeline; metrics and list are truncation-safe past 1000 leads.
+3. **Financial KPIs** on the analytics dashboard (tracking its range picker): quote turnaround,
+   win rate (converted quotes counted as wins; expiry counted data-driven), subscription credit
+   liability (live subscriptions only). Gross margin intentionally blank — billing line items have
+   no cost column (schema follow-up).
+4. **awaiting_client_info affordance**: client trip detail gains a "provide requested information"
+   form — payment-data guarded, race-safe status-gated write, appends to client_notes, audits,
+   notifies admins, returns the mission to under_review.
+
+Open note carried forward: reviewDocument approving an already-expired credential (cron flips it
+back nightly) — needs an expiration check in the admin review action.
+
+---
+
+## Addendum 2 — features + speed cycle (session 2, user-directed)
+
+User instruction: portal features + public-site speed. Five parallel agents, orchestrator verification
+between each landing:
+
+**Portal features**
+1. Crew assignment lifecycle repair (closes B-1-02/B-1-03): decline-after-assignment reverts the
+   mission and reopens auto-closed pools; no more silent downgrade of accepted crew; admin
+   unassign action with UI; credential review no longer approves lapsed credentials.
+2. Payments authority module (closes E-P-01): payment recording and void/write-off/refund are now
+   independently grantable from invoice editing — catalog-only, zero migration, admin defaults FULL
+   so nothing changes until the matrix is edited.
+3. Per-thread message unread badges + read-on-open (closes B-1-11) — **orchestrator caught the
+   original finding's premise was false** (thread_members.last_read_at does not exist in prod;
+   the first implementation would have broken message lists). Reworked onto the notifications
+   table, which also makes reading a thread clear its notifications.
+
+**Public-site speed**
+4. public/ cut from 187 MB to 50 MB (66 provably-unreferenced/duplicate files, per-file manifest in
+   asset-cleanup.md; deletions spot-checked; one earlier audit claim corrected — tbm.jpg is referenced).
+5. Media loading: hero video viewport-gated (deep links no longer pull 6 MB off-screen), interaction-
+   deferred showcase videos, LCP priority hints, lazy below-fold images. Portal login intro's
+   preload flag investigated and deliberately kept (video only mounts when playing).
+
+**Deferred to owner:** xlsx swap to SheetJS's patched CDN build — sandbox correctly refused an
+agent-initiated external tarball install; it's a one-line package.json change (details in FINDINGS.md).

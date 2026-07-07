@@ -86,6 +86,7 @@ export default function Preloader() {
           alt=""
           width="1110"
           height="242"
+          fetchPriority="high"
           className="mx-auto mb-6 h-8 w-auto md:h-10"
         />
         <p className="pre-label microlabel-green mb-5 opacity-0">

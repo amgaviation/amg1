@@ -24,6 +24,7 @@ export type PermissionModule =
   | "missions"
   | "quotes"
   | "invoices"
+  | "payments"
   | "subscriptions"
   | "expenses"
   | "documents"
@@ -66,6 +67,7 @@ export const PERMISSION_MODULES: PermissionModuleInfo[] = [
   { key: "missions", label: "Missions & Support Requests", description: "Trips, mission control, calendar, mission lifecycle." },
   { key: "quotes", label: "Quotes", description: "Quote drafting, sending, and client responses." },
   { key: "invoices", label: "Invoices & Payments", description: "Invoices, payments, receivables." },
+  { key: "payments", label: "Payments Authority", description: "Recording payments, voids, write-offs, refunds." },
   { key: "subscriptions", label: "Subscriptions", description: "Plans, member subscriptions, usage and credits." },
   { key: "expenses", label: "Expenses & Receipts", description: "Expense capture, review, and receipts." },
   { key: "documents", label: "Documents", description: "Document vault uploads, review, and sharing." },
@@ -114,6 +116,7 @@ export const DEFAULT_PERMISSIONS: Record<MatrixRole, Record<PermissionModule, Ac
     missions: VAE,
     quotes: VE,
     invoices: V,
+    payments: NONE,
     subscriptions: VAE,
     expenses: NONE,
     documents: VA,
@@ -139,6 +142,7 @@ export const DEFAULT_PERMISSIONS: Record<MatrixRole, Record<PermissionModule, Ac
     missions: VE,
     quotes: NONE,
     invoices: NONE,
+    payments: NONE,
     subscriptions: NONE,
     expenses: FULL,
     documents: VA,
@@ -166,6 +170,7 @@ export const DEFAULT_PERMISSIONS: Record<MatrixRole, Record<PermissionModule, Ac
     missions: NONE,
     quotes: NONE,
     invoices: NONE,
+    payments: NONE,
     subscriptions: NONE,
     expenses: NONE,
     documents: VA,
@@ -191,6 +196,7 @@ export const DEFAULT_PERMISSIONS: Record<MatrixRole, Record<PermissionModule, Ac
     missions: FULL,
     quotes: FULL,
     invoices: FULL,
+    payments: FULL,
     subscriptions: FULL,
     expenses: FULL,
     documents: FULL,
@@ -253,7 +259,7 @@ export const NAV_MODULE_PREFIXES: [string, PermissionModule][] = [
   ["/portal/admin/partners", "partners"],
   ["/portal/admin/quotes", "quotes"],
   ["/portal/admin/invoices", "invoices"],
-  ["/portal/admin/payments", "invoices"],
+  ["/portal/admin/payments", "payments"],
   ["/portal/admin/receivables", "invoices"],
   ["/portal/admin/subscriptions", "subscriptions"],
   ["/portal/admin/financial", "financial_analytics"],

@@ -6,7 +6,7 @@ import { DescriptionList } from "@/components/portal/ui/description-list";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
-import { assignCrew, assignPartner } from "@/app/portal/actions/admin";
+import { assignCrew, assignPartner, unassignCrew } from "@/app/portal/actions/admin";
 import { createQuote } from "@/app/portal/actions/quotes";
 import { decideCrewPoolRequest, updateMissionNotes, updateMissionPool, updateMissionStatus } from "@/app/portal/actions/missions";
 import { getMissionDetail, listAllCrew, listAllPartners } from "@/lib/portal/queries";
@@ -28,7 +28,7 @@ export default async function AdminTripDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ success?: string }>;
+  searchParams: Promise<{ success?: string; error?: string }>;
 }) {
   const user = await requireRolePermission("admin", "missions");
   const { id } = await params;
@@ -56,7 +56,17 @@ export default async function AdminTripDetailPage({
 
   return (
     <>
-      {flash.success ? <Notice tone="success">Mission updated.</Notice> : null}
+      {flash.success === "crew-unassigned" ? (
+        <Notice tone="success">Crew member removed from this mission.</Notice>
+      ) : flash.success ? (
+        <Notice tone="success">Mission updated.</Notice>
+      ) : null}
+      {flash.error === "unassign" ? (
+        <Notice tone="danger">Could not remove that crew member — the assignment may already be removed or completed.</Notice>
+      ) : null}
+      {flash.error === "no-new-offers" ? (
+        <Notice tone="warn">No new offers were sent — the selected crew already accepted or completed this mission.</Notice>
+      ) : null}
 
       {/* Detail-archetype summary header: ref + status + mono key facts */}
       <div className="flex flex-col gap-4 pb-2 sm:flex-row sm:items-end sm:justify-between">
@@ -157,9 +167,25 @@ export default async function AdminTripDetailPage({
           <SectionCard title="Crew Assignments" icon="users">
             {mission.crew.length === 0 ? <EmptyState icon="users" title="No crew assigned" /> : (
               <div className="space-y-3">{mission.crew.map((item) => (
-                <div key={item.id} className="rounded-lg border border-border bg-[var(--deck-panel-2)] p-4">
-                  <p className="text-sm font-semibold">{item.crew?.full_name ?? item.crew?.email ?? item.crew_id}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{item.crew_role} | {item.status}</p>
+                <div key={item.id} className="flex items-start justify-between gap-3 rounded-lg border border-border bg-[var(--deck-panel-2)] p-4">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold">{item.crew?.full_name ?? item.crew?.email ?? item.crew_id}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{item.crew_role} | {item.status}</p>
+                  </div>
+                  {item.status === "offered" || item.status === "accepted" ? (
+                    <form action={unassignCrew}>
+                      <input type="hidden" name="mission_id" value={mission.id} />
+                      <input type="hidden" name="crew_id" value={item.crew_id} />
+                      <SubmitButton
+                        size="sm"
+                        variant="outline"
+                        pendingText="Removing..."
+                        confirm={`Remove ${item.crew?.full_name ?? item.crew?.email ?? "this crew member"} from ${mission.ref}? They will be notified.`}
+                      >
+                        Remove
+                      </SubmitButton>
+                    </form>
+                  ) : null}
                 </div>
               ))}</div>
             )}

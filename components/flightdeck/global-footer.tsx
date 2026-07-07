@@ -165,6 +165,8 @@ export default function GlobalFooter() {
                 alt="AMG Aviation Group"
                 width="1110"
                 height="242"
+                loading="lazy"
+                decoding="async"
                 className="mb-4 h-7 w-auto"
               />
               <p className="text-2xl leading-snug text-t1">

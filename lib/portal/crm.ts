@@ -65,11 +65,34 @@ export async function listLeads(filter?: {
   q?: string;
 }): Promise<Lead[]> {
   const db = (await createServiceClient()) as any;
-  let query = db.from("crm_leads").select(LEAD_SELECT).order("updated_at", { ascending: false });
-  if (filter?.stage) query = query.eq("stage", filter.stage);
-  if (filter?.ownerId) query = query.eq("owner_id", filter.ownerId);
-  const { data } = await query;
-  let rows = (data ?? []) as Lead[];
+  // PostgREST silently caps a single response at 1000 rows, and with the
+  // updated_at DESC order the truncated rows would be exactly the oldest,
+  // stalest leads this page exists to surface — fetch in explicit ranges.
+  const CHUNK = 1000;
+  const MAX_CHUNKS = 10;
+  let rows: Lead[] = [];
+  const seen = new Set<string>();
+  for (let chunk = 0; chunk < MAX_CHUNKS; chunk++) {
+    let query = db
+      .from("crm_leads")
+      .select(LEAD_SELECT)
+      .order("updated_at", { ascending: false })
+      .range(chunk * CHUNK, chunk * CHUNK + CHUNK - 1);
+    if (filter?.stage) query = query.eq("stage", filter.stage);
+    if (filter?.ownerId) query = query.eq("owner_id", filter.ownerId);
+    const { data } = await query;
+    const page = (data ?? []) as Lead[];
+    for (const lead of page) {
+      if (!seen.has(lead.id)) {
+        seen.add(lead.id);
+        rows.push(lead);
+      }
+    }
+    if (page.length < CHUNK) break;
+    if (chunk === MAX_CHUNKS - 1) {
+      console.warn(`[crm] listLeads truncated at ${MAX_CHUNKS * CHUNK} rows — needs DB-side pagination`);
+    }
+  }
   if (filter?.q) {
     const q = filter.q.toLowerCase();
     rows = rows.filter((lead) =>
@@ -132,10 +155,21 @@ export async function getPipelineMetrics(): Promise<PipelineMetrics> {
   monthStart.setUTCDate(1);
   monthStart.setUTCHours(0, 0, 0, 0);
 
-  const { data } = await db
-    .from("crm_leads")
-    .select("stage, estimated_value, next_action_at, updated_at");
-  const rows = (data ?? []) as Pick<Lead, "stage" | "estimated_value" | "next_action_at" | "updated_at">[];
+  // Chunked fetch: past 1000 leads a single response is silently truncated
+  // and every metric here would quietly undercount (see listLeads).
+  const CHUNK = 1000;
+  const MAX_CHUNKS = 10;
+  const rows: Pick<Lead, "stage" | "estimated_value" | "next_action_at" | "updated_at">[] = [];
+  for (let chunk = 0; chunk < MAX_CHUNKS; chunk++) {
+    const { data } = await db
+      .from("crm_leads")
+      .select("stage, estimated_value, next_action_at, updated_at, id")
+      .order("id", { ascending: true })
+      .range(chunk * CHUNK, chunk * CHUNK + CHUNK - 1);
+    const page = (data ?? []) as (Pick<Lead, "stage" | "estimated_value" | "next_action_at" | "updated_at"> & { id: string })[];
+    rows.push(...page);
+    if (page.length < CHUNK) break;
+  }
 
   const open = rows.filter((row) => OPEN_STAGES.includes(row.stage));
   const wonThisMonth = rows.filter(

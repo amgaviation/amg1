@@ -896,6 +896,8 @@ export async function listAllUsers(filter?: { status?: string }): Promise<Profil
 export type ThreadSummary = MessageThread & {
   members: string[];
   last_body: string | null;
+  /** The viewer's unread "message" notifications for this thread. */
+  unread_count: number;
 };
 
 export async function listThreadsForUser(userId: string, isAdmin: boolean): Promise<ThreadSummary[]> {
@@ -925,10 +927,29 @@ export async function listThreadsForUser(userId: string, isAdmin: boolean): Prom
   for (const m of lastMessages ?? []) {
     if (!lastByThread.has(m.thread_id)) lastByThread.set(m.thread_id, m.body);
   }
+  // Unread signal: message notifications are created for every member except
+  // the sender, so the viewer's own messages never count as unread.
+  const { data: unreadNotifications } = await db
+    .from("notifications")
+    .select("entity_id")
+    .eq("user_id", userId)
+    .eq("is_read", false)
+    .eq("notification_type", "message")
+    .eq("entity_type", "thread")
+    .in(
+      "entity_id",
+      threads.map((t) => t.id)
+    );
+  const unreadByThread = new Map<string, number>();
+  for (const n of unreadNotifications ?? []) {
+    if (!n.entity_id) continue;
+    unreadByThread.set(n.entity_id, (unreadByThread.get(n.entity_id) ?? 0) + 1);
+  }
   return threads.map((t) => ({
     ...t,
     members: [],
     last_body: lastByThread.get(t.id) ?? null,
+    unread_count: unreadByThread.get(t.id) ?? 0,
   }));
 }
 
@@ -960,6 +981,18 @@ export async function isThreadMember(threadId: string, userId: string): Promise<
     .eq("profile_id", userId)
     .maybeSingle();
   return Boolean(data);
+}
+
+/** Clear the viewer's thread notifications when they open its messages. */
+export async function markThreadRead(threadId: string, userId: string): Promise<void> {
+  const db = await createServiceClient();
+  await db
+    .from("notifications")
+    .update({ is_read: true })
+    .eq("user_id", userId)
+    .eq("entity_type", "thread")
+    .eq("entity_id", threadId)
+    .eq("is_read", false);
 }
 
 // ─── Notifications ──────────────────────────────────────────────────
