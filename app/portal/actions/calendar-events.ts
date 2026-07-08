@@ -6,6 +6,13 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { actor, bool, safeRedirectPath, str } from "./_helpers";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
 import { EVENT_STATUS_LABEL, EVENT_TYPE_LABEL } from "@/lib/portal/calendar-events";
+import {
+  DEFAULT_TIMEZONE,
+  isAllowedTimeZone,
+  zonedClockWithZone,
+  zonedDateLong,
+  zonedTimeToUtcIso,
+} from "@/lib/portal/timezones";
 
 /**
  * Ops calendar events. Admins create events, optionally linked to a mission,
@@ -17,14 +24,6 @@ const CAL_BASE = "/portal/admin/calendar";
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const EVENT_TYPES = new Set(Object.keys(EVENT_TYPE_LABEL));
 const EVENT_STATUSES = new Set(Object.keys(EVENT_STATUS_LABEL));
-
-/** Combine a date + optional time into a UTC ISO string (the grid is UTC). */
-function toIso(date: string, time: string, fallbackTime: string): string | null {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
-  const t = /^\d{2}:\d{2}$/.test(time) ? time : fallbackTime;
-  const parsed = new Date(`${date}T${t}:00Z`);
-  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
-}
 
 function uuidOrNull(value: string): string | null {
   return UUID_RE.test(value) ? value : null;
@@ -39,30 +38,26 @@ function attendeeIds(formData: FormData): string[] {
   return [...seen];
 }
 
-function eventDateLabel(startsAt: string, allDay: boolean): string {
-  const date = new Date(startsAt);
-  const dateText = date.toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-  if (allDay) return `${dateText} (all day, UTC)`;
-  const timeText = date.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone: "UTC",
-  });
-  return `${dateText} at ${timeText} UTC`;
+function eventDateLabel(startsAt: string, allDay: boolean, timeZone: string): string {
+  const dateText = zonedDateLong(startsAt, timeZone);
+  if (allDay) return `${dateText} (all day)`;
+  return `${dateText} at ${zonedClockWithZone(startsAt, timeZone)}`;
 }
 
 async function notifyAttendees(
   ids: string[],
-  event: { id: string; title: string; startsAt: string; allDay: boolean; location: string | null; description: string | null }
+  event: {
+    id: string;
+    title: string;
+    startsAt: string;
+    allDay: boolean;
+    timezone: string;
+    location: string | null;
+    description: string | null;
+  }
 ): Promise<void> {
   if (!ids.length) return;
-  const when = eventDateLabel(event.startsAt, event.allDay);
+  const when = eventDateLabel(event.startsAt, event.allDay, event.timezone);
   const bodyParts = [when];
   if (event.location) bodyParts.push(`Location: ${event.location}`);
   if (event.description) bodyParts.push(event.description);
@@ -87,10 +82,18 @@ function parseEvent(formData: FormData) {
   const statusRaw = str(formData, "status");
   const status = EVENT_STATUSES.has(statusRaw) ? statusRaw : "scheduled";
   const allDay = bool(formData, "all_day");
-  const startsAt = toIso(str(formData, "start_date"), str(formData, "start_time"), "00:00");
+  const tzRaw = str(formData, "timezone");
+  const timezone = isAllowedTimeZone(tzRaw) ? tzRaw : DEFAULT_TIMEZONE;
+  // All-day events pin to local midnight → end of day so the calendar-day
+  // placement matches the chosen zone; timed events use the entered clock time.
+  const startsAt = zonedTimeToUtcIso(
+    str(formData, "start_date"),
+    allDay ? "00:00" : str(formData, "start_time"),
+    timezone
+  );
   const endDate = str(formData, "end_date");
   const endsAt = endDate
-    ? toIso(endDate, str(formData, "end_time"), allDay ? "23:59" : "00:00")
+    ? zonedTimeToUtcIso(endDate, allDay ? "23:59" : str(formData, "end_time"), timezone)
     : null;
 
   return {
@@ -98,6 +101,7 @@ function parseEvent(formData: FormData) {
     eventType,
     status,
     allDay,
+    timezone,
     startsAt,
     endsAt,
     location: str(formData, "location").slice(0, 200) || null,
@@ -130,6 +134,7 @@ export async function createCalendarEvent(formData: FormData) {
       starts_at: parsed.startsAt,
       ends_at: parsed.endsAt,
       all_day: parsed.allDay,
+      timezone: parsed.timezone,
       status: parsed.status,
       mission_id: parsed.missionId,
       aircraft_id: parsed.aircraftId,
@@ -153,6 +158,7 @@ export async function createCalendarEvent(formData: FormData) {
         title: parsed.title,
         startsAt: parsed.startsAt,
         allDay: parsed.allDay,
+        timezone: parsed.timezone,
         location: parsed.location,
         description: parsed.description,
       });
@@ -202,6 +208,7 @@ export async function updateCalendarEvent(formData: FormData) {
       starts_at: parsed.startsAt,
       ends_at: parsed.endsAt,
       all_day: parsed.allDay,
+      timezone: parsed.timezone,
       status: parsed.status,
       mission_id: parsed.missionId,
       aircraft_id: parsed.aircraftId,
@@ -242,6 +249,7 @@ export async function updateCalendarEvent(formData: FormData) {
         title: parsed.title,
         startsAt: parsed.startsAt,
         allDay: parsed.allDay,
+        timezone: parsed.timezone,
         location: parsed.location,
         description: parsed.description,
       });

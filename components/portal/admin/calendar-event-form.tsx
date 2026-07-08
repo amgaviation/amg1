@@ -1,15 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { AttendeePicker, type AttendeeGroup } from "@/components/portal/admin/attendee-picker";
 import { EVENT_STATUS_OPTIONS, EVENT_TYPE_OPTIONS } from "@/lib/portal/calendar-constants";
+import {
+  DEFAULT_TIMEZONE,
+  TIMEZONE_OPTIONS,
+  browserTimeZoneOrDefault,
+  getZonedDateParts,
+} from "@/lib/portal/timezones";
 
 /**
- * Create/edit form for an ops calendar event. All times are UTC to match the
- * calendar grid. The all-day toggle hides the time inputs. Linked people are
- * notified on save unless "Do not notify" is checked.
+ * Create/edit form for an ops calendar event. Date and time are entered as
+ * wall-clock in the selected timezone and stored as an absolute instant. The
+ * all-day toggle hides the time inputs. Linked people are notified on save
+ * unless "Do not notify" is checked.
  */
 
 type EventFormValues = {
@@ -21,19 +28,21 @@ type EventFormValues = {
   starts_at: string;
   ends_at: string | null;
   all_day: boolean;
+  timezone: string;
   status: string;
   mission_id: string | null;
   aircraft_id: string | null;
   attendees: { id: string; label: string }[];
 };
 
-/** Split an ISO timestamp into UTC date (YYYY-MM-DD) and time (HH:MM). */
-function splitUtc(iso: string | null): { date: string; time: string } {
+/** Split an ISO instant into date (YYYY-MM-DD) + time (HH:MM) in a zone. */
+function splitZoned(iso: string | null, timeZone: string): { date: string; time: string } {
   if (!iso) return { date: "", time: "" };
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return { date: "", time: "" };
-  const date = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
-  const time = `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
+  const p = getZonedDateParts(iso, timeZone);
+  const date = `${p.year}-${String(p.month).padStart(2, "0")}-${String(p.day).padStart(2, "0")}`;
+  const time = `${String(p.hour).padStart(2, "0")}:${String(p.minute).padStart(2, "0")}`;
   return { date, time };
 }
 
@@ -57,8 +66,15 @@ export function CalendarEventForm({
   defaultDate?: string;
   submitLabel?: string;
 }) {
-  const start = splitUtc(event?.starts_at ?? null);
-  const end = splitUtc(event?.ends_at ?? null);
+  // New events default to the browser's zone (if we offer it); edits keep the
+  // event's stored zone. Initialize deterministically for SSR, then adopt the
+  // browser zone after mount (create mode only) to avoid a hydration mismatch.
+  const [timezone, setTimezone] = useState(event?.timezone ?? DEFAULT_TIMEZONE);
+  useEffect(() => {
+    if (!event) setTimezone(browserTimeZoneOrDefault());
+  }, [event]);
+  const start = splitZoned(event?.starts_at ?? null, event?.timezone ?? DEFAULT_TIMEZONE);
+  const end = splitZoned(event?.ends_at ?? null, event?.timezone ?? DEFAULT_TIMEZONE);
   const [allDay, setAllDay] = useState(event?.all_day ?? false);
 
   return (
@@ -101,6 +117,15 @@ export function CalendarEventForm({
         <span className="text-[var(--deck-text)]">All-day event</span>
       </label>
 
+      <SelectField
+        label="Timezone"
+        name="timezone"
+        value={timezone}
+        onChange={(e) => setTimezone(e.target.value)}
+        options={TIMEZONE_OPTIONS}
+        hint="The date and time below are read in this timezone."
+      />
+
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField
           label="Start Date"
@@ -110,13 +135,7 @@ export function CalendarEventForm({
           defaultValue={start.date || defaultDate}
         />
         {allDay ? null : (
-          <TextField
-            label="Start Time (UTC)"
-            name="start_time"
-            type="time"
-            defaultValue={start.time}
-            hint="Times are UTC to match the calendar grid."
-          />
+          <TextField label="Start Time" name="start_time" type="time" defaultValue={start.time} />
         )}
         <TextField
           label="End Date"
@@ -126,7 +145,7 @@ export function CalendarEventForm({
           hint="Optional — leave blank for a single-day event."
         />
         {allDay ? null : (
-          <TextField label="End Time (UTC)" name="end_time" type="time" defaultValue={end.time} />
+          <TextField label="End Time" name="end_time" type="time" defaultValue={end.time} />
         )}
       </div>
 
