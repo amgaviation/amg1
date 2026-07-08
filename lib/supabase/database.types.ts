@@ -1926,6 +1926,60 @@ export type Database = {
           },
         ]
       }
+      calendar_events: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          event_type: string
+          location: string | null
+          starts_at: string
+          ends_at: string | null
+          all_day: boolean
+          status: string
+          mission_id: string | null
+          aircraft_id: string | null
+          created_by: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          event_type?: string
+          location?: string | null
+          starts_at: string
+          ends_at?: string | null
+          all_day?: boolean
+          status?: string
+          mission_id?: string | null
+          aircraft_id?: string | null
+          created_by: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["calendar_events"]["Insert"]>
+        Relationships: []
+      }
+      calendar_event_attendees: {
+        Row: {
+          id: string
+          event_id: string
+          profile_id: string
+          notified: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          event_id: string
+          profile_id: string
+          notified?: boolean
+          created_at?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["calendar_event_attendees"]["Insert"]>
+        Relationships: []
+      }
       scheduled_emails: {
         Row: {
           id: string
