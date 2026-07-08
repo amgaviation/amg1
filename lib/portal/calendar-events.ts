@@ -41,16 +41,17 @@ export type CalendarEvent = Tables<"calendar_events"> & {
 const EVENT_SELECT =
   "*, mission:mission_id(id, ref, departure_airport, arrival_airport), aircraft:aircraft_id(id, tail_number), attendees:calendar_event_attendees(id, profile_id, notified, profile:profile_id(id, full_name, email, role, company_name))";
 
-/** Events that overlap the given month (UTC). */
+/** Events whose start falls in (or adjacent to) the given month. */
 export async function listCalendarEventsForMonth(
   year: number,
   month: number
 ): Promise<CalendarEvent[]> {
   const db = await createServiceClient();
-  // Widen the window by a day on each side so an event that starts late on the
-  // last day of the previous month (or early next month, UTC) still surfaces.
-  const from = new Date(Date.UTC(year, month, 1)).toISOString();
-  const to = new Date(Date.UTC(year, month + 1, 1)).toISOString();
+  // Widen the window by a day on each side: an event's per-zone local date can
+  // land inside this month while its UTC instant sits just outside it (max
+  // offset ±14h < 1 day). The page re-buckets by each event's local date.
+  const from = new Date(Date.UTC(year, month, 0)).toISOString();
+  const to = new Date(Date.UTC(year, month + 1, 2)).toISOString();
   const { data } = await db
     .from("calendar_events")
     .select(EVENT_SELECT)

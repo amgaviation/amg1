@@ -32,6 +32,12 @@ import {
   MISSION_STATUS_TONE,
   toneFor,
 } from "@/lib/portal/constants";
+import {
+  getZonedDateParts,
+  zonedClock,
+  zonedClockWithZone,
+  zonedDateLong,
+} from "@/lib/portal/timezones";
 
 export const metadata = { title: "Ops Calendar - AMG Operations" };
 export const dynamic = "force-dynamic";
@@ -46,39 +52,19 @@ function monthParam(year: number, month: number) {
   return `${year}-${String(month + 1).padStart(2, "0")}`;
 }
 
-function utcTime(iso: string) {
-  return new Date(iso).toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone: "UTC",
-  });
-}
-
-function whenLabel(startsAt: string, endsAt: string | null, allDay: boolean) {
-  const start = new Date(startsAt);
-  const dateText = start.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  });
+function whenLabel(startsAt: string, endsAt: string | null, allDay: boolean, timeZone: string) {
+  const dateText = zonedDateLong(startsAt, timeZone);
   if (allDay) {
     if (endsAt) {
-      const end = new Date(endsAt);
-      const endText = end.toLocaleDateString("en-US", {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-        timeZone: "UTC",
-      });
+      const endText = zonedDateLong(endsAt, timeZone);
       if (endText !== dateText) return `${dateText} → ${endText} (all day)`;
     }
     return `${dateText} (all day)`;
   }
-  let text = `${dateText} · ${utcTime(startsAt)}`;
-  if (endsAt) text += ` – ${utcTime(endsAt)}`;
-  return `${text} UTC`;
+  let text = `${dateText} · ${zonedClock(startsAt, timeZone)}`;
+  if (endsAt) text += ` – ${zonedClock(endsAt, timeZone)}`;
+  // Append the zone abbreviation once, from the start instant.
+  return `${text} ${zonedClockWithZone(startsAt, timeZone).split(" ").pop()}`;
 }
 
 export default async function OpsCalendarPage({
@@ -129,15 +115,18 @@ export default async function OpsCalendarPage({
 
   const eventsByDay: Record<number, GridEvent[]> = {};
   for (const event of events) {
-    const day = new Date(event.starts_at).getUTCDate();
-    (eventsByDay[day] ??= []).push({
+    // Bucket by the event's local (its-zone) calendar date, then keep only the
+    // ones whose local date actually lands in the month being viewed.
+    const parts = getZonedDateParts(event.starts_at, event.timezone);
+    if (parts.year !== year || parts.month !== month + 1) continue;
+    (eventsByDay[parts.day] ??= []).push({
       id: event.id,
       title: event.title,
       type: event.event_type,
       typeLabel: EVENT_TYPE_LABEL[event.event_type] ?? event.event_type,
       tone: eventTypeTone(event.event_type),
       allDay: event.all_day,
-      time: event.all_day ? null : utcTime(event.starts_at),
+      time: event.all_day ? null : zonedClockWithZone(event.starts_at, event.timezone),
       status: event.status,
     });
   }
@@ -195,7 +184,7 @@ export default async function OpsCalendarPage({
       <PageHeader
         eyebrow="AMG Operations"
         title="Ops Calendar"
-        description="Mission departures and scheduled events by day (UTC). Click any day to add an event, or open one to edit it."
+        description="Mission departures and scheduled events by day. Click any day to add an event, or open one to edit it."
         actions={
           <>
             <Link href={`${BASE}?month=${prev}`} className={navLink}>← Previous</Link>
@@ -310,6 +299,7 @@ export default async function OpsCalendarPage({
               description: activeEvent.description,
               event_type: activeEvent.event_type,
               location: activeEvent.location,
+              timezone: activeEvent.timezone,
               starts_at: activeEvent.starts_at,
               ends_at: activeEvent.ends_at,
               all_day: activeEvent.all_day,
@@ -331,7 +321,7 @@ export default async function OpsCalendarPage({
         <RecordModal
           eyebrow={EVENT_TYPE_LABEL[activeEvent.event_type] ?? "Event"}
           title={activeEvent.title}
-          meta={whenLabel(activeEvent.starts_at, activeEvent.ends_at, activeEvent.all_day)}
+          meta={whenLabel(activeEvent.starts_at, activeEvent.ends_at, activeEvent.all_day, activeEvent.timezone)}
           paramKeys={["event"]}
           badge={
             <StatusBadge
@@ -361,7 +351,8 @@ export default async function OpsCalendarPage({
         >
           <dl>
             <DetailRow label="Type">{EVENT_TYPE_LABEL[activeEvent.event_type] ?? activeEvent.event_type}</DetailRow>
-            <DetailRow label="When">{whenLabel(activeEvent.starts_at, activeEvent.ends_at, activeEvent.all_day)}</DetailRow>
+            <DetailRow label="When">{whenLabel(activeEvent.starts_at, activeEvent.ends_at, activeEvent.all_day, activeEvent.timezone)}</DetailRow>
+            <DetailRow label="Timezone">{activeEvent.timezone}</DetailRow>
             <DetailRow label="Location">{activeEvent.location ?? "—"}</DetailRow>
             <DetailRow label="Mission">
               {activeEvent.mission ? (

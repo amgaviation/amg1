@@ -1936,6 +1936,7 @@ export type Database = {
           starts_at: string
           ends_at: string | null
           all_day: boolean
+          timezone: string
           status: string
           mission_id: string | null
           aircraft_id: string | null
@@ -1952,6 +1953,7 @@ export type Database = {
           starts_at: string
           ends_at?: string | null
           all_day?: boolean
+          timezone?: string
           status?: string
           mission_id?: string | null
           aircraft_id?: string | null
