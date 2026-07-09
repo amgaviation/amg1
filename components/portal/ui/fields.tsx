@@ -109,7 +109,10 @@ export function DeckSelect(
       <SelectContent
         position="popper"
         align="start"
-        className="max-h-72 border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text)] shadow-[var(--deck-shadow-card-hover)]"
+        // z-[100]: the menu portals to document.body, so it must sit above the
+        // record modal (z-[90]) and command palette (z-[95]); at the default
+        // z-50 it rendered behind an open modal and looked broken.
+        className="z-[100] max-h-72 border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text)] shadow-[var(--deck-shadow-card-hover)]"
       >
         {items.map((o) => (
           <SelectItem
