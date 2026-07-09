@@ -7,6 +7,7 @@ import { DetailRow, Notice, PageHeader, SectionCard } from "@/components/portal/
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { getInvoiceDetail } from "@/lib/portal/queries";
+import { isDepositInvoice } from "@/lib/portal/billing-documents";
 import { INVOICE_STATUS_LABEL, INVOICE_STATUS_TONE, toneFor } from "@/lib/portal/constants";
 import { formatDate, formatMoney } from "@/lib/portal/format";
 
@@ -37,6 +38,11 @@ export default async function ClientInvoicePage({
       ) : null}
       {flash.error === "configuration" ? <Notice tone="danger">Online card payment is not available right now. Use the payment instructions below or contact AMG Operations.</Notice> : null}
       {flash.error === "status" || flash.error === "amount" ? <Notice tone="danger">This invoice is not currently eligible for online card payment.</Notice> : null}
+      {isDepositInvoice(invoice) ? (
+        <Notice tone="info">
+          This invoice collects the deposit for your approved quote{invoice.quote?.ref ? ` (${invoice.quote.ref})` : ""}. The remaining balance is invoiced separately after your trip is closed out.
+        </Notice>
+      ) : null}
       <PageHeader
         eyebrow="Billing"
         title={invoice.invoice_number}

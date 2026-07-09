@@ -35,6 +35,7 @@ export default async function ClientQuoteDetailPage({
       {sp.error === "terms" ? <Notice tone="danger">Confirm the quote terms and operational review notice before approving.</Notice> : null}
       {sp.error === "locked" ? <Notice tone="warn">This quote is no longer open for a response. If anything changed on your side, message AMG Operations and we&apos;ll issue a fresh revision.</Notice> : null}
       {sp.error === "expired" ? <Notice tone="warn">This quote has expired and can no longer be approved. AMG Operations can reissue current pricing on request.</Notice> : null}
+      {sp.error === "invoice" ? <Notice tone="danger">Your approval was recorded, but AMG could not generate the deposit invoice automatically. AMG Operations has been notified and will follow up with payment details.</Notice> : null}
 
       <PageHeader
         eyebrow={quote.ref}

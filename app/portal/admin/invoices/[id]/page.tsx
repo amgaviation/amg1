@@ -11,6 +11,7 @@ import { createInvoiceRevision, previewInvoicePdf, recordInvoicePayment, sendInv
 import { payInvoiceWithStripe } from "@/app/portal/actions/invoice-payments";
 import { applySubscriptionCredits } from "@/app/portal/actions/subscriptions";
 import { getInvoiceDetail } from "@/lib/portal/queries";
+import { isDepositInvoice } from "@/lib/portal/billing-documents";
 import { getAvailableSubscriptionCredit } from "@/lib/portal/subscription-credits";
 import { INVOICE_STATUS, INVOICE_STATUS_LABEL, INVOICE_STATUS_TONE, PAYMENT_METHODS, toneFor } from "@/lib/portal/constants";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/portal/format";
@@ -89,6 +90,11 @@ export default async function AdminInvoiceDetailPage({
       {flash.error === "no-credits" ? <Notice tone="danger">This client has no available plan credit to apply.</Notice> : null}
       {flash.error === "not-eligible" ? <Notice tone="danger">Plan credit can only be applied to sent, open invoices with an amount due.</Notice> : null}
       {flash.error === "credit-conflict" ? <Notice tone="danger">Plan credit could not be applied because the credit balance changed while applying. Refresh and try again.</Notice> : null}
+      {isDepositInvoice(invoice) ? (
+        <Notice tone="info">
+          Deposit invoice — bills the deposit for {invoice.quote?.ref ?? "the approved quote"}. The remaining balance is invoiced separately at closeout.
+        </Notice>
+      ) : null}
       {/* Detail-archetype summary header */}
       <div className="flex flex-col gap-4 pb-2 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">

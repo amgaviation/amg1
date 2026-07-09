@@ -14,6 +14,13 @@ import { nextBillingDocumentNumber } from "@/lib/portal/billing-numbering";
 import { isAdminRole } from "@/lib/portal/constants";
 import { actor, bool, num, str } from "./_helpers";
 
+function usd(value: number) {
+  return `$${Number(value ?? 0).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
+
 function splitEmails(value: string) {
   return value
     .split(/[,;\n]/)
@@ -406,6 +413,32 @@ export async function convertApprovedQuoteToInvoice(formData: FormData) {
   redirect(`/portal/admin/invoices/${invoiceId}?success=created`);
 }
 
+/**
+ * Deposit-first billing: on approval AMG collects the deposit, not the full
+ * total. Resolve the deposit owed from the quote — an explicit `deposit_amount`
+ * wins, else `deposit_percent` of the total. Returns null when no deposit is
+ * required or the amount resolves to zero/invalid (full invoice, legacy path).
+ * `deposit_percent` is a whole-number percent (rendered as "50%" in the UI).
+ */
+function resolveQuoteDeposit(quote: {
+  deposit_required?: boolean | null;
+  deposit_amount?: number | null;
+  deposit_percent?: number | null;
+  deposit_due_date?: string | null;
+  total?: number | null;
+}): { amount: number; dueDate: string | null } | null {
+  if (!quote.deposit_required) return null;
+  const total = Number(quote.total ?? 0);
+  const explicit = Number(quote.deposit_amount ?? 0);
+  const percent = Number(quote.deposit_percent ?? 0);
+  let amount = explicit > 0 ? explicit : percent > 0 ? (total * percent) / 100 : 0;
+  amount = Math.round(amount * 100) / 100;
+  if (!(amount > 0)) return null;
+  // A deposit can never exceed the quoted total; clamp defensively.
+  if (total > 0 && amount > total) amount = total;
+  return { amount, dueDate: quote.deposit_due_date ?? null };
+}
+
 export async function respondToQuote(formData: FormData) {
   const user = await actor(["client", "admin"], "quotes.edit");
   const db = await createServiceClient();
@@ -418,7 +451,9 @@ export async function respondToQuote(formData: FormData) {
 
   const { data: quote } = await db
     .from("quotes")
-    .select("ref, mission_id, client_id, status, expires_at")
+    .select(
+      "ref, mission_id, client_id, status, expires_at, total, deposit_required, deposit_amount, deposit_percent, deposit_due_date",
+    )
     .eq("id", quoteId)
     .maybeSingle();
   if (!quote) redirect("/portal/client/quotes?error=notfound");
@@ -454,6 +489,7 @@ export async function respondToQuote(formData: FormData) {
     .eq("id", quoteId);
 
   let invoiceId: string | null = null;
+  let depositInvoice: { amount: number; dueDate: string | null } | null = null;
   if (decision === "approved") {
     if (quote.mission_id) {
       // Approval advances the mission only from its quote-pending states.
@@ -464,12 +500,26 @@ export async function respondToQuote(formData: FormData) {
         .in("status", ["quoted", "under_review"]);
     }
     const settings = await getBillingSettings();
-    invoiceId = await createInvoiceDraftFromQuote({
-      quoteId,
-      actorId: user.id,
-      status: settings.auto_send_invoice_on_quote_approval ? "sent" : "draft",
-    });
-    if (settings.auto_send_invoice_on_quote_approval) {
+    const autoSend = settings.auto_send_invoice_on_quote_approval;
+    // Deposit-first billing: bill only the deposit when the quote requires one
+    // and a positive amount resolves; otherwise fall back to the full invoice.
+    depositInvoice = resolveQuoteDeposit(quote);
+    try {
+      invoiceId = await createInvoiceDraftFromQuote({
+        quoteId,
+        actorId: user.id,
+        status: autoSend ? "sent" : "draft",
+        ...(depositInvoice ? { deposit: depositInvoice } : {}),
+      });
+    } catch (error) {
+      // Fail loud rather than half-complete: the quote is approved but billing
+      // failed, so surface it instead of silently continuing to notify/audit.
+      console.error("[billing] failed to create invoice after quote approval", quoteId, error);
+      redirect(`/portal/client/quotes/${quoteId}?error=invoice`);
+    }
+    // When auto-send is on, the deposit invoice is the thing sent (with the
+    // hosted Stripe payment link via the existing invoice send path).
+    if (autoSend && invoiceId) {
       await emailInvoicePdf(invoiceId, user.id).catch((error) => {
         console.error("[billing] failed to email invoice PDF after quote approval", invoiceId, error);
       });
@@ -486,7 +536,12 @@ export async function respondToQuote(formData: FormData) {
         : decision === "revision_requested"
           ? "quote_revision_requested"
           : "quote_rejected",
-    detail: `${decision} ${quote.ref}`,
+    detail:
+      decision === "approved" && depositInvoice
+        ? `approved ${quote.ref} — deposit invoice created (${usd(depositInvoice.amount)})`
+        : decision === "approved" && invoiceId
+          ? `approved ${quote.ref} — invoice draft created`
+          : `${decision} ${quote.ref}`,
     entityType: "quote",
     entityId: quoteId,
   });
@@ -501,7 +556,7 @@ export async function respondToQuote(formData: FormData) {
       policyKey: POLICY_KEYS.quoteTerms,
       policyVersion: COMPLIANCE_POLICY_VERSION,
       acknowledgmentText: ACKNOWLEDGMENT_TEXT.quoteApproval,
-      metadata: { quoteRef: quote.ref, invoiceCreated: invoiceId },
+      metadata: { quoteRef: quote.ref, invoiceCreated: invoiceId, depositAmount: depositInvoice?.amount ?? null },
     });
     await recordComplianceEvidence({
       actor: user,
@@ -511,14 +566,16 @@ export async function respondToQuote(formData: FormData) {
       relatedRecordType: "quote",
       relatedRecordId: quoteId,
       policyVersion: COMPLIANCE_POLICY_VERSION,
-      metadata: { quoteRef: quote.ref, invoiceCreated: invoiceId },
+      metadata: { quoteRef: quote.ref, invoiceCreated: invoiceId, depositAmount: depositInvoice?.amount ?? null },
     });
   }
   await notifyAdmins({
     title: `Quote ${decision}`,
     body:
       decision === "approved" && invoiceId
-        ? `${user.name} approved ${quote.ref}. Invoice draft created for review.`
+        ? depositInvoice
+          ? `${user.name} approved ${quote.ref}. Deposit invoice created for ${usd(depositInvoice.amount)}.`
+          : `${user.name} approved ${quote.ref}. Invoice draft created for review.`
         : `${user.name} ${decision} ${quote.ref}.`,
     type: "quote_response",
     entityType: "quote",
