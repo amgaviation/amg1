@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, LogOut, Menu, X } from "lucide-react";
@@ -130,18 +130,50 @@ export function PortalShell({
   const [open, setOpen] = useState(false);
   const navGroups = filterNavGroups(resolveNavGroups(role, user.role), moduleView);
 
-  // Mobile drawer ergonomics: lock body scroll while open, close on Escape.
+  const drawerRef = useRef<HTMLElement | null>(null);
+  const drawerReturnFocus = useRef<HTMLElement | null>(null);
+
+  // Mobile drawer ergonomics: lock body scroll, move focus into the drawer,
+  // trap Tab, close on Escape, and restore focus to the trigger on close.
   useEffect(() => {
     if (!open) return;
+    const FOCUSABLE =
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    drawerReturnFocus.current = document.activeElement as HTMLElement | null;
+    const focusTimer = setTimeout(() => {
+      drawerRef.current?.querySelector<HTMLElement>(FOCUSABLE)?.focus();
+    }, 20);
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const panel = drawerRef.current;
+      if (!panel) return;
+      const nodes = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+        (el) => el.offsetParent !== null
+      );
+      if (!nodes.length) return;
+      const first = nodes[0];
+      const last = nodes[nodes.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => {
+      clearTimeout(focusTimer);
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
+      drawerReturnFocus.current?.focus?.();
     };
   }, [open]);
 
@@ -163,7 +195,7 @@ export function PortalShell({
               className="absolute inset-0 bg-[rgba(4,8,16,0.66)] backdrop-blur-sm animate-in fade-in duration-200"
               onClick={() => setOpen(false)}
             />
-            <aside className="deck-chrome-surface absolute left-0 top-0 flex h-[100dvh] w-[18rem] max-w-[85vw] flex-col border-r border-[var(--deck-chrome-line)] shadow-2xl animate-in slide-in-from-left duration-200 [padding-left:env(safe-area-inset-left)]">
+            <aside ref={drawerRef} className="deck-chrome-surface absolute left-0 top-0 flex h-[100dvh] w-[18rem] max-w-[85vw] flex-col border-r border-[var(--deck-chrome-line)] shadow-2xl animate-in slide-in-from-left duration-200 [padding-left:env(safe-area-inset-left)]">
               <button
                 onClick={() => setOpen(false)}
                 className="absolute right-3 top-3 z-10 rounded-md border border-[var(--deck-chrome-line)] p-2.5 text-[var(--deck-chrome-muted)] transition-colors hover:text-[var(--deck-chrome-text)]"

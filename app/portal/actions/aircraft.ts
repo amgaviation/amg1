@@ -12,7 +12,10 @@ import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
  * activate. Clients never set status directly.
  */
 export async function submitClientAircraft(formData: FormData) {
-  const user = await actor(["client"]);
+  // Adding aircraft is a distinct permission from viewing them; clients have
+  // aircraft.add by default, so this enforces the matrix without changing
+  // default behavior.
+  const user = await actor(["client"], "aircraft.add");
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/client/aircraft");
 
   const tail = str(formData, "tail_number").trim().toUpperCase().slice(0, 20);
