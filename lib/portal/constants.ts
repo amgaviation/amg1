@@ -192,6 +192,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       label: "Finance",
       items: [
         { label: "Analytics", href: "/portal/admin/financial/analytics", icon: "barChart" },
+        { label: "Payouts", href: "/portal/admin/payouts", icon: "wallet" },
         { label: "Pricing & Services", href: "/portal/admin/financial/pricing", icon: "receipt" },
         { label: "Expenses", href: "/portal/admin/expenses", icon: "receipt" },
         { label: "Receipts", href: "/portal/admin/receipts", icon: "fileText" },

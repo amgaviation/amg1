@@ -22,6 +22,12 @@ import { ensureClientAccountForMission } from "@/lib/portal/client-account-provi
 import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
 import { listQualifiedCrew } from "@/lib/portal/pool";
 import { formatDateTime, formatRoute } from "@/lib/portal/format";
+import {
+  PAYOUT_SLA_DAYS,
+  PAYOUT_TASK_RELATED_TYPE,
+  parsePayoutCrewId,
+  payoutCrewMarker,
+} from "@/lib/portal/payouts";
 import { actor, bool, isoOrNull, num, str } from "./_helpers";
 
 async function logCompletedMissionUsage(db: any, missionId: string, admin: Awaited<ReturnType<typeof actor>>) {
@@ -86,6 +92,115 @@ async function logCompletedMissionUsage(db: any, missionId: string, admin: Await
     entityType: "mission",
     entityId: missionId,
   });
+}
+
+/**
+ * Open the 7-day pilot-payment clock on closeout. For each crew member owed on
+ * the mission — every accepted `mission_crew_assignments` row plus the mission's
+ * `assigned_crew_id` (the assignments are the richer source: they carry every
+ * crew seat, not just the primary pilot) — create one high-priority
+ * `ops_tasks` row due `PAYOUT_SLA_DAYS` out, tagged with the shared
+ * `mission_payout` related_type and a per-crew marker in `detail`.
+ *
+ * Idempotent: an existing open payout task for the same mission+crew (matched
+ * by the marker) is skipped, so re-completing a mission after a revert never
+ * double-books a payout. Best-effort — the caller wraps this so a failure here
+ * never blocks the status update itself.
+ */
+async function startMissionPayoutClock(
+  db: any,
+  missionId: string,
+  missionRef: string | null,
+  admin: Awaited<ReturnType<typeof actor>>
+) {
+  const { data: mission } = await db
+    .from("missions")
+    .select("id, ref, assigned_crew_id")
+    .eq("id", missionId)
+    .maybeSingle();
+  if (!mission) return;
+  const ref = mission.ref ?? missionRef ?? missionId;
+
+  const { data: assignments } = await db
+    .from("mission_crew_assignments")
+    .select("crew_id, status")
+    .eq("mission_id", missionId)
+    .in("status", ["accepted", "completed"]);
+
+  const crewIds = new Set<string>();
+  for (const row of assignments ?? []) {
+    if (row?.crew_id) crewIds.add(row.crew_id as string);
+  }
+  if (mission.assigned_crew_id) crewIds.add(mission.assigned_crew_id as string);
+  if (!crewIds.size) return;
+
+  const ids = [...crewIds];
+  const { data: profiles } = await db
+    .from("profiles")
+    .select("id, full_name, email")
+    .in("id", ids);
+  const nameById = new Map<string, string>();
+  for (const profile of profiles ?? []) {
+    nameById.set(profile.id, profile.full_name ?? profile.email ?? "Crew");
+  }
+
+  // Existing open payout tasks for this mission — the per-crew marker in each
+  // task's detail is the idempotency key that survives a re-complete.
+  const { data: existing } = await db
+    .from("ops_tasks")
+    .select("id, detail")
+    .eq("related_type", PAYOUT_TASK_RELATED_TYPE)
+    .eq("related_id", missionId)
+    .in("status", ["open", "in_progress"]);
+  const alreadyClocked = new Set<string>();
+  for (const task of existing ?? []) {
+    const crewId = parsePayoutCrewId(task.detail);
+    if (crewId) alreadyClocked.add(crewId);
+  }
+
+  const dueAt = new Date(Date.now() + PAYOUT_SLA_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  const started: string[] = [];
+  for (const crewId of ids) {
+    if (alreadyClocked.has(crewId)) continue;
+    const crewName = nameById.get(crewId) ?? "Crew";
+    const { data: task, error } = await db
+      .from("ops_tasks")
+      .insert({
+        title: `Pilot payout — ${ref} — ${crewName}`,
+        detail: `Pilot payment due within ${PAYOUT_SLA_DAYS} days of mission closeout. ${payoutCrewMarker(crewId)}`,
+        priority: "high",
+        status: "open",
+        due_at: dueAt,
+        related_type: PAYOUT_TASK_RELATED_TYPE,
+        related_id: missionId,
+        related_label: `${ref} · ${crewName}`,
+        created_by: admin.id,
+      })
+      .select("id")
+      .maybeSingle();
+    if (error || !task) {
+      console.error("[missions] payout task insert failed", missionId, crewId, error?.message);
+      continue;
+    }
+    started.push(crewName);
+    await logAuditEvent({
+      actor: admin,
+      action: "payout_clock_started",
+      detail: `Payout task opened for ${crewName} on ${ref} (due ${dueAt.slice(0, 10)}).`,
+      entityType: "ops_task",
+      entityId: task.id,
+    });
+  }
+
+  if (started.length) {
+    await notifyAdmins({
+      title: `Payout clock started — ${ref}`,
+      body: `${ref} was closed out. Pilot payment${started.length === 1 ? "" : "s"} due within ${PAYOUT_SLA_DAYS} days for ${started.join(", ")}. Track it in Payouts.`,
+      type: "pilot_payout_due",
+      entityType: "mission",
+      entityId: missionId,
+    });
+  }
 }
 
 async function requireMissionAccessForMutation(
@@ -329,8 +444,16 @@ export async function updateMissionStatus(formData: FormData) {
   }
   if (isTransition && status === "completed") {
     await logCompletedMissionUsage(db as any, missionId, user);
+    // Open the 7-day pilot-payment clock. Failure-safe: a payout-task hiccup
+    // must never roll back or block the completed transition itself.
+    try {
+      await startMissionPayoutClock(db as any, missionId, mission?.ref ?? null, user);
+    } catch (error) {
+      console.error("[missions] payout clock creation failed", missionId, error);
+    }
     revalidatePath("/portal/admin/subscriptions");
     revalidatePath("/portal/client/subscriptions");
+    revalidatePath("/portal/admin/payouts");
   }
 
   if (overridden) {

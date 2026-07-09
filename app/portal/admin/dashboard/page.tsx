@@ -17,13 +17,14 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { listFormSubmissions } from "@/lib/portal/form-submissions";
 import { getPipelineMetrics } from "@/lib/portal/crm";
 import { listMyOpenTasks } from "@/lib/portal/tasks";
+import { getPayoutSummary } from "@/lib/portal/payouts";
 import {
   MISSION_FLOW_STAGES,
   MISSION_STATUS_LABEL,
   MISSION_STATUS_TONE,
   toneFor,
 } from "@/lib/portal/constants";
-import { formatDateTime, formatRoute, titleCase } from "@/lib/portal/format";
+import { formatDateTime, formatMoney, formatRoute, titleCase } from "@/lib/portal/format";
 
 export const metadata = { title: "Command Center - AMG Operations" };
 
@@ -44,7 +45,7 @@ export default async function AdminDashboardPage() {
       .in("status", ["submitted", "under_review"]);
     return count ?? 0;
   };
-  const [metrics, missions, pendingUsers, recentSubmissions, myTasks, pipeline, vendorInvoicesOpen] =
+  const [metrics, missions, pendingUsers, recentSubmissions, myTasks, pipeline, vendorInvoicesOpen, payouts] =
     await Promise.all([
       getAdminMetrics(),
       perms.missions.view ? listAllMissions() : [],
@@ -53,6 +54,7 @@ export default async function AdminDashboardPage() {
       perms.tasks.view ? listMyOpenTasks(user.id) : [],
       getPipelineMetrics(),
       countVendorInvoices(),
+      perms.contractor_billing.view ? getPayoutSummary() : null,
     ]);
 
   const active = missions
@@ -278,6 +280,36 @@ export default async function AdminDashboardPage() {
           </div>
         ))}
       </div>
+      ) : null}
+
+      {/* Pilot float runway — cash needed to keep the 7-day payout promise. */}
+      {payouts && payouts.openCount > 0 ? (
+        <Link
+          href="/portal/admin/payouts"
+          className="deck-card deck-card-hover flex flex-wrap items-center gap-x-6 gap-y-2 border-l-[3px] !border-l-[var(--deck-accent)] px-5 py-3.5"
+        >
+          <div className="min-w-0">
+            <p className="deck-eyebrow">Pilot float runway</p>
+            <p className="deck-num mt-1 text-[1.4rem] font-bold leading-none text-[var(--deck-text)]">
+              {formatMoney(payouts.dueNext7Total)}{" "}
+              <span className="text-sm font-medium text-[var(--deck-text-3)]">due next 7 days</span>
+            </p>
+          </div>
+          <p className="text-sm text-[var(--deck-text-2)]">
+            across {payouts.dueNext7Missions} mission{payouts.dueNext7Missions === 1 ? "" : "s"}
+            {payouts.overdueCount > 0 ? (
+              <>
+                {" · "}
+                <span className="font-semibold text-[var(--deck-danger)]">
+                  {payouts.overdueCount} overdue
+                </span>
+              </>
+            ) : null}
+          </p>
+          <span className="deck-mono ml-auto text-[var(--deck-text-3)]" aria-hidden>
+            →
+          </span>
+        </Link>
       ) : null}
 
       {/* Action queue */}
