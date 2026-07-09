@@ -9,12 +9,12 @@ function str(value: unknown) {
 
 /**
  * Svix-style HMAC verification (Resend webhook signing). Enforced whenever
- * EMAIL_WEBHOOK_SIGNING_SECRET is configured; without it we accept but the
- * deploy checklist requires the secret in production.
+ * EMAIL_WEBHOOK_SIGNING_SECRET is configured. If the secret is missing we FAIL
+ * CLOSED in production (reject) and only accept in non-production for local dev.
  */
 function verifyEmailWebhookSignature(rawBody: string, request: Request): boolean {
   const secret = process.env.EMAIL_WEBHOOK_SIGNING_SECRET;
-  if (!secret) return true;
+  if (!secret) return process.env.NODE_ENV !== "production";
 
   const id = request.headers.get("svix-id") ?? "";
   const timestamp = request.headers.get("svix-timestamp") ?? "";

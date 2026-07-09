@@ -31,3 +31,14 @@ export async function requireApprovedPortalApiUser(opts?: { admin?: boolean }) {
   }
   return { user } as const;
 }
+
+/**
+ * JSON response for private/authenticated data — prevents browser/proxy caching
+ * of sensitive payloads (search, analytics, document metadata, admin APIs).
+ */
+export function privateJson(data: unknown, init?: { status?: number }) {
+  return NextResponse.json(data, {
+    status: init?.status ?? 200,
+    headers: { "Cache-Control": "private, no-store" },
+  });
+}

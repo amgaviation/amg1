@@ -4,6 +4,7 @@ import { isAdminRole } from "@/lib/portal/constants";
 import { listLeads } from "@/lib/portal/crm";
 import { contentDisposition } from "@/lib/portal/file-response";
 import { getSessionUser } from "@/lib/portal/session";
+import { sanitizeSpreadsheetRow } from "@/lib/portal/spreadsheet";
 
 export const dynamic = "force-dynamic";
 
@@ -20,21 +21,23 @@ export async function GET(request: Request) {
   const format = url.searchParams.get("format") === "xlsx" ? "xlsx" : "csv";
   const leads = await listLeads({ q: url.searchParams.get("q") ?? undefined });
 
-  const rows = leads.map((lead) => ({
-    "Full Name": lead.full_name,
-    Company: lead.company ?? "",
-    Email: lead.email ?? "",
-    Phone: lead.phone ?? "",
-    Source: lead.source,
-    Stage: lead.stage,
-    "Estimated Value": lead.estimated_value ?? "",
-    "Next Action": lead.next_action_at ?? "",
-    Notes: lead.notes ?? "",
-    "Lost Reason": lead.lost_reason ?? "",
-    Owner: lead.owner?.full_name ?? lead.owner?.email ?? "",
-    Created: lead.created_at,
-    Updated: lead.updated_at,
-  }));
+  const rows = leads.map((lead) =>
+    sanitizeSpreadsheetRow({
+      "Full Name": lead.full_name,
+      Company: lead.company ?? "",
+      Email: lead.email ?? "",
+      Phone: lead.phone ?? "",
+      Source: lead.source,
+      Stage: lead.stage,
+      "Estimated Value": lead.estimated_value ?? "",
+      "Next Action": lead.next_action_at ?? "",
+      Notes: lead.notes ?? "",
+      "Lost Reason": lead.lost_reason ?? "",
+      Owner: lead.owner?.full_name ?? lead.owner?.email ?? "",
+      Created: lead.created_at,
+      Updated: lead.updated_at,
+    })
+  );
 
   const sheet = XLSX.utils.json_to_sheet(rows, {
     header: [

@@ -300,9 +300,21 @@ export function parseNetworkApplicationForm(formData: FormData) {
     if (fileError) errors.certificates = fileError;
   }
   const supportingFiles = formData.getAll("supporting_documents").filter((item): item is File => item instanceof File && item.size > 0);
+  if (supportingFiles.length > 10) errors.supporting_documents = "Upload no more than 10 supporting documents.";
   for (const file of supportingFiles) {
     const fileError = validateFile(file, ALLOWED_DOC_TYPES);
     if (fileError) errors.supporting_documents = fileError;
+  }
+
+  // Bound the whole submission so a public caller can't post many max-size files.
+  const MAX_TOTAL_UPLOAD_BYTES = 80 * 1024 * 1024;
+  const totalUploadBytes = [
+    resume instanceof File ? resume.size : 0,
+    ...certificateFiles.map((file) => file.size),
+    ...supportingFiles.map((file) => file.size),
+  ].reduce((sum, size) => sum + size, 0);
+  if (totalUploadBytes > MAX_TOTAL_UPLOAD_BYTES) {
+    errors.form = "Total upload size exceeds the 80 MB limit. Please reduce file sizes and try again.";
   }
 
   return {

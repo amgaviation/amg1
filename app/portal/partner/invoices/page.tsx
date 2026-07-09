@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import {
   VendorInvoicesList,
   type VendorInvoiceListParams,
@@ -11,7 +11,7 @@ export default async function PartnerInvoicesPage({
 }: {
   searchParams: Promise<VendorInvoiceListParams>;
 }) {
-  const user = await requireRole("partner");
+  const user = await requireRolePermission("partner", "contractor_billing");
   const params = await searchParams;
   return <VendorInvoicesList user={user} params={params} />;
 }

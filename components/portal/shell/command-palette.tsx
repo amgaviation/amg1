@@ -20,8 +20,10 @@ export function CommandPalette() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [error, setError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
   const requestIdRef = useRef(0);
 
   useEffect(() => {
@@ -45,29 +47,49 @@ export function CommandPalette() {
         document.body.style.overflow = overflow;
       };
     }
+    abortRef.current?.abort();
     setQuery("");
     setResults([]);
+    setError(false);
   }, [open]);
 
   const search = useCallback((value: string) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
+    // Abort any in-flight request and invalidate its id so a late resolve can't
+    // clobber newer state.
+    abortRef.current?.abort();
+    requestIdRef.current += 1;
+    setError(false);
     if (value.trim().length < 2) {
       setResults([]);
       setLoading(false);
       return;
     }
     setLoading(true);
-    const requestId = ++requestIdRef.current;
+    const requestId = requestIdRef.current;
     debounceRef.current = setTimeout(async () => {
+      const controller = new AbortController();
+      abortRef.current = controller;
       try {
-        const response = await fetch(`/api/portal/search?q=${encodeURIComponent(value)}`);
+        const response = await fetch(`/api/portal/search?q=${encodeURIComponent(value)}`, {
+          signal: controller.signal,
+        });
+        if (requestId !== requestIdRef.current) return;
+        if (!response.ok) {
+          setResults([]);
+          setError(true);
+          return;
+        }
         const payload = await response.json();
-        // Drop stale responses that resolve after a newer keystroke.
         if (requestId !== requestIdRef.current) return;
         setResults(payload.results ?? []);
         setActiveIndex(0);
-      } catch {
-        if (requestId === requestIdRef.current) setResults([]);
+      } catch (err) {
+        if ((err as Error)?.name === "AbortError") return;
+        if (requestId === requestIdRef.current) {
+          setResults([]);
+          setError(true);
+        }
       } finally {
         if (requestId === requestIdRef.current) setLoading(false);
       }
@@ -167,6 +189,10 @@ export function CommandPalette() {
               {query.trim().length < 2 ? (
                 <p className="px-3 py-6 text-center text-xs text-[var(--deck-text-3)]">
                   Type at least two characters to search every operational record.
+                </p>
+              ) : error ? (
+                <p className="px-3 py-6 text-center text-xs text-[var(--deck-danger)]">
+                  Search is unavailable right now. Please try again.
                 </p>
               ) : !loading && results.length === 0 ? (
                 <p className="px-3 py-6 text-center text-xs text-[var(--deck-text-3)]">

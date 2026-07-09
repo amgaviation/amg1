@@ -850,16 +850,39 @@ export async function storeInboundCommunication(inbound: NormalizedInboundMessag
 
   if (error || !message) throw error ?? new Error("Unable to store inbound message");
 
+  // Inbound attachments are attacker-influenced: enforce the same per-file MIME
+  // + size allowlist as outbound, plus a max count and total-size cap, and store
+  // the DECODED byte length (never the payload's self-reported size). Rejected
+  // attachments are skipped and logged rather than persisted.
+  const MAX_INBOUND_ATTACHMENTS = 10;
+  const MAX_INBOUND_TOTAL_BYTES = 25 * 1024 * 1024;
+  let inboundAttachmentCount = 0;
+  let inboundAttachmentBytes = 0;
   for (const attachment of inbound.attachments ?? []) {
     if (!attachment.contentBase64) continue;
+    if (inboundAttachmentCount >= MAX_INBOUND_ATTACHMENTS) {
+      console.warn(`[inbound] attachment cap (${MAX_INBOUND_ATTACHMENTS}) reached; remaining skipped`);
+      break;
+    }
     const bytes = Buffer.from(attachment.contentBase64, "base64");
     const fileName = attachment.fileName || "attachment";
+    const contentType = attachment.contentType ?? "application/octet-stream";
+    const check = validateAttachment({ name: fileName, size: bytes.length, type: contentType });
+    if (!check.ok) {
+      console.warn(`[inbound] rejected attachment ${fileName} (${check.reason})`);
+      continue;
+    }
+    if (inboundAttachmentBytes + bytes.length > MAX_INBOUND_TOTAL_BYTES) {
+      console.warn(`[inbound] attachment ${fileName} skipped: total-size cap exceeded`);
+      break;
+    }
+    inboundAttachmentBytes += bytes.length;
+    inboundAttachmentCount += 1;
     const path = communicationAttachmentPath({
       threadPublicId: thread.public_id,
       messagePublicId: message.public_id,
       fileName,
     });
-    const contentType = attachment.contentType ?? "application/octet-stream";
     const { error: uploadError } = await client.storage
       .from(COMMUNICATION_ATTACHMENT_BUCKET)
       .upload(path, bytes, { contentType, upsert: false });
@@ -869,7 +892,7 @@ export async function storeInboundCommunication(inbound: NormalizedInboundMessag
       thread_id: thread.id,
       file_name: fileName,
       content_type: contentType,
-      file_size_bytes: attachment.size ?? bytes.length,
+      file_size_bytes: bytes.length,
       storage_bucket: COMMUNICATION_ATTACHMENT_BUCKET,
       storage_path: path,
       source: "inbound_email",

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import { logAuditEvent } from "@/lib/portal/audit";
 import { getBillingSettings } from "@/lib/portal/billing-config";
 import { getStripeBillingDiagnostics } from "@/lib/portal/stripe-mode";
@@ -20,7 +20,7 @@ export default async function AdminBillingSettingsPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "settings");
   const params = await searchParams;
   const confirmed = await billingSettingsConfirmed();
   const [settings, stripeDiagnostics] = await Promise.all([
