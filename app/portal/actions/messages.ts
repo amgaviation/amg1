@@ -8,7 +8,17 @@ import { outboundMessageSenderLabel } from "@/lib/portal/message-display";
 import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
 import { recordComplianceEvidence } from "@/lib/compliance/evidence";
 import { detectProhibitedPaymentData } from "@/lib/compliance/payment-data-guard";
+import { isAdminRole, type PortalRole } from "@/lib/portal/constants";
 import { actor, safeRedirectPath, str } from "./_helpers";
+
+/**
+ * The messages surface for a role. Admin + super_admin share the admin
+ * portal-threads inbox at /portal/admin/messages/portal (there is no
+ * /portal/super_admin/messages route); every other role uses its own.
+ */
+function messagesRootFor(role: PortalRole): string {
+  return isAdminRole(role) ? "/portal/admin/messages/portal" : `/portal/${role}/messages`;
+}
 
 async function verifyThreadMissionReference(
   db: Awaited<ReturnType<typeof createServiceClient>>,
@@ -54,7 +64,7 @@ export async function postMessage(formData: FormData) {
   const db = await createServiceClient();
   const threadId = str(formData, "thread_id");
   const body = str(formData, "body");
-  const messagesRoot = `/portal/${user.role}/messages`;
+  const messagesRoot = messagesRootFor(user.role);
   const requestedBackTo = safeRedirectPath(str(formData, "back_to"), messagesRoot);
   const backTo = requestedBackTo.startsWith(messagesRoot) ? requestedBackTo : messagesRoot;
   if (!threadId || !body) redirect(`${backTo}?error=empty`);
@@ -73,8 +83,8 @@ export async function postMessage(formData: FormData) {
     redirect(`${backTo}?error=payment-data`);
   }
 
-  // Authorize: admin or thread member
-  if (user.role !== "admin") {
+  // Authorize: admin (or super_admin) or thread member
+  if (!isAdminRole(user.role)) {
     const { data: member } = await db
       .from("thread_members")
       .select("thread_id")
@@ -135,7 +145,8 @@ export async function startThread(formData: FormData) {
   const title = str(formData, "title") || "AMG Operations";
   const body = str(formData, "body");
   const missionId = str(formData, "mission_id") || null;
-  if (!body) redirect(`/portal/${user.role}/messages?error=empty`);
+  const messagesRoot = messagesRootFor(user.role);
+  if (!body) redirect(`${messagesRoot}?error=empty`);
   const paymentFindings = detectProhibitedPaymentData({ title, body });
   if (paymentFindings.length) {
     await recordComplianceEvidence({
@@ -148,10 +159,10 @@ export async function startThread(formData: FormData) {
       acknowledgmentText: ACKNOWLEDGMENT_TEXT.noOnlinePayment,
       metadata: { action: "portal_thread_blocked", fields: paymentFindings.map((finding) => finding.field) },
     });
-    redirect(`/portal/${user.role}/messages?error=payment-data`);
+    redirect(`${messagesRoot}?error=payment-data`);
   }
   if (missionId && !(await verifyThreadMissionReference(db, user, missionId))) {
-    redirect(`/portal/${user.role}/messages?error=forbidden`);
+    redirect(`${messagesRoot}?error=forbidden`);
   }
 
   const { data: thread } = await db
@@ -165,13 +176,13 @@ export async function startThread(formData: FormData) {
     })
     .select("id")
     .single();
-  if (!thread) redirect(`/portal/${user.role}/messages?error=failed`);
+  if (!thread) redirect(`${messagesRoot}?error=failed`);
 
-  // Members: the sender plus all approved admins
+  // Members: the sender plus every approved admin and super_admin
   const { data: admins } = await db
     .from("profiles")
     .select("id")
-    .eq("role", "admin")
+    .in("role", ["admin", "super_admin"])
     .eq("status", "approved");
   const memberIds = new Set<string>([user.id, ...(admins ?? []).map((a) => a.id)]);
   await db
@@ -204,5 +215,5 @@ export async function startThread(formData: FormData) {
     entityType: "thread",
     entityId: thread.id,
   });
-  redirect(`/portal/${user.role}/messages/${thread.id}`);
+  redirect(`${messagesRoot}/${thread.id}`);
 }

@@ -2,7 +2,7 @@ import "server-only";
 
 import { createServiceClient } from "@/lib/supabase/server";
 import type { Tables } from "@/lib/supabase/database.types";
-import type { PortalRole } from "@/lib/portal/constants";
+import { isAdminRole, type PortalRole } from "@/lib/portal/constants";
 
 export const ADMIN_MESSAGE_ALIAS = "AMG Operations";
 
@@ -43,16 +43,16 @@ export async function getThreadWithMessagesForDisplay(
 }
 
 export function messageSenderName(message: Pick<MessageForDisplay, "sender" | "sender_email" | "sender_id">, currentUserId: string, currentUserRole: PortalRole) {
-  if (message.sender?.role === "admin") return ADMIN_MESSAGE_ALIAS;
-  if (message.sender_id === currentUserId && currentUserRole !== "admin") return "You";
+  if (isAdminRole(message.sender?.role ?? "")) return ADMIN_MESSAGE_ALIAS;
+  if (message.sender_id === currentUserId && !isAdminRole(currentUserRole)) return "You";
   return message.sender?.full_name ?? message.sender?.email ?? message.sender_email;
 }
 
 export function messageSenderInitialsSource(message: Pick<MessageForDisplay, "sender" | "sender_email">) {
-  if (message.sender?.role === "admin") return ADMIN_MESSAGE_ALIAS;
+  if (isAdminRole(message.sender?.role ?? "")) return ADMIN_MESSAGE_ALIAS;
   return message.sender?.full_name ?? message.sender?.email ?? message.sender_email;
 }
 
 export function outboundMessageSenderLabel(sender: { role: PortalRole; name: string }) {
-  return sender.role === "admin" ? ADMIN_MESSAGE_ALIAS : sender.name;
+  return isAdminRole(sender.role) ? ADMIN_MESSAGE_ALIAS : sender.name;
 }

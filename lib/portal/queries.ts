@@ -1,6 +1,7 @@
 import "server-only";
 
 import { listAdminCrewProfiles, type AdminCrewProfile } from "@/lib/portal/admin-crew-query";
+import { isAdminRole } from "@/lib/portal/constants";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { BillingDocumentRow } from "@/lib/portal/billing-documents";
 import type { Tables } from "@/lib/supabase/database.types";
@@ -898,6 +899,12 @@ export type ThreadSummary = MessageThread & {
   last_body: string | null;
   /** The viewer's unread "message" notifications for this thread. */
   unread_count: number;
+  /**
+   * Display name of the non-admin counterparty (client / crew / partner).
+   * Populated only for the admin inbox (isAdmin), where identifying who
+   * started the thread is what the ops surface needs; null otherwise.
+   */
+  participant_label: string | null;
 };
 
 export async function listThreadsForUser(userId: string, isAdmin: boolean): Promise<ThreadSummary[]> {
@@ -945,11 +952,40 @@ export async function listThreadsForUser(userId: string, isAdmin: boolean): Prom
     if (!n.entity_id) continue;
     unreadByThread.set(n.entity_id, (unreadByThread.get(n.entity_id) ?? 0) + 1);
   }
+  // Admin inbox: label each thread with its non-admin counterparty so ops can
+  // see who they are talking to. Non-admin roles only ever see their own
+  // threads, so the label is unnecessary there and the lookup is skipped.
+  const participantByThread = new Map<string, string>();
+  if (isAdmin) {
+    const { data: memberRows } = await db
+      .from("thread_members")
+      .select("thread_id, profile_id")
+      .in(
+        "thread_id",
+        threads.map((t) => t.id)
+      );
+    const rows = memberRows ?? [];
+    if (rows.length) {
+      const profileIds = [...new Set(rows.map((r) => r.profile_id))];
+      const { data: profs } = await db
+        .from("profiles")
+        .select("id, full_name, email, company_name, role")
+        .in("id", profileIds);
+      const profById = new Map((profs ?? []).map((p) => [p.id, p]));
+      for (const r of rows) {
+        if (participantByThread.has(r.thread_id)) continue;
+        const p = profById.get(r.profile_id);
+        if (!p || isAdminRole(p.role)) continue;
+        participantByThread.set(r.thread_id, p.full_name ?? p.company_name ?? p.email);
+      }
+    }
+  }
   return threads.map((t) => ({
     ...t,
     members: [],
     last_body: lastByThread.get(t.id) ?? null,
     unread_count: unreadByThread.get(t.id) ?? 0,
+    participant_label: participantByThread.get(t.id) ?? null,
   }));
 }
 
