@@ -203,7 +203,7 @@ Ordered by user-facing impact: correctness/trust issues first, funnel-visual/sec
 
 ---
 
-### Phase 6 — Legal & Compliance Copy Accuracy Pass — `STATUS: PENDING`
+### Phase 6 — Legal & Compliance Copy Accuracy Pass — `STATUS: PASS` (no changes needed — audited compliant, independently re-verified by reviewer)
 **Scope:** `app/(public)/legal/page.tsx`, `legal/[slug]/page.tsx`, `privacy-policy/page.tsx`, `cookie-policy/page.tsx`, `terms/page.tsx`, `accessibility/page.tsx`, cross-checked against `docs/website-ground-truth.md`.
 
 **Objectives:**
