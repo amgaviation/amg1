@@ -8,6 +8,9 @@ import {
   expiredCreditMarker,
   round2,
 } from "@/lib/portal/subscription-credits";
+import { sweepInvoiceDunning } from "@/lib/portal/sweeps/dunning";
+import { sweepPayoutReminders } from "@/lib/portal/sweeps/payout-reminders";
+import { sweepSlaBreaches } from "@/lib/portal/sweeps/sla-sweep";
 import { createServiceClient } from "@/lib/supabase/server";
 
 // Nightly operational sweep, invoked by Vercel Cron (see vercel.json).
@@ -19,6 +22,11 @@ import { createServiceClient } from "@/lib/supabase/server";
 //    ago without a renewal event.
 // 5. Expire unused subscription credits past their expires_at date.
 // 6. Remind CRM lead owners when a follow-up (next_action_at) comes due.
+// 7. Remind admins of pilot payouts approaching/past the 7-day promise.
+// 8. Run the client dunning cadence for overdue invoices (globally gated
+//    on billing_settings.dunning_enabled — a no-op until switched on).
+// 9. SLA clock: flag at-risk quote-response windows, stamp breaches, and
+//    apply the automatic plan-fee credit remedy where derivable.
 // All mutations are audit-logged as the synthetic "system-cron" actor.
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -552,6 +560,12 @@ export async function GET(request: Request) {
     subscriptionCreditsExpired: 0,
     scheduledEmailsSent: 0,
     crmFollowUpsReminded: 0,
+    payoutRemindersSent: 0,
+    dunningEmailsSent: 0,
+    dunningFailed: 0,
+    slaAtRisk: 0,
+    slaBreached: 0,
+    slaCredited: 0,
   };
   const errors: Record<string, string> = {};
   const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
@@ -605,6 +619,32 @@ export async function GET(request: Request) {
   } catch (error) {
     errors.crmFollowUps = message(error);
     console.error("[cron/nightly] CRM follow-up reminder sweep failed", error);
+  }
+
+  try {
+    counts.payoutRemindersSent = await sweepPayoutReminders(db, now);
+  } catch (error) {
+    errors.payoutReminders = message(error);
+    console.error("[cron/nightly] payout reminder sweep failed", error);
+  }
+
+  try {
+    const dunning = await sweepInvoiceDunning(db, now);
+    counts.dunningEmailsSent = dunning.sent;
+    counts.dunningFailed = dunning.failed;
+  } catch (error) {
+    errors.invoiceDunning = message(error);
+    console.error("[cron/nightly] invoice dunning sweep failed", error);
+  }
+
+  try {
+    const sla = await sweepSlaBreaches(db, now);
+    counts.slaAtRisk = sla.atRisk;
+    counts.slaBreached = sla.breached;
+    counts.slaCredited = sla.credited;
+  } catch (error) {
+    errors.slaSweep = message(error);
+    console.error("[cron/nightly] SLA breach sweep failed", error);
   }
 
   await insertAuditRows(db, [
