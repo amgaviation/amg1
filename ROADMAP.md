@@ -222,7 +222,7 @@ Ordered by user-facing impact: correctness/trust issues first, funnel-visual/sec
 
 ---
 
-### Phase 7 — Business-Content Completion Readiness (Team + Missions/Proof) — `STATUS: BLOCKED (business input required, not code)`
+### Phase 7 — Business-Content Completion Readiness (Team + Missions/Proof) — `STATUS: BLOCKED (business input required, not code — excluded from automated loop execution)`
 **Scope:** `lib/site-config.ts` (`TEAM_ROSTER`), `content/missions/index.ts`, `components/site/mission-card.tsx` (visual-readiness check only).
 
 **Objectives:**
@@ -241,7 +241,7 @@ Ordered by user-facing impact: correctness/trust issues first, funnel-visual/sec
 
 ---
 
-### Phase 8 — Dependency & Security Posture Maintenance — `STATUS: PENDING`
+### Phase 8 — Dependency & Security Posture Maintenance — `STATUS: PASS` (no changes needed — @supabase/ssr already at latest stable 0.x, CSP comment accurate, xlsx confirmed portal-only)
 **Scope:** `package.json`, `next.config.ts`'s CSP comment (`'unsafe-inline'`/`'unsafe-eval'` already flagged in-file as "the next hardening step").
 
 **Objectives:**
