@@ -379,14 +379,20 @@ function statusMeta(blip: MapBlip): { text: string; color: string } {
 function HoverCard({ blip, variant, pos }: { blip: MapBlip; variant: MapVariant; pos: { left: number; top: number } }) {
   const st = statusMeta(blip);
   const soonest = minutesLeft(blip.soonestExpiresAt);
+  // Admin/super-admin see identities: when a single crew is at the airport, lead
+  // the card with their NAME (the airport becomes the subtitle); a cluster keeps
+  // the airport title and lists each crew member by name below.
+  const solo = variant === "admin" && blip.crew.length === 1 ? blip.crew[0] : null;
+  const title = solo ? solo.name : blip.title;
+  const sub = solo ? blip.title : blip.sub;
   return (
     <div
       className="pointer-events-none absolute z-20 w-[260px]"
       style={{ left: pos.left, top: pos.top }}
     >
       <div className="deck-card rounded-xl border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] p-3.5 shadow-[var(--deck-shadow-card-hover)]">
-        <p className="text-sm font-semibold leading-tight text-[var(--deck-text)]">{blip.title}</p>
-        {blip.sub ? <p className="mt-0.5 text-xs text-[var(--deck-text-3)]">{blip.sub}</p> : null}
+        <p className="text-sm font-semibold leading-tight text-[var(--deck-text)]">{title}</p>
+        {sub ? <p className="mt-0.5 text-xs text-[var(--deck-text-3)]">{sub}</p> : null}
 
         <p className="mt-2 flex items-center gap-1.5 text-xs font-medium" style={{ color: st.color }}>
           <span className="h-2 w-2 rounded-full" style={{ background: st.color }} />
@@ -397,25 +403,36 @@ function HoverCard({ blip, variant, pos }: { blip: MapBlip; variant: MapVariant;
           <CardStat label="Crew" value={blip.count} />
           {blip.hours != null ? <CardStat label="Hours" value={fmtHours(blip.hours)} /> : null}
           {blip.kind === "airport" && soonest != null ? (
-            <CardStat label="Soonest" value={`${Math.max(0, soonest)}m`} />
+            <CardStat label="Time left" value={`${Math.max(0, soonest)}m`} />
           ) : blip.kind === "state" ? (
             <CardStat label="State" value={blip.state ?? "—"} />
           ) : null}
         </div>
 
-        {variant === "admin" && blip.crew.length ? (
+        {solo && solo.ratings.length ? (
+          <p className="mt-2.5 border-t border-[var(--deck-line)] pt-2.5 text-xs text-[var(--deck-text-2)]">
+            <span className="text-[var(--deck-text-3)]">Rated: </span>
+            {solo.ratings.slice(0, 6).join(", ")}
+          </p>
+        ) : null}
+
+        {variant === "admin" && blip.crew.length > 1 ? (
           <ul className="mt-2.5 grid gap-1 border-t border-[var(--deck-line)] pt-2.5">
-            {blip.crew.slice(0, 3).map((c, i) => {
+            {blip.crew.slice(0, 4).map((c, i) => {
               const m = minutesLeft(c.expiresAt);
+              const rating = c.ratings[0];
               return (
                 <li key={i} className="flex items-center justify-between gap-2 text-xs">
-                  <span className="truncate font-medium text-[var(--deck-text)]">{c.name}</span>
+                  <span className="truncate font-medium text-[var(--deck-text)]">
+                    {c.name}
+                    {rating ? <span className="ml-1.5 font-normal text-[var(--deck-text-3)]">{rating}</span> : null}
+                  </span>
                   <span className="deck-num shrink-0 text-[var(--deck-text-3)]">{m != null ? `${Math.max(0, m)}m` : "—"}</span>
                 </li>
               );
             })}
-            {blip.crew.length > 3 ? (
-              <li className="text-[0.7rem] text-[var(--deck-text-3)]">+{blip.crew.length - 3} more crew</li>
+            {blip.crew.length > 4 ? (
+              <li className="text-[0.7rem] text-[var(--deck-text-3)]">+{blip.crew.length - 4} more crew</li>
             ) : null}
           </ul>
         ) : null}
