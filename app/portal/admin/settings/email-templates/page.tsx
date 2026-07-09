@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
+import { requireRolePermission } from "@/lib/portal/permissions";
 import {
   FilterTabs,
   Notice,
@@ -25,7 +25,7 @@ export default async function EmailTemplatesPage({
 }: {
   searchParams: Promise<{ family?: string; q?: string; success?: string; error?: string }>;
 }) {
-  await requireRole("admin");
+  await requireRolePermission("admin", "settings");
   const params = await searchParams;
   const templates = await listEmailTemplates();
 

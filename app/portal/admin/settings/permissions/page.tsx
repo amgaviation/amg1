@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/portal/session";
-import { permissionsForRole } from "@/lib/portal/permissions";
+import { permissionsForRole, requireRolePermission } from "@/lib/portal/permissions";
 import { MATRIX_ROLES, type ActionFlags, type MatrixRole, type PermissionModule } from "@/lib/portal/permissions-catalog";
 import { saveRolePermissions } from "@/app/portal/actions/permissions";
 import { PermissionsMatrix } from "@/components/portal/admin/permissions-matrix";
@@ -13,7 +12,7 @@ export default async function RolePermissionsPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRole("admin");
+  const user = await requireRolePermission("admin", "settings");
   const params = await searchParams;
   const canEdit = user.role === "super_admin";
 
