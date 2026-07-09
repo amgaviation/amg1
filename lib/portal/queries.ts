@@ -440,6 +440,23 @@ export async function getQuoteDetail(
   return { ...quote, items: items.data ?? [], documents: documents.data ?? [], auditEvents: auditEvents.data ?? [] };
 }
 
+/**
+ * Entity-scoped audit trail. Mirrors the query used by getQuoteDetail /
+ * getInvoiceDetail so per-record Activity Timelines stay consistent.
+ * Note: client and crew records are `profile` entities in audit_events.
+ */
+export async function getEntityTimeline(entityType: string, entityId: string): Promise<AuditEvent[]> {
+  const db = await createServiceClient();
+  const { data } = await db
+    .from("audit_events")
+    .select("*")
+    .eq("entity_type", entityType)
+    .eq("entity_id", entityId)
+    .order("created_at", { ascending: false })
+    .limit(100);
+  return data ?? [];
+}
+
 // Billing
 export async function listAllInvoices(): Promise<
   (Invoice & {

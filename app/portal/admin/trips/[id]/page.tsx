@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
-import { DetailRow, EmptyState, Notice, SectionCard } from "@/components/portal/ui/primitives";
+import { DetailRow, EmptyState, Notice, SectionCard, Timeline } from "@/components/portal/ui/primitives";
 import { DescriptionList } from "@/components/portal/ui/description-list";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -9,7 +9,7 @@ import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fi
 import { assignCrew, assignPartner, unassignCrew } from "@/app/portal/actions/admin";
 import { createQuote } from "@/app/portal/actions/quotes";
 import { decideCrewPoolRequest, updateMissionNotes, updateMissionPool, updateMissionStatus } from "@/app/portal/actions/missions";
-import { getMissionDetail, listAllCrew, listAllPartners } from "@/lib/portal/queries";
+import { getEntityTimeline, getMissionDetail, listAllCrew, listAllPartners } from "@/lib/portal/queries";
 import { MIN_GATE_OVERRIDE_REASON_LENGTH, getCrewComplianceIssues, getMissionReadiness } from "@/lib/portal/mission-lifecycle";
 import { countQualifiedCrew, describePoolRequirements, listCrewRequestsForMission, parsePoolRequirements } from "@/lib/portal/pool";
 import { getPublicSupportRequestForMission, publicSupportLabel } from "@/lib/portal/public-support-requests";
@@ -34,14 +34,29 @@ export default async function AdminTripDetailPage({
   const user = await requireRolePermission("admin", "missions");
   const { id } = await params;
   const flash = await searchParams;
-  const [mission, crew, partners, publicRequest, poolRequests] = await Promise.all([
+  const [mission, crew, partners, publicRequest, poolRequests, timeline] = await Promise.all([
     getMissionDetail(id),
     listAllCrew(),
     listAllPartners(),
     getPublicSupportRequestForMission(id),
     listCrewRequestsForMission(id),
+    getEntityTimeline("mission", id),
   ]);
   if (!mission) notFound();
+
+  const activityItems = timeline
+    .map((event) => ({
+      at: event.created_at,
+      title: event.action.replace(/_/g, " "),
+      body: event.detail ?? event.actor_email ?? undefined,
+    }))
+    .sort((a, b) => new Date(b.at ?? 0).getTime() - new Date(a.at ?? 0).getTime())
+    .slice(0, 12)
+    .map((item) => ({
+      title: item.title,
+      meta: formatDateTime(item.at),
+      body: item.body,
+    }));
 
   const poolRequirements = parsePoolRequirements(mission.pool_requirements);
   const pendingPoolRequests = poolRequests.filter((r) => r.status === "pending");
@@ -230,6 +245,14 @@ export default async function AdminTripDetailPage({
                   <p className="mt-1 text-xs text-muted-foreground">{item.status} | {item.location ?? "Location TBD"} | {formatMoney(item.quote_amount)}</p>
                 </div>
               ))}</div>
+            )}
+          </SectionCard>
+
+          <SectionCard title="Activity Timeline" icon="history">
+            {activityItems.length ? (
+              <Timeline items={activityItems} />
+            ) : (
+              <p className="text-sm text-muted-foreground">No mission activity recorded yet.</p>
             )}
           </SectionCard>
         </div>

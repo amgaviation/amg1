@@ -6,10 +6,10 @@ import { resolvePriceMismatch } from "@/app/portal/actions/subscription-sync";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { ClientPickerField } from "@/components/portal/ui/combobox";
-import { DetailRow, Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
+import { DetailRow, Notice, PageHeader, SectionCard, StatCard, Timeline } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
-import { getSubscriptionDetail, listAllMissions, listClients } from "@/lib/portal/queries";
+import { getEntityTimeline, getSubscriptionDetail, listAllMissions, listClients } from "@/lib/portal/queries";
 import { SUBSCRIPTION_CREDIT_TYPES, SUBSCRIPTION_STATUS, SUBSCRIPTION_STATUS_LABEL, SUBSCRIPTION_STATUS_TONE, SUBSCRIPTION_SYNC_STATUS_LABEL, SUBSCRIPTION_SYNC_STATUS_TONE, SUBSCRIPTION_USAGE_TYPE_LABEL, SUBSCRIPTION_USAGE_TYPES, toneFor } from "@/lib/portal/constants";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/portal/format";
 import { stripeDashboardSubscriptionUrl } from "@/lib/portal/stripe-subscriptions";
@@ -26,8 +26,21 @@ export default async function AdminSubscriptionDetailPage({
   const user = await requireRolePermission("admin", "subscriptions");
   const { id } = await params;
   const flash = await searchParams;
-  const [subscription, missions, clients] = await Promise.all([getSubscriptionDetail(id), listAllMissions(), listClients()]);
+  const [subscription, missions, clients, timeline] = await Promise.all([getSubscriptionDetail(id), listAllMissions(), listClients(), getEntityTimeline("client_subscription", id)]);
   if (!subscription) notFound();
+  const activityItems = timeline
+    .map((event) => ({
+      at: event.created_at,
+      title: event.action.replace(/_/g, " "),
+      body: event.detail ?? event.actor_email ?? undefined,
+    }))
+    .sort((a, b) => new Date(b.at ?? 0).getTime() - new Date(a.at ?? 0).getTime())
+    .slice(0, 12)
+    .map((item) => ({
+      title: item.title,
+      meta: formatDateTime(item.at),
+      body: item.body,
+    }));
   const clientMissions = missions.filter((mission) => mission.client_id === subscription.client_id);
   const usageTotals = subscription.usage.reduce(
     (totals, event) => ({
@@ -193,6 +206,14 @@ export default async function AdminSubscriptionDetailPage({
                 { header: "Error", cell: (row) => row.error ?? "-" },
               ]}
             />
+          </SectionCard>
+
+          <SectionCard title="Activity Timeline" icon="history">
+            {activityItems.length ? (
+              <Timeline items={activityItems} />
+            ) : (
+              <p className="text-sm text-muted-foreground">No subscription activity recorded yet.</p>
+            )}
           </SectionCard>
         </div>
 

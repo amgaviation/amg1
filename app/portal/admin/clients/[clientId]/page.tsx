@@ -8,12 +8,13 @@ import {
   RelatedList,
   type DetailFormField,
 } from "@/components/portal/admin/record-detail";
-import { Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
+import { Notice, PageHeader, SectionCard, StatCard, Timeline } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PROFILE_STATUS, PROFILE_STATUS_LABEL, PROFILE_STATUS_TONE, toneFor } from "@/lib/portal/constants";
 import { formatDateTime, formatMoney } from "@/lib/portal/format";
 import {
+  getEntityTimeline,
   listAllAircraft,
   listAllDocuments,
   listAllInvoices,
@@ -78,7 +79,7 @@ export default async function AdminClientDetailPage({
   const user = await requireRolePermission("admin", "clients");
   const { clientId } = await params;
   const query = await searchParams;
-  const [clients, aircraft, missions, quotes, invoices, documents, subscriptions] = await Promise.all([
+  const [clients, aircraft, missions, quotes, invoices, documents, subscriptions, timeline] = await Promise.all([
     listClients(),
     listAllAircraft(),
     listAllMissions(),
@@ -86,10 +87,25 @@ export default async function AdminClientDetailPage({
     listAllInvoices(),
     listAllDocuments({ ownerId: clientId }),
     listAllSubscriptions(),
+    getEntityTimeline("profile", clientId),
   ]);
 
   const client = clients.find((item) => item.id === clientId) as any;
   if (!client) notFound();
+
+  const activityItems = timeline
+    .map((event) => ({
+      at: event.created_at,
+      title: event.action.replace(/_/g, " "),
+      body: event.detail ?? event.actor_email ?? undefined,
+    }))
+    .sort((a, b) => new Date(b.at ?? 0).getTime() - new Date(a.at ?? 0).getTime())
+    .slice(0, 12)
+    .map((item) => ({
+      title: item.title,
+      meta: formatDateTime(item.at),
+      body: item.body,
+    }));
 
   const clientAircraft = aircraft.filter((item) => item.client_id === clientId);
   const clientMissions = missions.filter((mission) => mission.client_id === clientId);
@@ -329,6 +345,14 @@ export default async function AdminClientDetailPage({
           />
         </TabsContent>
       </Tabs>
+
+      <SectionCard title="Activity Timeline" icon="history">
+        {activityItems.length ? (
+          <Timeline items={activityItems} />
+        ) : (
+          <p className="text-sm text-muted-foreground">No client activity recorded yet.</p>
+        )}
+      </SectionCard>
     </>
   );
 }
