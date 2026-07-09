@@ -20,6 +20,8 @@ import { recordComplianceEvidence, recordSupportRequestDisclaimerAcknowledgment 
 import { detectProhibitedPaymentData } from "@/lib/compliance/payment-data-guard";
 import { ensureClientAccountForMission } from "@/lib/portal/client-account-provisioning";
 import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
+import { listQualifiedCrew } from "@/lib/portal/pool";
+import { formatDateTime, formatRoute } from "@/lib/portal/format";
 import { actor, bool, isoOrNull, num, str } from "./_helpers";
 
 async function logCompletedMissionUsage(db: any, missionId: string, admin: Awaited<ReturnType<typeof actor>>) {
@@ -634,7 +636,7 @@ export async function updateMissionPool(formData: FormData) {
 
   const { data: mission } = await db
     .from("missions")
-    .select("id, ref, pool_visible")
+    .select("id, ref, pool_visible, departure_airport, arrival_airport, requested_departure, assigned_crew_id")
     .eq("id", missionId)
     .maybeSingle();
   if (!mission) redirect("/portal/admin/trips");
@@ -655,6 +657,30 @@ export async function updateMissionPool(formData: FormData) {
     entityType: "mission",
     entityId: missionId,
   });
+
+  // On publish (never on hide/close), notify every already-qualified crew
+  // member so pilots hear about the opening instead of only finding it by
+  // browsing. Notify failures must never break the publish, so we swallow
+  // them via allSettled; the qualified set is small.
+  if (visible) {
+    const route = formatRoute(mission!.departure_airport, mission!.arrival_airport);
+    const timing = mission!.requested_departure ? ` departing ${formatDateTime(mission!.requested_departure)}` : "";
+    const qualified = await listQualifiedCrew(requirements);
+    await Promise.allSettled(
+      qualified
+        .filter((crew) => crew.id !== mission!.assigned_crew_id)
+        .map((crew) =>
+          notifyUser({
+            userId: crew.id,
+            title: `New mission open to the pool — ${mission!.ref}`,
+            body: `${mission!.ref} — ${route}${timing}. You qualify for this mission. Open the crew Open Pool to review and request it.`,
+            type: "crew_pool_published",
+            entityType: "mission",
+            entityId: missionId,
+          })
+        )
+    );
+  }
 
   revalidatePath(`/portal/admin/trips/${missionId}`);
   revalidatePath("/portal/crew/missions");

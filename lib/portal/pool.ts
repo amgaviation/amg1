@@ -304,18 +304,29 @@ export async function listCrewRequestsForMission(
   }));
 }
 
-/** How many approved, active crew currently qualify for the given requirements. */
-export async function countQualifiedCrew(req: MissionPoolRequirements): Promise<number> {
+/** A qualifying crew member: their user id plus display name for notifications. */
+export type QualifiedCrew = { id: string; full_name: string | null };
+
+/** The approved, active crew who currently qualify for the given requirements. */
+export async function listQualifiedCrew(req: MissionPoolRequirements): Promise<QualifiedCrew[]> {
   const db = await createServiceClient();
   const { data: crewProfiles } = await db
     .from("profiles")
-    .select(`id, crew_profile:crew_profiles(${CREW_QUALIFICATION_SELECT})`)
+    .select(`id, full_name, crew_profile:crew_profiles(${CREW_QUALIFICATION_SELECT})`)
     .eq("role", "crew")
     .eq("status", "approved")
     .eq("is_active", true);
   const rows = (crewProfiles ?? []) as unknown as {
     id: string;
+    full_name: string | null;
     crew_profile: (CrewQualificationProfile & { id: string }) | null;
   }[];
-  return rows.filter((row) => unmetPoolRequirements(req, row.crew_profile).length === 0).length;
+  return rows
+    .filter((row) => unmetPoolRequirements(req, row.crew_profile).length === 0)
+    .map((row) => ({ id: row.id, full_name: row.full_name }));
+}
+
+/** How many approved, active crew currently qualify for the given requirements. */
+export async function countQualifiedCrew(req: MissionPoolRequirements): Promise<number> {
+  return (await listQualifiedCrew(req)).length;
 }
