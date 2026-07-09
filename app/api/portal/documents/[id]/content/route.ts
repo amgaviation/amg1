@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
-import { isPortalRole } from "@/lib/portal/constants";
+import { isPortalRole, isAdminRole } from "@/lib/portal/constants";
 import { createSafeErrorResponse, logServerError } from "@/lib/errors/user-facing-errors";
 import { isSensitiveDocumentCategory } from "@/lib/compliance/document-classification";
 import { recordSensitiveAccessEvent } from "@/lib/compliance/evidence";
@@ -19,8 +19,8 @@ export async function GET(
   }
 
   const db = (await createServiceClient()) as any;
-  const { data: profile } = await db.from("profiles").select("id, role").eq("id", user.id).maybeSingle();
-  if (!profile || !isPortalRole(profile.role)) {
+  const { data: profile } = await db.from("profiles").select("id, role, status").eq("id", user.id).maybeSingle();
+  if (!profile || !isPortalRole(profile.role) || profile.status !== "approved") {
     return NextResponse.json(createSafeErrorResponse({ audience: "client", area: "documents", action: "download", category: "permission" }), { status: 403 });
   }
 
@@ -34,7 +34,7 @@ export async function GET(
     return NextResponse.json(createSafeErrorResponse({ audience: profile.role === "admin" ? "admin" : profile.role === "crew" ? "crew" : profile.role === "partner" ? "vendor" : "client", area: "documents", action: "download", category: "not_found" }), { status: 404 });
   }
 
-  const allowed = profile.role === "admin" || doc.visibility === "public" || doc.uploaded_by === user.id || doc.scope_id === user.id;
+  const allowed = isAdminRole(profile.role) || doc.visibility === "public" || doc.uploaded_by === user.id || doc.scope_id === user.id;
   if (!allowed) {
     return NextResponse.json(createSafeErrorResponse({ audience: profile.role === "crew" ? "crew" : profile.role === "partner" ? "vendor" : "client", area: "documents", action: "download", category: "permission" }), { status: 403 });
   }

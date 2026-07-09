@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { isAdminRole } from "@/lib/portal/constants";
 import { fileResponse } from "@/lib/portal/file-response";
 
 /**
@@ -20,7 +21,7 @@ export async function GET(
 
   const db = await createServiceClient();
   const [{ data: profile }, { data: receipt }] = await Promise.all([
-    db.from("profiles").select("id, role").eq("id", userId).maybeSingle(),
+    db.from("profiles").select("id, role, status").eq("id", userId).maybeSingle(),
     db
       .from("vendor_receipts")
       .select("id, uploader_id, storage_bucket, storage_path, file_name, mime_type")
@@ -30,8 +31,10 @@ export async function GET(
   if (!profile || !receipt) {
     return NextResponse.json({ error: "not-found" }, { status: 404 });
   }
-  const allowed =
-    profile.role === "admin" || profile.role === "super_admin" || receipt.uploader_id === userId;
+  if (profile.status !== "approved") {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
+  const allowed = isAdminRole(profile.role) || receipt.uploader_id === userId;
   if (!allowed) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }

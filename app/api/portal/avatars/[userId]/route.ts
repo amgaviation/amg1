@@ -1,21 +1,19 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
+import { requireApprovedPortalApiUser } from "@/lib/portal/api-guard";
 
 /**
- * Streams a portal user's profile picture. Any authenticated portal user may
- * view any avatar (they appear in shell chrome, messages, and rosters).
- * Paths are versioned per upload, so the response is safely long-cached.
+ * Streams a portal user's profile picture. Any APPROVED portal user may view
+ * any avatar (they appear in shell chrome, messages, and rosters). Paths are
+ * versioned per upload, so the response is safely long-cached.
  */
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ userId: string }> }
 ) {
   const { userId } = await params;
-  const supabase = await createClient();
-  const { data: claims } = await supabase.auth.getClaims();
-  if (!claims?.claims?.sub) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
+  const gate = await requireApprovedPortalApiUser();
+  if (gate.response) return gate.response;
 
   const db = await createServiceClient();
   const { data: profile } = await db

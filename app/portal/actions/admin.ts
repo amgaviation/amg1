@@ -898,26 +898,44 @@ export async function createPortalUser(formData: FormData) {
 
   if (profileError || !createdProfile) redirect(`${backTo}?error=profile`);
 
-  const provisioned = await ensurePortalAuthUserForProfile({
-    db,
-    profile: createdProfile,
-    invitedBy: admin.id,
-    sendSetupEmail: true,
-  });
+  // Only provision an auth user and send the setup email when the account is
+  // actually approved. Provisioning force-approves + activates the profile, so
+  // for a non-approved selection we create the profile ONLY and preserve the
+  // chosen status — an admin must approve before the account can log in.
+  if (status === "approved") {
+    const provisioned = await ensurePortalAuthUserForProfile({
+      db,
+      profile: createdProfile,
+      invitedBy: admin.id,
+      sendSetupEmail: true,
+    });
 
-  if (!provisioned.ok) redirect(`${backTo}?error=invite`);
+    if (!provisioned.ok) redirect(`${backTo}?error=invite`);
+
+    await logAuditEvent({
+      actor: admin,
+      action: "user_setup_email_sent",
+      detail: `Created ${email} as ${role} via ${invitationChannel}`,
+      entityType: "profile",
+      entityId: provisioned.profileId,
+    });
+
+    revalidatePath("/portal/admin/users");
+    revalidatePath("/portal/admin/user-approvals");
+    redirect(`${backTo}?success=invited`);
+  }
 
   await logAuditEvent({
     actor: admin,
-    action: "user_setup_email_sent",
-    detail: `Created ${email} as ${role} via ${invitationChannel}`,
+    action: "user_created",
+    detail: `Created ${email} as ${role} with status ${status} (no invite sent)`,
     entityType: "profile",
-    entityId: provisioned.profileId,
+    entityId: createdProfile.id,
   });
 
   revalidatePath("/portal/admin/users");
   revalidatePath("/portal/admin/user-approvals");
-  redirect(`${backTo}?success=invited`);
+  redirect(`${backTo}?success=created`);
 }
 
 export async function resendPortalInvitation(formData: FormData) {

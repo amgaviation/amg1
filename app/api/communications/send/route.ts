@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/portal/session";
+import { isAdminRole } from "@/lib/portal/constants";
 import { sendCommunicationEmail } from "@/lib/portal/communications";
 import { createSafeErrorResponse, getUserFacingErrorMessage, logServerError } from "@/lib/errors/user-facing-errors";
 
 export async function POST(request: Request) {
   const user = await getSessionUser();
-  if (!user || user.role !== "admin" || user.status !== "approved") {
+  if (!user || !isAdminRole(user.role) || user.status !== "approved") {
     return NextResponse.json(
       createSafeErrorResponse({ audience: "admin", area: "communications", action: "send", category: "permission" }),
       { status: 403 },
