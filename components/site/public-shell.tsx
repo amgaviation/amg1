@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteNav } from "@/components/site/site-nav";
+import { ScrollReveal } from "@/components/site/reveal";
+import { PublicRequestPill } from "@/components/site/public-request-pill";
 
 function normalizePath(path: string) {
   const normalized = path.split(/[?#]/)[0].replace(/\/+$/, "");
@@ -96,8 +98,15 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
       <main id="main-content" className="flex-1">
         {children}
       </main>
-      {/* The home page ends with the pinned flight-deck GlobalFooter. */}
-      {isHome ? null : <SiteFooter />}
+      {/* The home page runs its own GSAP choreography + pinned GlobalFooter and
+          floating pill; the secondary pages get the lighter shared motion. */}
+      {isHome ? null : (
+        <>
+          <ScrollReveal />
+          <PublicRequestPill />
+          <SiteFooter />
+        </>
+      )}
     </div>
   );
 }

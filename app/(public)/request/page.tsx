@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { QuoteRequestForm } from "./quote-request-form";
 import { PhoneLink } from "@/components/site/tracked-link";
+import { HeadlineReveal } from "@/components/site/headline-reveal";
 
 export const metadata: Metadata = {
   title: "Request a Quote — Written Answer in 24 Business Hours",
@@ -19,13 +20,16 @@ export default async function RequestPage({
 
   return (
     <>
-      <section className="oc-shell pt-[calc(var(--public-header-height)+4rem)]">
-        <div className="max-w-3xl">
-          <p className="oc-eyebrow oc-eyebrow-light">Request a Quote</p>
-          <h1 className="oc-display mt-4 text-5xl text-[var(--oc-paper)] sm:text-6xl">
-            Five minutes now. A written quote in 24 business hours.
-          </h1>
-          <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]">
+      <section className="pub-hero oc-shell pb-14 pt-[calc(var(--public-header-height)+4rem)]">
+        <div className="max-w-3xl" data-stagger-container>
+          <p className="oc-eyebrow" data-stagger-item>
+            Request intake // 5 minutes
+          </p>
+          <HeadlineReveal
+            className="oc-display mt-4 text-5xl text-[var(--oc-paper)] sm:text-6xl"
+            lines={["Five minutes now.", "A written quote in 24 hours."]}
+          />
+          <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]" data-stagger-item>
             No phone tag. Submit the mission and a named coordinator replies with pilot options,
             qualifications, and an itemized all-in cost. Prefer to talk?{" "}
             <PhoneLink source="request_page" className="oc-mono text-[var(--oc-paper)] underline-offset-2 hover:underline" />

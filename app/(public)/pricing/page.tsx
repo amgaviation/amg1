@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { TrackedLink } from "@/components/site/tracked-link";
 import { WorkedExample } from "@/components/site/worked-example";
+import { HeadlineReveal } from "@/components/site/headline-reveal";
 import { DAY_RATES, PLAN_TABLE, SITE_EVENTS } from "@/lib/site-config";
 
 export const metadata: Metadata = {
@@ -14,15 +14,20 @@ export const metadata: Metadata = {
 const POSITIONING = [
   {
     name: "On-Demand",
-    body: "You have one mission; we'll quote it in 24 business hours. No commitment.",
+    body: ["You have one mission; we'll quote it in 24 business hours. No commitment."],
   },
   {
     name: "Standard",
-    body: "You fly yourself but need a professional a few times a year. We keep your aircraft file, answer in 12 hours, and every mission's coordination fee drops $200. Your file stays alive between missions — insurance-renewal and crew-currency reminders run automatically. Honest math: on fees alone, Standard pays for itself around nine missions a year — most members are really buying the response time and never re-explaining their airplane.",
+    body: [
+      "You fly yourself but need a professional a few times a year. We keep your aircraft file, answer in 12 hours, and drop $200 off every mission fee. Insurance-renewal and crew-currency reminders run automatically, so your file never goes cold.",
+      "On fees alone, Standard pays for itself at about nine missions a year. Most members join for the faster answer and never having to re-explain their airplane.",
+    ],
   },
   {
     name: "Priority",
-    body: "Your aircraft works for a living or your schedule can't absorb a 48-hour scramble. Four-hour answers, first call on network crew, a coordinator who knows your tail number, and a request line staffed 0700–2200.",
+    body: [
+      "Your aircraft works for a living or your schedule can't absorb a 48-hour scramble. Four-hour answers, first call on network crew, a coordinator who knows your tail number, and a request line staffed 0700–2200.",
+    ],
   },
 ] as const;
 
@@ -33,7 +38,7 @@ const FAQ = [
   },
   {
     q: "What happens if weather scrubs a mission?",
-    a: "Nothing is flown that shouldn't be — go/no-go always sits with you and your PIC. If a mission scrubs before the pilot travels, you owe nothing beyond costs already incurred at cost (with receipts). We rebook the mission inside your plan's windows; the coordination fee applies once, to the mission, not per attempt.",
+    a: "Nothing is flown that shouldn't be — go/no-go always sits with you and your PIC. If a mission scrubs before the pilot travels, you owe nothing beyond costs already incurred — billed at cost, with receipts. We rebook the mission inside your plan's windows; the coordination fee applies once, to the mission, not per attempt.",
   },
   {
     q: "When does AMG decline a mission?",
@@ -116,13 +121,16 @@ export default function PricingPage() {
   return (
     <>
       {/* §4.1 Intro — three sentences, no hedging. */}
-      <section className="oc-shell pt-[calc(var(--public-header-height)+4rem)]">
-        <div className="max-w-3xl">
-          <p className="oc-eyebrow oc-eyebrow-light">Plans & Pricing</p>
-          <h1 className="oc-display mt-4 text-5xl text-[var(--oc-paper)] sm:text-6xl">
-            Every price we charge is on this page.
-          </h1>
-          <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]">
+      <section className="pub-hero oc-shell pb-14 pt-[calc(var(--public-header-height)+4rem)]">
+        <div className="max-w-3xl" data-stagger-container>
+          <p className="oc-eyebrow" data-stagger-item>
+            Every price published // no markup
+          </p>
+          <HeadlineReveal
+            className="oc-display mt-4 text-5xl text-[var(--oc-paper)] sm:text-6xl"
+            lines={["Every price we charge", "is on this page."]}
+          />
+          <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]" data-stagger-item>
             Your only AMG costs are a flat per-mission coordination fee and, if you choose one,
             a monthly plan. Everything else — pilot day rate, travel, lodging — passes through
             at cost with receipts.
@@ -134,7 +142,7 @@ export default function PricingPage() {
       <section className="oc-section py-16">
         <div className="oc-shell">
           {/* Desktop table */}
-          <div className="oc-card-dark hidden overflow-hidden md:block">
+          <div className="hud-frame oc-card-dark hidden overflow-hidden md:block" data-scroll-animate>
             <table className="w-full border-collapse">
               <thead>
                 <tr>
@@ -235,11 +243,19 @@ export default function PricingPage() {
           <h2 className="oc-display max-w-2xl text-4xl text-[var(--oc-paper)] sm:text-5xl">
             What each plan is actually for.
           </h2>
-          <div className="mt-10 grid gap-4 lg:grid-cols-3">
+          <div className="mt-10 grid gap-4 lg:grid-cols-3" data-stagger-container>
             {POSITIONING.map((plan) => (
-              <div key={plan.name} className="oc-card-dark p-7">
+              <div key={plan.name} data-stagger-item className="group pub-card-hover oc-card-dark p-7">
                 <h3 className="oc-display text-2xl text-[var(--oc-paper)]">{plan.name}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-[var(--oc-aluminum)]">{plan.body}</p>
+                <div className="pub-rule mb-4 mt-3" aria-hidden="true" />
+                {plan.body.map((para, i) => (
+                  <p
+                    key={i}
+                    className={`text-[0.95rem] leading-relaxed text-[var(--oc-aluminum)] ${i === 0 ? "" : "mt-3"}`}
+                  >
+                    {para}
+                  </p>
+                ))}
               </div>
             ))}
           </div>
@@ -247,10 +263,10 @@ export default function PricingPage() {
       </section>
 
       {/* §4.4 Pass-through transparency. */}
-      <section className="border-y border-[var(--oc-line-dark)] bg-white/[0.02] py-14">
+      <section className="silver-grid border-y border-[var(--oc-line-dark)] bg-white/[0.02] py-14">
         <div className="oc-shell grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-center">
-          <div>
-            <p className="oc-eyebrow oc-eyebrow-light">Pass-through costs</p>
+          <div data-scroll-animate>
+            <p className="oc-eyebrow">Pass-through costs // billed at cost</p>
             <h2 className="oc-display mt-4 text-3xl text-[var(--oc-paper)] sm:text-4xl">
               Current network day-rate ranges
             </h2>
@@ -259,9 +275,9 @@ export default function PricingPage() {
               mission before you ever contact us. Updated quarterly — last updated {DAY_RATES.updated}.
             </p>
           </div>
-          <dl className="grid gap-4 sm:grid-cols-2">
+          <dl className="grid gap-4 sm:grid-cols-2" data-stagger-container>
             {DAY_RATES.bands.map((band) => (
-              <div key={band.band} className="oc-card-dark p-6">
+              <div key={band.band} data-stagger-item className="pub-card-hover oc-card-dark p-6">
                 <dt className="text-xs font-semibold uppercase text-[var(--oc-aluminum-2)]">{band.band}</dt>
                 <dd className="oc-display mt-2 text-3xl text-[var(--oc-paper)]">{band.range}</dd>
               </div>
@@ -287,23 +303,42 @@ export default function PricingPage() {
       <section className="oc-section pt-0">
         <div className="oc-shell">
           <h2 className="oc-display max-w-2xl text-4xl text-[var(--oc-paper)] sm:text-5xl">Pricing FAQ</h2>
-          <div className="mt-10 grid gap-4 lg:grid-cols-2">
-            {FAQ.map((item) => (
-              <div key={item.q} className="oc-card-dark p-6">
-                <h3 className="text-base font-semibold text-[var(--oc-paper)]">{item.q}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--oc-aluminum)]">{item.a}</p>
-              </div>
+          <div className="mt-10 grid gap-4 lg:grid-cols-2" data-stagger-container>
+            {FAQ.map((item, i) => (
+              <details
+                key={item.q}
+                data-stagger-item
+                open={i === 0}
+                className="group pub-card-hover oc-card-dark p-6 [&_summary::-webkit-details-marker]:hidden"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-semibold text-[var(--oc-paper)]">
+                  {item.q}
+                  <span
+                    className="shrink-0 text-lg leading-none text-[var(--oc-blue)] transition-transform duration-300 group-open:rotate-45"
+                    aria-hidden="true"
+                  >
+                    +
+                  </span>
+                </summary>
+                <p className="mt-3 text-[0.95rem] leading-relaxed text-[var(--oc-aluminum)]">{item.a}</p>
+              </details>
             ))}
           </div>
 
-          <div className="mt-14 flex justify-center">
+          <div className="mt-14 flex justify-center" data-scroll-animate>
             <TrackedLink
               href="/request"
               event={SITE_EVENTS.pricingRequestClick}
-              className="oc-btn oc-btn-light"
+              className="group inline-flex items-center gap-2.5 rounded-full bg-[var(--instrument)] py-2 pl-6 pr-2 text-white shadow-[0_0_40px_rgba(11,94,212,0.30)] transition-shadow hover:shadow-[0_0_60px_rgba(11,94,212,0.5)]"
             >
-              Request a Quote
-              <ArrowRight className="h-4 w-4" />
+              <span className="whitespace-nowrap font-mono text-xs font-medium uppercase [letter-spacing:0.14em]">
+                Request a Quote
+              </span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--canvas)] text-[var(--instrument-ink)] transition-transform duration-500 ease-out group-hover:rotate-45">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M21 3L9.5 14.5M21 3l-6.5 18-3-8.5L3 9.5 21 3z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+                </svg>
+              </span>
             </TrackedLink>
           </div>
         </div>

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { PhoneLink } from "@/components/site/tracked-link";
+import { HeadlineReveal } from "@/components/site/headline-reveal";
+import { QuoteButton } from "@/components/site/quote-button";
 import { AFFILIATIONS, SITE, TEAM_ROSTER } from "@/lib/site-config";
 
 /**
@@ -27,13 +27,16 @@ export const metadata: Metadata = {
 export default function TeamPage() {
   return (
     <>
-      <section className="oc-shell pt-[calc(var(--public-header-height)+4rem)]">
-        <div className="max-w-3xl">
-          <p className="oc-eyebrow oc-eyebrow-light">Team</p>
-          <h1 className="oc-display mt-4 text-5xl text-[var(--oc-paper)] sm:text-6xl">
-            The people answering your requests.
-          </h1>
-          <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]">
+      <section className="pub-hero oc-shell pb-14 pt-[calc(var(--public-header-height)+4rem)]">
+        <div className="max-w-3xl" data-stagger-container>
+          <p className="oc-eyebrow" data-stagger-item>
+            The team // known by name
+          </p>
+          <HeadlineReveal
+            className="oc-display mt-4 text-5xl text-[var(--oc-paper)] sm:text-6xl"
+            lines={["The people answering", "your requests."]}
+          />
+          <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]" data-stagger-item>
             AMG is a small, senior team by design. You&apos;ll know your coordinator by name,
             and they&apos;ll know your airplane by tail number.
           </p>
@@ -41,10 +44,11 @@ export default function TeamPage() {
       </section>
 
       <section className="oc-section">
-        <div className="oc-shell grid gap-4">
+        <div className="oc-shell grid gap-4" data-stagger-container>
           {TEAM_ROSTER.map((person) => (
             <article
               key={person.name}
+              data-stagger-item
               className={`oc-card-dark grid gap-8 p-8 lg:p-10 ${
                 person.photo
                   ? "lg:grid-cols-[minmax(220px,280px)_1fr]"
@@ -79,7 +83,7 @@ export default function TeamPage() {
                       key={fact.label}
                       className="flex items-baseline justify-between gap-4 border-b border-[var(--oc-line-dark)] py-3 first:pt-0 last:border-b-0 last:pb-0"
                     >
-                      <dt className="text-[0.7rem] font-semibold uppercase text-[var(--oc-aluminum)]">
+                      <dt className="text-[0.75rem] font-semibold uppercase text-[var(--oc-aluminum)]">
                         {fact.label}
                       </dt>
                       <dd className="oc-mono text-right text-sm uppercase text-[var(--oc-paper)]">
@@ -101,7 +105,7 @@ export default function TeamPage() {
               {AFFILIATIONS.map((affiliation) => (
                 <span
                   key={affiliation}
-                  className="inline-flex items-center gap-2 rounded-full border border-[var(--oc-line-dark)] bg-white/[0.04] px-3 py-1.5 text-[0.7rem] font-semibold uppercase text-[var(--oc-aluminum)]"
+                  className="inline-flex items-center gap-2 rounded-full border border-[var(--oc-line-dark)] bg-white/[0.04] px-3 py-1.5 text-[0.75rem] font-semibold uppercase text-[var(--oc-aluminum)]"
                 >
                   <span className="oc-dot" aria-hidden="true" />
                   {affiliation}
@@ -114,11 +118,8 @@ export default function TeamPage() {
             </address>
           </div>
 
-          <div className="mt-14 flex justify-center">
-            <Link href="/request" prefetch={false} className="oc-btn oc-btn-light">
-              Get a Quote
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+          <div className="mt-14 flex justify-center" data-scroll-animate>
+            <QuoteButton />
           </div>
         </div>
       </section>

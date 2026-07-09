@@ -820,7 +820,7 @@ html {
     font-family: var(--oc-sans);
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 0.72rem;
+    font-size: 0.78rem;
     letter-spacing: 0.12em;
     color: var(--oc-blue);
   }
@@ -830,7 +830,7 @@ html {
   .oc-kicker {
     font-family: var(--oc-sans);
     font-weight: 600;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
@@ -1710,8 +1710,8 @@ html.lenis body {
   .public-site .oc-eyebrow {
     font-family: var(--font-mono);
     font-weight: 500;
-    font-size: 0.6875rem;
-    letter-spacing: 0.22em;
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
     color: var(--instrument-ink);
   }
   .public-site .oc-eyebrow-light {
@@ -1826,27 +1826,89 @@ html.lenis body {
 }
 
 /* ── Public marketing scroll-reveal ─────────────────────────────────────
-   Content rises + fades in as it enters the viewport (components/site/
-   reveal.tsx toggles data-shown). Kept out of the .fd-site scope so it
-   applies to the secondary marketing pages that are NOT the flight-deck
-   home. Reduced motion is honored both here and in the component. */
-[data-reveal] {
+   The design system already ships a reveal CONTRACT above (globals.css:698 —
+   [data-scroll-animate]/[data-stagger-*]/[data-revealed] render visible) but
+   no hidden pre-reveal state and no JS driver, so everything rendered static.
+   components/site/reveal.tsx (ScrollReveal) adds the `js-reveal` gate class
+   and sets data-revealed on scroll-in. The hidden state below is gated behind
+   `.js-reveal` so no-JS / SEO keeps content fully visible, and the
+   reduced-motion block at :727/:739 keeps it visible when motion is off. */
+.public-site.js-reveal [data-scroll-animate]:not([data-revealed]),
+.public-site.js-reveal [data-stagger-item]:not([data-revealed]) {
   opacity: 0;
-  transform: translateY(var(--reveal-y, 22px));
+  transform: translateY(24px);
+}
+.public-site.js-reveal [data-scroll-animate],
+.public-site.js-reveal [data-stagger-item] {
   transition:
     opacity 0.7s cubic-bezier(0.22, 0.61, 0.36, 1),
     transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
-  transition-delay: var(--reveal-delay, 0ms);
   will-change: opacity, transform;
 }
-[data-reveal][data-shown] {
-  opacity: 1;
-  transform: none;
+
+/* Masked-line headline reveal (components/site/headline-reveal.tsx): each
+   line rises out from behind a clip mask, echoing the home hero. Hidden state
+   only applies once JS flips data-hr, so no-JS renders the text in place. */
+.hr-mask {
+  display: block;
+  overflow: hidden;
+}
+.hr-mask > span {
+  display: block;
+  transform: translateY(0);
+}
+[data-hr="pre"] .hr-mask > span {
+  transform: translateY(115%);
+}
+[data-hr="in"] .hr-mask > span {
+  transform: translateY(0);
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
 @media (prefers-reduced-motion: reduce) {
-  [data-reveal] {
-    opacity: 1 !important;
+  [data-hr] .hr-mask > span {
     transform: none !important;
     transition: none !important;
   }
+}
+
+/* ── Public marketing parity utilities ──────────────────────────────────
+   Shared texture/interaction helpers that bring the secondary pages toward
+   the flight-deck home without pulling GSAP into their bundles. All are
+   transition-only (reduced-motion safe) and scoped to .public-site. */
+
+/* Subtle local hero depth (radials over the page gradient) + a hairline
+   under the hero, echoing the home hero's anchored feel. */
+.public-site .pub-hero {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 16% 22%, rgba(59, 130, 246, 0.16), transparent 38%),
+    radial-gradient(circle at 90% -8%, rgba(91, 157, 255, 0.08), transparent 44%);
+  border-bottom: 1px solid rgba(169, 180, 198, 0.1);
+}
+
+/* Card hover: lift + accent border + soft shadow (decorative, not a link cue
+   beyond what the card already implies). */
+.public-site .pub-card-hover {
+  transition:
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.public-site .pub-card-hover:hover {
+  border-color: var(--oc-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+}
+
+/* Growing hairline — the flight-deck's signature card accent (w-8 → w-16). */
+.public-site .pub-rule {
+  height: 1px;
+  width: 2rem;
+  background: var(--instrument-ink);
+  opacity: 0.55;
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.public-site .group:hover .pub-rule {
+  width: 4rem;
 }

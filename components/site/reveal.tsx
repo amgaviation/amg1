@@ -1,84 +1,77 @@
 "use client";
 
-import { createElement, useEffect, useRef, type ElementType, type ReactNode } from "react";
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 /**
- * Scroll-reveal for the public marketing pages: content rises + fades in as it
- * enters the viewport, echoing the flight-deck home's entrance motion without
- * pulling GSAP into these lighter pages. IntersectionObserver toggles a
- * `data-shown` attribute; the transition lives in globals.css ([data-reveal]).
+ * Scroll-reveal driver for the public marketing pages. The design system
+ * already ships an (until now orphaned) reveal contract in globals.css —
+ * `[data-scroll-animate]`, `[data-stagger-container]`, `[data-stagger-item]`
+ * become visible only once `data-revealed="true"` is set. Nothing ever set it,
+ * so every element rendered static. This mounts once (non-home routes, from
+ * PublicShell), adds the `js-reveal` gate class so the hidden pre-reveal state
+ * only applies when JS is present (no-JS/SEO keeps content visible), then uses
+ * one IntersectionObserver to reveal elements as they enter the viewport.
  *
- * Reduced motion and a safety timeout both force the shown state so content is
- * never stuck hidden. The element renders with `data-reveal` server-side so
- * there is no flash of already-visible content before the observer attaches.
+ * Reduced motion: the class is never added, so everything stays visible with
+ * no transition — matching the flight-deck's reduced-motion behavior.
  */
-export function Reveal({
-  as,
-  className,
-  children,
-  delay = 0,
-  y = 22,
-  once = true,
-  style,
-  ...rest
-}: {
-  as?: ElementType;
-  className?: string;
-  children: ReactNode;
-  /** Stagger delay in ms. */
-  delay?: number;
-  /** Rise distance in px. */
-  y?: number;
-  once?: boolean;
-  style?: React.CSSProperties;
-} & Record<string, unknown>) {
-  const Tag = (as ?? "div") as ElementType;
-  const ref = useRef<HTMLElement>(null);
+export function ScrollReveal() {
+  const pathname = usePathname();
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    const root = document.querySelector<HTMLElement>(".public-site");
+    if (!root) return;
 
-    const reduce =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) {
-      el.setAttribute("data-shown", "");
-      return;
-    }
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
 
-    const show = () => el.setAttribute("data-shown", "");
+    root.classList.add("js-reveal");
+
+    const reveal = (el: Element) => el.setAttribute("data-revealed", "true");
+
+    // Stagger the children of a container by their index so a card grid
+    // cascades in rather than snapping together.
+    const items = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-scroll-animate], [data-stagger-item]")
+    ).filter((el) => !el.hasAttribute("data-revealed"));
+
+    root.querySelectorAll<HTMLElement>("[data-stagger-container]").forEach((container) => {
+      const kids = container.querySelectorAll<HTMLElement>("[data-stagger-item]");
+      kids.forEach((kid, index) => {
+        kid.style.transitionDelay = `${Math.min(index, 8) * 85}ms`;
+      });
+    });
+
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) {
-            show();
-            if (once) observer.unobserve(entry.target);
-          } else if (!once) {
-            entry.target.removeAttribute("data-shown");
-          }
+          if (!entry.isIntersecting) continue;
+          reveal(entry.target);
+          observer.unobserve(entry.target);
         }
       },
-      { rootMargin: "0px 0px -10% 0px", threshold: 0.12 }
+      { rootMargin: "0px 0px -8% 0px", threshold: 0.1 }
     );
-    observer.observe(el);
-    // Safety: never leave content hidden if the observer misfires.
-    const timer = window.setTimeout(show, 2200);
+
+    // Above-the-fold elements are already painted visible (SSR). Reveal them
+    // synchronously in this same tick so adding `js-reveal` never fades them
+    // out first; only below-fold elements start hidden and animate on scroll.
+    const vh = window.innerHeight;
+    for (const el of items) {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < vh * 0.92 && rect.bottom > 0) reveal(el);
+      else observer.observe(el);
+    }
+
+    // Safety net: never leave content hidden if the observer misfires.
+    const timer = window.setTimeout(() => items.forEach(reveal), 2600);
+
     return () => {
       observer.disconnect();
       window.clearTimeout(timer);
     };
-  }, [once]);
+  }, [pathname]);
 
-  return createElement(
-    Tag,
-    {
-      ref,
-      "data-reveal": "",
-      className,
-      style: { ...style, "--reveal-delay": `${delay}ms`, "--reveal-y": `${y}px` } as React.CSSProperties,
-      ...rest,
-    },
-    children
-  );
+  return null;
 }

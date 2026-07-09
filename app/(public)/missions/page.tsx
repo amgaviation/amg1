@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { MISSION_CASE_STUDIES } from "@/content/missions";
 import { MissionCard } from "@/components/site/mission-card";
+import { HeadlineReveal } from "@/components/site/headline-reveal";
+import { QuoteButton } from "@/components/site/quote-button";
 
 export const metadata: Metadata = {
   title: "Missions — Case Studies with Real Numbers",
@@ -15,13 +15,16 @@ export default function MissionsPage() {
 
   return (
     <>
-      <section className="oc-shell pt-[calc(var(--public-header-height)+4rem)]">
-        <div className="max-w-3xl">
-          <p className="oc-eyebrow oc-eyebrow-light">Missions</p>
-          <h1 className="oc-display mt-4 text-5xl text-[var(--oc-paper)] sm:text-6xl">
-            Real missions, itemized.
-          </h1>
-          <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]">
+      <section className="pub-hero oc-shell pb-14 pt-[calc(var(--public-header-height)+4rem)]">
+        <div className="max-w-3xl" data-stagger-container>
+          <p className="oc-eyebrow" data-stagger-item>
+            Real flights // itemized to the receipt
+          </p>
+          <HeadlineReveal
+            className="oc-display mt-4 text-5xl text-[var(--oc-paper)] sm:text-6xl"
+            lines={["Real missions, itemized."]}
+          />
+          <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]" data-stagger-item>
             Every case study shows the route, the timeline from request to wheels-up, and the
             all-in cost — matching the invoice format. N-numbers available on request.
           </p>
@@ -31,7 +34,7 @@ export default function MissionsPage() {
       <section className="oc-section">
         <div className="oc-shell">
           {missions.length ? (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" data-stagger-container>
               {missions.map((mission) => (
                 <MissionCard key={mission.slug} mission={mission} />
               ))}
@@ -49,11 +52,8 @@ export default function MissionsPage() {
             </div>
           )}
 
-          <div className="mt-14 flex justify-center">
-            <Link href="/request" prefetch={false} className="oc-btn oc-btn-light">
-              Get a Quote
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+          <div className="mt-14 flex justify-center" data-scroll-animate>
+            <QuoteButton />
           </div>
         </div>
       </section>

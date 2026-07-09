@@ -1,8 +1,23 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { TrackedLink } from "@/components/site/tracked-link";
+import { HeadlineReveal } from "@/components/site/headline-reveal";
 import { DAY_RATES, SITE, SITE_EVENTS } from "@/lib/site-config";
+
+/** The site's brand CTA styling, applied to a click-tracked apply link. */
+const APPLY_PILL =
+  "group inline-flex items-center gap-2.5 rounded-full bg-[var(--instrument)] py-2 pl-6 pr-2 text-white shadow-[0_0_40px_rgba(11,94,212,0.30)] transition-shadow hover:shadow-[0_0_60px_rgba(11,94,212,0.5)]";
+
+function ApplyArrow() {
+  return (
+    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--canvas)] text-[var(--instrument-ink)] transition-transform duration-500 ease-out group-hover:rotate-45">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M21 3L9.5 14.5M21 3l-6.5 18-3-8.5L3 9.5 21 3z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      </svg>
+    </span>
+  );
+}
 
 export const metadata: Metadata = {
   title: "Pilots — Fly Vetted Missions, Paid in 7 Days",
@@ -39,26 +54,31 @@ const WHAT_YOU_GET = [
 export default function PilotsPage() {
   return (
     <>
-      <section className="oc-shell pt-[calc(var(--public-header-height)+4rem)]">
-        <div className="max-w-3xl">
-          <p className="oc-eyebrow oc-eyebrow-light">Pilot Network</p>
-          <h1 className="oc-display mt-4 text-5xl text-[var(--oc-paper)] sm:text-6xl">
-            Fly vetted missions. Get paid in 7 days.
-          </h1>
-          <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]">
+      <section className="pub-hero oc-shell pb-14 pt-[calc(var(--public-header-height)+4rem)]">
+        <div className="max-w-3xl" data-stagger-container>
+          <p className="oc-eyebrow" data-stagger-item>
+            Vetted once // paid in 7 days
+          </p>
+          <HeadlineReveal
+            className="oc-display mt-4 text-5xl text-[var(--oc-paper)] sm:text-6xl"
+            lines={["Fly vetted missions.", "Get paid in 7 days."]}
+          />
+          <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]" data-stagger-item>
             Join AMG&apos;s contract pilot network: we source the clients, paper the agreements,
             and pay you within 7 days of mission completion — whether or not the owner has paid
             us yet.
           </p>
-          <div className="mt-9">
+          <div className="mt-9" data-stagger-item>
             <TrackedLink
               href="/pilots/apply"
               event={SITE_EVENTS.pilotsApplyClick}
               eventParams={{ source: "hero" }}
-              className="oc-btn oc-btn-light"
+              className={APPLY_PILL}
             >
-              Apply to the Network
-              <ArrowRight className="h-4 w-4" />
+              <span className="whitespace-nowrap font-mono text-xs font-medium uppercase [letter-spacing:0.14em]">
+                Apply to the Network
+              </span>
+              <ApplyArrow />
             </TrackedLink>
           </div>
         </div>
@@ -66,9 +86,9 @@ export default function PilotsPage() {
 
       {/* What we ask — the vetting standard, published, framed as pride. */}
       <section className="oc-section">
-        <div className="oc-shell grid gap-8 lg:grid-cols-[1fr_1fr]">
-          <div className="oc-panel-navy rounded-xl p-8 lg:p-10">
-            <p className="oc-eyebrow oc-eyebrow-light">What we ask</p>
+        <div className="oc-shell grid gap-8 lg:grid-cols-[1fr_1fr]" data-stagger-container>
+          <div className="oc-panel-navy rounded-xl p-8 lg:p-10" data-stagger-item>
+            <p className="oc-eyebrow">What we ask // the file is real</p>
             <h2 className="oc-display mt-4 text-3xl text-[var(--oc-paper)]">
               The file behind every pilot is real.
             </h2>
@@ -86,11 +106,12 @@ export default function PilotsPage() {
             </p>
           </div>
 
-          <div className="grid gap-4">
+          <div className="grid gap-4" data-stagger-item>
             {WHAT_YOU_GET.map((item) => (
-              <div key={item.title} className="oc-card-dark p-6">
+              <div key={item.title} className="group pub-card-hover oc-card-dark p-6">
                 <h3 className="oc-display text-xl text-[var(--oc-paper)]">{item.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--oc-aluminum)]">{item.body}</p>
+                <div className="pub-rule mb-3 mt-2" aria-hidden="true" />
+                <p className="mt-2 text-[0.95rem] leading-relaxed text-[var(--oc-aluminum)]">{item.body}</p>
               </div>
             ))}
             <p className="px-1 text-sm text-[var(--oc-aluminum-2)]">
@@ -107,8 +128,8 @@ export default function PilotsPage() {
       {/* Credential handling statement (spec §8, mandatory). */}
       <section className="oc-section pt-0">
         <div className="oc-shell">
-          <div className="oc-card-dark mx-auto max-w-3xl p-8 lg:p-10">
-            <p className="oc-eyebrow oc-eyebrow-light">How we handle your credentials</p>
+          <div className="hud-frame oc-card-dark mx-auto max-w-3xl p-8 lg:p-10" data-scroll-animate>
+            <p className="oc-eyebrow">How we handle your credentials // secure portal only</p>
             <p className="mt-4 text-base leading-relaxed text-[var(--oc-aluminum)]">
               Credentials upload only through our secure portal — never email. We collect
               certificates, medical, experience summary, and insurance history. Access is limited
@@ -122,15 +143,17 @@ export default function PilotsPage() {
             </p>
           </div>
 
-          <div className="mt-14 flex justify-center">
+          <div className="mt-14 flex justify-center" data-scroll-animate>
             <TrackedLink
               href="/pilots/apply"
               event={SITE_EVENTS.pilotsApplyClick}
               eventParams={{ source: "footer_cta" }}
-              className="oc-btn oc-btn-light"
+              className={APPLY_PILL}
             >
-              Apply to the Network
-              <ArrowRight className="h-4 w-4" />
+              <span className="whitespace-nowrap font-mono text-xs font-medium uppercase [letter-spacing:0.14em]">
+                Apply to the Network
+              </span>
+              <ApplyArrow />
             </TrackedLink>
           </div>
         </div>

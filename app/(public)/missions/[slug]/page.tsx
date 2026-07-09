@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight } from "lucide-react";
 import { getMissionCaseStudy, MISSION_CASE_STUDIES } from "@/content/missions";
+import { HeadlineReveal } from "@/components/site/headline-reveal";
+import { QuoteButton } from "@/components/site/quote-button";
 
 export function generateStaticParams() {
   return MISSION_CASE_STUDIES.map((mission) => ({ slug: mission.slug }));
@@ -33,20 +33,25 @@ export default async function MissionCaseStudyPage({
 
   return (
     <>
-      <section className="oc-shell pt-[calc(var(--public-header-height)+4rem)]">
-        <div className="max-w-3xl">
-          <p className="oc-eyebrow oc-eyebrow-light">Mission case study</p>
-          <h1 className="oc-display mt-4 text-4xl text-[var(--oc-paper)] sm:text-5xl">
-            {mission.aircraft} · {mission.route} · {mission.missionType}
-          </h1>
-          <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]">{mission.situation}</p>
+      <section className="pub-hero oc-shell pb-14 pt-[calc(var(--public-header-height)+4rem)]">
+        <div className="max-w-3xl" data-stagger-container>
+          <p className="oc-eyebrow" data-stagger-item>
+            Mission case study // {mission.route}
+          </p>
+          <HeadlineReveal
+            className="oc-display mt-4 text-4xl text-[var(--oc-paper)] sm:text-5xl"
+            lines={[`${mission.aircraft} · ${mission.route} · ${mission.missionType}`]}
+          />
+          <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]" data-stagger-item>
+            {mission.situation}
+          </p>
         </div>
       </section>
 
       <section className="oc-section">
-        <div className="oc-shell grid gap-4 lg:grid-cols-2">
-          <div className="oc-card-dark overflow-hidden">
-            <h2 className="border-b border-[var(--oc-line-dark)] px-6 py-4 text-xs font-semibold uppercase text-[var(--oc-aluminum)]">
+        <div className="oc-shell grid gap-4 lg:grid-cols-2" data-stagger-container>
+          <div className="hud-frame oc-card-dark overflow-hidden" data-stagger-item>
+            <h2 className="border-b border-[var(--oc-line-dark)] px-6 py-4 text-xs font-semibold uppercase [letter-spacing:0.14em] text-[var(--instrument-ink)]">
               Timeline
             </h2>
             <table className="w-full">
@@ -63,8 +68,8 @@ export default async function MissionCaseStudyPage({
             </table>
           </div>
 
-          <div className="oc-card-dark overflow-hidden">
-            <h2 className="border-b border-[var(--oc-line-dark)] px-6 py-4 text-xs font-semibold uppercase text-[var(--oc-aluminum)]">
+          <div className="hud-frame oc-card-dark overflow-hidden" data-stagger-item>
+            <h2 className="border-b border-[var(--oc-line-dark)] px-6 py-4 text-xs font-semibold uppercase [letter-spacing:0.14em] text-[var(--instrument-ink)]">
               Cost breakdown — as invoiced
             </h2>
             <dl className="px-6 py-2">
@@ -98,11 +103,8 @@ export default async function MissionCaseStudyPage({
           </div>
         </div>
 
-        <div className="mt-14 flex justify-center">
-          <Link href="/request" prefetch={false} className="oc-btn oc-btn-light">
-            Get a Quote
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+        <div className="mt-14 flex justify-center" data-scroll-animate>
+          <QuoteButton />
         </div>
       </section>
     </>
