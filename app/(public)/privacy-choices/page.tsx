@@ -3,10 +3,17 @@ import Link from "next/link";
 import { LegalDocumentPage } from "@/components/compliance/legal-document-page";
 import { submitPrivacyChoicesRequest } from "@/app/(public)/privacy-choices/actions";
 import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
+import { SITE } from "@/lib/site-config";
 
+const CANONICAL_BASE = process.env.NEXT_PUBLIC_APP_URL || SITE.url;
+
+// This document is also served at /legal/privacy-choices. This standalone route
+// (which carries the data-rights request form) is the canonical one; the /legal
+// counterpart points here.
 export const metadata: Metadata = {
   title: "AMG Aviation Group - Privacy Choices",
   description: "Submit privacy, data rights, marketing opt-out, SMS opt-out, and cookie preference requests.",
+  alternates: { canonical: `${CANONICAL_BASE}/privacy-choices` },
 };
 
 export default async function PrivacyChoicesPage({

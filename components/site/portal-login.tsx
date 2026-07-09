@@ -124,7 +124,7 @@ export function PortalLogin({
           <p className="mt-8 hidden text-xs leading-5 text-[var(--oc-aluminum-2)] lg:block">
             Questions about access?{" "}
             <a
-              href="mailto:ops@amgaviationgroup.com?subject=AMG%20Connect%20portal%20access"
+              href="mailto:information@amgaviationgroup.com?subject=AMG%20Connect%20portal%20access"
               className="text-[var(--instrument-ink)] underline-offset-4 hover:underline"
             >
               Contact AMG Operations
@@ -206,7 +206,7 @@ export function PortalLogin({
                   </Link>
 
                   <a
-                    href="mailto:ops@amgaviationgroup.com?subject=AMG%20Connect%20account%20email%20issue"
+                    href="mailto:information@amgaviationgroup.com?subject=AMG%20Connect%20account%20email%20issue"
                     className="inline-flex min-h-10 items-center justify-center rounded-full border border-white/15 px-4 text-xs font-semibold uppercase text-white/75 hover:border-primary hover:text-white"
                   >
                     Wrong email
