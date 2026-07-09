@@ -185,7 +185,7 @@ Ordered by user-facing impact: correctness/trust issues first, funnel-visual/sec
 
 ---
 
-### Phase 5 — Orphan & Utility Page Audit — `STATUS: PENDING`
+### Phase 5 — Orphan & Utility Page Audit — `STATUS: PASS` (commit `bef6ebe`, 1 build-review cycle)
 **Scope:** `app/(public)/motion-assets/page.tsx`, `app/payments/stripe/success/page.tsx`, `app/payments/stripe/cancel/page.tsx`.
 
 **Objectives:**
