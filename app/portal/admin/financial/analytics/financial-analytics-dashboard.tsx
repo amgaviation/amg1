@@ -7,6 +7,7 @@ import { DataTable } from "@/components/portal/ui/data-table";
 import { EmptyState, Notice, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { cn } from "@/lib/utils";
+import { sanitizeSpreadsheetCell } from "@/lib/portal/spreadsheet";
 import type { AnalyticsRangeKey, BreakdownPoint, ChartPoint, FinancialAnalyticsData, FinancialMetric } from "@/lib/portal/financial-analytics";
 import { DeckSelect } from "@/components/portal/ui/fields";
 
@@ -145,7 +146,9 @@ function EmptyChart() {
 }
 
 function csvEscape(value: unknown) {
-  const text = String(value ?? "");
+  // Sanitize formula-injection triggers before quoting — quoting a CSV field
+  // does NOT stop Excel/Sheets from evaluating a leading =/+/-/@.
+  const text = String(sanitizeSpreadsheetCell(String(value ?? "")));
   return `"${text.replace(/"/g, '""')}"`;
 }
 
