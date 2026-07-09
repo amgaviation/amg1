@@ -1913,37 +1913,82 @@ html.lenis body {
   width: 4rem;
 }
 
-/* ── Live crew map markers (MapLibre custom DOM markers) ─────────────────── */
-.crew-pin {
-  width: 14px;
-  height: 14px;
-  border-radius: 9999px;
-  background: var(--deck-accent, #0b5ed4);
-  border: 2px solid #fff;
-  box-shadow: 0 0 0 4px rgba(11, 94, 212, 0.25), 0 0 12px rgba(11, 94, 212, 0.6);
+/* ── Live crew map — Command-Center blips (MapLibre custom DOM markers) ──── */
+.crew-blip {
+  position: relative;
+  display: grid;
+  place-items: center;
   cursor: pointer;
+  --blip: var(--deck-accent, #308aff);
 }
-.crew-count {
-  min-width: 26px;
-  height: 26px;
-  padding: 0 6px;
+.crew-blip.is-warning {
+  --blip: var(--deck-warn, #d98a00);
+}
+.crew-blip.is-critical {
+  --blip: var(--deck-danger, #d64545);
+}
+.crew-blip-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--blip-size, 44px);
+  height: var(--blip-size, 44px);
+  transform: translate(-50%, -50%);
   border-radius: 9999px;
-  background: var(--deck-accent, #0b5ed4);
+  background: radial-gradient(circle, color-mix(in srgb, var(--blip) 48%, transparent) 0%, transparent 68%);
+  animation: crewPulse 2.6s ease-out infinite;
+  pointer-events: none;
+}
+.crew-blip-dot {
+  position: relative;
+  z-index: 1;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  background: var(--blip);
   color: #fff;
   font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-weight: 700;
+  font-size: 11px;
+  line-height: 1;
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--blip) 22%, transparent), 0 2px 6px rgba(8, 12, 22, 0.28);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.crew-blip:hover .crew-blip-dot {
+  transform: scale(1.14);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--blip) 32%, transparent), 0 4px 12px rgba(8, 12, 22, 0.34);
+}
+@keyframes crewPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.65);
+    opacity: 0.7;
+  }
+  70% {
+    opacity: 0.12;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.25);
+    opacity: 0;
+  }
+}
+.crew-state-label {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
   font-weight: 600;
-  font-size: 12px;
-  line-height: 26px;
-  text-align: center;
-  box-shadow: 0 0 0 4px rgba(11, 94, 212, 0.2);
-  cursor: default;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--deck-text-3);
+  opacity: 0.5;
+  text-transform: uppercase;
+  pointer-events: none;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px var(--deck-canvas), 0 0 2px var(--deck-canvas);
 }
-.crew-pop {
-  display: grid;
-  gap: 2px;
-  font: 400 12px/1.45 system-ui, sans-serif;
-  color: #0b1220;
-}
-.crew-pop strong {
-  font-size: 13px;
+@media (prefers-reduced-motion: reduce) {
+  .crew-blip-glow {
+    animation: none;
+  }
 }
