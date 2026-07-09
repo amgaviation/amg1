@@ -117,7 +117,7 @@ function parseInvoiceFields(formData: FormData, backTo: string) {
 }
 
 export async function submitVendorInvoice(formData: FormData) {
-  const user = await actor(["crew", "partner"]);
+  const user = await actor(["crew", "partner"], "contractor_billing.add");
   const role = user.role as "crew" | "partner";
   const base = `/portal/${role}/invoices`;
   const backTo = safeRedirectPath(str(formData, "back_to"), `${base}/new`);
@@ -187,7 +187,7 @@ export async function submitVendorInvoice(formData: FormData) {
 }
 
 export async function updateVendorInvoice(formData: FormData) {
-  const user = await actor(["crew", "partner"]);
+  const user = await actor(["crew", "partner"], "contractor_billing.edit");
   const role = user.role as "crew" | "partner";
   const base = `/portal/${role}/invoices`;
   const invoiceId = str(formData, "invoice_id").trim();
@@ -273,7 +273,7 @@ export async function updateVendorInvoice(formData: FormData) {
 
 /** Standalone receipt upload from the crew/partner Receipts tab. */
 export async function uploadVendorReceipt(formData: FormData) {
-  const user = await actor(["crew", "partner"]);
+  const user = await actor(["crew", "partner"], "contractor_billing.add");
   const role = user.role as "crew" | "partner";
   const base = `/portal/${role}/receipts`;
   const backTo = safeRedirectPath(str(formData, "back_to"), base);

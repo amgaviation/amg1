@@ -383,6 +383,7 @@ export function FilterTabs({
           <Link
             key={option.value || "all"}
             href={qs ? `${basePath}?${qs}` : basePath}
+            aria-current={active ? "page" : undefined}
             className={cn(
               "shrink-0 rounded-[0.25rem] border px-3 py-2 font-mono text-[0.68rem] font-semibold uppercase [letter-spacing:0.08em] transition-colors sm:py-1.5",
               active
@@ -432,16 +433,16 @@ export function Pagination({
         Page {page} of {pageCount}
       </span>
       <div className="flex gap-2">
-        <Link aria-disabled={page <= 1} href={page <= 1 ? "#" : hrefFor(page - 1)} className={linkCls(page <= 1)}>
-          Previous
-        </Link>
-        <Link
-          aria-disabled={page >= pageCount}
-          href={page >= pageCount ? "#" : hrefFor(page + 1)}
-          className={linkCls(page >= pageCount)}
-        >
-          Next
-        </Link>
+        {page <= 1 ? (
+          <span aria-disabled className={linkCls(true)}>Previous</span>
+        ) : (
+          <Link href={hrefFor(page - 1)} className={linkCls(false)}>Previous</Link>
+        )}
+        {page >= pageCount ? (
+          <span aria-disabled className={linkCls(true)}>Next</span>
+        ) : (
+          <Link href={hrefFor(page + 1)} className={linkCls(false)}>Next</Link>
+        )}
       </div>
     </div>
   );

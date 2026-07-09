@@ -27,6 +27,7 @@ export type PermissionModule =
   | "payments"
   | "subscriptions"
   | "expenses"
+  | "contractor_billing"
   | "documents"
   | "messages"
   | "communications"
@@ -70,6 +71,7 @@ export const PERMISSION_MODULES: PermissionModuleInfo[] = [
   { key: "payments", label: "Payments Authority", description: "Recording payments, voids, write-offs, refunds." },
   { key: "subscriptions", label: "Subscriptions", description: "Plans, member subscriptions, usage and credits." },
   { key: "expenses", label: "Expenses & Receipts", description: "Expense capture, review, and receipts." },
+  { key: "contractor_billing", label: "Contractor Billing", description: "Crew & partner invoices and receipt uploads." },
   { key: "documents", label: "Documents", description: "Document vault uploads, review, and sharing." },
   { key: "messages", label: "Messages", description: "Portal message threads." },
   { key: "communications", label: "Email Communications", description: "Communications center and templated email sends." },
@@ -119,6 +121,7 @@ export const DEFAULT_PERMISSIONS: Record<MatrixRole, Record<PermissionModule, Ac
     payments: NONE,
     subscriptions: VAE,
     expenses: NONE,
+    contractor_billing: NONE,
     documents: VA,
     messages: VA,
     communications: NONE,
@@ -145,6 +148,7 @@ export const DEFAULT_PERMISSIONS: Record<MatrixRole, Record<PermissionModule, Ac
     payments: NONE,
     subscriptions: NONE,
     expenses: FULL,
+    contractor_billing: VAE,
     documents: VA,
     messages: VA,
     communications: NONE,
@@ -173,6 +177,7 @@ export const DEFAULT_PERMISSIONS: Record<MatrixRole, Record<PermissionModule, Ac
     payments: NONE,
     subscriptions: NONE,
     expenses: NONE,
+    contractor_billing: VAE,
     documents: VA,
     messages: VA,
     communications: NONE,
@@ -199,6 +204,7 @@ export const DEFAULT_PERMISSIONS: Record<MatrixRole, Record<PermissionModule, Ac
     payments: FULL,
     subscriptions: FULL,
     expenses: FULL,
+    contractor_billing: FULL,
     documents: FULL,
     messages: FULL,
     communications: FULL,
@@ -290,13 +296,18 @@ export const NAV_MODULE_PREFIXES: [string, PermissionModule][] = [
   ["/portal/crew/availability", "crew"],
   ["/portal/crew/credentials", "crew"],
   ["/portal/crew/expenses", "expenses"],
+  ["/portal/crew/invoices", "contractor_billing"],
+  ["/portal/crew/receipts", "contractor_billing"],
   ["/portal/crew/messages", "messages"],
   ["/portal/crew/notifications", "notifications"],
   ["/portal/partner/requests", "partners"],
+  ["/portal/partner/invoices", "contractor_billing"],
+  ["/portal/partner/receipts", "contractor_billing"],
   ["/portal/partner/profile", "partners"],
   ["/portal/partner/documents", "documents"],
   ["/portal/partner/messages", "messages"],
   ["/portal/partner/notifications", "notifications"],
+  ["/portal/admin/vendor-invoices", "contractor_billing"],
 ];
 
 export function navModuleForHref(href: string): PermissionModule | null {
