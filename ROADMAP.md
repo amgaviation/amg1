@@ -126,7 +126,7 @@ Ordered by user-facing impact: correctness/trust issues first, funnel-visual/sec
 
 ---
 
-### Phase 2 — Pilot Application Funnel Visual & Security Parity — `STATUS: PENDING`
+### Phase 2 — Pilot Application Funnel Visual & Security Parity — `STATUS: PASS` (commit `2eb7beb`, 1 build-review cycle)
 **Scope:** `app/(public)/pilots/apply/page.tsx`, `app/(public)/pilots/apply/network-application-form.tsx`, `app/api/crew-network/applications/route.ts`, `lib/portal/network-applications.ts`.
 
 **Objectives:**
