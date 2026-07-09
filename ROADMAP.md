@@ -106,7 +106,7 @@ Ordered by user-facing impact: correctness/trust issues first, funnel-visual/sec
 
 ---
 
-### Phase 1 — Trust & Content-Correctness Fixes (sitewide) — `STATUS: PENDING`
+### Phase 1 — Trust & Content-Correctness Fixes (sitewide) — `STATUS: PASS` (commit `d47892b`, 1 build-review cycle)
 **Scope:** `lib/site-config.ts` (`SITE.email`), `components/site/site-footer.tsx`, `components/flightdeck/global-footer.tsx`, `components/site/portal-login.tsx` (2 hardcoded mailtos), `app/(public)/pilots/page.tsx`, `app/(public)/operational-disclaimer/page.tsx`, `lib/compliance/legal-pages.ts`, `app/(public)/legal/[slug]/page.tsx`, `app/(public)/mission-acceptance/page.tsx`, `app/(public)/credential-submission/page.tsx`, `app/(public)/privacy-choices/page.tsx`, `app/sitemap.ts`.
 
 **Objectives:**
