@@ -73,6 +73,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
         { label: "Support Requests", href: "/portal/client/trips", icon: "plane" },
         { label: "New Request", href: "/portal/client/trips/new", icon: "plus" },
         { label: "Aircraft", href: "/portal/client/aircraft", icon: "planeTakeoff" },
+        { label: "Crew Availability", href: "/portal/client/live-map", icon: "mapPin" },
         { label: "Passengers", href: "/portal/client/passengers", icon: "users" },
       ],
     },
@@ -110,6 +111,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       items: [
         { label: "My Assignments", href: "/portal/crew/missions", icon: "plane" },
         { label: "Open Pool", href: "/portal/crew/missions?pool=open", icon: "radar" },
+        { label: "Live Map", href: "/portal/crew/live-map", icon: "mapPin" },
         { label: "Availability", href: "/portal/crew/availability", icon: "calendar" },
       ],
     },
@@ -148,6 +150,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       items: [
         { label: "Dashboard", href: "/portal/admin/dashboard", icon: "gauge" },
         { label: "Mission Control", href: "/portal/admin/mission-control", icon: "radar" },
+        { label: "Live Crew Map", href: "/portal/admin/live-map", icon: "mapPin" },
         { label: "Support Requests", href: "/portal/admin/trips", icon: "plane" },
         { label: "Calendar", href: "/portal/admin/calendar", icon: "calendar" },
         { label: "Tasks", href: "/portal/admin/tasks", icon: "check" },
