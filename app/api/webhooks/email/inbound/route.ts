@@ -8,7 +8,20 @@ export async function POST(request: Request) {
   const raw = await request.text();
   const provider = getEmailProvider();
 
-  if (process.env.NODE_ENV === "production" && process.env.RESEND_WEBHOOK_SECRET) {
+  const secret = process.env.RESEND_WEBHOOK_SECRET;
+
+  // Fail closed: production must never accept an unsigned inbound webhook.
+  if (process.env.NODE_ENV === "production" && !secret) {
+    const referenceId = logServerError(
+      "Inbound email webhook rejected: RESEND_WEBHOOK_SECRET is not configured",
+      new Error("missing_webhook_secret"),
+      { route: "/api/webhooks/email/inbound" }
+    );
+    return NextResponse.json({ ok: false, referenceId }, { status: 500 });
+  }
+
+  // Verify whenever a secret is configured (not just in production).
+  if (secret) {
     const signature =
       request.headers.get("svix-signature") ??
       request.headers.get("resend-signature") ??
