@@ -25,6 +25,19 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 const EVENT_TYPES = new Set(Object.keys(EVENT_TYPE_LABEL));
 const EVENT_STATUSES = new Set(Object.keys(EVENT_STATUS_LABEL));
 
+/**
+ * Merge result params into back_to without corrupting an existing query
+ * string. back_to already carries ?month=…, so a naive `${backTo}?success=…`
+ * would produce two `?` and Next would fold both into one bogus `month` value
+ * (dropping the flash AND resetting the viewed month).
+ */
+function redirectWith(backTo: string, extra: Record<string, string>): never {
+  const [path, existing = ""] = backTo.split("?");
+  const params = new URLSearchParams(existing);
+  for (const [key, value] of Object.entries(extra)) params.set(key, value);
+  redirect(`${path}?${params.toString()}`);
+}
+
 function uuidOrNull(value: string): string | null {
   return UUID_RE.test(value) ? value : null;
 }
@@ -86,15 +99,13 @@ function parseEvent(formData: FormData) {
   const timezone = isAllowedTimeZone(tzRaw) ? tzRaw : DEFAULT_TIMEZONE;
   // All-day events pin to local midnight → end of day so the calendar-day
   // placement matches the chosen zone; timed events use the entered clock time.
-  const startsAt = zonedTimeToUtcIso(
-    str(formData, "start_date"),
-    allDay ? "00:00" : str(formData, "start_time"),
-    timezone
-  );
+  const startTime = allDay ? "00:00" : str(formData, "start_time");
+  const startsAt = zonedTimeToUtcIso(str(formData, "start_date"), startTime, timezone);
   const endDate = str(formData, "end_date");
-  const endsAt = endDate
-    ? zonedTimeToUtcIso(endDate, allDay ? "23:59" : str(formData, "end_time"), timezone)
-    : null;
+  // Timed event with an end date but no end time: mirror the start time rather
+  // than defaulting to 00:00, which would read as "ends before it starts".
+  const endTime = allDay ? "23:59" : str(formData, "end_time") || startTime;
+  const endsAt = endDate ? zonedTimeToUtcIso(endDate, endTime, timezone) : null;
 
   return {
     title,
@@ -118,10 +129,10 @@ export async function createCalendarEvent(formData: FormData) {
   const doNotNotify = bool(formData, "do_not_notify");
   const ids = attendeeIds(formData);
 
-  if (!parsed.title) redirect(`${backTo}?error=title`);
-  if (!parsed.startsAt) redirect(`${backTo}?error=date`);
+  if (!parsed.title) redirectWith(backTo, { error: "title" });
+  if (!parsed.startsAt) redirectWith(backTo, { error: "date" });
   // A supplied end must not precede the start.
-  if (parsed.endsAt && parsed.endsAt < parsed.startsAt) redirect(`${backTo}?error=range`);
+  if (parsed.endsAt && parsed.endsAt < parsed.startsAt) redirectWith(backTo, { error: "range" });
 
   const db = await createServiceClient();
   const { data: event, error } = await db
@@ -142,7 +153,7 @@ export async function createCalendarEvent(formData: FormData) {
     })
     .select("id")
     .single();
-  if (error || !event) redirect(`${backTo}?error=save`);
+  if (error || !event) redirectWith(backTo, { error: "save" });
 
   if (ids.length) {
     await db.from("calendar_event_attendees").insert(
@@ -174,21 +185,21 @@ export async function createCalendarEvent(formData: FormData) {
   });
 
   revalidatePath(CAL_BASE);
-  redirect(`${backTo}?success=created`);
+  redirectWith(backTo, { success: "created" });
 }
 
 export async function updateCalendarEvent(formData: FormData) {
   const admin = await actor(["admin"], "missions.edit");
   const backTo = safeRedirectPath(str(formData, "back_to"), CAL_BASE);
   const eventId = uuidOrNull(str(formData, "event_id"));
-  if (!eventId) redirect(`${backTo}?error=notfound`);
+  if (!eventId) redirectWith(backTo, { error: "notfound" });
   const parsed = parseEvent(formData);
   const doNotNotify = bool(formData, "do_not_notify");
   const ids = attendeeIds(formData);
 
-  if (!parsed.title) redirect(`${backTo}?error=title`);
-  if (!parsed.startsAt) redirect(`${backTo}?error=date`);
-  if (parsed.endsAt && parsed.endsAt < parsed.startsAt) redirect(`${backTo}?error=range`);
+  if (!parsed.title) redirectWith(backTo, { error: "title" });
+  if (!parsed.startsAt) redirectWith(backTo, { error: "date" });
+  if (parsed.endsAt && parsed.endsAt < parsed.startsAt) redirectWith(backTo, { error: "range" });
 
   const db = await createServiceClient();
   const { data: existing } = await db
@@ -196,7 +207,7 @@ export async function updateCalendarEvent(formData: FormData) {
     .select("id, title")
     .eq("id", eventId!)
     .maybeSingle();
-  if (!existing) redirect(`${backTo}?error=notfound`);
+  if (!existing) redirectWith(backTo, { error: "notfound" });
 
   const { error: updateError } = await db
     .from("calendar_events")
@@ -215,7 +226,7 @@ export async function updateCalendarEvent(formData: FormData) {
       updated_at: new Date().toISOString(),
     })
     .eq("id", eventId!);
-  if (updateError) redirect(`${backTo}?error=save`);
+  if (updateError) redirectWith(backTo, { error: "save" });
 
   // Reconcile attendees: drop removed rows, add new ones. Only people newly
   // added this save are notified — existing attendees are left untouched.
@@ -265,14 +276,14 @@ export async function updateCalendarEvent(formData: FormData) {
   });
 
   revalidatePath(CAL_BASE);
-  redirect(`${backTo}?success=updated`);
+  redirectWith(backTo, { success: "updated" });
 }
 
 export async function deleteCalendarEvent(formData: FormData) {
   const admin = await actor(["admin"], "missions.edit");
   const backTo = safeRedirectPath(str(formData, "back_to"), CAL_BASE);
   const eventId = uuidOrNull(str(formData, "event_id"));
-  if (!eventId) redirect(`${backTo}?error=notfound`);
+  if (!eventId) redirectWith(backTo, { error: "notfound" });
 
   const db = await createServiceClient();
   const { data: existing } = await db
@@ -280,11 +291,11 @@ export async function deleteCalendarEvent(formData: FormData) {
     .select("id, title")
     .eq("id", eventId!)
     .maybeSingle();
-  if (!existing) redirect(`${backTo}?error=notfound`);
+  if (!existing) redirectWith(backTo, { error: "notfound" });
 
   // Attendee rows cascade on delete.
   const { error } = await db.from("calendar_events").delete().eq("id", eventId!);
-  if (error) redirect(`${backTo}?error=save`);
+  if (error) redirectWith(backTo, { error: "save" });
 
   await logAuditEvent({
     actor: admin,
@@ -295,5 +306,5 @@ export async function deleteCalendarEvent(formData: FormData) {
   });
 
   revalidatePath(CAL_BASE);
-  redirect(`${backTo}?success=deleted`);
+  redirectWith(backTo, { success: "deleted" });
 }
