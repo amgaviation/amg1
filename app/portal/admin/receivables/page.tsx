@@ -10,8 +10,13 @@ import {
 } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
-import { markInvoiceOverdue, sendInvoiceReminder } from "@/app/portal/actions/receivables";
-import { AR_BUCKETS, getArSummary } from "@/lib/portal/receivables";
+import {
+  markInvoiceOverdue,
+  sendInvoiceReminder,
+  setInvoiceDunningPaused,
+} from "@/app/portal/actions/receivables";
+import { getBillingSettings } from "@/lib/portal/billing-config";
+import { AR_BUCKETS, getArSummary, type ArInvoice } from "@/lib/portal/receivables";
 import { INVOICE_STATUS_LABEL, INVOICE_STATUS_TONE, toneFor } from "@/lib/portal/constants";
 import { formatDate, formatMoney } from "@/lib/portal/format";
 
@@ -24,6 +29,47 @@ function bucketTone(bucket: string) {
   return "danger" as const;
 }
 
+/** Where the invoice sits in the automated reminder cadence, plus the last send. */
+function DunningCell({ row }: { row: ArInvoice }) {
+  const dunning = row.dunning;
+  const lastSent = dunning.lastSentAt ? (
+    <span className="block text-[0.66rem] text-[var(--deck-text-3)]">
+      {dunning.lastStageLabel} sent {formatDate(dunning.lastSentAt)}
+    </span>
+  ) : null;
+
+  if (dunning.paused) {
+    return (
+      <div className="space-y-1">
+        <StatusBadge label="Paused" tone="warn" />
+        {lastSent}
+      </div>
+    );
+  }
+  if (dunning.complete) {
+    return (
+      <div className="space-y-1">
+        <StatusBadge label="Cadence complete" tone="neutral" />
+        {lastSent}
+      </div>
+    );
+  }
+  if (row.bucket === "current" && !dunning.lastStageLabel) {
+    return <span className="text-[var(--deck-text-3)]">—</span>;
+  }
+  return (
+    <div className="space-y-1">
+      {dunning.nextStageLabel ? (
+        <StatusBadge
+          label={dunning.nextStageLabel}
+          tone={dunning.nextStageLabel.endsWith("due") ? "danger" : "info"}
+        />
+      ) : null}
+      {lastSent}
+    </div>
+  );
+}
+
 export default async function ReceivablesPage({
   searchParams,
 }: {
@@ -31,7 +77,7 @@ export default async function ReceivablesPage({
 }) {
   const user = await requireRolePermission("admin", "invoices");
   const params = await searchParams;
-  const ar = await getArSummary();
+  const [ar, billing] = await Promise.all([getArSummary(), getBillingSettings()]);
 
   return (
     <>
@@ -39,6 +85,12 @@ export default async function ReceivablesPage({
         <Notice tone="success">Reminder sent — the invoice email was re-issued and the client notified in-portal.</Notice>
       ) : null}
       {params.success === "overdue" ? <Notice tone="success">Invoice marked overdue.</Notice> : null}
+      {params.success === "dunning-paused" ? (
+        <Notice tone="success">Automated dunning paused for that invoice — no reminder emails will be sent until resumed.</Notice>
+      ) : null}
+      {params.success === "dunning-resumed" ? (
+        <Notice tone="success">Automated dunning resumed — the invoice rejoins the reminder cadence on the next nightly run.</Notice>
+      ) : null}
       {params.error === "email" ? <Notice tone="danger">The reminder email could not be sent. Check email provider configuration.</Notice> : null}
       {params.error === "closed" ? <Notice tone="danger">That invoice is no longer open.</Notice> : null}
       {params.error === "recently-reminded" ? (
@@ -91,8 +143,18 @@ export default async function ReceivablesPage({
       <SectionCard
         title="Collections Queue"
         icon="alert"
-        description="Open invoices ordered by due date. Remind re-sends the invoice email with PDF and notifies the client in-portal."
+        description="Open invoices ordered by due date. Remind re-sends the invoice email with PDF and notifies the client in-portal. Dunning shows the automated T+3 / T+7 / T+14 reminder cadence."
       >
+        {!billing.dunning_enabled ? (
+          <Notice tone="info">
+            Automated dunning is currently off — overdue clients only hear from you manually. Turn it on
+            in{" "}
+            <Link href="/portal/admin/settings/billing" className="font-semibold underline">
+              Billing Settings
+            </Link>
+            .
+          </Notice>
+        ) : null}
         {ar.invoices.length === 0 ? (
           <EmptyState
             icon="check"
@@ -150,6 +212,10 @@ export default async function ReceivablesPage({
                 ),
               },
               {
+                header: "Dunning",
+                cell: (row) => <DunningCell row={row} />,
+              },
+              {
                 header: "Amount Due",
                 align: "right",
                 cell: (row) => (
@@ -185,6 +251,22 @@ export default async function ReceivablesPage({
                         </SubmitButton>
                       </form>
                     ) : null}
+                    <form action={setInvoiceDunningPaused}>
+                      <input type="hidden" name="invoice_id" value={row.id} />
+                      <input type="hidden" name="paused" value={row.dunning.paused ? "" : "true"} />
+                      <SubmitButton
+                        size="sm"
+                        variant="ghost"
+                        pendingText="…"
+                        confirm={
+                          row.dunning.paused
+                            ? `Resume automated dunning reminders for invoice ${row.invoice_number}?`
+                            : `Pause automated dunning reminders for invoice ${row.invoice_number}?`
+                        }
+                      >
+                        {row.dunning.paused ? "Resume dunning" : "Pause dunning"}
+                      </SubmitButton>
+                    </form>
                   </div>
                 ),
               },

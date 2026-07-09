@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
 import { emailInvoicePdf } from "@/lib/portal/billing-emails";
 import { createServiceClient } from "@/lib/supabase/server";
-import { actor, str } from "./_helpers";
+import { actor, bool, str } from "./_helpers";
 
 const AR_PATH = "/portal/admin/receivables";
 
@@ -65,6 +65,35 @@ export async function sendInvoiceReminder(formData: FormData) {
   });
   revalidatePath(AR_PATH);
   redirect(`${AR_PATH}?success=reminded`);
+}
+
+/** Pause or resume the automated dunning cadence for one invoice. */
+export async function setInvoiceDunningPaused(formData: FormData) {
+  const admin = await actor(["admin"], "invoices.edit");
+  const invoiceId = str(formData, "invoice_id");
+  const paused = bool(formData, "paused");
+  if (!invoiceId) redirect(`${AR_PATH}?error=missing`);
+
+  // dunning_paused is ahead of the generated database types until the next
+  // regen; this module already writes through an `any`-cast client.
+  const db = (await createServiceClient()) as any;
+  const { data: invoice, error } = await db
+    .from("invoices")
+    .update({ dunning_paused: paused, updated_at: new Date().toISOString() })
+    .eq("id", invoiceId)
+    .select("id, invoice_number")
+    .maybeSingle();
+  if (error || !invoice) redirect(`${AR_PATH}?error=save`);
+
+  await logAuditEvent({
+    actor: admin,
+    action: paused ? "invoice_dunning_paused" : "invoice_dunning_resumed",
+    detail: `${paused ? "Paused" : "Resumed"} automated dunning for ${invoice.invoice_number}`,
+    entityType: "invoice",
+    entityId: invoiceId,
+  });
+  revalidatePath(AR_PATH);
+  redirect(`${AR_PATH}?success=${paused ? "dunning-paused" : "dunning-resumed"}`);
 }
 
 /** Mark an open invoice overdue explicitly (surface it in client + admin views). */

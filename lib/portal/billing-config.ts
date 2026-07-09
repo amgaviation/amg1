@@ -22,6 +22,8 @@ export type BillingSettings = {
   tax_rate: number;
   default_deposit_percent: number;
   auto_send_invoice_on_quote_approval: boolean;
+  /** Global switch for the automated overdue-invoice dunning cadence (T+3/T+7/T+14). */
+  dunning_enabled: boolean;
   updated_by: string | null;
   created_at: string;
   updated_at: string;
@@ -53,6 +55,8 @@ export const DEFAULT_BILLING_SETTINGS: BillingSettings = {
   tax_rate: 0,
   default_deposit_percent: 0,
   auto_send_invoice_on_quote_approval: false,
+  // Safe rollout: client dunning stays off until deliberately enabled.
+  dunning_enabled: false,
   updated_by: null,
   created_at: new Date(0).toISOString(),
   updated_at: new Date(0).toISOString(),
