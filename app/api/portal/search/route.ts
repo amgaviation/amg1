@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/portal/session";
 import { isAdminRole } from "@/lib/portal/constants";
 import { permissionsForRole } from "@/lib/portal/permissions";
+import { privateJson } from "@/lib/portal/api-guard";
 import { createServiceClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -16,12 +17,12 @@ export type SearchResult = {
 /** Admin global search across operational records (Cmd+K palette). */
 export async function GET(request: NextRequest) {
   const user = await getSessionUser();
-  if (!user || !isAdminRole(user.role)) {
+  if (!user || !isAdminRole(user.role) || user.status !== "approved") {
     return NextResponse.json({ results: [] }, { status: 403 });
   }
 
   const q = (request.nextUrl.searchParams.get("q") ?? "").trim();
-  if (q.length < 2) return NextResponse.json({ results: [] });
+  if (q.length < 2) return privateJson({ results: [] });
 
   // Respect the role-permission matrix: don't surface record labels from —
   // or dead-end links into — modules this admin cannot view.
@@ -143,5 +144,5 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  return NextResponse.json({ results: results.slice(0, 24) });
+  return privateJson({ results: results.slice(0, 24) });
 }
