@@ -102,7 +102,7 @@ export function SiteNav() {
             height="242"
             className="h-6 w-auto md:h-7"
           />
-          <span className="font-mono text-[8px] uppercase [letter-spacing:0.22em] text-[var(--t3)] max-sm:hidden">
+          <span className="font-mono text-[0.6875rem] uppercase [letter-spacing:0.2em] text-[var(--t2)] max-sm:hidden">
             Aircraft support coordination
           </span>
         </Link>
@@ -118,7 +118,7 @@ export function SiteNav() {
                   onClick={closeMenu}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 font-mono text-[0.66rem] font-medium uppercase leading-none [letter-spacing:0.16em] text-white/[0.70] transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--instrument-ink)]",
+                    "inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 font-mono text-[0.72rem] font-medium uppercase leading-none [letter-spacing:0.16em] text-white/[0.82] transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--instrument-ink)]",
                     active && "bg-[rgba(11,94,212,0.08)] text-white"
                   )}
                 >
@@ -138,7 +138,7 @@ export function SiteNav() {
             href="/connect"
             prefetch={false}
             onClick={closeMenu}
-            className="hidden min-h-11 items-center whitespace-nowrap px-2 font-mono text-[0.66rem] font-medium uppercase leading-none [letter-spacing:0.16em] text-white/[0.74] transition-colors hover:text-[var(--instrument-ink)] sm:inline-flex"
+            className="hidden min-h-11 items-center whitespace-nowrap px-2 font-mono text-[0.72rem] font-medium uppercase leading-none [letter-spacing:0.16em] text-white/[0.82] transition-colors hover:text-[var(--instrument-ink)] sm:inline-flex"
           >
             Portal login
           </Link>

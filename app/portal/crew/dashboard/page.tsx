@@ -28,18 +28,24 @@ import {
   toneFor,
 } from "@/lib/portal/constants";
 import { daysUntil, formatDateTime, formatRoute } from "@/lib/portal/format";
+import { getCrewPresenceState, resolveAirports } from "@/lib/portal/crew-map";
+import { GoActiveControl } from "@/components/portal/crew-map/go-active-control";
 
 export const metadata = { title: "Dashboard - Crew Portal" };
 
 export default async function CrewDashboardPage() {
   const user = await requireRole("crew");
-  const [missions, crewProfileRaw, credentials, unread] = await Promise.all([
+  const [missions, crewProfileRaw, credentials, unread, presence] = await Promise.all([
     listMissionsForCrew(user.id),
     getCrewProfile(user.id),
     listCredentials(user.id),
     countUnread(user.id),
+    getCrewPresenceState(user.id),
   ]);
   const crewProfile = crewProfileRaw as any;
+  const presenceDefaults = await resolveAirports(
+    [presence.homeAirport, presence.closestAirport].filter(Boolean) as string[]
+  );
 
   const offered = missions.filter((m) => m.assignment_status === "offered");
   const active = missions.filter((m) => m.assignment_status === "accepted");
@@ -76,6 +82,20 @@ export default async function CrewDashboardPage() {
           ) : undefined
         }
       />
+
+      {/* Live availability toggle — flip yourself onto the crew map. */}
+      <SectionCard
+        title="Live availability"
+        icon="mapPin"
+        description="Flip active to appear on the crew map for immediate assignment. Auto-shuts off at your chosen time (max 6 hours)."
+        actions={
+          <Button asChild variant="outline" size="sm">
+            <Link href="/portal/crew/live-map">Open map</Link>
+          </Button>
+        }
+      >
+        <GoActiveControl state={presence} defaults={presenceDefaults} />
+      </SectionCard>
 
       {/* Next assignment hero */}
       {nextAssignment ? (

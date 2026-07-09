@@ -40,7 +40,7 @@ export function SiteFooter() {
               {AFFILIATIONS.map((affiliation) => (
                 <span
                   key={affiliation}
-                  className="inline-flex items-center gap-2 rounded-full border border-[var(--oc-line-dark)] bg-white/[0.04] px-3 py-1.5 text-[0.7rem] font-semibold uppercase text-[var(--oc-aluminum)]"
+                  className="inline-flex items-center gap-2 rounded-full border border-[var(--oc-line-dark)] bg-white/[0.04] px-3 py-1.5 text-[0.75rem] font-semibold uppercase text-[var(--oc-aluminum)]"
                 >
                   <span className="oc-dot" aria-hidden="true" />
                   {affiliation}

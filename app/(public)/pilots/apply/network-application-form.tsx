@@ -25,7 +25,7 @@ function Field({
 }) {
   return (
     <label className="grid gap-2">
-      <span className="text-[0.66rem] font-bold uppercase tracking-[0.18em] text-[#C0C7D1]">
+      <span className="text-[0.75rem] font-bold uppercase [letter-spacing:0.16em] text-[#C0C7D1]">
         {label}
         {required ? <span className="ml-1 text-[#3B82F6]">*</span> : null}
       </span>
@@ -37,7 +37,8 @@ function Field({
 
 function inputClass(error?: string) {
   return [
-    "min-h-12 rounded-lg border bg-white/[0.055] px-3 text-sm text-white outline-none transition placeholder:text-[#9CA3AF]/60",
+    // text-base (16px) avoids iOS Safari's focus auto-zoom on form fields.
+    "min-h-12 rounded-lg border bg-white/[0.055] px-3 text-base text-white outline-none transition placeholder:text-[#9CA3AF]/60",
     error ? "border-red-300/70" : "border-white/15 focus:border-[#3B82F6] focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]",
   ].join(" ");
 }

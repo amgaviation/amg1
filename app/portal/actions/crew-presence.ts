@@ -1,0 +1,65 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { actor } from "./_helpers";
+import type { AirportOption } from "@/lib/portal/crew-map";
+
+/**
+ * Crew presence actions. The go-active/offline RPCs are SECURITY DEFINER and
+ * read auth.uid(), so they are invoked with the SESSION client (the crew
+ * member's JWT). All eligibility, clamping, and availability sync happen in the
+ * database; these just relay the call and surface the result to the UI.
+ */
+
+type Result = { ok: boolean; error?: string; expiresAt?: string };
+
+function friendly(message: string): string {
+  // The RPC raises "Not eligible: <blockers>" / "Unknown airport: X" — strip
+  // the Postgres noise and show the human part.
+  const m = message.replace(/^.*?:\s*/, (s) => s).trim();
+  return m || "Could not update your availability. Try again.";
+}
+
+export async function goActive(airport: string, minutes: number): Promise<Result> {
+  await actor(["crew"]);
+  const db = (await createClient()) as any;
+  const { data, error } = await db.rpc("rpc_crew_go_active", {
+    p_airport: String(airport ?? "").toUpperCase().trim(),
+    p_duration_minutes: Math.max(1, Math.min(360, Math.round(Number(minutes) || 60))),
+  });
+  if (error) return { ok: false, error: friendly(error.message) };
+  revalidatePath("/portal/crew/live-map");
+  revalidatePath("/portal/crew/dashboard");
+  const row = Array.isArray(data) ? data[0] : data;
+  return { ok: true, expiresAt: row?.expires_at };
+}
+
+export async function goOffline(): Promise<Result> {
+  await actor(["crew"]);
+  const db = (await createClient()) as any;
+  const { error } = await db.rpc("rpc_crew_go_offline");
+  if (error) return { ok: false, error: friendly(error.message) };
+  revalidatePath("/portal/crew/live-map");
+  revalidatePath("/portal/crew/dashboard");
+  return { ok: true };
+}
+
+/** Searchable airport picker source (code / name / city). Scales past the seed. */
+export async function searchAirports(q: string): Promise<AirportOption[]> {
+  await actor(["crew"]);
+  const term = String(q ?? "").trim();
+  const db = await createServiceClient();
+  let query = db
+    .from("airports")
+    .select("code, name, city, state")
+    .eq("is_active", true)
+    .order("code")
+    .limit(20);
+  if (term) {
+    const like = `%${term}%`;
+    query = query.or(`code.ilike.${like},name.ilike.${like},city.ilike.${like},iata.ilike.${like}`);
+  }
+  const { data } = await query;
+  return (data ?? []) as AirportOption[];
+}

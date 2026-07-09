@@ -1926,6 +1926,70 @@ export type Database = {
           },
         ]
       }
+      airports: {
+        Row: {
+          code: string
+          iata: string | null
+          icao: string | null
+          name: string
+          city: string | null
+          state: string | null
+          country: string
+          region: string | null
+          latitude: number
+          longitude: number
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          code: string
+          iata?: string | null
+          icao?: string | null
+          name: string
+          city?: string | null
+          state?: string | null
+          country?: string
+          region?: string | null
+          latitude: number
+          longitude: number
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["airports"]["Insert"]>
+        Relationships: []
+      }
+      crew_presence_sessions: {
+        Row: {
+          id: string
+          crew_id: string
+          airport_code: string
+          latitude: number
+          longitude: number
+          started_at: string
+          duration_minutes: number
+          expires_at: string
+          ended_at: string | null
+          ended_reason: string | null
+          prior_availability_status: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          crew_id: string
+          airport_code: string
+          latitude: number
+          longitude: number
+          started_at?: string
+          duration_minutes: number
+          expires_at: string
+          ended_at?: string | null
+          ended_reason?: string | null
+          prior_availability_status?: string | null
+          created_at?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["crew_presence_sessions"]["Insert"]>
+        Relationships: []
+      }
       calendar_events: {
         Row: {
           id: string
