@@ -99,6 +99,10 @@ export function CalendarGrid({
             tabIndex={0}
             onClick={() => openNew(day)}
             onKeyDown={(e) => {
+              // Chip buttons stopPropagation on click but their keyboard
+              // activation still bubbles here — guard so pressing Enter on a
+              // focused chip opens the chip, not the "add event" dialog.
+              if (e.target !== e.currentTarget) return;
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
                 openNew(day);

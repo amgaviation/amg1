@@ -33,7 +33,9 @@ import {
   toneFor,
 } from "@/lib/portal/constants";
 import {
+  DEFAULT_TIMEZONE,
   getZonedDateParts,
+  tzAbbrev,
   zonedClock,
   zonedClockWithZone,
   zonedDateLong,
@@ -64,7 +66,8 @@ function whenLabel(startsAt: string, endsAt: string | null, allDay: boolean, tim
   let text = `${dateText} · ${zonedClock(startsAt, timeZone)}`;
   if (endsAt) text += ` – ${zonedClock(endsAt, timeZone)}`;
   // Append the zone abbreviation once, from the start instant.
-  return `${text} ${zonedClockWithZone(startsAt, timeZone).split(" ").pop()}`;
+  const abbrev = tzAbbrev(startsAt, timeZone);
+  return abbrev ? `${text} ${abbrev}` : text;
 }
 
 export default async function OpsCalendarPage({
@@ -83,9 +86,12 @@ export default async function OpsCalendarPage({
   await requireRolePermission("admin", "missions");
   const params = await searchParams;
 
-  const now = new Date();
-  let year = now.getUTCFullYear();
-  let month = now.getUTCMonth();
+  // "Today" and the default month are anchored to a business reference zone,
+  // not the server's UTC clock — otherwise an evening admin west of UTC sees
+  // tomorrow highlighted and lands on next month.
+  const nowParts = getZonedDateParts(new Date().toISOString(), DEFAULT_TIMEZONE);
+  let year = nowParts.year;
+  let month = nowParts.month - 1;
   const match = /^(\d{4})-(\d{2})$/.exec(params.month ?? "");
   if (match) {
     year = Number(match[1]);
@@ -142,7 +148,7 @@ export default async function OpsCalendarPage({
   const prev = month === 0 ? monthParam(year - 1, 11) : monthParam(year, month - 1);
   const next = month === 11 ? monthParam(year + 1, 0) : monthParam(year, month + 1);
   const todayDay =
-    year === now.getUTCFullYear() && month === now.getUTCMonth() ? now.getUTCDate() : null;
+    year === nowParts.year && month === nowParts.month - 1 ? nowParts.day : null;
 
   const navLink =
     "rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]";
@@ -152,12 +158,18 @@ export default async function OpsCalendarPage({
     (a, b) => a - b
   );
 
-  // Active record for the view/edit modals.
-  const activeEvent = params.event
-    ? await getCalendarEvent(params.event)
-    : params.edit
-      ? await getCalendarEvent(params.edit)
+  // Active record for the view/edit modals. Edit wins if both params are set
+  // (stale/hand-built URL) so only one modal ever renders; a plain ?event only
+  // opens the view when there's no ?edit alongside it.
+  const editId = params.edit && /^[0-9a-f-]{36}$/i.test(params.edit) ? params.edit : null;
+  const viewId = !editId && params.event && /^[0-9a-f-]{36}$/i.test(params.event) ? params.event : null;
+  const activeEvent = editId
+    ? await getCalendarEvent(editId)
+    : viewId
+      ? await getCalendarEvent(viewId)
       : null;
+  // A ?event/?edit that points at a deleted or bad id resolves to nothing.
+  const missingEvent = Boolean((params.event || params.edit) && !activeEvent);
 
   const SUCCESS_TEXT: Record<string, string> = {
     created: "Event created.",
@@ -180,6 +192,7 @@ export default async function OpsCalendarPage({
       {params.error && ERROR_TEXT[params.error] ? (
         <Notice tone="danger">{ERROR_TEXT[params.error]}</Notice>
       ) : null}
+      {missingEvent ? <Notice tone="warn">That event no longer exists.</Notice> : null}
 
       <PageHeader
         eyebrow="AMG Operations"
@@ -279,7 +292,7 @@ export default async function OpsCalendarPage({
       ) : null}
 
       {/* Edit window */}
-      {params.edit && activeEvent ? (
+      {editId && activeEvent ? (
         <FormModal
           eyebrow="AMG Operations"
           title={`Edit: ${activeEvent.title}`}
@@ -317,7 +330,7 @@ export default async function OpsCalendarPage({
       ) : null}
 
       {/* View window */}
-      {params.event && activeEvent ? (
+      {viewId && activeEvent ? (
         <RecordModal
           eyebrow={EVENT_TYPE_LABEL[activeEvent.event_type] ?? "Event"}
           title={activeEvent.title}
