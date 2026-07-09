@@ -146,7 +146,7 @@ Ordered by user-facing impact: correctness/trust issues first, funnel-visual/sec
 
 ---
 
-### Phase 3 — Auth & Portal-Entry Presentation Verification — `STATUS: PENDING`
+### Phase 3 — Auth & Portal-Entry Presentation Verification — `STATUS: PASS` (commit `7483f4c`, 1 build-review cycle)
 **Scope (presentation layer only — not auth/session logic):** `app/(public)/login/page.tsx`, `signup/page.tsx`, `forgot-password/page.tsx`, `reset-password/page.tsx`, `portal-setup/page.tsx` (+form), `verify-email/page.tsx`, `pending-approval/page.tsx`, `access-denied/page.tsx`, `components/site/portal-login.tsx`, `components/site/portal-access-shell.tsx`.
 
 **Objectives:**
