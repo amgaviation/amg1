@@ -5,6 +5,7 @@ import { PortalAccessShell } from "@/components/site/portal-access-shell";
 export const metadata = {
   title: "AMG Portal Access Pending",
   description: "AMG portal access request pending approval.",
+  robots: { index: false },
 };
 
 export default function PendingApprovalPage() {
@@ -23,11 +24,11 @@ export default function PendingApprovalPage() {
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Link href="/contact" className="inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-6 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground">
+          <Link href="/contact" className="oc-btn oc-btn-primary justify-center">
             Contact AMG
           </Link>
           <form action={signOut}>
-            <button type="submit" className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-white/15 px-6 py-3 font-display text-xs font-semibold uppercase tracking-widest text-foreground hover:border-primary">
+            <button type="submit" className="oc-btn oc-btn-ghost-dark w-full justify-center">
               Sign out
             </button>
           </form>

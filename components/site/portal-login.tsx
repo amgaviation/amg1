@@ -84,7 +84,7 @@ export function PortalLogin({
 
       <div className="relative mx-auto grid w-full max-w-6xl gap-10 px-6 pb-16 pt-[calc(var(--public-header-height)+2.5rem)] md:px-10 lg:min-h-svh lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:items-center lg:gap-16 lg:pb-20 lg:pt-[calc(var(--public-header-height)+3rem)]">
         <section className="max-w-xl lg:pb-10">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/[0.10] bg-white/[0.06] px-3 py-1 text-xs uppercase tracking-[0.22em] text-[var(--oc-aluminum)] backdrop-blur-md">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/[0.10] bg-white/[0.06] px-3 py-1 font-mono text-xs uppercase [letter-spacing:0.22em] text-[var(--oc-aluminum)] backdrop-blur-md">
             <ShieldCheck className="h-3.5 w-3.5 text-primary" />
             AMG Connect · Approved Access
           </div>
@@ -268,7 +268,7 @@ export function PortalLogin({
                   />
                 </div>
 
-                <button className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--instrument)] px-6 py-4 font-display text-sm font-semibold uppercase text-white transition hover:bg-[var(--instrument)]/85">
+                <button className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--instrument)] px-6 py-4 font-mono text-sm font-medium uppercase [letter-spacing:0.14em] text-white transition hover:bg-[var(--instrument)]/85">
                   Sign in
                   <ArrowRight className="h-4 w-4" />
                 </button>
@@ -363,7 +363,7 @@ export function PortalLogin({
                   </div>
                 </div>
 
-                <button className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--instrument)] px-6 py-4 font-display text-sm font-semibold uppercase text-white transition hover:bg-[var(--instrument)]/85">
+                <button className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--instrument)] px-6 py-4 font-mono text-sm font-medium uppercase [letter-spacing:0.14em] text-white transition hover:bg-[var(--instrument)]/85">
                   Submit access request
                   <ArrowRight className="h-4 w-4" />
                 </button>

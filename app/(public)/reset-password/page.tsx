@@ -6,6 +6,7 @@ import { PortalAccessShell } from "@/components/site/portal-access-shell";
 export const metadata = {
   title: "Create New AMG Portal Password",
   description: "Create a new password for your AMG portal account.",
+  robots: { index: false },
 };
 
 export default async function ResetPasswordPage({
@@ -40,7 +41,7 @@ export default async function ResetPasswordPage({
           Confirm password
           <input name="confirm_password" type="password" required minLength={8} autoComplete="new-password" className="support-field h-12 px-4 text-base" />
         </label>
-        <SubmitButton pendingText="Updating..." className="h-12 rounded-full font-display text-xs font-semibold uppercase tracking-widest">
+        <SubmitButton pendingText="Updating..." className="h-12 rounded-full font-mono text-xs font-medium uppercase [letter-spacing:0.14em]">
           Update password
           <ArrowRight className="h-4 w-4" />
         </SubmitButton>

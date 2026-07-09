@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, MailCheck, ShieldCheck } from "lucide-react";
 
@@ -7,6 +8,7 @@ import { resendPortalVerificationCode, verifyPortalEmail } from "@/app/portal/ac
 export const metadata: Metadata = {
   title: "Verify AMG Connect Email",
   description: "Verify your AMG Connect portal access request with the code from your email.",
+  robots: { index: false },
 };
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -29,18 +31,20 @@ export default async function VerifyEmailPage({
     <main className="min-h-svh bg-[#050B14] text-white">
       <section className="relative isolate grid min-h-svh overflow-hidden px-6 py-16 md:px-10 lg:grid-cols-[minmax(0,1fr)_32rem] lg:py-20">
         <div className="absolute inset-0 -z-10" aria-hidden="true">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src="/images/flightdeck/stratosphere.webp"
             alt=""
-            className="h-full w-full scale-105 object-cover opacity-30"
+            fill
+            priority
+            sizes="100vw"
+            className="scale-105 object-cover opacity-30"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[#050B14] via-[#07111F]/90 to-[#07111F]/55" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#050B14] via-[#050B14]/70 to-[#050B14]/40" />
         </div>
 
         <div className="hidden max-w-3xl self-center lg:block">
-          <div className="inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#3B82F6]">
+          <div className="inline-flex items-center gap-3 font-mono text-xs font-medium uppercase [letter-spacing:0.22em] text-[var(--instrument-ink)]">
             <span className="h-px w-12 bg-[var(--instrument)]/70" />
             AMG Connect
           </div>
@@ -57,7 +61,7 @@ export default async function VerifyEmailPage({
           <div className="w-full rounded-2xl border border-white/[0.12] bg-white/[0.07] p-6 shadow-2xl shadow-black/35 backdrop-blur-xl sm:p-8">
             <div className="mb-7 flex items-start justify-between gap-5">
               <div>
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/[0.10] bg-[#07111F]/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#9CA3AF]">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/[0.10] bg-[#07111F]/80 px-3 py-1 font-mono text-xs font-medium uppercase [letter-spacing:0.18em] text-[#9CA3AF]">
                   <ShieldCheck className="h-3.5 w-3.5 text-[#3B82F6]" />
                   Email Check
                 </div>
@@ -120,7 +124,7 @@ export default async function VerifyEmailPage({
                 />
               </label>
 
-              <button className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--instrument)] px-6 py-4 font-display text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[var(--instrument-ink)] focus:ring-offset-2 focus:ring-offset-[#050B14]">
+              <button className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--instrument)] px-6 py-4 font-mono text-sm font-medium uppercase [letter-spacing:0.14em] text-white transition hover:bg-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[var(--instrument-ink)] focus:ring-offset-2 focus:ring-offset-[#050B14]">
                 Verify Email
                 <ArrowRight className="h-4 w-4" />
               </button>
@@ -128,7 +132,7 @@ export default async function VerifyEmailPage({
               <button
                 formAction={resendPortalVerificationCode}
                 formNoValidate
-                className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-white/[0.14] px-6 py-4 font-display text-sm font-semibold uppercase tracking-widest text-white/85 transition hover:border-[#3B82F6] hover:text-white focus:outline-none focus:ring-2 focus:ring-[var(--instrument-ink)] focus:ring-offset-2 focus:ring-offset-[#050B14]"
+                className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-white/[0.14] px-6 py-4 font-mono text-sm font-medium uppercase [letter-spacing:0.14em] text-white/85 transition hover:border-[#3B82F6] hover:text-white focus:outline-none focus:ring-2 focus:ring-[var(--instrument-ink)] focus:ring-offset-2 focus:ring-offset-[#050B14]"
               >
                 Resend Verification Code
               </button>

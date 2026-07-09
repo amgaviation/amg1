@@ -7,6 +7,7 @@ import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 export const metadata = {
   title: "Reset AMG Portal Password",
   description: "Request a secure AMG portal password reset link.",
+  robots: { index: false },
 };
 
 export default async function ForgotPasswordPage({
@@ -38,7 +39,7 @@ export default async function ForgotPasswordPage({
           Email
           <input name="email" type="email" required autoComplete="email" className="support-field h-12 px-4 text-base" />
         </label>
-        <SubmitButton pendingText="Sending..." className="h-12 rounded-full font-display text-xs font-semibold uppercase tracking-widest">
+        <SubmitButton pendingText="Sending..." className="h-12 rounded-full font-mono text-xs font-medium uppercase [letter-spacing:0.14em]">
           Send reset link
           <ArrowRight className="h-4 w-4" />
         </SubmitButton>
