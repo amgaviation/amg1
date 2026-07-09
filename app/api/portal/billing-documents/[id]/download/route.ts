@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/portal/session";
+import { isAdminRole } from "@/lib/portal/constants";
 import { createServiceClient } from "@/lib/supabase/server";
 import { createSafeErrorResponse, logServerError } from "@/lib/errors/user-facing-errors";
 import { recordComplianceEvidence, recordSensitiveAccessEvent } from "@/lib/compliance/evidence";
@@ -31,7 +32,7 @@ export async function GET(
     );
   }
 
-  if (user.role !== "admin" && document.client_id !== user.id) {
+  if (!isAdminRole(user.role) && document.client_id !== user.id) {
     return NextResponse.json(
       createSafeErrorResponse({ audience: "client", area: "documents", action: "download", category: "permission" }),
       { status: 403 },

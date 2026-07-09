@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/portal/session";
+import { isAdminRole } from "@/lib/portal/constants";
 import { createCommunicationAttachmentSignedUrl } from "@/lib/portal/communications";
 import { createSafeErrorResponse, logServerError } from "@/lib/errors/user-facing-errors";
 
 export async function GET(_request: Request, { params }: { params: Promise<unknown> }) {
   const user = await getSessionUser();
-  if (!user || user.role !== "admin" || user.status !== "approved") {
+  if (!user || !isAdminRole(user.role) || user.status !== "approved") {
     return NextResponse.json(
       createSafeErrorResponse({ audience: "admin", area: "documents", action: "download", category: "permission" }),
       { status: 403 },
