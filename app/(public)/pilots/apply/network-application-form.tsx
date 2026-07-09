@@ -25,9 +25,9 @@ function Field({
 }) {
   return (
     <label className="grid gap-2">
-      <span className="text-[0.75rem] font-bold uppercase [letter-spacing:0.16em] text-[#C0C7D1]">
+      <span className="text-[0.75rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--oc-aluminum)]">
         {label}
-        {required ? <span className="ml-1 text-[#3B82F6]">*</span> : null}
+        {required ? <span className="ml-1 text-[var(--oc-blue)]">*</span> : null}
       </span>
       {children}
       {error ? <span className="text-xs font-medium text-red-200">{error}</span> : null}
@@ -38,8 +38,10 @@ function Field({
 function inputClass(error?: string) {
   return [
     // text-base (16px) avoids iOS Safari's focus auto-zoom on form fields.
-    "min-h-12 rounded-lg border bg-white/[0.055] px-3 text-base text-white outline-none transition placeholder:text-[#9CA3AF]/60",
-    error ? "border-red-300/70" : "border-white/15 focus:border-[#3B82F6] focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]",
+    // `.support-field` carries the shared token styling (border/bg/focus ring);
+    // `!border-red-400` forces the error state to win over that base rule.
+    "support-field w-full px-3 text-base",
+    error ? "!border-red-400" : "",
   ].join(" ");
 }
 
@@ -56,8 +58,8 @@ function Checklist({
     <div>
       <div className="grid gap-2 sm:grid-cols-2">
         {options.map((option) => (
-          <label key={option} className="flex items-center gap-3 rounded-lg border border-white/12 bg-white/[0.045] px-3 py-2.5 text-sm text-[#C0C7D1]">
-            <input type="checkbox" name={name} value={option} className="h-4 w-4 accent-[#3B82F6]" />
+          <label key={option} className="flex items-center gap-3 rounded-lg border border-[var(--oc-line-dark)] bg-white/[0.03] px-3 py-2.5 text-sm text-[var(--oc-aluminum)] transition hover:border-[var(--oc-blue)]">
+            <input type="checkbox" name={name} value={option} className="h-4 w-4 accent-[var(--oc-blue)]" />
             <span>{option}</span>
           </label>
         ))}
@@ -67,10 +69,14 @@ function Checklist({
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ index, title, children }: { index: number; title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-white/12 bg-white/[0.055] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.28)] backdrop-blur-xl">
-      <h2 className="font-display text-xl font-extrabold uppercase text-white">{title}</h2>
+    <section className="group hud-frame oc-card-dark p-6 sm:p-7" data-scroll-animate>
+      <span className="font-mono text-[10px] [letter-spacing:0.16em] text-[var(--amber)]">
+        {String(index).padStart(2, "0")}
+      </span>
+      <h2 className="oc-display mt-2 text-xl text-[var(--oc-paper)]">{title}</h2>
+      <div className="pub-rule mt-3" aria-hidden="true" />
       <div className="mt-5 grid gap-4 lg:grid-cols-2">{children}</div>
     </section>
   );
@@ -110,13 +116,13 @@ export function NetworkApplicationForm() {
 
   if (success) {
     return (
-      <div className="rounded-xl border border-[#3B82F6]/40 bg-[#07111F]/90 p-8 text-white shadow-[0_28px_90px_rgba(0,0,0,0.34)]">
-        <CheckCircle2 className="h-10 w-10 text-[#3B82F6]" />
-        <h2 className="mt-5 font-display text-3xl font-extrabold uppercase">Application received.</h2>
-        <p className="mt-3 max-w-2xl text-sm leading-7 text-[#C0C7D1]">
+      <div className="pub-card-hover hud-frame oc-card-dark p-8">
+        <CheckCircle2 className="h-10 w-10 text-[var(--oc-blue)]" />
+        <h2 className="oc-display mt-5 text-3xl text-[var(--oc-paper)]">Application received.</h2>
+        <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--oc-aluminum)]">
           AMG will review your submission and contact you if additional information is required.
         </p>
-        <Link href="/pilots" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#3B82F6] px-5 py-3 text-sm font-bold text-white">
+        <Link href="/pilots" className="oc-btn oc-btn-primary mt-6">
           Back to the Pilot Network
           <ArrowRight className="h-4 w-4" />
         </Link>
@@ -125,14 +131,18 @@ export function NetworkApplicationForm() {
   }
 
   return (
-    <form id={formId} onSubmit={submit} className="space-y-6" encType="multipart/form-data" noValidate>
+    <form id={formId} onSubmit={submit} className="grid gap-6" encType="multipart/form-data" noValidate>
+      {/* Honeypot: real applicants never see or fill this; a value flags a bot
+          (checked server-side in the crew-network route). */}
+      <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+
       {errors.form ? (
-        <div role="alert" className="rounded-lg border border-red-300/40 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+        <div role="alert" className="rounded-lg border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
           {errors.form}
         </div>
       ) : null}
 
-      <Section title="Applicant Identity">
+      <Section index={1} title="Applicant Identity">
         <Field label="Full name" name="full_name" required error={errors.full_name}>
           <input name="full_name" required className={inputClass(errors.full_name)} />
         </Field>
@@ -168,7 +178,7 @@ export function NetworkApplicationForm() {
         </Field>
       </Section>
 
-      <Section title="Pilot Qualifications">
+      <Section index={2} title="Pilot Qualifications">
         {[
           ["Total flight time", "total_time", true],
           ["Total PIC time", "pic_time", false],
@@ -238,7 +248,7 @@ export function NetworkApplicationForm() {
         </div>
       </Section>
 
-      <Section title="Insurance History & References">
+      <Section index={3} title="Insurance History & References">
         <Field
           label="Any accidents, incidents, or FAA enforcement actions?"
           name="insurance_incidents"
@@ -276,7 +286,7 @@ export function NetworkApplicationForm() {
         </Field>
       </Section>
 
-      <Section title="Documents">
+      <Section index={4} title="Documents">
         <Field label="Resume upload" name="resume" required error={errors.resume}>
           <input name="resume" type="file" required accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" className={inputClass(errors.resume)} />
         </Field>
@@ -290,20 +300,20 @@ export function NetworkApplicationForm() {
         </div>
       </Section>
 
-      <section className="rounded-xl border border-white/12 bg-white/[0.055] p-5">
+      <section className="oc-card-dark p-6" data-scroll-animate>
         <div className="space-y-3">
-          <label className="flex items-start gap-3 text-sm leading-6 text-[#C0C7D1]">
-            <input type="checkbox" name="legal_acknowledgment" value="accepted" required className="mt-1 h-4 w-4 accent-[#3B82F6]" />
+          <label className="flex items-start gap-3 text-sm leading-6 text-[var(--oc-aluminum)]">
+            <input type="checkbox" name="legal_acknowledgment" value="accepted" required className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
             <span>I understand that submitting this application does not create employment, contractor status, assignment acceptance, aircraft approval, operator approval, or guaranteed compensation. I agree that AMG Aviation Group may review and store this information for crew-network evaluation, may contact the references I provided, and may verify the credentials and history in this application.</span>
           </label>
           {errors.legal_acknowledgment ? <p className="text-xs text-red-200">{errors.legal_acknowledgment}</p> : null}
-          <label className="flex items-start gap-3 text-sm leading-6 text-[#C0C7D1]">
-            <input type="checkbox" name="policy_acknowledgment" value="accepted" required className="mt-1 h-4 w-4 accent-[#3B82F6]" />
+          <label className="flex items-start gap-3 text-sm leading-6 text-[var(--oc-aluminum)]">
+            <input type="checkbox" name="policy_acknowledgment" value="accepted" required className="mt-1 h-4 w-4 accent-[var(--oc-blue)]" />
             <span>
               I have reviewed the{" "}
-              <Link href="/credential-submission" className="font-semibold text-[#3B82F6] hover:underline">Credential Submission Notice</Link>,{" "}
-              <Link href="/privacy-policy" className="font-semibold text-[#3B82F6] hover:underline">Privacy Policy</Link>, and{" "}
-              <Link href="/terms" className="font-semibold text-[#3B82F6] hover:underline">Terms & Conditions</Link>.
+              <Link href="/credential-submission" className="font-semibold text-[var(--oc-blue)] hover:underline">Credential Submission Notice</Link>,{" "}
+              <Link href="/privacy-policy" className="font-semibold text-[var(--oc-blue)] hover:underline">Privacy Policy</Link>, and{" "}
+              <Link href="/terms" className="font-semibold text-[var(--oc-blue)] hover:underline">Terms & Conditions</Link>.
             </span>
           </label>
           {errors.policy_acknowledgment ? <p className="text-xs text-red-200">{errors.policy_acknowledgment}</p> : null}
@@ -314,7 +324,7 @@ export function NetworkApplicationForm() {
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[#3B82F6] px-6 text-sm font-bold text-white shadow-[0_18px_45px_rgba(59,130,246,0.32)] transition hover:bg-[#2563EB] disabled:cursor-not-allowed disabled:opacity-70"
+          className="oc-btn oc-btn-primary disabled:cursor-not-allowed disabled:opacity-70"
         >
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           {pending ? "Submitting..." : "Submit Application"}
