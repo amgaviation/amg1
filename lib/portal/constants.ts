@@ -180,6 +180,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       label: "Billing",
       items: [
         { label: "Quotes", href: "/portal/admin/quotes", icon: "receipt" },
+        { label: "Quote Templates", href: "/portal/admin/quotes/templates", icon: "clipboard" },
         { label: "Invoices", href: "/portal/admin/invoices", icon: "wallet" },
         { label: "Payments", href: "/portal/admin/payments", icon: "dollar" },
         { label: "Vendor Invoices", href: "/portal/admin/vendor-invoices", icon: "receipt" },
