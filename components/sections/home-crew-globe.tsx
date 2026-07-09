@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { useReducedMotion } from "framer-motion";
 import { GlobeFallback } from "@/components/sections/globe-fallback";
@@ -17,12 +17,37 @@ const HomeGlobeDemo = dynamic(() => import("@/components/3d-globe-demo-3"), {
 
 export function HomeCrewGlobe() {
   const [hasMounted, setHasMounted] = useState(false);
+  const [inView, setInView] = useState(false);
+  const [saveData, setSaveData] = useState(false);
+  const globeSlotRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
-  const reduce = hasMounted && prefersReducedMotion === true;
+
+  // Only mount the WebGL globe when it is actually about to be seen, the user
+  // hasn't asked for reduced motion, and data-saver is off. It stays lazily
+  // code-split (next/dynamic) and shows the static fallback until then.
+  const showGlobe = hasMounted && !prefersReducedMotion && !saveData && inView;
 
   useEffect(() => {
     setHasMounted(true);
+    const connection = (navigator as unknown as { connection?: { saveData?: boolean } }).connection;
+    if (connection?.saveData) setSaveData(true);
   }, []);
+
+  useEffect(() => {
+    const el = globeSlotRef.current;
+    if (!el || inView) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "300px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [inView]);
 
   return (
     <section className="oc-panel-navy relative overflow-hidden py-14 text-[var(--oc-paper)] lg:py-20">
@@ -48,11 +73,11 @@ export function HomeCrewGlobe() {
           </div>
         </div>
 
-        <div data-scroll-animate>
-          {reduce ? (
-            <GlobeFallback label="Crew airport regions" />
-          ) : (
+        <div data-scroll-animate ref={globeSlotRef}>
+          {showGlobe ? (
             <HomeGlobeDemo markers={crewGlobeMarkers} regionCount={crewRegionCount} />
+          ) : (
+            <GlobeFallback label="Crew airport regions" />
           )}
         </div>
       </div>
