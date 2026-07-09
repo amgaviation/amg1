@@ -18,6 +18,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 // 4. Flag Stripe-synced subscriptions whose billing period lapsed 7+ days
 //    ago without a renewal event.
 // 5. Expire unused subscription credits past their expires_at date.
+// 6. Remind CRM lead owners when a follow-up (next_action_at) comes due.
 // All mutations are audit-logged as the synthetic "system-cron" actor.
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -415,6 +416,115 @@ async function expireSubscriptionCredits(db: SupabaseService, now: Date): Promis
   return expired.length;
 }
 
+// Per-run ceiling matching the credential/credit sweeps: a large first-run
+// backlog of overdue follow-ups drains over successive nights instead of
+// firing hundreds of notifications in a single run.
+const CRM_FOLLOW_UP_BATCH_LIMIT = 100;
+
+// Open pipeline stages, mirroring OPEN_STAGES in lib/portal/crm.ts: won/lost
+// are terminal and never need a follow-up nudge. Kept as a local copy so this
+// route stays off the CRM module's "server-only" import chain.
+const CRM_OPEN_STAGES = ["new", "contacted", "qualified", "proposal"];
+
+function crmLeadLabel(lead: { full_name: string | null; company: string | null }): string {
+  const name = lead.full_name?.trim();
+  const company = lead.company?.trim();
+  if (name && company) return `${name} (${company})`;
+  return name || company || "Unnamed lead";
+}
+
+// Remind lead owners when a CRM follow-up comes due. The predicate mirrors
+// getPipelineMetrics' `needsFollowUp` exactly (open lead, next_action_at due),
+// so the passive "needs follow-up" count the UI already shows now has an
+// active nightly nudge behind it.
+async function sweepCrmFollowUps(db: SupabaseService, now: Date): Promise<number> {
+  const nowIso = now.toISOString();
+  // Same predicate getPipelineMetrics uses for needsFollowUp: an OPEN lead
+  // whose next_action_at has come due. owner_id must be present — a follow-up
+  // reminder needs someone to remind (`.lte` already excludes NULL due dates).
+  // Oldest-due first so the longest-overdue leads drain the backlog first.
+  const { data: candidates, error } = await db
+    .from("crm_leads")
+    .select("id, full_name, company, owner_id, next_action_at, stage")
+    .in("stage", CRM_OPEN_STAGES)
+    .not("owner_id", "is", null)
+    .lte("next_action_at", nowIso)
+    .order("next_action_at", { ascending: true })
+    .limit(CRM_FOLLOW_UP_BATCH_LIMIT);
+  if (error) throw new Error(error.message);
+  if (!candidates?.length) return 0;
+
+  // Dedupe against the audit trail, mirroring the invoice-reminder throttle in
+  // app/portal/actions/receivables.ts. A lead already reminded for its current
+  // due date carries a `crm_follow_up_reminded` event whose created_at is
+  // at/after its next_action_at, so an unchanged overdue lead is skipped rather
+  // than re-notified every night. When the owner reschedules next_action_at
+  // forward and it lapses again, the newer due date post-dates the last
+  // reminder and the lead surfaces once more.
+  const { data: priorReminders, error: reminderError } = await db
+    .from("audit_events")
+    .select("entity_id, created_at")
+    .eq("action", "crm_follow_up_reminded")
+    .eq("entity_type", "crm_lead")
+    .in("entity_id", candidates.map((lead) => lead.id))
+    .order("created_at", { ascending: false });
+  if (reminderError) throw new Error(reminderError.message);
+  const lastReminded = new Map<string, string>();
+  for (const event of (priorReminders ?? []) as { entity_id: string | null; created_at: string }[]) {
+    if (event.entity_id && !lastReminded.has(event.entity_id)) {
+      lastReminded.set(event.entity_id, event.created_at);
+    }
+  }
+
+  const due = candidates
+    .filter((lead) => {
+      if (!lead.owner_id) return false;
+      const last = lastReminded.get(lead.id);
+      // Remind unless we already reminded at/after this due date.
+      return !last || !lead.next_action_at || last < lead.next_action_at;
+    })
+    .map((lead) => ({
+      id: lead.id,
+      ownerId: lead.owner_id as string,
+      label: crmLeadLabel(lead),
+      dueAt: lead.next_action_at,
+    }));
+  if (!due.length) return 0;
+
+  // Audit first, notify second — matches the other sweeps and biases toward not
+  // re-notifying on a partial failure (the audit row suppresses tomorrow's run).
+  await insertAuditRows(
+    db,
+    due.map((lead) =>
+      systemAuditRow({
+        action: "crm_follow_up_reminded",
+        detail: `Follow-up reminder sent to lead owner for ${lead.label} (due ${formatDate(lead.dueAt)}).`,
+        entityType: "crm_lead",
+        entityId: lead.id,
+      })
+    )
+  );
+
+  // Bounded concurrency so notification providers' rate limits don't swallow
+  // the batch (same pattern as the credential sweep).
+  for (let i = 0; i < due.length; i += NOTIFY_CONCURRENCY) {
+    await Promise.all(
+      due.slice(i, i + NOTIFY_CONCURRENCY).map((lead) =>
+        notifyUser({
+          userId: lead.ownerId,
+          title: `Follow-up due: ${lead.label}`,
+          body: `A follow-up on your CRM lead ${lead.label} was due ${formatDate(lead.dueAt)}. Open the lead in the CRM to log your next touch or reschedule its next action.`,
+          type: "crm_follow_up_due",
+          entityType: "crm_lead",
+          entityId: lead.id,
+        })
+      )
+    );
+  }
+
+  return due.length;
+}
+
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
   if (!secret) {
@@ -441,6 +551,7 @@ export async function GET(request: Request) {
     subscriptionsMarkedStale: 0,
     subscriptionCreditsExpired: 0,
     scheduledEmailsSent: 0,
+    crmFollowUpsReminded: 0,
   };
   const errors: Record<string, string> = {};
   const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
@@ -487,6 +598,13 @@ export async function GET(request: Request) {
   } catch (error) {
     errors.expiredSubscriptionCredits = message(error);
     console.error("[cron/nightly] subscription credit expiry sweep failed", error);
+  }
+
+  try {
+    counts.crmFollowUpsReminded = await sweepCrmFollowUps(db, now);
+  } catch (error) {
+    errors.crmFollowUps = message(error);
+    console.error("[cron/nightly] CRM follow-up reminder sweep failed", error);
   }
 
   await insertAuditRows(db, [
