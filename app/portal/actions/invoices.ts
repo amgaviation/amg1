@@ -228,8 +228,14 @@ export async function updateInvoiceDraft(formData: FormData) {
     .eq("id", invoiceId);
   if (error) redirect(`/portal/admin/invoices/${invoiceId}/edit?error=save`);
 
-  await billingDb.from("invoice_line_items").delete().eq("invoice_id", invoiceId);
-  await billingDb.from("invoice_line_items").insert(items.map((item) => ({ ...item, invoice_id: invoiceId })));
+  const { error: deleteError } = await billingDb.from("invoice_line_items").delete().eq("invoice_id", invoiceId);
+  if (deleteError) redirect(`/portal/admin/invoices/${invoiceId}/edit?error=save`);
+  if (items.length) {
+    const { error: insertError } = await billingDb
+      .from("invoice_line_items")
+      .insert(items.map((item) => ({ ...item, invoice_id: invoiceId })));
+    if (insertError) redirect(`/portal/admin/invoices/${invoiceId}/edit?error=save`);
+  }
 
   await logAuditEvent({
     actor: admin,
@@ -349,13 +355,18 @@ export async function sendInvoicePdf(formData: FormData) {
     redirect(`/portal/admin/invoices/${invoiceId}?error=locked`);
   }
 
+  // Send FIRST; only mark the invoice sent once the provider accepts the email.
+  const outcome = await emailInvoicePdf(invoiceId, admin.id).catch((error) => {
+    console.error("[billing] failed to email invoice PDF", invoiceId, error);
+    return null;
+  });
+  if (!outcome || outcome.result.status !== "sent") {
+    redirect(`/portal/admin/invoices/${invoiceId}?error=send-failed`);
+  }
   await billingDb
     .from("invoices")
     .update({ status: "sent", sent_at: new Date().toISOString() })
     .eq("id", invoiceId);
-  await emailInvoicePdf(invoiceId, admin.id).catch((error) => {
-    console.error("[billing] failed to email invoice PDF", invoiceId, error);
-  });
   await logAuditEvent({
     actor: admin,
     action: "invoice_pdf_sent",
@@ -424,7 +435,11 @@ export async function recordInvoicePayment(formData: FormData) {
     status: "recorded",
   }).select("id").single();
   if (paymentError || !payment) redirect(`/portal/admin/invoices/${invoiceId}?error=payment`);
-  await db
+  // Optimistic concurrency: the rollup only applies if amount_paid is still the
+  // value we read. If another payment (manual/Stripe/credit) landed first, zero
+  // rows update — undo this payment row so amount_paid can't be double-counted,
+  // and ask the admin to retry against the fresh balance.
+  const rollup = db
     .from("invoices")
     .update({
       amount_paid: amountPaid,
@@ -433,6 +448,15 @@ export async function recordInvoicePayment(formData: FormData) {
       paid_at: paidAt,
     })
     .eq("id", invoiceId);
+  const { data: rolledUp, error: rollupError } = await (
+    invoice.amount_paid == null ? rollup.is("amount_paid", null) : rollup.eq("amount_paid", invoice.amount_paid)
+  )
+    .select("id")
+    .maybeSingle();
+  if (rollupError || !rolledUp) {
+    await billingDb.from("payments").delete().eq("id", payment.id);
+    redirect(`/portal/admin/invoices/${invoiceId}?error=conflict`);
+  }
   await logAuditEvent({
     actor: admin,
     action: "invoice_payment_recorded",

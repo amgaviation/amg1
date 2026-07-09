@@ -306,12 +306,20 @@ export async function updateMissionStatus(formData: FormData) {
   const patch: Database["public"]["Tables"]["missions"]["Update"] = { status };
   if (internalNote) patch.internal_notes = internalNote;
 
+  // Optimistic concurrency: only write if the mission is still in the status we
+  // validated against. If another admin moved it in the meantime, zero rows
+  // update and we bail with a conflict rather than silently overwriting them.
   const { data: mission } = await db
     .from("missions")
     .update(patch)
     .eq("id", missionId)
+    .eq("status", current!.status)
     .select("ref, client_id")
-    .single();
+    .maybeSingle();
+
+  if (!mission) {
+    redirect(`${backTo}?error=conflict`);
+  }
 
   let notificationClientId = mission?.client_id ?? null;
   if (isTransition && status === "under_review") {

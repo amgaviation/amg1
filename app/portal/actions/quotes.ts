@@ -218,7 +218,7 @@ export async function updateQuoteDraft(formData: FormData) {
   const settings = await getBillingSettings();
   const items = quoteItemsFromForm(formData);
   const totals = quoteTotals(formData, items);
-  await billingDb
+  const { error: headerError } = await billingDb
     .from("quotes")
     .update({
       ...quotePayload(formData, settings),
@@ -230,9 +230,12 @@ export async function updateQuoteDraft(formData: FormData) {
       total: totals.grandTotal,
     })
     .eq("id", quoteId);
-  await db.from("quote_line_items").delete().eq("quote_id", quoteId);
+  if (headerError) redirect(`/portal/admin/quotes/${quoteId}?error=save`);
+  const { error: deleteError } = await db.from("quote_line_items").delete().eq("quote_id", quoteId);
+  if (deleteError) redirect(`/portal/admin/quotes/${quoteId}?error=save`);
   if (items.length) {
-    await billingDb.from("quote_line_items").insert(items.map((it) => ({ ...it, quote_id: quoteId })));
+    const { error: insertError } = await billingDb.from("quote_line_items").insert(items.map((it) => ({ ...it, quote_id: quoteId })));
+    if (insertError) redirect(`/portal/admin/quotes/${quoteId}?error=save`);
   }
   await logAuditEvent({
     actor: admin,
@@ -356,13 +359,19 @@ export async function sendQuote(formData: FormData) {
   if (!quote) redirect("/portal/admin/quotes?error=missing");
   if (["approved", "converted", "void"].includes(quote.status)) redirect(`/portal/admin/quotes/${quoteId}?error=locked`);
 
+  // Send FIRST; only mark the quote sent (and notify the client) once the
+  // provider accepts the email — otherwise a failed send still reads "sent".
+  const outcome = await emailQuotePdf(quoteId, admin.id).catch((error) => {
+    console.error("[billing] failed to email quote PDF", quoteId, error);
+    return null;
+  });
+  if (!outcome || outcome.result.status !== "sent") {
+    redirect(`/portal/admin/quotes/${quoteId}?error=send-failed`);
+  }
   await billingDb
     .from("quotes")
     .update({ status: "sent", sent_at: new Date().toISOString() })
     .eq("id", quoteId);
-  await emailQuotePdf(quoteId, admin.id).catch((error) => {
-    console.error("[billing] failed to email quote PDF", quoteId, error);
-  });
   if (quote.client_id) {
     await notifyUser({
       userId: quote.client_id,
