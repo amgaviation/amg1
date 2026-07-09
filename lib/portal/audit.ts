@@ -94,7 +94,7 @@ export async function notifyAdmins(params: {
     const { data: admins } = await supabase
       .from("profiles")
       .select("id")
-      .eq("role", "admin")
+      .in("role", ["admin", "super_admin"])
       .eq("status", "approved");
 
     if (!admins?.length) return;

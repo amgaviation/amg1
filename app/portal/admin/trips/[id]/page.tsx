@@ -289,7 +289,7 @@ export default async function AdminTripDetailPage({
                 <div key={index} className="rounded-lg border border-border bg-[var(--deck-panel-2)] p-3 space-y-3">
                   <p className="eyebrow text-[0.6rem] text-muted-foreground">Crew Slot {index + 1}</p>
                   <SelectField label="Crew Member" name="crew_id[]" defaultValue="" options={[{ value: "", label: "Select crew..." }, ...crew.map((c) => ({ value: c.id, label: c.full_name ?? c.email }))]} />
-                  <SelectField label="Crew Role" name="crew_role[]" defaultValue={index === 0 ? "pic" : index === 1 ? "sic" : "relief"} options={CREW_ROLE.map((r) => ({ value: r.value, label: r.label }))} />
+                  <SelectField label="Crew Role" name="crew_role[]" defaultValue={index === 0 ? "pic" : index === 1 ? "sic" : "support"} options={CREW_ROLE.map((r) => ({ value: r.value, label: r.label }))} />
                   <TextAreaField label="Duty Notes" name="duty_notes[]" />
                 </div>
               ))}
@@ -402,7 +402,7 @@ export default async function AdminTripDetailPage({
                   <p className="eyebrow text-[0.6rem] text-muted-foreground">Quote Line {index + 1}</p>
                   <SelectField label="Category" name="category[]" defaultValue={index === 0 ? QUOTE_CATEGORIES[0] : ""} options={[{ value: "", label: "Select category..." }, ...QUOTE_CATEGORIES.map((c) => ({ value: c, label: c }))]} />
                   <TextField label="Description" name="description[]" defaultValue={index === 0 ? `Operations support for ${mission.ref}` : ""} />
-                  <TextAreaField label="Line Notes" name="line_notes[]" />
+                  <TextAreaField label="Line Notes (client-visible)" name="client_notes[]" />
                   <div className="grid grid-cols-2 gap-3">
                     <TextField label="Quantity" name="quantity[]" type="number" step="0.01" defaultValue={index === 0 ? "1" : ""} />
                     <TextField label="Unit Price" name="unit_price[]" type="number" step="0.01" defaultValue={index === 0 ? "0" : ""} />

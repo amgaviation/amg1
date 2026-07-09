@@ -6,7 +6,8 @@ import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
 import { createServiceClient } from "@/lib/supabase/server";
 import { currentStripeMode } from "@/lib/portal/stripe-mode";
 import { resolveSubscriptionPriceForStripeMode, stripePriceErrorToQuery } from "@/lib/portal/stripe-mode-core";
-import { actor, num, str } from "./_helpers";
+import { SUBSCRIPTION_STATUS } from "@/lib/portal/constants";
+import { actor, num, safeRedirectPath, str } from "./_helpers";
 import {
   cancelSubscriptionAtPeriodEnd,
   createCustomerPortalSessionForUser,
@@ -180,6 +181,10 @@ export async function updateSubscriptionStatus(formData: FormData) {
   const subscriptionId = str(formData, "subscription_id");
   const status = str(formData, "status");
   if (!subscriptionId || !status) redirect("/portal/admin/subscriptions?error=missing");
+  // A malformed submission must not persist a status no surface can render.
+  if (!SUBSCRIPTION_STATUS.some((s) => s.value === status)) {
+    redirect(`/portal/admin/subscriptions/${subscriptionId}?error=invalid-status`);
+  }
 
   const { data: subscription, error } = await db
     .from("client_subscriptions")
@@ -280,7 +285,7 @@ export async function ignoreNeedsReviewSubscription(formData: FormData) {
 
 export async function manageSubscriptionBilling(formData: FormData) {
   const user = await actor(["client", "admin"], "subscriptions.edit");
-  const returnPath = str(formData, "return_to") || "/portal/client/subscriptions";
+  const returnPath = safeRedirectPath(str(formData, "return_to"), "/portal/client/subscriptions");
   const result = await createCustomerPortalSessionForUser(user.id, returnPath);
   if (!result.ok) redirect(`${returnPath}?error=${result.reason}`);
   if (!result.url) redirect(`${returnPath}?error=portal`);

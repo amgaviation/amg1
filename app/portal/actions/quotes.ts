@@ -11,6 +11,7 @@ import { combinedPaymentInstructions, getBillingSettings } from "@/lib/portal/bi
 import { createInvoiceDraftFromQuote, generateAndStoreQuotePdf } from "@/lib/portal/billing-documents";
 import { emailInvoicePdf, emailQuotePdf } from "@/lib/portal/billing-emails";
 import { nextBillingDocumentNumber } from "@/lib/portal/billing-numbering";
+import { isAdminRole } from "@/lib/portal/constants";
 import { actor, bool, num, str } from "./_helpers";
 
 function splitEmails(value: string) {
@@ -85,6 +86,7 @@ function quotePayload(formData: FormData, settings: Awaited<ReturnType<typeof ge
     deposit_amount: depositAmount,
     deposit_percent: num(formData, "deposit_percent"),
     deposit_due_date: str(formData, "deposit_due_date") || null,
+    payment_due_date: str(formData, "payment_due_date") || null,
     balance_due_timing: str(formData, "balance_due_timing") || null,
     deposit_terms: str(formData, "deposit_terms") || null,
     payment_terms: str(formData, "payment_terms") || settings.quote_terms,
@@ -129,7 +131,7 @@ export async function createQuote(formData: FormData) {
   const payload = quotePayload(formData, settings);
   const clientId = str(formData, "client_id") || mission?.client_id || null;
 
-  const { data: quote } = await billingDb
+  const { data: quote, error: quoteError } = await billingDb
     .from("quotes")
     .insert({
       ref: quoteNumber,
@@ -147,6 +149,11 @@ export async function createQuote(formData: FormData) {
     })
     .select("id, ref")
     .single();
+  // A failed insert must not fall through to redirect("/portal/admin/quotes/undefined")
+  // or log a quote_created audit event for a quote that was never written.
+  if (quoteError || !quote) {
+    redirect("/portal/admin/quotes?error=save");
+  }
 
   if (quote && items.length) {
     await billingDb
@@ -415,7 +422,7 @@ export async function respondToQuote(formData: FormData) {
     .eq("id", quoteId)
     .maybeSingle();
   if (!quote) redirect("/portal/client/quotes?error=notfound");
-  if (user.role !== "admin" && quote.client_id !== user.id) {
+  if (!isAdminRole(user.role) && quote.client_id !== user.id) {
     redirect("/portal/client/quotes?error=forbidden");
   }
   // A response is only meaningful on a live, delivered quote. Approving a
@@ -471,7 +478,14 @@ export async function respondToQuote(formData: FormData) {
 
   await logAuditEvent({
     actor: user,
-    action: decision === "approved" ? "quote_approved" : "quote_rejected",
+    // A revision request is not a rejection — logging it as quote_rejected
+    // corrupts win/loss reporting. Each decision gets its own action.
+    action:
+      decision === "approved"
+        ? "quote_approved"
+        : decision === "revision_requested"
+          ? "quote_revision_requested"
+          : "quote_rejected",
     detail: `${decision} ${quote.ref}`,
     entityType: "quote",
     entityId: quoteId,

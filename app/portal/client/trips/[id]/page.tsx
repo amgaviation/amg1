@@ -17,6 +17,7 @@ import {
   URGENCY_TONE,
   toneFor,
   labelFor,
+  isAdminRole,
 } from "@/lib/portal/constants";
 import { formatRoute, formatDateTime, formatDate } from "@/lib/portal/format";
 import { cancelMission, provideRequestedInfo } from "@/app/portal/actions/missions";
@@ -35,7 +36,7 @@ export default async function ClientTripDetailPage({
   const sp = await searchParams;
 
   const mission = await getMissionDetail(id);
-  if (!mission || (mission.client_id !== user.id && user.role !== "admin")) notFound();
+  if (!mission || (mission.client_id !== user.id && !isAdminRole(user.role))) notFound();
 
   // Index must be computed on the SAME filtered list the stepper renders,
   // or removing "draft" shifts every comparison by one (stage after the

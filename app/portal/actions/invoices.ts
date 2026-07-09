@@ -12,6 +12,7 @@ import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/l
 import { recordComplianceEvidence } from "@/lib/compliance/evidence";
 import { detectProhibitedPaymentData } from "@/lib/compliance/payment-data-guard";
 import { can, noAccessPath } from "@/lib/portal/permissions";
+import { INVOICE_STATUS } from "@/lib/portal/constants";
 import { actor, bool, num, str } from "./_helpers";
 
 function money(formData: FormData, key: string): number {
@@ -125,6 +126,12 @@ export async function createStandaloneInvoice(formData: FormData) {
   const total = Math.max(amount - discountTotal + taxTotal, 0);
   const invoiceNumber = await nextBillingDocumentNumber("invoice");
   const status = str(formData, "status") || "draft";
+  // Validate against the invoice vocabulary and reject a client-supplied
+  // "paid": payment state is recorded only through payment flows, never
+  // fabricated at creation time.
+  if (!INVOICE_STATUS.some((s) => s.value === status) || status === "paid") {
+    redirect("/portal/admin/invoices?error=invalid-status");
+  }
 
   const { data: invoice, error } = await billingDb
     .from("invoices")
@@ -503,6 +510,10 @@ export async function updateInvoiceStatus(formData: FormData) {
   const invoiceId = str(formData, "invoice_id");
   const status = str(formData, "status");
   if (!invoiceId || !status) redirect("/portal/admin/invoices?error=missing");
+  // A malformed submission must not persist a status no surface can render.
+  if (!INVOICE_STATUS.some((s) => s.value === status)) {
+    redirect(`/portal/admin/invoices/${invoiceId}?error=invalid-status`);
+  }
   if (status === "paid") redirect(`/portal/admin/invoices/${invoiceId}?error=payment-required`);
   // Voiding / writing off / refunding a receivable is a payments-authority
   // action (separation of duties) on top of the invoices.edit base gate.

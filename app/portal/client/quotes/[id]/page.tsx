@@ -6,7 +6,7 @@ import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { Button } from "@/components/ui/button";
 import { getQuoteDetail } from "@/lib/portal/queries";
-import { QUOTE_STATUS_LABEL, QUOTE_STATUS_TONE, toneFor } from "@/lib/portal/constants";
+import { QUOTE_STATUS_LABEL, QUOTE_STATUS_TONE, toneFor, isAdminRole } from "@/lib/portal/constants";
 import { formatDate, formatMoney } from "@/lib/portal/format";
 import { respondToQuote } from "@/app/portal/actions/quotes";
 
@@ -23,7 +23,7 @@ export default async function ClientQuoteDetailPage({
   const { id } = await params;
   const sp = await searchParams;
   const quote = await getQuoteDetail(id);
-  if (!quote || (quote.client_id !== user.id && user.role !== "admin")) notFound();
+  if (!quote || (quote.client_id !== user.id && !isAdminRole(user.role))) notFound();
 
   const canRespond = quote.status === "sent";
   const latestQuoteDocument = quote.documents[0];

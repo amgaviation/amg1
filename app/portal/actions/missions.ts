@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { logAuditEvent, notifyAdmins, notifyUser } from "@/lib/portal/audit";
-import { MISSION_STATUS, MISSION_TYPE_LABEL } from "@/lib/portal/constants";
+import { MISSION_STATUS, MISSION_TYPE_LABEL, isAdminRole } from "@/lib/portal/constants";
 import {
   MIN_GATE_OVERRIDE_REASON_LENGTH,
   canTransition,
@@ -101,7 +101,7 @@ async function requireMissionAccessForMutation(
     .maybeSingle();
 
   if (!mission) redirect(`${backTo}?error=notfound`);
-  if (user.role !== "admin" && mission.client_id !== user.id) {
+  if (!isAdminRole(user.role) && mission.client_id !== user.id) {
     redirect(`${backTo}?error=forbidden`);
   }
 
@@ -155,10 +155,10 @@ export async function createMission(formData: FormData) {
       redirect("/portal/client/trips/new?error=aircraft");
     }
     tail = ac?.tail_number ?? null;
-    if (user.role !== "admin" && ac?.client_id !== user.id) {
+    if (!isAdminRole(user.role) && ac?.client_id !== user.id) {
       redirect("/portal/client/trips/new?error=aircraft");
     }
-    if (user.role === "admin" && ac?.client_id) clientId = ac.client_id;
+    if (isAdminRole(user.role) && ac?.client_id) clientId = ac.client_id;
   } else {
     tail = str(formData, "tail_number").toUpperCase().replace(/\s+/g, "") || null;
   }
@@ -255,7 +255,7 @@ export async function createMission(formData: FormData) {
 
   revalidatePath("/portal/client/trips");
   revalidatePath("/portal/admin/mission-control");
-  const base = user.role === "admin" ? "/portal/admin/trips" : "/portal/client/trips";
+  const base = isAdminRole(user.role) ? "/portal/admin/trips" : "/portal/client/trips";
   redirect(`${base}/${mission.id}?success=created`);
 }
 
@@ -430,7 +430,7 @@ export async function cancelMission(formData: FormData) {
     .eq("id", missionId)
     .maybeSingle();
   if (!mission) redirect("/portal/client/trips?error=notfound");
-  if (user.role !== "admin" && mission.client_id !== user.id) {
+  if (!isAdminRole(user.role) && mission.client_id !== user.id) {
     redirect("/portal/client/trips?error=forbidden");
   }
 
@@ -438,13 +438,13 @@ export async function cancelMission(formData: FormData) {
   // ops must always be able to stand a mission down. Completed/cancelled
   // missions are immutable history.
   if (isTerminalMissionStatus(mission.status)) {
-    const errorBase = user.role === "admin" ? "/portal/admin/trips" : "/portal/client/trips";
+    const errorBase = isAdminRole(user.role) ? "/portal/admin/trips" : "/portal/client/trips";
     redirect(`${errorBase}/${missionId}?error=illegal-transition&from=${mission.status}&to=cancelled`);
   }
   // Once crew are committed or the aircraft is moving, a stand-down is an
   // ops decision — clients request it through AMG instead of one-clicking a
   // mission out from under an assigned pilot.
-  if (user.role !== "admin" && ["crew_assigned", "scheduled", "in_progress"].includes(mission.status)) {
+  if (!isAdminRole(user.role) && ["crew_assigned", "scheduled", "in_progress"].includes(mission.status)) {
     redirect(`/portal/client/trips/${missionId}?error=cancel-requires-ops`);
   }
 
@@ -463,7 +463,7 @@ export async function cancelMission(formData: FormData) {
     entityType: "mission",
     entityId: missionId,
   });
-  if (user.role === "admin") {
+  if (isAdminRole(user.role)) {
     await notifyMissionContactByEmail({
       missionId,
       title: "Mission status updated",
@@ -475,7 +475,7 @@ export async function cancelMission(formData: FormData) {
 
   revalidatePath("/portal/client/trips");
   revalidatePath("/portal/admin/mission-control");
-  const base = user.role === "admin" ? "/portal/admin/trips" : "/portal/client/trips";
+  const base = isAdminRole(user.role) ? "/portal/admin/trips" : "/portal/client/trips";
   redirect(`${base}/${missionId}?success=cancelled`);
 }
 
@@ -571,7 +571,7 @@ export async function addPassenger(formData: FormData) {
   const fullName = str(formData, "full_name");
   if (!missionId || !fullName) redirect(`/portal/client/trips/${missionId}?error=missing`);
 
-  const backTo = user.role === "admin" ? `/portal/admin/trips/${missionId}` : `/portal/client/trips/${missionId}`;
+  const backTo = isAdminRole(user.role) ? `/portal/admin/trips/${missionId}` : `/portal/client/trips/${missionId}`;
   await requireMissionAccessForMutation(db, missionId, user, backTo);
 
   await db.from("mission_passengers").insert({
@@ -587,7 +587,7 @@ export async function addPassenger(formData: FormData) {
     entityType: "mission",
     entityId: missionId,
   });
-  const base = user.role === "admin" ? "/portal/admin/trips" : "/portal/client/trips";
+  const base = isAdminRole(user.role) ? "/portal/admin/trips" : "/portal/client/trips";
   revalidatePath(`${base}/${missionId}`);
   redirect(`${base}/${missionId}?success=passenger`);
 }
@@ -598,11 +598,11 @@ export async function removePassenger(formData: FormData) {
   const id = str(formData, "passenger_id");
   const missionId = str(formData, "mission_id");
 
-  const backTo = user.role === "admin" ? `/portal/admin/trips/${missionId}` : `/portal/client/trips/${missionId}`;
+  const backTo = isAdminRole(user.role) ? `/portal/admin/trips/${missionId}` : `/portal/client/trips/${missionId}`;
   await requireMissionAccessForMutation(db, missionId, user, backTo);
 
   await db.from("mission_passengers").delete().eq("id", id).eq("mission_id", missionId);
-  const base = user.role === "admin" ? "/portal/admin/trips" : "/portal/client/trips";
+  const base = isAdminRole(user.role) ? "/portal/admin/trips" : "/portal/client/trips";
   revalidatePath(`${base}/${missionId}`);
   redirect(`${base}/${missionId}?success=passenger`);
 }
@@ -697,6 +697,34 @@ export async function decideCrewPoolRequest(formData: FormData) {
     }
   }
 
+  // The mission move is the write that can conflict, so it goes FIRST: if the
+  // mission progressed under us we redirect before the request row or an
+  // assignment row is touched, leaving no half-approved state behind.
+  if (decision === "approved") {
+    const alreadyAssigned = (request!.mission as { assigned_crew_id: string | null }).assigned_crew_id;
+    if (alreadyAssigned) {
+      // Supplemental crew on a mission that already has a confirmed pilot:
+      // just close the pool, never touch the mission status.
+      await db.from("missions").update({ pool_visible: false }).eq("id", missionId);
+    } else {
+      // Committing the first crew member moves the mission to crew_assigned —
+      // legal only from an approved mission (mirrors respondToAssignment and
+      // canTransition, which only allow approved → crew_assigned). Predicate on
+      // the write so a stale request decided after the mission progressed can't
+      // drag it backward; zero rows means the mission moved on under us.
+      const { data: moved } = await db
+        .from("missions")
+        .update({ assigned_crew_id: request!.crew_id, status: "crew_assigned", pool_visible: false })
+        .eq("id", missionId)
+        .eq("status", "approved")
+        .select("id")
+        .maybeSingle();
+      if (!moved) {
+        redirect(`/portal/admin/trips/${missionId}?error=conflict`);
+      }
+    }
+  }
+
   await db
     .from("mission_crew_requests")
     .update({
@@ -729,16 +757,6 @@ export async function decideCrewPoolRequest(formData: FormData) {
         responded_at: now,
       });
     }
-
-    const alreadyAssigned = (request!.mission as { assigned_crew_id: string | null }).assigned_crew_id;
-    await db
-      .from("missions")
-      .update(
-        alreadyAssigned
-          ? { pool_visible: false }
-          : { assigned_crew_id: request!.crew_id, status: "crew_assigned", pool_visible: false }
-      )
-      .eq("id", missionId);
 
     await notifyUser({
       userId: request!.crew_id,

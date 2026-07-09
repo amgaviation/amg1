@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { logAuditEvent, notifyUser } from "@/lib/portal/audit";
-import { ASSIGNABLE_PORTAL_ROLES, isPortalRole, PORTAL_PERMISSIONS, PROFILE_STATUS, type PortalRole } from "@/lib/portal/constants";
+import { ASSIGNABLE_PORTAL_ROLES, EXPENSE_STATUS, isPortalRole, PORTAL_PERMISSIONS, PROFILE_STATUS, type PortalRole } from "@/lib/portal/constants";
 import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
 import { getEmailProvider } from "@/lib/email/provider";
 import { defaultSender, replyToAddress } from "@/lib/email/config";
@@ -1965,6 +1965,10 @@ export async function reviewExpense(formData: FormData) {
   const db = await createServiceClient();
   const expenseId = str(formData, "expense_id");
   const status = str(formData, "status");
+  // Reject a status outside the expense vocabulary before it hits the DB.
+  if (!EXPENSE_STATUS.some((s) => s.value === status)) {
+    redirect("/portal/admin/expenses?error=invalid-status");
+  }
 
   const { data: expense } = await db
     .from("expenses")
