@@ -85,19 +85,31 @@ export function CrewMap({
     };
   }, []);
 
-  // Refetch this tier's data.
+  // Refetch this tier's data. On any RPC error (transient network blip, auth not
+  // yet hydrated, a momentary insufficient_privilege) keep the existing state
+  // instead of blanking the map to zero — a failed ping must not erase good data.
   async function refetch() {
     const db = supabase as any;
     if (variant === "admin") {
-      const { data } = await db.rpc("rpc_map_admin");
+      const { data, error } = await db.rpc("rpc_map_admin");
+      if (error) return;
       setAdmin((data ?? []) as AdminPin[]);
     } else if (variant === "crew") {
-      const { data } = await db.rpc("rpc_map_crew");
+      const { data, error } = await db.rpc("rpc_map_crew");
+      if (error) return;
       setCrew((data ?? []) as CrewAirportRollup[]);
     } else {
-      const { data } = await db.rpc("rpc_map_client");
+      const { data, error } = await db.rpc("rpc_map_client");
+      if (error) return;
       const row = Array.isArray(data) ? data[0] : data;
-      if (row) setClient(row as ClientAggregates);
+      if (row) {
+        setClient({
+          total_online_hours: Number(row.total_online_hours ?? 0),
+          online_count: Number(row.online_count ?? 0),
+          by_state: (row.by_state ?? []) as ClientAggregates["by_state"],
+          type_ratings_online: (row.type_ratings_online ?? []) as string[],
+        });
+      }
     }
   }
 
@@ -155,8 +167,14 @@ export function CrewMap({
         }
       }
     };
-    if (map.loaded()) draw();
-    else map.once("load", draw);
+    if (map.loaded()) {
+      draw();
+    } else {
+      map.once("load", draw);
+      return () => {
+        map.off("load", draw);
+      };
+    }
   }, [admin, crew, variant]);
 
   const onlineTotal =
@@ -177,12 +195,15 @@ export function CrewMap({
           <>
             <div className="deck-inset p-4">
               <p className="text-[0.66rem] font-bold uppercase [letter-spacing:0.14em] text-[var(--deck-text-3)]">
-                Total flight hours online
+                Combined flight experience
               </p>
               <p className="deck-num mt-1 text-4xl font-bold text-[var(--deck-text)]">
                 {Math.round(client.total_online_hours).toLocaleString()}
+                <span className="ml-1.5 text-base font-semibold text-[var(--deck-text-3)]">hrs</span>
               </p>
-              <p className="mt-1 text-sm text-[var(--deck-text-2)]">{client.online_count} crew available now</p>
+              <p className="mt-1 text-sm text-[var(--deck-text-2)]">
+                across {client.online_count} crew available now
+              </p>
             </div>
             <div className="deck-inset p-4">
               <p className="text-[0.66rem] font-bold uppercase [letter-spacing:0.14em] text-[var(--deck-text-3)]">By state</p>

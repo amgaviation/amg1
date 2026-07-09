@@ -35,6 +35,7 @@ export type CrewAirportRollup = {
 };
 
 export type ClientAggregates = {
+  /** Combined career flight hours of the crew who are online now (NOT time-online). */
   total_online_hours: number;
   online_count: number;
   by_state: { state: string; count: number; hours: number }[];
@@ -86,8 +87,11 @@ export type CrewPresenceState = {
 };
 
 export async function getCrewPresenceState(crewId: string): Promise<CrewPresenceState> {
-  const db = await createServiceClient();
-  const admin = (db as any);
+  // Session client: the crew reads only their OWN presence/profile rows (RLS
+  // self-policies), and the eligibility helpers are SECURITY DEFINER. Callers
+  // always pass the signed-in user's id, so RLS enforces the self-boundary
+  // rather than us trusting a service-role client with a caller-supplied id.
+  const db = (await createClient()) as any;
 
   const [{ data: session }, { data: eligible }, { data: blockers }, { data: profile }] =
     await Promise.all([
@@ -100,8 +104,8 @@ export async function getCrewPresenceState(crewId: string): Promise<CrewPresence
         .order("started_at", { ascending: false })
         .limit(1)
         .maybeSingle(),
-      admin.rpc("fn_crew_can_go_active", { p_crew: crewId }),
-      admin.rpc("fn_crew_go_active_blockers", { p_crew: crewId }),
+      db.rpc("fn_crew_can_go_active", { p_crew: crewId }),
+      db.rpc("fn_crew_go_active_blockers", { p_crew: crewId }),
       db.from("crew_profiles").select("home_airport, closest_major_airport").eq("id", crewId).maybeSingle(),
     ]);
 

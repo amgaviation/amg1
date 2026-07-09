@@ -15,10 +15,15 @@ import type { AirportOption } from "@/lib/portal/crew-map";
 type Result = { ok: boolean; error?: string; expiresAt?: string };
 
 function friendly(message: string): string {
-  // The RPC raises "Not eligible: <blockers>" / "Unknown airport: X" — strip
-  // the Postgres noise and show the human part.
-  const m = message.replace(/^.*?:\s*/, (s) => s).trim();
-  return m || "Could not update your availability. Try again.";
+  // Only surface messages we deliberately raise; everything else is an internal
+  // DB error (e.g. a unique-violation from a go-active race) and must never be
+  // shown verbatim — it would leak table/constraint names.
+  const raw = (message ?? "").trim();
+  if (/^unknown airport/i.test(raw)) return "That airport isn't recognized — pick one from the list.";
+  if (/^not authenticated/i.test(raw)) return "Your session expired — refresh and try again.";
+  const eligible = raw.match(/^not eligible:\s*(.+)$/i);
+  if (eligible) return eligible[1].trim();
+  return "Could not update your availability. Try again.";
 }
 
 export async function goActive(airport: string, minutes: number): Promise<Result> {
@@ -48,7 +53,12 @@ export async function goOffline(): Promise<Result> {
 /** Searchable airport picker source (code / name / city). Scales past the seed. */
 export async function searchAirports(q: string): Promise<AirportOption[]> {
   await actor(["crew"]);
-  const term = String(q ?? "").trim();
+  // Strip PostgREST-significant characters (comma, parens, dot, colon, star,
+  // quotes, backslash, percent) so the term can't break out of the .or() filter.
+  const term = String(q ?? "")
+    .replace(/[^a-zA-Z0-9 \-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
   const db = await createServiceClient();
   let query = db
     .from("airports")

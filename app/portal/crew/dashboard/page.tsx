@@ -32,6 +32,7 @@ import { getCrewPresenceState, resolveAirports } from "@/lib/portal/crew-map";
 import { GoActiveControl } from "@/components/portal/crew-map/go-active-control";
 
 export const metadata = { title: "Dashboard - Crew Portal" };
+export const dynamic = "force-dynamic";
 
 export default async function CrewDashboardPage() {
   const user = await requireRole("crew");
