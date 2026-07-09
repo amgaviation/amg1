@@ -11,6 +11,7 @@ import { combinedPaymentInstructions, getBillingSettings } from "@/lib/portal/bi
 import { createInvoiceDraftFromQuote, generateAndStoreQuotePdf } from "@/lib/portal/billing-documents";
 import { emailInvoicePdf, emailQuotePdf } from "@/lib/portal/billing-emails";
 import { nextBillingDocumentNumber } from "@/lib/portal/billing-numbering";
+import { stampSlaMetOnQuoteSent } from "@/lib/portal/sla";
 import { isAdminRole } from "@/lib/portal/constants";
 import { actor, bool, num, str } from "./_helpers";
 
@@ -175,6 +176,12 @@ export async function createQuote(formData: FormData) {
       .update({ status: "quoted" })
       .eq("id", missionId)
       .in("status", ["submitted", "under_review", "awaiting_client_info"]);
+  }
+
+  // Stop the SLA response clock the first time a quote actually goes to the
+  // client (create-and-send path). Predicated + failure-safe inside the helper.
+  if (sendNow && missionId) {
+    await stampSlaMetOnQuoteSent(db, missionId);
   }
 
   await logAuditEvent({
@@ -386,6 +393,11 @@ export async function sendQuote(formData: FormData) {
     .from("quotes")
     .update({ status: "sent", sent_at: new Date().toISOString() })
     .eq("id", quoteId);
+  // The quote has now genuinely gone out — stop the mission's SLA response
+  // clock (predicated so a re-send never moves an already-met timestamp).
+  if (quote.mission_id) {
+    await stampSlaMetOnQuoteSent(db, quote.mission_id);
+  }
   if (quote.client_id) {
     await notifyUser({
       userId: quote.client_id,

@@ -4,6 +4,7 @@ import { requireRolePermission } from "@/lib/portal/permissions";
 import { DetailRow, EmptyState, Notice, SectionCard, Timeline } from "@/components/portal/ui/primitives";
 import { DescriptionList } from "@/components/portal/ui/description-list";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
+import { SlaChip } from "@/components/portal/ui/sla-chip";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { assignCrew, assignPartner, unassignCrew } from "@/app/portal/actions/admin";
@@ -124,6 +125,7 @@ export default async function AdminTripDetailPage({
               label={MISSION_STATUS_LABEL[mission.status] ?? mission.status}
               tone={toneFor(MISSION_STATUS_TONE, mission.status)}
             />
+            <SlaChip mission={mission} />
           </div>
           <p className="deck-mono mt-2.5 !text-[0.8rem] text-[var(--deck-text-2)]">
             {formatRoute(mission.departure_airport, mission.arrival_airport)}

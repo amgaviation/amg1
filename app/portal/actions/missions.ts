@@ -20,6 +20,7 @@ import { recordComplianceEvidence, recordSupportRequestDisclaimerAcknowledgment 
 import { detectProhibitedPaymentData } from "@/lib/compliance/payment-data-guard";
 import { ensureClientAccountForMission } from "@/lib/portal/client-account-provisioning";
 import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
+import { stampSlaDueAtOnIntake } from "@/lib/portal/sla";
 import { listQualifiedCrew } from "@/lib/portal/pool";
 import { formatDateTime, formatRoute } from "@/lib/portal/format";
 import {
@@ -310,11 +311,25 @@ export async function createMission(formData: FormData) {
       client_notes: str(formData, "client_notes") || null,
       created_by: user.id,
     })
-    .select("id, ref")
+    .select("id, ref, created_at")
     .single();
 
   if (error || !mission) {
     redirect("/portal/client/trips/new?error=failed");
+  }
+
+  // Start the SLA response-window clock from intake: resolve the client's plan
+  // tier and stamp sla_due_at N business hours out. Failure-safe — the helper
+  // swallows its own errors and this wrap is belt-and-suspenders so a SLA
+  // hiccup can never break trip submission.
+  try {
+    await stampSlaDueAtOnIntake(db, {
+      missionId: mission.id,
+      clientId,
+      from: mission.created_at ? new Date(mission.created_at) : new Date(),
+    });
+  } catch (slaError) {
+    console.error("[missions] SLA due-date stamp failed", mission.id, slaError);
   }
 
   const paxRaw = str(formData, "passenger_names");
