@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { HeadlineReveal } from "@/components/site/headline-reveal";
 import { NetworkApplicationForm } from "./network-application-form";
 
 export const metadata: Metadata = {
@@ -15,9 +16,10 @@ export default function PilotNetworkApplyPage() {
           <p className="oc-eyebrow" data-stagger-item>
             AMG Pilot Network // network vetting
           </p>
-          <h1 className="oc-display mt-4 text-5xl text-[var(--oc-paper)] sm:text-6xl" data-stagger-item>
-            Apply to the Network
-          </h1>
+          <HeadlineReveal
+            className="oc-display mt-4 text-5xl text-[var(--oc-paper)] sm:text-6xl"
+            lines={["Apply to the Network"]}
+          />
           <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]" data-stagger-item>
             Tell us your certificates, types, hours, and availability. We verify every file —
             certificate cross-check, medical currency, type experience, insurance history, and a

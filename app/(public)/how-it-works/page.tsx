@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { HeadlineReveal } from "@/components/site/headline-reveal";
 import { QuoteButton } from "@/components/site/quote-button";
+import { HowHeroClock } from "@/components/site/how-hero-clock";
+import { TimelineSteps, type TimelineStep } from "@/components/site/timeline-steps";
+import { PortalScreenshotFrame } from "@/components/site/portal-screenshot-frame";
+import { HowPortalMock } from "@/components/site/how-portal-mock";
 
 export const metadata: Metadata = {
   title: "How It Works — Four Steps, Timestamped",
@@ -8,29 +12,33 @@ export const metadata: Metadata = {
     "Submit in 5 minutes, quoted within your plan's window (On-Demand 24h, Standard 12h, Priority 4h), crew confirmed in 48 hours, tracked in AMG Connect. What we never do, stated once.",
 };
 
-const STEPS = [
+const STEPS: readonly TimelineStep[] = [
   {
     number: "1",
     title: "Submit",
-    stamp: "5 minutes",
+    chip: "5 min",
+    stamp: "Tail, mission, dates, insurance carrier.",
     body: "Tail number, mission, dates, insurance carrier. One form, no phone tag.",
   },
   {
     number: "2",
     title: "Quote",
-    stamp: "On-Demand 24h · Standard 12h · Priority 4h (business hours)",
+    chip: "24 / 12 / 4h",
+    stamp: "On-Demand 24h · Standard 12h · Priority 4h (business hours).",
     body: "Written and itemized: pilot options with qualifications, all-in cost, timeline.",
   },
   {
     number: "3",
     title: "Crew confirmed",
-    stamp: "target 48 hours; 24 for Priority",
+    chip: "48h",
+    stamp: "Target 48 hours; 24 for Priority.",
     body: "You pick the pilot. We paper the agreement and confirm insurance approval before anything moves.",
   },
   {
     number: "4",
     title: "Fly, tracked",
-    stamp: "live in AMG Connect",
+    chip: "live",
+    stamp: "Live in AMG Connect.",
     body: "Status updates in AMG Connect. Closeout file — agreement, invoice, every receipt — delivered when the mission lands.",
   },
 ] as const;
@@ -69,34 +77,23 @@ export default function HowItWorksPage() {
             One form starts it. From there every stage carries a committed clock — submit, quote,
             crew, fly — and you can watch each one move in AMG Connect.
           </p>
+          <div
+            className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-[11px] uppercase [letter-spacing:0.16em] text-[var(--oc-aluminum-2)]"
+            data-stagger-item
+          >
+            <span>System time</span>
+            <HowHeroClock />
+            <span className="oc-dot" aria-hidden="true" />
+            <span>Four stages // four clocks</span>
+          </div>
         </div>
       </section>
 
-      {/* Four steps — one screen each on mobile. */}
+      {/* Four steps on a growing instrument-blue spine — each arrives as the
+          line reaches it, its time figure shuffling in. */}
       <section className="oc-section">
-        <div className="oc-shell grid gap-4" data-stagger-container>
-          {STEPS.map((step) => (
-            <div
-              key={step.number}
-              data-stagger-item
-              className="pub-card-hover oc-card-dark grid min-h-[38svh] content-center gap-4 p-8 sm:min-h-0 sm:grid-cols-[auto_1fr] sm:items-start sm:gap-8 lg:p-10"
-            >
-              <span className="oc-display text-6xl text-[var(--oc-blue)] lg:text-7xl" aria-hidden="true">
-                {step.number}
-              </span>
-              <div>
-                <h2 className="oc-display text-3xl text-[var(--oc-paper)]">
-                  {step.title}{" "}
-                  <span className="oc-mono block pt-2 text-sm font-normal text-[var(--oc-aluminum)] sm:inline sm:pt-0 sm:pl-2">
-                    ({step.stamp})
-                  </span>
-                </h2>
-                <p className="mt-3 max-w-2xl text-[0.95rem] leading-relaxed text-[var(--oc-aluminum)]">
-                  {step.body}
-                </p>
-              </div>
-            </div>
-          ))}
+        <div className="oc-shell">
+          <TimelineSteps steps={STEPS} />
         </div>
       </section>
 
@@ -132,22 +129,33 @@ export default function HowItWorksPage() {
             <h2 className="oc-display mt-4 text-3xl text-[var(--oc-paper)]">
               One login, one thread. Five things, done properly.
             </h2>
+            <p className="mt-4 max-w-xl text-[0.95rem] leading-relaxed text-[var(--oc-aluminum)]">
+              Not a promise you have to take on faith — the mission file assembles as the four
+              stages complete. This is what it looks like.
+            </p>
           </div>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5" data-stagger-container>
-            {CONNECT_FUNCTIONS.map((item, index) => (
-              <div
-                key={item.title}
-                data-stagger-item
-                className="group pub-card-hover oc-card-dark p-5"
-              >
-                <span className="font-mono text-[10px] [letter-spacing:0.16em] text-[var(--amber)]">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <div className="pub-rule mb-3 mt-2" aria-hidden="true" />
-                <h3 className="text-base font-semibold text-[var(--oc-paper)]">{item.title}</h3>
-                <p className="mt-2 text-[0.95rem] leading-relaxed text-[var(--oc-aluminum)]">{item.body}</p>
-              </div>
-            ))}
+          <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_0.85fr] lg:items-start">
+            <div className="grid gap-4 sm:grid-cols-2" data-stagger-container>
+              {CONNECT_FUNCTIONS.map((item, index) => (
+                <div
+                  key={item.title}
+                  data-stagger-item
+                  className="group pub-card-hover oc-card-dark p-5"
+                >
+                  <span className="font-mono text-[10px] [letter-spacing:0.16em] text-[var(--amber)]">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <div className="pub-rule mb-3 mt-2" aria-hidden="true" />
+                  <h3 className="text-base font-semibold text-[var(--oc-paper)]">{item.title}</h3>
+                  <p className="mt-2 text-[0.95rem] leading-relaxed text-[var(--oc-aluminum)]">{item.body}</p>
+                </div>
+              ))}
+            </div>
+            <div className="lg:sticky lg:top-28" data-scroll-animate>
+              <PortalScreenshotFrame variant="browser">
+                <HowPortalMock />
+              </PortalScreenshotFrame>
+            </div>
           </div>
         </div>
       </section>

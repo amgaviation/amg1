@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 
@@ -41,6 +41,23 @@ function inputClass(error?: string) {
     // `.support-field` carries the shared token styling (border/bg/focus ring);
     // `!border-red-400` forces the error state to win over that base rule.
     "support-field w-full px-3 text-base",
+    error ? "!border-red-400" : "",
+  ].join(" ");
+}
+
+/**
+ * File inputs: replace the browser-default "Choose File" chrome with a
+ * tokenized button that speaks the design language (mono uppercase label,
+ * hairline border, instrument-blue hover) while keeping the `.support-field`
+ * shell around the field itself.
+ */
+function fileInputClass(error?: string) {
+  return [
+    "support-field w-full px-3 py-2.5 text-sm text-[var(--oc-aluminum)]",
+    "file:mr-3 file:cursor-pointer file:rounded-md file:border file:border-[var(--oc-line-strong)]",
+    "file:bg-white/[0.03] file:px-3 file:py-1.5",
+    "file:font-mono file:text-[10px] file:uppercase file:[letter-spacing:0.16em] file:text-[var(--oc-paper)]",
+    "file:transition file:hover:border-[var(--oc-blue)] file:hover:text-[var(--oc-blue)]",
     error ? "!border-red-400" : "",
   ].join(" ");
 }
@@ -86,7 +103,7 @@ export function NetworkApplicationForm() {
   const [pending, setPending] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [success, setSuccess] = useState(false);
-  const formId = useMemo(() => `network-application-${Date.now()}`, []);
+  const formId = useId();
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -288,14 +305,14 @@ export function NetworkApplicationForm() {
 
       <Section index={4} title="Documents">
         <Field label="Resume upload" name="resume" required error={errors.resume}>
-          <input name="resume" type="file" required accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" className={inputClass(errors.resume)} />
+          <input name="resume" type="file" required accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" className={fileInputClass(errors.resume)} />
         </Field>
         <Field label="Certificates upload" name="certificates" error={errors.certificates}>
-          <input name="certificates" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" className={inputClass(errors.certificates)} />
+          <input name="certificates" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" className={fileInputClass(errors.certificates)} />
         </Field>
         <div className="lg:col-span-2">
           <Field label="Additional supporting documents" name="supporting_documents" error={errors.supporting_documents}>
-            <input name="supporting_documents" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" className={inputClass(errors.supporting_documents)} />
+            <input name="supporting_documents" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" className={fileInputClass(errors.supporting_documents)} />
           </Field>
         </div>
       </Section>

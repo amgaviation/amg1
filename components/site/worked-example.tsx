@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
  */
 export function WorkedExample({ className }: { className?: string }) {
   return (
-    <div className={cn("oc-card-dark overflow-hidden", className)}>
+    <div data-tally className={cn("oc-card-dark overflow-hidden", className)}>
       <div className="border-b border-[var(--oc-line-dark)] px-6 py-5 sm:px-8">
         <p className="oc-eyebrow oc-eyebrow-light">Worked example</p>
         <h3 className="oc-display mt-2 text-2xl text-[var(--oc-paper)] sm:text-3xl">
@@ -19,6 +19,7 @@ export function WorkedExample({ className }: { className?: string }) {
         {WORKED_EXAMPLE.lines.map((line) => (
           <div
             key={line.label}
+            data-tally-line
             className="flex items-baseline justify-between gap-4 border-b border-dashed border-[var(--oc-line-dark)] py-2.5 last:border-0"
           >
             <dt className="text-sm text-[var(--oc-aluminum)]">{line.label}</dt>
@@ -26,7 +27,7 @@ export function WorkedExample({ className }: { className?: string }) {
           </div>
         ))}
       </dl>
-      <div className="bg-white/[0.04] px-6 py-5 sm:px-8">
+      <div data-tally-total className="bg-white/[0.04] px-6 py-5 sm:px-8">
         <p className="oc-display text-2xl text-[var(--oc-paper)] sm:text-[1.75rem]">
           {WORKED_EXAMPLE.total}
         </p>

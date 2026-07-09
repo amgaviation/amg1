@@ -101,9 +101,11 @@ export default async function PrivacyChoicesPage({
                   I understand AMG may verify this request and may respond through the contact information provided. Review the <Link href="/privacy-policy" className="text-accent hover:underline">Privacy Policy</Link>.
                 </span>
               </label>
-              <button type="submit" className="min-h-11 rounded-full border border-[var(--instrument)] bg-[var(--instrument)] px-5 text-sm font-semibold text-white hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amg-accent-blue)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111F]">
-                Submit Request
-              </button>
+              <div>
+                <button type="submit" className="oc-btn oc-btn-primary font-mono text-xs uppercase [letter-spacing:0.14em]">
+                  Submit Request
+                </button>
+              </div>
             </form>
           </div>
         </div>

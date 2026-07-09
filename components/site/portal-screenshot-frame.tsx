@@ -1,6 +1,11 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
+/**
+ * Framed portal visual with browser/device chrome. Accepts either a real
+ * screenshot (`src`) or, when no suitable screenshot asset exists, a CSS `children`
+ * mock rendered inside the same chrome — see components/site/how-portal-mock.tsx.
+ */
 export function PortalScreenshotFrame({
   src,
   alt,
@@ -8,15 +13,18 @@ export function PortalScreenshotFrame({
   variant = "browser",
   priority,
   className,
+  children,
 }: {
-  src: string;
-  alt: string;
+  src?: string;
+  alt?: string;
   caption?: string;
   variant?: "desktop" | "mobile" | "browser" | "floating" | "dark";
   priority?: boolean;
   className?: string;
+  children?: React.ReactNode;
 }) {
   const isMobile = variant === "mobile";
+  const hasImage = Boolean(src);
   return (
     <figure
       className={cn(
@@ -34,22 +42,29 @@ export function PortalScreenshotFrame({
           <span className="oc-mono ml-2 truncate text-[0.68rem] text-[var(--oc-aluminum-2)]">AMG Aviation Portal</span>
         </div>
       ) : null}
-      <div
-        className={cn(
-          "relative overflow-hidden bg-slate-900",
-          isMobile ? "aspect-[390/844] rounded-[1.5rem]" : "aspect-[1440/1000]",
-        )}
-      >
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          priority={priority}
-          sizes={isMobile ? "(max-width: 768px) 80vw, 390px" : "(max-width: 1024px) 100vw, 56vw"}
-          className="object-cover"
-        />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),transparent_28%,rgba(0,0,0,0.18))]" />
-      </div>
+      {hasImage ? (
+        <div
+          className={cn(
+            "relative overflow-hidden bg-slate-900",
+            isMobile ? "aspect-[390/844] rounded-[1.5rem]" : "aspect-[1440/1000]",
+          )}
+        >
+          <Image
+            src={src as string}
+            alt={alt ?? ""}
+            fill
+            priority={priority}
+            sizes={isMobile ? "(max-width: 768px) 80vw, 390px" : "(max-width: 1024px) 100vw, 56vw"}
+            className="object-cover"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),transparent_28%,rgba(0,0,0,0.18))]" />
+        </div>
+      ) : (
+        <div className="relative overflow-hidden bg-[linear-gradient(160deg,#07111f,#050b14)] p-4 sm:p-5">
+          {children}
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),transparent_22%)]" />
+        </div>
+      )}
       {caption ? <figcaption className="px-4 py-3 text-xs text-[var(--oc-aluminum-2)]">{caption}</figcaption> : null}
     </figure>
   );

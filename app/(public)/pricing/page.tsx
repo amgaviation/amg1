@@ -3,6 +3,7 @@ import Link from "next/link";
 import { TrackedLink } from "@/components/site/tracked-link";
 import { WorkedExample } from "@/components/site/worked-example";
 import { HeadlineReveal } from "@/components/site/headline-reveal";
+import { PricingMotion } from "@/components/site/pricing-motion";
 import { DAY_RATES, PLAN_TABLE, SITE, SITE_EVENTS } from "@/lib/site-config";
 
 export const metadata: Metadata = {
@@ -147,7 +148,7 @@ function BandRows({
           Monthly fee
         </th>
         {band.monthly.map((value, i) => (
-          <td key={plans[i]} className="oc-mono px-4 py-4 text-lg text-[var(--oc-paper)]">
+          <td key={plans[i]} data-countup className="oc-mono px-4 py-4 text-lg text-[var(--oc-paper)]">
             {value}
           </td>
         ))}
@@ -157,7 +158,7 @@ function BandRows({
           Coordination fee per mission
         </th>
         {band.coordination.map((value, i) => (
-          <td key={plans[i]} className="oc-mono px-4 py-4 text-lg text-[var(--oc-paper)]">
+          <td key={plans[i]} data-countup className="oc-mono px-4 py-4 text-lg text-[var(--oc-paper)]">
             {value}
           </td>
         ))}
@@ -190,6 +191,7 @@ export default function PricingPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(PRICING_SCHEMA) }}
       />
+      <PricingMotion />
       {/* §4.1 Intro — three sentences, no hedging. */}
       <section className="pub-hero oc-shell pb-14 pt-[calc(var(--public-header-height)+4rem)]">
         <div className="max-w-3xl" data-stagger-container>
@@ -208,12 +210,15 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* §4.2 The plan table (Business Plan §6.2, real figures in every cell). */}
-      <section className="oc-section py-16">
+      {/* §4.2 The plan table (Business Plan §6.2, real figures in every cell).
+          data-pill-hide: the persistent "Get a Quote" pill hides while this
+          section is in view so it never rides on top of the stacked mobile
+          plan cards. */}
+      <section className="oc-section py-16" data-pill-hide>
         <div className="oc-shell">
           {/* Desktop table */}
           <div className="hud-frame oc-card-dark hidden overflow-hidden md:block" data-scroll-animate>
-            <table className="w-full border-collapse">
+            <table className="w-full border-collapse" data-plan-table>
               <thead>
                 <tr>
                   <th className="w-[28%] px-4 py-5 text-left text-xs font-semibold uppercase text-[var(--oc-aluminum-2)]">
@@ -349,7 +354,7 @@ export default function PricingPage() {
             {DAY_RATES.bands.map((band) => (
               <div key={band.band} data-stagger-item className="pub-card-hover oc-card-dark p-6">
                 <dt className="text-xs font-semibold uppercase text-[var(--oc-aluminum-2)]">{band.band}</dt>
-                <dd className="oc-display mt-2 text-3xl text-[var(--oc-paper)]">{band.range}</dd>
+                <dd data-countup className="oc-display mt-2 text-3xl text-[var(--oc-paper)]">{band.range}</dd>
               </div>
             ))}
           </dl>
@@ -390,7 +395,13 @@ export default function PricingPage() {
                     +
                   </span>
                 </summary>
-                <p className="mt-3 text-[0.95rem] leading-relaxed text-[var(--oc-aluminum)]">{item.a}</p>
+                {/* grid-rows 0fr→1fr gives the answer a smooth ~250ms open
+                    instead of the native snap; inner div clips the overflow. */}
+                <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-[250ms] ease-out group-open:grid-rows-[1fr] motion-reduce:transition-none">
+                  <div className="overflow-hidden">
+                    <p className="mt-3 text-[0.95rem] leading-relaxed text-[var(--oc-aluminum)]">{item.a}</p>
+                  </div>
+                </div>
               </details>
             ))}
           </div>

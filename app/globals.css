@@ -1871,6 +1871,38 @@ html.lenis body {
   }
 }
 
+/* Pricing plan-table column hover (components/site/pricing-motion.tsx): the
+   hovered column lifts on a soft wash with a 2px instrument-blue top rule. */
+[data-plan-table] [data-col-active] {
+  background-color: rgb(255 255 255 / 3%);
+  transition: background-color 160ms ease;
+}
+[data-plan-table] [data-col-active="head"] {
+  box-shadow: inset 0 2px 0 var(--instrument);
+}
+
+/* Worked-example total: one soft instrument-blue glow pulse when the tally
+   lines finish landing (data-tally-pulse set by pricing-motion.tsx). */
+@keyframes tally-total-pulse {
+  0% {
+    box-shadow: 0 0 0 rgb(11 94 212 / 0%);
+  }
+  40% {
+    box-shadow: 0 0 34px rgb(11 94 212 / 45%);
+  }
+  100% {
+    box-shadow: 0 0 0 rgb(11 94 212 / 0%);
+  }
+}
+[data-tally-total][data-tally-pulse] {
+  animation: tally-total-pulse 900ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-tally-total][data-tally-pulse] {
+    animation: none;
+  }
+}
+
 /* ── Public marketing parity utilities ──────────────────────────────────
    Shared texture/interaction helpers that bring the secondary pages toward
    the flight-deck home without pulling GSAP into their bundles. All are

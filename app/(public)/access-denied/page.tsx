@@ -13,8 +13,7 @@ export default function AccessDeniedPage() {
       eyebrow="Portal Security"
       title="Access denied"
       description="Your account is not authorized for that portal area. AMG routes users by approved role and account status."
-      backHref="/portal"
-      backLabel="Go to my portal"
+      backHref={null}
     >
       <div className="grid gap-4">
         <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4 text-sm leading-6 text-muted-foreground">

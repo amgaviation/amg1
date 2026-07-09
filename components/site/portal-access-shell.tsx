@@ -15,7 +15,9 @@ export function PortalAccessShell({
   title: string;
   description: string;
   children: ReactNode;
-  backHref?: string;
+  /** Pass `null` to omit the footer back-link (e.g. when a page's own body
+      already renders the same destination as a primary button). */
+  backHref?: string | null;
   backLabel?: string;
 }) {
   return (
@@ -52,10 +54,12 @@ export function PortalAccessShell({
             <ShieldCheck className="hidden h-7 w-7 shrink-0 text-accent sm:block" />
           </div>
           {children}
-          <Link href={backHref} className="mt-7 inline-flex items-center gap-2 text-sm text-accent hover:text-foreground">
-            {backLabel}
-            <ArrowUpRight className="h-3.5 w-3.5" />
-          </Link>
+          {backHref ? (
+            <Link href={backHref} className="mt-7 inline-flex items-center gap-2 text-sm text-accent hover:text-foreground">
+              {backLabel}
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </Link>
+          ) : null}
         </section>
       </div>
     </section>
