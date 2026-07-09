@@ -1,48 +1,33 @@
 import "server-only";
 
 import { createClient, createServiceClient } from "@/lib/supabase/server";
+import type {
+  AdminPin,
+  CrewAirportRollup,
+  ClientAggregates,
+  AdminMapStats,
+  CrewMapStats,
+} from "@/lib/portal/crew-map-view";
 
 /**
  * Live Crew Availability Map — server data access. The tiered read RPCs are
  * SECURITY DEFINER and assert the caller's role from auth.uid(), so they are
  * called with the SESSION client (carries the user's JWT), never the service
  * client. The privacy tiers are enforced in the database, not here.
+ *
+ * Shared view types + transforms live in ./crew-map-view (client-safe); we
+ * re-export them so existing importers of "@/lib/portal/crew-map" keep working.
  */
 
-export type AdminPin = {
-  crew_id: string;
-  full_name: string | null;
-  avatar_path: string | null;
-  airport_code: string;
-  latitude: number;
-  longitude: number;
-  started_at: string;
-  expires_at: string;
-  phone: string | null;
-  email: string | null;
-  total_time: number | null;
-  type_ratings: string[] | null;
-  desired_day_rate: number | null;
-  availability_status: string | null;
-};
-
-export type CrewAirportRollup = {
-  airport_code: string;
-  name: string | null;
-  latitude: number;
-  longitude: number;
-  active_count: number;
-};
-
-export type ClientAggregates = {
-  /** Combined career flight hours of the crew who are online now (NOT time-online). */
-  total_online_hours: number;
-  online_count: number;
-  by_state: { state: string; count: number; hours: number }[];
-  type_ratings_online: string[];
-};
-
-export type MapVariant = "admin" | "crew" | "client";
+export type {
+  AdminPin,
+  CrewAirportRollup,
+  ClientAggregates,
+  MapVariant,
+  AdminMapStats,
+  CrewMapStats,
+  MapBlip,
+} from "@/lib/portal/crew-map-view";
 
 export async function getAdminMap(): Promise<AdminPin[]> {
   const db = (await createClient()) as any;
@@ -65,6 +50,44 @@ export async function getClientMap(): Promise<ClientAggregates> {
     online_count: Number(row?.online_count ?? 0),
     by_state: (row?.by_state ?? []) as ClientAggregates["by_state"],
     type_ratings_online: (row?.type_ratings_online ?? []) as string[],
+  };
+}
+
+// ── Dashboard stats (Command-Center widgets) ────────────────────────────
+
+export async function getAdminMapStats(): Promise<AdminMapStats> {
+  const db = (await createClient()) as any;
+  const { data } = await db.rpc("rpc_crew_map_admin_stats");
+  const d = (data ?? {}) as Record<string, unknown>;
+  const num = (k: string) => Number(d[k] ?? 0);
+  return {
+    online_count: num("online_count"),
+    airports_active: num("airports_active"),
+    states_active: num("states_active"),
+    hours_online: num("hours_online"),
+    type_ratings_count: num("type_ratings_count"),
+    active_now: num("active_now"),
+    sessions_today: num("sessions_today"),
+    avg_session_minutes: num("avg_session_minutes"),
+    assignments_from_map_today: num("assignments_from_map_today"),
+    sessions_7d: Array.isArray(d.sessions_7d) ? (d.sessions_7d as number[]).map((n) => Number(n) || 0) : [],
+    active_missions: num("active_missions"),
+    pool_missions: num("pool_missions"),
+    missions_today: num("missions_today"),
+  };
+}
+
+export async function getCrewMapStats(): Promise<CrewMapStats> {
+  const db = (await createClient()) as any;
+  const { data } = await db.rpc("rpc_crew_map_crew_stats");
+  const d = (data ?? {}) as Record<string, unknown>;
+  const ba = d.busiest_airport as { code?: string; name?: string | null; count?: number } | null | undefined;
+  return {
+    online_count: Number(d.online_count ?? 0),
+    airports_active: Number(d.airports_active ?? 0),
+    hours_online: Number(d.hours_online ?? 0),
+    type_ratings_count: Number(d.type_ratings_count ?? 0),
+    busiest_airport: ba && ba.code ? { code: ba.code, name: ba.name ?? null, count: Number(ba.count ?? 0) } : null,
   };
 }
 
