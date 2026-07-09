@@ -43,7 +43,9 @@ export default async function PrivacyChoicesPage({
               <div role="alert" className="mt-5 rounded-lg border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-100">
                 {params.error === "missing"
                   ? "Complete the required fields and acknowledgment before submitting."
-                  : getUserFacingErrorMessage({ area: "privacy_choices", action: "submit", correlationId: params.ref })}
+                  : params.error === "rate_limited"
+                    ? "Too many requests from your connection. Please wait a few minutes and try again."
+                    : getUserFacingErrorMessage({ area: "privacy_choices", action: "submit", correlationId: params.ref })}
               </div>
             ) : null}
             <form action={submitPrivacyChoicesRequest} className="mt-6 grid gap-5">

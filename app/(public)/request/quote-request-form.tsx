@@ -44,7 +44,9 @@ export function QuoteRequestForm({ error }: { error?: string }) {
             ? "A required field is missing — please check the form and resubmit."
             : error === "payment-data"
               ? "Please remove card or bank account numbers from the notes; we never take payment data through this form."
-              : "Something went wrong saving your request. Please try again, or call the number in the footer."}
+              : error === "rate-limited"
+                ? "Too many requests from your connection. Please wait a few minutes and try again, or call the number in the footer."
+                : "Something went wrong saving your request. Please try again, or call the number in the footer."}
         </p>
       ) : null}
 

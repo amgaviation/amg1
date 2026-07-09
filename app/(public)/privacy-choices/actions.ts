@@ -6,6 +6,13 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { logServerError } from "@/lib/errors/user-facing-errors";
 import { COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
 import { recordComplianceEvidence } from "@/lib/compliance/evidence";
+import { clientIpFromHeaders, rateLimit } from "@/lib/security/rate-limit";
+
+// Per-IP abuse brake. A data-rights request is a rare, one-time action, so the
+// threshold is generous enough that a shared/NAT'd network never trips it while
+// a script hammering the endpoint is stopped before touching the database.
+const RATE_LIMIT_MAX = 6;
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 
 const requestTypes = new Set([
   "access",
@@ -26,6 +33,12 @@ function clean(value: FormDataEntryValue | null) {
 }
 
 export async function submitPrivacyChoicesRequest(formData: FormData) {
+  const requestHeaders = await headers();
+  const ip = clientIpFromHeaders(requestHeaders);
+  if (!rateLimit(`privacy-choices:${ip}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS).ok) {
+    redirect("/privacy-choices?error=rate_limited");
+  }
+
   if (clean(formData.get("website"))) redirect("/privacy-choices?success=received");
 
   const fullName = clean(formData.get("full_name"));
@@ -38,8 +51,6 @@ export async function submitPrivacyChoicesRequest(formData: FormData) {
   if (!fullName || !email.includes("@") || !requestTypes.has(requestType) || !acknowledgement) {
     redirect("/privacy-choices?error=missing");
   }
-
-  const requestHeaders = await headers();
 
   try {
     const db = await createServiceClient();
