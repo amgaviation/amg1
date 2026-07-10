@@ -1638,6 +1638,7 @@ export type Database = {
         Row: {
           acknowledgement: boolean
           acknowledgment: boolean
+          admin_notes: string | null
           aircraft: string | null
           aircraft_category: string | null
           aircraft_make_model: string | null
@@ -1648,6 +1649,7 @@ export type Database = {
           arrival_airport: string | null
           arrival_date: string | null
           company: string | null
+          company_operator: string | null
           confirmation_email_sent: boolean
           confirmation_email_sent_at: string | null
           consent: string | null
@@ -1690,6 +1692,7 @@ export type Database = {
           referrer: string | null
           request_type: string | null
           requested_date: string | null
+          requested_support_summary: string | null
           requested_time: string | null
           requester_name: string | null
           route: string | null
@@ -1702,6 +1705,7 @@ export type Database = {
           status: string
           subject: string | null
           submission_type: string
+          support_path: string | null
           support_type: string | null
           tail_number: string | null
           timing: string | null
@@ -1714,6 +1718,7 @@ export type Database = {
         Insert: {
           acknowledgement?: boolean
           acknowledgment?: boolean
+          admin_notes?: string | null
           aircraft?: string | null
           aircraft_category?: string | null
           aircraft_make_model?: string | null
@@ -1724,6 +1729,7 @@ export type Database = {
           arrival_airport?: string | null
           arrival_date?: string | null
           company?: string | null
+          company_operator?: string | null
           confirmation_email_sent?: boolean
           confirmation_email_sent_at?: string | null
           consent?: string | null
@@ -1766,6 +1772,7 @@ export type Database = {
           referrer?: string | null
           request_type?: string | null
           requested_date?: string | null
+          requested_support_summary?: string | null
           requested_time?: string | null
           requester_name?: string | null
           route?: string | null
@@ -1778,6 +1785,7 @@ export type Database = {
           status?: string
           subject?: string | null
           submission_type?: string
+          support_path?: string | null
           support_type?: string | null
           tail_number?: string | null
           timing?: string | null
@@ -1790,6 +1798,7 @@ export type Database = {
         Update: {
           acknowledgement?: boolean
           acknowledgment?: boolean
+          admin_notes?: string | null
           aircraft?: string | null
           aircraft_category?: string | null
           aircraft_make_model?: string | null
@@ -1800,6 +1809,7 @@ export type Database = {
           arrival_airport?: string | null
           arrival_date?: string | null
           company?: string | null
+          company_operator?: string | null
           confirmation_email_sent?: boolean
           confirmation_email_sent_at?: string | null
           consent?: string | null
@@ -1842,6 +1852,7 @@ export type Database = {
           referrer?: string | null
           request_type?: string | null
           requested_date?: string | null
+          requested_support_summary?: string | null
           requested_time?: string | null
           requester_name?: string | null
           route?: string | null
@@ -1854,6 +1865,7 @@ export type Database = {
           status?: string
           subject?: string | null
           submission_type?: string
+          support_path?: string | null
           support_type?: string | null
           tail_number?: string | null
           timing?: string | null
@@ -4430,12 +4442,15 @@ export type Database = {
         Row: {
           admin_notes: string | null
           assigned_role: string | null
+          authorized_requesters: Json
           avatar_path: string | null
           billing_cc_emails: string[] | null
           billing_contact_email: string | null
           billing_contact_name: string | null
           billing_contact_phone: string | null
+          billing_preference: string | null
           business_purpose: string
+          client_type: string | null
           company_name: string | null
           created_at: string
           deleted: boolean
@@ -4447,6 +4462,7 @@ export type Database = {
           full_name: string | null
           home_base: string | null
           id: string
+          internal_notes: string | null
           invitation_channel: string | null
           invitation_sent_at: string | null
           invitation_status: string | null
@@ -4463,9 +4479,11 @@ export type Database = {
           phone_verification_expires_at: string | null
           phone_verification_sent_at: string | null
           phone_verified_at: string | null
+          preferred_airport: string | null
           profile_completed_at: string | null
           requested_role: string | null
           role: string
+          service_preferences: string | null
           sms_notifications_enabled: boolean
           status: string
           status_updated_at: string | null
@@ -4480,12 +4498,15 @@ export type Database = {
         Insert: {
           admin_notes?: string | null
           assigned_role?: string | null
+          authorized_requesters?: Json
           avatar_path?: string | null
           billing_cc_emails?: string[] | null
           billing_contact_email?: string | null
           billing_contact_name?: string | null
           billing_contact_phone?: string | null
+          billing_preference?: string | null
           business_purpose?: string
+          client_type?: string | null
           company_name?: string | null
           created_at?: string
           deleted?: boolean
@@ -4497,6 +4518,7 @@ export type Database = {
           full_name?: string | null
           home_base?: string | null
           id: string
+          internal_notes?: string | null
           invitation_channel?: string | null
           invitation_sent_at?: string | null
           invitation_status?: string | null
@@ -4513,9 +4535,11 @@ export type Database = {
           phone_verification_expires_at?: string | null
           phone_verification_sent_at?: string | null
           phone_verified_at?: string | null
+          preferred_airport?: string | null
           profile_completed_at?: string | null
           requested_role?: string | null
           role?: string
+          service_preferences?: string | null
           sms_notifications_enabled?: boolean
           status?: string
           status_updated_at?: string | null
@@ -4530,12 +4554,15 @@ export type Database = {
         Update: {
           admin_notes?: string | null
           assigned_role?: string | null
+          authorized_requesters?: Json
           avatar_path?: string | null
           billing_cc_emails?: string[] | null
           billing_contact_email?: string | null
           billing_contact_name?: string | null
           billing_contact_phone?: string | null
+          billing_preference?: string | null
           business_purpose?: string
+          client_type?: string | null
           company_name?: string | null
           created_at?: string
           deleted?: boolean
@@ -4547,6 +4574,7 @@ export type Database = {
           full_name?: string | null
           home_base?: string | null
           id?: string
+          internal_notes?: string | null
           invitation_channel?: string | null
           invitation_sent_at?: string | null
           invitation_status?: string | null
@@ -4563,9 +4591,11 @@ export type Database = {
           phone_verification_expires_at?: string | null
           phone_verification_sent_at?: string | null
           phone_verified_at?: string | null
+          preferred_airport?: string | null
           profile_completed_at?: string | null
           requested_role?: string | null
           role?: string
+          service_preferences?: string | null
           sms_notifications_enabled?: boolean
           status?: string
           status_updated_at?: string | null
@@ -6471,14 +6501,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      approve_access_request: {
-        Args: { p_admin_notes?: string; p_request_id: string }
-        Returns: undefined
-      }
-      assign_crew_to_trip: {
-        Args: { p_crew_user_id: string; p_trip_id: string }
-        Returns: string
-      }
       fn_broadcast_presence_change: { Args: never; Returns: undefined }
       fn_crew_can_go_active: { Args: { p_crew: string }; Returns: boolean }
       fn_crew_go_active_blockers: {
@@ -6506,9 +6528,20 @@ export type Database = {
         Args: { p_document_type: string }
         Returns: string
       }
-      reject_access_request: {
-        Args: { p_admin_notes?: string; p_request_id: string }
-        Returns: undefined
+      record_stripe_invoice_payment: {
+        Args: {
+          p_amount_total: number
+          p_checkout_session_id: string
+          p_currency: string
+          p_customer_email: string
+          p_customer_id: string
+          p_event_id: string
+          p_invoice_id: string
+          p_paid_at: string
+          p_payment_intent_id: string
+          p_payment_url: string
+        }
+        Returns: Json
       }
       rpc_crew_go_active: {
         Args: { p_airport: string; p_duration_minutes: number }
@@ -6579,17 +6612,22 @@ export type Database = {
           state: string
         }[]
       }
-      update_trip_status: {
-        Args: { p_admin_notes?: string; p_status: string; p_trip_id: string }
-        Returns: undefined
+      rpc_schema_columns: {
+        Args: never
+        Returns: {
+          column_name: string
+          table_name: string
+        }[]
       }
-      upsert_crew_availability: {
+      update_stripe_invoice_event_status: {
         Args: {
-          p_availability_status: string
-          p_available_date: string
-          p_notes?: string
+          p_checkout_session_id: string
+          p_error: string
+          p_invoice_id: string
+          p_payment_intent_id: string
+          p_status: string
         }
-        Returns: undefined
+        Returns: Json
       }
     }
     Enums: {
