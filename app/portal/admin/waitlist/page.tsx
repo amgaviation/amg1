@@ -48,7 +48,7 @@ export default async function AdminWaitlistPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRolePermission("admin", "users");
+  await requireRolePermission("admin", "users");
   const params = await searchParams;
   const waitlistedUsers = await listWaitlistedUsers();
 

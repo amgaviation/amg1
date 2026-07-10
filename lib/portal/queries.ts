@@ -742,7 +742,6 @@ export async function listDocumentsForUser(params: {
   userId: string;
   role: string;
 }): Promise<DocumentRow[]> {
-  const db = await createServiceClient();
   const all = await listAllDocuments();
   if (params.role === "admin") return all;
   return all.filter((d) => {

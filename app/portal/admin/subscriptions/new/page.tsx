@@ -15,7 +15,7 @@ export default async function NewSubscriptionPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
-  const user = await requireRolePermission("admin", "subscriptions", "add");
+  await requireRolePermission("admin", "subscriptions", "add");
   const params = await searchParams;
   const [clients, aircraft, plans] = await Promise.all([listClients(), listAllAircraft(), listSubscriptionPlans()]);
   const tierOptions = plans.flatMap((plan) =>

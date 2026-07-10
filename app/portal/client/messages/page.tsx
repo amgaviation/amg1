@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard, EmptyState, Notice, RecordRow } from "@/components/portal/ui/primitives";
 import { MessageUnreadBadge } from "@/components/portal/ui/message-unread-badge";

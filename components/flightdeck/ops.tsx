@@ -3,11 +3,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { runWithMotion } from "./motion";
 import { prefersReducedMotion } from "./reveal";
-
-gsap.registerPlugin(ScrollTrigger);
 
 /** The four steps with clocks on them (Website Build Spec §5). */
 const STEPS = [
@@ -59,24 +56,26 @@ export default function Ops() {
   useLayoutEffect(() => {
     if (prefersReducedMotion()) return;
 
-    const ctx = gsap.context(() => {
-      // Trigger-once entrance — never scrubbed, so every row (including
-      // "Fly, tracked") always lands at full opacity without further scrolling.
-      gsap.from(".bw-in", {
-        y: 50,
-        opacity: 0,
-        duration: 0.6,
-        ease: "power3.out",
-        stagger: 0.08,
-        scrollTrigger: {
-          trigger: root.current,
-          start: "top 70%",
-          toggleActions: "play none none none",
-          once: true,
-        },
-      });
-    }, root);
-    return () => ctx.revert();
+    return runWithMotion(({ gsap }) => {
+      const ctx = gsap.context(() => {
+        // Trigger-once entrance — never scrubbed, so every row (including
+        // "Fly, tracked") always lands at full opacity without further scrolling.
+        gsap.from(".bw-in", {
+          y: 50,
+          opacity: 0,
+          duration: 0.6,
+          ease: "power3.out",
+          stagger: 0.08,
+          scrollTrigger: {
+            trigger: root.current,
+            start: "top 70%",
+            toggleActions: "play none none none",
+            once: true,
+          },
+        });
+      }, root);
+      return () => ctx.revert();
+    });
   }, []);
 
   return (

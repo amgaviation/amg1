@@ -34,7 +34,7 @@ async function complianceCounts() {
 }
 
 export default async function AdminCompliancePage() {
-  const user = await requireRolePermission("admin", "compliance");
+  await requireRolePermission("admin", "compliance");
   const counts = await complianceCounts();
 
   return (

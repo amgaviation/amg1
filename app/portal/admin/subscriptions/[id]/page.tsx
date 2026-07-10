@@ -23,7 +23,7 @@ export default async function AdminSubscriptionDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRolePermission("admin", "subscriptions");
+  await requireRolePermission("admin", "subscriptions");
   const { id } = await params;
   const flash = await searchParams;
   const [subscription, missions, clients, timeline] = await Promise.all([getSubscriptionDetail(id), listAllMissions(), listClients(), getEntityTimeline("client_subscription", id)]);

@@ -4,7 +4,6 @@ import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard, DetailRow, Notice } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
-import { Button } from "@/components/ui/button";
 import { getQuoteDetail } from "@/lib/portal/queries";
 import { QUOTE_STATUS_LABEL, QUOTE_STATUS_TONE, toneFor, isAdminRole } from "@/lib/portal/constants";
 import { formatDate, formatMoney } from "@/lib/portal/format";

@@ -2,11 +2,8 @@
 
 import { useLayoutEffect, useRef } from "react";
 import Link from "next/link";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { runWithMotion } from "./motion";
 import { prefersReducedMotion } from "./reveal";
-
-gsap.registerPlugin(ScrollTrigger);
 
 /** Website Build Spec §3.3 — three doors, outcome-phrased audience routing. */
 const DOORS = [
@@ -39,24 +36,26 @@ export default function Doors() {
   useLayoutEffect(() => {
     if (prefersReducedMotion()) return;
 
-    const ctx = gsap.context(() => {
-      // Trigger-once entrance — never scrubbed, so copy always lands at
-      // full opacity without further scrolling.
-      gsap.from(".door-card", {
-        y: 60,
-        opacity: 0,
-        duration: 0.7,
-        ease: "power3.out",
-        stagger: 0.12,
-        scrollTrigger: {
-          trigger: root.current,
-          start: "top 74%",
-          toggleActions: "play none none none",
-          once: true,
-        },
-      });
-    }, root);
-    return () => ctx.revert();
+    return runWithMotion(({ gsap }) => {
+      const ctx = gsap.context(() => {
+        // Trigger-once entrance — never scrubbed, so copy always lands at
+        // full opacity without further scrolling.
+        gsap.from(".door-card", {
+          y: 60,
+          opacity: 0,
+          duration: 0.7,
+          ease: "power3.out",
+          stagger: 0.12,
+          scrollTrigger: {
+            trigger: root.current,
+            start: "top 74%",
+            toggleActions: "play none none none",
+            once: true,
+          },
+        });
+      }, root);
+      return () => ctx.revert();
+    });
   }, []);
 
   return (

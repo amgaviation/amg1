@@ -2,11 +2,8 @@
 
 import { useLayoutEffect, useRef } from "react";
 import Link from "next/link";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { runWithMotion } from "./motion";
 import { prefersReducedMotion } from "./reveal";
-
-gsap.registerPlugin(ScrollTrigger);
 
 /** Static illustration data for the ops-view mockup — not live records. */
 const REQUESTS = [
@@ -38,24 +35,26 @@ export default function Connect() {
   useLayoutEffect(() => {
     if (prefersReducedMotion()) return;
 
-    const ctx = gsap.context(() => {
-      // Trigger-once entrance — never scrubbed, so the copy, the CTAs and
-      // the console preview all land at full opacity without further scroll.
-      gsap.from(".cx-in", {
-        y: 50,
-        opacity: 0,
-        duration: 0.6,
-        ease: "power3.out",
-        stagger: 0.1,
-        scrollTrigger: {
-          trigger: root.current,
-          start: "top 72%",
-          toggleActions: "play none none none",
-          once: true,
-        },
-      });
-    }, root);
-    return () => ctx.revert();
+    return runWithMotion(({ gsap }) => {
+      const ctx = gsap.context(() => {
+        // Trigger-once entrance — never scrubbed, so the copy, the CTAs and
+        // the console preview all land at full opacity without further scroll.
+        gsap.from(".cx-in", {
+          y: 50,
+          opacity: 0,
+          duration: 0.6,
+          ease: "power3.out",
+          stagger: 0.1,
+          scrollTrigger: {
+            trigger: root.current,
+            start: "top 72%",
+            toggleActions: "play none none none",
+            once: true,
+          },
+        });
+      }, root);
+      return () => ctx.revert();
+    });
   }, []);
 
   return (

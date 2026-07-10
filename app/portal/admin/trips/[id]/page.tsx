@@ -32,7 +32,7 @@ export default async function AdminTripDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ success?: string; error?: string; gate?: string; from?: string; to?: string; who?: string }>;
 }) {
-  const user = await requireRolePermission("admin", "missions");
+  await requireRolePermission("admin", "missions");
   const { id } = await params;
   const flash = await searchParams;
   const [mission, crew, partners, publicRequest, poolRequests, timeline] = await Promise.all([

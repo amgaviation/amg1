@@ -36,7 +36,7 @@ export default async function AdminPartnersPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRolePermission("admin", "partners");
+  await requireRolePermission("admin", "partners");
   const params = await searchParams;
   const [partners, assignments] = await Promise.all([listAllPartners(), listAllPartnerAssignments()]);
 

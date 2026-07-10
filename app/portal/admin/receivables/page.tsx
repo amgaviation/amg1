@@ -75,7 +75,7 @@ export default async function ReceivablesPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRolePermission("admin", "invoices");
+  await requireRolePermission("admin", "invoices");
   const params = await searchParams;
   const [ar, billing] = await Promise.all([getArSummary(), getBillingSettings()]);
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
-import gsap from "gsap";
+import { runWithMotion } from "./motion";
 import { BOOT_SESSION_KEY, hasBooted, markRevealed, prefersReducedMotion } from "./reveal";
 
 /**
@@ -38,31 +38,45 @@ export default function Preloader() {
       document.body.style.overflow = previousOverflow;
     };
 
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        defaults: { ease: "expo.out" },
-        onComplete: () => {
-          finish();
-          setActive(false);
-        },
-      });
+    // GSAP arrives via dynamic import; the overlay's initial frame (logo
+    // visible, heading lines masked by CSS) is pure markup, so the boot
+    // simply starts once the motion chunk lands.
+    const disposeMotion = runWithMotion(
+      ({ gsap }) => {
+        const ctx = gsap.context(() => {
+          const tl = gsap.timeline({
+            defaults: { ease: "expo.out" },
+            onComplete: () => {
+              finish();
+              setActive(false);
+            },
+          });
 
-      tl.to(".pre-label", { opacity: 1, duration: 0.6 }, 0.2)
-        .to(".mask-line > span", { y: 0, duration: 1.0, stagger: 0.08 }, 0.35)
-        .to(".pre-tick", { scaleX: 1, duration: 0.9 }, 0.6)
-        .add("out", "+=1.3")
-        .to(
-          ".pre-inner",
-          { scale: 1.08, filter: "blur(18px)", opacity: 0, duration: 0.9, ease: "power3.inOut" },
-          "out"
-        )
-        .to(root.current, { opacity: 0, duration: 0.7, ease: "power2.inOut" }, "out+=0.35")
-        .call(() => markRevealed(), [], "out+=0.25");
-    }, root);
+          tl.to(".pre-label", { opacity: 1, duration: 0.6 }, 0.2)
+            .to(".mask-line > span", { y: 0, duration: 1.0, stagger: 0.08 }, 0.35)
+            .to(".pre-tick", { scaleX: 1, duration: 0.9 }, 0.6)
+            .add("out", "+=1.3")
+            .to(
+              ".pre-inner",
+              { scale: 1.08, filter: "blur(18px)", opacity: 0, duration: 0.9, ease: "power3.inOut" },
+              "out"
+            )
+            .to(root.current, { opacity: 0, duration: 0.7, ease: "power2.inOut" }, "out+=0.35")
+            .call(() => markRevealed(), [], "out+=0.25");
+        }, root);
+        return () => ctx.revert();
+      },
+      () => {
+        // Motion chunk failed — never trap the visitor behind the overlay.
+        finish();
+        setActive(false);
+        markRevealed();
+      }
+    );
 
     return () => {
       document.body.style.overflow = previousOverflow;
-      ctx.revert();
+      disposeMotion();
     };
   }, []);
 

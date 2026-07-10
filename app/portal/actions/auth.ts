@@ -15,12 +15,6 @@ import { getSiteUrl } from "@/lib/site-url";
 import { safeRedirectPath } from "./_helpers";
 
 const PASSWORD_SETUP_COOKIE = "amg_password_setup_user";
-const PUBLIC_ACCESS_REQUEST_MESSAGES = {
-  approved: "An AMG portal account already exists for this email. Please sign in or contact AMG Operations.",
-  pending: "AMG already has a pending portal access request for this email.",
-  waitlisted: "This portal access request is currently under AMG review. Please contact AMG Operations for more information.",
-  suspended: "Portal access for this email is currently suspended. Please contact AMG Operations for more information.",
-};
 
 function field(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();

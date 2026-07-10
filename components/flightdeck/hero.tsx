@@ -1,12 +1,9 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { runWithMotion } from "./motion";
 import { hasBooted, onReveal, prefersReducedMotion } from "./reveal";
 import { SITE } from "@/lib/site-config";
-
-gsap.registerPlugin(ScrollTrigger);
 
 /**
  * HERO — full-bleed stratosphere.
@@ -58,58 +55,71 @@ export default function Hero() {
   useLayoutEffect(() => {
     if (prefersReducedMotion()) return;
 
+    // Repeat navigation renders instantly with no hidden frame: the copy
+    // must not wait on the async motion chunk, so the CSS-hidden state
+    // ([data-fd-hidden]) is lifted synchronously before first paint —
+    // exactly what the old pre-paint gsap.set(opacity: 1) did.
+    const copy = copyLayer.current;
+    if (hasBooted() && copy) copy.style.opacity = "1";
+
     let offReveal: (() => void) | undefined;
-    const ctx = gsap.context(() => {
-      // Entrance: a short fade-up, first visit per session only — repeat
-      // navigation renders instantly with no hidden frame. The wrapper is
-      // addressed by ref (not selector text) so the tween is immune to
-      // whichever gsap.context is active when the reveal fires.
-      if (hasBooted()) {
-        gsap.set(copyLayer.current, { opacity: 1 });
-      } else {
-        gsap.set(copyLayer.current, { opacity: 0, y: 16 });
-        offReveal = onReveal(() => {
-          gsap.to(copyLayer.current, {
-            opacity: 1,
-            y: 0,
-            duration: 0.55,
-            ease: "power2.out",
-          });
-        });
-      }
+    const disposeMotion = runWithMotion(
+      ({ gsap, ScrollTrigger }) => {
+        const ctx = gsap.context(() => {
+          // Entrance: a short fade-up, first visit per session only. The
+          // wrapper is addressed by ref (not selector text) so the tween is
+          // immune to whichever gsap.context is active when the reveal fires.
+          if (!hasBooted()) {
+            gsap.set(copyLayer.current, { opacity: 0, y: 16 });
+            offReveal = onReveal(() => {
+              gsap.to(copyLayer.current, {
+                opacity: 1,
+                y: 0,
+                duration: 0.55,
+                ease: "power2.out",
+              });
+            });
+          }
 
-      // Background parallax: the sky settles from a slight zoom as the
-      // hero scrolls away. The scrims live inside the scaled layer, so
-      // no edge is ever revealed.
-      gsap.fromTo(
-        ".sky-screen",
-        { scale: 1.12 },
-        {
-          scale: 1,
-          ease: "none",
-          transformOrigin: "50% 40%",
-          scrollTrigger: {
+          // Background parallax: the sky settles from a slight zoom as the
+          // hero scrolls away. The scrims live inside the scaled layer, so
+          // no edge is ever revealed.
+          gsap.fromTo(
+            ".sky-screen",
+            { scale: 1.12 },
+            {
+              scale: 1,
+              ease: "none",
+              transformOrigin: "50% 40%",
+              scrollTrigger: {
+                trigger: section.current,
+                start: "top top",
+                end: "bottom top",
+                scrub: true,
+              },
+            }
+          );
+
+          // Pause the sky video whenever the hero is off-screen.
+          ScrollTrigger.create({
             trigger: section.current,
-            start: "top top",
+            start: "top bottom",
             end: "bottom top",
-            scrub: true,
-          },
-        }
-      );
-
-      // Pause the sky video whenever the hero is off-screen.
-      ScrollTrigger.create({
-        trigger: section.current,
-        start: "top bottom",
-        end: "bottom top",
-        onLeave: () => videoRef.current?.pause(),
-        onEnterBack: () => void videoRef.current?.play().catch(() => {}),
-      });
-    }, section);
+            onLeave: () => videoRef.current?.pause(),
+            onEnterBack: () => void videoRef.current?.play().catch(() => {}),
+          });
+        }, section);
+        return () => ctx.revert();
+      },
+      () => {
+        // Motion chunk failed — never leave the headline CSS-hidden.
+        if (copy) copy.style.opacity = "1";
+      }
+    );
 
     return () => {
       offReveal?.();
-      ctx.revert();
+      disposeMotion();
     };
   }, []);
 

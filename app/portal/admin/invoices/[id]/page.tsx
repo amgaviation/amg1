@@ -25,7 +25,7 @@ export default async function AdminInvoiceDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ success?: string; error?: string; amount?: string; email?: string }>;
 }) {
-  const user = await requireRolePermission("admin", "invoices");
+  await requireRolePermission("admin", "invoices");
   const { id } = await params;
   const flash = await searchParams;
   const invoice = await getInvoiceDetail(id);

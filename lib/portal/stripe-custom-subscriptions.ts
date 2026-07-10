@@ -2,7 +2,6 @@ import "server-only";
 
 import Stripe from "stripe";
 import { createServiceClient } from "@/lib/supabase/server";
-import { absolutePortalUrl } from "@/lib/email/config";
 import { OPERATIONAL_EMAIL_FOOTER } from "@/lib/email/templates";
 import { amgEmailLayout } from "@/lib/portal/email-templates";
 import { sendEmail } from "@/lib/portal/notification-delivery";
@@ -87,14 +86,6 @@ function siteUrl() {
     process.env.NEXT_PUBLIC_PORTAL_URL ??
     "https://www.amgaviationgroup.com"
   ).replace(/\/+$/, "");
-}
-
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }
 
 function money(cents: number) {

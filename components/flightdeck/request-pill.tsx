@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import gsap from "gsap";
+import { loadMotion, runWithMotion } from "./motion";
 import { prefersReducedMotion } from "./reveal";
 
 /**
@@ -27,53 +27,92 @@ export default function RequestPill() {
     if (!node || typeof IntersectionObserver === "undefined") return;
 
     const reduced = prefersReducedMotion();
-    // Start hidden in both motion modes. The reduced-motion stylesheet
-    // forces [data-fd-hidden] back to opacity 1, so autoAlpha (visibility)
-    // is what actually gates the pill there.
-    gsap.set(node, { autoAlpha: 0, y: reduced ? 0 : 16 });
+    // Start hidden in both motion modes — the synchronous equivalent of the
+    // old pre-chunk gsap.set(autoAlpha: 0). CSS keeps [data-fd-hidden] at
+    // opacity 0, but the reduced-motion stylesheet forces that back to 1,
+    // so visibility is what actually gates the pill there; it also keeps
+    // the invisible pill unclickable while the motion chunk is loading.
+    node.style.visibility = "hidden";
 
-    const watched: Element[] = [];
-    const hero = document.getElementById("top");
-    if (hero) watched.push(hero);
-    document
-      .querySelectorAll<HTMLAnchorElement>('.fd-site section a[href="/request"]')
-      .forEach((a) => {
-        const section = a.closest("section");
-        if (section && !watched.includes(section)) watched.push(section);
-      });
+    let cleanup: (() => void) | undefined;
+    let disposed = false;
 
-    const inView = new Set<Element>();
-    let shown = false;
-
-    const apply = () => {
-      const show = inView.size === 0;
-      if (show === shown) return;
-      shown = show;
-      // The footer timeline also scrubs pointer-events on .fd-pill;
-      // restore it explicitly whenever the pill comes back.
-      node.style.pointerEvents = show ? "auto" : "none";
-      if (reduced) {
-        gsap.set(node, { autoAlpha: show ? 1 : 0 });
-      } else {
-        gsap.to(node, {
-          autoAlpha: show ? 1 : 0,
-          y: show ? 0 : 16,
-          duration: show ? 0.6 : 0.35,
-          ease: "power3.out",
-          overwrite: "auto",
+    // One observer watches the hero plus every section carrying its own
+    // request CTA; `applyVisibility(show)` is the only per-motion-mode part.
+    const wire = (applyVisibility: (show: boolean) => void) => {
+      const watched: Element[] = [];
+      const hero = document.getElementById("top");
+      if (hero) watched.push(hero);
+      document
+        .querySelectorAll<HTMLAnchorElement>('.fd-site section a[href="/request"]')
+        .forEach((a) => {
+          const section = a.closest("section");
+          if (section && !watched.includes(section)) watched.push(section);
         });
-      }
+
+      const inView = new Set<Element>();
+      let shown = false;
+
+      const apply = () => {
+        const show = inView.size === 0;
+        if (show === shown) return;
+        shown = show;
+        // The footer timeline also scrubs pointer-events on .fd-pill;
+        // restore it explicitly whenever the pill comes back.
+        node.style.pointerEvents = show ? "auto" : "none";
+        applyVisibility(show);
+      };
+
+      const io = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) inView.add(entry.target);
+          else inView.delete(entry.target);
+        }
+        apply();
+      });
+      watched.forEach((el) => io.observe(el));
+      cleanup = () => io.disconnect();
     };
 
-    const io = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) inView.add(entry.target);
-        else inView.delete(entry.target);
-      }
-      apply();
-    });
-    watched.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+    if (reduced) {
+      // No motion chunk at all under reduced motion: flip visibility
+      // directly (matching what gsap.set(autoAlpha) used to do).
+      wire((show) => {
+        node.style.visibility = show ? "visible" : "hidden";
+      });
+    } else {
+      loadMotion().then(
+        ({ gsap }) => {
+          if (disposed) return;
+          gsap.set(node, { autoAlpha: 0, y: 16 });
+          wire((show) => {
+            gsap.to(node, {
+              autoAlpha: show ? 1 : 0,
+              y: show ? 0 : 16,
+              duration: show ? 0.6 : 0.35,
+              ease: "power3.out",
+              overwrite: "auto",
+            });
+          });
+        },
+        () => {
+          // Chunk failed — fall back to an unanimated toggle so the CTA
+          // still appears mid-page (opacity too: without reduced motion the
+          // [data-fd-hidden] CSS otherwise keeps it at 0).
+          if (!disposed) {
+            wire((show) => {
+              node.style.visibility = show ? "visible" : "hidden";
+              node.style.opacity = show ? "1" : "0";
+            });
+          }
+        }
+      );
+    }
+
+    return () => {
+      disposed = true;
+      cleanup?.();
+    };
   }, []);
 
   // Magnetic hover, motion permitting — the whole plate eases toward the
@@ -83,23 +122,26 @@ export default function RequestPill() {
 
     const el = plate.current;
     if (!el) return;
-    const xTo = gsap.quickTo(el, "x", { duration: 0.5, ease: "power3.out" });
-    const yTo = gsap.quickTo(el, "y", { duration: 0.5, ease: "power3.out" });
 
-    const onMove = (e: MouseEvent) => {
-      const r = el.getBoundingClientRect();
-      const dx = e.clientX - (r.left + r.width / 2);
-      const dy = e.clientY - (r.top + r.height / 2);
-      if (Math.hypot(dx, dy) < 140) {
-        xTo(dx * 0.35);
-        yTo(dy * 0.35);
-      } else {
-        xTo(0);
-        yTo(0);
-      }
-    };
-    window.addEventListener("mousemove", onMove);
-    return () => window.removeEventListener("mousemove", onMove);
+    return runWithMotion(({ gsap }) => {
+      const xTo = gsap.quickTo(el, "x", { duration: 0.5, ease: "power3.out" });
+      const yTo = gsap.quickTo(el, "y", { duration: 0.5, ease: "power3.out" });
+
+      const onMove = (e: MouseEvent) => {
+        const r = el.getBoundingClientRect();
+        const dx = e.clientX - (r.left + r.width / 2);
+        const dy = e.clientY - (r.top + r.height / 2);
+        if (Math.hypot(dx, dy) < 140) {
+          xTo(dx * 0.35);
+          yTo(dy * 0.35);
+        } else {
+          xTo(0);
+          yTo(0);
+        }
+      };
+      window.addEventListener("mousemove", onMove);
+      return () => window.removeEventListener("mousemove", onMove);
+    });
   }, []);
 
   return (

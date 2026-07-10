@@ -17,7 +17,7 @@ export default async function NewQuotePage({
 }: {
   searchParams: Promise<{ template?: string }>;
 }) {
-  const user = await requireRolePermission("admin", "quotes", "add");
+  await requireRolePermission("admin", "quotes", "add");
   const { template: templateId } = await searchParams;
   const [clients, missions, templates] = await Promise.all([
     listClients(),

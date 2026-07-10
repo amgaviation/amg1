@@ -63,7 +63,7 @@ export default async function AdminTripsPage({
     page?: string;
   }>;
 }) {
-  const user = await requireRolePermission("admin", "missions");
+  await requireRolePermission("admin", "missions");
   const params = await searchParams;
   const statuses = parseStatuses(params.status);
   // Exact filters run in the database; free-text search and sort stay in

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SectionCard } from "@/components/portal/ui/primitives";
-import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
+import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import {

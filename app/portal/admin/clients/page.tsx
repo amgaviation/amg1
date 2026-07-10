@@ -61,7 +61,7 @@ export default async function AdminClientsPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRolePermission("admin", "clients");
+  await requireRolePermission("admin", "clients");
   const params = await searchParams;
   const [clients, aircraft, missions, quotes, invoices, documents, subscriptions] = await Promise.all([
     listClients(),

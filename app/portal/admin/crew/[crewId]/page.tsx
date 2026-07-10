@@ -123,7 +123,7 @@ export default async function AdminCrewDetailPage({
   params: Promise<{ crewId: string }>;
   searchParams: Promise<{ success?: string; error?: string; email?: string; email_error?: string; ref?: string }>;
 }) {
-  const user = await requireRolePermission("admin", "crew");
+  await requireRolePermission("admin", "crew");
   const { crewId } = await params;
   const query = await searchParams;
 

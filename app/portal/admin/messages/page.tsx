@@ -415,7 +415,7 @@ export default async function AdminMessagesPage({
 }: {
   searchParams: Promise<{ thread?: string; view?: string; q?: string; status?: string; priority?: string; compose?: string; success?: string; error?: string; ref?: string }>;
 }) {
-  const user = await requireRolePermission("admin", "messages");
+  await requireRolePermission("admin", "messages");
   const params = await searchParams;
   const provider = emailProviderStatus();
   const query = new URLSearchParams();
