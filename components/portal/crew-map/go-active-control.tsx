@@ -179,7 +179,7 @@ export function GoActiveControl({
             type="button"
             onClick={offline}
             disabled={pending}
-            className="ml-auto rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-1.5 text-xs font-semibold text-[var(--deck-text)] transition-colors hover:border-[var(--deck-danger-line)] hover:text-[var(--deck-danger)] disabled:opacity-60"
+            className="ml-auto rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-1.5 text-xs font-semibold text-[var(--deck-text)] transition-colors hover:border-[var(--deck-danger-line)] hover:text-[var(--deck-danger)] disabled:opacity-60"
           >
             {pending ? "…" : "Go offline"}
           </button>
@@ -196,7 +196,7 @@ export function GoActiveControl({
         <button
           type="button"
           disabled
-          className="cursor-not-allowed rounded-full bg-[var(--deck-line)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-3)]"
+          className="cursor-not-allowed rounded-md bg-[var(--deck-line)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-3)]"
         >
           Go active
         </button>
@@ -216,9 +216,9 @@ export function GoActiveControl({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-full bg-[var(--deck-accent)] px-4 py-2 text-xs font-semibold text-white shadow-[0_0_28px_rgba(11,94,212,0.3)] transition-shadow hover:shadow-[0_0_44px_rgba(11,94,212,0.5)]"
+        className="inline-flex items-center gap-2 rounded-md bg-[var(--deck-accent)] px-4 py-2 text-xs font-semibold text-[var(--deck-on-accent)] transition-colors hover:opacity-90"
       >
-        <span className="h-2 w-2 rounded-full bg-white" />
+        <span className="h-2 w-2 rounded-full bg-[var(--deck-on-accent)]" />
         Go active
       </button>
 
@@ -228,14 +228,14 @@ export function GoActiveControl({
             type="button"
             aria-label="Close"
             onClick={() => setOpen(false)}
-            className="absolute inset-0 bg-[rgba(7,11,20,0.6)] backdrop-blur-sm"
+            className="absolute inset-0 bg-[var(--deck-scrim)] backdrop-blur-sm"
           />
           <div
             ref={panelRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby="go-active-title"
-            className="relative w-full max-w-md rounded-t-2xl border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] p-5 sm:rounded-2xl"
+            className="relative w-full max-w-md rounded-t-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] p-5 sm:rounded-lg"
           >
             <h3 id="go-active-title" className="text-base font-semibold text-[var(--deck-text)]">
               Go active for assignments
@@ -255,7 +255,7 @@ export function GoActiveControl({
                   type="button"
                   onClick={() => setAirport(a.code)}
                   className={cn(
-                    "rounded-full border px-3 py-1.5 text-xs transition-colors",
+                    "rounded-[0.25rem] border px-3 py-1.5 text-xs transition-colors",
                     airport === a.code
                       ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]"
                       : "border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] text-[var(--deck-text)]"
@@ -337,7 +337,7 @@ export function GoActiveControl({
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-full border border-[var(--deck-line-strong)] px-4 py-2 text-sm text-[var(--deck-text-2)]"
+                className="rounded-md border border-[var(--deck-line-strong)] px-4 py-2 text-sm text-[var(--deck-text-2)]"
               >
                 Cancel
               </button>
@@ -345,7 +345,7 @@ export function GoActiveControl({
                 type="button"
                 onClick={confirm}
                 disabled={pending || !airport}
-                className="ml-auto rounded-full bg-[var(--deck-accent)] px-5 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                className="ml-auto rounded-md bg-[var(--deck-accent)] px-5 py-2 text-sm font-semibold text-[var(--deck-on-accent)] disabled:opacity-60"
               >
                 {pending ? "Going active…" : `Go active · ${airport || "pick airport"}`}
               </button>

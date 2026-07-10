@@ -134,7 +134,7 @@ export function ChipRow({ items, empty = "—" }: { items: string[]; empty?: str
       {items.map((t) => (
         <span
           key={t}
-          className="rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-2.5 py-1 text-xs text-[var(--deck-text)]"
+          className="rounded-[0.25rem] border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-2.5 py-1 text-xs text-[var(--deck-text)]"
         >
           {t}
         </span>

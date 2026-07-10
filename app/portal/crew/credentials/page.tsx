@@ -101,8 +101,8 @@ export default async function CrewCredentialsPage({
         <Notice tone="info">
           Credential uploads are reviewed for assignment suitability and do not guarantee approval or work. Upload only
           documents you are authorized to provide. Review the{" "}
-          <Link href="/legal/credential-submission" className="font-semibold text-accent hover:underline">Credential Submission Notice</Link>{" "}
-          and <Link href="/legal/document-upload-terms" className="font-semibold text-accent hover:underline">Document Upload Terms</Link>.
+          <Link href="/legal/credential-submission" className="font-semibold text-[var(--deck-accent-ink)] hover:underline">Credential Submission Notice</Link>{" "}
+          and <Link href="/legal/document-upload-terms" className="font-semibold text-[var(--deck-accent-ink)] hover:underline">Document Upload Terms</Link>.
         </Notice>
         <form action={addCredential} encType="multipart/form-data" className="grid gap-4 lg:grid-cols-4">
           <SelectField label="Credential Type" name="credential_type" required defaultValue="" placeholder="Select type..." options={CREDENTIAL_TYPES.map((t) => ({ value: t, label: t }))} />
@@ -112,7 +112,7 @@ export default async function CrewCredentialsPage({
           <div className="lg:col-span-3">
             <FileField label="Credential File" name="file" accept=".pdf,.jpg,.jpeg,.png" />
           </div>
-          <label className="lg:col-span-4 flex items-start gap-3 rounded-md border border-border bg-background/60 p-3 text-sm text-muted-foreground">
+          <label className="deck-inset lg:col-span-4 flex items-start gap-3 p-3 text-sm text-[var(--deck-text-2)]">
             <input name="document_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-accent)]" />
             <span>I acknowledge the credential submission notice and document upload terms, and I will not submit full card numbers, CVV codes, bank account numbers, routing numbers, or unrelated sensitive information.</span>
           </label>
@@ -130,17 +130,17 @@ export default async function CrewCredentialsPage({
             {credentials.map((credential) => {
               const days = daysUntil(credential.expiration_date);
               return (
-                <div key={credential.id} className="grid gap-3 rounded-md border border-border bg-background/50 p-4 sm:grid-cols-[1fr_auto_auto]">
+                <div key={credential.id} className="deck-inset grid gap-3 p-4 sm:grid-cols-[1fr_auto_auto]">
                   <div>
                     <p className="text-sm font-semibold">{credential.credential_type}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
+                    <p className="mt-1 text-xs text-[var(--deck-text-2)]">
                       {credential.identifier ?? "No identifier"} | Expires {formatDate(credential.expiration_date)}
                       {days !== null ? ` | ${days < 0 ? "Expired" : `${days} days remaining`}` : ""}
                     </p>
                   </div>
                   <StatusBadge label={CREDENTIAL_STATUS_LABEL[credential.status] ?? credential.status} tone={toneFor(CREDENTIAL_STATUS_TONE, credential.status)} />
                   {credential.document_id ? (
-                    <Link href={`/portal/documents/${credential.document_id}/view`} className="text-sm text-accent hover:underline">View</Link>
+                    <Link href={`/portal/documents/${credential.document_id}/view`} className="text-sm text-[var(--deck-accent-ink)] hover:underline">View</Link>
                   ) : null}
                 </div>
               );

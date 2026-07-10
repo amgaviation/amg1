@@ -39,16 +39,16 @@ function FileList({
   backTo: string;
 }) {
   const visible = files.filter((file) => file.file_kind === kind);
-  if (!visible.length) return <p className="text-sm text-muted-foreground">No files uploaded.</p>;
+  if (!visible.length) return <p className="text-sm text-[var(--deck-text-2)]">No files uploaded.</p>;
   return (
     <div className="space-y-2">
       {visible.map((file) => (
-        <div key={file.id} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background/60 px-3 py-2">
+        <div key={file.id} className="deck-inset flex items-center justify-between gap-3 px-3 py-2">
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold">{file.original_filename}</p>
-            <p className="text-xs text-muted-foreground">{file.content_type ?? "File"} · {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : "Size unavailable"}</p>
+            <p className="text-xs text-[var(--deck-text-2)]">{file.content_type ?? "File"} · {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : "Size unavailable"}</p>
           </div>
-          <Link href={`/portal/admin/network-application-files/${file.id}/view`} className="rounded-md border border-border px-3 py-2 text-xs font-semibold text-foreground hover:border-[var(--deck-accent)]">
+          <Link href={`/portal/admin/network-application-files/${file.id}/view`} className="rounded-md border border-[var(--deck-line)] px-3 py-2 text-xs font-semibold text-[var(--deck-text)] hover:border-[var(--deck-accent-line)]">
             View
           </Link>
         </div>
@@ -90,7 +90,7 @@ export default async function NetworkApplicationDetailPage({
         eyebrow="Network Applications"
         title={application.full_name}
         description={`${application.email} · ${application.home_airport} coverage`}
-        actions={<Link href="/portal/admin/network-applications" className="text-sm font-medium text-accent hover:underline">Back to applications</Link>}
+        actions={<Link href="/portal/admin/network-applications" className="text-sm font-medium text-[var(--deck-accent-ink)] hover:underline">Back to applications</Link>}
       />
 
       <div className="grid gap-6 xl:grid-cols-[1fr_24rem]">
@@ -223,7 +223,7 @@ export default async function NetworkApplicationDetailPage({
           {application.crew_profile_id ? (
             <SectionCard title="Approved Crew Profile" icon="users">
               <DetailRow label="Profile">
-                <Link href={`/portal/admin/crew/${application.crew_profile_id}`} className="text-accent hover:underline">Open crew profile</Link>
+                <Link href={`/portal/admin/crew/${application.crew_profile_id}`} className="text-[var(--deck-accent-ink)] hover:underline">Open crew profile</Link>
               </DetailRow>
               <DetailRow label="Completion">{application.crewProfile?.profile_completion_percent ?? 0}%</DetailRow>
               <DetailRow label="Updated">{application.crewProfile?.updated_at ? formatDateTime(application.crewProfile.updated_at) : "-"}</DetailRow>

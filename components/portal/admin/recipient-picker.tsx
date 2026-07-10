@@ -188,7 +188,7 @@ export function RecipientPicker({
           />
           <ChevronDown
             className={cn(
-              "mr-3 h-4 w-4 shrink-0 text-[var(--deck-text-3)] transition-transform",
+              "mr-3 h-4 w-4 shrink-0 text-[var(--deck-text-3)]",
               open && "rotate-180"
             )}
             aria-hidden
@@ -199,7 +199,7 @@ export function RecipientPicker({
           <div
             id="recipient-picker-listbox"
             role="listbox"
-            className="absolute inset-x-0 top-full z-30 mt-1 max-h-64 overflow-y-auto rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] py-1 shadow-[0_16px_40px_-18px_rgba(7,11,20,0.5)]"
+            className="absolute inset-x-0 top-full z-30 mt-1 max-h-64 overflow-y-auto rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] py-1 shadow-[var(--deck-shadow-pop)]"
           >
             {typedEmails.length ? (
               <button

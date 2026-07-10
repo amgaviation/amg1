@@ -147,9 +147,9 @@ export default async function ClientTripDetailPage({
             <SectionCard title="Passenger Manifest" icon="users">
               <div className="space-y-2">
                 {mission.passengers.map((p) => (
-                  <div key={p.id} className="flex items-center justify-between rounded-md border border-border bg-background/50 px-4 py-2 text-sm">
+                  <div key={p.id} className="deck-inset flex items-center justify-between px-4 py-2 text-sm">
                     <span className="font-medium">{p.full_name}</span>
-                    <span className="text-xs text-muted-foreground capitalize">{p.passenger_type}</span>
+                    <span className="text-xs text-[var(--deck-text-2)] capitalize">{p.passenger_type}</span>
                   </div>
                 ))}
               </div>
@@ -158,7 +158,7 @@ export default async function ClientTripDetailPage({
 
           {mission.client_notes ? (
             <SectionCard title="Client Notes" icon="fileText">
-              <p className="text-sm leading-6 text-muted-foreground">{mission.client_notes}</p>
+              <p className="text-sm leading-6 text-[var(--deck-text-2)]">{mission.client_notes}</p>
             </SectionCard>
           ) : null}
 
@@ -166,9 +166,9 @@ export default async function ClientTripDetailPage({
             <SectionCard title="Quotes" icon="receipt">
               <div className="space-y-2">
                 {mission.quotes.map((q) => (
-                  <Link key={q.id} href={`/portal/client/quotes/${q.id}`} className="flex items-center justify-between rounded-md border border-border bg-background/50 px-4 py-3 hover:border-accent/60">
+                  <Link key={q.id} href={`/portal/client/quotes/${q.id}`} className="deck-inset deck-card-hover flex items-center justify-between px-4 py-3">
                     <div>
-                      <p className="font-mono text-xs text-accent">{q.ref}</p>
+                      <p className="font-mono text-xs text-[var(--deck-accent-ink)]">{q.ref}</p>
                       <p className="mt-0.5 text-sm font-semibold">${q.total.toLocaleString()}</p>
                     </div>
                     <StatusBadge label={q.status} tone={q.status === "approved" ? "success" : q.status === "sent" ? "accent" : "neutral"} />
@@ -199,9 +199,9 @@ export default async function ClientTripDetailPage({
             <SectionCard title="Assigned Crew" icon="users">
               <div className="space-y-2">
                 {mission.crew.map((ca) => (
-                  <div key={ca.id} className="rounded-md border border-border bg-background/50 px-4 py-3">
+                  <div key={ca.id} className="deck-inset px-4 py-3">
                     <p className="text-sm font-semibold">{ca.crew?.full_name ?? "—"}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground uppercase [letter-spacing:0.08em]">{ca.crew_role} · {ca.status}</p>
+                    <p className="mt-0.5 text-xs text-[var(--deck-text-2)] uppercase [letter-spacing:0.08em]">{ca.crew_role} · {ca.status}</p>
                   </div>
                 ))}
               </div>
@@ -209,11 +209,11 @@ export default async function ClientTripDetailPage({
           ) : null}
 
           <SectionCard title="Messages" icon="messageSquare" actions={<Button asChild size="sm" variant="outline" className="text-xs"><Link href="/portal/client/messages">Open</Link></Button>}>
-            <p className="text-sm text-muted-foreground">Message AMG Operations about this mission.</p>
+            <p className="text-sm text-[var(--deck-text-2)]">Message AMG Operations about this mission.</p>
           </SectionCard>
 
           <SectionCard title="Documents" icon="fileText" actions={<Button asChild size="sm" variant="outline" className="text-xs"><Link href="/portal/client/documents">View all</Link></Button>}>
-            <p className="text-sm text-muted-foreground">Mission documents and flight packets.</p>
+            <p className="text-sm text-[var(--deck-text-2)]">Mission documents and flight packets.</p>
           </SectionCard>
         </div>
       </div>

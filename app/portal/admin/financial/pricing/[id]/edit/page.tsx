@@ -48,10 +48,10 @@ export default async function EditServicePage({
         description={`${service.name} — cost type is permanent; price changes close the old price row and open a new one on the start date you choose (today by default).`}
         actions={
           <>
-            <Link href={`${BASE}/${service.id}`} className="text-xs text-muted-foreground hover:text-accent">
+            <Link href={`${BASE}/${service.id}`} className="text-xs text-[var(--deck-text-2)] hover:text-[var(--deck-accent-ink)]">
               View detail
             </Link>
-            <Link href={BASE} className="text-xs text-muted-foreground hover:text-accent">
+            <Link href={BASE} className="text-xs text-[var(--deck-text-2)] hover:text-[var(--deck-accent-ink)]">
               Back to catalog
             </Link>
           </>

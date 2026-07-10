@@ -565,7 +565,7 @@ export default async function AdminMessagesPage({
       </SectionCard>
 
       {params.compose ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(10,19,34,0.6)] p-4" role="dialog" aria-modal="true" aria-label="Compose email">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--deck-scrim)] p-4" role="dialog" aria-modal="true" aria-label="Compose email">
           <div className="max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] shadow-[var(--deck-shadow-card)]">
             <header className="flex items-start justify-between gap-4 border-b border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-5 py-4">
               <div>

@@ -406,7 +406,7 @@ export default async function AdminSubscriptionsPage({
             { header: "Received", cell: (row) => formatDateTime(row.received_at ?? row.created_at) },
             { header: "Processed", cell: (row) => formatDateTime(row.processed_at) },
             { header: "Status", cell: (row) => <StatusBadge label={row.status} tone={row.status === "failed" || row.status === "retry_needed" ? "danger" : row.status === "processed" ? "success" : "neutral"} /> },
-            { header: "Subscription", cell: (row) => row.portal_subscription_id ? <Link href={`${basePath}/${row.portal_subscription_id}`} className="text-accent hover:underline">Open</Link> : row.stripe_subscription_id ?? "-" },
+            { header: "Subscription", cell: (row) => row.portal_subscription_id ? <Link href={`${basePath}/${row.portal_subscription_id}`} className="text-[var(--deck-accent-ink)] hover:underline">Open</Link> : row.stripe_subscription_id ?? "-" },
             { header: "Invoice", cell: (row) => row.stripe_invoice_id ?? "-" },
             { header: "Error", cell: (row) => row.error ?? "-" },
           ]}
@@ -428,18 +428,18 @@ export default async function AdminSubscriptionsPage({
         ) : (
           <div className="space-y-3">
             {plans.map((plan) => (
-              <div key={plan.id} className="rounded-lg border border-border bg-[var(--deck-panel-2)] p-4">
+              <div key={plan.id} className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold">{plan.name}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{plan.aircraft_category ?? "All aircraft"} · {plan.description ?? "No description"}</p>
+                    <p className="mt-1 text-xs text-[var(--deck-text-2)]">{plan.aircraft_category ?? "All aircraft"} · {plan.description ?? "No description"}</p>
                   </div>
                   <StatusBadge label={SUBSCRIPTION_PLAN_STATUS_LABEL[plan.status] ?? plan.status} tone={toneFor(SUBSCRIPTION_PLAN_STATUS_TONE, plan.status)} />
                 </div>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
                   {plan.tiers.map((tier) => (
-                    <div key={tier.id} className="rounded-md border border-border/70 p-3 text-xs text-muted-foreground">
-                      <p className="font-semibold text-foreground">{tier.name}</p>
+                    <div key={tier.id} className="rounded-md border border-[var(--deck-line)] p-3 text-xs text-[var(--deck-text-2)]">
+                      <p className="font-semibold text-[var(--deck-text)]">{tier.name}</p>
                       <p>{tier.included_flights} flights · {tier.included_mx_repositions} MX repositions · {tier.included_admin_hours} admin hrs</p>
                       <p>{formatMoney(tier.monthly_price)} monthly · {formatMoney(tier.annual_price)} annual</p>
                       <p>Test monthly: {tier.stripe_test_monthly_price_id ?? tier.stripe_monthly_price_id ?? "not mapped"}</p>

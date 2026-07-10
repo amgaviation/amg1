@@ -172,28 +172,28 @@ export default async function NewTripPage({
                 placeholder="Anything else AMG Operations should know"
               />
             </div>
-            <div className="mt-4 grid gap-3 text-sm leading-relaxed text-muted-foreground">
-              <p className="rounded-md border border-border bg-background/60 p-3">
+            <div className="mt-4 grid gap-3 text-sm leading-relaxed text-[var(--deck-text-2)]">
+              <p className="deck-inset p-3">
                 AMG Aviation does not provide emergency response services through this website or portal.
                 Time-sensitive requests remain subject to review, availability, and operational conditions.
               </p>
-              <p className="rounded-md border border-border bg-background/60 p-3">
+              <p className="deck-inset p-3">
                 AMG Aviation&apos;s website and portal may be accessible internationally. Service availability, vendor
                 participation, crew availability, regulatory requirements, and operational support may vary by location
                 and remain subject to review.
               </p>
-              <p className="rounded-md border border-border bg-background/60 p-3">
+              <p className="deck-inset p-3">
                 Do not enter full credit card numbers, CVV codes, bank account numbers, or routing numbers. AMG does
                 not process payment card or bank account payments through this website or portal.
               </p>
             </div>
-            <label className="mt-4 flex items-start gap-3 rounded-md border border-border bg-background/60 p-3 text-sm text-muted-foreground">
+            <label className="deck-inset mt-4 flex items-start gap-3 p-3 text-sm text-[var(--deck-text-2)]">
               <input name="support_disclaimer_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-accent)]" />
               <span>Submitting this request does not create an accepted assignment, confirmed service, emergency response, or operational commitment. AMG reviews scope, aircraft status, crew availability, owner/operator approval, and operating conditions before acceptance.</span>
             </label>
           </SectionCard>
 
-          <div className="flex items-center justify-end gap-3 border-t border-border pt-4">
+          <div className="flex items-center justify-end gap-3 border-t border-[var(--deck-line)] pt-4">
             <SubmitButton pendingText="Submitting…">
               Submit Trip Request
             </SubmitButton>

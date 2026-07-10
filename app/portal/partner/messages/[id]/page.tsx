@@ -26,7 +26,7 @@ export default async function PartnerThreadPage({ params }: { params: Promise<{ 
 
   return (
     <>
-      <PageHeader eyebrow="Messages" title={result.thread.title ?? "AMG Operations"} actions={<Link href="/portal/partner/messages" className="text-xs text-muted-foreground hover:text-accent">Back to threads</Link>} />
+      <PageHeader eyebrow="Messages" title={result.thread.title ?? "AMG Operations"} actions={<Link href="/portal/partner/messages" className="text-xs text-[var(--deck-text-2)] hover:text-[var(--deck-accent-ink)]">Back to threads</Link>} />
       <SectionCard icon="messageSquare">
         <div className="space-y-4">
           {result.messages.map((message) => {
@@ -34,21 +34,21 @@ export default async function PartnerThreadPage({ params }: { params: Promise<{ 
             const senderLabel = messageSenderName(message, user.id, user.role);
             return (
               <div key={message.id} className={`flex gap-3 ${isMe ? "flex-row-reverse" : ""}`}>
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-secondary text-xs font-bold">{initials(messageSenderInitialsSource(message))}</div>
-                <div className={`max-w-[75%] rounded-md border px-4 py-3 ${isMe ? "border-accent/30 bg-accent/10" : "border-border bg-card"}`}>
-                  <p className="mb-1 text-xs font-semibold text-muted-foreground">{senderLabel}</p>
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--deck-line)] bg-[var(--deck-panel-2)] text-xs font-bold">{initials(messageSenderInitialsSource(message))}</div>
+                <div className={`max-w-[75%] rounded-md border px-4 py-3 ${isMe ? "border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)]" : "border-[var(--deck-line)] bg-[var(--deck-panel)]"}`}>
+                  <p className="mb-1 text-xs font-semibold text-[var(--deck-text-2)]">{senderLabel}</p>
                   <p className="text-sm leading-6">{message.body}</p>
-                  <p className="mt-1 text-[0.65rem] text-muted-foreground">{formatDateTime(message.created_at)}</p>
+                  <p className="mt-1 text-[0.65rem] text-[var(--deck-text-2)]">{formatDateTime(message.created_at)}</p>
                 </div>
               </div>
             );
           })}
         </div>
-        <form action={postMessage} className="mt-6 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row">
+        <form action={postMessage} className="mt-6 flex flex-col gap-3 border-t border-[var(--deck-line)] pt-5 sm:flex-row">
           <input type="hidden" name="thread_id" value={result.thread.id} />
           <input type="hidden" name="back_to" value="/portal/partner/messages" />
-          <textarea name="body" required placeholder="Type your message..." className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-accent" rows={3} />
-          <div className="flex items-end max-sm:[&_button]:w-full max-sm:[&>*]:w-full"><SubmitButton className="rounded-full" pendingText="Sending...">Send</SubmitButton></div>
+          <textarea name="body" required placeholder="Type your message..." className="deck-input flex-1" rows={3} />
+          <div className="flex items-end max-sm:[&_button]:w-full max-sm:[&>*]:w-full"><SubmitButton pendingText="Sending...">Send</SubmitButton></div>
         </form>
       </SectionCard>
     </>

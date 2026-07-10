@@ -77,7 +77,7 @@ function MetricCard({ metric }: { metric: FinancialMetric }) {
           </span>
         ) : null}
       </div>
-      <p className="mt-4 font-display text-3xl font-extrabold leading-none text-[var(--deck-chrome-text)] sm:text-4xl">{metric.formatted}</p>
+      <p className="deck-display mt-4 text-3xl leading-none text-[var(--deck-chrome-text)] sm:text-4xl">{metric.formatted}</p>
       <p className="mt-3 text-xs leading-5 text-[var(--deck-chrome-muted)]">{metric.detail}</p>
       <p
         className="deck-eyebrow-chrome mt-3 truncate border-t border-[var(--deck-chrome-line)] pt-3 !text-[0.6rem]"
@@ -114,7 +114,7 @@ function BarChart({ points, secondaryLabel }: { points: ChartPoint[]; secondaryL
           <span className="text-right font-mono text-[var(--deck-text-2)]">{formatMoney(point.value)}</span>
         </div>
       ))}
-      {secondaryLabel ? <p className="text-xs text-muted-foreground">Green is money in. Blue is {secondaryLabel}.</p> : null}
+      {secondaryLabel ? <p className="text-xs text-[var(--deck-text-2)]">Green is money in. Blue is {secondaryLabel}.</p> : null}
     </div>
   );
 }
@@ -139,7 +139,7 @@ function BreakdownChart({ points }: { points: BreakdownPoint[] }) {
 
 function EmptyChart() {
   return (
-    <div className="flex min-h-44 items-center justify-center rounded-md border border-dashed border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] px-4 text-center text-sm text-muted-foreground">
+    <div className="flex min-h-44 items-center justify-center rounded-md border border-dashed border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] px-4 text-center text-sm text-[var(--deck-text-2)]">
       No data available for this chart.
     </div>
   );
@@ -319,7 +319,7 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
         </div>
       </section>
 
-      <div className="flex gap-2 overflow-x-auto rounded-md border border-border bg-[var(--deck-panel)] p-2">
+      <div className="flex gap-2 overflow-x-auto rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-2">
         {TABS.map((tab) => (
           <button
             key={tab}
@@ -327,7 +327,7 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
             onClick={() => setActiveTab(tab)}
             className={cn(
               "min-h-10 shrink-0 rounded-md px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]",
-              activeTab === tab ? "bg-[var(--deck-accent)] text-[var(--deck-accent-ink)]" : "text-[var(--deck-text-2)] hover:bg-[var(--deck-panel-2)] hover:text-[var(--deck-text)]",
+              activeTab === tab ? "bg-[var(--deck-accent)] text-[var(--deck-on-accent)]" : "text-[var(--deck-text-2)] hover:bg-[var(--deck-panel-2)] hover:text-[var(--deck-text)]",
             )}
           >
             {tab}
@@ -391,7 +391,7 @@ function RevenueTab({ data }: { data: FinancialAnalyticsData }) {
         columns={[
           { header: "Paid", cell: (row) => formatDateTime(row.paidAt), priority: "primary" },
           { header: "Client", cell: (row) => row.client },
-          { header: "Reference", cell: (row) => row.href ? <Link href={row.href} className="font-mono text-xs text-accent hover:underline">{row.reference}</Link> : row.reference },
+          { header: "Reference", cell: (row) => row.href ? <Link href={row.href} className="font-mono text-xs text-[var(--deck-accent-ink)] hover:underline">{row.reference}</Link> : row.reference },
           { header: "Source", cell: (row) => labelize(row.source) },
           { header: "Provider", cell: (row) => row.provider },
           { header: "Method", cell: (row) => row.paymentMethod },
@@ -413,7 +413,7 @@ function InvoicesTab({ data }: { data: FinancialAnalyticsData }) {
         getHref={(row) => row.href}
         emptyLabel="No invoices created."
         columns={[
-          { header: "Invoice", cell: (row) => <span className="font-mono text-xs text-accent">{row.invoiceNumber}</span>, priority: "primary" },
+          { header: "Invoice", cell: (row) => <span className="font-mono text-xs text-[var(--deck-accent-ink)]">{row.invoiceNumber}</span>, priority: "primary" },
           { header: "Client", cell: (row) => row.client },
           { header: "Total", cell: (row) => formatMoney(row.amount), align: "right" },
           { header: "Due", cell: (row) => formatMoney(row.amountDue), align: "right" },
@@ -545,12 +545,12 @@ function ReportsTab({ data, exportActive, exportJson }: { data: FinancialAnalyti
       <SectionCard title="Available Reports" icon="fileText" description="Downloads are generated in-browser from the current real analytics payload.">
         <div className="grid gap-3 sm:grid-cols-2">
           {["Revenue ledger", "Invoice aging", "Subscription report", "Expense report", "Client summary", "Stripe health"].map((label) => (
-            <button key={label} type="button" onClick={exportActive} className="min-h-16 rounded-md border border-border bg-[var(--deck-panel)] px-4 text-left text-sm font-semibold text-[var(--deck-text)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]">
+            <button key={label} type="button" onClick={exportActive} className="min-h-16 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-4 text-left text-sm font-semibold text-[var(--deck-text)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]">
               {label}
-              <span className="mt-1 block text-xs font-normal text-muted-foreground">Exports the active tab as CSV.</span>
+              <span className="mt-1 block text-xs font-normal text-[var(--deck-text-2)]">Exports the active tab as CSV.</span>
             </button>
           ))}
-          <button type="button" onClick={exportJson} className="min-h-16 rounded-md border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-4 text-left text-sm font-semibold text-[var(--deck-accent-ink)] transition-colors hover:bg-[var(--deck-accent)] hover:text-[var(--deck-accent-ink)]">
+          <button type="button" onClick={exportJson} className="min-h-16 rounded-md border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-4 text-left text-sm font-semibold text-[var(--deck-accent-ink)] transition-colors hover:bg-[var(--deck-accent)] hover:text-[var(--deck-on-accent)]">
             Full analytics JSON
             <span className="mt-1 block text-xs font-normal text-[var(--deck-accent-ink)]/70">Includes metrics, charts, tables, data gaps, and Stripe health.</span>
           </button>
@@ -558,10 +558,10 @@ function ReportsTab({ data, exportActive, exportJson }: { data: FinancialAnalyti
       </SectionCard>
       <SectionCard title="Rerun Inputs" icon="settings">
         <dl className="space-y-3 text-sm">
-          <div><dt className="font-semibold text-[var(--deck-text)]">workflow</dt><dd className="font-mono text-xs text-muted-foreground">amg-financial-analytics</dd></div>
-          <div><dt className="font-semibold text-[var(--deck-text)]">date_range</dt><dd className="font-mono text-xs text-muted-foreground">{data.dateRange.label}</dd></div>
-          <div><dt className="font-semibold text-[var(--deck-text)]">reported_at</dt><dd className="font-mono text-xs text-muted-foreground">{data.reportedAt}</dd></div>
-          <div><dt className="font-semibold text-[var(--deck-text)]">sources</dt><dd className="text-xs leading-5 text-muted-foreground">payments, invoices, quotes, expenses, client_subscriptions, subscription_billing_invoices, stripe_webhook_events</dd></div>
+          <div><dt className="font-semibold text-[var(--deck-text)]">workflow</dt><dd className="font-mono text-xs text-[var(--deck-text-2)]">amg-financial-analytics</dd></div>
+          <div><dt className="font-semibold text-[var(--deck-text)]">date_range</dt><dd className="font-mono text-xs text-[var(--deck-text-2)]">{data.dateRange.label}</dd></div>
+          <div><dt className="font-semibold text-[var(--deck-text)]">reported_at</dt><dd className="font-mono text-xs text-[var(--deck-text-2)]">{data.reportedAt}</dd></div>
+          <div><dt className="font-semibold text-[var(--deck-text)]">sources</dt><dd className="text-xs leading-5 text-[var(--deck-text-2)]">payments, invoices, quotes, expenses, client_subscriptions, subscription_billing_invoices, stripe_webhook_events</dd></div>
         </dl>
       </SectionCard>
     </div>

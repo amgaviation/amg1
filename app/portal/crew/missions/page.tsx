@@ -27,12 +27,12 @@ function PoolMissionCard({ mission }: { mission: PoolMission }) {
   const request = mission.my_request_status ? POOL_REQUEST_LABEL[mission.my_request_status] : null;
 
   return (
-    <div className="rounded-md border border-border bg-background/50 p-4">
+    <div className="deck-inset p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-xs text-accent">{mission.ref}</span>
-            <span className="text-xs text-muted-foreground">{labelFor(MISSION_TYPE_LABEL, mission.mission_type)}</span>
+            <span className="font-mono text-xs text-[var(--deck-accent-ink)]">{mission.ref}</span>
+            <span className="text-xs text-[var(--deck-text-2)]">{labelFor(MISSION_TYPE_LABEL, mission.mission_type)}</span>
             {mission.urgency !== "standard" ? (
               <StatusBadge label={labelFor(URGENCY_LABEL, mission.urgency)} tone={toneFor(URGENCY_TONE, mission.urgency)} />
             ) : null}
@@ -44,34 +44,34 @@ function PoolMissionCard({ mission }: { mission: PoolMission }) {
 
       <dl className="mt-3 grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-2">
         <div className="flex justify-between gap-3 sm:justify-start">
-          <dt className="text-muted-foreground">Departure</dt>
+          <dt className="text-[var(--deck-text-2)]">Departure</dt>
           <dd className="font-mono text-xs sm:ml-auto">{formatDateTime(mission.requested_departure)}</dd>
         </div>
         <div className="flex justify-between gap-3 sm:justify-start">
-          <dt className="text-muted-foreground">Arrival</dt>
+          <dt className="text-[var(--deck-text-2)]">Arrival</dt>
           <dd className="font-mono text-xs sm:ml-auto">{formatDateTime(mission.requested_arrival)}</dd>
         </div>
         <div className="flex justify-between gap-3 sm:justify-start">
-          <dt className="text-muted-foreground">Aircraft Type</dt>
+          <dt className="text-[var(--deck-text-2)]">Aircraft Type</dt>
           <dd className="font-mono text-xs sm:ml-auto">{aircraftType}</dd>
         </div>
         <div className="flex justify-between gap-3 sm:justify-start">
-          <dt className="text-muted-foreground">Passengers</dt>
+          <dt className="text-[var(--deck-text-2)]">Passengers</dt>
           <dd className="font-mono text-xs sm:ml-auto">{mission.passenger_count ?? "—"}</dd>
         </div>
         {mission.alternate_airport ? (
           <div className="flex justify-between gap-3 sm:justify-start">
-            <dt className="text-muted-foreground">Alternate</dt>
+            <dt className="text-[var(--deck-text-2)]">Alternate</dt>
             <dd className="font-mono text-xs sm:ml-auto">{mission.alternate_airport}</dd>
           </div>
         ) : null}
         <div className="flex justify-between gap-3 sm:justify-start">
-          <dt className="text-muted-foreground">International</dt>
+          <dt className="text-[var(--deck-text-2)]">International</dt>
           <dd className="font-mono text-xs sm:ml-auto">{mission.is_international ? "Yes" : "No"}</dd>
         </div>
         {mission.flexible_time ? (
           <div className="flex justify-between gap-3 sm:justify-start">
-            <dt className="text-muted-foreground">Timing</dt>
+            <dt className="text-[var(--deck-text-2)]">Timing</dt>
             <dd className="font-mono text-xs sm:ml-auto">Flexible</dd>
           </div>
         ) : null}
@@ -91,7 +91,7 @@ function PoolMissionCard({ mission }: { mission: PoolMission }) {
         <form action={requestPoolMission} className="mt-4 flex flex-wrap items-center gap-2">
           <input type="hidden" name="mission_id" value={mission.id} />
           <SubmitButton pendingText="Requesting…">Request This Mission</SubmitButton>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-[var(--deck-text-2)]">
             Sends your request to AMG Operations for approval.
           </span>
         </form>
@@ -146,14 +146,14 @@ export default async function CrewMissionsPage({
         ) : (
           <div className="space-y-3">
             {myMissions.map((m) => (
-              <Link key={m.id} href={`/portal/crew/missions/${m.id}`} className="grid gap-3 rounded-md border border-border bg-background/50 p-4 transition-colors hover:border-accent/60 sm:grid-cols-[1fr_auto]">
+              <Link key={m.id} href={`/portal/crew/missions/${m.id}`} className="deck-inset deck-card-hover grid gap-3 p-4 sm:grid-cols-[1fr_auto]">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-mono text-xs text-accent">{m.ref}</span>
-                    <span className="text-xs text-muted-foreground">{MISSION_TYPE_LABEL[m.mission_type] ?? m.mission_type}</span>
+                    <span className="font-mono text-xs text-[var(--deck-accent-ink)]">{m.ref}</span>
+                    <span className="text-xs text-[var(--deck-text-2)]">{MISSION_TYPE_LABEL[m.mission_type] ?? m.mission_type}</span>
                   </div>
                   <p className="mt-1 font-semibold">{formatRoute(m.departure_airport, m.arrival_airport)}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{m.tail_number ?? "—"} · {formatDateTime(m.requested_departure)}</p>
+                  <p className="mt-0.5 text-xs text-[var(--deck-text-2)]">{m.tail_number ?? "—"} · {formatDateTime(m.requested_departure)}</p>
                 </div>
                 <div className="flex flex-col gap-2 items-end">
                   <StatusBadge label={MISSION_STATUS_LABEL[m.status] ?? m.status} tone={toneFor(MISSION_STATUS_TONE, m.status)} />

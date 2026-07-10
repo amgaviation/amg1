@@ -92,12 +92,12 @@ export default async function ServiceDetailPage({
         description={`${service.code}${service.category ? ` · ${service.category}` : ""} — ${summarizeServicePrice(service, openVariants)}`}
         actions={
           <>
-            <Link href={BASE} className="text-xs text-muted-foreground hover:text-accent">
+            <Link href={BASE} className="text-xs text-[var(--deck-text-2)] hover:text-[var(--deck-accent-ink)]">
               Back to catalog
             </Link>
             <Link
               href={`${detailPath}/edit`}
-              className="rounded-md bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground"
+              className="rounded-md bg-[var(--deck-accent)] px-4 py-2 text-xs font-semibold text-[var(--deck-on-accent)]"
             >
               Edit Service
             </Link>
@@ -266,7 +266,7 @@ export default async function ServiceDetailPage({
                   priority: "primary",
                   cell: (row) =>
                     row.child ? (
-                      <Link href={`${BASE}/${row.child.id}`} className="text-accent hover:underline">
+                      <Link href={`${BASE}/${row.child.id}`} className="text-[var(--deck-accent-ink)] hover:underline">
                         <span className="deck-mono">{row.child.code}</span> — {row.child.name}
                       </Link>
                     ) : (

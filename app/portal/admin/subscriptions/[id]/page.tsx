@@ -104,7 +104,7 @@ export default async function AdminSubscriptionDetailPage({
         eyebrow={(subscription as any).is_test ? "TEST Subscription" : (subscription as any).is_custom ? "Custom Subscription" : "Client Subscription"}
         title={(subscription as any).custom_name ?? subscription.plan?.name ?? "Custom Subscription"}
         description={subscription.client?.company_name ?? subscription.client?.full_name ?? subscription.client?.email ?? ((subscription as any).is_test ? "Stripe test-mode customer" : "Client")}
-        actions={<Link href="/portal/admin/subscriptions" className="text-xs text-muted-foreground hover:text-accent">Back to subscriptions</Link>}
+        actions={<Link href="/portal/admin/subscriptions" className="text-xs text-[var(--deck-text-2)] hover:text-[var(--deck-accent-ink)]">Back to subscriptions</Link>}
       />
 
       <div className="grid gap-4 sm:grid-cols-4">
@@ -153,7 +153,7 @@ export default async function AdminSubscriptionDetailPage({
               columns={[
                 { header: "Date", cell: (row) => formatDateTime(row.created_at) },
                 { header: "Type", cell: (row) => SUBSCRIPTION_USAGE_TYPE_LABEL[row.usage_type] ?? row.usage_type },
-                { header: "Mission", cell: (row) => row.mission ? <Link href={`/portal/admin/trips/${row.mission.id}`} className="text-accent hover:underline">{row.mission.ref}</Link> : "-" },
+                { header: "Mission", cell: (row) => row.mission ? <Link href={`/portal/admin/trips/${row.mission.id}`} className="text-[var(--deck-accent-ink)] hover:underline">{row.mission.ref}</Link> : "-" },
                 { header: "Qty", cell: (row) => `${row.quantity} ${row.unit ?? ""}`.trim(), align: "right" },
                 { header: "Covered", cell: (row) => row.covered_quantity, align: "right" },
                 { header: "Overage", cell: (row) => formatMoney(row.overage_amount), align: "right" },
@@ -182,13 +182,13 @@ export default async function AdminSubscriptionDetailPage({
               getKey={(row) => row.id}
               emptyLabel="No Stripe subscription invoices recorded."
               columns={[
-                { header: "Invoice", cell: (row) => row.hosted_invoice_url ? <Link href={row.hosted_invoice_url} className="text-accent hover:underline">{row.stripe_invoice_number ?? row.stripe_invoice_id}</Link> : row.stripe_invoice_number ?? row.stripe_invoice_id },
+                { header: "Invoice", cell: (row) => row.hosted_invoice_url ? <Link href={row.hosted_invoice_url} className="text-[var(--deck-accent-ink)] hover:underline">{row.stripe_invoice_number ?? row.stripe_invoice_id}</Link> : row.stripe_invoice_number ?? row.stripe_invoice_id },
                 { header: "Status", cell: (row) => row.status ?? "-" },
                 { header: "Payment", cell: (row) => row.payment_status ?? "-" },
                 { header: "Period", cell: (row) => `${formatDate(row.period_start)} - ${formatDate(row.period_end)}` },
                 { header: "Due", cell: (row) => formatMoney(row.amount_due), align: "right" },
                 { header: "Paid", cell: (row) => formatMoney(row.amount_paid), align: "right" },
-                { header: "PDF", cell: (row) => row.invoice_pdf_url ? <Link href={`/portal/subscription-invoices/${row.id}/view`} className="text-accent hover:underline">PDF</Link> : "-" },
+                { header: "PDF", cell: (row) => row.invoice_pdf_url ? <Link href={`/portal/subscription-invoices/${row.id}/view`} className="text-[var(--deck-accent-ink)] hover:underline">PDF</Link> : "-" },
               ]}
             />
           </SectionCard>
@@ -212,7 +212,7 @@ export default async function AdminSubscriptionDetailPage({
             {activityItems.length ? (
               <Timeline items={activityItems} />
             ) : (
-              <p className="text-sm text-muted-foreground">No subscription activity recorded yet.</p>
+              <p className="text-sm text-[var(--deck-text-2)]">No subscription activity recorded yet.</p>
             )}
           </SectionCard>
         </div>
@@ -236,7 +236,7 @@ export default async function AdminSubscriptionDetailPage({
                   <SubmitButton className="w-full" variant="outline" confirm="Cancel this Stripe subscription at the end of the current period?" pendingText="Canceling...">Cancel At Period End</SubmitButton>
                 </form>
               ) : null}
-              {dashboardUrl ? <Link href={dashboardUrl} className="block text-xs text-accent hover:underline">Open Stripe Dashboard</Link> : null}
+              {dashboardUrl ? <Link href={dashboardUrl} className="block text-xs text-[var(--deck-accent-ink)] hover:underline">Open Stripe Dashboard</Link> : null}
             </div>
           </SectionCard>
 

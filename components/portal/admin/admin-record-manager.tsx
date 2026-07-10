@@ -515,7 +515,7 @@ export function AdminRecordManager({
               <SubmitButton
                 variant="default"
                 size="sm"
-                className="bg-[var(--deck-danger)] text-white hover:opacity-90"
+                className="bg-[var(--deck-danger)] text-[var(--deck-on-danger)] hover:opacity-90"
                 confirm={bulkConfirmText}
                 pendingText="Deleting..."
               >
@@ -533,7 +533,7 @@ export function AdminRecordManager({
             <div className="hidden bg-[var(--deck-panel)] md:block">
               <div data-admin-record-table-scroller className="w-full max-w-full overflow-x-auto bg-[var(--deck-panel)]">
               <table className="min-w-[56rem] w-full table-fixed border-collapse bg-[var(--deck-panel)] text-sm">
-                <thead className="sticky top-0 z-10 bg-[var(--deck-panel-2)] shadow-[0_1px_0_rgba(15,23,42,0.08)]">
+                <thead className="sticky top-0 z-10 bg-[var(--deck-panel-2)] shadow-[0_1px_0_var(--deck-line)]">
                   <tr className="bg-[var(--deck-panel-2)]">
                     {selectionEnabled ? (
                       <th className="w-12 bg-[var(--deck-panel-2)] px-4 py-3 text-left">
@@ -713,7 +713,7 @@ export function AdminRecordManager({
               <div className="rounded-md border border-dashed border-[var(--deck-line-strong)] p-4">
                 <Search className="h-6 w-6 text-[var(--deck-text-3)]" />
               </div>
-              <h3 className="mt-4 font-display text-lg font-bold uppercase text-[var(--deck-text)]">{emptyTitle}</h3>
+              <h3 className="deck-title mt-4 text-lg uppercase">{emptyTitle}</h3>
               <p className="mt-2 max-w-sm text-sm leading-6 text-[var(--deck-text-3)]">{emptyDescription}</p>
             </div>
           )}

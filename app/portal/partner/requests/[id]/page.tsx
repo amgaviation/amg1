@@ -47,7 +47,7 @@ export default async function PartnerRequestDetailPage({
         <div data-portal-action-bar className="flex flex-wrap items-center gap-2">
           <Link
             href="/portal/partner/requests"
-            className="rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
+            className="rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
           >
             All Requests
           </Link>
@@ -74,8 +74,8 @@ export default async function PartnerRequestDetailPage({
           <SectionCard title="Respond" icon="handshake">
             <form action={respondToServiceRequest} className="grid grid-cols-2 gap-3 sm:flex">
               <input type="hidden" name="assignment_id" value={assignment.id} />
-              <button name="decision" value="accepted" className="rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground sm:py-2">Accept</button>
-              <button name="decision" value="declined" className="rounded-full border border-border px-4 py-2.5 text-sm font-semibold sm:py-2">Decline</button>
+              <button name="decision" value="accepted" className="rounded-md bg-[var(--deck-accent)] px-4 py-2.5 text-sm font-semibold text-[var(--deck-on-accent)] sm:py-2">Accept</button>
+              <button name="decision" value="declined" className="rounded-md border border-[var(--deck-line-strong)] px-4 py-2.5 text-sm font-semibold text-[var(--deck-text)] sm:py-2">Decline</button>
             </form>
           </SectionCard>
           <SectionCard title="Submit Quote" icon="receipt">
@@ -83,7 +83,7 @@ export default async function PartnerRequestDetailPage({
               <input type="hidden" name="assignment_id" value={assignment.id} />
               <TextField label="Quote Amount" name="quote_amount" type="number" step="0.01" min="0" required defaultValue={assignment.quote_amount ?? ""} />
               <TextAreaField label="Partner Notes" name="partner_notes" defaultValue={assignment.partner_notes ?? ""} />
-              <SubmitButton className="rounded-full" pendingText="Submitting...">Submit Quote</SubmitButton>
+              <SubmitButton pendingText="Submitting...">Submit Quote</SubmitButton>
             </form>
           </SectionCard>
           <SectionCard title="Milestone" icon="radar">
@@ -91,7 +91,7 @@ export default async function PartnerRequestDetailPage({
               <input type="hidden" name="assignment_id" value={assignment.id} />
               <SelectField label="Status" name="status" defaultValue={assignment.status} options={PARTNER_STATUS.map((s) => ({ value: s.value, label: s.label }))} />
               <TextAreaField label="Update Notes" name="partner_notes" defaultValue={assignment.partner_notes ?? ""} />
-              <SubmitButton className="rounded-full" pendingText="Saving...">Save Milestone</SubmitButton>
+              <SubmitButton pendingText="Saving...">Save Milestone</SubmitButton>
             </form>
           </SectionCard>
         </div>

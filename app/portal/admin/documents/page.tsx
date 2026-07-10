@@ -64,7 +64,7 @@ export default async function AdminDocumentsPage({
         <Notice tone="info">
           Upload only documents AMG is authorized to store and review. Avoid full card, CVV, raw bank, unrelated medical,
           or unnecessary sensitive data. Review the{" "}
-          <Link href="/legal/document-upload-terms" className="font-semibold text-accent hover:underline">Document Upload Terms</Link>.
+          <Link href="/legal/document-upload-terms" className="font-semibold text-[var(--deck-accent-ink)] hover:underline">Document Upload Terms</Link>.
         </Notice>
         <form action={uploadDocument} encType="multipart/form-data" className="grid gap-4 lg:grid-cols-4">
           <input type="hidden" name="back_to" value="/portal/admin/documents" />
@@ -80,7 +80,7 @@ export default async function AdminDocumentsPage({
           <div className="lg:col-span-3">
             <FileField label="File" name="file" accept=".pdf,.jpg,.jpeg,.png" required />
           </div>
-          <label className="lg:col-span-4 flex items-start gap-3 rounded-lg border border-border bg-[var(--deck-panel-2)] p-3 text-sm text-muted-foreground">
+          <label className="lg:col-span-4 flex items-start gap-3 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-3 text-sm text-[var(--deck-text-2)]">
             <input name="document_terms_acknowledged" value="accepted" type="checkbox" required className="mt-1 h-4 w-4 accent-[var(--deck-accent)]" />
             <span>Upload only documents AMG is authorized to store and do not include full card numbers, CVV codes, bank account numbers, routing numbers, or unrelated personal information.</span>
           </label>
@@ -130,15 +130,15 @@ export default async function AdminDocumentsPage({
             <TextField label="To" name="date_to" type="date" defaultValue={params.date_to ?? ""} />
           </div>
           <div className="flex flex-wrap items-end gap-3 lg:col-span-4">
-            <button type="submit" className="rounded-md bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground">
+            <button type="submit" className="rounded-md bg-[var(--deck-accent)] px-4 py-2 text-xs font-semibold text-[var(--deck-on-accent)]">
               Apply Filters
             </button>
             {activeFilterCount ? (
-              <Link href="/portal/admin/documents" className="rounded-md border border-border px-4 py-2 text-xs font-semibold text-foreground hover:border-accent">
+              <Link href="/portal/admin/documents" className="rounded-md border border-[var(--deck-line)] px-4 py-2 text-xs font-semibold text-[var(--deck-text)] hover:border-[var(--deck-accent-line)]">
                 Clear Filters
               </Link>
             ) : null}
-            <p className="text-xs text-muted-foreground">{docs.length} document{docs.length === 1 ? "" : "s"} shown</p>
+            <p className="text-xs text-[var(--deck-text-2)]">{docs.length} document{docs.length === 1 ? "" : "s"} shown</p>
           </div>
         </form>
       </SectionCard>
@@ -158,13 +158,13 @@ export default async function AdminDocumentsPage({
           getKey={(row) => row.id}
           emptyLabel="No documents uploaded."
           columns={[
-            { header: "Name", cell: (row) => <div><p className="text-sm font-semibold">{row.name}</p><p className="text-xs text-muted-foreground">{row.doc_type}</p></div> },
-            { header: "Owner", cell: (row) => <div><p className="text-sm">{ownerLabel(row.scope_id)}</p><p className="text-xs text-muted-foreground">{row.scope_type}</p></div> },
+            { header: "Name", cell: (row) => <div><p className="text-sm font-semibold">{row.name}</p><p className="text-xs text-[var(--deck-text-2)]">{row.doc_type}</p></div> },
+            { header: "Owner", cell: (row) => <div><p className="text-sm">{ownerLabel(row.scope_id)}</p><p className="text-xs text-[var(--deck-text-2)]">{row.scope_type}</p></div> },
             { header: "Visibility", cell: (row) => DOCUMENT_VISIBILITY_LABEL[row.visibility] ?? row.visibility },
             { header: "Uploaded", cell: (row) => formatDate(row.created_at) },
             { header: "Expires", cell: (row) => formatDate(row.expiration_date) },
             { header: "Status", cell: (row) => <StatusBadge label={DOCUMENT_STATUS_LABEL[row.status] ?? row.status} tone={toneFor(DOCUMENT_STATUS_TONE, row.status)} /> },
-            { header: "File", cell: (row) => <Link href={`/portal/documents/${row.id}/view`} className="text-accent hover:underline">View</Link> },
+            { header: "File", cell: (row) => <Link href={`/portal/documents/${row.id}/view`} className="text-[var(--deck-accent-ink)] hover:underline">View</Link> },
             { header: "Review", cell: (row) => (
               <form action={reviewDocument} className="grid min-w-56 gap-2">
                 <input type="hidden" name="document_id" value={row.id} />

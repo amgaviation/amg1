@@ -194,7 +194,7 @@ export default async function AdminInvoiceDetailPage({
                   cell: (row) => {
                     const document = receiptByPayment.get(row.id);
                     return document ? (
-                      <Link href={`/portal/billing-documents/${document.id}/view`} className="text-accent hover:underline">
+                      <Link href={`/portal/billing-documents/${document.id}/view`} className="text-[var(--deck-accent-ink)] hover:underline">
                         PDF
                       </Link>
                     ) : "-";
@@ -208,7 +208,7 @@ export default async function AdminInvoiceDetailPage({
             {activityItems.length ? (
               <Timeline items={activityItems} />
             ) : (
-              <p className="text-sm text-muted-foreground">No invoice activity recorded yet.</p>
+              <p className="text-sm text-[var(--deck-text-2)]">No invoice activity recorded yet.</p>
             )}
           </SectionCard>
         </div>
@@ -227,7 +227,7 @@ export default async function AdminInvoiceDetailPage({
                 </form>
               ) : null}
               {canRevise ? (
-                <form action={createInvoiceRevision} className="space-y-3 rounded-md border border-border p-3">
+                <form action={createInvoiceRevision} className="space-y-3 rounded-md border border-[var(--deck-line)] p-3">
                   <input type="hidden" name="invoice_id" value={invoice.id} />
                   <TextAreaField label="Revision Reason" name="revision_reason" placeholder="Updated services, corrected vendor cost, changed tax, or adjusted billing details..." />
                   <SubmitButton className="w-full" pendingText="Creating...">Create Revision Draft</SubmitButton>

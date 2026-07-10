@@ -105,15 +105,15 @@ export default async function AdminSecurityReviewPage({
           <SelectField label="Invalid Email" name="invalid_email" defaultValue={params.invalid_email ?? ""} options={[{ value: "", label: "All emails" }, { value: "true", label: "Invalid import email" }]} />
           <SelectField label="Pending Approval" name="pending" defaultValue={params.pending ?? ""} options={[{ value: "", label: "All users" }, { value: "true", label: "Pending only" }]} />
           <div className="flex flex-wrap items-end gap-3 lg:col-span-6">
-            <button type="submit" className="rounded-md bg-[var(--deck-accent)] px-4 py-2 text-xs font-semibold text-[var(--deck-accent-ink)] transition-colors hover:bg-[var(--deck-accent)]/90">
+            <button type="submit" className="rounded-md bg-[var(--deck-accent)] px-4 py-2 text-xs font-semibold text-[var(--deck-on-accent)] transition-colors hover:bg-[var(--deck-accent)]/90">
               Apply Filters
             </button>
             {hasFilters ? (
-              <Link href="/portal/admin/security-review" className="rounded-md border border-border bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]">
+              <Link href="/portal/admin/security-review" className="rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]">
                 Clear filters
               </Link>
             ) : null}
-            <p className="text-xs text-[var(--amg-text-muted)]">{filtered.length} of {users.length} users shown</p>
+            <p className="text-xs text-[var(--deck-text-3)]">{filtered.length} of {users.length} users shown</p>
           </div>
         </form>
       </SectionCard>
@@ -124,10 +124,10 @@ export default async function AdminSecurityReviewPage({
           getKey={(row) => row.id}
           emptyLabel="No portal users found."
           columns={[
-            { header: "User", cell: (row) => <div><p className="font-semibold">{row.full_name ?? row.email}</p><p className="text-xs text-muted-foreground">{row.email}</p></div> },
+            { header: "User", cell: (row) => <div><p className="font-semibold">{row.full_name ?? row.email}</p><p className="text-xs text-[var(--deck-text-2)]">{row.email}</p></div> },
             { header: "Role", cell: (row) => row.role },
             { header: "Status", cell: (row) => <StatusBadge label={PROFILE_STATUS_LABEL[row.status] ?? row.status} tone={toneFor(PROFILE_STATUS_TONE, row.status)} /> },
-            { header: "MFA", cell: () => <div><p>MFA status unavailable</p><p className="text-xs text-muted-foreground">Auth provider does not expose MFA state to this profile record.</p></div> },
+            { header: "MFA", cell: () => <div><p>MFA status unavailable</p><p className="text-xs text-[var(--deck-text-2)]">Auth provider does not expose MFA state to this profile record.</p></div> },
             { header: "Sensitive Access", cell: (row) => sensitiveAccess(row.role) ? <StatusBadge label="Review required" tone="warn" /> : "Standard portal access" },
             { header: "Email Quality", cell: (row) => isInvalidImportEmail(row.email) ? <StatusBadge label="Invalid import placeholder" tone="danger" /> : "Verified format" },
             { header: "Created", cell: (row) => formatDateTime(row.created_at) },
@@ -135,20 +135,20 @@ export default async function AdminSecurityReviewPage({
         />
       </SectionCard>
       {filtered.length > PAGE_SIZE ? (
-        <div className="flex flex-col gap-3 rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] px-5 py-4 text-sm text-[var(--deck-text-3)] shadow-[0_10px_30px_rgba(15,23,42,0.04)] sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] px-5 py-4 text-sm text-[var(--deck-text-3)] shadow-[var(--deck-shadow-card)] sm:flex-row sm:items-center sm:justify-between">
           <span>Page {safePage} of {pageCount}</span>
           <div className="flex gap-2">
             <Link
               aria-disabled={safePage <= 1}
               href={safePage <= 1 ? "#" : hrefWith({ ...sharedParams, page: safePage - 1 })}
-              className={`rounded-md border border-border px-4 py-2 text-xs font-semibold ${safePage <= 1 ? "pointer-events-none opacity-50" : "text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"}`}
+              className={`rounded-md border border-[var(--deck-line-strong)] px-4 py-2 text-xs font-semibold ${safePage <= 1 ? "pointer-events-none opacity-50" : "text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"}`}
             >
               Previous
             </Link>
             <Link
               aria-disabled={safePage >= pageCount}
               href={safePage >= pageCount ? "#" : hrefWith({ ...sharedParams, page: safePage + 1 })}
-              className={`rounded-md border border-border px-4 py-2 text-xs font-semibold ${safePage >= pageCount ? "pointer-events-none opacity-50" : "text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"}`}
+              className={`rounded-md border border-[var(--deck-line-strong)] px-4 py-2 text-xs font-semibold ${safePage >= pageCount ? "pointer-events-none opacity-50" : "text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"}`}
             >
               Next
             </Link>

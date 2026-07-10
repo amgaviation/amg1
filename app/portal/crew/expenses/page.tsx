@@ -77,7 +77,7 @@ export default async function CrewExpensesPage({
         <Notice tone="info">
           Upload only receipts you are authorized to submit for review. Do not upload full card numbers, CVV codes, or
           unrelated sensitive data. Review the{" "}
-          <Link href="/legal/document-upload-terms" className="font-semibold text-accent hover:underline">Document Upload Terms</Link>.
+          <Link href="/legal/document-upload-terms" className="font-semibold text-[var(--deck-accent-ink)] hover:underline">Document Upload Terms</Link>.
         </Notice>
         <form action={submitExpense} encType="multipart/form-data" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <SelectField label="Mission" name="mission_id" defaultValue="" options={[{ value: "", label: "General / unassigned" }, ...missions.map((m) => ({ value: m.id, label: `${m.ref} - ${m.departure_airport ?? ""}-${m.arrival_airport ?? ""}` }))]} />
@@ -107,10 +107,10 @@ export default async function CrewExpensesPage({
         ) : (
           <div className="space-y-3">
             {expenses.map((expense) => (
-              <div key={expense.id} className="grid gap-3 rounded-md border border-border bg-background/50 p-4 sm:grid-cols-[1fr_auto_auto]">
+              <div key={expense.id} className="deck-inset grid gap-3 p-4 sm:grid-cols-[1fr_auto_auto]">
                 <div>
                   <p className="text-sm font-semibold">{EXPENSE_CATEGORY_LABEL[expense.category] ?? expense.category} - {expense.mission?.ref ?? "General"}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{formatDate(expense.expense_date)} | {expense.merchant ?? "No merchant"} | {expense.notes ?? "No notes"}</p>
+                  <p className="mt-1 text-xs text-[var(--deck-text-2)]">{formatDate(expense.expense_date)} | {expense.merchant ?? "No merchant"} | {expense.notes ?? "No notes"}</p>
                 </div>
                 <p className="font-mono text-sm font-semibold">{formatMoney(expense.amount)}</p>
                 <StatusBadge label={EXPENSE_STATUS_LABEL[expense.status] ?? expense.status} tone={toneFor(EXPENSE_STATUS_TONE, expense.status)} />

@@ -51,9 +51,9 @@ export default async function ClientSettingsPage({
           <DetailRow label="Role"><RoleBadge role={user.role} /></DetailRow>
           <DetailRow label="Account Status">{user.status}</DetailRow>
         </dl>
-        <p className="mt-4 text-xs text-muted-foreground">
+        <p className="mt-4 text-xs text-[var(--deck-text-2)]">
           To update your account details, contact AMG Operations at{" "}
-          <a href={`mailto:${COMPANY.email}`} className="text-accent hover:underline">{COMPANY.email}</a>.
+          <a href={`mailto:${COMPANY.email}`} className="text-[var(--deck-accent-ink)] hover:underline">{COMPANY.email}</a>.
         </p>
       </SectionCard>
 

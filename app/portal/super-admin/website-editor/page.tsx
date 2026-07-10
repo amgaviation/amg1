@@ -123,16 +123,16 @@ function EditorForm({ content, latestDraft }: { content: WebsiteContentPage; lat
             <TextField label="Secondary CTA Label" name={`section.${key}.secondaryCtaLabel`} defaultValue={section.secondaryCtaLabel ?? ""} />
             <TextField label="Secondary CTA URL" name={`section.${key}.secondaryCtaHref`} defaultValue={section.secondaryCtaHref ?? ""} />
             {section.imageKey && imageSrcForKey(section.imageKey) ? (
-              <p className="break-all text-xs text-[var(--amg-text-muted)] lg:col-span-2">Selected image resolves to {imageSrcForKey(section.imageKey)}</p>
+              <p className="break-all text-xs text-[var(--deck-text-3)] lg:col-span-2">Selected image resolves to {imageSrcForKey(section.imageKey)}</p>
             ) : null}
           </div>
         </SectionCard>
       ))}
       <TextAreaField label="Draft Notes" name="notes" defaultValue={latestDraft?.notes ?? ""} />
       <div className="sticky bottom-4 z-10 flex flex-wrap items-center gap-3 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)]/95 p-3 shadow-[var(--deck-shadow-card)] backdrop-blur">
-        <SubmitButton className="rounded-full" pendingText="Saving draft...">Save Draft</SubmitButton>
-        {latestDraft ? <p className="text-xs text-[var(--amg-text-muted)]">Preview and publish actions are available in the Status panel.</p> : null}
-        <p className="basis-full text-xs leading-5 text-[var(--amg-text-muted)]">
+        <SubmitButton pendingText="Saving draft...">Save Draft</SubmitButton>
+        {latestDraft ? <p className="text-xs text-[var(--deck-text-3)]">Preview and publish actions are available in the Status panel.</p> : null}
+        <p className="basis-full text-xs leading-5 text-[var(--deck-text-3)]">
           CTA URLs must start with / or use an approved HTTPS AMG domain. Image selection is limited to approved image references.
         </p>
       </div>
@@ -146,7 +146,7 @@ function DraftActions({ draft, publishingConfigured }: { draft: WebsiteContentDr
     return (
       <div className="space-y-4">
         <StatusBadge label={workflow.label} tone={workflow.tone} />
-        <p className="text-sm leading-6 text-[var(--amg-text-muted)]">{workflow.help}</p>
+        <p className="text-sm leading-6 text-[var(--deck-text-3)]">{workflow.help}</p>
         <EmptyState title="No saved draft yet" description="Save a draft before previewing, publishing, or creating rollback versions." />
       </div>
     );
@@ -159,7 +159,7 @@ function DraftActions({ draft, publishingConfigured }: { draft: WebsiteContentDr
     <div className="space-y-3">
       <div className="deck-inset p-3">
         <StatusBadge label={workflow.label} tone={workflow.tone} />
-        <p className="mt-2 text-xs leading-5 text-[var(--amg-text-muted)]">{workflow.help}</p>
+        <p className="mt-2 text-xs leading-5 text-[var(--deck-text-3)]">{workflow.help}</p>
       </div>
       <DetailRow label="Draft ID"><span className="font-mono text-xs">{draft.id}</span></DetailRow>
       <DetailRow label="Status">{readableStatus(draft.status)}</DetailRow>
@@ -174,7 +174,7 @@ function DraftActions({ draft, publishingConfigured }: { draft: WebsiteContentDr
         <form action={previewWebsiteContentDraft}>
           <input type="hidden" name="page_slug" value={draft.page_slug} />
           <input type="hidden" name="draft_id" value={draft.id} />
-          <SubmitButton variant="outline" className="rounded-full" pendingText="Opening..." disabled={!previewUrl}>
+          <SubmitButton variant="outline" pendingText="Opening..." disabled={!previewUrl}>
             Preview Draft
           </SubmitButton>
         </form>
@@ -182,7 +182,6 @@ function DraftActions({ draft, publishingConfigured }: { draft: WebsiteContentDr
           <input type="hidden" name="page_slug" value={draft.page_slug} />
           <input type="hidden" name="draft_id" value={draft.id} />
           <SubmitButton
-            className="rounded-full"
             pendingText="Creating PR..."
             disabled={!canCreatePr}
             confirm="Create a GitHub pull request for this saved draft?"
@@ -195,7 +194,6 @@ function DraftActions({ draft, publishingConfigured }: { draft: WebsiteContentDr
           <input type="hidden" name="draft_id" value={draft.id} />
           <SubmitButton
             variant="outline"
-            className="rounded-full"
             pendingText="Checking PR..."
             disabled={!canMerge}
             confirm="Merge this Website Editor pull request to main?"
@@ -208,7 +206,6 @@ function DraftActions({ draft, publishingConfigured }: { draft: WebsiteContentDr
           <input type="hidden" name="draft_id" value={draft.id} />
           <SubmitButton
             variant="outline"
-            className="rounded-full"
             pendingText="Archiving..."
             confirm="Archive this draft? You can create a new draft later."
             disabled={draft.status === "archived"}
@@ -245,7 +242,7 @@ function DraftHistory({
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <p className="font-semibold text-[var(--deck-text)]">{readableStatus(draft.status)}</p>
-                    <p className="mt-1 text-[var(--amg-text-muted)]">{new Date(draft.updated_at).toLocaleString()}</p>
+                    <p className="mt-1 text-[var(--deck-text-3)]">{new Date(draft.updated_at).toLocaleString()}</p>
                   </div>
                   <StatusBadge label={workflow.label} tone={workflow.tone} />
                 </div>
@@ -272,7 +269,7 @@ function DraftHistory({
           <input type="hidden" name="draft_id" value={latestPublished.id} />
           <SubmitButton
             variant="outline"
-            className="w-full rounded-full"
+            className="w-full"
             pendingText="Creating rollback..."
             confirm="Create a rollback draft from the latest published version?"
           >
@@ -282,7 +279,7 @@ function DraftHistory({
       ) : null}
 
       <div className="space-y-2 border-t border-[var(--deck-line)] pt-4">
-        <h3 className="text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--amg-text-muted)]">
+        <h3 className="text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]">
           Publish Events
         </h3>
         {events.length ? events.map((event) => {
@@ -290,13 +287,13 @@ function DraftHistory({
           return (
             <article key={event.id} className="deck-inset p-3 text-xs">
               <p className="font-semibold text-[var(--deck-text)]">{readableStatus(event.action)}</p>
-              <p className="mt-1 text-[var(--amg-text-muted)]">{new Date(event.created_at).toLocaleString()} · {event.result ?? "Recorded"}</p>
+              <p className="mt-1 text-[var(--deck-text-3)]">{new Date(event.created_at).toLocaleString()} · {event.result ?? "Recorded"}</p>
               {prUrl ? <a href={prUrl} target="_blank" rel="noreferrer" className="mt-1 inline-flex text-[var(--deck-accent-ink)] hover:underline">View PR</a> : null}
               {event.error_message ? <p className="mt-2 rounded-md border border-[var(--deck-danger-line)] bg-[var(--deck-danger-tint)] px-2 py-1 text-[var(--deck-danger)]">{event.error_message}</p> : null}
             </article>
           );
         }) : (
-          <p className="text-sm text-[var(--amg-text-muted)]">No publish events for this page yet.</p>
+          <p className="text-sm text-[var(--deck-text-3)]">No publish events for this page yet.</p>
         )}
       </div>
     </div>
@@ -342,7 +339,7 @@ export default async function WebsiteEditorPage({
               <Link
                 key={page.slug}
                 href={`/portal/super-admin/website-editor?page=${page.slug}${params.panel === "history" ? "&panel=history" : ""}`}
-                className={`rounded-md px-3 py-2 text-sm transition-colors ${page.slug === selectedSlug ? "bg-primary text-primary-foreground" : "text-[var(--amg-text-muted)] hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)]"}`}
+                className={`rounded-md px-3 py-2 text-sm transition-colors ${page.slug === selectedSlug ? "border border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]" : "text-[var(--deck-text-3)] hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)]"}`}
               >
                 {page.label}
               </Link>

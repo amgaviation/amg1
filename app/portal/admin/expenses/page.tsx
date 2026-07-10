@@ -309,7 +309,7 @@ export default async function AdminExpensesPage({
               {record.mission_id ? (
                 <Link
                   href={`/portal/admin/trips/${record.mission_id}`}
-                  className="deck-mono text-accent hover:underline"
+                  className="deck-mono text-[var(--deck-accent-ink)] hover:underline"
                 >
                   {record.mission?.ref ?? "Mission"}
                 </Link>

@@ -34,7 +34,7 @@ export default async function EditInvoicePage({
         eyebrow="Invoice Draft"
         title={`Edit ${invoice.invoice_number}`}
         description="Draft invoices can be adjusted before they are sent or paid."
-        actions={<Link href={`/portal/admin/invoices/${invoice.id}`} className="text-xs text-muted-foreground hover:text-accent">Back to invoice</Link>}
+        actions={<Link href={`/portal/admin/invoices/${invoice.id}`} className="text-xs text-[var(--deck-text-2)] hover:text-[var(--deck-accent-ink)]">Back to invoice</Link>}
       />
 
       <form action={updateInvoiceDraft} className="space-y-6">

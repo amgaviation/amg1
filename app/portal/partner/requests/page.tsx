@@ -22,7 +22,7 @@ export default async function PartnerRequestsPage() {
           getHref={(row) => `/portal/partner/requests/${row.id}`}
           emptyLabel="No service requests assigned."
           columns={[
-            { header: "Request", priority: "primary", cell: (row) => <span className="font-mono text-xs text-accent">{row.ref}</span> },
+            { header: "Request", priority: "primary", cell: (row) => <span className="font-mono text-xs text-[var(--deck-accent-ink)]">{row.ref}</span> },
             // hideOnMobile keeps Status and Quote inside the 4-field mobile card.
             { header: "Mission", hideOnMobile: true, cell: (row) => row.mission?.ref ?? "-" },
             { header: "Service", cell: (row) => row.service_type },

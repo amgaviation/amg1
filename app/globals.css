@@ -341,6 +341,7 @@
     --deck-chrome-line: rgba(169, 180, 198, 0.16);
     --deck-chrome-text: #E8EEF7;
     --deck-chrome-muted: #8FA0BC;
+    --deck-chrome-accent: #9FC5FF;
 
     /* Surfaces + text — light ("day board"): plain white canvas; panels
        separate via hairline borders + shadow, insets via cool gray */
@@ -392,6 +393,19 @@
     --deck-gold-line: rgba(212, 175, 55, 0.40);
     --deck-navy: #16283F;
     --deck-navy-2: #1D3352;
+
+    /* Label ink on filled surfaces — white in both themes because accent /
+       danger / ink fills keep their hue in dark mode */
+    --deck-on-accent: #FFFFFF;
+    --deck-on-ink: #FFFFFF;
+    --deck-on-danger: #FFFFFF;
+
+    /* Overlay scrims + floating-element elevation (modals/popovers are the
+       only surfaces allowed more than the hairline card shadow) */
+    --deck-scrim: rgba(10, 19, 34, 0.6);
+    --deck-intro-scrim: linear-gradient(to bottom, rgba(14, 17, 20, 0.04), rgba(14, 17, 20, 0.24));
+    --deck-shadow-pop: 0 16px 40px -18px rgba(7, 11, 20, 0.5);
+    --deck-shadow-modal: 0 24px 64px -24px rgba(7, 11, 20, 0.45);
 
     /* shadcn remap — primary actions stay INK in light mode so the blue
        accent keeps its signal value */

@@ -136,7 +136,7 @@ export function CommandPalette() {
 
       {open ? createPortal(
         <div
-          className="fixed inset-0 z-[95] flex items-start justify-center bg-[rgba(10,19,34,0.55)] p-4 pt-[12vh] backdrop-blur-sm"
+          className="fixed inset-0 z-[95] flex items-start justify-center bg-[var(--deck-scrim)] p-4 pt-[12vh] backdrop-blur-sm"
           onClick={() => setOpen(false)}
           role="dialog"
           aria-modal="true"

@@ -47,7 +47,7 @@ export default async function RolePermissionsPage({
       />
 
       <SectionCard title="Permission Matrix" icon="shield">
-        <div className="mb-4 grid gap-1 text-xs text-muted-foreground">
+        <div className="mb-4 grid gap-1 text-xs text-[var(--deck-text-2)]">
           <p>View covers lists, search, and detail pages. Copy/duplicate follows Add.</p>
           <p>
             The Super Admin always has full access and never appears here, so governance can never be
@@ -63,7 +63,7 @@ export default async function RolePermissionsPage({
       </SectionCard>
 
       <p className="text-sm">
-        <Link href="/portal/admin/settings" className="text-accent hover:underline">
+        <Link href="/portal/admin/settings" className="text-[var(--deck-accent-ink)] hover:underline">
           ← Back to settings
         </Link>
       </p>

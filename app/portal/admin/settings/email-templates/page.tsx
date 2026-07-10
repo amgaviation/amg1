@@ -126,7 +126,7 @@ export default async function EmailTemplatesPage({
                 ) : (
                   <StatusBadge label="Default" tone="neutral" />
                 )}
-                <span className="text-xs text-[var(--deck-text-3)] transition-transform group-open:rotate-90">
+                <span className="text-xs text-[var(--deck-text-3)] group-open:rotate-90">
                   ›
                 </span>
               </summary>

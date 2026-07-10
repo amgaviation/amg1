@@ -22,13 +22,13 @@ import { cn } from "@/lib/utils";
 
 /**
  * Live crew map — a tile-free vector US choropleth (states drawn from a vendored
- * GeoJSON, no external basemap). Active states are shaded #308aff; crew appear as
+ * GeoJSON, no external basemap). Active states are shaded with the portal accent
+ * token (--deck-accent); crew appear as
  * glowing count blips whose colour reflects how soon their session expires. The
  * tier (admin identities / crew counts / client state aggregates) is enforced by
  * the RPCs server-side. Re-fetches on the DB "presence_changed" broadcast.
  */
 
-const ACCENT = "#308aff";
 const CONUS: [[number, number], [number, number]] = [
   [-125, 24],
   [-66.9, 49.5],
@@ -39,10 +39,11 @@ type ThemeColors = {
   panel: string;
   line: string;
   lineStrong: string;
+  accent: string;
 };
 
 function readThemeColors(root: HTMLElement | null): ThemeColors {
-  const fallback: ThemeColors = { canvas: "#f4f6fb", panel: "#ffffff", line: "#e4e8f0", lineStrong: "#d3d9e6" };
+  const fallback: ThemeColors = { canvas: "#FFFFFF", panel: "#FFFFFF", line: "#E5E7EB", lineStrong: "#C9D1DC", accent: "#1D4ED8" };
   if (!root) return fallback;
   const s = getComputedStyle(root);
   const get = (name: string, fb: string) => (s.getPropertyValue(name).trim() || fb);
@@ -51,6 +52,7 @@ function readThemeColors(root: HTMLElement | null): ThemeColors {
     panel: get("--deck-panel", fallback.panel),
     line: get("--deck-line", fallback.line),
     lineStrong: get("--deck-line-strong", fallback.lineStrong),
+    accent: get("--deck-accent", fallback.accent),
   };
 }
 
@@ -137,7 +139,7 @@ export function CrewMap({
           type: "fill",
           source: "states",
           filter: ["in", ["get", "code"], ["literal", []]],
-          paint: { "fill-color": ACCENT, "fill-opacity": 0.16 },
+          paint: { "fill-color": colors.accent, "fill-opacity": 0.16 },
         });
         map.addLayer({
           id: "states-line",
@@ -150,7 +152,7 @@ export function CrewMap({
           type: "line",
           source: "states",
           filter: ["in", ["get", "code"], ["literal", []]],
-          paint: { "line-color": ACCENT, "line-width": 1.1, "line-opacity": 0.5 },
+          paint: { "line-color": colors.accent, "line-width": 1.1, "line-opacity": 0.5 },
         });
         setReady(true);
       } catch {
@@ -165,6 +167,8 @@ export function CrewMap({
       map.setPaintProperty("bg", "background-color", c.canvas);
       if (map.getLayer("states-fill")) map.setPaintProperty("states-fill", "fill-color", c.panel);
       if (map.getLayer("states-line")) map.setPaintProperty("states-line", "line-color", c.lineStrong);
+      if (map.getLayer("states-active")) map.setPaintProperty("states-active", "fill-color", c.accent);
+      if (map.getLayer("states-active-line")) map.setPaintProperty("states-active-line", "line-color", c.accent);
     });
     if (root) obs.observe(root, { attributes: true, attributeFilter: ["data-portal-theme"] });
 
@@ -318,15 +322,15 @@ export function CrewMap({
   }, [hovered]);
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-[var(--deck-line)] bg-[var(--deck-canvas)]">
+    <div className="relative overflow-hidden rounded-lg border border-[var(--deck-line)] bg-[var(--deck-canvas)]">
       <div ref={mapEl} className="h-[60vh] min-h-[24rem] w-full" />
 
       {/* overlay: online badge + LIVE */}
       <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-2">
-        <div className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)]/90 px-3 py-1.5 text-xs font-semibold text-[var(--deck-text)] shadow-sm backdrop-blur">
+        <div className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)]/90 px-3 py-1.5 text-xs font-semibold text-[var(--deck-text)] shadow-[var(--deck-shadow-card)] backdrop-blur">
           <span className="deck-num">{onlineTotal}</span> crew online
         </div>
-        <span className="flex items-center gap-1.5 rounded-full border border-[var(--deck-success-line)] bg-[var(--deck-success-tint)] px-2.5 py-1 text-[0.62rem] font-bold uppercase text-[var(--deck-success)]">
+        <span className="flex items-center gap-1.5 rounded-[0.25rem] border border-[var(--deck-success-line)] bg-[var(--deck-success-tint)] px-2.5 py-1 text-[0.62rem] font-bold uppercase text-[var(--deck-success)]">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--deck-success)]" />
           Live
         </span>
@@ -334,13 +338,13 @@ export function CrewMap({
 
       {/* overlay: legend + fit toggle */}
       <div className="absolute right-14 top-3 flex flex-col items-end gap-2">
-        <div className="inline-flex overflow-hidden rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)]/90 text-xs shadow-sm backdrop-blur">
+        <div className="inline-flex overflow-hidden rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)]/90 text-xs shadow-[var(--deck-shadow-card)] backdrop-blur">
           <button
             type="button"
             onClick={() => setFit("usa")}
             className={cn(
               "px-2.5 py-1 font-semibold transition-colors",
-              fit === "usa" ? "bg-[var(--deck-accent)] text-white" : "text-[var(--deck-text-2)] hover:text-[var(--deck-text)]"
+              fit === "usa" ? "bg-[var(--deck-accent)] text-[var(--deck-on-accent)]" : "text-[var(--deck-text-2)] hover:text-[var(--deck-text)]"
             )}
           >
             Full USA
@@ -350,7 +354,7 @@ export function CrewMap({
             onClick={() => setFit("active")}
             className={cn(
               "px-2.5 py-1 font-semibold transition-colors",
-              fit === "active" ? "bg-[var(--deck-accent)] text-white" : "text-[var(--deck-text-2)] hover:text-[var(--deck-text)]"
+              fit === "active" ? "bg-[var(--deck-accent)] text-[var(--deck-on-accent)]" : "text-[var(--deck-text-2)] hover:text-[var(--deck-text)]"
             )}
           >
             Active states
@@ -358,7 +362,7 @@ export function CrewMap({
         </div>
       </div>
 
-      <div className="pointer-events-none absolute bottom-3 left-3 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)]/90 px-3 py-1.5 shadow-sm backdrop-blur">
+      <div className="pointer-events-none absolute bottom-3 left-3 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)]/90 px-3 py-1.5 shadow-[var(--deck-shadow-card)] backdrop-blur">
         <MapLegend />
       </div>
 
@@ -390,7 +394,7 @@ function HoverCard({ blip, variant, pos }: { blip: MapBlip; variant: MapVariant;
       className="pointer-events-none absolute z-20 w-[260px]"
       style={{ left: pos.left, top: pos.top }}
     >
-      <div className="deck-card rounded-xl border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] p-3.5 shadow-[var(--deck-shadow-card-hover)]">
+      <div className="deck-card border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] p-3.5 shadow-[var(--deck-shadow-card-hover)]">
         <p className="text-sm font-semibold leading-tight text-[var(--deck-text)]">{title}</p>
         {sub ? <p className="mt-0.5 text-xs text-[var(--deck-text-3)]">{sub}</p> : null}
 

@@ -31,15 +31,15 @@ export default async function PartnerMessagesPage({
         <form action={startThread}>
           <div className="grid gap-4 sm:grid-cols-2"><TextField label="Subject" name="title" required placeholder="Service request update, quote question..." /></div>
           <div className="mt-4"><TextAreaField label="Message" name="body" required /></div>
-          <div className="mt-4"><SubmitButton className="rounded-full" pendingText="Sending...">Send Message</SubmitButton></div>
+          <div className="mt-4"><SubmitButton pendingText="Sending...">Send Message</SubmitButton></div>
         </form>
       </SectionCard>
       <SectionCard title="Message Threads" icon="messageSquare">
         {threads.length === 0 ? <EmptyState icon="messageSquare" title="No messages yet" description="Start a thread above to contact AMG Operations." /> : (
           <div className="space-y-2">{threads.map((thread) => (
-            <Link key={thread.id} href={`/portal/partner/messages/${thread.id}`} className="block rounded-md border border-border bg-background/50 p-4 hover:border-accent/60">
-              <div className="flex items-center justify-between gap-3"><p className="flex min-w-0 items-center gap-2 text-sm font-semibold"><span className="truncate">{thread.title ?? "AMG Operations"}</span><MessageUnreadBadge count={thread.unread_count} /></p><span className="text-xs text-muted-foreground">{formatDateTime(thread.last_message_at)}</span></div>
-              {thread.last_body ? <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">{thread.last_body}</p> : null}
+            <Link key={thread.id} href={`/portal/partner/messages/${thread.id}`} className="deck-inset deck-card-hover block p-4">
+              <div className="flex items-center justify-between gap-3"><p className="flex min-w-0 items-center gap-2 text-sm font-semibold"><span className="truncate">{thread.title ?? "AMG Operations"}</span><MessageUnreadBadge count={thread.unread_count} /></p><span className="text-xs text-[var(--deck-text-2)]">{formatDateTime(thread.last_message_at)}</span></div>
+              {thread.last_body ? <p className="mt-1 line-clamp-1 text-xs text-[var(--deck-text-2)]">{thread.last_body}</p> : null}
             </Link>
           ))}</div>
         )}

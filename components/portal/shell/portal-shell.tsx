@@ -245,10 +245,10 @@ export function PortalShell({
         {open && (
           <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation menu">
             <div
-              className="absolute inset-0 bg-[rgba(4,8,16,0.66)] backdrop-blur-sm animate-in fade-in duration-200"
+              className="absolute inset-0 bg-[var(--deck-scrim)] backdrop-blur-sm"
               onClick={() => setOpen(false)}
             />
-            <aside ref={drawerRef} className="deck-chrome-surface absolute left-0 top-0 flex h-[100dvh] w-[18rem] max-w-[85vw] flex-col border-r border-[var(--deck-chrome-line)] shadow-2xl animate-in slide-in-from-left duration-200 [padding-left:env(safe-area-inset-left)]">
+            <aside ref={drawerRef} className="deck-chrome-surface absolute left-0 top-0 flex h-[100dvh] w-[18rem] max-w-[85vw] flex-col border-r border-[var(--deck-chrome-line)] shadow-[var(--deck-shadow-modal)] [padding-left:env(safe-area-inset-left)]">
               <button
                 onClick={() => setOpen(false)}
                 className="absolute right-3 top-3 z-10 rounded-md border border-[var(--deck-chrome-line)] p-2.5 text-[var(--deck-chrome-muted)] transition-colors hover:text-[var(--deck-chrome-text)]"
@@ -293,7 +293,7 @@ export function PortalShell({
               {showPrimaryAction ? (
                 <Link
                   href={primaryAction!.href}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-[var(--deck-accent)] p-2.5 text-xs font-semibold text-white transition-colors hover:bg-[var(--deck-accent-ink)] lg:hidden"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-[var(--deck-accent)] p-2.5 text-xs font-semibold text-[var(--deck-on-accent)] transition-colors hover:opacity-90 lg:hidden"
                   aria-label={primaryAction!.label}
                 >
                   <PortalIcon name={primaryAction!.icon} className="h-4 w-4" />
@@ -315,7 +315,7 @@ export function PortalShell({
               >
                 <PortalIcon name="bell" className="h-4 w-4" />
                 {unread > 0 && (
-                  <span className="deck-num absolute -right-1.5 -top-1.5 flex h-4 min-w-[1.1rem] items-center justify-center rounded-full bg-[var(--deck-accent)] px-1 text-[0.6rem] font-bold text-white">
+                  <span className="deck-num absolute -right-1.5 -top-1.5 flex h-4 min-w-[1.1rem] items-center justify-center rounded-full bg-[var(--deck-accent)] px-1 text-[0.6rem] font-bold text-[var(--deck-on-accent)]">
                     {unread > 99 ? "99+" : unread}
                   </span>
                 )}
@@ -485,7 +485,7 @@ function PreviewMenu({ role }: { role: PortalRole }) {
       >
         <PortalIcon name="layers" className="h-3.5 w-3.5" />
         Preview
-        <ChevronDown className={cn("h-3 w-3 transition-transform", open && "rotate-180")} />
+        <ChevronDown className={cn("h-3 w-3", open && "rotate-180")} />
       </button>
       {open ? (
         <>
@@ -645,7 +645,7 @@ function SidebarContent({
           <Link
             href={primaryAction.href}
             onClick={onNavigate}
-            className="flex min-h-[2.75rem] items-center justify-center gap-2 rounded-md bg-[var(--deck-accent)] px-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--deck-accent-ink)]"
+            className="flex min-h-[2.75rem] items-center justify-center gap-2 rounded-md bg-[var(--deck-accent)] px-3 text-sm font-semibold text-[var(--deck-on-accent)] transition-colors hover:opacity-90"
           >
             <PortalIcon name={primaryAction.icon} className="h-4 w-4" />
             {primaryAction.label}
@@ -692,7 +692,7 @@ function SidebarContent({
                       className="min-h-[2.75rem] rounded-md px-2 text-[var(--deck-chrome-muted)] transition-colors hover:text-[var(--deck-chrome-text)]"
                     >
                       <ChevronDown
-                        className={cn("h-3.5 w-3.5 transition-transform", !isExpanded(group) && "-rotate-90")}
+                        className={cn("h-3.5 w-3.5", !isExpanded(group) && "-rotate-90")}
                       />
                     </button>
                   ) : null}
@@ -752,7 +752,7 @@ function SidebarContent({
       {/* User card */}
       <div className="shrink-0 border-t border-[var(--deck-chrome-line)] px-4 py-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] text-xs font-bold text-[#9FC5FF]">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] text-xs font-bold text-[var(--deck-chrome-accent)]">
             <Avatar user={user} className="flex h-full w-full items-center justify-center rounded-full" />
           </div>
           <div className="min-w-0">

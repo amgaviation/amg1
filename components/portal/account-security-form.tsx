@@ -27,7 +27,7 @@ export function AccountSecurityForm({
             defaultValue={email}
             hint="If secure email change is enabled, confirmation may be required."
           />
-          <SubmitButton className="rounded-full" pendingText="Saving email...">
+          <SubmitButton pendingText="Saving email...">
             Update Email
           </SubmitButton>
         </form>
@@ -51,7 +51,7 @@ export function AccountSecurityForm({
             minLength={8}
             autoComplete="new-password"
           />
-          <SubmitButton className="rounded-full" pendingText="Saving password...">
+          <SubmitButton pendingText="Saving password...">
             Update Password
           </SubmitButton>
         </form>

@@ -45,7 +45,7 @@ export default async function ClientSubscriptionDetailPage({
         eyebrow="Subscription"
         title={subscription.plan?.name ?? "AMG Support Subscription"}
         description={subscription.tier?.name ?? "Custom support program"}
-        actions={<Link href="/portal/client/subscriptions" className="text-xs text-muted-foreground hover:text-accent">Back to subscriptions</Link>}
+        actions={<Link href="/portal/client/subscriptions" className="text-xs text-[var(--deck-text-2)] hover:text-[var(--deck-accent-ink)]">Back to subscriptions</Link>}
       />
 
       <div className="grid gap-4 sm:grid-cols-4">
@@ -114,12 +114,12 @@ export default async function ClientSubscriptionDetailPage({
               getKey={(row) => row.id}
               emptyLabel="No Stripe billing invoices are available yet."
               columns={[
-                { header: "Invoice", cell: (row) => row.hosted_invoice_url ? <Link href={row.hosted_invoice_url} className="text-accent hover:underline">{row.stripe_invoice_number ?? row.stripe_invoice_id}</Link> : row.stripe_invoice_number ?? row.stripe_invoice_id },
+                { header: "Invoice", cell: (row) => row.hosted_invoice_url ? <Link href={row.hosted_invoice_url} className="text-[var(--deck-accent-ink)] hover:underline">{row.stripe_invoice_number ?? row.stripe_invoice_id}</Link> : row.stripe_invoice_number ?? row.stripe_invoice_id },
                 { header: "Status", cell: (row) => row.status ?? "-" },
                 { header: "Period", cell: (row) => `${formatDate(row.period_start)} - ${formatDate(row.period_end)}` },
                 { header: "Due", cell: (row) => formatMoney(row.amount_due), align: "right" },
                 { header: "Paid", cell: (row) => formatMoney(row.amount_paid), align: "right" },
-                { header: "PDF", cell: (row) => row.invoice_pdf_url ? <Link href={`/portal/subscription-invoices/${row.id}/view`} className="text-accent hover:underline">PDF</Link> : "-" },
+                { header: "PDF", cell: (row) => row.invoice_pdf_url ? <Link href={`/portal/subscription-invoices/${row.id}/view`} className="text-[var(--deck-accent-ink)] hover:underline">PDF</Link> : "-" },
               ]}
             />
           </SectionCard>

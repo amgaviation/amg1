@@ -62,7 +62,7 @@ export default async function PartnerProfilePage({
             <CheckboxField label="After-hours support" name="after_hours_support" defaultChecked={profile?.after_hours_support ?? false} />
           </div>
           <div className="lg:col-span-3">
-            <SubmitButton className="rounded-full" pendingText="Saving...">Save Profile</SubmitButton>
+            <SubmitButton pendingText="Saving...">Save Profile</SubmitButton>
           </div>
         </form>
       </SectionCard>

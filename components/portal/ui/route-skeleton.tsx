@@ -9,7 +9,7 @@ function Shimmer({ className = "" }: { className?: string }) {
 export function RouteSkeleton({ variant = "list" }: RouteSkeletonProps) {
   return (
     <main
-      className="amg-portal min-h-screen px-4 py-6 text-foreground sm:px-6 lg:px-8"
+      className="amg-portal min-h-screen px-4 py-6 text-[var(--deck-text)] sm:px-6 lg:px-8"
       aria-busy="true"
     >
       <div className="mx-auto grid w-full max-w-[96rem] gap-5">

@@ -83,18 +83,18 @@ export default async function CrewSettingsPage({
             <CheckboxField label="Generally available for short-notice coverage" name="generally_short_notice" defaultChecked={profile?.generally_short_notice ?? false} />
             <CheckboxField label="Willing to travel" name="willing_to_travel" defaultChecked={profile?.willing_to_travel ?? false} />
           </div>
-          <div className="lg:col-span-3 rounded-md border border-border bg-[var(--deck-panel-2)] p-4">
-            <h3 className="font-display text-lg font-bold uppercase text-foreground">Weekly Availability</h3>
+          <div className="lg:col-span-3 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-4">
+            <h3 className="deck-title text-lg uppercase">Weekly Availability</h3>
             <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-7">
               {["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"].map((day) => {
                 const selected = Array.isArray(weeklyAvailability[day]) ? weeklyAvailability[day] : [];
                 return (
-                  <div key={day} className="rounded-md border border-border bg-[var(--deck-panel)] p-3">
+                  <div key={day} className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-3">
                     <p className="text-xs font-bold uppercase [letter-spacing:0.1em] text-[var(--deck-accent-ink)]">{day}</p>
                     <div className="mt-3 grid gap-2">
                       {["available", "morning", "afternoon", "evening", "overnight"].map((slot) => (
-                        <label key={slot} className="flex items-center gap-2 text-xs text-foreground">
-                          <input type="checkbox" name={`weekly_${day}`} value={slot} defaultChecked={selected.includes(slot)} className="h-3.5 w-3.5 accent-primary" />
+                        <label key={slot} className="flex items-center gap-2 text-xs text-[var(--deck-text)]">
+                          <input type="checkbox" name={`weekly_${day}`} value={slot} defaultChecked={selected.includes(slot)} className="h-3.5 w-3.5 accent-[var(--deck-accent)]" />
                           {slot}
                         </label>
                       ))}
