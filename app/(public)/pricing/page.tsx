@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { TrackedLink } from "@/components/site/tracked-link";
 import { WorkedExample } from "@/components/site/worked-example";
 import { HeadlineReveal } from "@/components/site/headline-reveal";
 import { PricingMotion } from "@/components/site/pricing-motion";
+import { FareBoard } from "@/components/site/fare-board";
 import { DAY_RATES, PLAN_TABLE, SITE, SITE_EVENTS } from "@/lib/site-config";
 
 export const metadata: Metadata = {
@@ -15,10 +17,14 @@ export const metadata: Metadata = {
 const POSITIONING = [
   {
     name: "On-Demand",
+    window: "T+24H",
+    frac: 1,
     body: ["You have one mission; we'll quote it in 24 business hours. No commitment."],
   },
   {
     name: "Standard",
+    window: "T+12H",
+    frac: 0.5,
     body: [
       "You fly yourself but need a professional a few times a year. We keep your aircraft file, answer in 12 hours, and drop $200 off every mission fee. Insurance-renewal and crew-currency reminders run automatically, so your file never goes cold.",
       "On fees alone, Standard pays for itself at about nine missions a year. Most members join for the faster answer and never having to re-explain their airplane.",
@@ -26,11 +32,25 @@ const POSITIONING = [
   },
   {
     name: "Priority",
+    window: "T+4H",
+    frac: 1 / 6,
     body: [
       "Your aircraft works for a living or your schedule can't absorb a 48-hour scramble. Four-hour answers, first call on network crew, a coordinator who knows your tail number, and a request line staffed 0700–2200.",
     ],
   },
 ] as const;
+
+/** Day-rate bands → the unused aircraft-class renders (night ramp set). */
+const BAND_IMAGES: Record<string, { src: string; alt: string }> = {
+  Piston: {
+    src: "/images/flightdeck/piston-single.webp",
+    alt: "Piston single staged on a night ramp outside hangars",
+  },
+  "Turboprop & light jet": {
+    src: "/images/flightdeck/light-jet.webp",
+    alt: "Light jet parked on a wet ramp under night apron lighting",
+  },
+};
 
 const FAQ = [
   {
@@ -192,21 +212,28 @@ export default function PricingPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(PRICING_SCHEMA) }}
       />
       <PricingMotion />
-      {/* §4.1 Intro — three sentences, no hedging. */}
+      {/* §4.1 Intro — three sentences, no hedging — beside the page's
+          signature instrument: a split-flap fare board resolving onto the
+          published Band A figures. */}
       <section className="pub-hero oc-shell pb-14 pt-[calc(var(--public-header-height)+4rem)]">
-        <div className="max-w-3xl" data-stagger-container>
-          <p className="oc-eyebrow" data-stagger-item>
-            Every price published // no markup
-          </p>
-          <HeadlineReveal
-            className="oc-display mt-4 text-5xl text-[var(--oc-paper)] sm:text-6xl"
-            lines={["Every price we charge", "is on this page."]}
-          />
-          <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]" data-stagger-item>
-            Your only AMG costs are a flat per-mission coordination fee and, if you choose one,
-            a monthly plan. Everything else — pilot day rate, travel, lodging — passes through
-            at cost with receipts.
-          </p>
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(340px,430px)] lg:items-center">
+          <div className="max-w-3xl" data-stagger-container>
+            <p className="oc-eyebrow" data-stagger-item>
+              Every price published // no markup
+            </p>
+            <HeadlineReveal
+              className="oc-display mt-4 text-5xl text-[var(--oc-paper)] sm:text-6xl"
+              lines={["Every price we charge", "is on this page."]}
+            />
+            <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]" data-stagger-item>
+              Your only AMG costs are a flat per-mission coordination fee and, if you choose one,
+              a monthly plan. Everything else — pilot day rate, travel, lodging — passes through
+              at cost with receipts.
+            </p>
+          </div>
+          <div data-scroll-animate>
+            <FareBoard />
+          </div>
         </div>
       </section>
 
@@ -214,8 +241,12 @@ export default function PricingPage() {
           data-pill-hide: the persistent "Get a Quote" pill hides while this
           section is in view so it never rides on top of the stacked mobile
           plan cards. */}
-      <section className="oc-section py-16" data-pill-hide>
+      <section id="schedule" className="oc-section py-16 scroll-mt-24" data-pill-hide>
         <div className="oc-shell">
+          <div className="mb-5 flex items-baseline justify-between gap-4" data-scroll-animate>
+            <p className="oc-eyebrow">Schedule A // membership & coordination</p>
+            <p className="microlabel hidden sm:block">All figures published</p>
+          </div>
           {/* Desktop table */}
           <div className="hud-frame oc-card-dark hidden overflow-hidden md:block" data-scroll-animate>
             <table className="w-full border-collapse" data-plan-table>
@@ -312,16 +343,23 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* §4.3 What plans are for. */}
+      {/* §4.3 What plans are for — each card carries its committed quote
+          window drawn as a time-length bar (longer bar = longer wait),
+          so the three plans read at a glance. */}
       <section className="oc-section pt-0 pb-16">
         <div className="oc-shell">
           <h2 className="oc-display max-w-2xl text-4xl text-[var(--oc-paper)] sm:text-5xl">
             What each plan is actually for.
           </h2>
           <div className="mt-10 grid gap-4 lg:grid-cols-3" data-stagger-container>
-            {POSITIONING.map((plan) => (
-              <div key={plan.name} data-stagger-item className="group pub-card-hover oc-card-dark p-7">
-                <h3 className="oc-display text-2xl text-[var(--oc-paper)]">{plan.name}</h3>
+            {POSITIONING.map((plan, index) => (
+              <div key={plan.name} data-stagger-item className="group pub-card-hover oc-card-dark flex flex-col p-7">
+                <div className="flex items-baseline justify-between gap-4">
+                  <h3 className="oc-display text-2xl text-[var(--oc-paper)]">{plan.name}</h3>
+                  <span className="font-mono text-[10px] [letter-spacing:0.16em] text-[var(--amber)]">
+                    P-{String(index + 1).padStart(2, "0")}
+                  </span>
+                </div>
                 <div className="pub-rule mb-4 mt-3" aria-hidden="true" />
                 {plan.body.map((para, i) => (
                   <p
@@ -331,33 +369,81 @@ export default function PricingPage() {
                     {para}
                   </p>
                 ))}
+                <div className="mt-auto pt-6">
+                  <div className="flex items-baseline justify-between gap-4">
+                    <span className="microlabel">Quote by</span>
+                    <span className="font-mono text-xs tabular-nums [letter-spacing:0.14em] text-[var(--instrument-ink)]">
+                      {plan.window}
+                    </span>
+                  </div>
+                  <div className="mt-2 h-px w-full bg-[rgba(169,180,198,0.14)]">
+                    <div
+                      className="plan-window-fill h-px bg-[linear-gradient(90deg,var(--instrument),var(--instrument-ink))] shadow-[0_0_8px_rgba(48,138,255,0.5)]"
+                      style={{ width: `${plan.frac * 100}%` }}
+                      aria-hidden="true"
+                    />
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* §4.4 Pass-through transparency. */}
+      {/* §4.4 Pass-through transparency — the two published bands, each on
+          its aircraft class (night-ramp renders; imagery this page never had). */}
       <section className="silver-grid border-y border-[var(--oc-line-dark)] bg-white/[0.02] py-14">
-        <div className="oc-shell grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-center">
-          <div data-scroll-animate>
-            <p className="oc-eyebrow">Pass-through costs // billed at cost</p>
-            <h2 className="oc-display mt-4 text-3xl text-[var(--oc-paper)] sm:text-4xl">
-              Current network day-rate ranges
-            </h2>
-            <p className="mt-4 max-w-xl text-base leading-relaxed text-[var(--oc-aluminum)]">
-              Travel, lodging, and per diem at cost. We publish these so you can estimate any
-              mission before you ever contact us. Updated quarterly — last updated {DAY_RATES.updated}.
-            </p>
+        <div className="oc-shell">
+          <div className="mb-8 flex items-baseline justify-between gap-4" data-scroll-animate>
+            <p className="oc-eyebrow">Schedule B // pilot day rates</p>
+            <p className="microlabel hidden sm:block">Pass-through // at cost</p>
           </div>
-          <dl className="grid gap-4 sm:grid-cols-2" data-stagger-container>
-            {DAY_RATES.bands.map((band) => (
-              <div key={band.band} data-stagger-item className="pub-card-hover oc-card-dark p-6">
-                <dt className="text-xs font-semibold uppercase text-[var(--oc-aluminum-2)]">{band.band}</dt>
-                <dd data-countup className="oc-display mt-2 text-3xl text-[var(--oc-paper)]">{band.range}</dd>
-              </div>
-            ))}
-          </dl>
+          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+            <div data-scroll-animate>
+              <h2 className="oc-display text-3xl text-[var(--oc-paper)] sm:text-4xl">
+                Current network day-rate ranges
+              </h2>
+              <p className="mt-4 max-w-xl text-base leading-relaxed text-[var(--oc-aluminum)]">
+                Travel, lodging, and per diem at cost. We publish these so you can estimate any
+                mission before you ever contact us. Updated quarterly — last updated {DAY_RATES.updated}.
+              </p>
+            </div>
+            <dl className="grid gap-4 sm:grid-cols-2" data-stagger-container>
+              {DAY_RATES.bands.map((band) => {
+                const image = BAND_IMAGES[band.band];
+                return (
+                  <div
+                    key={band.band}
+                    data-stagger-item
+                    className="group pub-card-hover oc-card-dark overflow-hidden"
+                  >
+                    {image ? (
+                      <div className="oc-media oc-media-grade relative aspect-[16/8]">
+                        <Image
+                          src={image.src}
+                          alt={image.alt}
+                          fill
+                          sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"
+                          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                        />
+                        <span className="microlabel absolute bottom-2.5 left-3 z-10 !text-t2">
+                          Class // {band.band}
+                        </span>
+                      </div>
+                    ) : null}
+                    <div className="p-6">
+                      <dt className="text-xs font-semibold uppercase text-[var(--oc-aluminum-2)]">
+                        {band.band}
+                      </dt>
+                      <dd data-countup className="oc-display mt-2 text-3xl text-[var(--oc-paper)]">
+                        {band.range}
+                      </dd>
+                    </div>
+                  </div>
+                );
+              })}
+            </dl>
+          </div>
         </div>
       </section>
 
@@ -365,6 +451,9 @@ export default function PricingPage() {
       <section className="oc-section py-16">
         <div className="oc-shell">
           <div className="mx-auto max-w-2xl">
+            <p className="oc-eyebrow mb-6" data-scroll-animate>
+              Schedule C // a mission, priced line by line
+            </p>
             <p className="text-base leading-relaxed text-[var(--oc-aluminum)]">
               The table above, applied to a real mission — Standard membership, Band A,
               priced line by line.
@@ -377,6 +466,9 @@ export default function PricingPage() {
       {/* §4.6 Pricing FAQ. */}
       <section className="oc-section pt-0">
         <div className="oc-shell">
+          <p className="oc-eyebrow mb-5" data-scroll-animate>
+            Schedule D // the fine print, answered
+          </p>
           <h2 className="oc-display max-w-2xl text-4xl text-[var(--oc-paper)] sm:text-5xl">Pricing FAQ</h2>
           <div className="mt-10 grid gap-4 lg:grid-cols-2" data-stagger-container>
             {FAQ.map((item, i) => (
