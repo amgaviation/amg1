@@ -320,7 +320,7 @@
   /* ======================================================================
      AMG MANIFEST — portal design system tokens (v4 ground-up rebuild).
      The portal reads like a precision flight manifest: plain white canvas,
-     ink typography, a single AMG instrument-blue brand accent (#0B5ED4),
+     ink typography, a single AMG Blue brand accent (#1D4ED8, Colors.png),
      hairline rules, flat stamped surfaces. Light ("Day Board") is default;
      dark ("Night Ops") rides the `data-portal-theme="dark"` attribute
      rendered by app/portal/layout.tsx from the amg-portal-theme cookie
@@ -334,9 +334,9 @@
     --font-mono: var(--font-jetbrains-mono, "JetBrains Mono"), ui-monospace, monospace;
 
     /* Chrome (sidebar rail) — theme-invariant deep-navy ink: the ops rail is always night */
-    --deck-ink: #070B14;
-    --deck-chrome: #0A1120;
-    --deck-chrome-2: #101A2C;
+    --deck-ink: #050B14;
+    --deck-chrome: #050B14;
+    --deck-chrome-2: #0B1626;
     --deck-chrome-line: rgba(169, 180, 198, 0.16);
     --deck-chrome-text: #E8EEF7;
     --deck-chrome-muted: #8FA0BC;
@@ -345,49 +345,50 @@
        separate via hairline borders + shadow, insets via cool gray */
     --deck-canvas: #FFFFFF;
     --deck-panel: #FFFFFF;
-    --deck-panel-2: #F2F4F8;
-    --deck-line: #E3E7ED;
+    --deck-panel-2: #F3F4F6;
+    --deck-line: #E5E7EB;
     --deck-line-strong: #C9D1DC;
     --deck-text: #16191E;
     --deck-text-2: #4A5160;
-    --deck-text-3: #76808F;
+    --deck-text-3: #6B7280;
 
     /* AMG instrument-blue accent — the single brand color */
-    --deck-accent: #0B5ED4;
-    --deck-accent-ink: #0B5ED4;
-    --deck-accent-tint: rgba(11, 94, 212, 0.08);
-    --deck-accent-line: rgba(11, 94, 212, 0.30);
+    --deck-accent: #1D4ED8;
+    --deck-accent-ink: #1D4ED8;
+    --deck-accent-tint: rgba(29, 78, 216, 0.08);
+    --deck-accent-line: rgba(29, 78, 216, 0.30);
 
     /* Status tones — each with tint (bg) + line (border); base value is
        both the dot and the text-safe ink for that tone */
-    --deck-info: #38618C;
-    --deck-info-tint: rgba(56, 97, 140, 0.09);
-    --deck-info-line: rgba(56, 97, 140, 0.32);
+    --deck-info: #0369A1;
+    --deck-info-tint: rgba(56, 189, 248, 0.10);
+    --deck-info-line: rgba(56, 189, 248, 0.38);
     --deck-success: #33683D;
     --deck-success-tint: rgba(51, 104, 61, 0.10);
     --deck-success-line: rgba(51, 104, 61, 0.32);
     --deck-warn: #91600C;
     --deck-warn-tint: rgba(196, 141, 43, 0.14);
     --deck-warn-line: rgba(169, 120, 32, 0.42);
-    --deck-danger: #A93A2E;
-    --deck-danger-tint: rgba(169, 58, 46, 0.09);
-    --deck-danger-line: rgba(169, 58, 46, 0.32);
+    --deck-danger: #C81E1E;
+    --deck-danger-tint: rgba(220, 38, 38, 0.08);
+    --deck-danger-line: rgba(220, 38, 38, 0.32);
     --deck-neutral-tint: var(--deck-panel-2);
     --deck-neutral-line: var(--deck-line);
 
     /* Effects — flat paper: hairline edges, faint lift so white cards
        don't drown on the white canvas */
     --deck-grid: transparent;
-    --deck-row-hover: rgba(11, 94, 212, 0.05);
-    --deck-selection: rgba(11, 94, 212, 0.18);
+    --deck-row-hover: rgba(29, 78, 216, 0.05);
+    --deck-selection: rgba(29, 78, 216, 0.18);
     --deck-shadow-card: 0 1px 2px rgba(22, 25, 30, 0.04), 0 2px 8px -6px rgba(22, 25, 30, 0.08);
     --deck-shadow-card-hover: 0 1px 2px rgba(22, 25, 30, 0.05), 0 8px 20px -12px rgba(22, 25, 30, 0.18);
 
     /* Deprecated gold aliases — anything still referencing gold lands on the accent */
-    --deck-gold: var(--deck-accent);
-    --deck-gold-deep: var(--deck-accent-ink);
-    --deck-gold-tint: var(--deck-accent-tint);
-    --deck-gold-line: var(--deck-accent-line);
+    /* Aviation Gold — reserved for rare premium / financial emphasis. */
+    --deck-gold: #D4AF37;
+    --deck-gold-deep: #8A6D1F;
+    --deck-gold-tint: rgba(212, 175, 55, 0.12);
+    --deck-gold-line: rgba(212, 175, 55, 0.40);
     --deck-navy: #16283F;
     --deck-navy-2: #1D3352;
 
@@ -443,13 +444,13 @@
     --deck-text-2: #A9B4C6;
     --deck-text-3: #74839E;
 
-    --deck-accent-ink: #5B9DFF;
-    --deck-accent-tint: rgba(11, 94, 212, 0.16);
-    --deck-accent-line: rgba(91, 157, 255, 0.32);
+    --deck-accent-ink: #7FB2FF;
+    --deck-accent-tint: rgba(29, 78, 216, 0.18);
+    --deck-accent-line: rgba(127, 178, 255, 0.32);
 
-    --deck-info: #86ADD6;
-    --deck-info-tint: rgba(134, 173, 214, 0.11);
-    --deck-info-line: rgba(134, 173, 214, 0.3);
+    --deck-info: #7CC8F0;
+    --deck-info-tint: rgba(56, 189, 248, 0.12);
+    --deck-info-line: rgba(56, 189, 248, 0.30);
     --deck-success: #6CB07C;
     --deck-success-tint: rgba(108, 176, 124, 0.11);
     --deck-success-line: rgba(108, 176, 124, 0.3);
@@ -460,8 +461,8 @@
     --deck-danger-tint: rgba(222, 112, 97, 0.11);
     --deck-danger-line: rgba(222, 112, 97, 0.32);
 
-    --deck-row-hover: rgba(91, 157, 255, 0.06);
-    --deck-selection: rgba(91, 157, 255, 0.35);
+    --deck-row-hover: rgba(127, 178, 255, 0.06);
+    --deck-selection: rgba(127, 178, 255, 0.35);
     --deck-shadow-card: 0 1px 0 rgba(0, 0, 0, 0.25);
     --deck-shadow-card-hover: 0 1px 0 rgba(0, 0, 0, 0.25), 0 8px 22px -14px rgba(0, 0, 0, 0.6);
 
@@ -1025,26 +1026,26 @@ html {
      classes, never in Tailwind utilities. */
   .amg-portal .deck-eyebrow {
     font-family: var(--font-mono);
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.13em;
     color: var(--deck-accent-ink);
   }
   .amg-portal .deck-eyebrow-chrome {
     font-family: var(--font-mono);
-    font-size: 0.6rem;
+    font-size: 0.66rem;
     font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.24em;
+    letter-spacing: 0.15em;
     color: var(--deck-chrome-muted);
   }
   .amg-portal .deck-micro {
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.24em;
+    letter-spacing: 0.13em;
   }
   .amg-portal .deck-title {
     font-family: var(--font-display);
@@ -1068,8 +1069,8 @@ html {
   }
   .amg-portal .deck-mono {
     font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
   }
 
   /* ---- Surfaces — flat manifest paper: hairline edge, top rule accent ---- */
@@ -1118,7 +1119,7 @@ html {
   /* ---- Chrome (sidebar / topbar) — navy-ink rail, faint instrument wash ---- */
   .amg-portal .deck-chrome-surface {
     background:
-      radial-gradient(130% 50% at 0% 0%, rgba(11, 94, 212, 0.14), transparent 55%),
+      radial-gradient(130% 50% at 0% 0%, rgba(29, 78, 216, 0.16), transparent 55%),
       linear-gradient(180deg, var(--deck-chrome) 0%, var(--deck-chrome-2) 60%, var(--deck-chrome) 100%);
     color: var(--deck-chrome-text);
   }
@@ -1139,18 +1140,18 @@ html {
     color: var(--deck-chrome-text);
   }
   .amg-portal .deck-nav-link[data-active="true"] {
-    background: rgba(11, 94, 212, 0.18);
+    background: rgba(29, 78, 216, 0.26);
     color: #DCEAFF;
     font-weight: 600;
-    box-shadow: inset 2px 0 0 var(--deck-accent);
+    box-shadow: inset 2px 0 0 #38BDF8;
   }
   .amg-portal .deck-nav-group {
     font-family: var(--font-mono);
-    font-size: 0.6rem;
+    font-size: 0.66rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.22em;
-    color: rgba(143, 160, 188, 0.75);
+    letter-spacing: 0.14em;
+    color: rgba(143, 160, 188, 0.8);
   }
   .amg-portal .deck-scroll {
     scrollbar-width: thin;
@@ -1168,10 +1169,10 @@ html {
     border-radius: 0.2rem;
     padding: 0.18rem 0.55rem;
     font-family: var(--font-mono);
-    font-size: 0.64rem;
+    font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.05em;
   }
 
   /* ---- Fields ---- */
@@ -1302,16 +1303,16 @@ body:has(.amg-portal) [data-slot="select-item"] {
 }
 body:has(.amg-portal) [data-slot="select-item"]:focus,
 body:has(.amg-portal) [data-slot="select-item"][data-highlighted] {
-  background: rgba(11, 94, 212, 0.08);
+  background: rgba(29, 78, 216, 0.08);
   color: #16191E;
 }
 body:has(.amg-portal) [data-slot="select-item"][data-state="checked"] {
   font-weight: 600;
-  color: #0B5ED4;
+  color: #1D4ED8;
 }
 body:has(.amg-portal) [data-slot="select-scroll-up-button"],
 body:has(.amg-portal) [data-slot="select-scroll-down-button"] {
-  color: #76808F;
+  color: #6B7280;
   background: #FFFFFF;
 }
 body:has([data-portal-theme="dark"]) [data-slot="select-content"] {
@@ -1325,11 +1326,11 @@ body:has([data-portal-theme="dark"]) [data-slot="select-item"] {
 }
 body:has([data-portal-theme="dark"]) [data-slot="select-item"]:focus,
 body:has([data-portal-theme="dark"]) [data-slot="select-item"][data-highlighted] {
-  background: rgba(11, 94, 212, 0.16);
+  background: rgba(29, 78, 216, 0.18);
   color: #EEF2F7;
 }
 body:has([data-portal-theme="dark"]) [data-slot="select-item"][data-state="checked"] {
-  color: #5B9DFF;
+  color: #7FB2FF;
 }
 body:has([data-portal-theme="dark"]) [data-slot="select-scroll-up-button"],
 body:has([data-portal-theme="dark"]) [data-slot="select-scroll-down-button"] {

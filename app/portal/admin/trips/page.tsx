@@ -132,7 +132,7 @@ export default async function AdminTripsPage({
   return (
     <>
       <PageHeader
-        eyebrow="AMG Operations"
+        eyebrow="Operations"
         title="Support Requests"
         description="All owner, ferry, crew reposition, aircraft support, and maintenance reposition requests."
         actions={

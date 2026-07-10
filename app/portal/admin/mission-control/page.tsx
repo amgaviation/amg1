@@ -3,26 +3,31 @@ import { requireRolePermission } from "@/lib/portal/permissions";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SlaChip } from "@/components/portal/ui/sla-chip";
-import { SubmitButton } from "@/components/portal/ui/submit-button";
-import { updateMissionStatus } from "@/app/portal/actions/missions";
+import { MissionStatusAdvanceCompact } from "@/components/portal/ui/status-advance";
 import { listAllMissions } from "@/lib/portal/queries";
 import {
   MISSION_FLOW_STAGES,
-  MISSION_STATUS,
   MISSION_STATUS_LABEL,
   MISSION_STATUS_TONE,
   URGENCY_LABEL,
   toneFor,
 } from "@/lib/portal/constants";
 import { formatDateTime, formatRoute } from "@/lib/portal/format";
-import { DeckSelect } from "@/components/portal/ui/fields";
+import { cn } from "@/lib/utils";
 
-export const metadata = { title: "Mission Control - Admin Portal" };
+export const metadata = { title: "Mission Control - AMG Operations" };
 
+/**
+ * The operations board: every open support request, laid out the way work
+ * moves — intake, quote, crew & schedule, execution. Desktop shows all four
+ * stages side by side; phones get a stage selector and a vertical list (no
+ * horizontal swiping required). Cards offer only the record's legal next
+ * step; everything else lives on the record page.
+ */
 export default async function AdminMissionControlPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; success?: string; ref?: string; stage?: string }>;
 }) {
   await requireRolePermission("admin", "missions");
   const params = await searchParams;
@@ -41,45 +46,88 @@ export default async function AdminMissionControlPage({
   const completed = missions.filter((m) => m.status === "completed").length;
   const cancelled = missions.filter((m) => m.status === "cancelled").length;
 
+  // Mobile stage selector: URL-driven so back/forward and deep links work.
+  const requestedStage = lanes.some((lane) => lane.key === params.stage) ? params.stage : undefined;
+  const activeStageKey =
+    requestedStage ?? (lanes.find((lane) => lane.missions.length > 0)?.key ?? lanes[0].key);
+
   return (
     <>
-      {params.error === "missing" ? <Notice tone="danger">Mission and status are required.</Notice> : null}
+      {params.error === "missing" ? (
+        <Notice tone="danger">Request and status are required.</Notice>
+      ) : null}
+      {params.success === "updated" ? (
+        <Notice tone="success">
+          {params.ref ? `${params.ref} moved.` : "Request status updated."}
+        </Notice>
+      ) : null}
       <PageHeader
-        eyebrow="AMG Operations"
+        eyebrow="Operations"
         title="Mission Control"
-        description="Every open request on one board, laid out the way work actually moves: intake, quote, crew, flight."
+        description="Every open support request on one board: intake, quote, crew & schedule, execution. Cards offer the next legal step — open a record for the full status panel."
+        actions={
+          <Link
+            href="/portal/admin/trips"
+            className="rounded-md border border-[var(--deck-line-strong)] px-3 py-1.5 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"
+          >
+            List view
+          </Link>
+        }
       />
 
-      {/* Flow strip — same vocabulary as the Command Center. Horizontal scroll
-          strip on phones (see admin dashboard flow band). */}
-      <div className="deck-card deck-scroll-x flex items-stretch overflow-x-auto sm:flex-wrap sm:overflow-hidden">
-        {lanes.map((lane, index) => (
-          <div key={lane.key} className="flex w-[10rem] flex-none items-center sm:w-auto sm:min-w-[10rem] sm:flex-1">
-            {index > 0 ? (
-              <span className="deck-mono px-1 text-[var(--deck-text-3)]" aria-hidden>
-                →
-              </span>
-            ) : null}
-            <a href={`#lane-${lane.key}`} className="group flex-1 px-4 py-3.5">
-              <p className="deck-micro text-[var(--deck-text-3)] transition-colors group-hover:text-[var(--deck-accent-ink)]">
-                {lane.label}
-              </p>
-              <p className="deck-num mt-1 text-2xl font-bold text-[var(--deck-text)]">
-                {lane.missions.length}
-              </p>
-            </a>
-          </div>
-        ))}
+      {/* Stage selector — pills on phones (choose a stage), summary strip on
+          desktop (anchors into the grid). */}
+      <div className="deck-card deck-scroll-x flex items-stretch overflow-x-auto md:flex-wrap md:overflow-hidden">
+        {lanes.map((lane, index) => {
+          const activeOnMobile = lane.key === activeStageKey;
+          return (
+            <div key={lane.key} className="flex flex-none items-center md:min-w-[10rem] md:flex-1">
+              {index > 0 ? (
+                <span className="deck-mono hidden px-1 text-[var(--deck-text-3)] md:inline" aria-hidden>
+                  →
+                </span>
+              ) : null}
+              <Link
+                href={`/portal/admin/mission-control?stage=${lane.key}`}
+                aria-current={activeOnMobile ? "page" : undefined}
+                className={cn(
+                  "group min-h-[44px] flex-1 px-4 py-3 md:py-3.5",
+                  activeOnMobile && "border-b-2 border-[var(--deck-accent)] md:border-0"
+                )}
+              >
+                <p
+                  className={cn(
+                    "deck-micro transition-colors group-hover:text-[var(--deck-accent-ink)]",
+                    activeOnMobile ? "text-[var(--deck-accent-ink)]" : "text-[var(--deck-text-3)]"
+                  )}
+                >
+                  {lane.label}
+                </p>
+                <p className="deck-num mt-1 text-2xl font-bold text-[var(--deck-text)]">
+                  {lane.missions.length}
+                </p>
+              </Link>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Lanes — a swipeable snap board on phones, a grid from md up. */}
-      <div className="deck-scroll-x -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:snap-none md:grid-cols-2 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-4">
+      {/* Lanes: single selected stage on phones, four-up grid from md. */}
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {lanes.map((lane) => (
-          <section key={lane.key} id={`lane-${lane.key}`} className="deck-card flex min-h-[20rem] w-[85vw] max-w-[22rem] flex-none snap-start flex-col overflow-hidden md:w-auto md:max-w-none">
+          <section
+            key={lane.key}
+            id={`lane-${lane.key}`}
+            aria-label={`${lane.label} — ${lane.missions.length} request${lane.missions.length === 1 ? "" : "s"}`}
+            className={cn(
+              "deck-card min-h-[20rem] flex-col overflow-hidden",
+              lane.key === activeStageKey ? "flex" : "hidden md:flex"
+            )}
+          >
             <header className="flex items-center justify-between gap-2 border-b border-[var(--deck-line)] bg-[var(--deck-panel-2)] px-4 py-3">
               <div className="min-w-0">
                 <p className="deck-micro text-[var(--deck-text-2)]">{lane.label}</p>
-                <p className="mt-0.5 truncate text-[0.68rem] leading-4 text-[var(--deck-text-3)]">{lane.hint}</p>
+                <p className="mt-0.5 truncate text-[0.72rem] leading-4 text-[var(--deck-text-3)]">{lane.hint}</p>
               </div>
               <span className="deck-num flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--deck-accent-tint)] text-xs font-bold text-[var(--deck-accent-ink)]">
                 {lane.missions.length}
@@ -98,14 +146,12 @@ export default async function AdminMissionControlPage({
                       >
                         {mission.ref}
                       </Link>
-                      {lane.statuses.length > 1 ? (
-                        <StatusBadge
-                          label={MISSION_STATUS_LABEL[mission.status] ?? mission.status}
-                          tone={toneFor(MISSION_STATUS_TONE, mission.status)}
-                        />
-                      ) : null}
+                      <StatusBadge
+                        label={MISSION_STATUS_LABEL[mission.status] ?? mission.status}
+                        tone={toneFor(MISSION_STATUS_TONE, mission.status)}
+                      />
                     </div>
-                    <p className="deck-mono mt-1.5 !text-[0.78rem] font-semibold text-[var(--deck-text)]">
+                    <p className="deck-mono mt-1.5 !text-[0.8rem] font-semibold text-[var(--deck-text)]">
                       {formatRoute(mission.departure_airport, mission.arrival_airport)}
                     </p>
                     <p className="mt-1 text-xs text-[var(--deck-text-3)]">
@@ -128,19 +174,10 @@ export default async function AdminMissionControlPage({
                     <div className="mt-1.5 empty:hidden">
                       <SlaChip mission={mission} />
                     </div>
-                    <form action={updateMissionStatus} className="mt-2.5 flex items-center gap-2">
-                      <input type="hidden" name="mission_id" value={mission.id} />
-                      <DeckSelect
-                        name="status"
-                        defaultValue={mission.status}
-                        aria-label={`Move ${mission.ref} to status`}
-                        className="!min-h-9 flex-1 !text-xs"
-                        options={MISSION_STATUS.map((s) => ({ value: s.value, label: s.label }))}
-                      />
-                      <SubmitButton variant="outline" size="sm" pendingText="…">
-                        Move
-                      </SubmitButton>
-                    </form>
+                    <MissionStatusAdvanceCompact
+                      mission={mission}
+                      backTo={`/portal/admin/mission-control${requestedStage ? `?stage=${requestedStage}` : ""}`}
+                    />
                   </article>
                 ))
               )}

@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { Suspense, createContext, useContext, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { ChevronDown, LogOut, Menu, X } from "lucide-react";
 import { signOut } from "@/app/portal/actions/auth";
 import { CommandPalette } from "@/components/portal/shell/command-palette";
@@ -15,25 +15,28 @@ import { initials } from "@/lib/portal/format";
 import { clearPortalIntroBrowserState } from "@/lib/portal/intro";
 import {
   DECK_NAV,
+  PRIMARY_ACTION,
   ROLE_HOME,
   ROLE_LABELS,
   ROLE_SHORT,
   SUPER_ADMIN_NAV_GROUP,
   isAdminRole,
   type NavGroup,
+  type NavItem,
   type PortalRole,
 } from "@/lib/portal/constants";
 import { navModuleForHref } from "@/lib/portal/permissions-catalog";
 
 /**
- * Flight Deck Console shell — the chrome every portal page renders inside.
- * Night-mode chrome rail in both themes, grouped mono-labelled navigation,
- * and a status strip with breadcrumbs, Zulu clock, and the theme toggle.
+ * AMG Connect shell — the chrome every portal page renders inside.
+ *
+ * One short workspace rail per role (navy chrome), a contextual sub-nav
+ * strip for the destinations inside the active workspace, and a status
+ * strip with breadcrumbs, Zulu clock, notifications, and the account menu.
  *
  * Rendered once by the per-role layout (app/portal/<role>/layout.tsx). Pages
  * that still render their own <PortalShell> are harmless: a nested shell
- * detects the layout-rendered one via context and renders bare children,
- * so wrappers can be stripped role-by-role instead of in one big bang.
+ * detects the layout-rendered one via context and renders bare children.
  */
 
 type ShellUser = {
@@ -85,9 +88,14 @@ const PROFILE_HREF: Record<PortalRole, string> = {
   super_admin: "/portal/admin/settings",
 };
 
-function resolveNavGroups(role: PortalRole, userRole: PortalRole): NavGroup[] {
+function resolveNavGroups(role: PortalRole, user: ShellUser): NavGroup[] {
   const base = role === "super_admin" ? DECK_NAV.admin : DECK_NAV[role];
-  if (userRole === "super_admin" && (role === "admin" || role === "super_admin")) {
+  // Website governance is a super_admin-only workspace; it also rides along
+  // when a super admin works the admin console.
+  if (
+    (user.role === "super_admin" && role === "admin") ||
+    (user.role === "super_admin" && role === "super_admin")
+  ) {
     return [...base, SUPER_ADMIN_NAV_GROUP];
   }
   return base;
@@ -96,20 +104,46 @@ function resolveNavGroups(role: PortalRole, userRole: PortalRole): NavGroup[] {
 /**
  * Hide nav items whose module the role cannot view (role-permission matrix).
  * Chrome only — pages and actions remain the enforcement boundary. Items with
- * no module mapping (dashboards, personal settings) always show, and a
+ * no module mapping (dashboards, workspace landings) always show, and a
  * missing map fails open so the shell never blanks out on a lookup error.
  */
 function filterNavGroups(groups: NavGroup[], moduleView?: Record<string, boolean>): NavGroup[] {
-  if (!moduleView) return groups;
+  const allowed = (href: string) => {
+    if (!moduleView) return true;
+    const moduleKey = navModuleForHref(href);
+    return !moduleKey || moduleView[moduleKey] !== false;
+  };
   return groups
     .map((group) => ({
       ...group,
-      items: group.items.filter((item) => {
-        const moduleKey = navModuleForHref(item.href);
-        return !moduleKey || moduleView[moduleKey] !== false;
-      }),
+      items: group.items.filter((item) => allowed(item.href)),
+      // A hidden landing falls back to the first visible destination so the
+      // rail never links somewhere the role cannot view.
+      href: group.href && allowed(group.href) ? group.href : undefined,
     }))
-    .filter((group) => group.items.length > 0);
+    .filter((group) => group.items.length > 0)
+    .map((group) => ({ ...group, href: group.href ?? group.items[0].href }));
+}
+
+function baseOf(href: string) {
+  return href.split("?")[0];
+}
+
+/** The workspace whose items best match the current pathname. */
+function activeGroupFor(groups: NavGroup[], pathname: string): NavGroup | null {
+  let best: NavGroup | null = null;
+  let bestLen = -1;
+  for (const group of groups) {
+    const candidates = [...group.items.map((i) => i.href), ...(group.href ? [group.href] : [])];
+    for (const href of candidates) {
+      const base = baseOf(href);
+      if ((pathname === base || pathname.startsWith(`${base}/`)) && base.length > bestLen) {
+        best = group;
+        bestLen = base.length;
+      }
+    }
+  }
+  return best;
 }
 
 export function PortalShell({
@@ -128,7 +162,20 @@ export function PortalShell({
 }) {
   const nested = useContext(ShellNestingContext);
   const [open, setOpen] = useState(false);
-  const navGroups = filterNavGroups(resolveNavGroups(role, user.role), moduleView);
+  const pathname = usePathname();
+  const navGroups = filterNavGroups(resolveNavGroups(role, user), moduleView);
+  const activeGroup = activeGroupFor(navGroups, pathname);
+  const primaryAction = PRIMARY_ACTION[role];
+  const showPrimaryAction =
+    primaryAction &&
+    (!moduleView ||
+      (() => {
+        const moduleKey = navModuleForHref(primaryAction.href);
+        return !moduleKey || moduleView[moduleKey] !== false;
+      })());
+  // An admin inside another role's workspace is previewing a layout with
+  // their own account — never another user's data, never a different role.
+  const previewing = isAdminRole(user.role) && role !== "admin" && role !== "super_admin";
 
   const drawerRef = useRef<HTMLElement | null>(null);
   const drawerReturnFocus = useRef<HTMLElement | null>(null);
@@ -185,7 +232,13 @@ export function PortalShell({
       <div className="amg-portal relative min-h-screen bg-[var(--deck-canvas)] overflow-x-clip lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
         {/* Desktop sidebar */}
         <aside className="deck-chrome-surface sticky top-0 hidden h-screen flex-col border-r border-[var(--deck-chrome-line)] lg:flex">
-          <SidebarContent role={role} user={user} navGroups={navGroups} />
+          <SidebarContent
+            role={role}
+            user={user}
+            navGroups={navGroups}
+            activeGroup={activeGroup}
+            primaryAction={showPrimaryAction ? primaryAction : undefined}
+          />
         </aside>
 
         {/* Mobile drawer */}
@@ -207,7 +260,10 @@ export function PortalShell({
                 role={role}
                 user={user}
                 navGroups={navGroups}
+                activeGroup={activeGroup}
+                primaryAction={showPrimaryAction ? primaryAction : undefined}
                 onNavigate={() => setOpen(false)}
+                expandable
                 showWorkspaceSwitch
               />
             </aside>
@@ -229,16 +285,27 @@ export function PortalShell({
                 <Breadcrumbs role={role} />
               </div>
               <p className="deck-micro truncate text-[var(--deck-text-3)] md:hidden">
-                {ROLE_SHORT[role]}
+                {activeGroup?.label ?? ROLE_SHORT[role]}
               </p>
             </div>
 
             <div className="flex items-center gap-1.5 sm:gap-2">
+              {showPrimaryAction ? (
+                <Link
+                  href={primaryAction!.href}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-[var(--deck-accent)] p-2.5 text-xs font-semibold text-white transition-colors hover:bg-[var(--deck-accent-ink)] lg:px-3 lg:py-1.5"
+                  aria-label={primaryAction!.label}
+                >
+                  <PortalIcon name={primaryAction!.icon} className="h-4 w-4 lg:h-3.5 lg:w-3.5" />
+                  <span className="hidden lg:inline">{primaryAction!.label}</span>
+                </Link>
+              ) : null}
+
               {isAdminRole(user.role) ? <CommandPalette /> : null}
 
               <ZuluClock />
 
-              {isAdminRole(user.role) ? <ViewSwitcher role={role} /> : null}
+              {isAdminRole(user.role) ? <PreviewMenu role={role} /> : null}
 
               <ThemeToggle />
 
@@ -259,6 +326,31 @@ export function PortalShell({
             </div>
           </header>
 
+          {/* Preview notice — admins looking at another role's workspace. */}
+          {previewing ? (
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-[var(--deck-info-line)] bg-[var(--deck-info-tint)] px-4 py-2 text-xs text-[var(--deck-info)] sm:px-5 lg:px-8">
+              <span className="font-semibold">
+                Previewing the {ROLE_LABELS[role]} layout
+              </span>
+              <span className="hidden sm:inline">
+                You are signed in with your administrator account — this is not another user&apos;s view.
+              </span>
+              <Link
+                href={ROLE_HOME[user.role]}
+                className="ml-auto font-semibold underline underline-offset-2 hover:opacity-80"
+              >
+                Exit preview
+              </Link>
+            </div>
+          ) : null}
+
+          {/* Contextual sub-navigation for the active workspace. */}
+          {activeGroup && activeGroup.items.filter((i) => !i.secondary).length > 1 ? (
+            <Suspense fallback={<WorkspaceSubnav group={activeGroup} pathname={pathname} />}>
+              <WorkspaceSubnavWithQuery group={activeGroup} pathname={pathname} />
+            </Suspense>
+          ) : null}
+
           {/* Main content */}
           <main className="w-full max-w-full min-w-0 overflow-hidden flex-1 px-4 py-6 sm:px-5 lg:px-8 lg:py-7">
             <div className="mx-auto w-full max-w-[96rem] min-w-0 space-y-5">
@@ -274,6 +366,79 @@ export function PortalShell({
         </div>
       </div>
     </ShellNestingContext.Provider>
+  );
+}
+
+/**
+ * Second-level navigation: the destinations inside the active workspace.
+ * Plain links — browser back/forward and deep links keep working, and the
+ * strip scrolls horizontally on phones without hiding anything essential.
+ */
+function WorkspaceSubnavWithQuery({ group, pathname }: { group: NavGroup; pathname: string }) {
+  const searchParams = useSearchParams();
+  return <WorkspaceSubnav group={group} pathname={pathname} search={searchParams?.toString() ?? ""} />;
+}
+
+function WorkspaceSubnav({
+  group,
+  pathname,
+  search = "",
+}: {
+  group: NavGroup;
+  pathname: string;
+  search?: string;
+}) {
+  const items = group.items.filter((item) => !item.secondary);
+  const current = new URLSearchParams(search);
+
+  // Longest-prefix match wins; items that pin query params (e.g. ?pool=open)
+  // win when those params are present and lose when they are not.
+  let activeHref: string | null = null;
+  let bestScore = -1;
+  for (const item of items) {
+    const [base, query] = item.href.split("?");
+    if (!(pathname === base || pathname.startsWith(`${base}/`))) continue;
+    let score = base.length * 10;
+    if (query) {
+      const wanted = new URLSearchParams(query);
+      let matched = true;
+      for (const [key, value] of wanted.entries()) {
+        if (current.get(key) !== value) matched = false;
+      }
+      score += matched ? 1000 : -5;
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      activeHref = item.href;
+    }
+  }
+
+  return (
+    <nav
+      aria-label={`${group.label} sections`}
+      className="border-b border-[var(--deck-line)] bg-[var(--deck-panel)] px-4 sm:px-5 lg:px-8"
+    >
+      <div className="deck-scroll-x -mb-px flex gap-1 overflow-x-auto">
+        {items.map((item) => {
+          const active = item.href === activeHref;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={active ? "page" : undefined}
+              className={cn(
+                "flex min-h-[2.75rem] shrink-0 items-center gap-1.5 border-b-2 px-3 text-[0.82rem] font-medium transition-colors",
+                active
+                  ? "border-[var(--deck-accent)] font-semibold text-[var(--deck-accent-ink)]"
+                  : "border-transparent text-[var(--deck-text-2)] hover:border-[var(--deck-line-strong)] hover:text-[var(--deck-text)]"
+              )}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
   );
 }
 
@@ -299,14 +464,17 @@ function ZuluClock() {
   );
 }
 
-/** Admin quick-switch between role workspaces. */
-function ViewSwitcher({ role }: { role: PortalRole }) {
+/**
+ * Admin layout preview — opens another role's workspace with the admin's own
+ * account. Explicitly a preview: it never impersonates a user or changes the
+ * acting role, and the shell shows a persistent banner while inside one.
+ */
+function PreviewMenu({ role }: { role: PortalRole }) {
   const [open, setOpen] = useState(false);
   const targets: { role: PortalRole; label: string }[] = [
-    { role: "admin", label: "Operations Command" },
-    { role: "client", label: "Client Portal" },
-    { role: "crew", label: "Crew Portal" },
-    { role: "partner", label: "Partner Portal" },
+    { role: "client", label: "Client workspace" },
+    { role: "crew", label: "Crew workspace" },
+    { role: "partner", label: "Partner workspace" },
   ];
   return (
     <div className="relative hidden md:block">
@@ -317,13 +485,17 @@ function ViewSwitcher({ role }: { role: PortalRole }) {
         className="inline-flex items-center gap-1.5 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-2.5 py-1.5 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"
       >
         <PortalIcon name="layers" className="h-3.5 w-3.5" />
-        View
+        Preview
         <ChevronDown className={cn("h-3 w-3 transition-transform", open && "rotate-180")} />
       </button>
       {open ? (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden />
-          <div className="deck-card absolute right-0 z-50 mt-2 w-52 p-1.5">
+          <div className="deck-card absolute right-0 z-50 mt-2 w-64 p-1.5">
+            <p className="px-3 pb-1.5 pt-2 text-[0.7rem] leading-4 text-[var(--deck-text-3)]">
+              Open a role&apos;s workspace layout with your admin account. Not an
+              impersonation — you keep your own access and identity.
+            </p>
             {targets.map((t) => (
               <Link
                 key={t.role}
@@ -342,6 +514,16 @@ function ViewSwitcher({ role }: { role: PortalRole }) {
                 ) : null}
               </Link>
             ))}
+            {role !== "admin" && role !== "super_admin" ? (
+              <Link
+                href={ROLE_HOME.admin}
+                onClick={() => setOpen(false)}
+                className="mt-1 flex items-center gap-2 rounded-md border-t border-[var(--deck-line)] px-3 py-2 text-sm font-semibold text-[var(--deck-text)] hover:bg-[var(--deck-accent-tint)]"
+              >
+                <PortalIcon name="gauge" className="h-4 w-4" />
+                Back to Operations
+              </Link>
+            ) : null}
           </div>
         </>
       ) : null}
@@ -349,7 +531,7 @@ function ViewSwitcher({ role }: { role: PortalRole }) {
   );
 }
 
-/** Avatar dropdown: identity, workspace label, settings, sign out. */
+/** Avatar dropdown: identity, workspace label, profile, settings, sign out. */
 function UserMenu({ role, user }: { role: PortalRole; user: ShellUser }) {
   const [open, setOpen] = useState(false);
   return (
@@ -409,49 +591,31 @@ function UserMenu({ role, user }: { role: PortalRole; user: ShellUser }) {
   );
 }
 
-const NAV_COLLAPSE_KEY = "amg-deck-nav-collapsed";
-
 function SidebarContent({
   role,
   user,
   navGroups,
+  activeGroup,
+  primaryAction,
   onNavigate,
+  expandable = false,
   showWorkspaceSwitch = false,
 }: {
   role: PortalRole;
   user: ShellUser;
   navGroups: NavGroup[];
+  activeGroup: NavGroup | null;
+  primaryAction?: NavItem;
   onNavigate?: () => void;
+  /** Mobile drawer: workspaces expand in place so every destination stays reachable. */
+  expandable?: boolean;
   showWorkspaceSwitch?: boolean;
 }) {
-  const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
-  useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(NAV_COLLAPSE_KEY);
-      if (stored) setCollapsed(JSON.parse(stored));
-    } catch {
-      /* first visit or blocked storage — leave all groups expanded */
-    }
-  }, []);
-
-  function toggleGroup(label: string) {
-    setCollapsed((current) => {
-      const next = { ...current, [label]: !current[label] };
-      try {
-        window.localStorage.setItem(NAV_COLLAPSE_KEY, JSON.stringify(next));
-      } catch {
-        /* ignore */
-      }
-      return next;
-    });
-  }
-
-  function isActive(href: string) {
-    const base = href.split("?")[0];
-    const isHome = base.endsWith("/dashboard");
-    return pathname === base || (!isHome && pathname.startsWith(base));
+  function isExpanded(group: NavGroup) {
+    if (group.label in expanded) return expanded[group.label];
+    return group.label === activeGroup?.label;
   }
 
   return (
@@ -469,52 +633,80 @@ function SidebarContent({
           />
         </Link>
         <p className="deck-micro mt-2.5 text-[var(--deck-chrome-muted)]">
-          AMG Connect · Console
+          AMG Connect
         </p>
         <div className="mt-3">
           <RoleBadge role={role} />
         </div>
       </div>
 
-      {/* Nav */}
+      {/* Primary action — the most common "start work" step, never buried in nav. */}
+      {primaryAction ? (
+        <div className="shrink-0 px-3 pt-4">
+          <Link
+            href={primaryAction.href}
+            onClick={onNavigate}
+            className="flex min-h-[2.75rem] items-center justify-center gap-2 rounded-md bg-[var(--deck-accent)] px-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--deck-accent-ink)]"
+          >
+            <PortalIcon name={primaryAction.icon} className="h-4 w-4" />
+            {primaryAction.label}
+          </Link>
+        </div>
+      ) : null}
+
+      {/* Workspace rail */}
       <nav className="deck-scroll flex-1 overflow-y-auto px-3 py-4">
-        <div>
-          {navGroups.map((group, index) => {
-            const groupActive = group.items.some((item) => isActive(item.href));
-            // A group holding the current page never collapses out from under you.
-            const isCollapsed = collapsed[group.label] && !groupActive;
+        <div className="space-y-0.5">
+          {navGroups.map((group) => {
+            const isActive = group.label === activeGroup?.label;
+            const subItems = group.items.filter(
+              (item) => !item.secondary && baseOf(item.href) !== baseOf(group.href ?? "")
+            );
+            const showItems = expandable && subItems.length > 0 && isExpanded(group);
             return (
-              <div
-                key={group.label}
-                className={cn(
-                  index > 0 && "mt-3 border-t border-[var(--deck-chrome-line)] pt-3"
-                )}
-              >
-                <button
-                  type="button"
-                  onClick={() => toggleGroup(group.label)}
-                  aria-expanded={!isCollapsed}
-                  className="deck-nav-group flex w-full items-center justify-between px-3 pb-1.5 text-left transition-colors hover:text-[var(--deck-chrome-text)]"
-                >
-                  {group.label}
-                  <ChevronDown
-                    className={cn(
-                      "h-3 w-3 shrink-0 transition-transform",
-                      isCollapsed && "-rotate-90"
-                    )}
-                  />
-                </button>
-                {!isCollapsed ? (
-                  <div className="space-y-0.5">
-                    {group.items.map((item) => (
+              <div key={group.label}>
+                <div className="flex items-center">
+                  <Link
+                    href={group.href ?? group.items[0].href}
+                    onClick={onNavigate}
+                    data-active={isActive}
+                    className="deck-nav-link flex-1"
+                    aria-current={isActive ? "page" : undefined}
+                  >
+                    <PortalIcon
+                      name={group.icon ?? group.items[0].icon}
+                      className="h-4 w-4 shrink-0 opacity-80"
+                    />
+                    <span className="min-w-0 flex-1 truncate">{group.label}</span>
+                  </Link>
+                  {expandable && subItems.length > 0 ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setExpanded((current) => ({
+                          ...current,
+                          [group.label]: !isExpanded(group),
+                        }))
+                      }
+                      aria-expanded={isExpanded(group)}
+                      aria-label={`${isExpanded(group) ? "Collapse" : "Expand"} ${group.label}`}
+                      className="min-h-[2.75rem] rounded-md px-2 text-[var(--deck-chrome-muted)] transition-colors hover:text-[var(--deck-chrome-text)]"
+                    >
+                      <ChevronDown
+                        className={cn("h-3.5 w-3.5 transition-transform", !isExpanded(group) && "-rotate-90")}
+                      />
+                    </button>
+                  ) : null}
+                </div>
+                {showItems ? (
+                  <div className="ml-4 space-y-0.5 border-l border-[var(--deck-chrome-line)] pl-2">
+                    {subItems.map((item) => (
                       <Link
                         key={item.href}
                         href={item.href}
                         onClick={onNavigate}
-                        data-active={isActive(item.href)}
-                        className="deck-nav-link"
+                        className="deck-nav-link !min-h-[2.5rem]"
                       >
-                        <PortalIcon name={item.icon} className="h-4 w-4 shrink-0 opacity-80" />
                         <span className="min-w-0 flex-1 truncate">{item.label}</span>
                       </Link>
                     ))}
@@ -525,18 +717,18 @@ function SidebarContent({
           })}
         </div>
 
-        {/* Workspace quick-switch — the header ViewSwitcher is hidden below md,
-            so the mobile drawer is where admins change workspaces on a phone. */}
+        {/* Preview switch — the header Preview menu is hidden below md, so the
+            mobile drawer is where admins open a role layout preview. */}
         {showWorkspaceSwitch && isAdminRole(user.role) ? (
-          <div className="mt-3 border-t border-[var(--deck-chrome-line)] pt-3">
-            <p className="deck-nav-group px-3 pb-1.5">Switch Workspace</p>
+          <div className="mt-4 border-t border-[var(--deck-chrome-line)] pt-3">
+            <p className="deck-nav-group px-3 pb-1.5">Preview role layouts</p>
             <div className="space-y-0.5">
               {(
                 [
-                  { role: "admin", label: "Operations Command" },
-                  { role: "client", label: "Client Portal" },
-                  { role: "crew", label: "Crew Portal" },
-                  { role: "partner", label: "Partner Portal" },
+                  { role: "admin", label: "AMG Operations" },
+                  { role: "client", label: "Client workspace" },
+                  { role: "crew", label: "Crew workspace" },
+                  { role: "partner", label: "Partner workspace" },
                 ] as { role: PortalRole; label: string }[]
               ).map((target) => (
                 <Link
@@ -549,7 +741,7 @@ function SidebarContent({
                   <PortalIcon name="layers" className="h-4 w-4 shrink-0 opacity-80" />
                   <span className="min-w-0 flex-1 truncate">{target.label}</span>
                   {target.role === role ? (
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--deck-accent)]" aria-hidden />
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--deck-accent-ink)]" aria-hidden />
                   ) : null}
                 </Link>
               ))}

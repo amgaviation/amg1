@@ -29,7 +29,7 @@ import {
   parsePayoutCrewId,
   payoutCrewMarker,
 } from "@/lib/portal/payouts";
-import { actor, bool, isoOrNull, num, str } from "./_helpers";
+import { actor, bool, isoOrNull, num, safeRedirectPath, str } from "./_helpers";
 
 async function logCompletedMissionUsage(db: any, missionId: string, admin: Awaited<ReturnType<typeof actor>>) {
   const { data: mission } = await db
@@ -534,7 +534,12 @@ export async function updateMissionStatus(formData: FormData) {
 
   revalidatePath("/portal/admin/mission-control");
   revalidatePath(`/portal/admin/trips/${missionId}`);
-  redirect(`/portal/admin/trips/${missionId}?success=updated`);
+  // Board submits pass back_to so a successful move keeps the operator on the
+  // board; failures always land on the record, where the gate panel and
+  // override live. safeRedirectPath rejects anything off-site.
+  const successPath = safeRedirectPath(str(formData, "back_to"), `/portal/admin/trips/${missionId}`);
+  const separator = successPath.includes("?") ? "&" : "?";
+  redirect(`${successPath}${separator}success=updated&ref=${encodeURIComponent(mission?.ref ?? "")}`);
 }
 
 export async function updateMissionNotes(formData: FormData) {

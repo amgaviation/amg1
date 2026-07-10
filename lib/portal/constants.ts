@@ -43,7 +43,7 @@ export const ROLE_SHORT: Record<PortalRole, string> = {
   crew: "Flight Crew",
   admin: "AMG Operations",
   partner: "Service Partner",
-  super_admin: "Website Governance",
+  super_admin: "AMG Operations",
 };
 
 export const ROLE_HOME: Record<PortalRole, string> = {
@@ -54,284 +54,284 @@ export const ROLE_HOME: Record<PortalRole, string> = {
   super_admin: "/portal/admin/dashboard",
 };
 
-export type NavItem = { label: string; href: string; icon: string };
-export type NavGroup = { label: string; items: NavItem[] };
+export type NavItem = {
+  label: string;
+  href: string;
+  icon: string;
+  /**
+   * Secondary destinations stay out of the workspace sub-nav strip (they are
+   * reached from landing pages, record links, or global search) but remain
+   * here so breadcrumbs and permission filtering know about them.
+   */
+  secondary?: boolean;
+};
+export type NavGroup = {
+  label: string;
+  /** Workspace landing destination rendered in the primary sidebar. */
+  href?: string;
+  icon?: string;
+  items: NavItem[];
+};
 
 /**
- * Operations Deck navigation — grouped IA per role. Every reachable portal
- * surface is listed here; the shell renders these groups directly.
+ * AMG Connect navigation — one short workspace rail per role. Each group is
+ * a workspace: the sidebar links to `href`, and the shell renders the
+ * group's non-secondary items as contextual sub-navigation inside it.
+ * Keep primary destinations to at most ~7 per role; everything else is a
+ * `secondary` item reachable through workspace landing pages.
  */
 export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
   client: [
     {
-      label: "Overview",
-      items: [{ label: "Dashboard", href: "/portal/client/dashboard", icon: "gauge" }],
+      label: "Home",
+      href: "/portal/client/dashboard",
+      icon: "gauge",
+      items: [{ label: "Home", href: "/portal/client/dashboard", icon: "gauge" }],
     },
     {
-      label: "Flight Support",
+      label: "Support Requests",
+      href: "/portal/client/trips",
+      icon: "plane",
       items: [
-        { label: "Support Requests", href: "/portal/client/trips", icon: "plane" },
-        { label: "New Request", href: "/portal/client/trips/new", icon: "plus" },
-        { label: "Aircraft", href: "/portal/client/aircraft", icon: "planeTakeoff" },
+        { label: "Requests", href: "/portal/client/trips", icon: "plane" },
         { label: "Crew Availability", href: "/portal/client/live-map", icon: "mapPin" },
+        { label: "New Request", href: "/portal/client/trips/new", icon: "plus", secondary: true },
+      ],
+    },
+    {
+      label: "Aircraft & Passengers",
+      href: "/portal/client/aircraft",
+      icon: "planeTakeoff",
+      items: [
+        { label: "Aircraft", href: "/portal/client/aircraft", icon: "planeTakeoff" },
         { label: "Passengers", href: "/portal/client/passengers", icon: "users" },
       ],
     },
     {
       label: "Billing",
+      href: "/portal/client/billing",
+      icon: "wallet",
       items: [
-        { label: "Quotes", href: "/portal/client/quotes", icon: "receipt" },
         { label: "Invoices", href: "/portal/client/billing", icon: "wallet" },
+        { label: "Quotes", href: "/portal/client/quotes", icon: "receipt" },
         { label: "Subscriptions", href: "/portal/client/subscriptions", icon: "creditCard" },
       ],
     },
     {
-      label: "Files & Comms",
+      label: "Messages & Documents",
+      href: "/portal/client/messages",
+      icon: "messageSquare",
       items: [
-        { label: "Documents", href: "/portal/client/documents", icon: "fileText" },
         { label: "Messages", href: "/portal/client/messages", icon: "messageSquare" },
-        { label: "Notifications", href: "/portal/client/notifications", icon: "bell" },
-      ],
-    },
-    {
-      label: "Account",
-      items: [
-        { label: "Profile", href: "/portal/client/profile", icon: "users" },
-        { label: "Settings", href: "/portal/client/settings", icon: "settings" },
+        { label: "Documents", href: "/portal/client/documents", icon: "fileText" },
+        { label: "Notifications", href: "/portal/client/notifications", icon: "bell", secondary: true },
       ],
     },
   ],
   crew: [
     {
-      label: "Overview",
-      items: [{ label: "Dashboard", href: "/portal/crew/dashboard", icon: "gauge" }],
+      label: "Home",
+      href: "/portal/crew/dashboard",
+      icon: "gauge",
+      items: [{ label: "Home", href: "/portal/crew/dashboard", icon: "gauge" }],
     },
     {
       label: "Assignments",
+      href: "/portal/crew/missions",
+      icon: "plane",
       items: [
         { label: "My Assignments", href: "/portal/crew/missions", icon: "plane" },
         { label: "Open Pool", href: "/portal/crew/missions?pool=open", icon: "radar" },
-        { label: "Live Map", href: "/portal/crew/live-map", icon: "mapPin" },
+      ],
+    },
+    {
+      label: "Availability",
+      href: "/portal/crew/availability",
+      icon: "calendar",
+      items: [
         { label: "Availability", href: "/portal/crew/availability", icon: "calendar" },
+        { label: "Live Map", href: "/portal/crew/live-map", icon: "mapPin" },
       ],
     },
     {
-      label: "Records",
+      label: "Credentials",
+      href: "/portal/crew/credentials",
+      icon: "badgeCheck",
       items: [
-        { label: "Credentials & Documents", href: "/portal/crew/credentials", icon: "badgeCheck" },
+        { label: "Credentials", href: "/portal/crew/credentials", icon: "badgeCheck" },
+      ],
+    },
+    {
+      label: "Expenses & Payouts",
+      href: "/portal/crew/expenses",
+      icon: "receipt",
+      items: [
         { label: "Expenses", href: "/portal/crew/expenses", icon: "receipt" },
-      ],
-    },
-    {
-      label: "Billing",
-      items: [
         { label: "Invoices", href: "/portal/crew/invoices", icon: "wallet" },
         { label: "Receipts", href: "/portal/crew/receipts", icon: "fileText" },
       ],
     },
     {
-      label: "Comms",
+      label: "Messages & Documents",
+      href: "/portal/crew/messages",
+      icon: "messageSquare",
       items: [
         { label: "Messages", href: "/portal/crew/messages", icon: "messageSquare" },
-        { label: "Notifications", href: "/portal/crew/notifications", icon: "bell" },
-      ],
-    },
-    {
-      label: "Account",
-      items: [
-        { label: "Profile", href: "/portal/crew/profile", icon: "users" },
-        { label: "Settings", href: "/portal/crew/settings", icon: "settings" },
+        { label: "Documents", href: "/portal/crew/documents", icon: "fileText" },
+        { label: "Notifications", href: "/portal/crew/notifications", icon: "bell", secondary: true },
       ],
     },
   ],
   admin: [
     {
+      label: "Command Center",
+      href: "/portal/admin/dashboard",
+      icon: "gauge",
+      items: [{ label: "Command Center", href: "/portal/admin/dashboard", icon: "gauge" }],
+    },
+    {
       label: "Operations",
+      href: "/portal/admin/trips",
+      icon: "radar",
       items: [
-        { label: "Dashboard", href: "/portal/admin/dashboard", icon: "gauge" },
-        { label: "Mission Control", href: "/portal/admin/mission-control", icon: "radar" },
-        { label: "Live Crew Map", href: "/portal/admin/live-map", icon: "mapPin" },
         { label: "Support Requests", href: "/portal/admin/trips", icon: "plane" },
+        { label: "Mission Control", href: "/portal/admin/mission-control", icon: "radar" },
         { label: "Calendar", href: "/portal/admin/calendar", icon: "calendar" },
         { label: "Tasks", href: "/portal/admin/tasks", icon: "check" },
+        { label: "Crew Map", href: "/portal/admin/live-map", icon: "mapPin" },
       ],
     },
     {
-      label: "Pipeline",
+      label: "Network",
+      href: "/portal/admin/network",
+      icon: "users",
       items: [
-        { label: "Sales Pipeline", href: "/portal/admin/crm", icon: "trendingUp" },
-        { label: "Form Submissions", href: "/portal/admin/form-submissions", icon: "inbox" },
-        { label: "Network Applications", href: "/portal/admin/network-applications", icon: "userCheck" },
-        { label: "User Approvals", href: "/portal/admin/user-approvals", icon: "check" },
-        { label: "Waitlist", href: "/portal/admin/waitlist", icon: "clock" },
-      ],
-    },
-    {
-      label: "Directory",
-      items: [
+        { label: "Overview", href: "/portal/admin/network", icon: "users" },
         { label: "Clients", href: "/portal/admin/clients", icon: "building" },
-        { label: "Crew", href: "/portal/admin/crew", icon: "users" },
         { label: "Aircraft", href: "/portal/admin/aircraft", icon: "planeTakeoff" },
+        { label: "Crew", href: "/portal/admin/crew", icon: "users" },
         { label: "Partners", href: "/portal/admin/partners", icon: "handshake" },
-        { label: "All Users", href: "/portal/admin/users", icon: "user" },
+        { label: "Applications", href: "/portal/admin/network-applications", icon: "userCheck" },
       ],
     },
     {
-      label: "Billing",
+      label: "Business",
+      href: "/portal/admin/business",
+      icon: "trendingUp",
       items: [
+        { label: "Overview", href: "/portal/admin/business", icon: "trendingUp" },
+        { label: "Pipeline", href: "/portal/admin/crm", icon: "trendingUp" },
         { label: "Quotes", href: "/portal/admin/quotes", icon: "receipt" },
-        { label: "Quote Templates", href: "/portal/admin/quotes/templates", icon: "clipboard" },
         { label: "Invoices", href: "/portal/admin/invoices", icon: "wallet" },
-        { label: "Payments", href: "/portal/admin/payments", icon: "dollar" },
-        { label: "Vendor Invoices", href: "/portal/admin/vendor-invoices", icon: "receipt" },
         { label: "Receivables", href: "/portal/admin/receivables", icon: "alert" },
         { label: "Subscriptions", href: "/portal/admin/subscriptions", icon: "creditCard" },
-      ],
-    },
-    {
-      label: "Finance",
-      items: [
-        { label: "Analytics", href: "/portal/admin/financial/analytics", icon: "barChart" },
-        { label: "Payouts", href: "/portal/admin/payouts", icon: "wallet" },
-        { label: "Pricing & Services", href: "/portal/admin/financial/pricing", icon: "receipt" },
         { label: "Expenses", href: "/portal/admin/expenses", icon: "receipt" },
-        { label: "Receipts", href: "/portal/admin/receipts", icon: "fileText" },
+        { label: "Payouts", href: "/portal/admin/payouts", icon: "wallet" },
+        { label: "Analytics", href: "/portal/admin/financial/analytics", icon: "barChart" },
+        { label: "Form Submissions", href: "/portal/admin/form-submissions", icon: "inbox", secondary: true },
+        { label: "Payments", href: "/portal/admin/payments", icon: "dollar", secondary: true },
+        { label: "Vendor Invoices", href: "/portal/admin/vendor-invoices", icon: "receipt", secondary: true },
+        { label: "Receipts", href: "/portal/admin/receipts", icon: "fileText", secondary: true },
+        { label: "Quote Templates", href: "/portal/admin/quotes/templates", icon: "clipboard", secondary: true },
+        { label: "Pricing & Services", href: "/portal/admin/financial/pricing", icon: "receipt", secondary: true },
       ],
     },
     {
-      label: "Comms & Files",
+      label: "Communications",
+      href: "/portal/admin/communications",
+      icon: "messageSquare",
       items: [
+        { label: "Overview", href: "/portal/admin/communications", icon: "messageSquare" },
         { label: "Messages", href: "/portal/admin/messages", icon: "messageSquare" },
         { label: "Emails", href: "/portal/admin/communications/emails", icon: "mail" },
-        { label: "Notifications", href: "/portal/admin/notifications", icon: "bell" },
         { label: "Documents", href: "/portal/admin/documents", icon: "fileText" },
+        { label: "Notifications", href: "/portal/admin/notifications", icon: "bell", secondary: true },
       ],
     },
     {
-      label: "Governance",
+      label: "Administration",
+      href: "/portal/admin/user-approvals",
+      icon: "shield",
       items: [
+        { label: "User Approvals", href: "/portal/admin/user-approvals", icon: "userCheck" },
+        { label: "Waitlist", href: "/portal/admin/waitlist", icon: "clock" },
+        { label: "All Users", href: "/portal/admin/users", icon: "user" },
         { label: "Compliance", href: "/portal/admin/compliance", icon: "shield" },
-        { label: "Security Review", href: "/portal/admin/security-review", icon: "shield" },
         { label: "Audit Log", href: "/portal/admin/audit-log", icon: "history" },
-        { label: "System Health", href: "/portal/admin/system-health", icon: "activity" },
         { label: "Settings", href: "/portal/admin/settings", icon: "settings" },
+        { label: "Security Review", href: "/portal/admin/security-review", icon: "shield", secondary: true },
+        { label: "System Health", href: "/portal/admin/system-health", icon: "activity", secondary: true },
       ],
     },
   ],
   partner: [
     {
-      label: "Overview",
-      items: [{ label: "Dashboard", href: "/portal/partner/dashboard", icon: "gauge" }],
+      label: "Home",
+      href: "/portal/partner/dashboard",
+      icon: "gauge",
+      items: [{ label: "Home", href: "/portal/partner/dashboard", icon: "gauge" }],
     },
     {
-      label: "Work",
+      label: "Service Requests",
+      href: "/portal/partner/requests",
+      icon: "clipboard",
       items: [
         { label: "Service Requests", href: "/portal/partner/requests", icon: "clipboard" },
       ],
     },
     {
-      label: "Company",
-      items: [
-        { label: "Company Profile", href: "/portal/partner/profile", icon: "building" },
-        { label: "Documents", href: "/portal/partner/documents", icon: "fileText" },
-      ],
-    },
-    {
       label: "Billing",
+      href: "/portal/partner/invoices",
+      icon: "wallet",
       items: [
         { label: "Invoices", href: "/portal/partner/invoices", icon: "wallet" },
+        { label: "Quotes", href: "/portal/partner/quotes", icon: "receipt" },
         { label: "Receipts", href: "/portal/partner/receipts", icon: "fileText" },
       ],
     },
     {
-      label: "Comms",
+      label: "Documents",
+      href: "/portal/partner/documents",
+      icon: "fileText",
+      items: [{ label: "Documents", href: "/portal/partner/documents", icon: "fileText" }],
+    },
+    {
+      label: "Messages",
+      href: "/portal/partner/messages",
+      icon: "messageSquare",
       items: [
         { label: "Messages", href: "/portal/partner/messages", icon: "messageSquare" },
-        { label: "Notifications", href: "/portal/partner/notifications", icon: "bell" },
+        { label: "Notifications", href: "/portal/partner/notifications", icon: "bell", secondary: true },
       ],
     },
     {
-      label: "Account",
-      items: [{ label: "Settings", href: "/portal/partner/settings", icon: "settings" }],
+      label: "Company",
+      href: "/portal/partner/profile",
+      icon: "building",
+      items: [{ label: "Company Profile", href: "/portal/partner/profile", icon: "building" }],
     },
   ],
   super_admin: [], // resolved to admin groups + Website group in the shell
 };
 
-/** Extra sidebar group shown only to the super_admin role. */
+/** Extra sidebar workspace shown only to the super_admin role. */
 export const SUPER_ADMIN_NAV_GROUP: NavGroup = {
   label: "Website",
+  href: "/portal/super-admin/website-editor",
+  icon: "globe",
   items: [
     { label: "Website Editor", href: "/portal/super-admin/website-editor", icon: "globe" },
     { label: "Preview History", href: "/portal/super-admin/website-editor?panel=history", icon: "history" },
   ],
 };
 
-export const PORTAL_NAV: Record<PortalRole, NavItem[]> = {
-  client: [
-    { label: "Overview", href: "/portal/client/dashboard", icon: "gauge" },
-    { label: "Support Requests", href: "/portal/client/trips", icon: "plane" },
-    { label: "New Request", href: "/portal/client/trips/new", icon: "plus" },
-    { label: "Aircraft", href: "/portal/client/aircraft", icon: "planeTakeoff" },
-    { label: "Documents", href: "/portal/client/documents", icon: "fileText" },
-    { label: "Quotes", href: "/portal/client/quotes", icon: "receipt" },
-    { label: "Invoices", href: "/portal/client/billing", icon: "wallet" },
-    { label: "Subscriptions", href: "/portal/client/subscriptions", icon: "clipboard" },
-    { label: "Messages", href: "/portal/client/messages", icon: "messageSquare" },
-    { label: "Notifications", href: "/portal/client/notifications", icon: "bell" },
-    { label: "Settings", href: "/portal/client/settings", icon: "settings" },
-  ],
-  crew: [
-    { label: "Overview", href: "/portal/crew/dashboard", icon: "gauge" },
-    { label: "Open Assignments", href: "/portal/crew/missions?pool=open", icon: "radar" },
-    { label: "My Assignments", href: "/portal/crew/missions", icon: "plane" },
-    { label: "Availability", href: "/portal/crew/availability", icon: "calendar" },
-    { label: "Credentials", href: "/portal/crew/credentials", icon: "badgeCheck" },
-    { label: "Expenses", href: "/portal/crew/expenses", icon: "receipt" },
-    { label: "Messages", href: "/portal/crew/messages", icon: "messageSquare" },
-    { label: "Notifications", href: "/portal/crew/notifications", icon: "bell" },
-    { label: "Settings", href: "/portal/crew/settings", icon: "settings" },
-  ],
-  admin: [
-    { label: "Overview", href: "/portal/admin/dashboard", icon: "gauge" },
-    { label: "Mission Control", href: "/portal/admin/mission-control", icon: "radar" },
-    { label: "Support Requests", href: "/portal/admin/trips", icon: "plane" },
-    { label: "Form Submissions", href: "/portal/admin/form-submissions", icon: "clipboard" },
-    { label: "Network Applications", href: "/portal/admin/network-applications", icon: "userCheck" },
-    { label: "Clients", href: "/portal/admin/clients", icon: "building" },
-    { label: "Crew", href: "/portal/admin/crew", icon: "users" },
-    { label: "Aircraft", href: "/portal/admin/aircraft", icon: "planeTakeoff" },
-    { label: "Partners", href: "/portal/admin/partners", icon: "handshake" },
-    { label: "Messages", href: "/portal/admin/messages", icon: "messageSquare" },
-    { label: "Emails", href: "/portal/admin/communications/emails", icon: "messageSquare" },
-    { label: "Quotes", href: "/portal/admin/quotes", icon: "receipt" },
-    { label: "Invoices", href: "/portal/admin/invoices", icon: "wallet" },
-    { label: "Subscriptions", href: "/portal/admin/subscriptions", icon: "clipboard" },
-    { label: "Documents", href: "/portal/admin/documents", icon: "fileText" },
-    { label: "Expenses", href: "/portal/admin/expenses", icon: "wallet" },
-    { label: "Compliance", href: "/portal/admin/compliance", icon: "shield" },
-    { label: "Security Review", href: "/portal/admin/security-review", icon: "shield" },
-    { label: "User Approvals", href: "/portal/admin/user-approvals", icon: "userCheck" },
-    { label: "Waitlist", href: "/portal/admin/waitlist", icon: "userCheck" },
-    { label: "All Users", href: "/portal/admin/users", icon: "userCheck" },
-    { label: "Audit Log", href: "/portal/admin/audit-log", icon: "history" },
-    { label: "System Health", href: "/portal/admin/system-health", icon: "shield" },
-    { label: "Settings", href: "/portal/admin/settings", icon: "settings" },
-  ],
-  partner: [
-    { label: "Dashboard", href: "/portal/partner/dashboard", icon: "gauge" },
-    { label: "Service Requests", href: "/portal/partner/requests", icon: "clipboard" },
-    { label: "Company Profile", href: "/portal/partner/profile", icon: "building" },
-    { label: "Documents", href: "/portal/partner/documents", icon: "fileText" },
-    { label: "Messages", href: "/portal/partner/messages", icon: "messageSquare" },
-    { label: "Settings", href: "/portal/partner/settings", icon: "settings" },
-  ],
-  super_admin: [
-    { label: "Operations Admin", href: "/portal/admin/dashboard", icon: "shield" },
-    { label: "Website Editor", href: "/portal/super-admin/website-editor", icon: "fileText" },
-    { label: "Preview History", href: "/portal/super-admin/website-editor?panel=history", icon: "history" },
-    { label: "Settings", href: "/portal/admin/settings", icon: "settings" },
-  ],
+/**
+ * Persistent primary action per role, rendered by the shell (sidebar +
+ * mobile drawer) so the most common "start work" step never competes with
+ * navigation. Maps to the same permission module as its destination.
+ */
+export const PRIMARY_ACTION: Partial<Record<PortalRole, NavItem>> = {
+  client: { label: "New Support Request", href: "/portal/client/trips/new", icon: "plus" },
 };
 
 type Choice = { value: string; label: string; tone?: Tone };
