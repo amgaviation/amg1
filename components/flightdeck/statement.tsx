@@ -5,7 +5,7 @@ import { runWithMotion } from "./motion";
 import { prefersReducedMotion } from "./reveal";
 
 const COPY =
-  "AMG sources vetted contract pilots and coordinates the missions owners can't easily staff — maintenance ferries, repositioning, crew coverage, insurance-required second pilots. We make the same flat fee whether your pilot costs $500 or $700: every pass-through cost is billed at cost, receipts included, zero markup. You keep operational control. We keep the clock.";
+  "AMG coordinates owner-controlled aviation support requests that can include crew sourcing assistance, maintenance movement coordination, repositioning support, and insurance-driven second-pilot review. Owners retain operational control, the PIC retains go/no-go authority, and AMG keeps the request, documentation, status, and closeout process organized.";
 
 /**
  * Word-by-word scrubbed reveal: each word starts at 14% opacity and

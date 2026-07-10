@@ -185,7 +185,7 @@ export default function GlobalFooter() {
                 prefetch={false}
                 className="fd-navlink mt-3 block w-fit transition-colors hover:text-instrument"
               >
-                Get a Quote
+                Request Support
               </Link>
               <Link
                 href="/connect"

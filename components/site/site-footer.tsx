@@ -7,7 +7,7 @@ import { AFFILIATIONS, OPERATIONAL_CONTROL_STATEMENT, SITE } from "@/lib/site-co
 
 export function SiteFooter() {
   return (
-    <footer className="relative overflow-hidden border-t border-[var(--oc-line-dark)] bg-[#070B14] text-[var(--oc-paper)]">
+    <footer className="relative overflow-hidden border-t border-[var(--oc-line-dark)] bg-[#050B14] text-[var(--oc-paper)]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_0%,rgba(11,94,212,0.09),transparent_30rem)]" aria-hidden="true" />
       <div className="oc-shell relative z-10 py-14 lg:py-20">
         <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr]">
@@ -23,11 +23,10 @@ export function SiteFooter() {
               className="h-9 w-auto"
             />
             <p className="mt-3 font-mono text-[10px] uppercase [letter-spacing:0.22em] text-[var(--t3)]">
-              Aircraft support coordination
+              Owner-controlled aviation support
             </p>
             <p className="mt-6 text-base leading-relaxed text-[var(--oc-aluminum)]">
-              Vetted contract pilots, maintenance ferries, and repositioning for owners who fly
-              Part 91 — quoted within 24 business hours, tracked in one portal, priced flat.
+              AMG coordinates owner-controlled aviation support requests across crew sourcing assistance, aircraft movement coordination, documentation, tracking, and closeout administration.
             </p>
             <address className="mt-6 grid gap-1.5 not-italic text-sm text-[var(--oc-aluminum)]">
               <span>{SITE.streetAddress}</span>
@@ -40,7 +39,7 @@ export function SiteFooter() {
               {AFFILIATIONS.map((affiliation) => (
                 <span
                   key={affiliation}
-                  className="inline-flex items-center gap-2 rounded-full border border-[var(--oc-line-dark)] bg-white/[0.04] px-3 py-1.5 text-[0.75rem] font-semibold uppercase text-[var(--oc-aluminum)]"
+                  className="inline-flex items-center gap-2 rounded-sm border border-[var(--oc-line-dark)] bg-white/[0.04] px-3 py-1.5 text-[0.75rem] font-semibold uppercase text-[var(--oc-aluminum)]"
                 >
                   <span className="oc-dot" aria-hidden="true" />
                   {affiliation}
@@ -49,11 +48,11 @@ export function SiteFooter() {
             </div>
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <Link href="/request" prefetch={false} className="oc-btn oc-btn-light">
-                Get a Quote
+                Request Support
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
               <Link href="/connect" prefetch={false} className="oc-btn oc-btn-ghost-dark">
-                Portal login
+                AMG Connect
               </Link>
             </div>
           </div>
