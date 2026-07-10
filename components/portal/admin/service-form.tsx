@@ -7,6 +7,27 @@ import { SectionCard } from "@/components/portal/ui/primitives";
 import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
+import {
+  AIRCRAFT_BANDS,
+  ATTACHMENT_MODES,
+  COST_TYPES,
+  PRICING_MODELS,
+  RECURRING_INTERVALS,
+  SERVICE_FREQUENCIES,
+  SERVICE_STATUSES,
+  VARIABLE_INPUT_TYPES,
+  VARIABLE_ROLES,
+  type AircraftBand,
+  type AttachmentMode,
+  type CostType,
+  type PricingModel,
+  type RecurringInterval,
+  type ServiceFrequency,
+  type ServiceStatus,
+  type StripeSyncStatus,
+  type VariableInputType,
+  type VariableRole,
+} from "@/lib/portal/service-vocab";
 
 /**
  * Service catalog create/edit form (service-catalog plan §5). One component
@@ -95,85 +116,99 @@ export type AttachableService = {
 
 type FormAction = (formData: FormData) => void | Promise<void>;
 
-// ── vocab (mirrors the DB check constraints / actions contract) ────────
+// ── vocab (values single-sourced from lib/portal/service-vocab.ts, which
+//    the actions and pricing engine also import; only the labels live here.
+//    Each label map is keyed by the canonical type, so adding a value to the
+//    vocab fails this file's build until its label is written) ────────────
 
-const COST_TYPE_CHOICES = [
-  {
-    value: "coordination",
+const COST_TYPE_COPY: Record<CostType, { label: string; blurb: string }> = {
+  coordination: {
     label: "Coordination fee / retainer",
     blurb: "AMG coordination work billed as a flat fee — the ONLY place AMG margin lives; the fee includes it.",
   },
-  {
-    value: "pass_through",
+  pass_through: {
     label: "Pass-through",
     blurb: "Vendor cost re-billed at actual cost with ZERO markup. Prices entered here are the at-cost amount.",
   },
-  {
-    value: "plan_fee",
+  plan_fee: {
     label: "Plan / program fee",
     blurb: "Subscription or program retainer billed under a plan tier; margin lives in the plan fee itself.",
   },
-] as const;
+};
+const COST_TYPE_CHOICES = COST_TYPES.map((value) => ({ value, ...COST_TYPE_COPY[value] }));
 
-const STATUS_OPTIONS = [
-  { value: "draft", label: "Draft" },
-  { value: "active", label: "Active" },
-  { value: "archived", label: "Archived" },
-];
+const STATUS_LABELS: Record<ServiceStatus, string> = {
+  draft: "Draft",
+  active: "Active",
+  archived: "Archived",
+};
+const STATUS_OPTIONS = SERVICE_STATUSES.map((value) => ({ value, label: STATUS_LABELS[value] }));
 
-const PRICING_MODEL_OPTIONS = [
-  { value: "flat", label: "Flat fee — one price" },
-  { value: "per_unit", label: "Per unit — price × quantity (day, hour, leg)" },
-  { value: "variant_matrix", label: "Different price by client tier / aircraft" },
-  { value: "passthrough_estimate", label: "No fixed price — billed at vendor cost" },
-];
+const PRICING_MODEL_LABELS: Record<PricingModel, string> = {
+  flat: "Flat fee — one price",
+  per_unit: "Per unit — price × quantity (day, hour, leg)",
+  variant_matrix: "Different price by client tier / aircraft",
+  passthrough_estimate: "No fixed price — billed at vendor cost",
+};
+const PRICING_MODEL_OPTIONS = PRICING_MODELS.map((value) => ({ value, label: PRICING_MODEL_LABELS[value] }));
 
-const FREQUENCY_OPTIONS = [
-  { value: "one_time", label: "One-time" },
-  { value: "per_mission", label: "Per mission" },
-  { value: "recurring", label: "Recurring" },
-];
+const FREQUENCY_LABELS: Record<ServiceFrequency, string> = {
+  one_time: "One-time",
+  per_mission: "Per mission",
+  recurring: "Recurring",
+};
+const FREQUENCY_OPTIONS = SERVICE_FREQUENCIES.map((value) => ({ value, label: FREQUENCY_LABELS[value] }));
 
-const INTERVAL_OPTIONS = [
-  { value: "month", label: "Monthly" },
-  { value: "year", label: "Yearly" },
-];
+const INTERVAL_LABELS: Record<RecurringInterval, string> = {
+  month: "Monthly",
+  year: "Yearly",
+};
+const INTERVAL_OPTIONS = RECURRING_INTERVALS.map((value) => ({ value, label: INTERVAL_LABELS[value] }));
 
 // Radix selects cannot re-post an empty value once one is chosen, so "any"
 // is an explicit sentinel that serializes to null.
+const BAND_LABELS: Record<AircraftBand, string> = {
+  A: "Band A (smaller aircraft)",
+  B: "Band B (larger aircraft)",
+};
 const BAND_OPTIONS = [
   { value: "any", label: "Any band" },
-  { value: "A", label: "Band A (smaller aircraft)" },
-  { value: "B", label: "Band B (larger aircraft)" },
+  ...AIRCRAFT_BANDS.map((value) => ({ value, label: BAND_LABELS[value] })),
 ];
 
-const VARIABLE_INPUT_OPTIONS = [
-  { value: "number", label: "Number" },
-  { value: "select", label: "Select" },
-  { value: "boolean", label: "Yes / No" },
-];
+const VARIABLE_INPUT_LABELS: Record<VariableInputType, string> = {
+  number: "Number",
+  select: "Select",
+  boolean: "Yes / No",
+};
+const VARIABLE_INPUT_OPTIONS = VARIABLE_INPUT_TYPES.map((value) => ({ value, label: VARIABLE_INPUT_LABELS[value] }));
 
-const VARIABLE_ROLE_OPTIONS = [
-  { value: "quantity", label: "Quantity — count × price (e.g. fuel stops)" },
-  { value: "multiplier", label: "Multiplier — scales the price (e.g. 1.25× intl)" },
-  { value: "info", label: "Info only — recorded, no price effect" },
-];
+const VARIABLE_ROLE_LABELS: Record<VariableRole, string> = {
+  quantity: "Quantity — count × price (e.g. fuel stops)",
+  multiplier: "Multiplier — scales the price (e.g. 1.25× intl)",
+  info: "Info only — recorded, no price effect",
+};
+const VARIABLE_ROLE_OPTIONS = VARIABLE_ROLES.map((value) => ({ value, label: VARIABLE_ROLE_LABELS[value] }));
 
-// Offered as datalist suggestions on the Unit field — free text still wins.
+// Offered as datalist suggestions on the Unit field — free text still wins
+// (services.unit is not an enum; see the service-vocab header).
 const UNIT_PRESETS = ["day", "night", "hour", "leg", "trip", "each"];
 
-const ATTACHMENT_MODE_OPTIONS = [
-  { value: "required", label: "Required (always added)" },
-  { value: "default_on", label: "Default on (removable)" },
-  { value: "suggested", label: "Suggested" },
-];
+const ATTACHMENT_MODE_LABELS: Record<AttachmentMode, string> = {
+  required: "Required (always added)",
+  default_on: "Default on (removable)",
+  suggested: "Suggested",
+};
+const ATTACHMENT_MODE_OPTIONS = ATTACHMENT_MODES.map((value) => ({ value, label: ATTACHMENT_MODE_LABELS[value] }));
 
+// Indexed by the raw DB string (tolerates unknown values via the use-site
+// fallback) but checked exhaustive against the canonical vocabulary.
 const STRIPE_SYNC_TONE: Record<string, "success" | "warn" | "danger" | "neutral"> = {
   synced: "success",
   pending: "warn",
   error: "danger",
   not_applicable: "neutral",
-};
+} satisfies Record<StripeSyncStatus, "success" | "warn" | "danger" | "neutral">;
 
 // ── row state ───────────────────────────────────────────────────────────
 

@@ -16,28 +16,33 @@
  *
  * Shapes below mirror the DB columns of services / service_price_variants /
  * service_variables / service_attachments but are defined locally (plain TS,
- * no database.types import) to keep the module pure and client-safe.
+ * no database.types import) to keep the module pure and client-safe. The
+ * enum vocabularies come from ./service-vocab — also pure constants — so the
+ * catalog's value sets have exactly one source.
  */
 
-// ── Enumerations (mirror DB check constraints) ──────────────────────
+// ── Enumerations (single source: ./service-vocab, itself pure constants
+//    mirroring the DB check constraints; re-exported so engine callers
+//    keep their existing import surface) ──────────────────────────────
 
-export const COST_TYPES = ["coordination", "pass_through", "plan_fee"] as const;
-export type CostType = (typeof COST_TYPES)[number];
+import {
+  ATTACHMENT_MODES,
+  COST_TYPES,
+  SERVICE_FREQUENCIES,
+  VARIABLE_INPUT_TYPES,
+  VARIABLE_ROLES,
+  type AttachmentMode,
+  type CostType,
+  type RecurringInterval,
+  type ServiceFrequency,
+  type VariableInputType,
+  type VariableRole,
+} from "./service-vocab";
 
-export const SERVICE_FREQUENCIES = ["one_time", "per_mission", "recurring"] as const;
-export type ServiceFrequency = (typeof SERVICE_FREQUENCIES)[number];
+export { ATTACHMENT_MODES, COST_TYPES, SERVICE_FREQUENCIES, VARIABLE_INPUT_TYPES, VARIABLE_ROLES };
+export type { AttachmentMode, CostType, RecurringInterval, ServiceFrequency, VariableInputType, VariableRole };
 
 export type BillingFrequency = ServiceFrequency;
-export type RecurringInterval = "month" | "year";
-
-export const VARIABLE_ROLES = ["quantity", "multiplier", "info"] as const;
-export type VariableRole = (typeof VARIABLE_ROLES)[number];
-
-export const VARIABLE_INPUT_TYPES = ["number", "select", "boolean"] as const;
-export type VariableInputType = (typeof VARIABLE_INPUT_TYPES)[number];
-
-export const ATTACHMENT_MODES = ["required", "default_on", "suggested"] as const;
-export type AttachmentMode = (typeof ATTACHMENT_MODES)[number];
 
 /**
  * Business policy, stated structurally so reviewers and callers can assert
