@@ -85,6 +85,8 @@ export async function processDueScheduledEmails(): Promise<number> {
           phone: null,
           homeBase: null,
           avatarPath: null,
+          isActive: true,
+          isDeleted: false,
         }
       : null;
 

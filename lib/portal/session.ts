@@ -15,7 +15,15 @@ export type SessionUser = {
   phone: string | null;
   homeBase: string | null;
   avatarPath: string | null;
+  isActive: boolean;
+  isDeleted: boolean;
 };
+
+export function isApprovedSessionUser(
+  user: Pick<SessionUser, "status" | "isActive" | "isDeleted">,
+) {
+  return user.status === "approved" && user.isActive && !user.isDeleted;
+}
 
 /**
  * Resolve the authenticated portal user from the Supabase session + profile.
@@ -35,7 +43,7 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, email, full_name, role, status, company_name, phone, home_base, avatar_path")
+    .select("id, email, full_name, role, status, company_name, phone, home_base, avatar_path, is_active, is_deleted")
     .eq("id", userId)
     .single();
 
@@ -51,6 +59,8 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
     phone: profile.phone,
     homeBase: profile.home_base,
     avatarPath: profile.avatar_path,
+    isActive: profile.is_active === true,
+    isDeleted: profile.is_deleted === true,
   };
 });
 
@@ -58,9 +68,16 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
 export async function requireUser(): Promise<SessionUser> {
   const user = await getSessionUser();
   if (!user) redirect("/login");
-  if (user.status === "suspended" || user.status === "deleted") redirect("/access-denied");
-  if (user.status === "pending" || user.status === "pending_approval" || user.status === "waitlisted" || user.status === "denied") redirect("/pending-approval");
-  return user;
+  if (isApprovedSessionUser(user)) return user;
+  if (
+    user.status === "suspended" ||
+    user.status === "deleted" ||
+    user.isDeleted ||
+    (user.status === "approved" && !user.isActive)
+  ) {
+    redirect("/access-denied");
+  }
+  redirect("/pending-approval");
 }
 
 /**

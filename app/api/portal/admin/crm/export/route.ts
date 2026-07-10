@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import * as XLSX from "xlsx";
-import { isAdminRole } from "@/lib/portal/constants";
 import { listLeads } from "@/lib/portal/crm";
 import { contentDisposition } from "@/lib/portal/file-response";
-import { getSessionUser } from "@/lib/portal/session";
+import { requireApprovedPortalApiUser } from "@/lib/portal/api-guard";
 import { sanitizeSpreadsheetRow } from "@/lib/portal/spreadsheet";
 
 export const dynamic = "force-dynamic";
@@ -13,9 +12,8 @@ export const dynamic = "force-dynamic";
  * values round-trip cleanly through the smart importer.
  */
 export async function GET(request: Request) {
-  const user = await getSessionUser().catch(() => null);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!isAdminRole(user.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const gate = await requireApprovedPortalApiUser({ admin: true });
+  if (gate.response) return gate.response;
 
   const url = new URL(request.url);
   const format = url.searchParams.get("format") === "xlsx" ? "xlsx" : "csv";

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/portal/session";
+import { getSessionUser, isApprovedSessionUser } from "@/lib/portal/session";
 import { isAdminRole } from "@/lib/portal/constants";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
  */
 export async function GET() {
   const user = await getSessionUser().catch(() => null);
-  const isAdmin = Boolean(user && isAdminRole(user.role) && user.status === "approved");
+  const isAdmin = Boolean(user && isAdminRole(user.role) && isApprovedSessionUser(user));
 
   if (!isAdmin) {
     return NextResponse.json(

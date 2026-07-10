@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 import { isAdminRole } from "@/lib/portal/constants";
 import { fileResponse } from "@/lib/portal/file-response";
+import { requireApprovedPortalApiUser } from "@/lib/portal/api-guard";
 
 /**
  * Streams a contractor-uploaded receipt file. Visible to the uploader and to
@@ -12,29 +13,20 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const supabase = await createClient();
-  const { data: claims } = await supabase.auth.getClaims();
-  const userId = claims?.claims?.sub;
-  if (!userId) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
+  const gate = await requireApprovedPortalApiUser();
+  if (gate.response) return gate.response;
+  const user = gate.user;
 
   const db = await createServiceClient();
-  const [{ data: profile }, { data: receipt }] = await Promise.all([
-    db.from("profiles").select("id, role, status").eq("id", userId).maybeSingle(),
-    db
-      .from("vendor_receipts")
-      .select("id, uploader_id, storage_bucket, storage_path, file_name, mime_type")
-      .eq("id", id)
-      .maybeSingle(),
-  ]);
-  if (!profile || !receipt) {
+  const { data: receipt } = await db
+    .from("vendor_receipts")
+    .select("id, uploader_id, storage_bucket, storage_path, file_name, mime_type")
+    .eq("id", id)
+    .maybeSingle();
+  if (!receipt) {
     return NextResponse.json({ error: "not-found" }, { status: 404 });
   }
-  if (profile.status !== "approved") {
-    return NextResponse.json({ error: "forbidden" }, { status: 403 });
-  }
-  const allowed = isAdminRole(profile.role) || receipt.uploader_id === userId;
+  const allowed = isAdminRole(user.role) || receipt.uploader_id === user.id;
   if (!allowed) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }

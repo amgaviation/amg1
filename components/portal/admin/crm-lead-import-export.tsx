@@ -61,7 +61,13 @@ export function CrmLeadImportExport() {
     setParsing(true);
     try {
       const XLSX = await import("xlsx");
-      const workbook = XLSX.read(await file.arrayBuffer(), { cellDates: true });
+      const workbook = XLSX.read(await file.arrayBuffer(), {
+        cellDates: true,
+        dense: true,
+        // Header detection inspects at most 10 rows. One extra row ensures an
+        // oversized sheet is detected before it can be submitted.
+        sheetRows: MAX_IMPORT_ROWS + 12,
+      });
 
       // Pick the sheet with the most rows — skips cover/overview sheets.
       let sheetName: string | null = null;

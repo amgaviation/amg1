@@ -10,6 +10,7 @@ import { requireUser } from "@/lib/portal/session";
 import { ROLE_HOME, isBusinessPurpose, isPortalRole, type BusinessPurpose, type PortalRole } from "@/lib/portal/constants";
 import { isApprovedPortalIntroStatus } from "@/lib/portal/intro";
 import { clearPortalIntroPending, markPortalIntroPending } from "@/lib/portal/intro-server";
+import { isPublicSignupEnabled } from "@/lib/portal/maintenance";
 import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
 import { getSiteUrl } from "@/lib/site-url";
 import { safeRedirectPath } from "./_helpers";
@@ -212,7 +213,7 @@ export async function signIn(formData: FormData) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, status")
+    .select("role, status, is_active, is_deleted")
     .eq("id", data.user.id)
     .single();
 
@@ -221,12 +222,21 @@ export async function signIn(formData: FormData) {
     redirect("/login?error=invalid");
   }
 
-  if (profile.status === "pending" || profile.status === "pending_approval" || profile.status === "waitlisted" || profile.status === "denied") {
+  if (
+    profile.status === "suspended" ||
+    profile.status === "deleted" ||
+    profile.is_deleted === true
+  ) {
+    await supabase.auth.signOut();
+    redirect("/access-denied");
+  }
+
+  if (profile.status !== "approved") {
     await supabase.auth.signOut();
     redirect("/pending-approval");
   }
 
-  if (profile.status === "suspended" || profile.status === "deleted") {
+  if (profile.is_active !== true) {
     await supabase.auth.signOut();
     redirect("/access-denied");
   }
@@ -262,6 +272,10 @@ export async function signIn(formData: FormData) {
 }
 
 export async function signUp(formData: FormData) {
+  if (!isPublicSignupEnabled(process.env.AMG_CONNECT_PUBLIC_SIGNUP)) {
+    redirect("/maintenance");
+  }
+
   const email = field(formData, "email").toLowerCase();
   const fullName = field(formData, "full_name");
   const businessPurpose = normalizeBusinessPurpose(field(formData, "business_purpose"));
@@ -441,8 +455,7 @@ export async function verifyPortalEmail(formData: FormData) {
     redirect(`/verify-email?email=${emailParam}&error=failed`);
   }
 
-  const metadataRole = data.user.user_metadata?.role;
-  const role: PortalRole = isPortalRole(metadataRole) ? metadataRole : "client";
+  const role: PortalRole = "client";
 
   await logAuditEvent({
     actor: { id: data.user.id, email, role },

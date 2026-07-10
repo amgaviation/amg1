@@ -1,7 +1,7 @@
 import "server-only";
 
 import { redirect } from "next/navigation";
-import { getSessionUser, type SessionUser } from "@/lib/portal/session";
+import { requireUser, type SessionUser } from "@/lib/portal/session";
 import { isAdminRole, type PortalRole } from "@/lib/portal/constants";
 import { can, noAccessPath } from "@/lib/portal/permissions";
 import { parsePermissionKey, type PermissionKey } from "@/lib/portal/permissions-catalog";
@@ -50,11 +50,7 @@ export function safeRedirectPath(value: string | null | undefined, fallback: str
  * Redirects otherwise. super_admin always passes the permission check.
  */
 export async function actor(roles?: PortalRole[], perm?: PermissionKey): Promise<SessionUser> {
-  const user = await getSessionUser();
-  if (!user) redirect("/login");
-  if (user.status !== "approved") {
-    redirect(user.status === "suspended" || user.status === "deleted" ? "/access-denied" : "/pending-approval");
-  }
+  const user = await requireUser();
   if (roles && !isAdminRole(user.role) && !roles.includes(user.role)) {
     redirect("/access-denied");
   }

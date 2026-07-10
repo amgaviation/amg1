@@ -1,17 +1,12 @@
 import { NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/portal/session";
-import { isAdminRole } from "@/lib/portal/constants";
+import { requireApprovedPortalApiUser } from "@/lib/portal/api-guard";
 import { sendCommunicationEmail } from "@/lib/portal/communications";
 import { createSafeErrorResponse, getUserFacingErrorMessage, logServerError } from "@/lib/errors/user-facing-errors";
 
 export async function POST(request: Request) {
-  const user = await getSessionUser();
-  if (!user || !isAdminRole(user.role) || user.status !== "approved") {
-    return NextResponse.json(
-      createSafeErrorResponse({ audience: "admin", area: "communications", action: "send", category: "permission" }),
-      { status: 403 },
-    );
-  }
+  const gate = await requireApprovedPortalApiUser({ admin: true });
+  if (gate.response) return gate.response;
+  const user = gate.user;
 
   try {
     const formData = await request.formData();

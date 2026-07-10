@@ -20,11 +20,16 @@ export async function POST() {
   // was later suspended/denied but still holds a valid token could self-restore.
   const { data: profile } = await db
     .from("profiles")
-    .select("id, status, is_active")
+    .select("id, status, is_active, is_deleted")
     .eq("id", user.id)
     .maybeSingle();
 
-  if (!profile || profile.status !== "approved" || profile.is_active !== true) {
+  if (
+    !profile ||
+    profile.status !== "approved" ||
+    profile.is_active !== true ||
+    profile.is_deleted === true
+  ) {
     return NextResponse.json({ ok: false }, { status: 403 });
   }
 
@@ -41,6 +46,7 @@ export async function POST() {
     .eq("id", user.id)
     .eq("status", "approved")
     .eq("is_active", true)
+    .eq("is_deleted", false)
     .select("id");
 
   if (updateError) {
