@@ -363,7 +363,8 @@ export async function createQuoteRevision(formData: FormData) {
       revision_reason: str(formData, "revision_reason") || "Revision created from admin portal",
       version_number: Number(quote.version_number ?? 1) + 1,
       sent_at: null,
-      viewed_at: null,
+      // no viewed_at reset: quotes (unlike invoices) have no viewed_at column —
+      // inserting the key makes PostgREST reject the whole revision (PGRST204)
       approved_by: null,
       approved_at: null,
       rejected_by: null,

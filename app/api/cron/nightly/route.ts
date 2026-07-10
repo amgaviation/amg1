@@ -10,6 +10,7 @@ import {
 } from "@/lib/portal/subscription-credits";
 import { sweepInvoiceDunning } from "@/lib/portal/sweeps/dunning";
 import { sweepPayoutReminders } from "@/lib/portal/sweeps/payout-reminders";
+import { sweepSchemaDrift } from "@/lib/portal/sweeps/schema-drift";
 import { sweepSlaBreaches } from "@/lib/portal/sweeps/sla-sweep";
 import { createServiceClient } from "@/lib/supabase/server";
 
@@ -27,6 +28,8 @@ import { createServiceClient } from "@/lib/supabase/server";
 //    on billing_settings.dunning_enabled — a no-op until switched on).
 // 9. SLA clock: flag at-risk quote-response windows, stamp breaches, and
 //    apply the automatic plan-fee credit remedy where derivable.
+// 10. Schema-drift tripwire: diff the app's schema manifest against the live
+//     database and alert admins when an expected column has gone missing.
 // All mutations are audit-logged as the synthetic "system-cron" actor.
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -566,6 +569,7 @@ export async function GET(request: Request) {
     slaAtRisk: 0,
     slaBreached: 0,
     slaCredited: 0,
+    schemaDriftMissing: 0,
   };
   const errors: Record<string, string> = {};
   const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
@@ -645,6 +649,13 @@ export async function GET(request: Request) {
   } catch (error) {
     errors.slaSweep = message(error);
     console.error("[cron/nightly] SLA breach sweep failed", error);
+  }
+
+  try {
+    counts.schemaDriftMissing = await sweepSchemaDrift(db);
+  } catch (error) {
+    errors.schemaDrift = message(error);
+    console.error("[cron/nightly] schema drift sweep failed", error);
   }
 
   await insertAuditRows(db, [
