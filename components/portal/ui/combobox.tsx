@@ -161,7 +161,7 @@ export function Combobox({
           ) : null}
           <ChevronDown
             aria-hidden
-            className={cn("h-4 w-4 text-[var(--deck-text-3)] transition-transform", open && "rotate-180")}
+            className={cn("h-4 w-4 text-[var(--deck-text-3)]", open && "rotate-180")}
           />
         </div>
       </div>

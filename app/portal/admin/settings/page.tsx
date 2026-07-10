@@ -87,8 +87,8 @@ export default async function AdminSettingsPage({
             icon="badgeCheck"
             description="Recurring check of account security and role permissions."
           >
-            <p className="text-sm text-muted-foreground">
-              <Link href="/portal/admin/security-review" className="text-accent hover:underline">
+            <p className="text-sm text-[var(--deck-text-2)]">
+              <Link href="/portal/admin/security-review" className="text-[var(--deck-accent-ink)] hover:underline">
                 Complete monthly account security and permission review
               </Link>
             </p>
@@ -102,7 +102,7 @@ export default async function AdminSettingsPage({
           icon="shield"
           description="Control what each portal role can view, add, edit, and delete, module by module."
         >
-          <div className="mb-4 grid gap-1 text-xs text-muted-foreground">
+          <div className="mb-4 grid gap-1 text-xs text-[var(--deck-text-2)]">
             <p>View covers lists, search, and detail pages. Copy/duplicate follows Add.</p>
             <p>
               The Super Admin always has full access and never appears here, so governance can never be
@@ -114,7 +114,7 @@ export default async function AdminSettingsPage({
               restore access here or with Restore defaults.
             </p>
             <p>
-              <Link href="/portal/admin/settings/permissions" className="text-accent hover:underline">
+              <Link href="/portal/admin/settings/permissions" className="text-[var(--deck-accent-ink)] hover:underline">
                 Open the standalone role permissions page
               </Link>
             </p>
@@ -133,8 +133,8 @@ export default async function AdminSettingsPage({
           icon="creditCard"
           description="Billing settings are protected by an additional access check and open on their own page."
         >
-          <p className="text-sm text-muted-foreground">
-            <Link href="/portal/admin/settings/billing" className="text-accent hover:underline">
+          <p className="text-sm text-[var(--deck-text-2)]">
+            <Link href="/portal/admin/settings/billing" className="text-[var(--deck-accent-ink)] hover:underline">
               Manage protected billing settings
             </Link>
           </p>
@@ -143,14 +143,14 @@ export default async function AdminSettingsPage({
 
       {tab === "email-templates" ? (
         <SectionCard title="Email Templates" icon="mail">
-          <div className="grid gap-3 text-sm text-muted-foreground">
+          <div className="grid gap-3 text-sm text-[var(--deck-text-2)]">
             <p>
               Edit the copy of every templated email the portal sends — crew communications,
               sales-pipeline lead outreach, Crew Network application decisions, and
               communications-composer starters. Saved changes apply globally and immediately.
             </p>
             <p>
-              <Link href="/portal/admin/settings/email-templates" className="text-accent hover:underline">
+              <Link href="/portal/admin/settings/email-templates" className="text-[var(--deck-accent-ink)] hover:underline">
                 Edit email templates
               </Link>
             </p>
@@ -164,8 +164,8 @@ export default async function AdminSettingsPage({
           icon="fileText"
           description="Compliance tooling lives in the dedicated compliance area of the admin portal."
         >
-          <p className="text-sm text-muted-foreground">
-            <Link href="/portal/admin/compliance" className="text-accent hover:underline">
+          <p className="text-sm text-[var(--deck-text-2)]">
+            <Link href="/portal/admin/compliance" className="text-[var(--deck-accent-ink)] hover:underline">
               Review legal notices, privacy requests, consent events, and compliance controls
             </Link>
           </p>
@@ -174,7 +174,7 @@ export default async function AdminSettingsPage({
 
       {tab === "operational" ? (
         <SectionCard title="Operational Configuration" icon="clipboard">
-          <div className="grid gap-3 text-sm text-muted-foreground">
+          <div className="grid gap-3 text-sm text-[var(--deck-text-2)]">
             <p>Authentication, profile approval, portal role routing, document storage, audit logging, notifications, and server actions are wired in this build.</p>
             <p>Before production launch, confirm protected storage buckets exist for documents and crew-credentials, then set the required production environment variables.</p>
           </div>

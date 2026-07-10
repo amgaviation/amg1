@@ -350,7 +350,7 @@ export default async function AdminClientDetailPage({
         {activityItems.length ? (
           <Timeline items={activityItems} />
         ) : (
-          <p className="text-sm text-muted-foreground">No client activity recorded yet.</p>
+          <p className="text-sm text-[var(--deck-text-2)]">No client activity recorded yet.</p>
         )}
       </SectionCard>
     </>

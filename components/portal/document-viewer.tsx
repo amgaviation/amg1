@@ -29,11 +29,11 @@ export function PortalDocumentViewer({
         description={description}
         actions={
           <>
-            <Link href={backHref} className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-xs font-semibold text-foreground hover:border-[var(--deck-accent)]">
+            <Link href={backHref} className="inline-flex items-center gap-2 rounded-md border border-[var(--deck-line-strong)] px-4 py-2 text-xs font-semibold text-[var(--deck-text)] hover:border-[var(--deck-accent-line)]">
               <ArrowLeft className="h-3.5 w-3.5" />
               Back
             </Link>
-            <Link href={downloadHref} className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90">
+            <Link href={downloadHref} className="inline-flex items-center gap-2 rounded-md bg-[var(--deck-accent)] px-4 py-2 text-xs font-semibold text-[var(--deck-on-accent)] hover:opacity-90">
               <Download className="h-3.5 w-3.5" />
               Download
             </Link>
@@ -63,11 +63,11 @@ export function PortalDocumentViewer({
             </div>
             <div>
               <h2 className="deck-title text-xl">Preview unavailable</h2>
-              <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+              <p className="mt-2 max-w-md text-sm leading-6 text-[var(--deck-text-2)]">
                 This file type cannot be safely previewed inside the portal. Download it from this secure page.
               </p>
             </div>
-            <Link href={downloadHref} className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+            <Link href={downloadHref} className="inline-flex items-center gap-2 rounded-md bg-[var(--deck-accent)] px-4 py-2 text-sm font-semibold text-[var(--deck-on-accent)]">
               <ExternalLink className="h-4 w-4" />
               Download File
             </Link>

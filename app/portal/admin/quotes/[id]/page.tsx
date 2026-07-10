@@ -100,7 +100,7 @@ export default async function AdminQuoteDetailPage({
           {(quote as any).converted_invoice_id ? (
             <Link
               href={`/portal/admin/invoices/${(quote as any).converted_invoice_id}`}
-              className="rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-4 py-2 text-xs font-semibold text-[var(--deck-accent-ink)] transition-colors hover:border-[var(--deck-accent)]"
+              className="rounded-md border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] px-4 py-2 text-xs font-semibold text-[var(--deck-accent-ink)] transition-colors hover:border-[var(--deck-accent)]"
             >
               View Invoice
             </Link>
@@ -144,7 +144,7 @@ export default async function AdminQuoteDetailPage({
                 { header: "Recipients", cell: (row) => row.emailed_to?.join(", ") || "-" },
                 {
                   header: "File",
-                  cell: (row) => <Link href={`/portal/billing-documents/${row.id}/view`} className="text-accent hover:underline">PDF</Link>,
+                  cell: (row) => <Link href={`/portal/billing-documents/${row.id}/view`} className="text-[var(--deck-accent-ink)] hover:underline">PDF</Link>,
                 },
               ]}
             />
@@ -154,7 +154,7 @@ export default async function AdminQuoteDetailPage({
             {activityItems.length ? (
               <Timeline items={activityItems} />
             ) : (
-              <p className="text-sm text-muted-foreground">No quote activity recorded yet.</p>
+              <p className="text-sm text-[var(--deck-text-2)]">No quote activity recorded yet.</p>
             )}
           </SectionCard>
         </div>
@@ -201,14 +201,14 @@ export default async function AdminQuoteDetailPage({
                 </form>
               ) : null}
               {canRevise ? (
-                <form action={createQuoteRevision} className="space-y-3 rounded-md border border-border p-3">
+                <form action={createQuoteRevision} className="space-y-3 rounded-md border border-[var(--deck-line)] p-3">
                   <input type="hidden" name="quote_id" value={quote.id} />
                   <TextAreaField label="Revision Reason" name="revision_reason" placeholder="Client requested aircraft, scope, date, or pricing changes..." />
                   <SubmitButton className="w-full" pendingText="Creating...">Create Revision Draft</SubmitButton>
                 </form>
               ) : null}
               {canRevise ? (
-                <p className="text-xs text-muted-foreground">Sent, approved, and converted quotes are locked from direct total edits. Create a revision for changed terms.</p>
+                <p className="text-xs text-[var(--deck-text-2)]">Sent, approved, and converted quotes are locked from direct total edits. Create a revision for changed terms.</p>
               ) : null}
             </div>
           </SectionCard>

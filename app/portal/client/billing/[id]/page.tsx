@@ -51,12 +51,12 @@ export default async function ClientInvoicePage({
             {latestInvoiceDocument ? (
               <Link
                 href={`/portal/billing-documents/${latestInvoiceDocument.id}/view`}
-                className="text-xs text-accent hover:underline"
+                className="text-xs text-[var(--deck-accent-ink)] hover:underline"
               >
                 View PDF
               </Link>
             ) : null}
-            <Link href="/portal/client/billing" className="text-xs text-muted-foreground hover:text-accent">Back to billing</Link>
+            <Link href="/portal/client/billing" className="text-xs text-[var(--deck-text-2)] hover:text-[var(--deck-accent-ink)]">Back to billing</Link>
           </div>
         }
       />
@@ -91,7 +91,7 @@ export default async function ClientInvoicePage({
                   cell: (row) => {
                     const document = receiptByPayment.get(row.id);
                     return document ? (
-                      <Link href={`/portal/billing-documents/${document.id}/view`} className="text-accent hover:underline">
+                      <Link href={`/portal/billing-documents/${document.id}/view`} className="text-[var(--deck-accent-ink)] hover:underline">
                         View
                       </Link>
                     ) : "-";
@@ -123,11 +123,11 @@ export default async function ClientInvoicePage({
               </SubmitButton>
             </form>
           ) : invoice.status === "paid" ? (
-            <p className="mt-4 rounded-md border border-border bg-background/60 p-3 text-xs leading-5 text-muted-foreground">
+            <p className="deck-inset mt-4 p-3 text-xs leading-5 text-[var(--deck-text-2)]">
               This invoice is paid{invoice.paid_at ? ` as of ${formatDate(invoice.paid_at)}` : ""}.
             </p>
           ) : (
-            <p className="mt-4 rounded-md border border-border bg-background/60 p-3 text-xs leading-5 text-muted-foreground">
+            <p className="deck-inset mt-4 p-3 text-xs leading-5 text-[var(--deck-text-2)]">
               Online card payment is available after AMG issues an open invoice.
             </p>
           )}

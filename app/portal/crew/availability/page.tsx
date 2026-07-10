@@ -69,10 +69,10 @@ export default async function CrewAvailabilityPage({
         ) : (
           <div className="space-y-3">
             {windows.map((item) => (
-              <div key={item.id} className="grid gap-3 rounded-md border border-border bg-background/50 p-4 sm:grid-cols-[1fr_auto_auto] sm:items-center">
+              <div key={item.id} className="deck-inset grid gap-3 p-4 sm:grid-cols-[1fr_auto_auto] sm:items-center">
                 <div>
                   <p className="text-sm font-semibold">{formatDate(item.start_date)} - {formatDate(item.end_date)}</p>
-                  {item.notes ? <p className="mt-1 text-xs text-muted-foreground">{item.notes}</p> : null}
+                  {item.notes ? <p className="mt-1 text-xs text-[var(--deck-text-2)]">{item.notes}</p> : null}
                 </div>
                 <StatusBadge label={AVAILABILITY_STATUS_LABEL[item.availability_type] ?? item.availability_type} tone={toneFor(AVAILABILITY_STATUS_TONE, item.availability_type)} />
                 <form action={removeAvailabilityWindow}>

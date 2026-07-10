@@ -32,7 +32,7 @@ export default function PortalError({
             <button
               type="button"
               onClick={reset}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[var(--deck-navy)] px-5 text-sm font-semibold text-white transition-colors hover:bg-[var(--deck-navy-2)]"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[var(--deck-navy)] px-5 text-sm font-semibold text-[var(--deck-on-ink)] transition-colors hover:bg-[var(--deck-navy-2)]"
             >
               <RefreshCw className="h-4 w-4" />
               Retry

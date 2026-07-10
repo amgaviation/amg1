@@ -60,7 +60,7 @@ export default async function CrewMissionDetailPage({
         <div className="flex flex-wrap items-center gap-3 rounded-md border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] p-4">
           <div className="flex-1">
             <p className="font-semibold">Available in the Open Pool</p>
-            <p className="text-sm text-muted-foreground">Request this mission and AMG Operations will review your request.</p>
+            <p className="text-sm text-[var(--deck-text-2)]">Request this mission and AMG Operations will review your request.</p>
           </div>
           <form action={requestPoolMission}>
             <input type="hidden" name="mission_id" value={mission.id} />
@@ -94,7 +94,7 @@ export default async function CrewMissionDetailPage({
         <div className="flex flex-wrap items-center gap-3 rounded-md border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] p-4">
           <div className="flex-1">
             <p className="font-semibold">Assignment Offer</p>
-            <p className="text-sm text-muted-foreground">You have been offered this mission. Please accept or decline.</p>
+            <p className="text-sm text-[var(--deck-text-2)]">You have been offered this mission. Please accept or decline.</p>
           </div>
           <div className="flex gap-2">
             <form action={respondToAssignment}>
@@ -146,7 +146,7 @@ export default async function CrewMissionDetailPage({
 
           {showAssignedDetails && mission.client_notes ? (
             <SectionCard title="Operational Notes" icon="fileText">
-              <p className="text-sm leading-6 text-muted-foreground">{mission.client_notes}</p>
+              <p className="text-sm leading-6 text-[var(--deck-text-2)]">{mission.client_notes}</p>
             </SectionCard>
           ) : null}
 
@@ -154,9 +154,9 @@ export default async function CrewMissionDetailPage({
             <SectionCard title="Passenger Manifest" icon="users">
               <div className="space-y-2">
                 {mission.passengers.map((p) => (
-                  <div key={p.id} className="flex justify-between rounded-md border border-border bg-background/50 px-4 py-2 text-sm">
+                  <div key={p.id} className="deck-inset flex justify-between px-4 py-2 text-sm">
                     <span className="font-medium">{p.full_name}</span>
-                    <span className="text-xs text-muted-foreground capitalize">{p.passenger_type}</span>
+                    <span className="text-xs text-[var(--deck-text-2)] capitalize">{p.passenger_type}</span>
                   </div>
                 ))}
               </div>
@@ -176,8 +176,8 @@ export default async function CrewMissionDetailPage({
           ) : null}
 
           <SectionCard title="Operations Contact" icon="messageSquare">
-            <p className="text-sm text-muted-foreground">Questions about this mission?</p>
-            <a href={`mailto:${COMPANY.email}`} className="mt-2 block text-sm text-accent hover:underline">{COMPANY.email}</a>
+            <p className="text-sm text-[var(--deck-text-2)]">Questions about this mission?</p>
+            <a href={`mailto:${COMPANY.email}`} className="mt-2 block text-sm text-[var(--deck-accent-ink)] hover:underline">{COMPANY.email}</a>
           </SectionCard>
         </div>
       </div>

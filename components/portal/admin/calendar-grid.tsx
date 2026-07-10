@@ -31,11 +31,11 @@ export type GridMission = {
 
 const TONE_DOT: Record<Tone, string> = {
   accent: "var(--deck-accent)",
-  info: "#3b82f6",
-  warn: "#d97706",
-  danger: "#dc2626",
-  success: "#16a34a",
-  neutral: "#94a3b8",
+  info: "var(--deck-info)",
+  warn: "var(--deck-warn)",
+  danger: "var(--deck-danger)",
+  success: "var(--deck-success)",
+  neutral: "var(--deck-text-3)",
 };
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -124,13 +124,13 @@ export function CalendarGrid({
                 {day}
               </p>
               <Plus
-                className="h-3.5 w-3.5 text-[var(--deck-text-3)] opacity-0 transition-opacity group-hover:opacity-100"
+                className="h-3.5 w-3.5 text-[var(--deck-text-3)] opacity-0 group-hover:opacity-100"
                 aria-hidden
               />
             </div>
 
             {count > 0 ? (
-              <span className="deck-num mt-1 ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--deck-accent)] px-1 text-[0.62rem] font-bold text-white md:hidden">
+              <span className="deck-num mt-1 ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--deck-accent)] px-1 text-[0.62rem] font-bold text-[var(--deck-on-accent)] md:hidden">
                 {count}
               </span>
             ) : null}

@@ -90,7 +90,7 @@ export function CrewEmailComposer({
       <DialogContent className="max-h-[92vh] overflow-y-auto border-[var(--deck-line)] bg-[var(--deck-panel)] text-[var(--deck-text)] sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle className="deck-title text-2xl">Send Email</DialogTitle>
-          <DialogDescription className="text-[var(--amg-text-muted)]">
+          <DialogDescription className="text-[var(--deck-text-3)]">
             AMG Operations · {crewName}
           </DialogDescription>
         </DialogHeader>
@@ -107,7 +107,7 @@ export function CrewEmailComposer({
             <div className="grid gap-4">
               <label className="grid gap-2">
                 <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">Recipient</span>
-                <input value={crewEmail} disabled className={`${inputClassName} text-[var(--amg-text-secondary)]`} />
+                <input value={crewEmail} disabled className={`${inputClassName} text-[var(--deck-text-2)]`} />
               </label>
 
               <label className="flex items-center gap-3 rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2.5 text-sm">
@@ -185,7 +185,7 @@ export function CrewEmailComposer({
           <section className="deck-inset p-4">
             <p className="deck-eyebrow">Preview</p>
             <p className="mt-3 text-sm font-semibold text-[var(--deck-text)]">{previewSubject}</p>
-            <div className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[var(--amg-text-secondary)]">{previewBody}</div>
+            <div className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[var(--deck-text-2)]">{previewBody}</div>
           </section>
 
           <DialogFooter>

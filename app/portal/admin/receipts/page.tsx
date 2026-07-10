@@ -310,7 +310,7 @@ export default async function AdminReceiptsPage({
               {record.payment?.invoice ? (
                 <Link
                   href={`/portal/admin/invoices/${record.payment.invoice.id}`}
-                  className="deck-mono text-accent hover:underline"
+                  className="deck-mono text-[var(--deck-accent-ink)] hover:underline"
                 >
                   {record.payment.invoice.invoice_number}
                 </Link>

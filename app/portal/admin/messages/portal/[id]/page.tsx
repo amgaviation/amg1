@@ -36,7 +36,7 @@ export default async function AdminPortalThreadPage({ params }: { params: Promis
         eyebrow="Portal Messages"
         title={thread.title ?? "AMG Operations"}
         actions={
-          <Link href={BACK_TO} className="text-xs text-muted-foreground hover:text-accent">
+          <Link href={BACK_TO} className="text-xs text-[var(--deck-text-2)] hover:text-[var(--deck-accent-ink)]">
             ← All portal threads
           </Link>
         }
@@ -52,19 +52,19 @@ export default async function AdminPortalThreadPage({ params }: { params: Promis
               : message.sender?.full_name ?? message.sender?.email ?? message.sender_email ?? "Unknown sender";
             return (
               <div key={message.id} className={`flex gap-3 ${isOutbound ? "flex-row-reverse" : ""}`}>
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-secondary text-xs font-bold">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--deck-line)] bg-[var(--deck-panel-2)] text-xs font-bold">
                   {initials(isOutbound ? ADMIN_MESSAGE_ALIAS : messageSenderInitialsSource(message))}
                 </div>
-                <div className={`max-w-[75%] rounded-md border px-4 py-3 ${isOutbound ? "border-accent/30 bg-accent/10" : "border-border bg-card"}`}>
-                  <p className="mb-1 text-xs font-semibold text-muted-foreground">{senderLabel}</p>
+                <div className={`max-w-[75%] rounded-md border px-4 py-3 ${isOutbound ? "border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)]" : "border-[var(--deck-line)] bg-[var(--deck-panel)]"}`}>
+                  <p className="mb-1 text-xs font-semibold text-[var(--deck-text-2)]">{senderLabel}</p>
                   <p className="whitespace-pre-wrap text-sm leading-6">{message.body}</p>
-                  <p className="mt-1 text-[0.65rem] text-muted-foreground">{formatDateTime(message.created_at)}</p>
+                  <p className="mt-1 text-[0.65rem] text-[var(--deck-text-2)]">{formatDateTime(message.created_at)}</p>
                 </div>
               </div>
             );
           })}
         </div>
-        <form action={postMessage} className="mt-6 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row">
+        <form action={postMessage} className="mt-6 flex flex-col gap-3 border-t border-[var(--deck-line)] pt-5 sm:flex-row">
           <input type="hidden" name="thread_id" value={thread.id} />
           <input type="hidden" name="back_to" value={BACK_TO} />
           <textarea name="body" required placeholder="Reply to this portal thread as AMG Operations..." className="deck-input flex-1" rows={3} />

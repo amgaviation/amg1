@@ -87,7 +87,7 @@ export function SubmitButton({
 
       {confirmOpen ? (
         <div
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-[rgba(10,19,34,0.6)] p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-[var(--deck-scrim)] p-4 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
           aria-labelledby="confirm-action-title"

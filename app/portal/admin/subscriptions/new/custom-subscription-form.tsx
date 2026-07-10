@@ -115,7 +115,7 @@ export function CustomSubscriptionForm({
       </div>
 
       {previewOpen ? (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-[rgba(10,19,34,0.6)] p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-[var(--deck-scrim)] p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
           <div className="deck-card w-full max-w-md p-6">
             <p className="deck-eyebrow">Confirm Subscription Terms</p>
             <h2 className="deck-title mt-1.5 text-lg">{name.trim()}</h2>

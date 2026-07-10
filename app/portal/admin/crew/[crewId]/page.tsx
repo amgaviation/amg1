@@ -402,18 +402,18 @@ export default async function AdminCrewDetailPage({
             {communications.length ? (
               <div className="grid gap-3">
                 {communications.map((message) => (
-                  <details key={message.id} className="rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+                  <details key={message.id} className="rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4 shadow-[var(--deck-shadow-card)]">
                     <summary className="cursor-pointer list-none">
                       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                           <p className="text-sm font-semibold text-[var(--deck-text)]">{message.subject}</p>
-                          <p className="mt-1 font-mono text-xs text-[var(--amg-text-muted)]">
+                          <p className="mt-1 font-mono text-xs text-[var(--deck-text-3)]">
                             {formatDateTime(message.sentAt ?? message.createdAt)} - {message.recipientEmail}
                           </p>
                         </div>
                         <StatusBadge label={message.status.replace(/_/g, " ")} tone={message.status === "failed" || message.status === "bounced" ? "danger" : "success"} />
                       </div>
-                      <p className="mt-3 line-clamp-2 text-sm leading-6 text-[var(--amg-text-secondary)]">{message.body}</p>
+                      <p className="mt-3 line-clamp-2 text-sm leading-6 text-[var(--deck-text-2)]">{message.body}</p>
                     </summary>
                     <div className="mt-4 border-t border-[var(--deck-line)] pt-4">
                       <DetailGrid
@@ -475,12 +475,12 @@ export default async function AdminCrewDetailPage({
         {activityItems.length ? (
           <Timeline items={activityItems} />
         ) : (
-          <p className="text-sm text-muted-foreground">No crew activity recorded yet.</p>
+          <p className="text-sm text-[var(--deck-text-2)]">No crew activity recorded yet.</p>
         )}
       </SectionCard>
 
       <div className="flex justify-start">
-        <Link href="/portal/admin/crew" className="text-sm text-[var(--amg-text-muted)] hover:text-[var(--deck-accent-ink)]">
+        <Link href="/portal/admin/crew" className="text-sm text-[var(--deck-text-3)] hover:text-[var(--deck-accent-ink)]">
           Back to crew roster
         </Link>
       </div>

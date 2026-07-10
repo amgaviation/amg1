@@ -202,7 +202,7 @@ export function VendorInvoiceForm({
           name="receipts"
           multiple
           accept="application/pdf,image/jpeg,image/png,image/webp,image/heic"
-          className="block w-full cursor-pointer rounded-md border border-dashed border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] p-4 text-sm text-[var(--deck-text-2)] file:mr-3 file:rounded-md file:border-0 file:bg-[var(--deck-accent)] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white"
+          className="block w-full cursor-pointer rounded-md border border-dashed border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] p-4 text-sm text-[var(--deck-text-2)] file:mr-3 file:rounded-md file:border-0 file:bg-[var(--deck-accent)] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-[var(--deck-on-accent)]"
         />
       </SectionCard>
 

@@ -63,11 +63,22 @@ the public site system (no instrument green, no GSAP motion).
   kit internals, shell chrome, theme default → light.
 - **Sweep A (admin)**: `app/portal/admin/**` — verify every page renders pure v4
   (tokens only, no hardcoded hex/white/blue, radii ≤ rounded-md except pills that
-  should become stamps), fix drift, keep features identical.
+  should become stamps), fix drift, keep features identical. — **DONE (July 2026
+  purity sweep)**
 - **Sweep B (client+crew)**: `app/portal/client/**`, `app/portal/crew/**` — same.
+  — **DONE (July 2026 purity sweep)**
 - **Sweep C (partner/super-admin/shared/auth)**: `app/portal/partner/**`,
   `app/portal/super-admin/**`, shared viewers (`billing-documents`, `documents`,
-  `subscription-invoices`), login/intro surfaces — same.
+  `subscription-invoices`), login/intro surfaces — same. — **DONE (July 2026
+  purity sweep; `no-access` rebuilt off the public shell, intro overlay brought
+  under the `.amg-portal` token scope)**
+
+Sweep notes: geometry audits must account for the portal radius remap —
+inside `.amg-portal`, `--radius` is 0.375rem, so `rounded-lg` renders exactly
+the 6px cap (do not "fix" it to `rounded-md`, which renders 4px). New tokens
+added by the sweep: `--deck-chrome-accent`, `--deck-on-accent`, `--deck-on-ink`,
+`--deck-on-danger`, `--deck-scrim`, `--deck-intro-scrim`, `--deck-shadow-pop`,
+`--deck-shadow-modal`.
 - **QA-User**: role-play each role on the dev server; find functional problems.
 - **QA-Design**: brand/visual/flow audit, both themes, 390px mobile.
 - **QA-DB**: schema↔query parity, RLS coverage, Stripe/email integration audit.

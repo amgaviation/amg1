@@ -151,7 +151,7 @@ export default async function NetworkApplicationsPage({
         title="Network Applications"
         description="Review crew prospects from the public application, manual entry, and CSV/XLSX imports — one queue, one decision flow, one set of branded emails."
         actions={
-          <Link href="/portal/admin/crew" className="rounded-md border border-border bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]">
+          <Link href="/portal/admin/crew" className="rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]">
             Crew Directory
           </Link>
         }

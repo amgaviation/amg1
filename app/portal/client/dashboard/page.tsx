@@ -256,7 +256,7 @@ export default async function ClientDashboardPage({
               </p>
             </div>
             <div className="text-right">
-              <p className="deck-num text-5xl font-bold text-[#9FC5FF]">{daysToDeparture}</p>
+              <p className="deck-num text-5xl font-bold text-[var(--deck-chrome-accent)]">{daysToDeparture}</p>
               <p className="deck-eyebrow-chrome mt-1">
                 day{daysToDeparture === 1 ? "" : "s"} out
               </p>

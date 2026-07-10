@@ -96,7 +96,7 @@ export function PermissionsMatrix({
             <div className="overflow-x-auto">
               <table className="w-full min-w-[36rem] text-sm">
                 <thead>
-                  <tr className="border-b border-[var(--deck-line)] text-left text-xs uppercase tracking-wide text-muted-foreground">
+                  <tr className="border-b border-[var(--deck-line)] text-left text-xs uppercase text-[var(--deck-text-2)]">
                     <th className="sticky left-0 z-10 bg-[var(--deck-panel)] py-2 pr-4 font-medium">Module</th>
                     {PERMISSION_ACTIONS.map((a) => (
                       <th key={a} className="px-3 py-2 text-center font-medium">
@@ -112,8 +112,8 @@ export function PermissionsMatrix({
                       className="border-b border-[var(--deck-line)] last:border-b-0 hover:bg-[var(--deck-row-hover)]"
                     >
                       <td className="sticky left-0 z-10 bg-[var(--deck-panel)] py-2.5 pr-4">
-                        <div className="font-medium text-foreground">{label}</div>
-                        <div className="text-xs text-muted-foreground">{description}</div>
+                        <div className="font-medium text-[var(--deck-text)]">{label}</div>
+                        <div className="text-xs text-[var(--deck-text-2)]">{description}</div>
                       </td>
                       {PERMISSION_ACTIONS.map((a) => (
                         <td key={a} className="px-3 py-2.5 text-center align-middle">
@@ -160,7 +160,7 @@ export function PermissionsMatrix({
           </SubmitButton>
         </div>
       ) : (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-[var(--deck-text-2)]">
           Read-only view. Only the Super Admin can change permissions.
         </p>
       )}

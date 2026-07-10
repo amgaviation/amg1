@@ -45,26 +45,26 @@ export default async function ClientSubscriptionsPage() {
         ) : (
           <div className="grid gap-4 lg:grid-cols-2">
             {subscriptions.map((subscription) => (
-              <Link key={subscription.id} href={`/portal/client/subscriptions/${subscription.id}`} className="rounded-md border border-border bg-background/50 p-4 transition-colors hover:border-accent/60">
+              <Link key={subscription.id} href={`/portal/client/subscriptions/${subscription.id}`} className="deck-inset deck-card-hover block p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold">{subscription.plan?.name ?? "AMG Support Subscription"}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{subscription.tier?.name ?? "Custom tier"} · {subscription.aircraft?.tail_number ?? "Account-level"}</p>
+                    <p className="mt-1 text-xs text-[var(--deck-text-2)]">{subscription.tier?.name ?? "Custom tier"} · {subscription.aircraft?.tail_number ?? "Account-level"}</p>
                   </div>
                   <StatusBadge label={SUBSCRIPTION_STATUS_LABEL[subscription.status] ?? subscription.status} tone={toneFor(SUBSCRIPTION_STATUS_TONE, subscription.status)} />
                 </div>
-                <div className="mt-4 grid gap-3 text-xs text-muted-foreground sm:grid-cols-3">
+                <div className="mt-4 grid gap-3 text-xs text-[var(--deck-text-2)] sm:grid-cols-3">
                   <span>{subscription.included_flights} flights</span>
                   <span>{subscription.included_mx_repositions} MX repos</span>
                   <span>{subscription.included_admin_hours} admin hrs</span>
                 </div>
                 <div className="mt-4 flex flex-wrap justify-between gap-3 text-xs">
-                  <span className="text-muted-foreground">Renews {formatDate(subscription.current_period_end ?? subscription.renewal_date)}</span>
-                  <span className="font-semibold text-accent">
+                  <span className="text-[var(--deck-text-2)]">Renews {formatDate(subscription.current_period_end ?? subscription.renewal_date)}</span>
+                  <span className="font-semibold text-[var(--deck-accent-ink)]">
                     {formatMoney(Number(subscription.amount_cents ?? 0) > 0 ? Number(subscription.amount_cents) / 100 : Number(subscription.custom_price ?? subscription.monthly_price))} {subscription.billing_cadence}
                   </span>
                 </div>
-                {subscription.stripe_payment_status ? <p className="mt-2 text-xs text-muted-foreground">Payment status: {subscription.stripe_payment_status}</p> : null}
+                {subscription.stripe_payment_status ? <p className="mt-2 text-xs text-[var(--deck-text-2)]">Payment status: {subscription.stripe_payment_status}</p> : null}
               </Link>
             ))}
           </div>

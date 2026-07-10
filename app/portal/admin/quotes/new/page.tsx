@@ -45,7 +45,7 @@ export default async function NewQuotePage({
         eyebrow="AMG Billing"
         title="New Quote"
         description="Create a mission-linked, client-linked, or standalone aviation support quote."
-        actions={<Link href="/portal/admin/quotes" className="text-xs text-muted-foreground hover:text-accent">Back to quotes</Link>}
+        actions={<Link href="/portal/admin/quotes" className="text-xs text-[var(--deck-text-2)] hover:text-[var(--deck-accent-ink)]">Back to quotes</Link>}
       />
 
       {/* GET form: choosing a template reloads this page with ?template=<id>, which
@@ -56,7 +56,7 @@ export default async function NewQuotePage({
         icon="receipt"
         description="Optional — seed the line items from a saved template, then adjust as needed."
         actions={
-          <Link href="/portal/admin/quotes/templates" className="text-xs text-muted-foreground hover:text-accent">
+          <Link href="/portal/admin/quotes/templates" className="text-xs text-[var(--deck-text-2)] hover:text-[var(--deck-accent-ink)]">
             Manage templates
           </Link>
         }

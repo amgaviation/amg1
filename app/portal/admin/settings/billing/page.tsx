@@ -46,7 +46,7 @@ export default async function AdminBillingSettingsPage({
         eyebrow="Admin Settings"
         title="Billing Settings"
         description="Company identity, payment instructions, document terms, and quote-to-invoice behavior."
-        actions={<Link href="/portal/admin/settings" className="text-xs text-muted-foreground hover:text-accent">Back to settings</Link>}
+        actions={<Link href="/portal/admin/settings" className="text-xs text-[var(--deck-text-2)] hover:text-[var(--deck-accent-ink)]">Back to settings</Link>}
       />
 
       <SectionCard title="Stripe Live Readiness" icon="wallet">

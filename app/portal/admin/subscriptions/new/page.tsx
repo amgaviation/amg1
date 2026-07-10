@@ -52,7 +52,7 @@ export default async function NewSubscriptionPage({
         eyebrow="AMG Billing"
         title="Create Stripe Subscription Setup"
         description="Create a pending portal mirror and send a Stripe-hosted subscription setup link to the client."
-        actions={<Link href="/portal/admin/subscriptions" className="text-xs text-muted-foreground hover:text-accent">Back to subscriptions</Link>}
+        actions={<Link href="/portal/admin/subscriptions" className="text-xs text-[var(--deck-text-2)] hover:text-[var(--deck-accent-ink)]">Back to subscriptions</Link>}
       />
 
       <form action={createClientSubscription} className="space-y-6">

@@ -85,9 +85,9 @@ export default async function AdminSystemHealthPage() {
       </section>
 
       <SectionCard title="Readiness Notes" icon="fileText">
-        <div className="grid gap-2 text-sm leading-6 text-muted-foreground">
+        <div className="grid gap-2 text-sm leading-6 text-[var(--deck-text-2)]">
           <p>Configuration checks show presence only. Secret values are never displayed.</p>
-          <p>Run <code className="text-foreground">npm run media:audit</code>, <code className="text-foreground">npm run typecheck</code>, and <code className="text-foreground">npm run build</code> before promoting a deployment.</p>
+          <p>Run <code className="text-[var(--deck-text)]">npm run media:audit</code>, <code className="text-[var(--deck-text)]">npm run typecheck</code>, and <code className="text-[var(--deck-text)]">npm run build</code> before promoting a deployment.</p>
         </div>
       </SectionCard>
     </>

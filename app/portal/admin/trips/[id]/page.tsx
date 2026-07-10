@@ -210,12 +210,12 @@ export default async function AdminTripDetailPage({
               />
               {publicDetails.length ? (
                 <div className="mt-5 grid gap-3">
-                  <p className="eyebrow text-[0.65rem] text-muted-foreground">Category Details</p>
+                  <p className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-3)]">Category Details</p>
                   <div className="grid gap-2">
                     {publicDetails.map(([key, value]) => (
-                      <div key={key} className="rounded-lg border border-border bg-[var(--deck-panel-2)] p-3">
-                        <p className="text-[0.65rem] font-semibold uppercase [letter-spacing:0.18em] text-muted-foreground">{publicSupportLabel(key)}</p>
-                        <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">{value}</p>
+                      <div key={key} className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-3">
+                        <p className="text-[0.65rem] font-semibold uppercase [letter-spacing:0.18em] text-[var(--deck-text-2)]">{publicSupportLabel(key)}</p>
+                        <p className="mt-1 whitespace-pre-wrap text-sm text-[var(--deck-text)]">{value}</p>
                       </div>
                     ))}
                   </div>
@@ -223,8 +223,8 @@ export default async function AdminTripDetailPage({
               ) : null}
               {rawSubmissionDetails.length ? (
                 <div className="mt-5 grid gap-3">
-                  <p className="eyebrow text-[0.65rem] text-muted-foreground">Original Form Submission</p>
-                  <div className="rounded-lg border border-border bg-[var(--deck-panel-2)] p-3">
+                  <p className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-3)]">Original Form Submission</p>
+                  <div className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-3">
                     <dl>
                       {rawSubmissionDetails.map(([key, value]) => (
                         <DetailRow key={key} label={publicSupportLabel(key)}>
@@ -241,10 +241,10 @@ export default async function AdminTripDetailPage({
           <SectionCard title="Crew Assignments" icon="users">
             {mission.crew.length === 0 ? <EmptyState icon="users" title="No crew assigned" /> : (
               <div className="space-y-3">{mission.crew.map((item) => (
-                <div key={item.id} className="flex items-start justify-between gap-3 rounded-lg border border-border bg-[var(--deck-panel-2)] p-4">
+                <div key={item.id} className="flex items-start justify-between gap-3 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-4">
                   <div className="min-w-0">
                     <p className="text-sm font-semibold">{item.crew?.full_name ?? item.crew?.email ?? item.crew_id}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{item.crew_role} | {item.status}</p>
+                    <p className="mt-1 text-xs text-[var(--deck-text-2)]">{item.crew_role} | {item.status}</p>
                   </div>
                   {item.status === "offered" || item.status === "accepted" ? (
                     <form action={unassignCrew}>
@@ -268,9 +268,9 @@ export default async function AdminTripDetailPage({
           <SectionCard title="Partner Assignments" icon="handshake">
             {mission.partners.length === 0 ? <EmptyState icon="handshake" title="No partners assigned" /> : (
               <div className="space-y-3">{mission.partners.map((item) => (
-                <div key={item.id} className="rounded-lg border border-border bg-[var(--deck-panel-2)] p-4">
+                <div key={item.id} className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-4">
                   <p className="text-sm font-semibold">{item.service_type} - {item.partner?.full_name ?? item.partner?.email ?? item.partner_id}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{item.status} | {item.location ?? "Location TBD"} | {formatMoney(item.quote_amount)}</p>
+                  <p className="mt-1 text-xs text-[var(--deck-text-2)]">{item.status} | {item.location ?? "Location TBD"} | {formatMoney(item.quote_amount)}</p>
                 </div>
               ))}</div>
             )}
@@ -280,7 +280,7 @@ export default async function AdminTripDetailPage({
             {activityItems.length ? (
               <Timeline items={activityItems} />
             ) : (
-              <p className="text-sm text-muted-foreground">No mission activity recorded yet.</p>
+              <p className="text-sm text-[var(--deck-text-2)]">No mission activity recorded yet.</p>
             )}
           </SectionCard>
         </div>
@@ -299,7 +299,7 @@ export default async function AdminTripDetailPage({
             <details className="group mt-5 border-t border-[var(--deck-line)] pt-4">
               <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-[var(--deck-text-2)] transition-colors hover:text-[var(--deck-text)]">
                 <span
-                  className="inline-block transition-transform group-open:rotate-90"
+                  className="inline-block group-open:rotate-90"
                   aria-hidden
                 >
                   ›
@@ -324,8 +324,8 @@ export default async function AdminTripDetailPage({
             <form action={assignCrew} className="space-y-5">
               <input type="hidden" name="mission_id" value={mission.id} />
               {[0, 1, 2].map((index) => (
-                <div key={index} className="rounded-lg border border-border bg-[var(--deck-panel-2)] p-3 space-y-3">
-                  <p className="eyebrow text-[0.6rem] text-muted-foreground">Crew Slot {index + 1}</p>
+                <div key={index} className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-3 space-y-3">
+                  <p className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-3)]">Crew Slot {index + 1}</p>
                   <SelectField label="Crew Member" name="crew_id[]" defaultValue="" options={[{ value: "", label: "Select crew..." }, ...crew.map((c) => ({ value: c.id, label: c.full_name ?? c.email }))]} />
                   <SelectField label="Crew Role" name="crew_role[]" defaultValue={index === 0 ? "pic" : index === 1 ? "sic" : "support"} options={CREW_ROLE.map((r) => ({ value: r.value, label: r.label }))} />
                   <TextAreaField label="Duty Notes" name="duty_notes[]" />
@@ -360,16 +360,16 @@ export default async function AdminTripDetailPage({
                 <TextField label="Max Pilot Age" name="max_pilot_age" type="number" step="1" defaultValue={poolRequirements.max_pilot_age?.toString() ?? ""} />
               </div>
               <TextField label="Pilot Regions" name="allowed_regions" placeholder="FL, Southeast US (comma separated)" defaultValue={poolRequirements.allowed_regions?.join(", ") ?? ""} />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-[var(--deck-text-2)]">
                 <span className="deck-num font-semibold">{qualifiedCrewCount}</span> active crew currently meet these requirements. Requirements fail closed — crew missing profile data (e.g. date of birth) will not see the mission.
               </p>
               <SubmitButton pendingText="Saving...">Save Pool Settings</SubmitButton>
             </form>
 
             <div className="mt-6 space-y-3 border-t border-[var(--deck-line)] pt-4">
-              <p className="eyebrow text-[0.65rem] text-muted-foreground">Crew Requests</p>
+              <p className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-3)]">Crew Requests</p>
               {pendingPoolRequests.length === 0 && decidedPoolRequests.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No crew requests yet.</p>
+                <p className="text-sm text-[var(--deck-text-2)]">No crew requests yet.</p>
               ) : null}
               {pendingPoolRequests.map((request) => {
                 const crewIssue = crewIssueByCrewId.get(request.crew_id);
@@ -377,11 +377,11 @@ export default async function AdminTripDetailPage({
                   <div key={request.id} className="rounded-md border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] p-3 space-y-3">
                     <div>
                       <p className="text-sm font-semibold">{request.crew?.full_name ?? request.crew?.email ?? request.crew_id}</p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">
+                      <p className="mt-0.5 text-xs text-[var(--deck-text-2)]">
                         {request.crew_qualifications?.total_time != null ? `${Number(request.crew_qualifications.total_time).toLocaleString()} hrs TT` : "TT n/a"}
                         {request.crew_qualifications?.type_ratings?.length ? ` · ${request.crew_qualifications.type_ratings.join(", ")}` : ""}
                       </p>
-                      {request.message ? <p className="mt-1 text-xs text-muted-foreground">“{request.message}”</p> : null}
+                      {request.message ? <p className="mt-1 text-xs text-[var(--deck-text-2)]">“{request.message}”</p> : null}
                     </div>
                     <form action={decideCrewPoolRequest} className="space-y-3">
                       <input type="hidden" name="request_id" value={request.id} />
@@ -408,9 +408,9 @@ export default async function AdminTripDetailPage({
                 );
               })}
               {decidedPoolRequests.map((request) => (
-                <div key={request.id} className="rounded-md border border-border bg-[var(--deck-panel-2)] p-3">
+                <div key={request.id} className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-3">
                   <p className="text-sm font-semibold">{request.crew?.full_name ?? request.crew?.email ?? request.crew_id}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground capitalize">{request.status}{request.decided_at ? ` · ${formatDateTime(request.decided_at)}` : ""}</p>
+                  <p className="mt-0.5 text-xs text-[var(--deck-text-2)] capitalize">{request.status}{request.decided_at ? ` · ${formatDateTime(request.decided_at)}` : ""}</p>
                 </div>
               ))}
             </div>
@@ -436,8 +436,8 @@ export default async function AdminTripDetailPage({
             <form action={createQuote} className="space-y-5">
               <input type="hidden" name="mission_id" value={mission.id} />
               {[0, 1, 2, 3, 4].map((index) => (
-                <div key={index} className="rounded-lg border border-border bg-[var(--deck-panel-2)] p-3 space-y-3">
-                  <p className="eyebrow text-[0.6rem] text-muted-foreground">Quote Line {index + 1}</p>
+                <div key={index} className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-3 space-y-3">
+                  <p className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-3)]">Quote Line {index + 1}</p>
                   <SelectField label="Category" name="category[]" defaultValue={index === 0 ? QUOTE_CATEGORIES[0] : ""} options={[{ value: "", label: "Select category..." }, ...QUOTE_CATEGORIES.map((c) => ({ value: c, label: c }))]} />
                   <TextField label="Description" name="description[]" defaultValue={index === 0 ? `Operations support for ${mission.ref}` : ""} />
                   <TextAreaField label="Line Notes (client-visible)" name="client_notes[]" />

@@ -36,7 +36,7 @@ export default async function NewServicePage({
         title="New Service"
         description="Define a catalog service. The cost type — coordination fee, pass-through, or plan fee — is permanent once created; AMG margin lives only in coordination fees and plan retainers."
         actions={
-          <Link href={BASE} className="text-xs text-muted-foreground hover:text-accent">
+          <Link href={BASE} className="text-xs text-[var(--deck-text-2)] hover:text-[var(--deck-accent-ink)]">
             Back to catalog
           </Link>
         }

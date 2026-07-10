@@ -39,7 +39,7 @@ export default async function QuoteTemplatesPage({
         title="Quote Templates"
         description="Save reusable line-item bundles, then start a new quote from one in a single click."
         actions={
-          <Link href="/portal/admin/quotes" className="text-xs text-muted-foreground hover:text-accent">
+          <Link href="/portal/admin/quotes" className="text-xs text-[var(--deck-text-2)] hover:text-[var(--deck-accent-ink)]">
             Back to quotes
           </Link>
         }

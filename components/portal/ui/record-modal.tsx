@@ -85,7 +85,7 @@ export function DialogShell({
         aria-label="Close"
         tabIndex={-1}
         onClick={onClose}
-        className="absolute inset-0 h-full w-full cursor-default bg-[rgba(7,11,20,0.55)] backdrop-blur-[2px]"
+        className="absolute inset-0 h-full w-full cursor-default bg-[var(--deck-scrim)] backdrop-blur-[2px]"
       />
       <div className="pointer-events-none absolute inset-0 flex items-stretch justify-center sm:items-center sm:p-6">
         <div
@@ -96,7 +96,7 @@ export function DialogShell({
           tabIndex={-1}
           className={cn(
             "deck-modal-panel pointer-events-auto flex h-full w-full flex-col overflow-hidden bg-[var(--deck-panel)] outline-none",
-            "sm:h-auto sm:max-h-[min(52rem,calc(100vh-3rem))] sm:rounded-lg sm:border sm:border-[var(--deck-line-strong)] sm:shadow-[0_24px_64px_-24px_rgba(7,11,20,0.45)]",
+            "sm:h-auto sm:max-h-[min(52rem,calc(100vh-3rem))] sm:rounded-lg sm:border sm:border-[var(--deck-line-strong)] sm:shadow-[var(--deck-shadow-modal)]",
             wide ? "sm:max-w-4xl" : "sm:max-w-2xl"
           )}
         >

@@ -134,7 +134,7 @@ export default async function CrewDashboardPage() {
               </p>
             </div>
             <div className="text-right">
-              <p className="deck-num text-5xl font-bold text-[#9FC5FF]">{daysToReport}</p>
+              <p className="deck-num text-5xl font-bold text-[var(--deck-chrome-accent)]">{daysToReport}</p>
               <p className="deck-eyebrow-chrome mt-1">day{daysToReport === 1 ? "" : "s"} to departure</p>
             </div>
           </div>

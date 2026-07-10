@@ -395,7 +395,7 @@ export default async function AdminFormSubmissionsPage({
               <textarea
                 name="admin_notes"
                 defaultValue={record.admin_notes ?? ""}
-                className="min-h-24 rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2 text-sm text-[var(--deck-text)] outline-none focus:border-primary"
+                className="min-h-24 rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2 text-sm text-[var(--deck-text)] outline-none focus:border-[var(--deck-accent)]"
               />
             </label>
             <SubmitButton className="w-fit" pendingText="Saving...">

@@ -26,7 +26,7 @@ export default async function EditQuotePage({ params }: { params: Promise<{ id: 
         eyebrow="Quote Draft"
         title={`Edit ${quote.ref}`}
         description="Draft quote fields are editable until the quote is sent."
-        actions={<Link href={`/portal/admin/quotes/${quote.id}`} className="text-xs text-muted-foreground hover:text-accent">Back to quote</Link>}
+        actions={<Link href={`/portal/admin/quotes/${quote.id}`} className="text-xs text-[var(--deck-text-2)] hover:text-[var(--deck-accent-ink)]">Back to quote</Link>}
       />
 
       <form action={updateQuoteDraft} className="space-y-6">

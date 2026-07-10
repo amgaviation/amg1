@@ -192,7 +192,7 @@ export default async function AdminPartnersPage({
           getHref={(row) => row.mission_id ? `/portal/admin/trips/${row.mission_id}` : undefined}
           emptyLabel="No partner assignments."
           columns={[
-            { header: "Ref", cell: (row) => <span className="font-mono text-xs text-accent">{row.ref}</span>, priority: "primary" },
+            { header: "Ref", cell: (row) => <span className="font-mono text-xs text-[var(--deck-accent-ink)]">{row.ref}</span>, priority: "primary" },
             { header: "Mission", cell: (row) => row.mission?.ref ?? "-" },
             { header: "Partner", cell: (row) => row.partner?.company_name ?? row.partner?.full_name ?? row.partner?.email ?? "-" },
             { header: "Service", cell: (row) => row.service_type },
