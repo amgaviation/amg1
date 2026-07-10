@@ -31,7 +31,7 @@ export default async function AdminDocumentsPage({
     search?: string;
   }>;
 }) {
-  const user = await requireRolePermission("admin", "documents");
+  await requireRolePermission("admin", "documents");
   const params = await searchParams;
   const filters = {
     status: params.status || undefined,

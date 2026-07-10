@@ -10,10 +10,6 @@ function configured(value: string | undefined) {
   return value ? "Configured" : "Missing";
 }
 
-function tone(value: string | undefined) {
-  return value ? "success" : "warn";
-}
-
 async function getHealth() {
   const db = await createServiceClient();
   const [missions, users, failedNotifications, aircraft, expenses] = await Promise.all([
@@ -46,7 +42,7 @@ async function getHealth() {
 }
 
 export default async function AdminSystemHealthPage() {
-  const user = await requireRolePermission("admin", "settings");
+  await requireRolePermission("admin", "settings");
   const health = await getHealth();
   const commit = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? "local";
   const environment = process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? "unknown";

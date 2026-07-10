@@ -19,7 +19,6 @@ import {
   listCommunicationRecordOptions,
   listCommunicationTemplates,
   listEmailCommunicationLogs,
-  type CommunicationMessage,
 } from "@/lib/portal/communications";
 import { formatDateTime } from "@/lib/portal/format";
 import { DeckSelect } from "@/components/portal/ui/fields";
@@ -43,7 +42,6 @@ const CATEGORIES = [
   "Other",
 ];
 
-const STATUSES = ["sent", "delivered", "queued", "failed", "bounced", "received"];
 const PAGE_SIZE = 25;
 
 function tone(status: string) {

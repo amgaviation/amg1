@@ -30,7 +30,7 @@ export default async function NetworkApplicationsPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string; warning?: string; imported?: string; duplicates?: string; skipped?: string }>;
 }) {
-  const user = await requireRolePermission("admin", "network_applications");
+  await requireRolePermission("admin", "network_applications");
   const params = await searchParams;
   const applications = await listNetworkApplications();
   const accountStates = await getCrewAccountStates(

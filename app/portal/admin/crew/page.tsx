@@ -82,7 +82,7 @@ export default async function AdminCrewPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRolePermission("admin", "crew");
+  await requireRolePermission("admin", "crew");
   const params = await searchParams;
   const [crew, credentials, missions, documents] = await Promise.all([
     listAllCrew(),
@@ -106,13 +106,6 @@ export default async function AdminCrewPage({
     const location = locationText(profile, member.home_base);
     const aircraftExperience = aircraftSummary(profile?.aircraft_type_experience ?? profile?.time_in_type, profile?.preferred_aircraft);
     const certificatesRatings = profile?.certificates_ratings || listText(profile?.type_ratings) || profile?.certificate_level;
-    const credentialStatus = memberCredentials.some((credential) => credential.status === "expired")
-      ? "expired"
-      : memberCredentials.some((credential) => credential.status === "pending_review")
-        ? "pending_review"
-        : memberCredentials.length
-          ? "approved"
-          : "not_uploaded";
 
     return {
       id: member.id,

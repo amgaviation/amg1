@@ -21,7 +21,7 @@ export default async function AdminQuoteDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ success?: string; error?: string; email?: string }>;
 }) {
-  const user = await requireRolePermission("admin", "quotes");
+  await requireRolePermission("admin", "quotes");
   const { id } = await params;
   const flash = await searchParams;
   const quote = await getQuoteDetail(id);

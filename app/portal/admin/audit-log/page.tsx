@@ -7,7 +7,7 @@ import { formatDateTime } from "@/lib/portal/format";
 export const metadata = { title: "Audit Log - Admin Portal" };
 
 export default async function AdminAuditLogPage() {
-  const user = await requireRolePermission("admin", "audit_log");
+  await requireRolePermission("admin", "audit_log");
   const events = await listAuditEvents(200);
   return (
     <>

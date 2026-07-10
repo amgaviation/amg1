@@ -57,7 +57,7 @@ export default async function AdminAircraftDetailPage({
   params: Promise<{ aircraftId: string }>;
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRolePermission("admin", "aircraft");
+  await requireRolePermission("admin", "aircraft");
   const { aircraftId } = await params;
   const query = await searchParams;
   const [aircraftRows, clients, missions, documents] = await Promise.all([

@@ -24,7 +24,7 @@ export default async function AdminMissionControlPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
-  const user = await requireRolePermission("admin", "missions");
+  await requireRolePermission("admin", "missions");
   const params = await searchParams;
   const missions = await listAllMissions();
 

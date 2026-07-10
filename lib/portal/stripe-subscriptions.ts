@@ -821,12 +821,3 @@ export async function resolveSubscriptionPriceMismatch(
 export function stripeDashboardSubscriptionUrl(stripeSubscriptionId?: string | null) {
   return stripeSubscriptionId ? `https://dashboard.stripe.com/subscriptions/${encodeURIComponent(stripeSubscriptionId)}` : null;
 }
-
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}

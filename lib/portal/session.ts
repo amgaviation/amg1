@@ -3,7 +3,7 @@ import "server-only";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { ROLE_HOME, isAdminRole, isPortalRole, type PortalRole } from "@/lib/portal/constants";
+import { isAdminRole, isPortalRole, type PortalRole } from "@/lib/portal/constants";
 
 export type SessionUser = {
   id: string;

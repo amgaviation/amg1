@@ -15,7 +15,6 @@ const missingCommunicationThread = {
 };
 
 class FakeQuery {
-  private operation = "select";
   private payload: unknown;
 
   constructor(
@@ -24,7 +23,6 @@ class FakeQuery {
   ) {}
 
   insert(payload: unknown) {
-    this.operation = "insert";
     this.payload = payload;
     this.calls.push({ table: this.table, operation: "insert", payload });
     return this;

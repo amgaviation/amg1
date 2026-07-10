@@ -36,7 +36,7 @@ export default async function AdminUserApprovalsPage({
 }: {
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  const user = await requireRolePermission("admin", "users");
+  await requireRolePermission("admin", "users");
   const params = await searchParams;
   const pendingUsers = await listPendingUsers();
 

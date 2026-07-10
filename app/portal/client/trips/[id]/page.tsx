@@ -19,7 +19,7 @@ import {
   labelFor,
   isAdminRole,
 } from "@/lib/portal/constants";
-import { formatRoute, formatDateTime, formatDate } from "@/lib/portal/format";
+import { formatRoute, formatDateTime } from "@/lib/portal/format";
 import { cancelMission, provideRequestedInfo } from "@/app/portal/actions/missions";
 
 export const metadata = { title: "Trip Detail — Client Portal" };

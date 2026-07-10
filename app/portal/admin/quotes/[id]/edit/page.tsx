@@ -13,7 +13,7 @@ import { BILLING_COST_TYPES, PDF_TEMPLATES, QUOTE_CATEGORIES } from "@/lib/porta
 export const metadata = { title: "Edit Quote Draft - Admin Portal" };
 
 export default async function EditQuotePage({ params }: { params: Promise<{ id: string }> }) {
-  const user = await requireRolePermission("admin", "quotes");
+  await requireRolePermission("admin", "quotes");
   const { id } = await params;
   const [quote, clients, missions] = await Promise.all([getQuoteDetail(id), listClients(), listAllMissions()]);
   if (!quote) notFound();

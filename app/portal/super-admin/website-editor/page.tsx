@@ -308,7 +308,7 @@ export default async function WebsiteEditorPage({
 }: {
   searchParams: Promise<{ page?: string; status?: string; panel?: string }>;
 }) {
-  const user = await requireSuperAdmin();
+  await requireSuperAdmin();
   if (!isWebsiteEditorEnabled()) redirect("/access-denied");
   const params = await searchParams;
   const selectedSlug: WebsiteContentSlug = isWebsiteContentSlug(params.page) ? params.page : "home";

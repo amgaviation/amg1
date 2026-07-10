@@ -64,7 +64,7 @@ export default async function NetworkApplicationDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ success?: string; error?: string; warning?: string }>;
 }) {
-  const user = await requireRolePermission("admin", "network_applications");
+  await requireRolePermission("admin", "network_applications");
   const { id } = await params;
   const query = await searchParams;
   const application = await getNetworkApplicationDetails(id);

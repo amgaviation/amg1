@@ -17,7 +17,7 @@ export default async function WebsiteEditorPreviewPage({
 }: {
   params: Promise<{ draftId: string }>;
 }) {
-  const user = await requireSuperAdmin();
+  await requireSuperAdmin();
   if (!isWebsiteEditorEnabled()) redirect("/access-denied");
   const { draftId } = await params;
   const db = await createServiceClient();

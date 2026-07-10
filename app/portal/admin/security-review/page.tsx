@@ -37,7 +37,7 @@ export default async function AdminSecurityReviewPage({
 }: {
   searchParams: Promise<{ success?: string; q?: string; role?: string; status?: string; sensitive?: string; invalid_email?: string; pending?: string; page?: string }>;
 }) {
-  const user = await requireRolePermission("admin", "compliance");
+  await requireRolePermission("admin", "compliance");
   const params = await searchParams;
   const users = await listAllUsers();
   const currentPage = Math.max(1, Number(params.page ?? "1") || 1);
