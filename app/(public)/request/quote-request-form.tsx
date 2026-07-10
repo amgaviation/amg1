@@ -33,8 +33,51 @@ export function QuoteRequestForm({ error }: { error?: string }) {
     <form
       action={submitQuoteRequest}
       onSubmit={() => trackSiteEvent(SITE_EVENTS.quoteFormSubmit)}
-      className="oc-card-dark grid gap-5 p-6 sm:p-8"
+      className="intake-form oc-card-dark grid gap-5 p-6 sm:p-8"
     >
+      {/* Channel annunciator: CSS-only — :focus-within flips STANDBY to
+          CHANNEL OPEN while any field has focus. Decorative echo of the
+          fieldwork below, so hidden from AT. */}
+      <div
+        className="-mx-6 -mt-6 flex items-center justify-between gap-4 border-b border-[rgba(169,180,198,0.14)] px-6 py-3.5 sm:-mx-8 sm:-mt-8 sm:px-8"
+        aria-hidden="true"
+      >
+        <span className="microlabel">Request intake // R-01</span>
+        <span className="intake-idle flex items-center gap-2 font-mono text-[10px] uppercase [letter-spacing:0.2em] text-[var(--oc-aluminum-2)]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[rgba(169,180,198,0.45)]" />
+          Standby
+        </span>
+        <span className="intake-live flex items-center gap-2 font-mono text-[10px] uppercase [letter-spacing:0.2em] text-[var(--instrument-ink)]">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--instrument)] shadow-[0_0_8px_rgba(48,138,255,0.9)]" />
+          Channel open
+        </span>
+      </div>
+      <style>{`
+        .intake-form {
+          transition: border-color 0.35s ease, box-shadow 0.35s ease;
+        }
+        .intake-form .intake-live {
+          display: none;
+        }
+        .intake-form:focus-within {
+          border-color: rgba(48, 138, 255, 0.45);
+          box-shadow: 0 0 60px rgba(11, 94, 212, 0.14), 0 24px 70px rgba(0, 0, 0, 0.26);
+        }
+        .intake-form:focus-within .intake-idle {
+          display: none;
+        }
+        .intake-form:focus-within .intake-live {
+          display: inline-flex;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .intake-form {
+            transition: none;
+          }
+          .intake-form .intake-live .animate-pulse {
+            animation: none;
+          }
+        }
+      `}</style>
       {error ? (
         <p
           role="alert"

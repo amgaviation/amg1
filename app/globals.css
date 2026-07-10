@@ -1933,6 +1933,35 @@ html.lenis body {
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
 }
 
+/* Amber draw-in rule: a thin accent line that draws to width when its
+   [data-stagger-item]/[data-scroll-animate] parent reveals. Full width for
+   no-JS / reduced motion (the js-reveal gate is never added there). */
+.public-site .pub-draw-rule {
+  height: 1px;
+  width: 2.5rem;
+  background: color-mix(in srgb, var(--amber) 62%, transparent);
+}
+.public-site.js-reveal [data-stagger-item]:not([data-revealed]) .pub-draw-rule,
+.public-site.js-reveal [data-scroll-animate]:not([data-revealed]) .pub-draw-rule {
+  width: 0;
+}
+.public-site.js-reveal [data-stagger-item] .pub-draw-rule,
+.public-site.js-reveal [data-scroll-animate] .pub-draw-rule {
+  transition: width 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+}
+
+/* Time-length meter fill (e.g. /pricing quote windows): inline width is the
+   resting value; it scales in from zero on reveal. */
+.public-site .plan-window-fill {
+  transform-origin: left;
+}
+.public-site.js-reveal [data-stagger-item]:not([data-revealed]) .plan-window-fill {
+  transform: scaleX(0);
+}
+.public-site.js-reveal [data-stagger-item] .plan-window-fill {
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+}
+
 /* Growing hairline — the flight-deck's signature card accent (w-8 → w-16). */
 .public-site .pub-rule {
   height: 1px;

@@ -6,6 +6,8 @@ import { TimelineChip } from "@/components/site/timeline-chip";
 export type TimelineStep = {
   number: string;
   title: string;
+  /** Short annunciator form for the sticky phase tape (e.g. "CREW"). */
+  tape: string;
   chip: string;
   stamp: string;
   body: string;
@@ -20,6 +22,10 @@ export type TimelineStep = {
  *    each node as that step arrives in the viewport.
  *  - Each card fades/rises in as the spine reaches it (its node lights up).
  *  - Each step's mono time figure runs a short shuffle-in (TimelineChip).
+ *  - A sticky annunciator tape rides above the sequence: four phase segments
+ *    that light as their step arrives, so mid-scroll you always know which
+ *    stage of the mission you're reading — the live (latest) segment carries
+ *    an amber caret.
  *
  * SSR / no-JS: every card renders fully visible (hidden state is gated behind
  * the `data-armed` flag we only set after mount when motion is allowed), and the
@@ -28,6 +34,7 @@ export type TimelineStep = {
  */
 export function TimelineSteps({ steps }: { steps: readonly TimelineStep[] }) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const flowRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
@@ -81,7 +88,7 @@ export function TimelineSteps({ steps }: { steps: readonly TimelineStep[] }) {
   // stay accurate; recomputed on arrival and on resize.
   useLayoutEffect(() => {
     const grow = () => {
-      const root = rootRef.current;
+      const root = flowRef.current;
       const fill = fillRef.current;
       if (!root || !fill) return;
       if (maxArrived < 0) {
@@ -102,6 +109,26 @@ export function TimelineSteps({ steps }: { steps: readonly TimelineStep[] }) {
 
   return (
     <div ref={rootRef} className="how-timeline" data-armed={armed ? "true" : undefined}>
+      {/* Sticky phase tape — the "you are here" annunciator. Decorative
+          reinforcement of the step headings below, so hidden from AT. */}
+      <div className="tl-tape" aria-hidden="true">
+        {steps.map((step, index) => (
+          <div
+            key={step.number}
+            className="tl-tape-seg"
+            data-on={arrived[index] ? "true" : undefined}
+            data-live={index === maxArrived ? "true" : undefined}
+          >
+            <span className="tl-tape-fill" />
+            <span className="tl-tape-row">
+              <span className="tl-tape-label">{step.tape}</span>
+              <span className="tl-tape-chip">{step.chip}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div ref={flowRef} className="tl-flow">
       <div className="tl-track" aria-hidden="true">
         <div ref={fillRef} className="tl-fill" />
       </div>
@@ -146,10 +173,102 @@ export function TimelineSteps({ steps }: { steps: readonly TimelineStep[] }) {
           </article>
         );
       })}
+      </div>
 
       <style>{`
         .how-timeline {
           position: relative;
+        }
+        .how-timeline .tl-flow {
+          position: relative;
+        }
+        .how-timeline .tl-tape {
+          position: sticky;
+          top: calc(var(--public-header-height) + 0px);
+          z-index: 20;
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1px;
+          margin-bottom: 1.75rem;
+          border: 1px solid rgba(169, 180, 198, 0.14);
+          background: rgba(169, 180, 198, 0.14);
+          backdrop-filter: blur(10px);
+        }
+        .how-timeline .tl-tape-seg {
+          position: relative;
+          background: rgba(7, 11, 20, 0.88);
+          padding: 0.6rem 0.65rem 0.55rem;
+          overflow: hidden;
+        }
+        .how-timeline .tl-tape-fill {
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 2px;
+          width: 100%;
+          background: linear-gradient(90deg, var(--instrument), var(--instrument-ink));
+          transform: scaleX(0);
+          transform-origin: left;
+          transition: transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+        .how-timeline .tl-tape-seg[data-on] .tl-tape-fill {
+          transform: scaleX(1);
+        }
+        .how-timeline .tl-tape-row {
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          gap: 0.5rem;
+        }
+        .how-timeline .tl-tape-label {
+          font-family: var(--font-mono, ui-monospace, monospace);
+          font-size: 10px;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: var(--oc-aluminum-2);
+          transition: color 0.4s ease;
+        }
+        .how-timeline .tl-tape-seg[data-on] .tl-tape-label {
+          color: var(--oc-paper);
+        }
+        .how-timeline .tl-tape-chip {
+          font-family: var(--font-mono, ui-monospace, monospace);
+          font-size: 9px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          font-variant-numeric: tabular-nums;
+          color: var(--oc-aluminum-2);
+          opacity: 0.6;
+          transition: color 0.4s ease, opacity 0.4s ease;
+          white-space: nowrap;
+        }
+        .how-timeline .tl-tape-seg[data-on] .tl-tape-chip {
+          color: var(--instrument-ink);
+          opacity: 1;
+        }
+        .how-timeline .tl-tape-seg[data-live]::after {
+          content: "";
+          position: absolute;
+          right: 0.55rem;
+          top: 0.45rem;
+          height: 4px;
+          width: 4px;
+          border-radius: 999px;
+          background: var(--amber);
+          animation: tl-tape-pulse 1.6s ease-in-out infinite;
+        }
+        @keyframes tl-tape-pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.25; }
+        }
+        @media (max-width: 480px) {
+          .how-timeline .tl-tape-chip {
+            display: none;
+          }
+          .how-timeline .tl-tape-label {
+            font-size: 9px;
+            letter-spacing: 0.12em;
+          }
         }
         .how-timeline .tl-track {
           position: absolute;
@@ -265,8 +384,14 @@ export function TimelineSteps({ steps }: { steps: readonly TimelineStep[] }) {
           .how-timeline .tl-fill,
           .how-timeline .tl-card,
           .how-timeline .tl-node,
-          .how-timeline .tl-num {
+          .how-timeline .tl-num,
+          .how-timeline .tl-tape-fill,
+          .how-timeline .tl-tape-label,
+          .how-timeline .tl-tape-chip {
             transition: none !important;
+          }
+          .how-timeline .tl-tape-seg[data-live]::after {
+            animation: none;
           }
           .how-timeline[data-armed] .tl-card:not([data-arrived]) {
             opacity: 1;
