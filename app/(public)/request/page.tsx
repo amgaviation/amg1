@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
-import { QuoteRequestForm } from "./quote-request-form";
+import { RequestFormSection } from "./request-form-section";
 import { PhoneLink } from "@/components/site/tracked-link";
 import { HeadlineReveal } from "@/components/site/headline-reveal";
 
@@ -11,13 +9,9 @@ export const metadata: Metadata = {
     "One form, five minutes: aircraft, mission, dates, insurance carrier. A named coordinator replies with a written, itemized quote within 24 business hours.",
 };
 
-export default async function RequestPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ success?: string; error?: string }>;
-}) {
-  const { success, error } = await searchParams;
-
+// success/error are read client-side inside RequestFormSection (useSearchParams),
+// so this page prerenders statically instead of going dynamic per request.
+export default function RequestPage() {
   return (
     <>
       <section className="pub-hero oc-shell pb-14 pt-[calc(var(--public-header-height)+4rem)]">
@@ -39,23 +33,7 @@ export default async function RequestPage({
 
       <section className="oc-section">
         <div className="oc-shell max-w-3xl">
-          {success ? (
-            <div className="oc-card-dark p-8 text-center lg:p-10" role="status">
-              <h2 className="oc-display text-3xl text-[var(--oc-paper)]">Received.</h2>
-              <p className="mt-4 text-base leading-relaxed text-[var(--oc-aluminum)]">
-                You&apos;ll have a written quote within 24 business hours — or your plan&apos;s
-                window if you&apos;re a member. It will come from a named coordinator.
-              </p>
-              <div className="mt-8 flex justify-center">
-                <Link href="/how-it-works" prefetch={false} className="oc-btn oc-btn-ghost-dark">
-                  What happens next
-                  <ArrowUpRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <QuoteRequestForm error={error} />
-          )}
+          <RequestFormSection />
         </div>
       </section>
     </>

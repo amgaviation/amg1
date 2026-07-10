@@ -11,7 +11,7 @@ import {
   type Tone,
   toneFor,
 } from "@/lib/portal/constants";
-import { formatDateTime } from "@/lib/portal/format";
+import { formatDate, formatDateTime } from "@/lib/portal/format";
 import { listPendingUsers } from "@/lib/portal/queries";
 import { requireRolePermission } from "@/lib/portal/permissions";
 
@@ -46,15 +46,19 @@ export default async function AdminUserApprovalsPage({
     const requestedRole = profile.assigned_role ?? profile.role ?? "client";
     const requestedRoleText = requestedRoleLabel(requestedRole);
     const createdAt = profile.created_at ? formatDateTime(profile.created_at) : null;
+    // A pending profile carrying denied_at means the requester was denied
+    // before and re-requested access — flag it for the reviewing admin.
+    const previouslyDenied = profile.denied_at ? `Previously denied ${formatDate(profile.denied_at)}` : null;
 
     return {
       id: profile.id,
       title: name,
-      subtitle: [profile.company_name, businessPurpose].filter(Boolean).join(" - "),
+      subtitle: [profile.company_name, businessPurpose, previouslyDenied].filter(Boolean).join(" - "),
       status: {
         label: PROFILE_STATUS_LABEL[profile.status] ?? profile.status,
         tone: profileTone(profile.status),
       },
+      ...(previouslyDenied ? { secondaryStatus: { label: previouslyDenied, tone: "warn" as Tone } } : {}),
       cells: {
         name,
         email: profile.email,
@@ -74,6 +78,7 @@ export default async function AdminUserApprovalsPage({
         businessPurpose,
         requestedRoleText,
         profile.admin_notes,
+        previouslyDenied,
       ].filter(Boolean).join(" "),
       filters: {
         businessPurpose: profile.business_purpose ?? "other",
@@ -113,6 +118,7 @@ export default async function AdminUserApprovalsPage({
           title: "Review",
           rows: [
             { label: "Status", value: PROFILE_STATUS_LABEL[profile.status] ?? profile.status },
+            ...(profile.denied_at ? [{ label: "Previously Denied", value: formatDate(profile.denied_at) }] : []),
             { label: "Admin Notes", value: profile.admin_notes },
             { label: "Updated", value: profile.updated_at ? formatDateTime(profile.updated_at) : null },
           ],

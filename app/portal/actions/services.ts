@@ -32,6 +32,19 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent } from "@/lib/portal/audit";
+// DB check-constraint vocabularies (single source, matches the services
+// migration; the pricing engine and the admin form import the same module).
+import {
+  AIRCRAFT_BANDS,
+  ATTACHMENT_MODES,
+  COST_TYPES,
+  PRICING_MODELS,
+  RECURRING_INTERVALS,
+  SERVICE_FREQUENCIES,
+  SERVICE_STATUSES,
+  VARIABLE_INPUT_TYPES,
+  VARIABLE_ROLES,
+} from "@/lib/portal/service-vocab";
 import type { Json, Tables, TablesInsert } from "@/lib/supabase/database.types";
 import { actor, bool, num, safeRedirectPath, str } from "./_helpers";
 
@@ -41,17 +54,6 @@ const BASE = "/portal/admin/financial/pricing";
 // anything above this overflows at insert time. Validating here keeps a
 // fat-fingered price from passing validation and then failing the write.
 const MAX_PRICE = 9_999_999_999.99;
-
-// DB check-constraint vocabularies (must match the services migration).
-const COST_TYPES = ["coordination", "pass_through", "plan_fee"] as const;
-const SERVICE_STATUSES = ["draft", "active", "archived"] as const;
-const PRICING_MODELS = ["flat", "per_unit", "variant_matrix", "passthrough_estimate"] as const;
-const FREQUENCIES = ["one_time", "per_mission", "recurring"] as const;
-const RECURRING_INTERVALS = ["month", "year"] as const;
-const AIRCRAFT_BANDS = ["A", "B"] as const;
-const VARIABLE_INPUT_TYPES = ["number", "select", "boolean"] as const;
-const VARIABLE_ROLES = ["quantity", "multiplier", "info"] as const;
-const ATTACHMENT_MODES = ["required", "default_on", "suggested"] as const;
 
 type ServiceRow = Tables<"services">;
 type VariantRow = Tables<"service_price_variants">;
@@ -319,7 +321,7 @@ function readCorePayload(formData: FormData): { payload: CorePayload | null; err
     return { payload: null, error: "pricing-model" };
   }
   const frequency = str(formData, "frequency") || "one_time";
-  if (!FREQUENCIES.includes(frequency as (typeof FREQUENCIES)[number])) {
+  if (!SERVICE_FREQUENCIES.includes(frequency as (typeof SERVICE_FREQUENCIES)[number])) {
     return { payload: null, error: "frequency" };
   }
   const recurringInterval = str(formData, "recurring_interval") || null;
@@ -539,10 +541,13 @@ export async function updateService(formData: FormData) {
   // Derive Stripe intent from the post-save state of the calculator inputs.
   let effectiveVariables: Pick<VariableInput, "role">[] = variables?.rows ?? [];
   if (!variables) {
-    const { data: existingVariables } = await db
+    const { data: existingVariables, error: rolesReadError } = await db
       .from("service_variables")
       .select("role")
       .eq("service_id", serviceId);
+    // A failed read would silently misclassify the sync intent (e.g. flip a
+    // not_applicable service to pending) — bail before touching the parent.
+    if (rolesReadError) redirect(withCode(backTo, "error", "save-failed"));
     effectiveVariables = (existingVariables ?? []) as Pick<VariableInput, "role">[];
   }
   const nextSyncStatus = deriveStripeSyncStatus(payload.pricing_model ?? current.pricing_model, effectiveVariables);
@@ -697,14 +702,32 @@ export async function updateService(formData: FormData) {
 
   // ── variable reconciliation (definition, not history: delete removed) ─
   if (variables?.rows) {
-    const { data: existingVariables } = await db
+    const { data: existingVariables, error: variablesReadError } = await db
       .from("service_variables")
-      .select("id")
+      .select("*")
       .eq("service_id", serviceId);
+    // An unread baseline would make every existing row look absent: updates
+    // would become key-colliding inserts and nothing removed would delete.
+    if (variablesReadError) redirect(withCode(backTo, "error", "children-save-failed"));
     const submittedIds = new Set(variables.rows.map((row) => row.id).filter(Boolean));
-    const removed = (existingVariables ?? []).filter((row) => !submittedIds.has(row.id)).map((row) => row.id);
+    // Removed rows must be deleted BEFORE the replacement writes — a new row
+    // may legitimately reuse a removed row's key, and unique(service_id, key)
+    // blocks the overlap — so mirror the vendor-invoices snapshot pattern:
+    // keep the full removed rows and restore them if a later write in this
+    // phase fails, instead of losing them to a half-applied save.
+    const removed = (existingVariables ?? []).filter((row) => !submittedIds.has(row.id));
+    const failVariables = async (): Promise<never> => {
+      if (removed.length) {
+        // Best-effort restore (ids preserved): a replacement inserted before
+        // the failure may already occupy a removed key — skip just those.
+        await db
+          .from("service_variables")
+          .upsert(removed, { onConflict: "service_id,key", ignoreDuplicates: true });
+      }
+      redirect(withCode(backTo, "error", "children-save-failed"));
+    };
     if (removed.length) {
-      const { error } = await db.from("service_variables").delete().in("id", removed);
+      const { error } = await db.from("service_variables").delete().in("id", removed.map((row) => row.id));
       if (error) redirect(withCode(backTo, "error", "children-save-failed"));
     }
     for (const row of variables.rows) {
@@ -714,26 +737,29 @@ export async function updateService(formData: FormData) {
           .from("service_variables")
           .update({ ...fields, updated_at: new Date().toISOString() })
           .eq("id", id);
-        if (error) redirect(withCode(backTo, "error", "children-save-failed"));
+        if (error) await failVariables();
       } else {
         const { error } = await db.from("service_variables").insert({ ...fields, service_id: serviceId });
-        if (error) redirect(withCode(backTo, "error", "children-save-failed"));
+        if (error) await failVariables();
       }
     }
   }
 
   // ── attachment reconciliation (definition, not history) ──────────────
   if (attachments?.rows) {
-    const { data: existingAttachments } = await db
+    const { data: existingAttachments, error: attachmentsReadError } = await db
       .from("service_attachments")
       .select("id")
       .eq("parent_service_id", serviceId);
+    // An unread baseline would make every submitted row insert as new —
+    // silent duplicates (no unique constraint guards parent+child here).
+    if (attachmentsReadError) redirect(withCode(backTo, "error", "children-save-failed"));
     const submittedIds = new Set(attachments.rows.map((row) => row.id).filter(Boolean));
-    const removed = (existingAttachments ?? []).filter((row) => !submittedIds.has(row.id)).map((row) => row.id);
-    if (removed.length) {
-      const { error } = await db.from("service_attachments").delete().in("id", removed);
-      if (error) redirect(withCode(backTo, "error", "children-save-failed"));
-    }
+    // Write replacements BEFORE deleting removed rows (nothing blocks the
+    // brief overlap): if a write fails mid-phase, the parent keeps its old
+    // attachments instead of having lost them to an up-front delete. A
+    // failed save can leave both old and new rows briefly — the error
+    // redirect surfaces it and a retry converges (resubmitted set wins).
     for (const row of attachments.rows) {
       const { id, ...fields } = row;
       if (id && (existingAttachments ?? []).some((a) => a.id === id)) {
@@ -743,6 +769,11 @@ export async function updateService(formData: FormData) {
         const { error } = await db.from("service_attachments").insert({ ...fields, parent_service_id: serviceId });
         if (error) redirect(withCode(backTo, "error", "children-save-failed"));
       }
+    }
+    const removed = (existingAttachments ?? []).filter((row) => !submittedIds.has(row.id)).map((row) => row.id);
+    if (removed.length) {
+      const { error } = await db.from("service_attachments").delete().in("id", removed);
+      if (error) redirect(withCode(backTo, "error", "children-save-failed"));
     }
   }
 

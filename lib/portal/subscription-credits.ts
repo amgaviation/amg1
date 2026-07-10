@@ -367,7 +367,12 @@ export async function applyCreditsToInvoice(params: {
     await rollback();
     return { ok: false, reason: "credit-conflict" };
   }
-  const { error: invoiceUpdateError } = await db
+  // Optimistic concurrency (mirrors recordInvoicePayment): the rollup only
+  // applies if amount_paid is still the value read at the top. If another
+  // payment (manual/Stripe/credit) landed in between, zero rows update —
+  // treat it exactly like an update error: remove the payment and unwind the
+  // ledger so amount_paid is never double-counted or clobbered.
+  const invoiceRollup = db
     .from("invoices")
     .update({
       amount_paid: amountPaid,
@@ -376,10 +381,21 @@ export async function applyCreditsToInvoice(params: {
       paid_at: paidAt,
     })
     .eq("id", invoiceId);
-  if (invoiceUpdateError) {
-    // The payment landed but the invoice rollup didn't: remove the payment
-    // and unwind the ledger so no half-applied state announces success.
-    console.error("[subscription-credits] invoice rollup failed after payment insert", invoiceUpdateError);
+  const { data: rolledUp, error: invoiceUpdateError } = await (
+    invoice.amount_paid == null
+      ? invoiceRollup.is("amount_paid", null)
+      : invoiceRollup.eq("amount_paid", invoice.amount_paid)
+  )
+    .select("id")
+    .maybeSingle();
+  if (invoiceUpdateError || !rolledUp) {
+    // The payment landed but the invoice rollup didn't (error or concurrent
+    // writer): remove the payment and unwind the ledger so no half-applied
+    // state announces success.
+    console.error(
+      "[subscription-credits] invoice rollup failed or conflicted after payment insert",
+      invoiceUpdateError ?? "concurrent amount_paid change"
+    );
     await db.from("payments").delete().eq("id", payment.id);
     await rollback();
     return { ok: false, reason: "credit-conflict" };

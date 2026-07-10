@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowRight,
   BadgeCheck,
@@ -48,7 +49,34 @@ const accessPanels = [
   },
 ];
 
-export function PortalLogin({
+/**
+ * Reads mode/error/success from the query string on the client so the /login
+ * route can stay fully static (no server-side searchParams read).
+ */
+function PortalLoginFromQuery() {
+  const searchParams = useSearchParams();
+  const mode = searchParams.get("mode") === "request" ? "request" : "signin";
+
+  return (
+    <PortalLoginView
+      mode={mode}
+      error={searchParams.get("error") ?? undefined}
+      success={searchParams.get("success") ?? undefined}
+    />
+  );
+}
+
+export function PortalLogin() {
+  return (
+    // useSearchParams requires a Suspense boundary; the fallback prerenders the
+    // default (sign-in, no banners) view so the static shell still shows the form.
+    <Suspense fallback={<PortalLoginView />}>
+      <PortalLoginFromQuery />
+    </Suspense>
+  );
+}
+
+function PortalLoginView({
   mode: initialMode = "signin",
   error,
   success,
