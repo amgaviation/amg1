@@ -2,11 +2,8 @@
 
 import { useLayoutEffect, useRef } from "react";
 import Link from "next/link";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { runWithMotion } from "./motion";
 import { prefersReducedMotion } from "./reveal";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const SERVICES = [
   {
@@ -45,36 +42,38 @@ export default function Services() {
   useLayoutEffect(() => {
     if (prefersReducedMotion()) return;
 
-    const ctx = gsap.context(() => {
-      // Trigger-once entrances — never scrubbed, so copy always lands at
-      // full opacity without further scrolling.
-      gsap.from(".feat-card", {
-        y: 60,
-        opacity: 0,
-        duration: 0.7,
-        ease: "power3.out",
-        stagger: 0.12,
-        scrollTrigger: {
-          trigger: root.current,
-          start: "top 70%",
-          toggleActions: "play none none none",
-          once: true,
-        },
-      });
-      gsap.from(".feat-brand", {
-        x: -40,
-        opacity: 0,
-        duration: 0.7,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: root.current,
-          start: "top 70%",
-          toggleActions: "play none none none",
-          once: true,
-        },
-      });
-    }, root);
-    return () => ctx.revert();
+    return runWithMotion(({ gsap }) => {
+      const ctx = gsap.context(() => {
+        // Trigger-once entrances — never scrubbed, so copy always lands at
+        // full opacity without further scrolling.
+        gsap.from(".feat-card", {
+          y: 60,
+          opacity: 0,
+          duration: 0.7,
+          ease: "power3.out",
+          stagger: 0.12,
+          scrollTrigger: {
+            trigger: root.current,
+            start: "top 70%",
+            toggleActions: "play none none none",
+            once: true,
+          },
+        });
+        gsap.from(".feat-brand", {
+          x: -40,
+          opacity: 0,
+          duration: 0.7,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: root.current,
+            start: "top 70%",
+            toggleActions: "play none none none",
+            once: true,
+          },
+        });
+      }, root);
+      return () => ctx.revert();
+    });
   }, []);
 
   return (

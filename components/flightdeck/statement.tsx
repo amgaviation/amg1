@@ -1,11 +1,8 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { runWithMotion } from "./motion";
 import { prefersReducedMotion } from "./reveal";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const COPY =
   "AMG sources vetted contract pilots and coordinates the missions owners can't easily staff — maintenance ferries, repositioning, crew coverage, insurance-required second pilots. We make the same flat fee whether your pilot costs $500 or $700: every pass-through cost is billed at cost, receipts included, zero markup. You keep operational control. We keep the clock.";
@@ -20,20 +17,31 @@ export default function Statement() {
   useLayoutEffect(() => {
     if (prefersReducedMotion()) return;
 
-    const ctx = gsap.context(() => {
-      gsap.to(".word", {
-        opacity: 1,
-        stagger: 0.06,
-        ease: "none",
-        scrollTrigger: {
-          trigger: root.current,
-          start: "top 78%",
-          end: "top 12%",
-          scrub: true,
-        },
-      });
-    }, root);
-    return () => ctx.revert();
+    return runWithMotion(
+      ({ gsap }) => {
+        const ctx = gsap.context(() => {
+          gsap.to(".word", {
+            opacity: 1,
+            stagger: 0.06,
+            ease: "none",
+            scrollTrigger: {
+              trigger: root.current,
+              start: "top 78%",
+              end: "top 12%",
+              scrub: true,
+            },
+          });
+        }, root);
+        return () => ctx.revert();
+      },
+      () => {
+        // Motion chunk failed — the words rest dim (0.14 CSS default);
+        // force them readable instead.
+        root.current
+          ?.querySelectorAll<HTMLElement>(".word")
+          .forEach((word) => (word.style.opacity = "1"));
+      }
+    );
   }, []);
 
   return (

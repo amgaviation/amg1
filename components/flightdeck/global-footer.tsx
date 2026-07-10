@@ -2,15 +2,12 @@
 
 import { useLayoutEffect, useRef } from "react";
 import Link from "next/link";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { runWithMotion } from "./motion";
 import Globe from "./svg/globe";
 import { CookiePreferencesButton } from "@/components/compliance/cookie-consent";
 import { PUBLIC_LEGAL_FOOTER_LINKS } from "@/lib/navigation";
 import { AFFILIATIONS, OPERATIONAL_CONTROL_STATEMENT, SITE } from "@/lib/site-config";
 import { prefersReducedMotion } from "./reveal";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const CITIES = [
   "Teterboro",
@@ -38,54 +35,64 @@ export default function GlobalFooter() {
   useLayoutEffect(() => {
     if (prefersReducedMotion()) return;
 
-    const ctx = gsap.context(() => {
-      const steps = CITIES.length - 1;
+    return runWithMotion(
+      ({ gsap }) => {
+        const ctx = gsap.context(() => {
+          const steps = CITIES.length - 1;
 
-      const tl = gsap.timeline({
-        defaults: { ease: "none" },
-        scrollTrigger: {
-          trigger: root.current,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: true,
-          pin: ".global-stage",
-        },
-      });
+          const tl = gsap.timeline({
+            defaults: { ease: "none" },
+            scrollTrigger: {
+              trigger: root.current,
+              start: "top top",
+              end: "bottom bottom",
+              scrub: true,
+              pin: ".global-stage",
+            },
+          });
 
-      tl.to(".city-rail", { y: -CITY_H * steps, ease: `steps(${steps})`, duration: 0.5 }, 0)
-        .fromTo(".global-word", { yPercent: 24 }, { yPercent: -8, duration: 1 }, 0)
-        .fromTo(
-          ".globe-wrap",
-          { yPercent: 16, scale: 0.94 },
-          { yPercent: 0, scale: 1, duration: 0.6 },
-          0
-        )
-        .to(".flight-arc", { strokeDashoffset: 0, stagger: 0.06, duration: 0.45 }, 0.1)
-        .to(".ticker-row", { opacity: 0, duration: 0.1 }, 0.52)
-        // The globe yields to the footer — dims and eases down so the
-        // contact links land on clear ground.
-        .to(
-          ".globe-wrap",
-          { opacity: 0.3, yPercent: 6, duration: 0.22, ease: "power1.out" },
-          0.6
-        )
-        // Footer fade completes well before the pin releases, so the copy
-        // always rests at full opacity (fade rule).
-        .fromTo(
-          ".footer-block",
-          { opacity: 0, y: 48 },
-          { opacity: 1, y: 0, duration: 0.22, ease: "power1.out" },
-          0.62
-        )
-        // The persistent CTA pill yields to the footer's own links.
-        // Element reference: the pill lives outside this gsap.context scope.
-        .to(
-          document.querySelector<HTMLElement>(".fd-pill") ?? [],
-          { opacity: 0, pointerEvents: "none", duration: 0.08 },
-          0.82
-        );
-    }, root);
-    return () => ctx.revert();
+          tl.to(".city-rail", { y: -CITY_H * steps, ease: `steps(${steps})`, duration: 0.5 }, 0)
+            .fromTo(".global-word", { yPercent: 24 }, { yPercent: -8, duration: 1 }, 0)
+            .fromTo(
+              ".globe-wrap",
+              { yPercent: 16, scale: 0.94 },
+              { yPercent: 0, scale: 1, duration: 0.6 },
+              0
+            )
+            .to(".flight-arc", { strokeDashoffset: 0, stagger: 0.06, duration: 0.45 }, 0.1)
+            .to(".ticker-row", { opacity: 0, duration: 0.1 }, 0.52)
+            // The globe yields to the footer — dims and eases down so the
+            // contact links land on clear ground.
+            .to(
+              ".globe-wrap",
+              { opacity: 0.3, yPercent: 6, duration: 0.22, ease: "power1.out" },
+              0.6
+            )
+            // Footer fade completes well before the pin releases, so the copy
+            // always rests at full opacity (fade rule).
+            .fromTo(
+              ".footer-block",
+              { opacity: 0, y: 48 },
+              { opacity: 1, y: 0, duration: 0.22, ease: "power1.out" },
+              0.62
+            )
+            // The persistent CTA pill yields to the footer's own links.
+            // Element reference: the pill lives outside this gsap.context scope.
+            .to(
+              document.querySelector<HTMLElement>(".fd-pill") ?? [],
+              { opacity: 0, pointerEvents: "none", duration: 0.08 },
+              0.82
+            );
+        }, root);
+        return () => ctx.revert();
+      },
+      () => {
+        // Motion chunk failed — the contact/legal block starts CSS-hidden
+        // ([data-fd-hidden]); force it visible rather than lose the footer.
+        const block = root.current?.querySelector<HTMLElement>(".footer-block");
+        if (block) block.style.opacity = "1";
+      }
+    );
   }, []);
 
   return (

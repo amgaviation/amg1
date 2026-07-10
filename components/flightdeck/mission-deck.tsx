@@ -2,12 +2,9 @@
 
 import { useLayoutEffect, useRef } from "react";
 import Image from "next/image";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { runWithMotion } from "./motion";
 import Blueprint from "./svg/blueprint";
 import { prefersReducedMotion } from "./reveal";
-
-gsap.registerPlugin(ScrollTrigger);
 
 /** The commitments band + published numbers (Business Plan §6, spec §3.6). */
 const SPECS = [
@@ -38,65 +35,67 @@ export default function MissionDeck() {
   useLayoutEffect(() => {
     if (prefersReducedMotion()) return;
 
-    const ctx = gsap.context(() => {
-      // Motion path shows the photo jet first; markup defaults to the
-      // blueprint anchor state so reduced-motion/no-JS gets the final frame.
-      gsap.set(".jet-solid", { opacity: 1 });
-      gsap.set(".jet-blueprint", { opacity: 0 });
+    return runWithMotion(({ gsap }) => {
+      const ctx = gsap.context(() => {
+        // Motion path shows the photo jet first; markup defaults to the
+        // blueprint anchor state so reduced-motion/no-JS gets the final frame.
+        gsap.set(".jet-solid", { opacity: 1 });
+        gsap.set(".jet-blueprint", { opacity: 0 });
 
-      // Trigger-once entrance — never scrubbed, so copy always lands at
-      // full opacity without further scrolling.
-      const enter = gsap.timeline({
-        defaults: { ease: "power3.out", duration: 0.7 },
-        scrollTrigger: {
-          trigger: root.current,
-          start: "top 60%",
-          toggleActions: "play none none none",
-          once: true,
-        },
-      });
-      enter
-        .from(".fly-left", { xPercent: -18, opacity: 0, filter: "blur(16px)" }, 0)
-        .from(".fly-right", { xPercent: 18, opacity: 0, filter: "blur(16px)" }, 0)
-        .from(".fly-sub", { y: 24, opacity: 0 }, 0.15)
-        .from(".fleet-title-l", { y: 24, opacity: 0 }, 0.25)
-        .from(".fleet-title-r", { y: 24, opacity: 0 }, 0.3)
-        .from(".spec-col", { y: 24, opacity: 0, stagger: 0.05, duration: 0.5 }, 0.35)
-        .from(".spec-card", { y: 24, opacity: 0 }, 0.65);
-
-      // Scrubbed ascent (imagery only): the jet climbs into its anchor
-      // position while the section scrolls into view, before the pin.
-      gsap.fromTo(
-        ".jet-render",
-        { yPercent: 70 },
-        {
-          yPercent: 0,
-          ease: "none",
+        // Trigger-once entrance — never scrubbed, so copy always lands at
+        // full opacity without further scrolling.
+        const enter = gsap.timeline({
+          defaults: { ease: "power3.out", duration: 0.7 },
           scrollTrigger: {
             trigger: root.current,
-            start: "top bottom",
-            end: "top top",
-            scrub: true,
+            start: "top 60%",
+            toggleActions: "play none none none",
+            once: true,
           },
-        }
-      );
+        });
+        enter
+          .from(".fly-left", { xPercent: -18, opacity: 0, filter: "blur(16px)" }, 0)
+          .from(".fly-right", { xPercent: 18, opacity: 0, filter: "blur(16px)" }, 0)
+          .from(".fly-sub", { y: 24, opacity: 0 }, 0.15)
+          .from(".fleet-title-l", { y: 24, opacity: 0 }, 0.25)
+          .from(".fleet-title-r", { y: 24, opacity: 0 }, 0.3)
+          .from(".spec-col", { y: 24, opacity: 0, stagger: 0.05, duration: 0.5 }, 0.35)
+          .from(".spec-card", { y: 24, opacity: 0 }, 0.65);
 
-      // Short pinned beat: the render cross-fades into the engineering
-      // blueprint (the section's resting anchor).
-      const tl = gsap.timeline({
-        defaults: { ease: "none" },
-        scrollTrigger: {
-          trigger: root.current,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: true,
-          pin: ".fleet-stage",
-        },
-      });
-      tl.to(".jet-solid", { opacity: 0, duration: 0.5 }, 0.15)
-        .to(".jet-blueprint", { opacity: 1, duration: 0.5 }, 0.3);
-    }, root);
-    return () => ctx.revert();
+        // Scrubbed ascent (imagery only): the jet climbs into its anchor
+        // position while the section scrolls into view, before the pin.
+        gsap.fromTo(
+          ".jet-render",
+          { yPercent: 70 },
+          {
+            yPercent: 0,
+            ease: "none",
+            scrollTrigger: {
+              trigger: root.current,
+              start: "top bottom",
+              end: "top top",
+              scrub: true,
+            },
+          }
+        );
+
+        // Short pinned beat: the render cross-fades into the engineering
+        // blueprint (the section's resting anchor).
+        const tl = gsap.timeline({
+          defaults: { ease: "none" },
+          scrollTrigger: {
+            trigger: root.current,
+            start: "top top",
+            end: "bottom bottom",
+            scrub: true,
+            pin: ".fleet-stage",
+          },
+        });
+        tl.to(".jet-solid", { opacity: 0, duration: 0.5 }, 0.15)
+          .to(".jet-blueprint", { opacity: 1, duration: 0.5 }, 0.3);
+      }, root);
+      return () => ctx.revert();
+    });
   }, []);
 
   return (

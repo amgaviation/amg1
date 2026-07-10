@@ -2,12 +2,9 @@
 
 import { useLayoutEffect, useRef } from "react";
 import Link from "next/link";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { runWithMotion } from "./motion";
 import { prefersReducedMotion } from "./reveal";
 import { WORKED_EXAMPLE } from "@/lib/site-config";
-
-gsap.registerPlugin(ScrollTrigger);
 
 /**
  * The worked example — "the single most important element on the site"
@@ -20,17 +17,19 @@ export default function WorkedExample() {
   useLayoutEffect(() => {
     if (prefersReducedMotion()) return;
 
-    const ctx = gsap.context(() => {
-      gsap.from(".we-in", {
-        y: 50,
-        opacity: 0,
-        duration: 1,
-        ease: "power3.out",
-        stagger: 0.1,
-        scrollTrigger: { trigger: root.current, start: "top 72%" },
-      });
-    }, root);
-    return () => ctx.revert();
+    return runWithMotion(({ gsap }) => {
+      const ctx = gsap.context(() => {
+        gsap.from(".we-in", {
+          y: 50,
+          opacity: 0,
+          duration: 1,
+          ease: "power3.out",
+          stagger: 0.1,
+          scrollTrigger: { trigger: root.current, start: "top 72%" },
+        });
+      }, root);
+      return () => ctx.revert();
+    });
   }, []);
 
   return (
