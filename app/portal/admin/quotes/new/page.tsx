@@ -6,14 +6,38 @@ import { ClientPickerField } from "@/components/portal/ui/combobox";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { createQuote } from "@/app/portal/actions/quotes";
 import { listAllMissions, listClients } from "@/lib/portal/queries";
+import { listQuoteTemplates, getQuoteTemplate } from "@/lib/portal/quote-templates";
 import { BILLING_COST_TYPES, PDF_TEMPLATES, QUOTE_CATEGORIES } from "@/lib/portal/constants";
-import { LineItemsEditor } from "@/components/portal/admin/line-items-editor";
+import { LineItemsEditor, type LineItemDefault } from "@/components/portal/admin/line-items-editor";
 
 export const metadata = { title: "New Quote - Admin Portal" };
 
-export default async function NewQuotePage() {
+export default async function NewQuotePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ template?: string }>;
+}) {
   const user = await requireRolePermission("admin", "quotes", "add");
-  const [clients, missions] = await Promise.all([listClients(), listAllMissions()]);
+  const { template: templateId } = await searchParams;
+  const [clients, missions, templates] = await Promise.all([
+    listClients(),
+    listAllMissions(),
+    listQuoteTemplates(),
+  ]);
+
+  // Applying a template seeds the line-item editor (and default notes) entirely
+  // server-side via the ?template= param — no extra client wiring needed.
+  const template = templateId ? await getQuoteTemplate(templateId) : null;
+  const seededItems: LineItemDefault[] | undefined = template
+    ? template.items.map((it) => ({
+        category: it.category,
+        description: it.description,
+        quantity: it.quantity,
+        unit_price: it.unit_price,
+        unit: it.unit,
+        cost_type: it.cost_type,
+      }))
+    : undefined;
 
   return (
     <>
@@ -23,6 +47,44 @@ export default async function NewQuotePage() {
         description="Create a mission-linked, client-linked, or standalone aviation support quote."
         actions={<Link href="/portal/admin/quotes" className="text-xs text-muted-foreground hover:text-accent">Back to quotes</Link>}
       />
+
+      {/* GET form: choosing a template reloads this page with ?template=<id>, which
+          seeds the line items below server-side. Kept separate from the POST
+          quote form (forms cannot nest). */}
+      <SectionCard
+        title="Start from Template"
+        icon="receipt"
+        description="Optional — seed the line items from a saved template, then adjust as needed."
+        actions={
+          <Link href="/portal/admin/quotes/templates" className="text-xs text-muted-foreground hover:text-accent">
+            Manage templates
+          </Link>
+        }
+      >
+        <form method="get" className="flex flex-wrap items-end gap-3">
+          <div className="min-w-[16rem] flex-1">
+            <SelectField
+              label="Template"
+              name="template"
+              defaultValue={templateId ?? ""}
+              options={[
+                { value: "", label: "Start blank" },
+                ...templates.map((item) => ({
+                  value: item.id,
+                  label: `${item.name} (${item.lineItemCount} ${item.lineItemCount === 1 ? "line" : "lines"})`,
+                })),
+              ]}
+            />
+          </div>
+          <SubmitButton variant="outline" pendingText="Loading...">Apply template</SubmitButton>
+        </form>
+        {template ? (
+          <p className="mt-3 text-xs text-[var(--deck-accent-ink)]">
+            Applied <span className="font-medium">{template.name}</span> — {template.items.length}{" "}
+            {template.items.length === 1 ? "line item" : "line items"} loaded below. You can still edit them before saving.
+          </p>
+        ) : null}
+      </SectionCard>
 
       <form action={createQuote} className="space-y-6">
         <SectionCard title="Client & Mission" icon="building">
@@ -57,11 +119,13 @@ export default async function NewQuotePage() {
 
         <SectionCard title="Line Items" icon="receipt">
           <LineItemsEditor
+            key={templateId ?? "blank"}
             categories={[...QUOTE_CATEGORIES]}
             costTypes={[...BILLING_COST_TYPES]}
             showCostType
             showNotes
             defaultCategory="Crew Services"
+            initialItems={seededItems}
           />
         </SectionCard>
 
@@ -83,8 +147,8 @@ export default async function NewQuotePage() {
             <SelectField label="Template" name="pdf_template" defaultValue="standard" options={PDF_TEMPLATES.map((item) => ({ value: item.value, label: item.label }))} />
             <TextField label="Discount" name="discount_total" type="number" min="0" step="0.01" />
             <TextField label="Manual Tax" name="tax_total" type="number" min="0" step="0.01" defaultValue="0" />
-            <TextAreaField label="Client Notes" name="client_notes" />
-            <TextAreaField label="Internal Notes" name="internal_notes" />
+            <TextAreaField label="Client Notes" name="client_notes" defaultValue={template?.client_notes ?? ""} />
+            <TextAreaField label="Internal Notes" name="internal_notes" defaultValue={template?.internal_notes ?? ""} />
             <TextAreaField label="Opening Note" name="opening_note" />
             <TextAreaField label="Closing Note" name="closing_note" />
             <TextAreaField label="Footer Note" name="footer_note" />

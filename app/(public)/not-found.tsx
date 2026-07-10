@@ -22,6 +22,9 @@ export default function PublicNotFound() {
       <p className="mt-6 max-w-xl text-lg leading-relaxed text-[var(--oc-aluminum)]">
         The page you requested doesn&rsquo;t exist or has moved.
       </p>
+      <p className="oc-mono mt-8 text-xs uppercase [letter-spacing:0.16em] text-[var(--oc-aluminum-2)]">
+        HDG 404 // NO WAYPOINT FOUND — RETURN TO BASE
+      </p>
       <div className="mt-10 flex flex-wrap items-center gap-4">
         <Link href="/" prefetch={false} className="oc-btn oc-btn-ghost-dark">
           Home

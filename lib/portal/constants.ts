@@ -180,6 +180,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       label: "Billing",
       items: [
         { label: "Quotes", href: "/portal/admin/quotes", icon: "receipt" },
+        { label: "Quote Templates", href: "/portal/admin/quotes/templates", icon: "clipboard" },
         { label: "Invoices", href: "/portal/admin/invoices", icon: "wallet" },
         { label: "Payments", href: "/portal/admin/payments", icon: "dollar" },
         { label: "Vendor Invoices", href: "/portal/admin/vendor-invoices", icon: "receipt" },
@@ -191,6 +192,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       label: "Finance",
       items: [
         { label: "Analytics", href: "/portal/admin/financial/analytics", icon: "barChart" },
+        { label: "Payouts", href: "/portal/admin/payouts", icon: "wallet" },
         { label: "Pricing & Services", href: "/portal/admin/financial/pricing", icon: "receipt" },
         { label: "Expenses", href: "/portal/admin/expenses", icon: "receipt" },
         { label: "Receipts", href: "/portal/admin/receipts", icon: "fileText" },

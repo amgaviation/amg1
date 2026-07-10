@@ -6,7 +6,7 @@ import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { Button } from "@/components/ui/button";
 import { getQuoteDetail } from "@/lib/portal/queries";
-import { QUOTE_STATUS_LABEL, QUOTE_STATUS_TONE, toneFor } from "@/lib/portal/constants";
+import { QUOTE_STATUS_LABEL, QUOTE_STATUS_TONE, toneFor, isAdminRole } from "@/lib/portal/constants";
 import { formatDate, formatMoney } from "@/lib/portal/format";
 import { respondToQuote } from "@/app/portal/actions/quotes";
 
@@ -23,7 +23,7 @@ export default async function ClientQuoteDetailPage({
   const { id } = await params;
   const sp = await searchParams;
   const quote = await getQuoteDetail(id);
-  if (!quote || (quote.client_id !== user.id && user.role !== "admin")) notFound();
+  if (!quote || (quote.client_id !== user.id && !isAdminRole(user.role))) notFound();
 
   const canRespond = quote.status === "sent";
   const latestQuoteDocument = quote.documents[0];
@@ -35,6 +35,7 @@ export default async function ClientQuoteDetailPage({
       {sp.error === "terms" ? <Notice tone="danger">Confirm the quote terms and operational review notice before approving.</Notice> : null}
       {sp.error === "locked" ? <Notice tone="warn">This quote is no longer open for a response. If anything changed on your side, message AMG Operations and we&apos;ll issue a fresh revision.</Notice> : null}
       {sp.error === "expired" ? <Notice tone="warn">This quote has expired and can no longer be approved. AMG Operations can reissue current pricing on request.</Notice> : null}
+      {sp.error === "invoice" ? <Notice tone="danger">Your approval was recorded, but AMG could not generate the deposit invoice automatically. AMG Operations has been notified and will follow up with payment details.</Notice> : null}
 
       <PageHeader
         eyebrow={quote.ref}

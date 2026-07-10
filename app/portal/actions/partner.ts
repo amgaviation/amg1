@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
+import { PARTNER_STATUS } from "@/lib/portal/constants";
 import { actor, num, str } from "./_helpers";
 
 function arr(formData: FormData, key: string): string[] {
@@ -89,6 +90,10 @@ export async function updateServiceMilestone(formData: FormData) {
   const db = await createServiceClient();
   const id = str(formData, "assignment_id");
   const status = str(formData, "status");
+  // Reject a status outside the partner vocabulary before it hits the DB.
+  if (!PARTNER_STATUS.some((s) => s.value === status)) {
+    redirect(`/portal/partner/requests/${id}?error=invalid-status`);
+  }
   await db
     .from("mission_partner_assignments")
     .update({ status, partner_notes: str(formData, "partner_notes") || null })

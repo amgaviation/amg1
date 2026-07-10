@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { logAuditEvent, notifyAdmins, notifyUser } from "@/lib/portal/audit";
-import { MISSION_STATUS, MISSION_TYPE_LABEL } from "@/lib/portal/constants";
+import { MISSION_STATUS, MISSION_TYPE_LABEL, isAdminRole } from "@/lib/portal/constants";
 import {
   MIN_GATE_OVERRIDE_REASON_LENGTH,
   canTransition,
@@ -20,6 +20,15 @@ import { recordComplianceEvidence, recordSupportRequestDisclaimerAcknowledgment 
 import { detectProhibitedPaymentData } from "@/lib/compliance/payment-data-guard";
 import { ensureClientAccountForMission } from "@/lib/portal/client-account-provisioning";
 import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
+import { stampSlaDueAtOnIntake } from "@/lib/portal/sla";
+import { listQualifiedCrew } from "@/lib/portal/pool";
+import { formatDateTime, formatRoute } from "@/lib/portal/format";
+import {
+  PAYOUT_SLA_DAYS,
+  PAYOUT_TASK_RELATED_TYPE,
+  parsePayoutCrewId,
+  payoutCrewMarker,
+} from "@/lib/portal/payouts";
 import { actor, bool, isoOrNull, num, str } from "./_helpers";
 
 async function logCompletedMissionUsage(db: any, missionId: string, admin: Awaited<ReturnType<typeof actor>>) {
@@ -86,6 +95,115 @@ async function logCompletedMissionUsage(db: any, missionId: string, admin: Await
   });
 }
 
+/**
+ * Open the 7-day pilot-payment clock on closeout. For each crew member owed on
+ * the mission — every accepted `mission_crew_assignments` row plus the mission's
+ * `assigned_crew_id` (the assignments are the richer source: they carry every
+ * crew seat, not just the primary pilot) — create one high-priority
+ * `ops_tasks` row due `PAYOUT_SLA_DAYS` out, tagged with the shared
+ * `mission_payout` related_type and a per-crew marker in `detail`.
+ *
+ * Idempotent: an existing open payout task for the same mission+crew (matched
+ * by the marker) is skipped, so re-completing a mission after a revert never
+ * double-books a payout. Best-effort — the caller wraps this so a failure here
+ * never blocks the status update itself.
+ */
+async function startMissionPayoutClock(
+  db: any,
+  missionId: string,
+  missionRef: string | null,
+  admin: Awaited<ReturnType<typeof actor>>
+) {
+  const { data: mission } = await db
+    .from("missions")
+    .select("id, ref, assigned_crew_id")
+    .eq("id", missionId)
+    .maybeSingle();
+  if (!mission) return;
+  const ref = mission.ref ?? missionRef ?? missionId;
+
+  const { data: assignments } = await db
+    .from("mission_crew_assignments")
+    .select("crew_id, status")
+    .eq("mission_id", missionId)
+    .in("status", ["accepted", "completed"]);
+
+  const crewIds = new Set<string>();
+  for (const row of assignments ?? []) {
+    if (row?.crew_id) crewIds.add(row.crew_id as string);
+  }
+  if (mission.assigned_crew_id) crewIds.add(mission.assigned_crew_id as string);
+  if (!crewIds.size) return;
+
+  const ids = [...crewIds];
+  const { data: profiles } = await db
+    .from("profiles")
+    .select("id, full_name, email")
+    .in("id", ids);
+  const nameById = new Map<string, string>();
+  for (const profile of profiles ?? []) {
+    nameById.set(profile.id, profile.full_name ?? profile.email ?? "Crew");
+  }
+
+  // Existing open payout tasks for this mission — the per-crew marker in each
+  // task's detail is the idempotency key that survives a re-complete.
+  const { data: existing } = await db
+    .from("ops_tasks")
+    .select("id, detail")
+    .eq("related_type", PAYOUT_TASK_RELATED_TYPE)
+    .eq("related_id", missionId)
+    .in("status", ["open", "in_progress"]);
+  const alreadyClocked = new Set<string>();
+  for (const task of existing ?? []) {
+    const crewId = parsePayoutCrewId(task.detail);
+    if (crewId) alreadyClocked.add(crewId);
+  }
+
+  const dueAt = new Date(Date.now() + PAYOUT_SLA_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  const started: string[] = [];
+  for (const crewId of ids) {
+    if (alreadyClocked.has(crewId)) continue;
+    const crewName = nameById.get(crewId) ?? "Crew";
+    const { data: task, error } = await db
+      .from("ops_tasks")
+      .insert({
+        title: `Pilot payout — ${ref} — ${crewName}`,
+        detail: `Pilot payment due within ${PAYOUT_SLA_DAYS} days of mission closeout. ${payoutCrewMarker(crewId)}`,
+        priority: "high",
+        status: "open",
+        due_at: dueAt,
+        related_type: PAYOUT_TASK_RELATED_TYPE,
+        related_id: missionId,
+        related_label: `${ref} · ${crewName}`,
+        created_by: admin.id,
+      })
+      .select("id")
+      .maybeSingle();
+    if (error || !task) {
+      console.error("[missions] payout task insert failed", missionId, crewId, error?.message);
+      continue;
+    }
+    started.push(crewName);
+    await logAuditEvent({
+      actor: admin,
+      action: "payout_clock_started",
+      detail: `Payout task opened for ${crewName} on ${ref} (due ${dueAt.slice(0, 10)}).`,
+      entityType: "ops_task",
+      entityId: task.id,
+    });
+  }
+
+  if (started.length) {
+    await notifyAdmins({
+      title: `Payout clock started — ${ref}`,
+      body: `${ref} was closed out. Pilot payment${started.length === 1 ? "" : "s"} due within ${PAYOUT_SLA_DAYS} days for ${started.join(", ")}. Track it in Payouts.`,
+      type: "pilot_payout_due",
+      entityType: "mission",
+      entityId: missionId,
+    });
+  }
+}
+
 async function requireMissionAccessForMutation(
   db: Awaited<ReturnType<typeof createServiceClient>>,
   missionId: string,
@@ -101,7 +219,7 @@ async function requireMissionAccessForMutation(
     .maybeSingle();
 
   if (!mission) redirect(`${backTo}?error=notfound`);
-  if (user.role !== "admin" && mission.client_id !== user.id) {
+  if (!isAdminRole(user.role) && mission.client_id !== user.id) {
     redirect(`${backTo}?error=forbidden`);
   }
 
@@ -155,10 +273,10 @@ export async function createMission(formData: FormData) {
       redirect("/portal/client/trips/new?error=aircraft");
     }
     tail = ac?.tail_number ?? null;
-    if (user.role !== "admin" && ac?.client_id !== user.id) {
+    if (!isAdminRole(user.role) && ac?.client_id !== user.id) {
       redirect("/portal/client/trips/new?error=aircraft");
     }
-    if (user.role === "admin" && ac?.client_id) clientId = ac.client_id;
+    if (isAdminRole(user.role) && ac?.client_id) clientId = ac.client_id;
   } else {
     tail = str(formData, "tail_number").toUpperCase().replace(/\s+/g, "") || null;
   }
@@ -193,11 +311,25 @@ export async function createMission(formData: FormData) {
       client_notes: str(formData, "client_notes") || null,
       created_by: user.id,
     })
-    .select("id, ref")
+    .select("id, ref, created_at")
     .single();
 
   if (error || !mission) {
     redirect("/portal/client/trips/new?error=failed");
+  }
+
+  // Start the SLA response-window clock from intake: resolve the client's plan
+  // tier and stamp sla_due_at N business hours out. Failure-safe — the helper
+  // swallows its own errors and this wrap is belt-and-suspenders so a SLA
+  // hiccup can never break trip submission.
+  try {
+    await stampSlaDueAtOnIntake(db, {
+      missionId: mission.id,
+      clientId,
+      from: mission.created_at ? new Date(mission.created_at) : new Date(),
+    });
+  } catch (slaError) {
+    console.error("[missions] SLA due-date stamp failed", mission.id, slaError);
   }
 
   const paxRaw = str(formData, "passenger_names");
@@ -255,7 +387,7 @@ export async function createMission(formData: FormData) {
 
   revalidatePath("/portal/client/trips");
   revalidatePath("/portal/admin/mission-control");
-  const base = user.role === "admin" ? "/portal/admin/trips" : "/portal/client/trips";
+  const base = isAdminRole(user.role) ? "/portal/admin/trips" : "/portal/client/trips";
   redirect(`${base}/${mission.id}?success=created`);
 }
 
@@ -327,8 +459,16 @@ export async function updateMissionStatus(formData: FormData) {
   }
   if (isTransition && status === "completed") {
     await logCompletedMissionUsage(db as any, missionId, user);
+    // Open the 7-day pilot-payment clock. Failure-safe: a payout-task hiccup
+    // must never roll back or block the completed transition itself.
+    try {
+      await startMissionPayoutClock(db as any, missionId, mission?.ref ?? null, user);
+    } catch (error) {
+      console.error("[missions] payout clock creation failed", missionId, error);
+    }
     revalidatePath("/portal/admin/subscriptions");
     revalidatePath("/portal/client/subscriptions");
+    revalidatePath("/portal/admin/payouts");
   }
 
   if (overridden) {
@@ -430,7 +570,7 @@ export async function cancelMission(formData: FormData) {
     .eq("id", missionId)
     .maybeSingle();
   if (!mission) redirect("/portal/client/trips?error=notfound");
-  if (user.role !== "admin" && mission.client_id !== user.id) {
+  if (!isAdminRole(user.role) && mission.client_id !== user.id) {
     redirect("/portal/client/trips?error=forbidden");
   }
 
@@ -438,13 +578,13 @@ export async function cancelMission(formData: FormData) {
   // ops must always be able to stand a mission down. Completed/cancelled
   // missions are immutable history.
   if (isTerminalMissionStatus(mission.status)) {
-    const errorBase = user.role === "admin" ? "/portal/admin/trips" : "/portal/client/trips";
+    const errorBase = isAdminRole(user.role) ? "/portal/admin/trips" : "/portal/client/trips";
     redirect(`${errorBase}/${missionId}?error=illegal-transition&from=${mission.status}&to=cancelled`);
   }
   // Once crew are committed or the aircraft is moving, a stand-down is an
   // ops decision — clients request it through AMG instead of one-clicking a
   // mission out from under an assigned pilot.
-  if (user.role !== "admin" && ["crew_assigned", "scheduled", "in_progress"].includes(mission.status)) {
+  if (!isAdminRole(user.role) && ["crew_assigned", "scheduled", "in_progress"].includes(mission.status)) {
     redirect(`/portal/client/trips/${missionId}?error=cancel-requires-ops`);
   }
 
@@ -463,7 +603,7 @@ export async function cancelMission(formData: FormData) {
     entityType: "mission",
     entityId: missionId,
   });
-  if (user.role === "admin") {
+  if (isAdminRole(user.role)) {
     await notifyMissionContactByEmail({
       missionId,
       title: "Mission status updated",
@@ -475,7 +615,7 @@ export async function cancelMission(formData: FormData) {
 
   revalidatePath("/portal/client/trips");
   revalidatePath("/portal/admin/mission-control");
-  const base = user.role === "admin" ? "/portal/admin/trips" : "/portal/client/trips";
+  const base = isAdminRole(user.role) ? "/portal/admin/trips" : "/portal/client/trips";
   redirect(`${base}/${missionId}?success=cancelled`);
 }
 
@@ -571,7 +711,7 @@ export async function addPassenger(formData: FormData) {
   const fullName = str(formData, "full_name");
   if (!missionId || !fullName) redirect(`/portal/client/trips/${missionId}?error=missing`);
 
-  const backTo = user.role === "admin" ? `/portal/admin/trips/${missionId}` : `/portal/client/trips/${missionId}`;
+  const backTo = isAdminRole(user.role) ? `/portal/admin/trips/${missionId}` : `/portal/client/trips/${missionId}`;
   await requireMissionAccessForMutation(db, missionId, user, backTo);
 
   await db.from("mission_passengers").insert({
@@ -587,7 +727,7 @@ export async function addPassenger(formData: FormData) {
     entityType: "mission",
     entityId: missionId,
   });
-  const base = user.role === "admin" ? "/portal/admin/trips" : "/portal/client/trips";
+  const base = isAdminRole(user.role) ? "/portal/admin/trips" : "/portal/client/trips";
   revalidatePath(`${base}/${missionId}`);
   redirect(`${base}/${missionId}?success=passenger`);
 }
@@ -598,11 +738,11 @@ export async function removePassenger(formData: FormData) {
   const id = str(formData, "passenger_id");
   const missionId = str(formData, "mission_id");
 
-  const backTo = user.role === "admin" ? `/portal/admin/trips/${missionId}` : `/portal/client/trips/${missionId}`;
+  const backTo = isAdminRole(user.role) ? `/portal/admin/trips/${missionId}` : `/portal/client/trips/${missionId}`;
   await requireMissionAccessForMutation(db, missionId, user, backTo);
 
   await db.from("mission_passengers").delete().eq("id", id).eq("mission_id", missionId);
-  const base = user.role === "admin" ? "/portal/admin/trips" : "/portal/client/trips";
+  const base = isAdminRole(user.role) ? "/portal/admin/trips" : "/portal/client/trips";
   revalidatePath(`${base}/${missionId}`);
   redirect(`${base}/${missionId}?success=passenger`);
 }
@@ -634,7 +774,7 @@ export async function updateMissionPool(formData: FormData) {
 
   const { data: mission } = await db
     .from("missions")
-    .select("id, ref, pool_visible")
+    .select("id, ref, pool_visible, departure_airport, arrival_airport, requested_departure, assigned_crew_id")
     .eq("id", missionId)
     .maybeSingle();
   if (!mission) redirect("/portal/admin/trips");
@@ -655,6 +795,30 @@ export async function updateMissionPool(formData: FormData) {
     entityType: "mission",
     entityId: missionId,
   });
+
+  // On publish (never on hide/close), notify every already-qualified crew
+  // member so pilots hear about the opening instead of only finding it by
+  // browsing. Notify failures must never break the publish, so we swallow
+  // them via allSettled; the qualified set is small.
+  if (visible) {
+    const route = formatRoute(mission!.departure_airport, mission!.arrival_airport);
+    const timing = mission!.requested_departure ? ` departing ${formatDateTime(mission!.requested_departure)}` : "";
+    const qualified = await listQualifiedCrew(requirements);
+    await Promise.allSettled(
+      qualified
+        .filter((crew) => crew.id !== mission!.assigned_crew_id)
+        .map((crew) =>
+          notifyUser({
+            userId: crew.id,
+            title: `New mission open to the pool — ${mission!.ref}`,
+            body: `${mission!.ref} — ${route}${timing}. You qualify for this mission. Open the crew Open Pool to review and request it.`,
+            type: "crew_pool_published",
+            entityType: "mission",
+            entityId: missionId,
+          })
+        )
+    );
+  }
 
   revalidatePath(`/portal/admin/trips/${missionId}`);
   revalidatePath("/portal/crew/missions");
@@ -697,6 +861,34 @@ export async function decideCrewPoolRequest(formData: FormData) {
     }
   }
 
+  // The mission move is the write that can conflict, so it goes FIRST: if the
+  // mission progressed under us we redirect before the request row or an
+  // assignment row is touched, leaving no half-approved state behind.
+  if (decision === "approved") {
+    const alreadyAssigned = (request!.mission as { assigned_crew_id: string | null }).assigned_crew_id;
+    if (alreadyAssigned) {
+      // Supplemental crew on a mission that already has a confirmed pilot:
+      // just close the pool, never touch the mission status.
+      await db.from("missions").update({ pool_visible: false }).eq("id", missionId);
+    } else {
+      // Committing the first crew member moves the mission to crew_assigned —
+      // legal only from an approved mission (mirrors respondToAssignment and
+      // canTransition, which only allow approved → crew_assigned). Predicate on
+      // the write so a stale request decided after the mission progressed can't
+      // drag it backward; zero rows means the mission moved on under us.
+      const { data: moved } = await db
+        .from("missions")
+        .update({ assigned_crew_id: request!.crew_id, status: "crew_assigned", pool_visible: false })
+        .eq("id", missionId)
+        .eq("status", "approved")
+        .select("id")
+        .maybeSingle();
+      if (!moved) {
+        redirect(`/portal/admin/trips/${missionId}?error=conflict`);
+      }
+    }
+  }
+
   await db
     .from("mission_crew_requests")
     .update({
@@ -729,16 +921,6 @@ export async function decideCrewPoolRequest(formData: FormData) {
         responded_at: now,
       });
     }
-
-    const alreadyAssigned = (request!.mission as { assigned_crew_id: string | null }).assigned_crew_id;
-    await db
-      .from("missions")
-      .update(
-        alreadyAssigned
-          ? { pool_visible: false }
-          : { assigned_crew_id: request!.crew_id, status: "crew_assigned", pool_visible: false }
-      )
-      .eq("id", missionId);
 
     await notifyUser({
       userId: request!.crew_id,

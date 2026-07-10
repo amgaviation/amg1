@@ -4,6 +4,7 @@ import { PortalAccessShell } from "@/components/site/portal-access-shell";
 export const metadata = {
   title: "AMG Portal Access Setup",
   description: "Set up access for your AMG client portal account.",
+  robots: { index: false },
 };
 
 export default function PortalSetupPage() {

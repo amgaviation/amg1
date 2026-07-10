@@ -1,9 +1,20 @@
 import type { Metadata, Viewport } from "next";
 import { CookieConsentBanner } from "@/components/compliance/cookie-consent";
 import { ConsentScriptLoader } from "@/components/compliance/consent-script-loader";
+import { SITE } from "@/lib/site-config";
 import "./globals.css";
 
+// Reuse the homepage hero still as the shared social-share card. metadataBase
+// resolves this relative path to an absolute URL for crawlers.
+const OG_IMAGE = {
+  url: "/images/flightdeck/stratosphere.webp",
+  width: 1920,
+  height: 1072,
+  alt: "AMG Aviation Group flight deck",
+};
+
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || SITE.url),
   title: {
     default: "AMG Aviation Group",
     template: "%s | AMG Aviation Group",
@@ -26,6 +37,16 @@ export const metadata: Metadata = {
     description:
       "Aircraft support capabilities and coordination for Part 91 aviation environments.",
     type: "website",
+    siteName: "AMG Aviation Group",
+    url: SITE.url,
+    images: [OG_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AMG Aviation Group - Aircraft Support Capabilities",
+    description:
+      "Aircraft support capabilities and coordination for Part 91 aviation environments.",
+    images: [OG_IMAGE.url],
   },
 };
 

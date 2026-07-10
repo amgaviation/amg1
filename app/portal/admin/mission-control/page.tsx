@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { Notice, PageHeader } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
+import { SlaChip } from "@/components/portal/ui/sla-chip";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { updateMissionStatus } from "@/app/portal/actions/missions";
 import { listAllMissions } from "@/lib/portal/queries";
@@ -124,6 +125,9 @@ export default async function AdminMissionControlPage({
                     <p className="mt-0.5 truncate text-xs text-[var(--deck-text-3)]">
                       {mission.client?.company_name ?? mission.client?.full_name ?? mission.client?.email ?? "Client TBD"}
                     </p>
+                    <div className="mt-1.5 empty:hidden">
+                      <SlaChip mission={mission} />
+                    </div>
                     <form action={updateMissionStatus} className="mt-2.5 flex items-center gap-2">
                       <input type="hidden" name="mission_id" value={mission.id} />
                       <DeckSelect

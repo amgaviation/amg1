@@ -4,6 +4,7 @@ import { PortalLogin } from "@/components/site/portal-login";
 export const metadata: Metadata = {
   title: "AMG Connect — Portal Login",
   description: "Secure access for aircraft owners, flight crew, AMG operations, and aviation partners.",
+  robots: { index: false },
 };
 
 export default async function LoginPage({

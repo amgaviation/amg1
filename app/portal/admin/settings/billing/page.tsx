@@ -130,6 +130,11 @@ export default async function AdminBillingSettingsPage({
                 name="auto_send_invoice_on_quote_approval"
                 defaultChecked={settings.auto_send_invoice_on_quote_approval}
               />
+              <CheckboxField
+                label="Automatically send overdue payment reminders to clients (T+3 / T+7 / T+14 dunning)"
+                name="dunning_enabled"
+                defaultChecked={settings.dunning_enabled}
+              />
             </div>
           </SectionCard>
 

@@ -4,6 +4,7 @@ import { PortalAccessShell } from "@/components/site/portal-access-shell";
 export const metadata = {
   title: "AMG Portal Access Denied",
   description: "AMG portal access denied or unavailable.",
+  robots: { index: false },
 };
 
 export default function AccessDeniedPage() {
@@ -12,8 +13,7 @@ export default function AccessDeniedPage() {
       eyebrow="Portal Security"
       title="Access denied"
       description="Your account is not authorized for that portal area. AMG routes users by approved role and account status."
-      backHref="/portal"
-      backLabel="Go to my portal"
+      backHref={null}
     >
       <div className="grid gap-4">
         <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4 text-sm leading-6 text-muted-foreground">
@@ -23,10 +23,10 @@ export default function AccessDeniedPage() {
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Link href="/portal" className="inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-6 py-3 font-display text-xs font-semibold uppercase tracking-widest text-primary-foreground">
+          <Link href="/portal" className="oc-btn oc-btn-primary justify-center">
             Go to my portal
           </Link>
-          <Link href="/contact" className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/15 px-6 py-3 font-display text-xs font-semibold uppercase tracking-widest text-foreground hover:border-primary">
+          <Link href="/contact" className="oc-btn oc-btn-ghost-dark justify-center">
             Contact AMG
           </Link>
         </div>

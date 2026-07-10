@@ -1,8 +1,13 @@
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SITE } from "@/lib/site-config";
 
-export const metadata = { title: "Payment Received - AMG Aviation Group" };
+export const metadata = {
+  title: "Payment Received - AMG Aviation Group",
+  // Post-checkout landing page — never a search result.
+  robots: { index: false, follow: false },
+};
 
 export default async function StripePaymentSuccessPage({
   searchParams,
@@ -15,7 +20,7 @@ export default async function StripePaymentSuccessPage({
   return (
     <main className="min-h-screen bg-background px-6 py-16 text-foreground">
       <section className="mx-auto max-w-xl space-y-6">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 text-accent">
           <CheckCircle2 className="h-6 w-6" />
         </div>
         <div>
@@ -31,7 +36,7 @@ export default async function StripePaymentSuccessPage({
             <Link href={invoicePath}>Return to Portal</Link>
           </Button>
           <Button asChild variant="outline" className="rounded-full">
-            <Link href="/contact">Contact AMG Operations</Link>
+            <a href={`mailto:${SITE.email}`}>Contact AMG Operations</a>
           </Button>
         </div>
       </section>

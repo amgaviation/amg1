@@ -3,10 +3,17 @@ import Link from "next/link";
 import { LegalDocumentPage } from "@/components/compliance/legal-document-page";
 import { submitPrivacyChoicesRequest } from "@/app/(public)/privacy-choices/actions";
 import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
+import { SITE } from "@/lib/site-config";
 
+const CANONICAL_BASE = process.env.NEXT_PUBLIC_APP_URL || SITE.url;
+
+// This document is also served at /legal/privacy-choices. This standalone route
+// (which carries the data-rights request form) is the canonical one; the /legal
+// counterpart points here.
 export const metadata: Metadata = {
   title: "AMG Aviation Group - Privacy Choices",
   description: "Submit privacy, data rights, marketing opt-out, SMS opt-out, and cookie preference requests.",
+  alternates: { canonical: `${CANONICAL_BASE}/privacy-choices` },
 };
 
 export default async function PrivacyChoicesPage({
@@ -36,7 +43,9 @@ export default async function PrivacyChoicesPage({
               <div role="alert" className="mt-5 rounded-lg border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-100">
                 {params.error === "missing"
                   ? "Complete the required fields and acknowledgment before submitting."
-                  : getUserFacingErrorMessage({ area: "privacy_choices", action: "submit", correlationId: params.ref })}
+                  : params.error === "rate_limited"
+                    ? "Too many requests from your connection. Please wait a few minutes and try again."
+                    : getUserFacingErrorMessage({ area: "privacy_choices", action: "submit", correlationId: params.ref })}
               </div>
             ) : null}
             <form action={submitPrivacyChoicesRequest} className="mt-6 grid gap-5">
@@ -92,9 +101,11 @@ export default async function PrivacyChoicesPage({
                   I understand AMG may verify this request and may respond through the contact information provided. Review the <Link href="/privacy-policy" className="text-accent hover:underline">Privacy Policy</Link>.
                 </span>
               </label>
-              <button type="submit" className="min-h-11 rounded-full border border-[var(--instrument)] bg-[var(--instrument)] px-5 text-sm font-semibold text-white hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amg-accent-blue)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111F]">
-                Submit Request
-              </button>
+              <div>
+                <button type="submit" className="oc-btn oc-btn-primary font-mono text-xs uppercase [letter-spacing:0.14em]">
+                  Submit Request
+                </button>
+              </div>
             </form>
           </div>
         </div>

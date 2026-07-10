@@ -36,6 +36,14 @@ function newRef() {
     .padStart(2, "0")}`;
 }
 
+/** Merge result params into back_to without corrupting an existing query string. */
+function redirectWith(backTo: string, extra: Record<string, string>): never {
+  const [path, existing = ""] = backTo.split("?");
+  const params = new URLSearchParams(existing);
+  for (const [key, value] of Object.entries(extra)) params.set(key, value);
+  redirect(`${path}?${params.toString()}`);
+}
+
 type ParsedLine = { description: string; quantity: number; unit_amount: number; amount: number; position: number };
 
 function parseLines(formData: FormData): ParsedLine[] | null {
@@ -331,9 +339,9 @@ export async function reviewVendorInvoice(formData: FormData) {
   const decision = str(formData, "decision").trim();
   const reviewNotes = str(formData, "review_notes").trim().slice(0, 2000) || null;
   const backTo = safeRedirectPath(str(formData, "back_to"), `${ADMIN_BASE}?record=${invoiceId}`);
-  if (!REVIEW_DECISIONS.has(decision)) redirect(`${backTo}&error=decision`);
+  if (!REVIEW_DECISIONS.has(decision)) redirectWith(backTo, { error: "decision" });
   if ((decision === "needs_changes" || decision === "rejected") && !reviewNotes) {
-    redirect(`${backTo}&error=notes-required`);
+    redirectWith(backTo, { error: "notes-required" });
   }
 
   const db = await createServiceClient();
@@ -350,7 +358,7 @@ export async function reviewVendorInvoice(formData: FormData) {
     .in("status", ["submitted", "under_review", "needs_changes", "approved"])
     .select("id, ref, submitter_id, total")
     .single();
-  if (error || !invoice) redirect(`${backTo}&error=save`);
+  if (error || !invoice) redirectWith(backTo, { error: "save" });
 
   await logAuditEvent({
     actor: { id: user.id, email: user.email, role: user.role },
@@ -395,7 +403,7 @@ export async function markVendorInvoicePaid(formData: FormData) {
     .eq("status", "approved")
     .select("id, ref, submitter_id, total")
     .single();
-  if (error || !invoice) redirect(`${backTo}&error=not-approved`);
+  if (error || !invoice) redirectWith(backTo, { error: "not-approved" });
 
   await logAuditEvent({
     actor: { id: user.id, email: user.email, role: user.role },

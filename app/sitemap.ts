@@ -16,6 +16,9 @@ const publicRoutes = [
   "/cookie-policy",
   "/terms",
   "/accessibility",
+  "/mission-acceptance",
+  "/credential-submission",
+  "/privacy-choices",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

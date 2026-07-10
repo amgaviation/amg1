@@ -12,7 +12,7 @@ import {
   detailValue,
   type DetailFormField,
 } from "@/components/portal/admin/record-detail";
-import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
+import { Notice, PageHeader, SectionCard, Timeline } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -32,6 +32,7 @@ import {
   listCrewEmailTemplates,
 } from "@/lib/portal/crew-email";
 import {
+  getEntityTimeline,
   listAllCredentials,
   listAllCrew,
   listAllDocuments,
@@ -134,6 +135,7 @@ export default async function AdminCrewDetailPage({
     communications,
     templates,
     emailContext,
+    timeline,
   ] = await Promise.all([
     listAllCrew(),
     listAllCredentials(),
@@ -142,10 +144,25 @@ export default async function AdminCrewDetailPage({
     listCrewCommunications(crewId),
     listCrewEmailTemplates(),
     buildCrewEmailContext(crewId),
+    getEntityTimeline("profile", crewId),
   ]);
 
   const member = crew.find((item) => item.id === crewId);
   if (!member || member.role !== "crew") notFound();
+
+  const activityItems = timeline
+    .map((event) => ({
+      at: event.created_at,
+      title: event.action.replace(/_/g, " "),
+      body: event.detail ?? event.actor_email ?? undefined,
+    }))
+    .sort((a, b) => new Date(b.at ?? 0).getTime() - new Date(a.at ?? 0).getTime())
+    .slice(0, 12)
+    .map((item) => ({
+      title: item.title,
+      meta: formatDateTime(item.at),
+      body: item.body,
+    }));
 
   const profile = member.crew_profile;
   const crewCredentials = credentials.filter((credential) => credential.crew_id === crewId);
@@ -453,6 +470,14 @@ export default async function AdminCrewDetailPage({
           />
         </TabsContent>
       </Tabs>
+
+      <SectionCard title="Activity Timeline" icon="history">
+        {activityItems.length ? (
+          <Timeline items={activityItems} />
+        ) : (
+          <p className="text-sm text-muted-foreground">No crew activity recorded yet.</p>
+        )}
+      </SectionCard>
 
       <div className="flex justify-start">
         <Link href="/portal/admin/crew" className="text-sm text-[var(--amg-text-muted)] hover:text-[var(--deck-accent-ink)]">

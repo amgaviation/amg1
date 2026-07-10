@@ -9,6 +9,13 @@ import {
 } from "@/lib/public-form-submissions";
 import { detectProhibitedPaymentData } from "@/lib/compliance/payment-data-guard";
 import { recordComplianceEvidence } from "@/lib/compliance/evidence";
+import { clientIpFromHeaders, rateLimit } from "@/lib/security/rate-limit";
+
+// Per-IP abuse brake for this public form. A real owner submits a mission or two
+// at a time, so the threshold is generous — a shared/NAT'd office won't hit it,
+// while a script hammering the endpoint is stopped short of the DB/email path.
+const RATE_LIMIT_MAX = 8;
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 
 async function requestContext(): Promise<PublicFormRequestContext> {
   const requestHeaders = await headers();
@@ -21,6 +28,11 @@ async function requestContext(): Promise<PublicFormRequestContext> {
 }
 
 export async function submitQuoteRequest(formData: FormData) {
+  const ip = clientIpFromHeaders(await headers());
+  if (!rateLimit(`quote-request:${ip}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS).ok) {
+    redirect("/request?error=rate-limited");
+  }
+
   // Honeypot: obfuscated name so browser/password-manager autofill never
   // matches it (a filled trap used to silently swallow real submissions).
   if (String(formData.get("ops_ref_code") ?? "").trim()) {

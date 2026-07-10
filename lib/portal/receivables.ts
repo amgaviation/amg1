@@ -1,8 +1,21 @@
 import "server-only";
 
+import { DUNNING_STAGE_ACTIONS, DUNNING_STAGES } from "@/lib/portal/sweeps/dunning";
 import { createServiceClient } from "@/lib/supabase/server";
 
 /** Accounts-receivable rollups: aging buckets, outstanding totals, per-client exposure. */
+
+/** Automated-dunning state for one invoice, computed from the audit trail. */
+export type ArDunningInfo = {
+  paused: boolean;
+  /** Label of the most recent stage sent ("T+3"), or null when none yet. */
+  lastStageLabel: string | null;
+  lastSentAt: string | null;
+  /** Next cadence step: "T+7 due" (owed now), "T+14 pending" (upcoming), or null when exhausted. */
+  nextStageLabel: string | null;
+  /** True once the final stage has been sent. */
+  complete: boolean;
+};
 
 export type ArInvoice = {
   id: string;
@@ -19,6 +32,7 @@ export type ArInvoice = {
   daysOverdue: number;
   bucket: ArBucket;
   lastRemindedAt: string | null;
+  dunning: ArDunningInfo;
 };
 
 export type ArBucket = "current" | "1-30" | "31-60" | "61-90" | "90+";
@@ -41,6 +55,45 @@ function bucketFor(daysOverdue: number): ArBucket {
   return "90+";
 }
 
+/**
+ * Where an invoice sits in the automated dunning cadence. Mirrors the sweep's
+ * "highest owed stage" selection: a stage below the invoice's current age that
+ * was skipped (e.g. dunning enabled late) will never fire, so it is not shown
+ * as pending.
+ */
+function dunningInfoFor(
+  daysOverdue: number,
+  paused: boolean,
+  sentStages: Map<string, string> | undefined
+): ArDunningInfo {
+  let lastStageLabel: string | null = null;
+  let lastSentAt: string | null = null;
+  for (const stage of DUNNING_STAGES) {
+    const sentAt = sentStages?.get(stage.action);
+    if (sentAt && (!lastSentAt || sentAt > lastSentAt)) {
+      lastStageLabel = stage.label;
+      lastSentAt = sentAt;
+    }
+  }
+
+  let owedIdx = -1;
+  for (let i = 0; i < DUNNING_STAGES.length; i += 1) {
+    if (daysOverdue >= DUNNING_STAGES[i].days) owedIdx = i;
+  }
+
+  let nextStageLabel: string | null = null;
+  let complete = false;
+  if (owedIdx >= 0 && !sentStages?.has(DUNNING_STAGES[owedIdx].action)) {
+    nextStageLabel = `${DUNNING_STAGES[owedIdx].label} due`;
+  } else if (owedIdx + 1 < DUNNING_STAGES.length) {
+    nextStageLabel = `${DUNNING_STAGES[owedIdx + 1].label} pending`;
+  } else {
+    complete = true;
+  }
+
+  return { paused, lastStageLabel, lastSentAt, nextStageLabel, complete };
+}
+
 export type ArSummary = {
   invoices: ArInvoice[];
   totalOutstanding: number;
@@ -60,7 +113,9 @@ export async function getArSummary(): Promise<ArSummary> {
   const { data } = await db
     .from("invoices")
     .select(
-      "id, invoice_number, status, total, amount_due, due_date, sent_at, issued_at, created_at, client_id, client:client_id(id, full_name, email, company_name)"
+      // dunning_paused is ahead of the generated database types until the next
+      // regen; this module already reads through an `any`-cast client.
+      "id, invoice_number, status, total, amount_due, due_date, sent_at, issued_at, created_at, client_id, dunning_paused, client:client_id(id, full_name, email, company_name)"
     )
     .in("status", OPEN_STATUSES)
     .order("due_date", { ascending: true, nullsFirst: false });
@@ -80,6 +135,27 @@ export async function getArSummary(): Promise<ArSummary> {
     }
   }
 
+  // Automated dunning stages per invoice, also from the audit trail (the
+  // sweep's dedupe source of truth, so the page can never disagree with it).
+  const { data: dunningEvents } = await db
+    .from("audit_events")
+    .select("entity_id, action, created_at")
+    .in("action", DUNNING_STAGE_ACTIONS)
+    .eq("entity_type", "invoice")
+    .order("created_at", { ascending: false })
+    .limit(1500);
+  const dunningByInvoice = new Map<string, Map<string, string>>();
+  for (const event of (dunningEvents ?? []) as {
+    entity_id: string | null;
+    action: string;
+    created_at: string;
+  }[]) {
+    if (!event.entity_id) continue;
+    const stages = dunningByInvoice.get(event.entity_id) ?? new Map<string, string>();
+    if (!stages.has(event.action)) stages.set(event.action, event.created_at);
+    dunningByInvoice.set(event.entity_id, stages);
+  }
+
   const now = Date.now();
   const invoices: ArInvoice[] = ((data ?? []) as any[]).map((row) => {
     const due = row.due_date ? new Date(row.due_date).getTime() : null;
@@ -91,6 +167,11 @@ export async function getArSummary(): Promise<ArSummary> {
       daysOverdue: Math.max(0, daysOverdue),
       bucket: bucketFor(due ? daysOverdue : 0),
       lastRemindedAt: lastReminder.get(row.id) ?? null,
+      dunning: dunningInfoFor(
+        due ? Math.max(0, daysOverdue) : 0,
+        Boolean(row.dunning_paused),
+        dunningByInvoice.get(row.id)
+      ),
     } as ArInvoice;
   });
 

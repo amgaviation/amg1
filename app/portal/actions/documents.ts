@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
+import { isAdminRole } from "@/lib/portal/constants";
 import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
 import { normalizeDocumentAccessLevel, normalizeDocumentCategory } from "@/lib/compliance/document-classification";
 import { recordComplianceEvidence } from "@/lib/compliance/evidence";
@@ -100,12 +101,12 @@ export async function uploadDocument(formData: FormData) {
   if (upErr) redirect(`${backTo}?error=upload`);
 
   const visibility =
-    user.role === "admin"
+    isAdminRole(user.role)
       ? str(formData, "visibility") || "admin"
       : VISIBILITY_BY_ROLE[user.role] ?? "admin";
-  const targetProfileId = user.role === "admin" ? str(formData, "target_profile_id") : "";
+  const targetProfileId = isAdminRole(user.role) ? str(formData, "target_profile_id") : "";
   const requestedMissionId = str(formData, "mission_id") || null;
-  if (user.role !== "admin" && requestedMissionId) {
+  if (!isAdminRole(user.role) && requestedMissionId) {
     await verifyMissionReferenceForUploader(db, user.role, user.id, requestedMissionId, backTo);
   }
 
@@ -119,7 +120,7 @@ export async function uploadDocument(formData: FormData) {
   const complianceCategory = normalizeDocumentCategory(str(formData, "compliance_category") || docType);
   const accessLevel = normalizeDocumentAccessLevel(
     str(formData, "access_level"),
-    user.role === "admin"
+    isAdminRole(user.role)
       ? "admin_only"
       : user.role === "client"
         ? "client_visible"
@@ -137,10 +138,10 @@ export async function uploadDocument(formData: FormData) {
     file_size: file.size,
     doc_type: docType,
     scope_type:
-      user.role === "admin"
+      isAdminRole(user.role)
         ? inferredScopeType || str(formData, "scope_type") || "admin"
         : user.role,
-    scope_id: user.role === "admin" ? targetProfile?.id || str(formData, "scope_id") || null : user.id,
+    scope_id: isAdminRole(user.role) ? targetProfile?.id || str(formData, "scope_id") || null : user.id,
     mission_id: requestedMissionId,
     visibility: inferredVisibility || visibility,
     uploaded_by: user.id,

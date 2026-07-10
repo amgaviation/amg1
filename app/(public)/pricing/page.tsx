@@ -3,7 +3,8 @@ import Link from "next/link";
 import { TrackedLink } from "@/components/site/tracked-link";
 import { WorkedExample } from "@/components/site/worked-example";
 import { HeadlineReveal } from "@/components/site/headline-reveal";
-import { DAY_RATES, PLAN_TABLE, SITE_EVENTS } from "@/lib/site-config";
+import { PricingMotion } from "@/components/site/pricing-motion";
+import { DAY_RATES, PLAN_TABLE, SITE, SITE_EVENTS } from "@/lib/site-config";
 
 export const metadata: Metadata = {
   title: "Plans & Pricing — Every Price Published",
@@ -58,6 +59,72 @@ const FAQ = [
   },
 ] as const;
 
+/** Parse a published price string ("$149/mo", "$495", "$0") to a bare amount. */
+function schemaAmount(value: string): number {
+  return Number(value.replace(/[^0-9.]/g, "")) || 0;
+}
+
+/**
+ * Offer/Product structured data derived straight from PLAN_TABLE — one Product
+ * per plan, with an Offer for each band's per-mission coordination fee plus
+ * (where it applies) the monthly membership. Prices stay in lockstep with the
+ * rendered table because both read the same single source of truth.
+ */
+const PRICING_SCHEMA = {
+  "@context": "https://schema.org",
+  "@graph": PLAN_TABLE.plans.map((plan, i) => {
+    const positioning = POSITIONING.find((p) => p.name === plan);
+    const offers = [PLAN_TABLE.bandA, PLAN_TABLE.bandB].flatMap((band) => {
+      const coordination = schemaAmount(band.coordination[i]);
+      const monthly = schemaAmount(band.monthly[i]);
+      const list: Array<Record<string, unknown>> = [
+        {
+          "@type": "Offer",
+          name: `${plan} · ${band.label} · coordination fee per mission`,
+          category: "Flight coordination",
+          priceCurrency: "USD",
+          price: String(coordination),
+          availability: "https://schema.org/InStock",
+          url: `${SITE.url}/pricing`,
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            priceCurrency: "USD",
+            price: String(coordination),
+            referenceQuantity: { "@type": "QuantitativeValue", value: 1, unitText: "mission" },
+          },
+        },
+      ];
+      if (monthly > 0) {
+        list.push({
+          "@type": "Offer",
+          name: `${plan} · ${band.label} · monthly membership`,
+          category: "Subscription",
+          priceCurrency: "USD",
+          price: String(monthly),
+          availability: "https://schema.org/InStock",
+          url: `${SITE.url}/pricing`,
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            priceCurrency: "USD",
+            price: String(monthly),
+            referenceQuantity: { "@type": "QuantitativeValue", value: 1, unitCode: "MON", unitText: "month" },
+          },
+        });
+      }
+      return list;
+    });
+
+    return {
+      "@type": "Product",
+      name: `AMG ${plan} plan`,
+      description: positioning?.body[0] ?? "AMG crew-sourcing and flight coordination plan.",
+      brand: { "@type": "Brand", name: SITE.name },
+      category: "Aircraft crew coordination",
+      offers,
+    };
+  }),
+};
+
 function BandRows({
   band,
   plans,
@@ -81,7 +148,7 @@ function BandRows({
           Monthly fee
         </th>
         {band.monthly.map((value, i) => (
-          <td key={plans[i]} className="oc-mono px-4 py-4 text-lg text-[var(--oc-paper)]">
+          <td key={plans[i]} data-countup className="oc-mono px-4 py-4 text-lg text-[var(--oc-paper)]">
             {value}
           </td>
         ))}
@@ -91,7 +158,7 @@ function BandRows({
           Coordination fee per mission
         </th>
         {band.coordination.map((value, i) => (
-          <td key={plans[i]} className="oc-mono px-4 py-4 text-lg text-[var(--oc-paper)]">
+          <td key={plans[i]} data-countup className="oc-mono px-4 py-4 text-lg text-[var(--oc-paper)]">
             {value}
           </td>
         ))}
@@ -120,6 +187,11 @@ export default function PricingPage() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(PRICING_SCHEMA) }}
+      />
+      <PricingMotion />
       {/* §4.1 Intro — three sentences, no hedging. */}
       <section className="pub-hero oc-shell pb-14 pt-[calc(var(--public-header-height)+4rem)]">
         <div className="max-w-3xl" data-stagger-container>
@@ -138,12 +210,15 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* §4.2 The plan table (Business Plan §6.2, real figures in every cell). */}
-      <section className="oc-section py-16">
+      {/* §4.2 The plan table (Business Plan §6.2, real figures in every cell).
+          data-pill-hide: the persistent "Get a Quote" pill hides while this
+          section is in view so it never rides on top of the stacked mobile
+          plan cards. */}
+      <section className="oc-section py-16" data-pill-hide>
         <div className="oc-shell">
           {/* Desktop table */}
           <div className="hud-frame oc-card-dark hidden overflow-hidden md:block" data-scroll-animate>
-            <table className="w-full border-collapse">
+            <table className="w-full border-collapse" data-plan-table>
               <thead>
                 <tr>
                   <th className="w-[28%] px-4 py-5 text-left text-xs font-semibold uppercase text-[var(--oc-aluminum-2)]">
@@ -279,7 +354,7 @@ export default function PricingPage() {
             {DAY_RATES.bands.map((band) => (
               <div key={band.band} data-stagger-item className="pub-card-hover oc-card-dark p-6">
                 <dt className="text-xs font-semibold uppercase text-[var(--oc-aluminum-2)]">{band.band}</dt>
-                <dd className="oc-display mt-2 text-3xl text-[var(--oc-paper)]">{band.range}</dd>
+                <dd data-countup className="oc-display mt-2 text-3xl text-[var(--oc-paper)]">{band.range}</dd>
               </div>
             ))}
           </dl>
@@ -320,7 +395,13 @@ export default function PricingPage() {
                     +
                   </span>
                 </summary>
-                <p className="mt-3 text-[0.95rem] leading-relaxed text-[var(--oc-aluminum)]">{item.a}</p>
+                {/* grid-rows 0fr→1fr gives the answer a smooth ~250ms open
+                    instead of the native snap; inner div clips the overflow. */}
+                <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-[250ms] ease-out group-open:grid-rows-[1fr] motion-reduce:transition-none">
+                  <div className="overflow-hidden">
+                    <p className="mt-3 text-[0.95rem] leading-relaxed text-[var(--oc-aluminum)]">{item.a}</p>
+                  </div>
+                </div>
               </details>
             ))}
           </div>

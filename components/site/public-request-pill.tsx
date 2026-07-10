@@ -10,16 +10,21 @@ import { usePathname } from "next/navigation";
  * quote action is always one tap away. CSS-only (no GSAP): it stays hidden
  * while the hero is on screen and hides again whenever a section carrying its
  * own /request CTA is in view, so it never doubles a nearby button. Not shown
- * on the /request page itself.
+ * on the /request page itself, nor on /pilots/apply (its sticky Submit button
+ * would physically collide with the pill on narrow viewports).
  */
 export function PublicRequestPill() {
   const pathname = usePathname();
   const [shown, setShown] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const isRequest = pathname === "/request" || pathname === "/request/";
+  const isSuppressed =
+    pathname === "/request" ||
+    pathname === "/request/" ||
+    pathname === "/pilots/apply" ||
+    pathname === "/pilots/apply/";
 
   useEffect(() => {
-    if (isRequest || typeof IntersectionObserver === "undefined") return;
+    if (isSuppressed || typeof IntersectionObserver === "undefined") return;
 
     const main = document.getElementById("main-content");
     if (!main) return;
@@ -32,6 +37,11 @@ export function PublicRequestPill() {
     main.querySelectorAll<HTMLAnchorElement>('a[href="/request"]').forEach((a) => {
       const section = a.closest("section") ?? a.parentElement;
       if (section && !watched.includes(section)) watched.push(section);
+    });
+    // Sections that opt out explicitly (e.g. the /pricing plan table, whose
+    // stacked mobile cards the pill would otherwise ride on top of).
+    main.querySelectorAll<HTMLElement>("[data-pill-hide]").forEach((section) => {
+      if (!watched.includes(section)) watched.push(section);
     });
     if (!watched.length) {
       setShown(true);
@@ -48,9 +58,9 @@ export function PublicRequestPill() {
     });
     watched.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, [pathname, isRequest]);
+  }, [pathname, isSuppressed]);
 
-  if (isRequest) return null;
+  if (isSuppressed) return null;
 
   return (
     <div

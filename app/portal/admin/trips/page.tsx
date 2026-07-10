@@ -9,6 +9,7 @@ import {
 } from "@/components/portal/ui/primitives";
 import { PageToolbar } from "@/components/portal/ui/page-toolbar";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
+import { SlaChip } from "@/components/portal/ui/sla-chip";
 import { Button } from "@/components/ui/button";
 import { listAllMissions } from "@/lib/portal/queries";
 import {
@@ -242,6 +243,10 @@ export default async function AdminTripsPage({
                     tone={toneFor(MISSION_STATUS_TONE, row.status)}
                   />
                 ),
+              },
+              {
+                header: "SLA",
+                cell: (row) => <SlaChip mission={row} />,
               },
             ]}
           />

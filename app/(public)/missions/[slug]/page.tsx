@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getMissionCaseStudy, MISSION_CASE_STUDIES } from "@/content/missions";
 import { HeadlineReveal } from "@/components/site/headline-reveal";
 import { QuoteButton } from "@/components/site/quote-button";
+import { SITE } from "@/lib/site-config";
 
 export function generateStaticParams() {
   return MISSION_CASE_STUDIES.map((mission) => ({ slug: mission.slug }));
@@ -31,8 +32,39 @@ export default async function MissionCaseStudyPage({
   const mission = getMissionCaseStudy(slug);
   if (!mission) notFound();
 
+  // Emitted only for a real, published case study (the guard above 404s anything
+  // else), so this ships zero markup until content/missions has entries.
+  const missionSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: `${mission.aircraft} · ${mission.route} · ${mission.missionType}`,
+    description: mission.situation,
+    articleSection: "Mission case study",
+    datePublished: mission.flownOn,
+    url: `${SITE.url}/missions/${mission.slug}`,
+    author: { "@type": "Organization", name: SITE.name, url: SITE.url },
+    publisher: { "@type": "Organization", name: SITE.name, url: SITE.url },
+    about: {
+      "@type": "Service",
+      serviceType: mission.missionType,
+      name: `${mission.missionType} — ${mission.route}`,
+      provider: { "@type": "Organization", name: SITE.name, url: SITE.url },
+      areaServed: SITE.region,
+      offers: {
+        "@type": "Offer",
+        priceCurrency: "USD",
+        price: String(Number(mission.totalCost.replace(/[^0-9.]/g, "")) || 0),
+        description: mission.totalCost,
+      },
+    },
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(missionSchema) }}
+      />
       <section className="pub-hero oc-shell pb-14 pt-[calc(var(--public-header-height)+4rem)]">
         <div className="max-w-3xl" data-stagger-container>
           <p className="oc-eyebrow" data-stagger-item>

@@ -7,2087 +7,13 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
-      aircraft: {
-        Row: {
-          aircraft_category: string | null
-          avionics_notes: string | null
-          baggage_notes: string | null
-          client_id: string | null
-          created_at: string
-          home_base: string | null
-          id: string
-          maintenance_status: string
-          make: string | null
-          model: string | null
-          notes: string | null
-          passenger_capacity: number | null
-          range_notes: string | null
-          required_crew: number | null
-          serial_number: string | null
-          status: string
-          tail_number: string
-          updated_at: string
-          year: number | null
-        }
-        Insert: {
-          aircraft_category?: string | null
-          avionics_notes?: string | null
-          baggage_notes?: string | null
-          client_id?: string | null
-          created_at?: string
-          home_base?: string | null
-          id?: string
-          maintenance_status?: string
-          make?: string | null
-          model?: string | null
-          notes?: string | null
-          passenger_capacity?: number | null
-          range_notes?: string | null
-          required_crew?: number | null
-          serial_number?: string | null
-          status?: string
-          tail_number: string
-          updated_at?: string
-          year?: number | null
-        }
-        Update: Partial<Database["public"]["Tables"]["aircraft"]["Insert"]>
-        Relationships: []
-      }
-      audit_events: {
-        Row: {
-          action: string
-          actor_email: string | null
-          actor_id: string | null
-          actor_role: string | null
-          created_at: string
-          detail: string | null
-          entity_id: string | null
-          entity_type: string | null
-          id: string
-        }
-        Insert: {
-          action: string
-          actor_email?: string | null
-          actor_id?: string | null
-          actor_role?: string | null
-          created_at?: string
-          detail?: string | null
-          entity_id?: string | null
-          entity_type?: string | null
-          id?: string
-        }
-        Update: Partial<Database["public"]["Tables"]["audit_events"]["Insert"]>
-        Relationships: []
-      }
-      crew_availability: {
-        Row: {
-          availability_type: string
-          created_at: string
-          crew_id: string
-          end_date: string
-          id: string
-          notes: string | null
-          start_date: string
-        }
-        Insert: {
-          availability_type?: string
-          created_at?: string
-          crew_id: string
-          end_date: string
-          id?: string
-          notes?: string | null
-          start_date: string
-        }
-        Update: Partial<Database["public"]["Tables"]["crew_availability"]["Insert"]>
-        Relationships: []
-      }
-      crew_credentials: {
-        Row: {
-          created_at: string
-          credential_type: string
-          crew_id: string
-          document_id: string | null
-          expiration_date: string | null
-          id: string
-          identifier: string | null
-          issued_date: string | null
-          review_notes: string | null
-          reviewed_by: string | null
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          credential_type: string
-          crew_id: string
-          document_id?: string | null
-          expiration_date?: string | null
-          id?: string
-          identifier?: string | null
-          issued_date?: string | null
-          review_notes?: string | null
-          reviewed_by?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Update: Partial<Database["public"]["Tables"]["crew_credentials"]["Insert"]>
-        Relationships: []
-      }
-      crew_profiles: {
-        Row: {
-          address: string | null
-          aircraft_type_experience: string | null
-          approved: boolean
-          availability_notes: string | null
-          availability_status: string
-          certificate_level: string | null
-          certificates_held: string[]
-          certificates_ratings: string | null
-          city: string | null
-          closest_major_airport: string | null
-          company: string | null
-          country: string | null
-          crew_status: string
-          date_of_birth: string | null
-          day_rate: number | null
-          desired_day_rate: number | null
-          display_name: string | null
-          dual_given_time: number | null
-          emergency_contact_name: string | null
-          emergency_contact_phone: string | null
-          first_name: string | null
-          generally_short_notice: boolean | null
-          home_airport: string | null
-          id: string
-          import_batch_id: string | null
-          import_row_number: number | null
-          import_source: string | null
-          imported_at: string | null
-          instrument_time: number | null
-          insurance_approved: boolean
-          international_experience: boolean
-          jet_time: number | null
-          last_contacted: string | null
-          last_name: string | null
-          location_display: string | null
-          max_days_away: number | null
-          me_time: number | null
-          medical: string | null
-          medical_certificate: string | null
-          medical_expiration_date: string | null
-          minimum_call_time: string | null
-          minimum_notice_required: string | null
-          multi_time: number | null
-          needs_manual_review: boolean
-          notes: string | null
-          ops_notes: string | null
-          passport_mentioned: boolean
-          pic_time: number | null
-          preferred_aircraft: string[] | null
-          preferred_regions: string[] | null
-          priority_candidate: boolean
-          profile_completed_at: string | null
-          profile_completion_percent: number
-          profile_status: string
-          ratings_held: string[]
-          resume_notes: string | null
-          reviewed: boolean
-          searchable_text: string | null
-          short_notice_available: boolean
-          sic_time: number | null
-          source_email: string | null
-          state: string | null
-          time_in_type: string | null
-          total_time: number | null
-          turbine_time: number | null
-          type_ratings: string[] | null
-          updated_at: string
-          weekly_availability: Json
-          willing_to_travel: boolean | null
-          zip: string | null
-        }
-        Insert: {
-          address?: string | null
-          aircraft_type_experience?: string | null
-          approved?: boolean
-          availability_notes?: string | null
-          availability_status?: string
-          certificate_level?: string | null
-          certificates_held?: string[]
-          certificates_ratings?: string | null
-          city?: string | null
-          closest_major_airport?: string | null
-          company?: string | null
-          country?: string | null
-          crew_status?: string
-          date_of_birth?: string | null
-          day_rate?: number | null
-          desired_day_rate?: number | null
-          display_name?: string | null
-          dual_given_time?: number | null
-          emergency_contact_name?: string | null
-          emergency_contact_phone?: string | null
-          first_name?: string | null
-          generally_short_notice?: boolean | null
-          home_airport?: string | null
-          id: string
-          import_batch_id?: string | null
-          import_row_number?: number | null
-          import_source?: string | null
-          imported_at?: string | null
-          instrument_time?: number | null
-          insurance_approved?: boolean
-          international_experience?: boolean
-          jet_time?: number | null
-          last_contacted?: string | null
-          last_name?: string | null
-          location_display?: string | null
-          max_days_away?: number | null
-          me_time?: number | null
-          medical?: string | null
-          medical_certificate?: string | null
-          medical_expiration_date?: string | null
-          minimum_call_time?: string | null
-          minimum_notice_required?: string | null
-          multi_time?: number | null
-          needs_manual_review?: boolean
-          notes?: string | null
-          ops_notes?: string | null
-          passport_mentioned?: boolean
-          pic_time?: number | null
-          preferred_aircraft?: string[] | null
-          preferred_regions?: string[] | null
-          priority_candidate?: boolean
-          profile_completed_at?: string | null
-          profile_completion_percent?: number
-          profile_status?: string
-          ratings_held?: string[]
-          resume_notes?: string | null
-          reviewed?: boolean
-          searchable_text?: string | null
-          short_notice_available?: boolean
-          sic_time?: number | null
-          source_email?: string | null
-          state?: string | null
-          time_in_type?: string | null
-          total_time?: number | null
-          turbine_time?: number | null
-          type_ratings?: string[] | null
-          updated_at?: string
-          weekly_availability?: Json
-          willing_to_travel?: boolean | null
-          zip?: string | null
-        }
-        Update: {
-          address?: string | null
-          aircraft_type_experience?: string | null
-          approved?: boolean
-          availability_notes?: string | null
-          availability_status?: string
-          certificate_level?: string | null
-          certificates_held?: string[]
-          certificates_ratings?: string | null
-          city?: string | null
-          closest_major_airport?: string | null
-          company?: string | null
-          country?: string | null
-          crew_status?: string
-          date_of_birth?: string | null
-          day_rate?: number | null
-          desired_day_rate?: number | null
-          display_name?: string | null
-          dual_given_time?: number | null
-          emergency_contact_name?: string | null
-          emergency_contact_phone?: string | null
-          first_name?: string | null
-          generally_short_notice?: boolean | null
-          home_airport?: string | null
-          id?: string
-          import_batch_id?: string | null
-          import_row_number?: number | null
-          import_source?: string | null
-          imported_at?: string | null
-          instrument_time?: number | null
-          insurance_approved?: boolean
-          international_experience?: boolean
-          jet_time?: number | null
-          last_contacted?: string | null
-          last_name?: string | null
-          location_display?: string | null
-          max_days_away?: number | null
-          me_time?: number | null
-          medical?: string | null
-          medical_certificate?: string | null
-          medical_expiration_date?: string | null
-          minimum_call_time?: string | null
-          minimum_notice_required?: string | null
-          multi_time?: number | null
-          needs_manual_review?: boolean
-          notes?: string | null
-          ops_notes?: string | null
-          passport_mentioned?: boolean
-          pic_time?: number | null
-          preferred_aircraft?: string[] | null
-          preferred_regions?: string[] | null
-          priority_candidate?: boolean
-          profile_completed_at?: string | null
-          profile_completion_percent?: number
-          profile_status?: string
-          ratings_held?: string[]
-          resume_notes?: string | null
-          reviewed?: boolean
-          searchable_text?: string | null
-          short_notice_available?: boolean
-          sic_time?: number | null
-          source_email?: string | null
-          state?: string | null
-          time_in_type?: string | null
-          total_time?: number | null
-          turbine_time?: number | null
-          type_ratings?: string[] | null
-          updated_at?: string
-          weekly_availability?: Json
-          willing_to_travel?: boolean | null
-          zip?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "crew_profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      documents: {
-        Row: {
-          access_level: string
-          archived_at: string | null
-          compliance_category: string
-          created_at: string
-          doc_type: string
-          expiration_date: string | null
-          file_size: number | null
-          id: string
-          is_current: boolean
-          mime_type: string | null
-          mission_id: string | null
-          name: string
-          notes: string | null
-          original_file_name: string | null
-          policy_version: string | null
-          rejection_reason: string | null
-          review_notes: string | null
-          reviewed_at: string | null
-          reviewed_by: string | null
-          scope_id: string | null
-          scope_type: string
-          status: string
-          storage_bucket: string
-          storage_path: string
-          terms_acknowledged_at: string | null
-          updated_at: string
-          uploaded_by: string | null
-          version: number
-          visibility: string
-        }
-        Insert: {
-          access_level?: string
-          archived_at?: string | null
-          compliance_category?: string
-          created_at?: string
-          doc_type: string
-          expiration_date?: string | null
-          file_size?: number | null
-          id?: string
-          is_current?: boolean
-          mime_type?: string | null
-          mission_id?: string | null
-          name: string
-          notes?: string | null
-          original_file_name?: string | null
-          policy_version?: string | null
-          rejection_reason?: string | null
-          review_notes?: string | null
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          scope_id?: string | null
-          scope_type: string
-          status?: string
-          storage_bucket?: string
-          storage_path: string
-          terms_acknowledged_at?: string | null
-          updated_at?: string
-          uploaded_by?: string | null
-          version?: number
-          visibility?: string
-        }
-        Update: {
-          access_level?: string
-          archived_at?: string | null
-          compliance_category?: string
-          created_at?: string
-          doc_type?: string
-          expiration_date?: string | null
-          file_size?: number | null
-          id?: string
-          is_current?: boolean
-          mime_type?: string | null
-          mission_id?: string | null
-          name?: string
-          notes?: string | null
-          original_file_name?: string | null
-          policy_version?: string | null
-          rejection_reason?: string | null
-          review_notes?: string | null
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          scope_id?: string | null
-          scope_type?: string
-          status?: string
-          storage_bucket?: string
-          storage_path?: string
-          terms_acknowledged_at?: string | null
-          updated_at?: string
-          uploaded_by?: string | null
-          version?: number
-          visibility?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "documents_mission_id_fkey"
-            columns: ["mission_id"]
-            isOneToOne: false
-            referencedRelation: "missions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "documents_reviewed_by_fkey"
-            columns: ["reviewed_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "documents_uploaded_by_fkey"
-            columns: ["uploaded_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      expenses: {
-        Row: {
-          amount: number
-          approved_amount: number | null
-          billable_to_client: boolean
-          category: string
-          created_at: string
-          crew_id: string
-          expense_date: string
-          id: string
-          invoice_line_item_id: string | null
-          merchant: string | null
-          mission_id: string | null
-          notes: string | null
-          quote_line_item_id: string | null
-          receipt_path: string | null
-          reimbursable: boolean
-          review_notes: string | null
-          reviewed_by: string | null
-          status: string
-          tax_amount: number | null
-          currency: string
-          updated_at: string
-        }
-        Insert: {
-          amount: number
-          approved_amount?: number | null
-          billable_to_client?: boolean
-          category: string
-          created_at?: string
-          crew_id: string
-          expense_date?: string
-          id?: string
-          invoice_line_item_id?: string | null
-          merchant?: string | null
-          mission_id?: string | null
-          notes?: string | null
-          quote_line_item_id?: string | null
-          receipt_path?: string | null
-          reimbursable?: boolean
-          review_notes?: string | null
-          reviewed_by?: string | null
-          status?: string
-          tax_amount?: number | null
-          currency?: string
-          updated_at?: string
-        }
-        Update: Partial<Database["public"]["Tables"]["expenses"]["Insert"]>
-        Relationships: []
-      }
-      invoice_line_items: {
-        Row: {
-          amount: number
-          billable: boolean
-          billing_frequency: string | null
-          calculator_inputs: Json | null
-          category: string
-          client_notes: string | null
-          client_visible: boolean
-          cost_type: string | null
-          created_at: string
-          description: string | null
-          expense_id: string | null
-          id: string
-          included_in_total: boolean
-          internal_cost: number | null
-          internal_notes: string | null
-          invoice_id: string
-          item_code: string | null
-          markup_type: string
-          markup_value: number
-          notes: string | null
-          quantity: number
-          recurring_interval: string | null
-          recurring_interval_count: number | null
-          service_date: string | null
-          service_id: string | null
-          service_variant_id: string | null
-          sort_order: number
-          taxable: boolean
-          unit: string | null
-          unit_price: number
-        }
-        Insert: {
-          amount?: number
-          billable?: boolean
-          billing_frequency?: string | null
-          calculator_inputs?: Json | null
-          category: string
-          client_notes?: string | null
-          client_visible?: boolean
-          cost_type?: string | null
-          created_at?: string
-          description?: string | null
-          expense_id?: string | null
-          id?: string
-          included_in_total?: boolean
-          internal_cost?: number | null
-          internal_notes?: string | null
-          invoice_id: string
-          item_code?: string | null
-          markup_type?: string
-          markup_value?: number
-          notes?: string | null
-          quantity?: number
-          recurring_interval?: string | null
-          recurring_interval_count?: number | null
-          service_date?: string | null
-          service_id?: string | null
-          service_variant_id?: string | null
-          sort_order?: number
-          taxable?: boolean
-          unit?: string | null
-          unit_price?: number
-        }
-        Update: {
-          amount?: number
-          billable?: boolean
-          billing_frequency?: string | null
-          calculator_inputs?: Json | null
-          category?: string
-          client_notes?: string | null
-          client_visible?: boolean
-          cost_type?: string | null
-          created_at?: string
-          description?: string | null
-          expense_id?: string | null
-          id?: string
-          included_in_total?: boolean
-          internal_cost?: number | null
-          internal_notes?: string | null
-          invoice_id?: string
-          item_code?: string | null
-          markup_type?: string
-          markup_value?: number
-          notes?: string | null
-          quantity?: number
-          recurring_interval?: string | null
-          recurring_interval_count?: number | null
-          service_date?: string | null
-          service_id?: string | null
-          service_variant_id?: string | null
-          sort_order?: number
-          taxable?: boolean
-          unit?: string | null
-          unit_price?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "invoice_line_items_expense_id_fkey"
-            columns: ["expense_id"]
-            isOneToOne: false
-            referencedRelation: "expenses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invoice_line_items_invoice_id_fkey"
-            columns: ["invoice_id"]
-            isOneToOne: false
-            referencedRelation: "invoices"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invoice_line_items_service_id_fkey"
-            columns: ["service_id"]
-            isOneToOne: false
-            referencedRelation: "services"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invoice_line_items_service_variant_id_fkey"
-            columns: ["service_variant_id"]
-            isOneToOne: false
-            referencedRelation: "service_price_variants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      invoices: {
-        Row: {
-          aircraft_id: string | null
-          amount_due: number
-          amount_paid: number
-          billing_contact_company: string | null
-          billing_contact_name: string | null
-          billing_contact_phone: string | null
-          cc_emails: string[] | null
-          client_id: string | null
-          client_notes: string | null
-          closing_note: string | null
-          created_at: string
-          created_by: string | null
-          currency: string
-          deposit_amount: number
-          deposit_paid: number
-          deposit_required: boolean
-          discount: number
-          discount_total: number
-          due_date: string | null
-          footer_note: string | null
-          group_line_items_by_category: boolean
-          id: string
-          internal_notes: string | null
-          invoice_number: string
-          issued_at: string | null
-          mission_id: string | null
-          opening_note: string | null
-          paid_at: string | null
-          payment_amount_cents: number | null
-          payment_currency: string
-          payment_error: string | null
-          payment_instructions: string | null
-          payment_link_url: string | null
-          payment_provider: string | null
-          payment_provider_session_id: string | null
-          payment_status: string | null
-          pdf_document_id: string | null
-          pdf_template: string
-          quote_id: string | null
-          recipient_email: string | null
-          revised_from_invoice_id: string | null
-          revision_reason: string | null
-          sent_at: string | null
-          show_aircraft_block: boolean
-          show_deposit_block: boolean
-          show_line_item_details: boolean
-          show_mission_block: boolean
-          show_route_block: boolean
-          show_tax_line: boolean
-          status: string
-          stripe_checkout_session_id: string | null
-          stripe_customer_id: string | null
-          stripe_payment_intent_id: string | null
-          stripe_payment_status: string | null
-          stripe_payment_url: string | null
-          subtotal: number
-          superseded_by_invoice_id: string | null
-          tax: number
-          tax_total: number
-          terms: string | null
-          total: number
-          updated_at: string
-          version_number: number
-          viewed_at: string | null
-        }
-        Insert: {
-          aircraft_id?: string | null
-          amount_due?: number
-          amount_paid?: number
-          billing_contact_company?: string | null
-          billing_contact_name?: string | null
-          billing_contact_phone?: string | null
-          cc_emails?: string[] | null
-          client_id?: string | null
-          client_notes?: string | null
-          closing_note?: string | null
-          created_at?: string
-          created_by?: string | null
-          currency?: string
-          deposit_amount?: number
-          deposit_paid?: number
-          deposit_required?: boolean
-          discount?: number
-          discount_total?: number
-          due_date?: string | null
-          footer_note?: string | null
-          group_line_items_by_category?: boolean
-          id?: string
-          internal_notes?: string | null
-          invoice_number?: string
-          issued_at?: string | null
-          mission_id?: string | null
-          opening_note?: string | null
-          paid_at?: string | null
-          payment_amount_cents?: number | null
-          payment_currency?: string
-          payment_error?: string | null
-          payment_instructions?: string | null
-          payment_link_url?: string | null
-          payment_provider?: string | null
-          payment_provider_session_id?: string | null
-          payment_status?: string | null
-          pdf_document_id?: string | null
-          pdf_template?: string
-          quote_id?: string | null
-          recipient_email?: string | null
-          revised_from_invoice_id?: string | null
-          revision_reason?: string | null
-          sent_at?: string | null
-          show_aircraft_block?: boolean
-          show_deposit_block?: boolean
-          show_line_item_details?: boolean
-          show_mission_block?: boolean
-          show_route_block?: boolean
-          show_tax_line?: boolean
-          status?: string
-          stripe_checkout_session_id?: string | null
-          stripe_customer_id?: string | null
-          stripe_payment_intent_id?: string | null
-          stripe_payment_status?: string | null
-          stripe_payment_url?: string | null
-          subtotal?: number
-          superseded_by_invoice_id?: string | null
-          tax?: number
-          tax_total?: number
-          terms?: string | null
-          total?: number
-          updated_at?: string
-          version_number?: number
-          viewed_at?: string | null
-        }
-        Update: {
-          aircraft_id?: string | null
-          amount_due?: number
-          amount_paid?: number
-          billing_contact_company?: string | null
-          billing_contact_name?: string | null
-          billing_contact_phone?: string | null
-          cc_emails?: string[] | null
-          client_id?: string | null
-          client_notes?: string | null
-          closing_note?: string | null
-          created_at?: string
-          created_by?: string | null
-          currency?: string
-          deposit_amount?: number
-          deposit_paid?: number
-          deposit_required?: boolean
-          discount?: number
-          discount_total?: number
-          due_date?: string | null
-          footer_note?: string | null
-          group_line_items_by_category?: boolean
-          id?: string
-          internal_notes?: string | null
-          invoice_number?: string
-          issued_at?: string | null
-          mission_id?: string | null
-          opening_note?: string | null
-          paid_at?: string | null
-          payment_amount_cents?: number | null
-          payment_currency?: string
-          payment_error?: string | null
-          payment_instructions?: string | null
-          payment_link_url?: string | null
-          payment_provider?: string | null
-          payment_provider_session_id?: string | null
-          payment_status?: string | null
-          pdf_document_id?: string | null
-          pdf_template?: string
-          quote_id?: string | null
-          recipient_email?: string | null
-          revised_from_invoice_id?: string | null
-          revision_reason?: string | null
-          sent_at?: string | null
-          show_aircraft_block?: boolean
-          show_deposit_block?: boolean
-          show_line_item_details?: boolean
-          show_mission_block?: boolean
-          show_route_block?: boolean
-          show_tax_line?: boolean
-          status?: string
-          stripe_checkout_session_id?: string | null
-          stripe_customer_id?: string | null
-          stripe_payment_intent_id?: string | null
-          stripe_payment_status?: string | null
-          stripe_payment_url?: string | null
-          subtotal?: number
-          superseded_by_invoice_id?: string | null
-          tax?: number
-          tax_total?: number
-          terms?: string | null
-          total?: number
-          updated_at?: string
-          version_number?: number
-          viewed_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "invoices_aircraft_id_fkey"
-            columns: ["aircraft_id"]
-            isOneToOne: false
-            referencedRelation: "aircraft"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invoices_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invoices_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invoices_mission_id_fkey"
-            columns: ["mission_id"]
-            isOneToOne: false
-            referencedRelation: "missions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invoices_pdf_document_id_fkey"
-            columns: ["pdf_document_id"]
-            isOneToOne: false
-            referencedRelation: "billing_documents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invoices_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
-            referencedRelation: "quotes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invoices_revised_from_invoice_id_fkey"
-            columns: ["revised_from_invoice_id"]
-            isOneToOne: false
-            referencedRelation: "invoices"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invoices_superseded_by_invoice_id_fkey"
-            columns: ["superseded_by_invoice_id"]
-            isOneToOne: false
-            referencedRelation: "invoices"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      role_permissions: {
-        Row: {
-          can_add: boolean
-          can_delete: boolean
-          can_edit: boolean
-          can_view: boolean
-          created_at: string
-          id: string
-          module: string
-          role: string
-          updated_at: string
-          updated_by: string | null
-        }
-        Insert: {
-          can_add?: boolean
-          can_delete?: boolean
-          can_edit?: boolean
-          can_view?: boolean
-          created_at?: string
-          id?: string
-          module: string
-          role: string
-          updated_at?: string
-          updated_by?: string | null
-        }
-        Update: {
-          can_add?: boolean
-          can_delete?: boolean
-          can_edit?: boolean
-          can_view?: boolean
-          created_at?: string
-          id?: string
-          module?: string
-          role?: string
-          updated_at?: string
-          updated_by?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "role_permissions_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      message_threads: {
-        Row: {
-          created_at: string
-          id: string
-          last_message_at: string | null
-          mission_id: string | null
-          scope_id: string | null
-          scope_type: string
-          title: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          last_message_at?: string | null
-          mission_id?: string | null
-          scope_id?: string | null
-          scope_type: string
-          title?: string | null
-        }
-        Update: Partial<Database["public"]["Tables"]["message_threads"]["Insert"]>
-        Relationships: []
-      }
-      messages: {
-        Row: {
-          body: string
-          created_at: string
-          id: string
-          sender_email: string | null
-          sender_id: string
-          thread_id: string
-          visibility: string
-        }
-        Insert: {
-          body: string
-          created_at?: string
-          id?: string
-          sender_email?: string | null
-          sender_id: string
-          thread_id: string
-          visibility?: string
-        }
-        Update: Partial<Database["public"]["Tables"]["messages"]["Insert"]>
-        Relationships: []
-      }
-      mission_crew_assignments: {
-        Row: {
-          created_at: string
-          crew_id: string
-          crew_role: string
-          duty_notes: string | null
-          id: string
-          mission_id: string
-          responded_at: string | null
-          status: string
-        }
-        Insert: {
-          created_at?: string
-          crew_id: string
-          crew_role?: string
-          duty_notes?: string | null
-          id?: string
-          mission_id: string
-          responded_at?: string | null
-          status?: string
-        }
-        Update: Partial<Database["public"]["Tables"]["mission_crew_assignments"]["Insert"]>
-        Relationships: []
-      }
-      mission_crew_requests: {
-        Row: {
-          created_at: string
-          crew_id: string
-          decided_at: string | null
-          decided_by: string | null
-          decision_notes: string | null
-          id: string
-          message: string | null
-          mission_id: string
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          crew_id: string
-          decided_at?: string | null
-          decided_by?: string | null
-          decision_notes?: string | null
-          id?: string
-          message?: string | null
-          mission_id: string
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          crew_id?: string
-          decided_at?: string | null
-          decided_by?: string | null
-          decision_notes?: string | null
-          id?: string
-          message?: string | null
-          mission_id?: string
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "mission_crew_requests_crew_id_fkey"
-            columns: ["crew_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "mission_crew_requests_decided_by_fkey"
-            columns: ["decided_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "mission_crew_requests_mission_id_fkey"
-            columns: ["mission_id"]
-            isOneToOne: false
-            referencedRelation: "missions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      mission_partner_assignments: {
-        Row: {
-          admin_notes: string | null
-          created_at: string
-          description: string | null
-          id: string
-          location: string | null
-          mission_id: string | null
-          partner_id: string
-          partner_notes: string | null
-          quote_amount: number | null
-          ref: string
-          required_datetime: string | null
-          responded_at: string | null
-          service_type: string
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          admin_notes?: string | null
-          created_at?: string
-          description?: string | null
-          id?: string
-          location?: string | null
-          mission_id?: string | null
-          partner_id: string
-          partner_notes?: string | null
-          quote_amount?: number | null
-          ref?: string
-          required_datetime?: string | null
-          responded_at?: string | null
-          service_type: string
-          status?: string
-          updated_at?: string
-        }
-        Update: Partial<Database["public"]["Tables"]["mission_partner_assignments"]["Insert"]>
-        Relationships: []
-      }
-      mission_passengers: {
-        Row: {
-          created_at: string
-          full_name: string
-          id: string
-          mission_id: string
-          notes: string | null
-          passenger_type: string
-        }
-        Insert: {
-          created_at?: string
-          full_name: string
-          id?: string
-          mission_id: string
-          notes?: string | null
-          passenger_type?: string
-        }
-        Update: Partial<Database["public"]["Tables"]["mission_passengers"]["Insert"]>
-        Relationships: []
-      }
-      missions: {
-        Row: {
-          additional_notes: string | null
-          aircraft_id: string | null
-          alternate_airport: string | null
-          arrival_airport: string
-          assigned_crew_id: string | null
-          baggage_estimate: string | null
-          catering: boolean
-          client_id: string | null
-          client_notes: string | null
-          created_at: string
-          created_by: string | null
-          customs_notes: string | null
-          departure_airport: string
-          fbo_preference: string | null
-          flexible_time: boolean
-          ground_transport: boolean
-          id: string
-          internal_notes: string | null
-          is_international: boolean
-          mission_type: string
-          passenger_count: number
-          pets_onboard: boolean
-          pool_published_at: string | null
-          pool_requirements: Json
-          pool_visible: boolean
-          ref: string
-          requested_arrival: string | null
-          requested_departure: string | null
-          special_handling: string | null
-          status: string
-          tail_number: string | null
-          updated_at: string
-          urgency: string
-        }
-        Insert: {
-          additional_notes?: string | null
-          aircraft_id?: string | null
-          alternate_airport?: string | null
-          arrival_airport: string
-          assigned_crew_id?: string | null
-          baggage_estimate?: string | null
-          catering?: boolean
-          client_id?: string | null
-          client_notes?: string | null
-          created_at?: string
-          created_by?: string | null
-          customs_notes?: string | null
-          departure_airport: string
-          fbo_preference?: string | null
-          flexible_time?: boolean
-          ground_transport?: boolean
-          id?: string
-          internal_notes?: string | null
-          is_international?: boolean
-          mission_type?: string
-          passenger_count?: number
-          pets_onboard?: boolean
-          pool_published_at?: string | null
-          pool_requirements?: Json
-          pool_visible?: boolean
-          ref?: string
-          requested_arrival?: string | null
-          requested_departure?: string | null
-          special_handling?: string | null
-          status?: string
-          tail_number?: string | null
-          updated_at?: string
-          urgency?: string
-        }
-        Update: {
-          additional_notes?: string | null
-          aircraft_id?: string | null
-          alternate_airport?: string | null
-          arrival_airport?: string
-          assigned_crew_id?: string | null
-          baggage_estimate?: string | null
-          catering?: boolean
-          client_id?: string | null
-          client_notes?: string | null
-          created_at?: string
-          created_by?: string | null
-          customs_notes?: string | null
-          departure_airport?: string
-          fbo_preference?: string | null
-          flexible_time?: boolean
-          ground_transport?: boolean
-          id?: string
-          internal_notes?: string | null
-          is_international?: boolean
-          mission_type?: string
-          passenger_count?: number
-          pets_onboard?: boolean
-          pool_published_at?: string | null
-          pool_requirements?: Json
-          pool_visible?: boolean
-          ref?: string
-          requested_arrival?: string | null
-          requested_departure?: string | null
-          special_handling?: string | null
-          status?: string
-          tail_number?: string | null
-          updated_at?: string
-          urgency?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "missions_aircraft_id_fkey"
-            columns: ["aircraft_id"]
-            isOneToOne: false
-            referencedRelation: "aircraft"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "missions_assigned_crew_id_fkey"
-            columns: ["assigned_crew_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "missions_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "missions_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      notifications: {
-        Row: {
-          body: string | null
-          created_at: string
-          entity_id: string | null
-          entity_type: string | null
-          id: string
-          is_read: boolean
-          notification_type: string | null
-          title: string
-          user_id: string | null
-        }
-        Insert: {
-          body?: string | null
-          created_at?: string
-          entity_id?: string | null
-          entity_type?: string | null
-          id?: string
-          is_read?: boolean
-          notification_type?: string | null
-          title: string
-          user_id?: string | null
-        }
-        Update: Partial<Database["public"]["Tables"]["notifications"]["Insert"]>
-        Relationships: []
-      }
-      payments: {
-        Row: {
-          amount: number
-          created_at: string
-          currency: string
-          id: string
-          invoice_id: string
-          notes: string | null
-          paid_at: string
-          payment_method: string | null
-          provider: string | null
-          provider_payment_id: string | null
-          recorded_by: string | null
-          status: string
-        }
-        Insert: {
-          amount: number
-          created_at?: string
-          currency?: string
-          id?: string
-          invoice_id: string
-          notes?: string | null
-          paid_at?: string
-          payment_method?: string | null
-          provider?: string | null
-          provider_payment_id?: string | null
-          recorded_by?: string | null
-          status?: string
-        }
-        Update: Partial<Database["public"]["Tables"]["payments"]["Insert"]>
-        Relationships: []
-      }
-      notification_deliveries: {
-        Row: {
-          attempted_at: string | null
-          channel: string
-          created_at: string
-          error_message: string | null
-          event_type: string | null
-          id: string
-          notification_id: string | null
-          provider: string | null
-          provider_message_id: string | null
-          recipient: string
-          status: string
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          attempted_at?: string | null
-          channel: string
-          created_at?: string
-          error_message?: string | null
-          event_type?: string | null
-          id?: string
-          notification_id?: string | null
-          provider?: string | null
-          provider_message_id?: string | null
-          recipient: string
-          status?: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: Partial<Database["public"]["Tables"]["notification_deliveries"]["Insert"]>
-        Relationships: []
-      }
-      organizations: {
-        Row: {
-          created_at: string
-          id: string
-          name: string
-          type: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          name: string
-          type?: string
-        }
-        Update: Partial<Database["public"]["Tables"]["organizations"]["Insert"]>
-        Relationships: []
-      }
-      partner_profiles: {
-        Row: {
-          after_hours_support: boolean | null
-          airports_served: string[] | null
-          company_name: string | null
-          contact_email: string | null
-          hours_of_operation: string | null
-          id: string
-          notes: string | null
-          partner_type: string | null
-          phone: string | null
-          primary_contact: string | null
-          service_area: string | null
-          service_categories: string[] | null
-          service_type: string | null
-        }
-        Insert: {
-          after_hours_support?: boolean | null
-          airports_served?: string[] | null
-          company_name?: string | null
-          contact_email?: string | null
-          hours_of_operation?: string | null
-          id: string
-          notes?: string | null
-          partner_type?: string | null
-          phone?: string | null
-          primary_contact?: string | null
-          service_area?: string | null
-          service_categories?: string[] | null
-          service_type?: string | null
-        }
-        Update: Partial<Database["public"]["Tables"]["partner_profiles"]["Insert"]>
-        Relationships: []
-      }
-      passenger_profiles: {
-        Row: {
-          created_at: string
-          full_name: string
-          id: string
-          is_frequent: boolean
-          owner_id: string
-          preferences: string | null
-        }
-        Insert: {
-          created_at?: string
-          full_name: string
-          id?: string
-          is_frequent?: boolean
-          owner_id: string
-          preferences?: string | null
-        }
-        Update: Partial<Database["public"]["Tables"]["passenger_profiles"]["Insert"]>
-        Relationships: []
-      }
-      profiles: {
-        Row: {
-          avatar_path: string | null
-          company_name: string | null
-          created_at: string
-          admin_notes: string | null
-          assigned_role: string | null
-          business_purpose: string
-          deleted_at: string | null
-          deleted_by: string | null
-          denied_at: string | null
-          denied_by: string | null
-          email: string
-          full_name: string | null
-          home_base: string | null
-          id: string
-          invitation_channel: string | null
-          invitation_sent_at: string | null
-          invitation_status: string | null
-          invited_by: string | null
-          is_deleted: boolean
-          is_active: boolean
-          last_waitlist_email_sent_at: string | null
-          last_login_at: string | null
-          organization_id: string | null
-          permissions: string[] | null
-          phone: string | null
-          requested_role: string | null
-          role: string
-          status: string
-          status_updated_at: string | null
-          status_updated_by: string | null
-          suspended_at: string | null
-          suspended_by: string | null
-          updated_at: string
-          waitlisted_at: string | null
-          waitlisted_by: string | null
-        }
-        Insert: {
-          avatar_path?: string | null
-          admin_notes?: string | null
-          assigned_role?: string | null
-          business_purpose?: string
-          company_name?: string | null
-          created_at?: string
-          deleted_at?: string | null
-          deleted_by?: string | null
-          denied_at?: string | null
-          denied_by?: string | null
-          email: string
-          full_name?: string | null
-          home_base?: string | null
-          id: string
-          invitation_channel?: string | null
-          invitation_sent_at?: string | null
-          invitation_status?: string | null
-          invited_by?: string | null
-          is_deleted?: boolean
-          is_active?: boolean
-          last_waitlist_email_sent_at?: string | null
-          last_login_at?: string | null
-          organization_id?: string | null
-          permissions?: string[] | null
-          phone?: string | null
-          requested_role?: string | null
-          role?: string
-          status?: string
-          status_updated_at?: string | null
-          status_updated_by?: string | null
-          suspended_at?: string | null
-          suspended_by?: string | null
-          updated_at?: string
-          waitlisted_at?: string | null
-          waitlisted_by?: string | null
-        }
-        Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>
-        Relationships: []
-      }
-      quote_line_items: {
-        Row: {
-          amount: number
-          billable: boolean
-          billing_frequency: string | null
-          calculator_inputs: Json | null
-          category: string
-          client_notes: string | null
-          client_visible: boolean
-          cost_type: string | null
-          created_at: string
-          description: string | null
-          id: string
-          included_in_total: boolean
-          internal_cost: number | null
-          internal_notes: string | null
-          item_code: string | null
-          markup_type: string
-          markup_value: number
-          notes: string | null
-          price_locked: boolean | null
-          quantity: number
-          quote_id: string
-          recurring_interval: string | null
-          recurring_interval_count: number | null
-          service_date: string | null
-          service_id: string | null
-          service_variant_id: string | null
-          sort_order: number
-          taxable: boolean
-          unit: string | null
-          unit_price: number
-        }
-        Insert: {
-          amount?: number
-          billable?: boolean
-          billing_frequency?: string | null
-          calculator_inputs?: Json | null
-          category: string
-          client_notes?: string | null
-          client_visible?: boolean
-          cost_type?: string | null
-          created_at?: string
-          description?: string | null
-          id?: string
-          included_in_total?: boolean
-          internal_cost?: number | null
-          internal_notes?: string | null
-          item_code?: string | null
-          markup_type?: string
-          markup_value?: number
-          notes?: string | null
-          price_locked?: boolean | null
-          quantity?: number
-          quote_id: string
-          recurring_interval?: string | null
-          recurring_interval_count?: number | null
-          service_date?: string | null
-          service_id?: string | null
-          service_variant_id?: string | null
-          sort_order?: number
-          taxable?: boolean
-          unit?: string | null
-          unit_price?: number
-        }
-        Update: {
-          amount?: number
-          billable?: boolean
-          billing_frequency?: string | null
-          calculator_inputs?: Json | null
-          category?: string
-          client_notes?: string | null
-          client_visible?: boolean
-          cost_type?: string | null
-          created_at?: string
-          description?: string | null
-          id?: string
-          included_in_total?: boolean
-          internal_cost?: number | null
-          internal_notes?: string | null
-          item_code?: string | null
-          markup_type?: string
-          markup_value?: number
-          notes?: string | null
-          price_locked?: boolean | null
-          quantity?: number
-          quote_id?: string
-          recurring_interval?: string | null
-          recurring_interval_count?: number | null
-          service_date?: string | null
-          service_id?: string | null
-          service_variant_id?: string | null
-          sort_order?: number
-          taxable?: boolean
-          unit?: string | null
-          unit_price?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "quote_line_items_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
-            referencedRelation: "quotes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quote_line_items_service_id_fkey"
-            columns: ["service_id"]
-            isOneToOne: false
-            referencedRelation: "services"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quote_line_items_service_variant_id_fkey"
-            columns: ["service_variant_id"]
-            isOneToOne: false
-            referencedRelation: "service_price_variants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      quotes: {
-        Row: {
-          aircraft_summary: string | null
-          approved_at: string | null
-          approved_by: string | null
-          balance_due_timing: string | null
-          billing_contact_company: string | null
-          billing_contact_name: string | null
-          billing_contact_phone: string | null
-          cc_emails: string[] | null
-          client_id: string | null
-          client_notes: string | null
-          closing_note: string | null
-          converted_invoice_id: string | null
-          converted_subscription_id: string | null
-          created_at: string
-          created_by: string | null
-          deposit_amount: number
-          deposit_due_date: string | null
-          deposit_percent: number | null
-          deposit_required: boolean
-          deposit_terms: string | null
-          discount_total: number
-          expires_at: string | null
-          footer_note: string | null
-          group_line_items_by_category: boolean
-          id: string
-          internal_notes: string | null
-          manual_client_company: string | null
-          manual_client_email: string | null
-          manual_client_name: string | null
-          manual_client_phone: string | null
-          mission_id: string | null
-          opening_note: string | null
-          payment_due_date: string | null
-          payment_instructions: string | null
-          payment_method_notes: string | null
-          payment_terms: string | null
-          pdf_document_id: string | null
-          pdf_template: string
-          quote_number: string | null
-          recipient_email: string | null
-          recurring_total_annual: number | null
-          recurring_total_monthly: number | null
-          ref: string
-          rejected_at: string | null
-          rejected_by: string | null
-          requested_timing: string | null
-          revised_from_quote_id: string | null
-          revision_reason: string | null
-          route_summary: string | null
-          sent_at: string | null
-          service_scope: string | null
-          show_aircraft_block: boolean
-          show_deposit_block: boolean
-          show_line_item_details: boolean
-          show_mission_block: boolean
-          show_route_block: boolean
-          show_tax_line: boolean
-          status: string
-          subtotal: number
-          superseded_by_quote_id: string | null
-          tail_number: string | null
-          tax_total: number
-          total: number
-          updated_at: string
-          version_number: number
-        }
-        Insert: {
-          aircraft_summary?: string | null
-          approved_at?: string | null
-          approved_by?: string | null
-          balance_due_timing?: string | null
-          billing_contact_company?: string | null
-          billing_contact_name?: string | null
-          billing_contact_phone?: string | null
-          cc_emails?: string[] | null
-          client_id?: string | null
-          client_notes?: string | null
-          closing_note?: string | null
-          converted_invoice_id?: string | null
-          converted_subscription_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          deposit_amount?: number
-          deposit_due_date?: string | null
-          deposit_percent?: number | null
-          deposit_required?: boolean
-          deposit_terms?: string | null
-          discount_total?: number
-          expires_at?: string | null
-          footer_note?: string | null
-          group_line_items_by_category?: boolean
-          id?: string
-          internal_notes?: string | null
-          manual_client_company?: string | null
-          manual_client_email?: string | null
-          manual_client_name?: string | null
-          manual_client_phone?: string | null
-          mission_id?: string | null
-          opening_note?: string | null
-          payment_due_date?: string | null
-          payment_instructions?: string | null
-          payment_method_notes?: string | null
-          payment_terms?: string | null
-          pdf_document_id?: string | null
-          pdf_template?: string
-          quote_number?: string | null
-          recipient_email?: string | null
-          recurring_total_annual?: number | null
-          recurring_total_monthly?: number | null
-          ref?: string
-          rejected_at?: string | null
-          rejected_by?: string | null
-          requested_timing?: string | null
-          revised_from_quote_id?: string | null
-          revision_reason?: string | null
-          route_summary?: string | null
-          sent_at?: string | null
-          service_scope?: string | null
-          show_aircraft_block?: boolean
-          show_deposit_block?: boolean
-          show_line_item_details?: boolean
-          show_mission_block?: boolean
-          show_route_block?: boolean
-          show_tax_line?: boolean
-          status?: string
-          subtotal?: number
-          superseded_by_quote_id?: string | null
-          tail_number?: string | null
-          tax_total?: number
-          total?: number
-          updated_at?: string
-          version_number?: number
-        }
-        Update: {
-          aircraft_summary?: string | null
-          approved_at?: string | null
-          approved_by?: string | null
-          balance_due_timing?: string | null
-          billing_contact_company?: string | null
-          billing_contact_name?: string | null
-          billing_contact_phone?: string | null
-          cc_emails?: string[] | null
-          client_id?: string | null
-          client_notes?: string | null
-          closing_note?: string | null
-          converted_invoice_id?: string | null
-          converted_subscription_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          deposit_amount?: number
-          deposit_due_date?: string | null
-          deposit_percent?: number | null
-          deposit_required?: boolean
-          deposit_terms?: string | null
-          discount_total?: number
-          expires_at?: string | null
-          footer_note?: string | null
-          group_line_items_by_category?: boolean
-          id?: string
-          internal_notes?: string | null
-          manual_client_company?: string | null
-          manual_client_email?: string | null
-          manual_client_name?: string | null
-          manual_client_phone?: string | null
-          mission_id?: string | null
-          opening_note?: string | null
-          payment_due_date?: string | null
-          payment_instructions?: string | null
-          payment_method_notes?: string | null
-          payment_terms?: string | null
-          pdf_document_id?: string | null
-          pdf_template?: string
-          quote_number?: string | null
-          recipient_email?: string | null
-          recurring_total_annual?: number | null
-          recurring_total_monthly?: number | null
-          ref?: string
-          rejected_at?: string | null
-          rejected_by?: string | null
-          requested_timing?: string | null
-          revised_from_quote_id?: string | null
-          revision_reason?: string | null
-          route_summary?: string | null
-          sent_at?: string | null
-          service_scope?: string | null
-          show_aircraft_block?: boolean
-          show_deposit_block?: boolean
-          show_line_item_details?: boolean
-          show_mission_block?: boolean
-          show_route_block?: boolean
-          show_tax_line?: boolean
-          status?: string
-          subtotal?: number
-          superseded_by_quote_id?: string | null
-          tail_number?: string | null
-          tax_total?: number
-          total?: number
-          updated_at?: string
-          version_number?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "quotes_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quotes_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quotes_converted_invoice_id_fkey"
-            columns: ["converted_invoice_id"]
-            isOneToOne: false
-            referencedRelation: "invoices"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quotes_converted_subscription_id_fkey"
-            columns: ["converted_subscription_id"]
-            isOneToOne: false
-            referencedRelation: "client_subscriptions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quotes_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quotes_mission_id_fkey"
-            columns: ["mission_id"]
-            isOneToOne: false
-            referencedRelation: "missions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quotes_pdf_document_id_fkey"
-            columns: ["pdf_document_id"]
-            isOneToOne: false
-            referencedRelation: "billing_documents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quotes_rejected_by_fkey"
-            columns: ["rejected_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quotes_revised_from_quote_id_fkey"
-            columns: ["revised_from_quote_id"]
-            isOneToOne: false
-            referencedRelation: "quotes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quotes_superseded_by_quote_id_fkey"
-            columns: ["superseded_by_quote_id"]
-            isOneToOne: false
-            referencedRelation: "quotes"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      airports: {
-        Row: {
-          code: string
-          iata: string | null
-          icao: string | null
-          name: string
-          city: string | null
-          state: string | null
-          country: string
-          region: string | null
-          latitude: number
-          longitude: number
-          is_active: boolean
-          created_at: string
-        }
-        Insert: {
-          code: string
-          iata?: string | null
-          icao?: string | null
-          name: string
-          city?: string | null
-          state?: string | null
-          country?: string
-          region?: string | null
-          latitude: number
-          longitude: number
-          is_active?: boolean
-          created_at?: string
-        }
-        Update: Partial<Database["public"]["Tables"]["airports"]["Insert"]>
-        Relationships: []
-      }
-      crew_presence_sessions: {
-        Row: {
-          id: string
-          crew_id: string
-          airport_code: string
-          latitude: number
-          longitude: number
-          started_at: string
-          duration_minutes: number
-          expires_at: string
-          ended_at: string | null
-          ended_reason: string | null
-          prior_availability_status: string | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          crew_id: string
-          airport_code: string
-          latitude: number
-          longitude: number
-          started_at?: string
-          duration_minutes: number
-          expires_at: string
-          ended_at?: string | null
-          ended_reason?: string | null
-          prior_availability_status?: string | null
-          created_at?: string
-        }
-        Update: Partial<Database["public"]["Tables"]["crew_presence_sessions"]["Insert"]>
-        Relationships: []
-      }
-      calendar_events: {
-        Row: {
-          id: string
-          title: string
-          description: string | null
-          event_type: string
-          location: string | null
-          starts_at: string
-          ends_at: string | null
-          all_day: boolean
-          timezone: string
-          status: string
-          mission_id: string | null
-          aircraft_id: string | null
-          created_by: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          title: string
-          description?: string | null
-          event_type?: string
-          location?: string | null
-          starts_at: string
-          ends_at?: string | null
-          all_day?: boolean
-          timezone?: string
-          status?: string
-          mission_id?: string | null
-          aircraft_id?: string | null
-          created_by: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: Partial<Database["public"]["Tables"]["calendar_events"]["Insert"]>
-        Relationships: []
-      }
-      calendar_event_attendees: {
-        Row: {
-          id: string
-          event_id: string
-          profile_id: string
-          notified: boolean
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          event_id: string
-          profile_id: string
-          notified?: boolean
-          created_at?: string
-        }
-        Update: Partial<Database["public"]["Tables"]["calendar_event_attendees"]["Insert"]>
-        Relationships: []
-      }
-      scheduled_emails: {
-        Row: {
-          id: string
-          lead_id: string | null
-          recipient_email: string
-          subject: string
-          body: string
-          send_at: string
-          status: string
-          created_by: string
-          sent_at: string | null
-          failure_reason: string | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          lead_id?: string | null
-          recipient_email: string
-          subject: string
-          body: string
-          send_at: string
-          status?: string
-          created_by: string
-          sent_at?: string | null
-          failure_reason?: string | null
-          created_at?: string
-        }
-        Update: Partial<Database["public"]["Tables"]["scheduled_emails"]["Insert"]>
-        Relationships: []
-      }
-      thread_members: {
-        Row: {
-          profile_id: string
-          thread_id: string
-        }
-        Insert: {
-          profile_id: string
-          thread_id: string
-        }
-        Update: Partial<Database["public"]["Tables"]["thread_members"]["Insert"]>
-        Relationships: []
-      }
       access_request_status: {
         Row: {
           approval_stage: Database["public"]["Enums"]["access_request_stage"]
@@ -2265,6 +191,172 @@ export type Database = {
           },
         ]
       }
+      aircraft: {
+        Row: {
+          aircraft_category: string | null
+          airworthiness_signed_off: boolean
+          avionics_notes: string | null
+          baggage_notes: string | null
+          client_id: string | null
+          created_at: string
+          home_base: string | null
+          id: string
+          maintenance_status: string
+          make: string | null
+          model: string | null
+          notes: string | null
+          passenger_capacity: number | null
+          range_notes: string | null
+          required_crew: number | null
+          serial_number: string | null
+          status: string
+          tail_number: string
+          updated_at: string
+          year: number | null
+        }
+        Insert: {
+          aircraft_category?: string | null
+          airworthiness_signed_off?: boolean
+          avionics_notes?: string | null
+          baggage_notes?: string | null
+          client_id?: string | null
+          created_at?: string
+          home_base?: string | null
+          id?: string
+          maintenance_status?: string
+          make?: string | null
+          model?: string | null
+          notes?: string | null
+          passenger_capacity?: number | null
+          range_notes?: string | null
+          required_crew?: number | null
+          serial_number?: string | null
+          status?: string
+          tail_number: string
+          updated_at?: string
+          year?: number | null
+        }
+        Update: {
+          aircraft_category?: string | null
+          airworthiness_signed_off?: boolean
+          avionics_notes?: string | null
+          baggage_notes?: string | null
+          client_id?: string | null
+          created_at?: string
+          home_base?: string | null
+          id?: string
+          maintenance_status?: string
+          make?: string | null
+          model?: string | null
+          notes?: string | null
+          passenger_capacity?: number | null
+          range_notes?: string | null
+          required_crew?: number | null
+          serial_number?: string | null
+          status?: string
+          tail_number?: string
+          updated_at?: string
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aircraft_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      airports: {
+        Row: {
+          city: string | null
+          code: string
+          country: string
+          created_at: string
+          iata: string | null
+          icao: string | null
+          is_active: boolean
+          latitude: number
+          longitude: number
+          name: string
+          region: string | null
+          state: string | null
+        }
+        Insert: {
+          city?: string | null
+          code: string
+          country?: string
+          created_at?: string
+          iata?: string | null
+          icao?: string | null
+          is_active?: boolean
+          latitude: number
+          longitude: number
+          name: string
+          region?: string | null
+          state?: string | null
+        }
+        Update: {
+          city?: string | null
+          code?: string
+          country?: string
+          created_at?: string
+          iata?: string | null
+          icao?: string | null
+          is_active?: boolean
+          latitude?: number
+          longitude?: number
+          name?: string
+          region?: string | null
+          state?: string | null
+        }
+        Relationships: []
+      }
+      audit_events: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          actor_role: string | null
+          created_at: string
+          detail: string | null
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          actor_role?: string | null
+          created_at?: string
+          detail?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          actor_role?: string | null
+          created_at?: string
+          detail?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       billing_document_sequences: {
         Row: {
           document_type: string
@@ -2412,6 +504,7 @@ export type Database = {
           company_phone: string | null
           created_at: string
           default_deposit_percent: number
+          dunning_enabled: boolean
           id: string
           invoice_disclaimer: string | null
           invoice_terms: string | null
@@ -2436,6 +529,7 @@ export type Database = {
           company_phone?: string | null
           created_at?: string
           default_deposit_percent?: number
+          dunning_enabled?: boolean
           id?: string
           invoice_disclaimer?: string | null
           invoice_terms?: string | null
@@ -2460,6 +554,7 @@ export type Database = {
           company_phone?: string | null
           created_at?: string
           default_deposit_percent?: number
+          dunning_enabled?: boolean
           id?: string
           invoice_disclaimer?: string | null
           invoice_terms?: string | null
@@ -2479,6 +574,121 @@ export type Database = {
             columns: ["updated_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_event_attendees: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          notified: boolean
+          profile_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          notified?: boolean
+          profile_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          notified?: boolean
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_event_attendees_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_event_attendees_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_events: {
+        Row: {
+          aircraft_id: string | null
+          all_day: boolean
+          created_at: string
+          created_by: string
+          description: string | null
+          ends_at: string | null
+          event_type: string
+          id: string
+          location: string | null
+          mission_id: string | null
+          starts_at: string
+          status: string
+          timezone: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          aircraft_id?: string | null
+          all_day?: boolean
+          created_at?: string
+          created_by: string
+          description?: string | null
+          ends_at?: string | null
+          event_type?: string
+          id?: string
+          location?: string | null
+          mission_id?: string | null
+          starts_at: string
+          status?: string
+          timezone?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          aircraft_id?: string | null
+          all_day?: boolean
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          ends_at?: string | null
+          event_type?: string
+          id?: string
+          location?: string | null
+          mission_id?: string | null
+          starts_at?: string
+          status?: string
+          timezone?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_events_aircraft_id_fkey"
+            columns: ["aircraft_id"]
+            isOneToOne: false
+            referencedRelation: "aircraft"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
             referencedColumns: ["id"]
           },
         ]
@@ -3723,6 +1933,398 @@ export type Database = {
           },
         ]
       }
+      crew_availability: {
+        Row: {
+          availability_type: string
+          created_at: string
+          crew_id: string
+          end_date: string
+          id: string
+          notes: string | null
+          start_date: string
+        }
+        Insert: {
+          availability_type?: string
+          created_at?: string
+          crew_id: string
+          end_date: string
+          id?: string
+          notes?: string | null
+          start_date: string
+        }
+        Update: {
+          availability_type?: string
+          created_at?: string
+          crew_id?: string
+          end_date?: string
+          id?: string
+          notes?: string | null
+          start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crew_availability_crew_id_fkey"
+            columns: ["crew_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crew_credentials: {
+        Row: {
+          created_at: string
+          credential_type: string
+          crew_id: string
+          document_id: string | null
+          expiration_date: string | null
+          id: string
+          identifier: string | null
+          issued_date: string | null
+          review_notes: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credential_type: string
+          crew_id: string
+          document_id?: string | null
+          expiration_date?: string | null
+          id?: string
+          identifier?: string | null
+          issued_date?: string | null
+          review_notes?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credential_type?: string
+          crew_id?: string
+          document_id?: string | null
+          expiration_date?: string | null
+          id?: string
+          identifier?: string | null
+          issued_date?: string | null
+          review_notes?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crew_credentials_crew_id_fkey"
+            columns: ["crew_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crew_credentials_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crew_credentials_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crew_presence_sessions: {
+        Row: {
+          airport_code: string
+          created_at: string
+          crew_id: string
+          duration_minutes: number
+          ended_at: string | null
+          ended_reason: string | null
+          expires_at: string
+          id: string
+          latitude: number
+          longitude: number
+          prior_availability_status: string | null
+          started_at: string
+        }
+        Insert: {
+          airport_code: string
+          created_at?: string
+          crew_id: string
+          duration_minutes: number
+          ended_at?: string | null
+          ended_reason?: string | null
+          expires_at: string
+          id?: string
+          latitude: number
+          longitude: number
+          prior_availability_status?: string | null
+          started_at?: string
+        }
+        Update: {
+          airport_code?: string
+          created_at?: string
+          crew_id?: string
+          duration_minutes?: number
+          ended_at?: string | null
+          ended_reason?: string | null
+          expires_at?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          prior_availability_status?: string | null
+          started_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crew_presence_sessions_airport_code_fkey"
+            columns: ["airport_code"]
+            isOneToOne: false
+            referencedRelation: "airports"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "crew_presence_sessions_crew_id_fkey"
+            columns: ["crew_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crew_profiles: {
+        Row: {
+          address: string | null
+          aircraft_type_experience: string | null
+          approved: boolean
+          availability_notes: string | null
+          availability_status: string
+          certificate_level: string | null
+          certificates_held: string[]
+          certificates_ratings: string | null
+          city: string | null
+          closest_major_airport: string | null
+          company: string | null
+          country: string | null
+          crew_status: string
+          date_of_birth: string | null
+          day_rate: number | null
+          desired_day_rate: number | null
+          display_name: string | null
+          dual_given_time: number | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          first_name: string | null
+          generally_short_notice: boolean | null
+          home_airport: string | null
+          id: string
+          import_batch_id: string | null
+          import_row_number: number | null
+          import_source: string | null
+          imported_at: string | null
+          instrument_time: number | null
+          insurance_approved: boolean
+          international_experience: boolean
+          jet_time: number | null
+          last_contacted: string | null
+          last_name: string | null
+          location_display: string | null
+          max_days_away: number | null
+          me_time: number | null
+          medical: string | null
+          medical_certificate: string | null
+          medical_expiration_date: string | null
+          minimum_call_time: string | null
+          minimum_notice_required: string | null
+          multi_time: number | null
+          needs_manual_review: boolean
+          notes: string | null
+          ops_notes: string | null
+          passport_mentioned: boolean
+          pic_time: number | null
+          preferred_aircraft: string[] | null
+          preferred_regions: string[] | null
+          priority_candidate: boolean
+          profile_completed_at: string | null
+          profile_completion_percent: number
+          profile_status: string
+          ratings_held: string[]
+          resume_notes: string | null
+          reviewed: boolean
+          searchable_text: string | null
+          short_notice_available: boolean
+          sic_time: number | null
+          source_email: string | null
+          state: string | null
+          time_in_type: string | null
+          total_time: number | null
+          turbine_time: number | null
+          type_ratings: string[] | null
+          updated_at: string
+          weekly_availability: Json
+          willing_to_travel: boolean | null
+          zip: string | null
+        }
+        Insert: {
+          address?: string | null
+          aircraft_type_experience?: string | null
+          approved?: boolean
+          availability_notes?: string | null
+          availability_status?: string
+          certificate_level?: string | null
+          certificates_held?: string[]
+          certificates_ratings?: string | null
+          city?: string | null
+          closest_major_airport?: string | null
+          company?: string | null
+          country?: string | null
+          crew_status?: string
+          date_of_birth?: string | null
+          day_rate?: number | null
+          desired_day_rate?: number | null
+          display_name?: string | null
+          dual_given_time?: number | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name?: string | null
+          generally_short_notice?: boolean | null
+          home_airport?: string | null
+          id: string
+          import_batch_id?: string | null
+          import_row_number?: number | null
+          import_source?: string | null
+          imported_at?: string | null
+          instrument_time?: number | null
+          insurance_approved?: boolean
+          international_experience?: boolean
+          jet_time?: number | null
+          last_contacted?: string | null
+          last_name?: string | null
+          location_display?: string | null
+          max_days_away?: number | null
+          me_time?: number | null
+          medical?: string | null
+          medical_certificate?: string | null
+          medical_expiration_date?: string | null
+          minimum_call_time?: string | null
+          minimum_notice_required?: string | null
+          multi_time?: number | null
+          needs_manual_review?: boolean
+          notes?: string | null
+          ops_notes?: string | null
+          passport_mentioned?: boolean
+          pic_time?: number | null
+          preferred_aircraft?: string[] | null
+          preferred_regions?: string[] | null
+          priority_candidate?: boolean
+          profile_completed_at?: string | null
+          profile_completion_percent?: number
+          profile_status?: string
+          ratings_held?: string[]
+          resume_notes?: string | null
+          reviewed?: boolean
+          searchable_text?: string | null
+          short_notice_available?: boolean
+          sic_time?: number | null
+          source_email?: string | null
+          state?: string | null
+          time_in_type?: string | null
+          total_time?: number | null
+          turbine_time?: number | null
+          type_ratings?: string[] | null
+          updated_at?: string
+          weekly_availability?: Json
+          willing_to_travel?: boolean | null
+          zip?: string | null
+        }
+        Update: {
+          address?: string | null
+          aircraft_type_experience?: string | null
+          approved?: boolean
+          availability_notes?: string | null
+          availability_status?: string
+          certificate_level?: string | null
+          certificates_held?: string[]
+          certificates_ratings?: string | null
+          city?: string | null
+          closest_major_airport?: string | null
+          company?: string | null
+          country?: string | null
+          crew_status?: string
+          date_of_birth?: string | null
+          day_rate?: number | null
+          desired_day_rate?: number | null
+          display_name?: string | null
+          dual_given_time?: number | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name?: string | null
+          generally_short_notice?: boolean | null
+          home_airport?: string | null
+          id?: string
+          import_batch_id?: string | null
+          import_row_number?: number | null
+          import_source?: string | null
+          imported_at?: string | null
+          instrument_time?: number | null
+          insurance_approved?: boolean
+          international_experience?: boolean
+          jet_time?: number | null
+          last_contacted?: string | null
+          last_name?: string | null
+          location_display?: string | null
+          max_days_away?: number | null
+          me_time?: number | null
+          medical?: string | null
+          medical_certificate?: string | null
+          medical_expiration_date?: string | null
+          minimum_call_time?: string | null
+          minimum_notice_required?: string | null
+          multi_time?: number | null
+          needs_manual_review?: boolean
+          notes?: string | null
+          ops_notes?: string | null
+          passport_mentioned?: boolean
+          pic_time?: number | null
+          preferred_aircraft?: string[] | null
+          preferred_regions?: string[] | null
+          priority_candidate?: boolean
+          profile_completed_at?: string | null
+          profile_completion_percent?: number
+          profile_status?: string
+          ratings_held?: string[]
+          resume_notes?: string | null
+          reviewed?: boolean
+          searchable_text?: string | null
+          short_notice_available?: boolean
+          sic_time?: number | null
+          source_email?: string | null
+          state?: string | null
+          time_in_type?: string | null
+          total_time?: number | null
+          turbine_time?: number | null
+          type_ratings?: string[] | null
+          updated_at?: string
+          weekly_availability?: Json
+          willing_to_travel?: boolean | null
+          zip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crew_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_activities: {
         Row: {
           activity_type: string
@@ -3850,6 +2452,621 @@ export type Database = {
           },
         ]
       }
+      documents: {
+        Row: {
+          access_level: string
+          archived_at: string | null
+          compliance_category: string
+          created_at: string
+          doc_type: string
+          expiration_date: string | null
+          file_size: number | null
+          id: string
+          is_current: boolean
+          mime_type: string | null
+          mission_id: string | null
+          name: string
+          notes: string | null
+          original_file_name: string | null
+          policy_version: string | null
+          rejection_reason: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          scope_id: string | null
+          scope_type: string
+          status: string
+          storage_bucket: string
+          storage_path: string
+          terms_acknowledged_at: string | null
+          updated_at: string
+          uploaded_by: string | null
+          version: number
+          visibility: string
+        }
+        Insert: {
+          access_level?: string
+          archived_at?: string | null
+          compliance_category?: string
+          created_at?: string
+          doc_type: string
+          expiration_date?: string | null
+          file_size?: number | null
+          id?: string
+          is_current?: boolean
+          mime_type?: string | null
+          mission_id?: string | null
+          name: string
+          notes?: string | null
+          original_file_name?: string | null
+          policy_version?: string | null
+          rejection_reason?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scope_id?: string | null
+          scope_type: string
+          status?: string
+          storage_bucket?: string
+          storage_path: string
+          terms_acknowledged_at?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+          version?: number
+          visibility?: string
+        }
+        Update: {
+          access_level?: string
+          archived_at?: string | null
+          compliance_category?: string
+          created_at?: string
+          doc_type?: string
+          expiration_date?: string | null
+          file_size?: number | null
+          id?: string
+          is_current?: boolean
+          mime_type?: string | null
+          mission_id?: string | null
+          name?: string
+          notes?: string | null
+          original_file_name?: string | null
+          policy_version?: string | null
+          rejection_reason?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scope_id?: string | null
+          scope_type?: string
+          status?: string
+          storage_bucket?: string
+          storage_path?: string
+          terms_acknowledged_at?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+          version?: number
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expenses: {
+        Row: {
+          amount: number
+          approved_amount: number | null
+          billable_to_client: boolean
+          category: string
+          created_at: string
+          crew_id: string
+          currency: string
+          expense_date: string
+          id: string
+          invoice_line_item_id: string | null
+          merchant: string | null
+          mission_id: string | null
+          notes: string | null
+          quote_line_item_id: string | null
+          receipt_path: string | null
+          reimbursable: boolean
+          review_notes: string | null
+          reviewed_by: string | null
+          status: string
+          tax_amount: number | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          approved_amount?: number | null
+          billable_to_client?: boolean
+          category: string
+          created_at?: string
+          crew_id: string
+          currency?: string
+          expense_date?: string
+          id?: string
+          invoice_line_item_id?: string | null
+          merchant?: string | null
+          mission_id?: string | null
+          notes?: string | null
+          quote_line_item_id?: string | null
+          receipt_path?: string | null
+          reimbursable?: boolean
+          review_notes?: string | null
+          reviewed_by?: string | null
+          status?: string
+          tax_amount?: number | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          approved_amount?: number | null
+          billable_to_client?: boolean
+          category?: string
+          created_at?: string
+          crew_id?: string
+          currency?: string
+          expense_date?: string
+          id?: string
+          invoice_line_item_id?: string | null
+          merchant?: string | null
+          mission_id?: string | null
+          notes?: string | null
+          quote_line_item_id?: string | null
+          receipt_path?: string | null
+          reimbursable?: boolean
+          review_notes?: string | null
+          reviewed_by?: string | null
+          status?: string
+          tax_amount?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_crew_id_fkey"
+            columns: ["crew_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_invoice_line_item_id_fkey"
+            columns: ["invoice_line_item_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_line_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_quote_line_item_id_fkey"
+            columns: ["quote_line_item_id"]
+            isOneToOne: false
+            referencedRelation: "quote_line_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoice_line_items: {
+        Row: {
+          amount: number
+          billable: boolean
+          billing_frequency: string | null
+          calculator_inputs: Json | null
+          category: string
+          client_notes: string | null
+          client_visible: boolean
+          cost_type: string | null
+          created_at: string
+          description: string | null
+          expense_id: string | null
+          id: string
+          included_in_total: boolean
+          internal_cost: number | null
+          internal_notes: string | null
+          invoice_id: string
+          item_code: string | null
+          markup_type: string
+          markup_value: number
+          notes: string | null
+          quantity: number
+          recurring_interval: string | null
+          recurring_interval_count: number | null
+          service_date: string | null
+          service_id: string | null
+          service_variant_id: string | null
+          sort_order: number
+          taxable: boolean
+          unit: string | null
+          unit_price: number
+        }
+        Insert: {
+          amount?: number
+          billable?: boolean
+          billing_frequency?: string | null
+          calculator_inputs?: Json | null
+          category: string
+          client_notes?: string | null
+          client_visible?: boolean
+          cost_type?: string | null
+          created_at?: string
+          description?: string | null
+          expense_id?: string | null
+          id?: string
+          included_in_total?: boolean
+          internal_cost?: number | null
+          internal_notes?: string | null
+          invoice_id: string
+          item_code?: string | null
+          markup_type?: string
+          markup_value?: number
+          notes?: string | null
+          quantity?: number
+          recurring_interval?: string | null
+          recurring_interval_count?: number | null
+          service_date?: string | null
+          service_id?: string | null
+          service_variant_id?: string | null
+          sort_order?: number
+          taxable?: boolean
+          unit?: string | null
+          unit_price?: number
+        }
+        Update: {
+          amount?: number
+          billable?: boolean
+          billing_frequency?: string | null
+          calculator_inputs?: Json | null
+          category?: string
+          client_notes?: string | null
+          client_visible?: boolean
+          cost_type?: string | null
+          created_at?: string
+          description?: string | null
+          expense_id?: string | null
+          id?: string
+          included_in_total?: boolean
+          internal_cost?: number | null
+          internal_notes?: string | null
+          invoice_id?: string
+          item_code?: string | null
+          markup_type?: string
+          markup_value?: number
+          notes?: string | null
+          quantity?: number
+          recurring_interval?: string | null
+          recurring_interval_count?: number | null
+          service_date?: string | null
+          service_id?: string | null
+          service_variant_id?: string | null
+          sort_order?: number
+          taxable?: boolean
+          unit?: string | null
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_line_items_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_line_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_line_items_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_line_items_service_variant_id_fkey"
+            columns: ["service_variant_id"]
+            isOneToOne: false
+            referencedRelation: "service_price_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          aircraft_id: string | null
+          amount_due: number
+          amount_paid: number
+          billing_contact_company: string | null
+          billing_contact_name: string | null
+          billing_contact_phone: string | null
+          cc_emails: string[] | null
+          client_id: string | null
+          client_notes: string | null
+          closing_note: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          deposit_amount: number
+          deposit_paid: number
+          deposit_required: boolean
+          discount: number
+          discount_total: number
+          due_date: string | null
+          dunning_paused: boolean
+          footer_note: string | null
+          group_line_items_by_category: boolean
+          id: string
+          internal_notes: string | null
+          invoice_number: string
+          issued_at: string | null
+          mission_id: string | null
+          opening_note: string | null
+          paid_at: string | null
+          payment_amount_cents: number | null
+          payment_currency: string
+          payment_error: string | null
+          payment_instructions: string | null
+          payment_link_url: string | null
+          payment_provider: string | null
+          payment_provider_session_id: string | null
+          payment_status: string | null
+          pdf_document_id: string | null
+          pdf_template: string
+          quote_id: string | null
+          recipient_email: string | null
+          revised_from_invoice_id: string | null
+          revision_reason: string | null
+          sent_at: string | null
+          show_aircraft_block: boolean
+          show_deposit_block: boolean
+          show_line_item_details: boolean
+          show_mission_block: boolean
+          show_route_block: boolean
+          show_tax_line: boolean
+          status: string
+          stripe_checkout_session_id: string | null
+          stripe_customer_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_payment_status: string | null
+          stripe_payment_url: string | null
+          subtotal: number
+          superseded_by_invoice_id: string | null
+          tax: number
+          tax_total: number
+          terms: string | null
+          total: number
+          updated_at: string
+          version_number: number
+          viewed_at: string | null
+        }
+        Insert: {
+          aircraft_id?: string | null
+          amount_due?: number
+          amount_paid?: number
+          billing_contact_company?: string | null
+          billing_contact_name?: string | null
+          billing_contact_phone?: string | null
+          cc_emails?: string[] | null
+          client_id?: string | null
+          client_notes?: string | null
+          closing_note?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          deposit_amount?: number
+          deposit_paid?: number
+          deposit_required?: boolean
+          discount?: number
+          discount_total?: number
+          due_date?: string | null
+          dunning_paused?: boolean
+          footer_note?: string | null
+          group_line_items_by_category?: boolean
+          id?: string
+          internal_notes?: string | null
+          invoice_number?: string
+          issued_at?: string | null
+          mission_id?: string | null
+          opening_note?: string | null
+          paid_at?: string | null
+          payment_amount_cents?: number | null
+          payment_currency?: string
+          payment_error?: string | null
+          payment_instructions?: string | null
+          payment_link_url?: string | null
+          payment_provider?: string | null
+          payment_provider_session_id?: string | null
+          payment_status?: string | null
+          pdf_document_id?: string | null
+          pdf_template?: string
+          quote_id?: string | null
+          recipient_email?: string | null
+          revised_from_invoice_id?: string | null
+          revision_reason?: string | null
+          sent_at?: string | null
+          show_aircraft_block?: boolean
+          show_deposit_block?: boolean
+          show_line_item_details?: boolean
+          show_mission_block?: boolean
+          show_route_block?: boolean
+          show_tax_line?: boolean
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_payment_status?: string | null
+          stripe_payment_url?: string | null
+          subtotal?: number
+          superseded_by_invoice_id?: string | null
+          tax?: number
+          tax_total?: number
+          terms?: string | null
+          total?: number
+          updated_at?: string
+          version_number?: number
+          viewed_at?: string | null
+        }
+        Update: {
+          aircraft_id?: string | null
+          amount_due?: number
+          amount_paid?: number
+          billing_contact_company?: string | null
+          billing_contact_name?: string | null
+          billing_contact_phone?: string | null
+          cc_emails?: string[] | null
+          client_id?: string | null
+          client_notes?: string | null
+          closing_note?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          deposit_amount?: number
+          deposit_paid?: number
+          deposit_required?: boolean
+          discount?: number
+          discount_total?: number
+          due_date?: string | null
+          dunning_paused?: boolean
+          footer_note?: string | null
+          group_line_items_by_category?: boolean
+          id?: string
+          internal_notes?: string | null
+          invoice_number?: string
+          issued_at?: string | null
+          mission_id?: string | null
+          opening_note?: string | null
+          paid_at?: string | null
+          payment_amount_cents?: number | null
+          payment_currency?: string
+          payment_error?: string | null
+          payment_instructions?: string | null
+          payment_link_url?: string | null
+          payment_provider?: string | null
+          payment_provider_session_id?: string | null
+          payment_status?: string | null
+          pdf_document_id?: string | null
+          pdf_template?: string
+          quote_id?: string | null
+          recipient_email?: string | null
+          revised_from_invoice_id?: string | null
+          revision_reason?: string | null
+          sent_at?: string | null
+          show_aircraft_block?: boolean
+          show_deposit_block?: boolean
+          show_line_item_details?: boolean
+          show_mission_block?: boolean
+          show_route_block?: boolean
+          show_tax_line?: boolean
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_payment_status?: string | null
+          stripe_payment_url?: string | null
+          subtotal?: number
+          superseded_by_invoice_id?: string | null
+          tax?: number
+          tax_total?: number
+          terms?: string | null
+          total?: number
+          updated_at?: string
+          version_number?: number
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_aircraft_id_fkey"
+            columns: ["aircraft_id"]
+            isOneToOne: false
+            referencedRelation: "aircraft"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_pdf_document_id_fkey"
+            columns: ["pdf_document_id"]
+            isOneToOne: false
+            referencedRelation: "billing_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_revised_from_invoice_id_fkey"
+            columns: ["revised_from_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_superseded_by_invoice_id_fkey"
+            columns: ["superseded_by_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketing_consents: {
         Row: {
           consent_channel: string
@@ -3902,6 +3119,448 @@ export type Database = {
             columns: ["related_submission_id"]
             isOneToOne: false
             referencedRelation: "contact_form_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_threads: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string | null
+          mission_id: string | null
+          scope_id: string | null
+          scope_type: string
+          title: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          mission_id?: string | null
+          scope_id?: string | null
+          scope_type: string
+          title?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          mission_id?: string | null
+          scope_id?: string | null
+          scope_type?: string
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_threads_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          sender_email: string | null
+          sender_id: string
+          thread_id: string
+          visibility: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          sender_email?: string | null
+          sender_id: string
+          thread_id: string
+          visibility?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          sender_email?: string | null
+          sender_id?: string
+          thread_id?: string
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "message_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mission_crew_assignments: {
+        Row: {
+          created_at: string
+          crew_id: string
+          crew_role: string
+          duty_notes: string | null
+          id: string
+          mission_id: string
+          responded_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          crew_id: string
+          crew_role?: string
+          duty_notes?: string | null
+          id?: string
+          mission_id: string
+          responded_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          crew_id?: string
+          crew_role?: string
+          duty_notes?: string | null
+          id?: string
+          mission_id?: string
+          responded_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission_crew_assignments_crew_id_fkey"
+            columns: ["crew_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mission_crew_assignments_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mission_crew_requests: {
+        Row: {
+          created_at: string
+          crew_id: string
+          decided_at: string | null
+          decided_by: string | null
+          decision_notes: string | null
+          id: string
+          message: string | null
+          mission_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          crew_id: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_notes?: string | null
+          id?: string
+          message?: string | null
+          mission_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          crew_id?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_notes?: string | null
+          id?: string
+          message?: string | null
+          mission_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission_crew_requests_crew_id_fkey"
+            columns: ["crew_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mission_crew_requests_decided_by_fkey"
+            columns: ["decided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mission_crew_requests_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mission_partner_assignments: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          description: string | null
+          id: string
+          location: string | null
+          mission_id: string | null
+          partner_id: string
+          partner_notes: string | null
+          quote_amount: number | null
+          ref: string
+          required_datetime: string | null
+          responded_at: string | null
+          service_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          mission_id?: string | null
+          partner_id: string
+          partner_notes?: string | null
+          quote_amount?: number | null
+          ref?: string
+          required_datetime?: string | null
+          responded_at?: string | null
+          service_type: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          mission_id?: string | null
+          partner_id?: string
+          partner_notes?: string | null
+          quote_amount?: number | null
+          ref?: string
+          required_datetime?: string | null
+          responded_at?: string | null
+          service_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission_partner_assignments_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mission_partner_assignments_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mission_passengers: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          mission_id: string
+          notes: string | null
+          passenger_type: string
+        }
+        Insert: {
+          created_at?: string
+          full_name: string
+          id?: string
+          mission_id: string
+          notes?: string | null
+          passenger_type?: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          mission_id?: string
+          notes?: string | null
+          passenger_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission_passengers_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      missions: {
+        Row: {
+          additional_notes: string | null
+          aircraft_id: string | null
+          alternate_airport: string | null
+          arrival_airport: string
+          assigned_crew_id: string | null
+          baggage_estimate: string | null
+          catering: boolean
+          client_id: string | null
+          client_notes: string | null
+          created_at: string
+          created_by: string | null
+          customs_notes: string | null
+          departure_airport: string
+          fbo_preference: string | null
+          flexible_time: boolean
+          ground_transport: boolean
+          id: string
+          internal_notes: string | null
+          is_international: boolean
+          mission_type: string
+          passenger_count: number
+          pets_onboard: boolean
+          pool_published_at: string | null
+          pool_requirements: Json
+          pool_visible: boolean
+          ref: string
+          requested_arrival: string | null
+          requested_departure: string | null
+          sla_breached_at: string | null
+          sla_due_at: string | null
+          sla_met_at: string | null
+          special_handling: string | null
+          status: string
+          tail_number: string | null
+          updated_at: string
+          urgency: string
+        }
+        Insert: {
+          additional_notes?: string | null
+          aircraft_id?: string | null
+          alternate_airport?: string | null
+          arrival_airport: string
+          assigned_crew_id?: string | null
+          baggage_estimate?: string | null
+          catering?: boolean
+          client_id?: string | null
+          client_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          customs_notes?: string | null
+          departure_airport: string
+          fbo_preference?: string | null
+          flexible_time?: boolean
+          ground_transport?: boolean
+          id?: string
+          internal_notes?: string | null
+          is_international?: boolean
+          mission_type?: string
+          passenger_count?: number
+          pets_onboard?: boolean
+          pool_published_at?: string | null
+          pool_requirements?: Json
+          pool_visible?: boolean
+          ref?: string
+          requested_arrival?: string | null
+          requested_departure?: string | null
+          sla_breached_at?: string | null
+          sla_due_at?: string | null
+          sla_met_at?: string | null
+          special_handling?: string | null
+          status?: string
+          tail_number?: string | null
+          updated_at?: string
+          urgency?: string
+        }
+        Update: {
+          additional_notes?: string | null
+          aircraft_id?: string | null
+          alternate_airport?: string | null
+          arrival_airport?: string
+          assigned_crew_id?: string | null
+          baggage_estimate?: string | null
+          catering?: boolean
+          client_id?: string | null
+          client_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          customs_notes?: string | null
+          departure_airport?: string
+          fbo_preference?: string | null
+          flexible_time?: boolean
+          ground_transport?: boolean
+          id?: string
+          internal_notes?: string | null
+          is_international?: boolean
+          mission_type?: string
+          passenger_count?: number
+          pets_onboard?: boolean
+          pool_published_at?: string | null
+          pool_requirements?: Json
+          pool_visible?: boolean
+          ref?: string
+          requested_arrival?: string | null
+          requested_departure?: string | null
+          sla_breached_at?: string | null
+          sla_due_at?: string | null
+          sla_met_at?: string | null
+          special_handling?: string | null
+          status?: string
+          tail_number?: string | null
+          updated_at?: string
+          urgency?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "missions_aircraft_id_fkey"
+            columns: ["aircraft_id"]
+            isOneToOne: false
+            referencedRelation: "aircraft"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "missions_assigned_crew_id_fkey"
+            columns: ["assigned_crew_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "missions_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "missions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -4156,6 +3815,201 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_deliveries: {
+        Row: {
+          attempted_at: string | null
+          channel: string
+          created_at: string
+          error_message: string | null
+          event_type: string | null
+          id: string
+          notification_id: string | null
+          provider: string | null
+          provider_message_id: string | null
+          recipient: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          attempted_at?: string | null
+          channel: string
+          created_at?: string
+          error_message?: string | null
+          event_type?: string | null
+          id?: string
+          notification_id?: string | null
+          provider?: string | null
+          provider_message_id?: string | null
+          recipient: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          attempted_at?: string | null
+          channel?: string
+          created_at?: string
+          error_message?: string | null
+          event_type?: string | null
+          id?: string
+          notification_id?: string | null
+          provider?: string | null
+          provider_message_id?: string | null
+          recipient?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          is_read: boolean
+          notification_type: string | null
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          is_read?: boolean
+          notification_type?: string | null
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          is_read?: boolean
+          notification_type?: string | null
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      onboarding_item_completions: {
+        Row: {
+          completed_at: string
+          completed_by: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          is_done: boolean
+          item_key: string
+          note: string | null
+        }
+        Insert: {
+          completed_at?: string
+          completed_by?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          is_done?: boolean
+          item_key: string
+          note?: string | null
+        }
+        Update: {
+          completed_at?: string
+          completed_by?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          is_done?: boolean
+          item_key?: string
+          note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_item_completions_completed_by_fkey"
+            columns: ["completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      onboarding_items: {
+        Row: {
+          completed_by_role: string
+          completion_source: string
+          created_at: string
+          created_by: string | null
+          entity_type: string
+          grants_access: boolean
+          is_active: boolean
+          is_auto: boolean
+          is_custom: boolean
+          is_required: boolean
+          item_key: string
+          label: string
+          rule_note: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          completed_by_role?: string
+          completion_source?: string
+          created_at?: string
+          created_by?: string | null
+          entity_type: string
+          grants_access?: boolean
+          is_active?: boolean
+          is_auto?: boolean
+          is_custom?: boolean
+          is_required?: boolean
+          item_key: string
+          label: string
+          rule_note?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          completed_by_role?: string
+          completion_source?: string
+          created_at?: string
+          created_by?: string | null
+          entity_type?: string
+          grants_access?: boolean
+          is_active?: boolean
+          is_auto?: boolean
+          is_custom?: boolean
+          is_required?: boolean
+          item_key?: string
+          label?: string
+          rule_note?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_items_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ops_tasks: {
         Row: {
           assigned_to: string | null
@@ -4216,6 +4070,230 @@ export type Database = {
           {
             foreignKeyName: "ops_tasks_created_by_fkey"
             columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          type?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      partner_profiles: {
+        Row: {
+          after_hours_support: boolean | null
+          airports_served: string[] | null
+          company_name: string | null
+          contact_email: string | null
+          hours_of_operation: string | null
+          id: string
+          notes: string | null
+          onboarding_docs_verified: boolean
+          partner_type: string | null
+          phone: string | null
+          primary_contact: string | null
+          service_area: string | null
+          service_categories: string[] | null
+          service_type: string | null
+        }
+        Insert: {
+          after_hours_support?: boolean | null
+          airports_served?: string[] | null
+          company_name?: string | null
+          contact_email?: string | null
+          hours_of_operation?: string | null
+          id: string
+          notes?: string | null
+          onboarding_docs_verified?: boolean
+          partner_type?: string | null
+          phone?: string | null
+          primary_contact?: string | null
+          service_area?: string | null
+          service_categories?: string[] | null
+          service_type?: string | null
+        }
+        Update: {
+          after_hours_support?: boolean | null
+          airports_served?: string[] | null
+          company_name?: string | null
+          contact_email?: string | null
+          hours_of_operation?: string | null
+          id?: string
+          notes?: string | null
+          onboarding_docs_verified?: boolean
+          partner_type?: string | null
+          phone?: string | null
+          primary_contact?: string | null
+          service_area?: string | null
+          service_categories?: string[] | null
+          service_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      passenger_profiles: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          is_frequent: boolean
+          owner_id: string
+          preferences: string | null
+        }
+        Insert: {
+          created_at?: string
+          full_name: string
+          id?: string
+          is_frequent?: boolean
+          owner_id: string
+          preferences?: string | null
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          is_frequent?: boolean
+          owner_id?: string
+          preferences?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "passenger_profiles_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          internal_notes: string | null
+          invoice_id: string
+          notes: string | null
+          paid_at: string
+          payment_link_url: string | null
+          payment_method: string | null
+          payment_provider: string | null
+          payment_provider_session_id: string | null
+          payment_reference: string | null
+          payment_status: string | null
+          provider: string | null
+          provider_checkout_session_id: string | null
+          provider_customer_id: string | null
+          provider_payment_id: string | null
+          raw_event_id: string | null
+          receipt_document_id: string | null
+          receipt_number: string | null
+          receipt_send_suppressed: boolean
+          receipt_sent_at: string | null
+          recorded_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          internal_notes?: string | null
+          invoice_id: string
+          notes?: string | null
+          paid_at?: string
+          payment_link_url?: string | null
+          payment_method?: string | null
+          payment_provider?: string | null
+          payment_provider_session_id?: string | null
+          payment_reference?: string | null
+          payment_status?: string | null
+          provider?: string | null
+          provider_checkout_session_id?: string | null
+          provider_customer_id?: string | null
+          provider_payment_id?: string | null
+          raw_event_id?: string | null
+          receipt_document_id?: string | null
+          receipt_number?: string | null
+          receipt_send_suppressed?: boolean
+          receipt_sent_at?: string | null
+          recorded_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          internal_notes?: string | null
+          invoice_id?: string
+          notes?: string | null
+          paid_at?: string
+          payment_link_url?: string | null
+          payment_method?: string | null
+          payment_provider?: string | null
+          payment_provider_session_id?: string | null
+          payment_reference?: string | null
+          payment_status?: string | null
+          provider?: string | null
+          provider_checkout_session_id?: string | null
+          provider_customer_id?: string | null
+          provider_payment_id?: string | null
+          raw_event_id?: string | null
+          receipt_document_id?: string | null
+          receipt_number?: string | null
+          receipt_send_suppressed?: boolean
+          receipt_sent_at?: string | null
+          recorded_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_receipt_document_id_fkey"
+            columns: ["receipt_document_id"]
+            isOneToOne: false
+            referencedRelation: "billing_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_recorded_by_fkey"
+            columns: ["recorded_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -4342,6 +4420,209 @@ export type Database = {
           {
             foreignKeyName: "privacy_requests_assigned_to_fkey"
             columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          admin_notes: string | null
+          assigned_role: string | null
+          avatar_path: string | null
+          billing_cc_emails: string[] | null
+          billing_contact_email: string | null
+          billing_contact_name: string | null
+          billing_contact_phone: string | null
+          business_purpose: string
+          company_name: string | null
+          created_at: string
+          deleted: boolean
+          deleted_at: string | null
+          deleted_by: string | null
+          denied_at: string | null
+          denied_by: string | null
+          email: string
+          full_name: string | null
+          home_base: string | null
+          id: string
+          invitation_channel: string | null
+          invitation_sent_at: string | null
+          invitation_status: string | null
+          invited_by: string | null
+          is_active: boolean
+          is_deleted: boolean
+          last_login_at: string | null
+          last_waitlist_email_sent_at: string | null
+          organization_id: string | null
+          permissions: string[] | null
+          phone: string | null
+          phone_verification_attempts: number
+          phone_verification_code_hash: string | null
+          phone_verification_expires_at: string | null
+          phone_verification_sent_at: string | null
+          phone_verified_at: string | null
+          profile_completed_at: string | null
+          requested_role: string | null
+          role: string
+          sms_notifications_enabled: boolean
+          status: string
+          status_updated_at: string | null
+          status_updated_by: string | null
+          stripe_customer_id: string | null
+          suspended_at: string | null
+          suspended_by: string | null
+          updated_at: string
+          waitlisted_at: string | null
+          waitlisted_by: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          assigned_role?: string | null
+          avatar_path?: string | null
+          billing_cc_emails?: string[] | null
+          billing_contact_email?: string | null
+          billing_contact_name?: string | null
+          billing_contact_phone?: string | null
+          business_purpose?: string
+          company_name?: string | null
+          created_at?: string
+          deleted?: boolean
+          deleted_at?: string | null
+          deleted_by?: string | null
+          denied_at?: string | null
+          denied_by?: string | null
+          email: string
+          full_name?: string | null
+          home_base?: string | null
+          id: string
+          invitation_channel?: string | null
+          invitation_sent_at?: string | null
+          invitation_status?: string | null
+          invited_by?: string | null
+          is_active?: boolean
+          is_deleted?: boolean
+          last_login_at?: string | null
+          last_waitlist_email_sent_at?: string | null
+          organization_id?: string | null
+          permissions?: string[] | null
+          phone?: string | null
+          phone_verification_attempts?: number
+          phone_verification_code_hash?: string | null
+          phone_verification_expires_at?: string | null
+          phone_verification_sent_at?: string | null
+          phone_verified_at?: string | null
+          profile_completed_at?: string | null
+          requested_role?: string | null
+          role?: string
+          sms_notifications_enabled?: boolean
+          status?: string
+          status_updated_at?: string | null
+          status_updated_by?: string | null
+          stripe_customer_id?: string | null
+          suspended_at?: string | null
+          suspended_by?: string | null
+          updated_at?: string
+          waitlisted_at?: string | null
+          waitlisted_by?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          assigned_role?: string | null
+          avatar_path?: string | null
+          billing_cc_emails?: string[] | null
+          billing_contact_email?: string | null
+          billing_contact_name?: string | null
+          billing_contact_phone?: string | null
+          business_purpose?: string
+          company_name?: string | null
+          created_at?: string
+          deleted?: boolean
+          deleted_at?: string | null
+          deleted_by?: string | null
+          denied_at?: string | null
+          denied_by?: string | null
+          email?: string
+          full_name?: string | null
+          home_base?: string | null
+          id?: string
+          invitation_channel?: string | null
+          invitation_sent_at?: string | null
+          invitation_status?: string | null
+          invited_by?: string | null
+          is_active?: boolean
+          is_deleted?: boolean
+          last_login_at?: string | null
+          last_waitlist_email_sent_at?: string | null
+          organization_id?: string | null
+          permissions?: string[] | null
+          phone?: string | null
+          phone_verification_attempts?: number
+          phone_verification_code_hash?: string | null
+          phone_verification_expires_at?: string | null
+          phone_verification_sent_at?: string | null
+          phone_verified_at?: string | null
+          profile_completed_at?: string | null
+          requested_role?: string | null
+          role?: string
+          sms_notifications_enabled?: boolean
+          status?: string
+          status_updated_at?: string | null
+          status_updated_by?: string | null
+          stripe_customer_id?: string | null
+          suspended_at?: string | null
+          suspended_by?: string | null
+          updated_at?: string
+          waitlisted_at?: string | null
+          waitlisted_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_deleted_by_fkey"
+            columns: ["deleted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_denied_by_fkey"
+            columns: ["denied_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_org_fk"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_status_updated_by_fkey"
+            columns: ["status_updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_suspended_by_fkey"
+            columns: ["suspended_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_waitlisted_by_fkey"
+            columns: ["waitlisted_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -4489,6 +4770,127 @@ export type Database = {
           },
         ]
       }
+      quote_line_items: {
+        Row: {
+          amount: number
+          billable: boolean
+          billing_frequency: string | null
+          calculator_inputs: Json | null
+          category: string
+          client_notes: string | null
+          client_visible: boolean
+          cost_type: string | null
+          created_at: string
+          description: string | null
+          id: string
+          included_in_total: boolean
+          internal_cost: number | null
+          internal_notes: string | null
+          item_code: string | null
+          markup_type: string
+          markup_value: number
+          notes: string | null
+          price_locked: boolean | null
+          quantity: number
+          quote_id: string
+          recurring_interval: string | null
+          recurring_interval_count: number | null
+          service_date: string | null
+          service_id: string | null
+          service_variant_id: string | null
+          sort_order: number
+          taxable: boolean
+          unit: string | null
+          unit_price: number
+        }
+        Insert: {
+          amount?: number
+          billable?: boolean
+          billing_frequency?: string | null
+          calculator_inputs?: Json | null
+          category: string
+          client_notes?: string | null
+          client_visible?: boolean
+          cost_type?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          included_in_total?: boolean
+          internal_cost?: number | null
+          internal_notes?: string | null
+          item_code?: string | null
+          markup_type?: string
+          markup_value?: number
+          notes?: string | null
+          price_locked?: boolean | null
+          quantity?: number
+          quote_id: string
+          recurring_interval?: string | null
+          recurring_interval_count?: number | null
+          service_date?: string | null
+          service_id?: string | null
+          service_variant_id?: string | null
+          sort_order?: number
+          taxable?: boolean
+          unit?: string | null
+          unit_price?: number
+        }
+        Update: {
+          amount?: number
+          billable?: boolean
+          billing_frequency?: string | null
+          calculator_inputs?: Json | null
+          category?: string
+          client_notes?: string | null
+          client_visible?: boolean
+          cost_type?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          included_in_total?: boolean
+          internal_cost?: number | null
+          internal_notes?: string | null
+          item_code?: string | null
+          markup_type?: string
+          markup_value?: number
+          notes?: string | null
+          price_locked?: boolean | null
+          quantity?: number
+          quote_id?: string
+          recurring_interval?: string | null
+          recurring_interval_count?: number | null
+          service_date?: string | null
+          service_id?: string | null
+          service_variant_id?: string | null
+          sort_order?: number
+          taxable?: boolean
+          unit?: string | null
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_line_items_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_line_items_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_line_items_service_variant_id_fkey"
+            columns: ["service_variant_id"]
+            isOneToOne: false
+            referencedRelation: "service_price_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quote_template_line_items: {
         Row: {
           billable: boolean
@@ -4577,6 +4979,668 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      quotes: {
+        Row: {
+          aircraft_summary: string | null
+          approved_at: string | null
+          approved_by: string | null
+          balance_due_timing: string | null
+          billing_contact_company: string | null
+          billing_contact_name: string | null
+          billing_contact_phone: string | null
+          cc_emails: string[] | null
+          client_id: string | null
+          client_notes: string | null
+          closing_note: string | null
+          converted_invoice_id: string | null
+          converted_subscription_id: string | null
+          created_at: string
+          created_by: string | null
+          deposit_amount: number
+          deposit_due_date: string | null
+          deposit_percent: number | null
+          deposit_required: boolean
+          deposit_terms: string | null
+          discount_total: number
+          expires_at: string | null
+          footer_note: string | null
+          group_line_items_by_category: boolean
+          id: string
+          internal_notes: string | null
+          manual_client_company: string | null
+          manual_client_email: string | null
+          manual_client_name: string | null
+          manual_client_phone: string | null
+          mission_id: string | null
+          opening_note: string | null
+          payment_due_date: string | null
+          payment_instructions: string | null
+          payment_method_notes: string | null
+          payment_terms: string | null
+          pdf_document_id: string | null
+          pdf_template: string
+          quote_number: string | null
+          recipient_email: string | null
+          recurring_total_annual: number | null
+          recurring_total_monthly: number | null
+          ref: string
+          rejected_at: string | null
+          rejected_by: string | null
+          requested_timing: string | null
+          revised_from_quote_id: string | null
+          revision_reason: string | null
+          route_summary: string | null
+          sent_at: string | null
+          service_scope: string | null
+          show_aircraft_block: boolean
+          show_deposit_block: boolean
+          show_line_item_details: boolean
+          show_mission_block: boolean
+          show_route_block: boolean
+          show_tax_line: boolean
+          status: string
+          subtotal: number
+          superseded_by_quote_id: string | null
+          tail_number: string | null
+          tax_total: number
+          total: number
+          updated_at: string
+          version_number: number
+        }
+        Insert: {
+          aircraft_summary?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          balance_due_timing?: string | null
+          billing_contact_company?: string | null
+          billing_contact_name?: string | null
+          billing_contact_phone?: string | null
+          cc_emails?: string[] | null
+          client_id?: string | null
+          client_notes?: string | null
+          closing_note?: string | null
+          converted_invoice_id?: string | null
+          converted_subscription_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deposit_amount?: number
+          deposit_due_date?: string | null
+          deposit_percent?: number | null
+          deposit_required?: boolean
+          deposit_terms?: string | null
+          discount_total?: number
+          expires_at?: string | null
+          footer_note?: string | null
+          group_line_items_by_category?: boolean
+          id?: string
+          internal_notes?: string | null
+          manual_client_company?: string | null
+          manual_client_email?: string | null
+          manual_client_name?: string | null
+          manual_client_phone?: string | null
+          mission_id?: string | null
+          opening_note?: string | null
+          payment_due_date?: string | null
+          payment_instructions?: string | null
+          payment_method_notes?: string | null
+          payment_terms?: string | null
+          pdf_document_id?: string | null
+          pdf_template?: string
+          quote_number?: string | null
+          recipient_email?: string | null
+          recurring_total_annual?: number | null
+          recurring_total_monthly?: number | null
+          ref?: string
+          rejected_at?: string | null
+          rejected_by?: string | null
+          requested_timing?: string | null
+          revised_from_quote_id?: string | null
+          revision_reason?: string | null
+          route_summary?: string | null
+          sent_at?: string | null
+          service_scope?: string | null
+          show_aircraft_block?: boolean
+          show_deposit_block?: boolean
+          show_line_item_details?: boolean
+          show_mission_block?: boolean
+          show_route_block?: boolean
+          show_tax_line?: boolean
+          status?: string
+          subtotal?: number
+          superseded_by_quote_id?: string | null
+          tail_number?: string | null
+          tax_total?: number
+          total?: number
+          updated_at?: string
+          version_number?: number
+        }
+        Update: {
+          aircraft_summary?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          balance_due_timing?: string | null
+          billing_contact_company?: string | null
+          billing_contact_name?: string | null
+          billing_contact_phone?: string | null
+          cc_emails?: string[] | null
+          client_id?: string | null
+          client_notes?: string | null
+          closing_note?: string | null
+          converted_invoice_id?: string | null
+          converted_subscription_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deposit_amount?: number
+          deposit_due_date?: string | null
+          deposit_percent?: number | null
+          deposit_required?: boolean
+          deposit_terms?: string | null
+          discount_total?: number
+          expires_at?: string | null
+          footer_note?: string | null
+          group_line_items_by_category?: boolean
+          id?: string
+          internal_notes?: string | null
+          manual_client_company?: string | null
+          manual_client_email?: string | null
+          manual_client_name?: string | null
+          manual_client_phone?: string | null
+          mission_id?: string | null
+          opening_note?: string | null
+          payment_due_date?: string | null
+          payment_instructions?: string | null
+          payment_method_notes?: string | null
+          payment_terms?: string | null
+          pdf_document_id?: string | null
+          pdf_template?: string
+          quote_number?: string | null
+          recipient_email?: string | null
+          recurring_total_annual?: number | null
+          recurring_total_monthly?: number | null
+          ref?: string
+          rejected_at?: string | null
+          rejected_by?: string | null
+          requested_timing?: string | null
+          revised_from_quote_id?: string | null
+          revision_reason?: string | null
+          route_summary?: string | null
+          sent_at?: string | null
+          service_scope?: string | null
+          show_aircraft_block?: boolean
+          show_deposit_block?: boolean
+          show_line_item_details?: boolean
+          show_mission_block?: boolean
+          show_route_block?: boolean
+          show_tax_line?: boolean
+          status?: string
+          subtotal?: number
+          superseded_by_quote_id?: string | null
+          tail_number?: string | null
+          tax_total?: number
+          total?: number
+          updated_at?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_converted_invoice_id_fkey"
+            columns: ["converted_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_converted_subscription_id_fkey"
+            columns: ["converted_subscription_id"]
+            isOneToOne: false
+            referencedRelation: "client_subscriptions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_pdf_document_id_fkey"
+            columns: ["pdf_document_id"]
+            isOneToOne: false
+            referencedRelation: "billing_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_rejected_by_fkey"
+            columns: ["rejected_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_revised_from_quote_id_fkey"
+            columns: ["revised_from_quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_superseded_by_quote_id_fkey"
+            columns: ["superseded_by_quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      role_permissions: {
+        Row: {
+          can_add: boolean
+          can_delete: boolean
+          can_edit: boolean
+          can_view: boolean
+          created_at: string
+          id: string
+          module: string
+          role: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          can_add?: boolean
+          can_delete?: boolean
+          can_edit?: boolean
+          can_view?: boolean
+          created_at?: string
+          id?: string
+          module: string
+          role: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          can_add?: boolean
+          can_delete?: boolean
+          can_edit?: boolean
+          can_view?: boolean
+          created_at?: string
+          id?: string
+          module?: string
+          role?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scheduled_emails: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string
+          failure_reason: string | null
+          id: string
+          lead_id: string | null
+          recipient_email: string
+          send_at: string
+          sent_at: string | null
+          status: string
+          subject: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by: string
+          failure_reason?: string | null
+          id?: string
+          lead_id?: string | null
+          recipient_email: string
+          send_at: string
+          sent_at?: string | null
+          status?: string
+          subject: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string
+          failure_reason?: string | null
+          id?: string
+          lead_id?: string | null
+          recipient_email?: string
+          send_at?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_emails_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_emails_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "crm_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_attachments: {
+        Row: {
+          attachment_mode: string
+          child_service_id: string
+          created_at: string
+          id: string
+          parent_service_id: string
+          price_override: number | null
+          quantity: number
+          sort_order: number | null
+        }
+        Insert: {
+          attachment_mode?: string
+          child_service_id: string
+          created_at?: string
+          id?: string
+          parent_service_id: string
+          price_override?: number | null
+          quantity?: number
+          sort_order?: number | null
+        }
+        Update: {
+          attachment_mode?: string
+          child_service_id?: string
+          created_at?: string
+          id?: string
+          parent_service_id?: string
+          price_override?: number | null
+          quantity?: number
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_attachments_child_service_id_fkey"
+            columns: ["child_service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_attachments_parent_service_id_fkey"
+            columns: ["parent_service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_price_variants: {
+        Row: {
+          aircraft_band: string | null
+          aircraft_category: string | null
+          annual_price: number | null
+          created_at: string
+          effective_from: string
+          effective_to: string | null
+          id: string
+          label: string | null
+          plan_tier_match: string | null
+          service_id: string
+          sort_order: number | null
+          stripe_price_id_live: string | null
+          stripe_price_id_test: string | null
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          aircraft_band?: string | null
+          aircraft_category?: string | null
+          annual_price?: number | null
+          created_at?: string
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          label?: string | null
+          plan_tier_match?: string | null
+          service_id: string
+          sort_order?: number | null
+          stripe_price_id_live?: string | null
+          stripe_price_id_test?: string | null
+          unit_price: number
+          updated_at?: string
+        }
+        Update: {
+          aircraft_band?: string | null
+          aircraft_category?: string | null
+          annual_price?: number | null
+          created_at?: string
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          label?: string | null
+          plan_tier_match?: string | null
+          service_id?: string
+          sort_order?: number | null
+          stripe_price_id_live?: string | null
+          stripe_price_id_test?: string | null
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_price_variants_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_variables: {
+        Row: {
+          created_at: string
+          default_value: string | null
+          id: string
+          input_type: string
+          key: string
+          label: string
+          max_value: number | null
+          min_value: number | null
+          options: Json | null
+          required: boolean
+          role: string
+          service_id: string
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_value?: string | null
+          id?: string
+          input_type?: string
+          key: string
+          label: string
+          max_value?: number | null
+          min_value?: number | null
+          options?: Json | null
+          required?: boolean
+          role?: string
+          service_id: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_value?: string | null
+          id?: string
+          input_type?: string
+          key?: string
+          label?: string
+          max_value?: number | null
+          min_value?: number | null
+          options?: Json | null
+          required?: boolean
+          role?: string
+          service_id?: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_variables_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      services: {
+        Row: {
+          billable: boolean
+          category: string | null
+          client_description: string | null
+          client_visible: boolean
+          code: string
+          cost_type: string
+          created_at: string
+          created_by: string | null
+          default_unit_price: number | null
+          description: string | null
+          frequency: string
+          id: string
+          linked_plan_tier_id: string | null
+          max_quantity: number | null
+          min_quantity: number | null
+          name: string
+          notes_internal: string | null
+          pricing_model: string
+          recurring_interval: string | null
+          recurring_interval_count: number | null
+          requires_deposit_percent: number | null
+          sort_order: number | null
+          status: string
+          stripe_product_id_live: string | null
+          stripe_product_id_test: string | null
+          stripe_sync_error: string | null
+          stripe_sync_status: string
+          taxable: boolean
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          billable?: boolean
+          category?: string | null
+          client_description?: string | null
+          client_visible?: boolean
+          code: string
+          cost_type: string
+          created_at?: string
+          created_by?: string | null
+          default_unit_price?: number | null
+          description?: string | null
+          frequency?: string
+          id?: string
+          linked_plan_tier_id?: string | null
+          max_quantity?: number | null
+          min_quantity?: number | null
+          name: string
+          notes_internal?: string | null
+          pricing_model?: string
+          recurring_interval?: string | null
+          recurring_interval_count?: number | null
+          requires_deposit_percent?: number | null
+          sort_order?: number | null
+          status?: string
+          stripe_product_id_live?: string | null
+          stripe_product_id_test?: string | null
+          stripe_sync_error?: string | null
+          stripe_sync_status?: string
+          taxable?: boolean
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          billable?: boolean
+          category?: string | null
+          client_description?: string | null
+          client_visible?: boolean
+          code?: string
+          cost_type?: string
+          created_at?: string
+          created_by?: string | null
+          default_unit_price?: number | null
+          description?: string | null
+          frequency?: string
+          id?: string
+          linked_plan_tier_id?: string | null
+          max_quantity?: number | null
+          min_quantity?: number | null
+          name?: string
+          notes_internal?: string | null
+          pricing_model?: string
+          recurring_interval?: string | null
+          recurring_interval_count?: number | null
+          requires_deposit_percent?: number | null
+          sort_order?: number | null
+          status?: string
+          stripe_product_id_live?: string | null
+          stripe_product_id_test?: string | null
+          stripe_sync_error?: string | null
+          stripe_sync_status?: string
+          taxable?: boolean
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_linked_plan_tier_id_fkey"
+            columns: ["linked_plan_tier_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plan_tiers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stripe_webhook_events: {
         Row: {
@@ -5012,6 +6076,36 @@ export type Database = {
           },
         ]
       }
+      thread_members: {
+        Row: {
+          profile_id: string
+          thread_id: string
+        }
+        Insert: {
+          profile_id: string
+          thread_id: string
+        }
+        Update: {
+          profile_id?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "thread_members_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "thread_members_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "message_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           approval_status: Database["public"]["Enums"]["approval_status"]
@@ -5372,296 +6466,131 @@ export type Database = {
           },
         ]
       }
-      service_attachments: {
-        Row: {
-          attachment_mode: string
-          child_service_id: string
-          created_at: string
-          id: string
-          parent_service_id: string
-          price_override: number | null
-          quantity: number
-          sort_order: number | null
-        }
-        Insert: {
-          attachment_mode?: string
-          child_service_id: string
-          created_at?: string
-          id?: string
-          parent_service_id: string
-          price_override?: number | null
-          quantity?: number
-          sort_order?: number | null
-        }
-        Update: {
-          attachment_mode?: string
-          child_service_id?: string
-          created_at?: string
-          id?: string
-          parent_service_id?: string
-          price_override?: number | null
-          quantity?: number
-          sort_order?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "service_attachments_child_service_id_fkey"
-            columns: ["child_service_id"]
-            isOneToOne: false
-            referencedRelation: "services"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "service_attachments_parent_service_id_fkey"
-            columns: ["parent_service_id"]
-            isOneToOne: false
-            referencedRelation: "services"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      service_price_variants: {
-        Row: {
-          aircraft_band: string | null
-          aircraft_category: string | null
-          annual_price: number | null
-          created_at: string
-          effective_from: string
-          effective_to: string | null
-          id: string
-          label: string | null
-          plan_tier_match: string | null
-          service_id: string
-          sort_order: number | null
-          stripe_price_id_live: string | null
-          stripe_price_id_test: string | null
-          unit_price: number
-          updated_at: string
-        }
-        Insert: {
-          aircraft_band?: string | null
-          aircraft_category?: string | null
-          annual_price?: number | null
-          created_at?: string
-          effective_from?: string
-          effective_to?: string | null
-          id?: string
-          label?: string | null
-          plan_tier_match?: string | null
-          service_id: string
-          sort_order?: number | null
-          stripe_price_id_live?: string | null
-          stripe_price_id_test?: string | null
-          unit_price: number
-          updated_at?: string
-        }
-        Update: {
-          aircraft_band?: string | null
-          aircraft_category?: string | null
-          annual_price?: number | null
-          created_at?: string
-          effective_from?: string
-          effective_to?: string | null
-          id?: string
-          label?: string | null
-          plan_tier_match?: string | null
-          service_id?: string
-          sort_order?: number | null
-          stripe_price_id_live?: string | null
-          stripe_price_id_test?: string | null
-          unit_price?: number
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "service_price_variants_service_id_fkey"
-            columns: ["service_id"]
-            isOneToOne: false
-            referencedRelation: "services"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      service_variables: {
-        Row: {
-          created_at: string
-          default_value: string | null
-          id: string
-          input_type: string
-          key: string
-          label: string
-          max_value: number | null
-          min_value: number | null
-          options: Json | null
-          required: boolean
-          role: string
-          service_id: string
-          sort_order: number | null
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          default_value?: string | null
-          id?: string
-          input_type?: string
-          key: string
-          label: string
-          max_value?: number | null
-          min_value?: number | null
-          options?: Json | null
-          required?: boolean
-          role?: string
-          service_id: string
-          sort_order?: number | null
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          default_value?: string | null
-          id?: string
-          input_type?: string
-          key?: string
-          label?: string
-          max_value?: number | null
-          min_value?: number | null
-          options?: Json | null
-          required?: boolean
-          role?: string
-          service_id?: string
-          sort_order?: number | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "service_variables_service_id_fkey"
-            columns: ["service_id"]
-            isOneToOne: false
-            referencedRelation: "services"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      services: {
-        Row: {
-          billable: boolean
-          category: string | null
-          client_description: string | null
-          client_visible: boolean
-          code: string
-          cost_type: string
-          created_at: string
-          created_by: string | null
-          default_unit_price: number | null
-          description: string | null
-          frequency: string
-          id: string
-          linked_plan_tier_id: string | null
-          max_quantity: number | null
-          min_quantity: number | null
-          name: string
-          notes_internal: string | null
-          pricing_model: string
-          recurring_interval: string | null
-          recurring_interval_count: number | null
-          requires_deposit_percent: number | null
-          sort_order: number | null
-          status: string
-          stripe_product_id_live: string | null
-          stripe_product_id_test: string | null
-          stripe_sync_error: string | null
-          stripe_sync_status: string
-          taxable: boolean
-          unit: string | null
-          updated_at: string
-        }
-        Insert: {
-          billable?: boolean
-          category?: string | null
-          client_description?: string | null
-          client_visible?: boolean
-          code: string
-          cost_type: string
-          created_at?: string
-          created_by?: string | null
-          default_unit_price?: number | null
-          description?: string | null
-          frequency?: string
-          id?: string
-          linked_plan_tier_id?: string | null
-          max_quantity?: number | null
-          min_quantity?: number | null
-          name: string
-          notes_internal?: string | null
-          pricing_model?: string
-          recurring_interval?: string | null
-          recurring_interval_count?: number | null
-          requires_deposit_percent?: number | null
-          sort_order?: number | null
-          status?: string
-          stripe_product_id_live?: string | null
-          stripe_product_id_test?: string | null
-          stripe_sync_error?: string | null
-          stripe_sync_status?: string
-          taxable?: boolean
-          unit?: string | null
-          updated_at?: string
-        }
-        Update: {
-          billable?: boolean
-          category?: string | null
-          client_description?: string | null
-          client_visible?: boolean
-          code?: string
-          cost_type?: string
-          created_at?: string
-          created_by?: string | null
-          default_unit_price?: number | null
-          description?: string | null
-          frequency?: string
-          id?: string
-          linked_plan_tier_id?: string | null
-          max_quantity?: number | null
-          min_quantity?: number | null
-          name?: string
-          notes_internal?: string | null
-          pricing_model?: string
-          recurring_interval?: string | null
-          recurring_interval_count?: number | null
-          requires_deposit_percent?: number | null
-          sort_order?: number | null
-          status?: string
-          stripe_product_id_live?: string | null
-          stripe_product_id_test?: string | null
-          stripe_sync_error?: string | null
-          stripe_sync_status?: string
-          taxable?: boolean
-          unit?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "services_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "services_linked_plan_tier_id_fkey"
-            columns: ["linked_plan_tier_id"]
-            isOneToOne: false
-            referencedRelation: "subscription_plan_tiers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
-    Views: { [_ in never]: never }
+    Views: {
+      [_ in never]: never
+    }
     Functions: {
-      get_my_role: { Args: Record<string, never>; Returns: string }
-      is_admin: { Args: Record<string, never>; Returns: boolean }
+      approve_access_request: {
+        Args: { p_admin_notes?: string; p_request_id: string }
+        Returns: undefined
+      }
+      assign_crew_to_trip: {
+        Args: { p_crew_user_id: string; p_trip_id: string }
+        Returns: string
+      }
+      fn_broadcast_presence_change: { Args: never; Returns: undefined }
+      fn_crew_can_go_active: { Args: { p_crew: string }; Returns: boolean }
+      fn_crew_go_active_blockers: {
+        Args: { p_crew: string }
+        Returns: string[]
+      }
+      fn_crew_has_current_medical: {
+        Args: { p_crew: string }
+        Returns: boolean
+      }
+      fn_expire_presence: { Args: never; Returns: undefined }
+      fn_restore_availability: {
+        Args: { p_crew: string; p_prior: string }
+        Returns: undefined
+      }
+      get_my_role: { Args: never; Returns: string }
+      is_admin: { Args: never; Returns: boolean }
+      is_amg_admin: { Args: never; Returns: boolean }
+      is_approved_admin: { Args: never; Returns: boolean }
+      is_approved_portal_user: { Args: never; Returns: boolean }
+      is_approved_super_admin: { Args: never; Returns: boolean }
       is_crew_on_mission: { Args: { p_mission: string }; Returns: boolean }
       is_partner_on_mission: { Args: { p_mission: string }; Returns: boolean }
+      next_billing_document_number: {
+        Args: { p_document_type: string }
+        Returns: string
+      }
+      reject_access_request: {
+        Args: { p_admin_notes?: string; p_request_id: string }
+        Returns: undefined
+      }
+      rpc_crew_go_active: {
+        Args: { p_airport: string; p_duration_minutes: number }
+        Returns: {
+          airport_code: string
+          created_at: string
+          crew_id: string
+          duration_minutes: number
+          ended_at: string | null
+          ended_reason: string | null
+          expires_at: string
+          id: string
+          latitude: number
+          longitude: number
+          prior_availability_status: string | null
+          started_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "crew_presence_sessions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      rpc_crew_go_offline: { Args: never; Returns: undefined }
+      rpc_crew_map_admin_stats: { Args: never; Returns: Json }
+      rpc_crew_map_crew_stats: { Args: never; Returns: Json }
+      rpc_map_admin: {
+        Args: never
+        Returns: {
+          airport_code: string
+          airport_name: string
+          availability_status: string
+          avatar_path: string
+          city: string
+          crew_id: string
+          desired_day_rate: number
+          email: string
+          expires_at: string
+          full_name: string
+          latitude: number
+          longitude: number
+          phone: string
+          started_at: string
+          state: string
+          total_time: number
+          type_ratings: string[]
+        }[]
+      }
+      rpc_map_client: {
+        Args: never
+        Returns: {
+          by_state: Json
+          online_count: number
+          total_online_hours: number
+          type_ratings_online: string[]
+        }[]
+      }
+      rpc_map_crew: {
+        Args: never
+        Returns: {
+          active_count: number
+          airport_code: string
+          city: string
+          latitude: number
+          longitude: number
+          name: string
+          state: string
+        }[]
+      }
+      update_trip_status: {
+        Args: { p_admin_notes?: string; p_status: string; p_trip_id: string }
+        Returns: undefined
+      }
+      upsert_crew_availability: {
+        Args: {
+          p_availability_status: string
+          p_available_date: string
+          p_notes?: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       access_request_stage: "submitted" | "in_review" | "decision"
@@ -5712,15 +6641,185 @@ export type Database = {
         | "broker"
         | "amg_operations"
     }
-    CompositeTypes: { [_ in never]: never }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
 }
 
-type PublicSchema = Database["public"]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
-export type Tables<T extends keyof PublicSchema["Tables"]> =
-  PublicSchema["Tables"][T]["Row"]
-export type TablesInsert<T extends keyof PublicSchema["Tables"]> =
-  PublicSchema["Tables"][T]["Insert"]
-export type TablesUpdate<T extends keyof PublicSchema["Tables"]> =
-  PublicSchema["Tables"][T]["Update"]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      access_request_stage: ["submitted", "in_review", "decision"],
+      approval_status: [
+        "pending",
+        "approved",
+        "rejected",
+        "disabled",
+        "pending_approval",
+        "denied",
+        "waitlisted",
+        "suspended",
+        "deleted",
+      ],
+      assignment_status: [
+        "offered",
+        "accepted",
+        "declined",
+        "completed",
+        "cancelled",
+      ],
+      network_application_status: [
+        "awaiting_review",
+        "in_review",
+        "additional_information_needed",
+        "approved",
+        "denied",
+        "waitlist",
+        "other",
+      ],
+      review_status: ["pending_review", "approved", "rejected", "expired"],
+      trip_status: [
+        "requested",
+        "pending_amg_review",
+        "crew_assigned",
+        "scheduled",
+        "completed",
+        "cancelled",
+      ],
+      trip_type: [
+        "owner_trip",
+        "ferry",
+        "maintenance_flight",
+        "repositioning",
+        "contract_pilot",
+        "delivery_flight",
+        "other",
+      ],
+      user_role: [
+        "client_owner",
+        "crew_pilot",
+        "maintenance_center",
+        "broker",
+        "amg_operations",
+      ],
+    },
+  },
+} as const

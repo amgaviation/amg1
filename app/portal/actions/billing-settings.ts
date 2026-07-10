@@ -98,6 +98,7 @@ export async function updateBillingSettings(formData: FormData) {
     tax_rate: num(formData, "tax_rate") ?? 0,
     default_deposit_percent: num(formData, "default_deposit_percent") ?? 0,
     auto_send_invoice_on_quote_approval: bool(formData, "auto_send_invoice_on_quote_approval"),
+    dunning_enabled: bool(formData, "dunning_enabled"),
     updated_by: admin.id,
   });
 

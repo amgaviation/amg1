@@ -1,8 +1,13 @@
 import Link from "next/link";
 import { CircleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SITE } from "@/lib/site-config";
 
-export const metadata = { title: "Payment Not Completed - AMG Aviation Group" };
+export const metadata = {
+  title: "Payment Not Completed - AMG Aviation Group",
+  // Post-checkout landing page — never a search result.
+  robots: { index: false, follow: false },
+};
 
 export default async function StripePaymentCancelPage({
   searchParams,
@@ -15,7 +20,7 @@ export default async function StripePaymentCancelPage({
   return (
     <main className="min-h-screen bg-background px-6 py-16 text-foreground">
       <section className="mx-auto max-w-xl space-y-6">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/10 text-amber-600">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber/10 text-amber">
           <CircleAlert className="h-6 w-6" />
         </div>
         <div>
@@ -30,7 +35,7 @@ export default async function StripePaymentCancelPage({
             <Link href={invoicePath}>Return to Invoice</Link>
           </Button>
           <Button asChild variant="outline" className="rounded-full">
-            <Link href="/contact">Contact AMG Operations</Link>
+            <a href={`mailto:${SITE.email}`}>Contact AMG Operations</a>
           </Button>
         </div>
       </section>

@@ -15,7 +15,7 @@ export const SITE = {
   region: "the Southeast US",
   phone: "+1 (954) 408-1730",
   phoneHref: "tel:+19544081730",
-  email: "ops@amgaviationgroup.com",
+  email: "information@amgaviationgroup.com",
   requestLineHours: "0700–2200 ET",
   url: "https://amgaviationgroup.com",
 } as const;

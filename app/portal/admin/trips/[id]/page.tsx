@@ -1,15 +1,16 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
-import { DetailRow, EmptyState, Notice, SectionCard } from "@/components/portal/ui/primitives";
+import { DetailRow, EmptyState, Notice, SectionCard, Timeline } from "@/components/portal/ui/primitives";
 import { DescriptionList } from "@/components/portal/ui/description-list";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
+import { SlaChip } from "@/components/portal/ui/sla-chip";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { assignCrew, assignPartner, unassignCrew } from "@/app/portal/actions/admin";
 import { createQuote } from "@/app/portal/actions/quotes";
 import { decideCrewPoolRequest, updateMissionNotes, updateMissionPool, updateMissionStatus } from "@/app/portal/actions/missions";
-import { getMissionDetail, listAllCrew, listAllPartners } from "@/lib/portal/queries";
+import { getEntityTimeline, getMissionDetail, listAllCrew, listAllPartners } from "@/lib/portal/queries";
 import { MIN_GATE_OVERRIDE_REASON_LENGTH, getCrewComplianceIssues, getMissionReadiness } from "@/lib/portal/mission-lifecycle";
 import { countQualifiedCrew, describePoolRequirements, listCrewRequestsForMission, parsePoolRequirements } from "@/lib/portal/pool";
 import { getPublicSupportRequestForMission, publicSupportLabel } from "@/lib/portal/public-support-requests";
@@ -34,14 +35,29 @@ export default async function AdminTripDetailPage({
   const user = await requireRolePermission("admin", "missions");
   const { id } = await params;
   const flash = await searchParams;
-  const [mission, crew, partners, publicRequest, poolRequests] = await Promise.all([
+  const [mission, crew, partners, publicRequest, poolRequests, timeline] = await Promise.all([
     getMissionDetail(id),
     listAllCrew(),
     listAllPartners(),
     getPublicSupportRequestForMission(id),
     listCrewRequestsForMission(id),
+    getEntityTimeline("mission", id),
   ]);
   if (!mission) notFound();
+
+  const activityItems = timeline
+    .map((event) => ({
+      at: event.created_at,
+      title: event.action.replace(/_/g, " "),
+      body: event.detail ?? event.actor_email ?? undefined,
+    }))
+    .sort((a, b) => new Date(b.at ?? 0).getTime() - new Date(a.at ?? 0).getTime())
+    .slice(0, 12)
+    .map((item) => ({
+      title: item.title,
+      meta: formatDateTime(item.at),
+      body: item.body,
+    }));
 
   const poolRequirements = parsePoolRequirements(mission.pool_requirements);
   const pendingPoolRequests = poolRequests.filter((r) => r.status === "pending");
@@ -109,6 +125,7 @@ export default async function AdminTripDetailPage({
               label={MISSION_STATUS_LABEL[mission.status] ?? mission.status}
               tone={toneFor(MISSION_STATUS_TONE, mission.status)}
             />
+            <SlaChip mission={mission} />
           </div>
           <p className="deck-mono mt-2.5 !text-[0.8rem] text-[var(--deck-text-2)]">
             {formatRoute(mission.departure_airport, mission.arrival_airport)}
@@ -232,6 +249,14 @@ export default async function AdminTripDetailPage({
               ))}</div>
             )}
           </SectionCard>
+
+          <SectionCard title="Activity Timeline" icon="history">
+            {activityItems.length ? (
+              <Timeline items={activityItems} />
+            ) : (
+              <p className="text-sm text-muted-foreground">No mission activity recorded yet.</p>
+            )}
+          </SectionCard>
         </div>
 
         <div className="space-y-6">
@@ -289,7 +314,7 @@ export default async function AdminTripDetailPage({
                 <div key={index} className="rounded-lg border border-border bg-[var(--deck-panel-2)] p-3 space-y-3">
                   <p className="eyebrow text-[0.6rem] text-muted-foreground">Crew Slot {index + 1}</p>
                   <SelectField label="Crew Member" name="crew_id[]" defaultValue="" options={[{ value: "", label: "Select crew..." }, ...crew.map((c) => ({ value: c.id, label: c.full_name ?? c.email }))]} />
-                  <SelectField label="Crew Role" name="crew_role[]" defaultValue={index === 0 ? "pic" : index === 1 ? "sic" : "relief"} options={CREW_ROLE.map((r) => ({ value: r.value, label: r.label }))} />
+                  <SelectField label="Crew Role" name="crew_role[]" defaultValue={index === 0 ? "pic" : index === 1 ? "sic" : "support"} options={CREW_ROLE.map((r) => ({ value: r.value, label: r.label }))} />
                   <TextAreaField label="Duty Notes" name="duty_notes[]" />
                 </div>
               ))}
@@ -402,7 +427,7 @@ export default async function AdminTripDetailPage({
                   <p className="eyebrow text-[0.6rem] text-muted-foreground">Quote Line {index + 1}</p>
                   <SelectField label="Category" name="category[]" defaultValue={index === 0 ? QUOTE_CATEGORIES[0] : ""} options={[{ value: "", label: "Select category..." }, ...QUOTE_CATEGORIES.map((c) => ({ value: c, label: c }))]} />
                   <TextField label="Description" name="description[]" defaultValue={index === 0 ? `Operations support for ${mission.ref}` : ""} />
-                  <TextAreaField label="Line Notes" name="line_notes[]" />
+                  <TextAreaField label="Line Notes (client-visible)" name="client_notes[]" />
                   <div className="grid grid-cols-2 gap-3">
                     <TextField label="Quantity" name="quantity[]" type="number" step="0.01" defaultValue={index === 0 ? "1" : ""} />
                     <TextField label="Unit Price" name="unit_price[]" type="number" step="0.01" defaultValue={index === 0 ? "0" : ""} />

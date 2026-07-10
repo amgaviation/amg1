@@ -439,7 +439,17 @@ export default async function AdminMessagesPage({
         eyebrow="AMG Operations"
         title="Communications"
         description="Shared operational inbox for email threads, internal notes, record links, delivery status, and AMG support review communications."
+        actions={
+          <Button asChild variant="outline">
+            <Link href="/portal/admin/messages/portal">Portal Messages →</Link>
+          </Button>
+        }
       />
+
+      <Notice tone="info">
+        This is the email Communications hub. In-app messages that clients, crew, and partners send from inside their portal
+        live in <Link href="/portal/admin/messages/portal" className="font-semibold underline">Portal Messages</Link>.
+      </Notice>
 
       <ErrorNotice error={params.error} reference={params.ref} />
       <SuccessNotice success={params.success} />

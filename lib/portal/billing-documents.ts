@@ -38,6 +38,33 @@ function dollars(value: unknown) {
   return Number(value ?? 0);
 }
 
+function round2(value: unknown) {
+  return Math.round(Number(value ?? 0) * 100) / 100;
+}
+
+function formatUsd(value: unknown) {
+  return `$${Number(value ?? 0).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
+
+/**
+ * A deposit invoice bills only the quote's deposit, so its whole total is the
+ * deposit amount (deposit_amount === total). That distinguishes it from a full
+ * invoice carrying an informational deposit line (deposit_amount < total) and
+ * lets the UI label it without a schema change.
+ */
+export function isDepositInvoice(invoice: {
+  deposit_required?: boolean | null;
+  deposit_amount?: number | null;
+  total?: number | null;
+}): boolean {
+  const deposit = Number(invoice?.deposit_amount ?? 0);
+  const total = Number(invoice?.total ?? 0);
+  return Boolean(invoice?.deposit_required) && deposit > 0 && Math.abs(deposit - total) < 0.005;
+}
+
 function fileName(type: BillingDocumentType, number: string) {
   return `${number}-${type}.pdf`.replace(/[^a-z0-9_.-]/gi, "_");
 }
@@ -378,12 +405,18 @@ export async function createInvoiceDraftFromQuote(input: {
   status?: "draft" | "sent";
   dueDate?: string | null;
   terms?: string | null;
+  /**
+   * Deposit-first billing. When a positive amount is passed, the invoice bills
+   * ONLY the deposit (a single "Deposit — <ref>" line, total = deposit); the
+   * balance is billed separately at closeout. Omit for the full-total invoice.
+   */
+  deposit?: { amount: number; dueDate?: string | null } | null;
 }) {
   const db = (await createServiceClient()) as any;
   const settings = await getBillingSettings();
   const { data: quote } = await db
     .from("quotes")
-    .select("*, mission:mission_id(aircraft_id)")
+    .select("*, mission:mission_id(aircraft_id, ref)")
     .eq("id", input.quoteId)
     .maybeSingle();
   if (!quote) throw new Error("Quote not found");
@@ -407,8 +440,31 @@ export async function createInvoiceDraftFromQuote(input: {
   const discountTotal = dollars(quote.discount_total);
   const taxTotal = dollars(quote.tax_total);
   const total = dollars(quote.total);
-  const depositAmount = dollars(quote.deposit_amount);
-  const amountDue = input.status === "sent" && depositAmount > 0 ? depositAmount : total;
+  const quoteDepositAmount = dollars(quote.deposit_amount);
+
+  // Deposit-first billing: a positive `deposit` bills only the deposit — its
+  // whole total is the deposit (clamped to the quote total), a single line item
+  // instead of the copied quote lines. Absent a deposit, behavior is unchanged.
+  const requestedDeposit = input.deposit && input.deposit.amount > 0 ? round2(input.deposit.amount) : 0;
+  const isDeposit = requestedDeposit > 0;
+  const depositAmount = isDeposit && total > 0 ? Math.min(requestedDeposit, total) : requestedDeposit;
+
+  const invoiceSubtotal = isDeposit ? depositAmount : subtotal;
+  const invoiceDiscount = isDeposit ? 0 : discountTotal;
+  const invoiceTax = isDeposit ? 0 : taxTotal;
+  const invoiceTotal = isDeposit ? depositAmount : total;
+  // Legacy: a full invoice auto-sent for a deposit-required quote collected only
+  // the deposit up front. A deposit invoice's amount due is simply its total.
+  const amountDue = isDeposit
+    ? depositAmount
+    : input.status === "sent" && quoteDepositAmount > 0
+      ? quoteDepositAmount
+      : total;
+  const dueDate = isDeposit ? input.deposit?.dueDate ?? input.dueDate ?? null : input.dueDate ?? null;
+  const quoteRef = quote.quote_number ?? quote.ref ?? "quote";
+  const missionRef = quote.mission?.ref ?? null;
+  const depositLabel = `Deposit — ${quoteRef}${missionRef ? ` · ${missionRef}` : ""}`;
+  const depositNote = `Deposit invoice — collects ${formatUsd(depositAmount)} deposit on ${quoteRef}. Quoted total ${formatUsd(total)}; balance billed separately at closeout.`;
 
   const { data: invoice, error } = await db
     .from("invoices")
@@ -419,21 +475,23 @@ export async function createInvoiceDraftFromQuote(input: {
       aircraft_id: quote.mission?.aircraft_id ?? null,
       client_id: quote.client_id,
       status: input.status ?? "draft",
-      subtotal,
-      discount: discountTotal,
-      discount_total: discountTotal,
-      tax: taxTotal,
-      tax_total: taxTotal,
-      total,
+      subtotal: invoiceSubtotal,
+      discount: invoiceDiscount,
+      discount_total: invoiceDiscount,
+      tax: invoiceTax,
+      tax_total: invoiceTax,
+      total: invoiceTotal,
       amount_due: amountDue,
       issued_at: new Date().toISOString(),
       sent_at: input.status === "sent" ? new Date().toISOString() : null,
-      due_date: input.dueDate ?? null,
+      due_date: dueDate,
       terms: input.terms ?? settings.invoice_terms,
       client_notes: quote.client_notes,
       payment_instructions: quote.payment_instructions ?? combinedPaymentInstructions(settings),
-      deposit_required: Boolean(quote.deposit_required),
-      deposit_amount: depositAmount,
+      deposit_required: isDeposit ? true : Boolean(quote.deposit_required),
+      deposit_amount: isDeposit ? depositAmount : quoteDepositAmount,
+      // Machine/human marker so the deposit invoice is recognizable in admin views.
+      ...(isDeposit ? { internal_notes: depositNote } : {}),
       recipient_email: quote.recipient_email ?? quote.manual_client_email ?? null,
       cc_emails: quote.cc_emails ?? [],
       billing_contact_name: quote.billing_contact_name ?? quote.manual_client_name ?? null,
@@ -456,7 +514,24 @@ export async function createInvoiceDraftFromQuote(input: {
     .single();
   if (error || !invoice) throw new Error(error?.message ?? "Unable to create invoice");
 
-  if (quoteItems?.length) {
+  if (isDeposit) {
+    // A deposit invoice carries a single deposit line instead of the quote lines,
+    // so its total is the deposit and the balance is billed later at closeout.
+    const { error: depositItemError } = await db.from("invoice_line_items").insert({
+      invoice_id: invoice.id,
+      category: "Deposit",
+      description: depositLabel,
+      quantity: 1,
+      unit_price: depositAmount,
+      amount: depositAmount,
+      cost_type: "coordination",
+      client_visible: true,
+      billable: true,
+      included_in_total: true,
+      sort_order: 0,
+    });
+    if (depositItemError) throw new Error(depositItemError.message);
+  } else if (quoteItems?.length) {
     await db.from("invoice_line_items").insert(
       quoteItems.map((item: any) => ({
         invoice_id: invoice.id,

@@ -117,7 +117,7 @@ export function PortalSetupForm() {
         Confirm portal login key
         <input name="secret_two" type="password" required minLength={8} autoComplete="new-password" disabled={!ready || busy} className="support-field h-12 px-4 text-base disabled:opacity-60" />
       </label>
-      <button type="submit" disabled={!ready || busy} className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-accent px-5 font-display text-xs font-semibold uppercase tracking-widest text-accent-foreground transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-60">
+      <button type="submit" disabled={!ready || busy} className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-accent px-5 font-mono text-xs font-medium uppercase [letter-spacing:0.14em] text-accent-foreground transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-60">
         {busy ? "Saving..." : "Finish Setup"}
         <ArrowRight className="h-4 w-4" />
       </button>

@@ -3,6 +3,7 @@ import { MISSION_CASE_STUDIES } from "@/content/missions";
 import { MissionCard } from "@/components/site/mission-card";
 import { HeadlineReveal } from "@/components/site/headline-reveal";
 import { QuoteButton } from "@/components/site/quote-button";
+import { SITE } from "@/lib/site-config";
 
 export const metadata: Metadata = {
   title: "Missions — Case Studies with Real Numbers",
@@ -13,8 +14,32 @@ export const metadata: Metadata = {
 export default function MissionsPage() {
   const missions = [...MISSION_CASE_STUDIES].sort((a, b) => b.flownOn.localeCompare(a.flownOn));
 
+  // Activates automatically the day real case studies land in content/missions —
+  // no schema is emitted while the collection is empty.
+  const missionsSchema = missions.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: "AMG Aviation mission case studies",
+        description:
+          "Coordinated missions with route, request-to-wheels-up timeline, and itemized all-in cost.",
+        itemListElement: missions.map((mission, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          url: `${SITE.url}/missions/${mission.slug}`,
+          name: `${mission.aircraft} · ${mission.route} · ${mission.missionType}`,
+        })),
+      }
+    : null;
+
   return (
     <>
+      {missionsSchema ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(missionsSchema) }}
+        />
+      ) : null}
       <section className="pub-hero oc-shell pb-14 pt-[calc(var(--public-header-height)+4rem)]">
         <div className="max-w-3xl" data-stagger-container>
           <p className="oc-eyebrow" data-stagger-item>
