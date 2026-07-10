@@ -17,9 +17,9 @@ const LOCAL_BUSINESS_SCHEMA = {
     addressRegion: "FL",
     addressCountry: "US",
   },
-  areaServed: "Southeast US",
+  areaServed: "United States",
   description:
-    "Crew-sourcing and flight coordination for Part 91 aircraft owners: vetted contract pilots, maintenance ferries, and repositioning — quoted within 24 business hours, priced flat.",
+    "Aviation operations support coordination for owner-controlled Part 91 support needs, including crew sourcing assistance, aircraft movement coordination, documentation, tracking, and closeout administration.",
 };
 
 const display = localFont({

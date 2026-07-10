@@ -221,7 +221,7 @@ export default function HowItWorksPage() {
               Start the clock.
             </h2>
             <div className="mt-8 flex justify-center">
-              <QuoteButton>Request a Quote</QuoteButton>
+              <QuoteButton>Request Support</QuoteButton>
             </div>
             <p className="microlabel mt-8">Quoted in 24 / 12 / 4 business hrs // by plan</p>
           </div>

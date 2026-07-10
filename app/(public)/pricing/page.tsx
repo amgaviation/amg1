@@ -238,7 +238,7 @@ export default function PricingPage() {
       </section>
 
       {/* §4.2 The plan table (Business Plan §6.2, real figures in every cell).
-          data-pill-hide: the persistent "Get a Quote" pill hides while this
+          data-pill-hide: the persistent "Request Support" pill hides while this
           section is in view so it never rides on top of the stacked mobile
           plan cards. */}
       <section id="schedule" className="oc-section py-16 scroll-mt-24" data-pill-hide>
@@ -505,7 +505,7 @@ export default function PricingPage() {
               className="group inline-flex items-center gap-2.5 rounded-full bg-[var(--instrument)] py-2 pl-6 pr-2 text-white shadow-[0_0_40px_rgba(11,94,212,0.30)] transition-shadow hover:shadow-[0_0_60px_rgba(11,94,212,0.5)]"
             >
               <span className="whitespace-nowrap font-mono text-xs font-medium uppercase [letter-spacing:0.14em]">
-                Request a Quote
+                Request Support
               </span>
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--canvas)] text-[var(--instrument-ink)] transition-transform duration-500 ease-out group-hover:rotate-45">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">

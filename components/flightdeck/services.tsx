@@ -8,29 +8,29 @@ import { prefersReducedMotion } from "./reveal";
 const SERVICES = [
   {
     id: "01",
-    title: "Crew coverage",
-    body: "A vetted contract pilot when yours is sick, training, or on vacation — presented as options with qualification summaries. You choose.",
-    cta: "Get a quote",
+    title: "Crew sourcing support",
+    body: "Pilot sourcing assistance for temporary coverage needs, reviewed against aircraft type, timing, credentials, insurance requirements, and owner/operator approval.",
+    cta: "Request support",
     href: "/request",
   },
   {
     id: "02",
-    title: "Maintenance ferries",
-    body: "Your aircraft to the shop and back, on the shop's schedule. The worked example above is exactly this mission, priced end to end.",
-    cta: "See what it costs",
+    title: "Maintenance movement coordination",
+    body: "Coordination inputs for approved aircraft movement to or from maintenance, including facility communication, crew logistics, status tracking, and documentation support.",
+    cta: "Review plans",
     href: "/pricing",
   },
   {
     id: "03",
-    title: "Repositioning",
-    body: "Delivery flights, pre-buy positioning, and season moves — papered, insured, and tracked in AMG Connect from request to closeout.",
-    cta: "Get a quote",
+    title: "Repositioning support",
+    body: "Support coordination for owner-authorized repositioning needs, with scope review, crew suitability checks, documentation, and closeout visibility.",
+    cta: "Request support",
     href: "/request",
   },
   {
     id: "04",
-    title: "Insurance-required second pilots",
-    body: "Mentor and SIC placements that satisfy your policy — no mission proceeds until the pilot is named or approved on it.",
+    title: "Insurance coordination support",
+    body: "Second-pilot or mentor-pilot support is reviewed against the applicable policy and owner/operator requirements before any support proceeds.",
     cta: "How the insurance gate works",
     href: "/how-it-works",
   },
@@ -93,13 +93,11 @@ export default function Services() {
                 decoding="async"
                 className="h-5 w-auto"
               />
-              <p className="microlabel mt-1.5">Aircraft support coordination</p>
+              <p className="microlabel mt-1.5">Owner-controlled support coordination</p>
             </div>
           </div>
           <p className="mt-8 max-w-[280px] text-[13px] leading-relaxed text-t2">
-            Four missions, one method: written quote inside your window, pilot
-            options you choose from, insurance confirmed before anything
-            moves, every receipt in the closeout file.
+            One method across public support requests: scope review, credential-aware options, owner/operator approval, visible status, and organized closeout records.
           </p>
         </div>
 

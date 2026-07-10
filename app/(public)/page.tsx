@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import FlightDeckHome from "@/components/flightdeck/flight-deck-home";
 
 export const metadata: Metadata = {
-  title: "Contract Pilots & Aircraft Movement for Part 91 Owners",
+  title: "Owner-Controlled Aviation Support Coordination",
   description:
-    "Vetted contract pilots, maintenance ferries, and repositioning — quoted within 24 business hours, tracked in one portal, priced flat. Serving the Southeast US.",
+    "Aviation operations support coordination for Part 91 aircraft owners, small flight departments, maintenance facilities, professional crew, and appropriate aviation partners.",
 };
 
 export default function HomePage() {

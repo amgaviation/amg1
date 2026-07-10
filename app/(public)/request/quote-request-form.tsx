@@ -179,7 +179,7 @@ function SubmitQuoteButton() {
   const { pending } = useFormStatus();
   return (
     <button type="submit" disabled={pending} className="oc-btn oc-btn-light disabled:cursor-not-allowed disabled:opacity-60">
-      {pending ? "Sending…" : "Request a Quote"}
+      {pending ? "Sending…" : "Request Support"}
       <ArrowRight className="h-4 w-4" />
     </button>
   );

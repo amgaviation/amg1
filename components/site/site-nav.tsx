@@ -83,7 +83,7 @@ export function SiteNav() {
         "fixed inset-x-0 top-0 z-50 h-[var(--public-header-height)] border-b transition-[background-color,box-shadow,border-color] duration-300",
         transparent
           ? "border-transparent bg-transparent"
-          : "border-[var(--oc-line-dark)] bg-[#070B14]/92 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl"
+          : "border-[var(--oc-line-dark)] bg-[#050B14]/94 shadow-[0_18px_60px_rgba(0,0,0,0.34)] backdrop-blur-xl"
       )}
     >
       <nav className="oc-shell flex h-full items-center gap-5">
@@ -103,7 +103,7 @@ export function SiteNav() {
             className="h-6 w-auto md:h-7"
           />
           <span className="font-mono text-[0.6875rem] uppercase [letter-spacing:0.2em] text-[var(--t2)] max-sm:hidden">
-            Aircraft support coordination
+            Owner-controlled aviation support
           </span>
         </Link>
 
@@ -118,7 +118,7 @@ export function SiteNav() {
                   onClick={closeMenu}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 font-mono text-[0.72rem] font-medium uppercase leading-none [letter-spacing:0.16em] text-white/[0.82] transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--instrument-ink)]",
+                    "inline-flex min-h-11 items-center gap-1.5 rounded-sm px-3 font-mono text-[0.72rem] font-medium uppercase leading-none [letter-spacing:0.16em] text-white/[0.82] transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--instrument-ink)]",
                     active && "bg-[rgba(11,94,212,0.08)] text-white"
                   )}
                 >
@@ -140,7 +140,7 @@ export function SiteNav() {
             onClick={closeMenu}
             className="hidden min-h-11 items-center whitespace-nowrap px-2 font-mono text-[0.72rem] font-medium uppercase leading-none [letter-spacing:0.16em] text-white/[0.82] transition-colors hover:text-[var(--instrument-ink)] sm:inline-flex"
           >
-            Portal login
+            AMG Connect
           </Link>
           <Link
             href="/request"
@@ -148,7 +148,7 @@ export function SiteNav() {
             onClick={closeMenu}
             className="oc-btn oc-btn-light !hidden sm:!inline-flex"
           >
-            Get a Quote
+            Request Support
             <ArrowUpRight className="h-4 w-4" />
           </Link>
 
@@ -156,7 +156,7 @@ export function SiteNav() {
             ref={menuButtonRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="inline-flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full border border-white/[0.18] text-white transition-colors hover:border-white/[0.42] xl:hidden"
+            className="inline-flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-sm border border-white/[0.18] text-white transition-colors hover:border-white/[0.42] xl:hidden"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="amg-mobile-menu"
@@ -184,7 +184,7 @@ export function SiteNav() {
                     onClick={closeMenu}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "flex min-h-12 items-center justify-between rounded-lg border border-[var(--oc-line-dark)] px-4 text-sm font-semibold uppercase text-white/[0.78] transition hover:border-[var(--oc-blue)] hover:text-white",
+                      "flex min-h-12 items-center justify-between rounded-sm border border-[var(--oc-line-dark)] px-4 text-sm font-semibold uppercase text-white/[0.78] transition hover:border-[var(--oc-blue)] hover:text-white",
                       active && "border-[var(--oc-blue)] bg-[var(--oc-blue)]/10 text-white"
                     )}
                   >
@@ -197,11 +197,11 @@ export function SiteNav() {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <Link href="/request" prefetch={false} onClick={closeMenu} className="oc-btn oc-btn-light justify-center">
-                Get a Quote
+                Request Support
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
               <Link href="/connect" prefetch={false} onClick={closeMenu} className="oc-btn oc-btn-ghost-dark justify-center">
-                Portal login
+                AMG Connect
               </Link>
             </div>
 

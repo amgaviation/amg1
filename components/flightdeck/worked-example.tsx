@@ -58,7 +58,7 @@ export default function WorkedExample() {
               prefetch={false}
               className="fd-navlink font-mono text-[11px] uppercase tracking-widecap text-t2 transition-colors hover:text-t1"
             >
-              Get a quote
+              Request support
             </Link>
           </div>
         </div>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 /**
- * Persistent bottom-center "Get a Quote" pill for the public marketing pages —
+ * Persistent bottom-center "Request Support" pill for the public marketing pages —
  * the flight-deck home's signature CTA, ported to every secondary page so the
  * quote action is always one tap away. CSS-only (no GSAP): it stays hidden
  * while the hero is on screen and hides again whenever a section carrying its
@@ -76,7 +76,7 @@ export function PublicRequestPill() {
           className="group flex items-center gap-2 rounded-full bg-[var(--instrument)] py-2 pl-6 pr-2 text-white shadow-[0_0_40px_rgba(11,94,212,0.35)] transition-shadow hover:shadow-[0_0_60px_rgba(11,94,212,0.55)]"
         >
           <span className="whitespace-nowrap font-mono text-xs font-medium uppercase [letter-spacing:0.14em]">
-            Get a Quote
+            Request Support
           </span>
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--canvas)] text-[var(--instrument)] transition-transform duration-500 ease-out group-hover:rotate-45">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
