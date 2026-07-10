@@ -87,10 +87,10 @@ interface Globe3DProps {
 // Constants - Earth Texture URLs (NASA Blue Marble)
 // ============================================================================
 
-const DEFAULT_EARTH_TEXTURE =
-  "https://unpkg.com/three-globe@2.31.0/example/img/earth-blue-marble.jpg";
-const DEFAULT_BUMP_TEXTURE =
-  "https://unpkg.com/three-globe@2.31.0/example/img/earth-topology.png";
+// Self-hosted copies of the three-globe example textures
+// (originally https://unpkg.com/three-globe@2.31.0/example/img/*).
+const DEFAULT_EARTH_TEXTURE = "/textures/earth-blue-marble.jpg";
+const DEFAULT_BUMP_TEXTURE = "/textures/earth-topology.png";
 
 // ============================================================================
 // Utility Functions
@@ -113,6 +113,11 @@ function latLngToVector3(
 
   return new THREE.Vector3(x, y, z);
 }
+
+// Scratch vectors reused across markers each frame (useFrame callbacks run
+// sequentially on one thread, so sharing is safe and avoids per-frame allocation).
+const _markerWorldPos = new THREE.Vector3();
+const _cameraDir = new THREE.Vector3();
 
 // ============================================================================
 // Marker Component (static - rotation handled by parent group)
@@ -138,9 +143,13 @@ function Marker({
   onHover,
 }: MarkerProps) {
   const [hovered, setHovered] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
   const groupRef = useRef<THREE.Group>(null);
   const imageGroupRef = useRef<THREE.Group>(null);
+  const htmlWrapperRef = useRef<HTMLDivElement>(null);
+  // Back-side visibility is driven imperatively inside useFrame (no per-frame
+  // React state). The ref keeps re-renders (hover/selection) consistent with
+  // the last computed visibility.
+  const visibleRef = useRef(true);
   const { camera } = useThree();
 
   // Surface position (where the line starts)
@@ -155,25 +164,35 @@ function Marker({
 
   const lineHeight = topPosition.distanceTo(surfacePosition);
 
-  // Check if marker is facing the camera
+  // Check if marker is facing the camera. Visibility is applied directly to
+  // the three.js group and the HTML wrapper's style — no setState per frame.
   useFrame(() => {
-    if (!imageGroupRef.current) return;
+    if (!imageGroupRef.current || !groupRef.current) return;
 
     // Get the world position of the image (the positioned element)
-    const worldPos = new THREE.Vector3();
-    imageGroupRef.current.getWorldPosition(worldPos);
+    imageGroupRef.current.getWorldPosition(_markerWorldPos);
 
     // Direction from globe center (0,0,0) to marker
-    const markerDirection = worldPos.clone().normalize();
+    const markerDirection = _markerWorldPos.normalize();
 
     // Direction from globe center to camera
-    const cameraDirection = camera.position.clone().normalize();
+    const cameraDirection = _cameraDir.copy(camera.position).normalize();
 
     // Dot product: positive means facing camera, negative means behind
     const dot = markerDirection.dot(cameraDirection);
 
     // Show marker only if it's facing the camera (stricter threshold)
-    setIsVisible(dot > 0.1);
+    const visible = dot > 0.1;
+    if (visible === visibleRef.current) return;
+
+    visibleRef.current = visible;
+    groupRef.current.visible = visible;
+    if (htmlWrapperRef.current) {
+      htmlWrapperRef.current.style.opacity = visible
+        ? String(visualOpacityRef.current)
+        : "0";
+      htmlWrapperRef.current.style.pointerEvents = visible ? "auto" : "none";
+    }
   });
 
   const handlePointerEnter = useCallback(() => {
@@ -207,8 +226,12 @@ function Marker({
   const isActive = hovered || selected;
   const visualOpacity = dimmed && !isActive ? 0.34 : isActive ? 1 : 0.78;
 
+  // Keep the latest target opacity available to the useFrame callback.
+  const visualOpacityRef = useRef(visualOpacity);
+  visualOpacityRef.current = visualOpacity;
+
   return (
-    <group ref={groupRef} visible={isVisible}>
+    <group ref={groupRef}>
       {/* Pin line from surface to image - properly oriented */}
       <mesh position={lineCenter} quaternion={lineQuaternion}>
         <cylinderGeometry args={[0.0014, 0.0014, lineHeight, 8]} />
@@ -236,31 +259,36 @@ function Marker({
           center
           sprite
           distanceFactor={3.5}
-          style={{
-            pointerEvents: isVisible ? "auto" : "none",
-            opacity: isVisible ? visualOpacity : 0,
-            transition: "opacity 0.15s ease-out",
-          }}
+          style={{ pointerEvents: "none" }}
         >
           <div
-            className={cn(
-              "cursor-pointer overflow-hidden rounded-full border border-white/[0.35] bg-white/[0.35] shadow-[0_0_4px_rgba(96,165,250,0.14)] transition-transform duration-150",
-              isActive && "scale-[1.2] border-white/[0.70] shadow-[0_0_10px_rgba(127,183,255,0.36)] ring-1 ring-white/[0.35]",
-            )}
+            ref={htmlWrapperRef}
             style={{
-              width: `${markerSize}px`,
-              height: `${markerSize}px`,
+              pointerEvents: visibleRef.current ? "auto" : "none",
+              opacity: visibleRef.current ? visualOpacity : 0,
+              transition: "opacity 0.15s ease-out",
             }}
-            onMouseEnter={handlePointerEnter}
-            onMouseLeave={handlePointerLeave}
-            onClick={handleClick}
           >
-            <img
-              src={marker.src}
-              alt={marker.label || "Marker"}
-              className="h-full w-full object-contain"
-              draggable={false}
-            />
+            <div
+              className={cn(
+                "cursor-pointer overflow-hidden rounded-full border border-white/[0.35] bg-white/[0.35] shadow-[0_0_4px_rgba(96,165,250,0.14)] transition-transform duration-150",
+                isActive && "scale-[1.2] border-white/[0.70] shadow-[0_0_10px_rgba(127,183,255,0.36)] ring-1 ring-white/[0.35]",
+              )}
+              style={{
+                width: `${markerSize}px`,
+                height: `${markerSize}px`,
+              }}
+              onMouseEnter={handlePointerEnter}
+              onMouseLeave={handlePointerLeave}
+              onClick={handleClick}
+            >
+              <img
+                src={marker.src}
+                alt={marker.label || "Marker"}
+                className="h-full w-full object-contain"
+                draggable={false}
+              />
+            </div>
           </div>
         </Html>
       </group>
