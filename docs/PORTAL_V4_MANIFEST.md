@@ -14,8 +14,12 @@ from zero as a new design system called **AMG Manifest**.
 1. **Token names** `--deck-*` and component classes `deck-*` are the API ~106 pages
    compile against. v4 changes every VALUE and implementation, never the names.
 2. **Kit exports** in `components/portal/ui/*` keep exported names + prop signatures.
-3. **DECK_NAV** group labels (admin: Operations, Pipeline, Directory, Billing, Finance,
-   Comms & Files, Governance) — `scripts/verify-admin-access-communications.mjs` asserts them.
+3. **DECK_NAV** workspace labels (admin: Command Center, Operations, Network, Business,
+   Communications, Administration; + Website for super_admin) —
+   `scripts/verify-admin-access-communications.mjs` asserts them. Groups carry a
+   landing `href`; the shell renders one rail link per workspace plus a
+   contextual sub-nav strip of the group's non-`secondary` items
+   (see docs/portal-operational-restructure.md).
 4. `scripts/verify-portal-overflow-layout.mjs` asserts `deck-card`/overflow/token-surface
    patterns (`bg-[var(--deck-panel)]`, `bg-[var(--deck-panel-2)]`) — keep pages on tokens.
 5. `lib/portal/*` data modules and `app/api/**` route paths keep their module paths and
@@ -30,12 +34,15 @@ surfaces. Explicitly NOT generic SaaS (no glow shadows, no bubbly radii) and NOT
 the public site system (no instrument green, no GSAP motion).
 
 - **Light "Day Board" is default**; dark "Night Ops" via `data-portal-theme="dark"`.
-- Palette (light): canvas `#FFFFFF` plain white, panel `#FFFFFF` (separated by
-  hairlines + faint shadow), insets/table-heads `#F2F4F8`, ink text `#16191E`,
-  hairlines `#E3E7ED`, accent AMG instrument blue `#0B5ED4`.
+- Palette (light, per approved Colors.png): canvas `#FFFFFF` plain white, panel
+  `#FFFFFF` (separated by hairlines + faint shadow), insets/table-heads `#F3F4F6`,
+  ink text `#16191E`, hairlines `#E5E7EB` (Light Gray), muted text `#6B7280`
+  (Jet Gray), accent AMG Blue `#1D4ED8`, sky `#38BDF8` for limited interactive
+  emphasis, Aviation Gold `#D4AF37` reserved for rare premium/financial emphasis,
+  Aviation Red family for genuine errors only.
 - Palette (dark): canvas `#0D1219`, panel `#131924`, cool text `#EEF2F7`,
-  accent `#5B9DFF`.
-- Chrome rail: theme-invariant deep navy `#0A1120` — the ops rail is always night.
+  accent ink `#7FB2FF`.
+- Chrome rail: theme-invariant AMG Navy `#050B14` — the ops rail is always night.
 - Geometry: radius 6px, flat surfaces (hairline shadow only), square stamped chips,
   2px solid accent rails on KPI tiles.
 - Type: Space Grotesk display, JetBrains Mono for eyebrows/data/numerals (tabular).

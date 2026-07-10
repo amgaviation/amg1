@@ -5,15 +5,13 @@ import {
   EmptyState,
   Notice,
   PageHeader,
-  QuickLink,
   RecordRow,
   SectionCard,
-  StatCard,
 } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
+import { StatusDot } from "@/components/portal/ui/status-dot";
 import { Button } from "@/components/ui/button";
 import {
-  countUnread,
   listAircraftForClient,
   listDocumentsForUser,
   listInvoicesForClient,
@@ -29,8 +27,25 @@ import {
 } from "@/lib/portal/constants";
 import { formatDateTime, formatMoney, formatRoute } from "@/lib/portal/format";
 
-export const metadata = { title: "Overview - Client Portal" };
+export const metadata = { title: "Home - Client Portal" };
 
+const ACTIVE_STATUSES = [
+  "submitted",
+  "under_review",
+  "awaiting_client_info",
+  "quoted",
+  "approved",
+  "crew_assigned",
+  "scheduled",
+  "in_progress",
+];
+
+/**
+ * Client home. Leads with what the owner needs to do — respond to an
+ * information request, review a quote, settle an invoice — then what AMG is
+ * supporting next, then current request state. One primary action: New
+ * Support Request (also persistent in the shell).
+ */
 export default async function ClientDashboardPage({
   searchParams,
 }: {
@@ -39,41 +54,30 @@ export default async function ClientDashboardPage({
   const user = await requireRole("client");
   const params = await searchParams;
 
-  const [missions, aircraft, quotes, subscriptions, unread, invoices, passengers, documents] =
+  const [missions, aircraft, quotes, subscriptions, invoices, passengers, documents] =
     await Promise.all([
       listMissionsForClient(user.id),
       listAircraftForClient(user.id),
       listQuotesForClient(user.id),
       listSubscriptionsForClient(user.id),
-      countUnread(user.id),
       listInvoicesForClient(user.id),
       listPassengersForOwner(user.id),
       listDocumentsForUser({ userId: user.id, role: "client" }),
     ]);
 
-  const active = missions.filter((m) =>
-    [
-      "submitted",
-      "under_review",
-      "awaiting_client_info",
-      "quoted",
-      "approved",
-      "crew_assigned",
-      "scheduled",
-      "in_progress",
-    ].includes(m.status)
+  const active = missions.filter((m) => ACTIVE_STATUSES.includes(m.status));
+  const awaitingInfo = missions.filter((m) => m.status === "awaiting_client_info");
+  const openQuotes = quotes.filter((q) => ["sent", "viewed"].includes(q.status));
+  const dueInvoices = invoices.filter((invoice) =>
+    ["sent", "viewed", "partially_paid", "overdue"].includes(invoice.status)
   );
-  const upcoming = missions
-    .filter((m) => ["crew_assigned", "scheduled"].includes(m.status))
-    .slice(0, 3);
-  const completed = missions.filter((m) => m.status === "completed").slice(0, 3);
-  const openQuotes = quotes.filter((q) => q.status === "sent");
+  const balanceDue = dueInvoices.reduce(
+    (sum, invoice) => sum + Number(invoice.amount_due ?? 0),
+    0
+  );
   const activeSubscriptions = subscriptions.filter((subscription) =>
     ["active", "renewal_pending"].includes(subscription.status)
   );
-  const balanceDue = invoices
-    .filter((invoice) => ["sent", "viewed", "partially_paid", "overdue"].includes(invoice.status))
-    .reduce((sum, invoice) => sum + Number(invoice.amount_due ?? 0), 0);
   const nextDeparture = missions
     .filter(
       (m) =>
@@ -85,6 +89,8 @@ export default async function ClientDashboardPage({
   const daysToDeparture = nextDeparture?.requested_departure
     ? Math.max(0, Math.ceil((new Date(nextDeparture.requested_departure).getTime() - Date.now()) / 86_400_000))
     : null;
+
+  const actionCount = awaitingInfo.length + openQuotes.length + (balanceDue > 0 ? 1 : 0);
 
   return (
     <>
@@ -100,10 +106,14 @@ export default async function ClientDashboardPage({
       <PageHeader
         eyebrow="Owner Services"
         title={`Welcome back, ${user.name.split(" ")[0]}`}
-        description={user.companyName ?? user.email}
+        description={
+          actionCount > 0
+            ? `${actionCount} item${actionCount === 1 ? "" : "s"} need${actionCount === 1 ? "s" : ""} your attention.`
+            : "Nothing needs your attention right now."
+        }
         actions={
           <Button asChild size="sm">
-            <Link href="/portal/client/trips/new">New Request</Link>
+            <Link href="/portal/client/trips/new">New Support Request</Link>
           </Button>
         }
       />
@@ -160,7 +170,74 @@ export default async function ClientDashboardPage({
         </SectionCard>
       ) : null}
 
-      {/* Next departure hero */}
+      {/* 1 — What needs the owner's action */}
+      <SectionCard
+        title="Needs Your Action"
+        icon="alert"
+        description="Requests waiting on you, quotes to review, and balances due."
+      >
+        {actionCount === 0 ? (
+          <div className="flex items-center gap-2 py-1">
+            <StatusDot tone="success" label="All caught up" pulse />
+          </div>
+        ) : (
+          <div className="space-y-2.5">
+            {awaitingInfo.map((m) => (
+              <RecordRow
+                key={m.id}
+                href={`/portal/client/trips/${m.id}`}
+                refLabel={m.ref}
+                title={formatRoute(m.departure_airport, m.arrival_airport)}
+                tone="warn"
+                meta={
+                  <>
+                    <span className="font-medium text-[var(--deck-text-2)]">
+                      AMG needs more information to keep this request moving
+                    </span>
+                    {" · "}
+                    {formatDateTime(m.requested_departure)}
+                  </>
+                }
+                trailing={<StatusBadge label="Respond" tone="warn" />}
+              />
+            ))}
+            {openQuotes.map((q) => (
+              <RecordRow
+                key={q.id}
+                href={`/portal/client/quotes/${q.id}`}
+                refLabel={q.ref}
+                title={q.mission ? `Quote for ${q.mission.ref}` : "Quote for your review"}
+                tone="gold"
+                meta={
+                  <span className="font-medium text-[var(--deck-text-2)]">
+                    Review and approve or request changes
+                  </span>
+                }
+                trailing={
+                  <span className="deck-num text-sm font-bold text-[var(--deck-text)]">
+                    {formatMoney(q.total)}
+                  </span>
+                }
+              />
+            ))}
+            {balanceDue > 0 ? (
+              <RecordRow
+                href="/portal/client/billing"
+                title={`Balance due: ${formatMoney(balanceDue)}`}
+                tone="warn"
+                meta={
+                  <span className="font-medium text-[var(--deck-text-2)]">
+                    {dueInvoices.length} open invoice{dueInvoices.length === 1 ? "" : "s"} in Billing
+                  </span>
+                }
+                trailing={<StatusBadge label="Pay" tone="warn" />}
+              />
+            ) : null}
+          </div>
+        )}
+      </SectionCard>
+
+      {/* 2 — Next supported mission */}
       {nextDeparture ? (
         <Link
           href={`/portal/client/trips/${nextDeparture.id}`}
@@ -188,101 +265,54 @@ export default async function ClientDashboardPage({
         </Link>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        <StatCard
-          label="Balance due"
-          value={formatMoney(balanceDue)}
-          icon="wallet"
-          href="/portal/client/billing"
-          tone={balanceDue > 0 ? "warn" : "default"}
-          detail={balanceDue > 0 ? "Review in Billing" : "Nothing outstanding"}
-        />
-        <StatCard label="Active requests" value={active.length} icon="plane" href="/portal/client/trips" />
-        <StatCard label="Aircraft on file" value={aircraft.length} icon="planeTakeoff" href="/portal/client/aircraft" />
-        <StatCard
-          label="Open quotes"
-          value={openQuotes.length}
-          icon="receipt"
-          tone={openQuotes.length > 0 ? "accent" : "default"}
-          href="/portal/client/quotes"
-          detail={openQuotes.length > 0 ? "Awaiting your review" : undefined}
-        />
-        <StatCard
-          label="Subscriptions"
-          value={activeSubscriptions.length}
-          icon="creditCard"
-          href="/portal/client/subscriptions"
-          tone={activeSubscriptions.length ? "accent" : "default"}
-        />
-        <StatCard
-          label="Unread messages"
-          value={unread}
-          icon="messageSquare"
-          tone={unread > 0 ? "warn" : "default"}
-          href="/portal/client/messages"
-        />
-      </div>
-
+      {/* 3 — Current request state */}
       <SectionCard
-        title="Quick Actions"
-        icon="zap"
-        bodyClassName="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
+        title="Your Support Requests"
+        icon="plane"
+        actions={
+          <Button asChild size="sm" variant="ghost">
+            <Link href="/portal/client/trips">View all</Link>
+          </Button>
+        }
       >
-        <QuickLink href="/portal/client/trips/new?type=passenger_trip" icon="plane" label="Request Trip" />
-        <QuickLink href="/portal/client/trips/new?type=ferry" icon="planeTakeoff" label="Ferry Request" />
-        <QuickLink href="/portal/client/trips/new?type=maintenance_reposition" icon="wrench" label="Maintenance Reposition" />
-        <QuickLink href="/portal/client/trips/new?type=crew_reposition" icon="users" label="Crew Request" />
-        <QuickLink href="/portal/client/passengers" icon="users" label="Manage Passengers" />
-        <QuickLink href="/portal/client/documents?upload=1" icon="upload" label="Upload Document" />
-        <QuickLink href="/portal/client/messages?new=1" icon="messageSquare" label="Contact Operations" />
+        {active.length === 0 ? (
+          <EmptyState
+            icon="plane"
+            title="No active requests"
+            description="Submit a support request and AMG Operations takes it from there."
+            action={
+              <Button asChild size="sm">
+                <Link href="/portal/client/trips/new">New Support Request</Link>
+              </Button>
+            }
+          />
+        ) : (
+          <div className="space-y-3">
+            {active.slice(0, 5).map((m) => (
+              <RecordRow
+                key={m.id}
+                href={`/portal/client/trips/${m.id}`}
+                refLabel={m.ref}
+                title={formatRoute(m.departure_airport, m.arrival_airport)}
+                meta={
+                  <>
+                    {m.tail_number ?? "Aircraft TBD"} · {formatDateTime(m.requested_departure)}
+                  </>
+                }
+                trailing={
+                  <StatusBadge
+                    label={CLIENT_MISSION_STATUS_LABEL[m.status] ?? m.status}
+                    tone={toneFor(MISSION_STATUS_TONE, m.status)}
+                  />
+                }
+              />
+            ))}
+          </div>
+        )}
       </SectionCard>
 
+      {/* 4 — Standing context: aircraft + subscription */}
       <div className="grid gap-5 xl:grid-cols-2">
-        <SectionCard
-          title="Upcoming Missions"
-          icon="plane"
-          actions={
-            <Button asChild size="sm" variant="ghost">
-              <Link href="/portal/client/trips">View all</Link>
-            </Button>
-          }
-        >
-          {upcoming.length === 0 ? (
-            <EmptyState
-              icon="plane"
-              title="No upcoming missions"
-              description="Submit a trip request to get started."
-              action={
-                <Button asChild size="sm">
-                  <Link href="/portal/client/trips/new">New request</Link>
-                </Button>
-              }
-            />
-          ) : (
-            <div className="space-y-3">
-              {upcoming.map((m) => (
-                <RecordRow
-                  key={m.id}
-                  href={`/portal/client/trips/${m.id}`}
-                  refLabel={m.ref}
-                  title={formatRoute(m.departure_airport, m.arrival_airport)}
-                  meta={
-                    <>
-                      {m.tail_number ?? "Aircraft TBD"} · {formatDateTime(m.requested_departure)}
-                    </>
-                  }
-                  trailing={
-                    <StatusBadge
-                      label={CLIENT_MISSION_STATUS_LABEL[m.status] ?? m.status}
-                      tone={toneFor(MISSION_STATUS_TONE, m.status)}
-                    />
-                  }
-                />
-              ))}
-            </div>
-          )}
-        </SectionCard>
-
         <SectionCard
           title="Aircraft Status"
           icon="planeTakeoff"
@@ -296,7 +326,7 @@ export default async function ClientDashboardPage({
             <EmptyState
               icon="planeTakeoff"
               title="No aircraft on file"
-              description="Contact AMG Operations to associate your aircraft."
+              description="Add your aircraft so requests start with the right context."
             />
           ) : (
             <div className="space-y-3">
@@ -323,11 +353,9 @@ export default async function ClientDashboardPage({
             </div>
           )}
         </SectionCard>
-      </div>
 
-      {activeSubscriptions.length > 0 ? (
         <SectionCard
-          title="Subscription Summary"
+          title="Subscription"
           icon="creditCard"
           actions={
             <Button asChild size="sm" variant="ghost">
@@ -335,80 +363,36 @@ export default async function ClientDashboardPage({
             </Button>
           }
         >
-          <div className="grid gap-3 lg:grid-cols-2">
-            {activeSubscriptions.slice(0, 2).map((subscription) => (
-              <RecordRow
-                key={subscription.id}
-                href={`/portal/client/subscriptions/${subscription.id}`}
-                title={subscription.plan?.name ?? "AMG Support Subscription"}
-                meta={
-                  <>
-                    {subscription.tier?.name ?? "Custom"} ·{" "}
-                    {subscription.aircraft?.tail_number ?? "Account-level"} ·{" "}
-                    {subscription.included_flights} flights · {subscription.included_mx_repositions}{" "}
-                    MX repos · {subscription.included_admin_hours} admin hrs
-                  </>
-                }
-                trailing={
-                  <span className="text-xs font-semibold text-[var(--deck-accent-ink)]">
-                    Renews {subscription.renewal_date ?? "TBD"}
-                  </span>
-                }
-              />
-            ))}
-          </div>
-        </SectionCard>
-      ) : null}
-
-      {openQuotes.length > 0 ? (
-        <SectionCard
-          title="Quotes Awaiting Review"
-          icon="receipt"
-          actions={
-            <Button asChild size="sm" variant="ghost">
-              <Link href="/portal/client/quotes">View all</Link>
-            </Button>
-          }
-        >
-          <div className="space-y-3">
-            {openQuotes.slice(0, 3).map((q) => (
-              <RecordRow
-                key={q.id}
-                href={`/portal/client/quotes/${q.id}`}
-                refLabel={q.ref}
-                title={q.mission ? `Mission ${q.mission.ref}` : "General estimate"}
-                tone="gold"
-                trailing={
-                  <>
-                    <span className="deck-num text-sm font-bold text-[var(--deck-text)]">
-                      {formatMoney(q.total)}
-                    </span>
+          {activeSubscriptions.length === 0 ? (
+            <p className="text-sm text-[var(--deck-text-3)]">
+              No active support subscription on this account.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {activeSubscriptions.slice(0, 2).map((subscription) => (
+                <RecordRow
+                  key={subscription.id}
+                  href={`/portal/client/subscriptions/${subscription.id}`}
+                  title={subscription.plan?.name ?? "AMG Support Subscription"}
+                  meta={
+                    <>
+                      {subscription.tier?.name ?? "Custom"} ·{" "}
+                      {subscription.aircraft?.tail_number ?? "Account-level"} ·{" "}
+                      {subscription.included_flights} flights · {subscription.included_mx_repositions}{" "}
+                      MX repos · {subscription.included_admin_hours} admin hrs
+                    </>
+                  }
+                  trailing={
                     <span className="text-xs font-semibold text-[var(--deck-accent-ink)]">
-                      Review →
+                      Renews {subscription.renewal_date ?? "TBD"}
                     </span>
-                  </>
-                }
-              />
-            ))}
-          </div>
+                  }
+                />
+              ))}
+            </div>
+          )}
         </SectionCard>
-      ) : null}
-
-      {completed.length > 0 ? (
-        <SectionCard title="Recently Completed" icon="history">
-          <div className="space-y-3">
-            {completed.map((m) => (
-              <RecordRow
-                key={m.id}
-                href={`/portal/client/trips/${m.id}`}
-                refLabel={m.ref}
-                title={formatRoute(m.departure_airport, m.arrival_airport)}
-                trailing={<StatusBadge label="Completed" tone="success" />}
-              />
-            ))}
-          </div>
-        </SectionCard>
-      ) : null}
+      </div>
     </>
   );
 }

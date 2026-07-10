@@ -21,10 +21,6 @@ const POOL_REQUEST_LABEL: Record<string, { label: string; tone: "info" | "succes
   denied: { label: "Not Selected", tone: "warn" },
 };
 
-function tabCls(active: boolean) {
-  return `rounded-[0.25rem] border px-3 py-1.5 font-mono text-[0.68rem] font-semibold uppercase [letter-spacing:0.08em] transition-colors ${active ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]" : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"}`;
-}
-
 function PoolMissionCard({ mission }: { mission: PoolMission }) {
   const aircraftType = [mission.aircraft?.make, mission.aircraft?.model].filter(Boolean).join(" ") || "TBD";
   const requirements = describePoolRequirements(mission.pool_requirements);
@@ -120,8 +116,8 @@ export default async function CrewMissionsPage({
   return (
     <>
       <PageHeader
-        eyebrow="Flight Crew"
-        title={poolView ? "Open Assignments" : "My Assignments"}
+        eyebrow="Assignments"
+        title={poolView ? "Open Pool" : "My Assignments"}
         description={poolView ? "Missions AMG Operations has published to the pool for qualified crew. Client details are shared after assignment." : undefined}
       />
       {params.success === "requested" ? (
@@ -133,11 +129,6 @@ export default async function CrewMissionsPage({
       {params.error === "not-eligible" ? (
         <Notice tone="warn">This mission is no longer available in the open pool.</Notice>
       ) : null}
-
-      <div className="flex gap-2">
-        <Link href="/portal/crew/missions" className={tabCls(!poolView)}>My Assignments</Link>
-        <Link href="/portal/crew/missions?pool=open" className={tabCls(poolView)}>Open Pool</Link>
-      </div>
 
       <SectionCard>
         {poolView ? (

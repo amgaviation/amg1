@@ -293,11 +293,10 @@ export function PortalShell({
               {showPrimaryAction ? (
                 <Link
                   href={primaryAction!.href}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-[var(--deck-accent)] p-2.5 text-xs font-semibold text-white transition-colors hover:bg-[var(--deck-accent-ink)] lg:px-3 lg:py-1.5"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-[var(--deck-accent)] p-2.5 text-xs font-semibold text-white transition-colors hover:bg-[var(--deck-accent-ink)] lg:hidden"
                   aria-label={primaryAction!.label}
                 >
-                  <PortalIcon name={primaryAction!.icon} className="h-4 w-4 lg:h-3.5 lg:w-3.5" />
-                  <span className="hidden lg:inline">{primaryAction!.label}</span>
+                  <PortalIcon name={primaryAction!.icon} className="h-4 w-4" />
                 </Link>
               ) : null}
 
