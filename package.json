@@ -22,6 +22,7 @@
     "stripe:live-readiness:verify": "tsx scripts/verify-stripe-live-readiness.ts",
     "portal:supabase-edit:verify": "node scripts/verify-portal-supabase-edit-contract.mjs",
     "pricing:verify": "tsx scripts/verify-pricing-catalog.ts",
+    "schema:manifest": "node scripts/generate-schema-manifest.mjs",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "npm run typecheck"
