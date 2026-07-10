@@ -194,7 +194,7 @@ export default function GlobalFooter() {
                 Get a Quote
               </Link>
               <Link
-                href="/connect"
+                href="/login"
                 prefetch={false}
                 className="fd-navlink mt-3 block w-fit text-t2 transition-colors hover:text-instrument"
               >

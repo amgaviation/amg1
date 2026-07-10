@@ -74,7 +74,7 @@ export async function queueNotificationDeliveries(
     const db = await createServiceClient();
     const { data: profile } = await db
       .from("profiles")
-      .select("email, phone")
+      .select("email, phone, phone_verified_at, sms_notifications_enabled")
       .eq("id", input.userId)
       .maybeSingle();
 
@@ -83,6 +83,14 @@ export async function queueNotificationDeliveries(
     const channels = input.channels ?? defaultChannels(input.eventType);
 
     for (const channel of channels) {
+      // SMS only goes to numbers the user verified and hasn't opted out of.
+      if (
+        channel === "sms" &&
+        (!profile.phone_verified_at || profile.sms_notifications_enabled === false)
+      ) {
+        continue;
+      }
+
       const recipient = channel === "email" ? profile.email : profile.phone;
       if (!recipient) continue;
 

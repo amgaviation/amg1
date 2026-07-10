@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LegalDocumentPage } from "@/components/compliance/legal-document-page";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   title: "AMG Aviation Group — Mission Acceptance Policy",
   description: "Mission acceptance policy for AMG Aviation Group support requests.",
 };

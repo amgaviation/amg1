@@ -3,6 +3,7 @@ import { signOut } from "@/app/portal/actions/auth";
 import { PortalAccessShell } from "@/components/site/portal-access-shell";
 
 export const metadata = {
+  robots: { index: false, follow: true },
   title: "AMG Portal Access Pending",
   description: "AMG portal access request pending approval.",
 };

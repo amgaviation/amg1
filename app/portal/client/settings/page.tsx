@@ -1,6 +1,7 @@
 import { requireRole } from "@/lib/portal/session";
 import { updateBillingContact } from "@/app/portal/actions/profiles";
 import { AccountSecurityForm } from "@/components/portal/account-security-form";
+import { SmsSettingsCard, SmsSettingsNotices } from "@/components/portal/sms-settings-card";
 import { TextField } from "@/components/portal/ui/fields";
 import { PageHeader, SectionCard, DetailRow, Notice } from "@/components/portal/ui/primitives";
 import { RoleBadge } from "@/components/portal/ui/status-badge";
@@ -13,7 +14,7 @@ export const metadata = { title: "Settings — Client Portal" };
 export default async function ClientSettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ success?: string; error?: string; accountSuccess?: string; accountError?: string }>;
+  searchParams: Promise<{ success?: string; error?: string; accountSuccess?: string; accountError?: string; sms?: string; smsError?: string }>;
 }) {
   const user = await requireRole("client");
   const params = await searchParams;
@@ -39,6 +40,7 @@ export default async function ClientSettingsPage({
       {params.accountSuccess === "email" ? <Notice tone="success">Email change saved. Check your inbox if confirmation is required.</Notice> : null}
       {params.accountSuccess === "password" ? <Notice tone="success">Password updated for this portal account.</Notice> : null}
       {accountErrorMessage ? <Notice tone="danger">{accountErrorMessage}</Notice> : null}
+      <SmsSettingsNotices sms={params.sms} smsError={params.smsError} />
 
       <PageHeader eyebrow="Owner Services" title="Profile & Settings" />
 
@@ -70,6 +72,13 @@ export default async function ClientSettingsPage({
           </div>
         </form>
       </SectionCard>
+      <SmsSettingsCard
+        backTo="/portal/client/settings"
+        phone={profile?.phone ?? user.phone}
+        phoneVerifiedAt={profile?.phone_verified_at ?? null}
+        phoneVerificationSentAt={profile?.phone_verification_sent_at ?? null}
+        smsEnabled={profile?.sms_notifications_enabled ?? true}
+      />
       <AccountSecurityForm email={user.email} backTo="/portal/client/settings" />
     </>
   );

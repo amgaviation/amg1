@@ -5,6 +5,7 @@ import { ArrowRight, MailCheck, ShieldCheck } from "lucide-react";
 import { resendPortalVerificationCode, verifyPortalEmail } from "@/app/portal/actions/auth";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   title: "Verify AMG Connect Email",
   description: "Verify your AMG Connect portal access request with the code from your email.",
 };

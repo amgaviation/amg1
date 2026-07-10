@@ -30,8 +30,9 @@ const nextConfig: NextConfig = {
       { source: "/request-support", destination: "/request", permanent: true },
       { source: "/contact", destination: "/request", permanent: true },
       { source: "/faqs", destination: "/pricing", permanent: true },
-      { source: "/amg-connect", destination: "/connect", permanent: true },
       // /connect is the spec's portal entry; the portal login lives at /login.
+      // /amg-connect points straight at /login to avoid a two-hop chain.
+      { source: "/amg-connect", destination: "/login", permanent: true },
       { source: "/connect", destination: "/login", permanent: false },
     ];
   },

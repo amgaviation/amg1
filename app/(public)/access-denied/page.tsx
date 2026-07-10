@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PortalAccessShell } from "@/components/site/portal-access-shell";
 
 export const metadata = {
+  robots: { index: false, follow: true },
   title: "AMG Portal Access Denied",
   description: "AMG portal access denied or unavailable.",
 };

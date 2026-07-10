@@ -17,7 +17,7 @@ export const SITE = {
   phoneHref: "tel:+19544081730",
   email: "ops@amgaviationgroup.com",
   requestLineHours: "0700–2200 ET",
-  url: "https://amgaviationgroup.com",
+  url: "https://www.amgaviationgroup.com",
 } as const;
 
 /** Footer operational-control statement — said once sitewide, per spec §1. */

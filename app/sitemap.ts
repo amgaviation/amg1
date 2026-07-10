@@ -19,11 +19,13 @@ const publicRoutes = [
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = process.env.NEXT_PUBLIC_APP_URL || "https://amgaviationgroup.com";
+  const base = process.env.NEXT_PUBLIC_APP_URL || "https://www.amgaviationgroup.com";
   return [
+    // No lastModified on static routes: stamping them with the request time
+    // makes the signal meaningless to crawlers, so omit it until real
+    // per-route content dates exist.
     ...publicRoutes.map((route) => ({
       url: `${base}${route}`,
-      lastModified: new Date(),
       changeFrequency: (route === "" || route === "/missions" ? "weekly" : "monthly") as "weekly" | "monthly",
       priority: route === "" ? 1 : route === "/pricing" ? 0.9 : 0.7,
     })),

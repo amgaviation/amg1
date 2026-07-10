@@ -4,6 +4,7 @@ import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { PortalAccessShell } from "@/components/site/portal-access-shell";
 
 export const metadata = {
+  robots: { index: false, follow: true },
   title: "Create New AMG Portal Password",
   description: "Create a new password for your AMG portal account.",
 };

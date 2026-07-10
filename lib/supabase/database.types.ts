@@ -1055,8 +1055,14 @@ export type Database = {
           organization_id: string | null
           permissions: string[] | null
           phone: string | null
+          phone_verification_attempts: number
+          phone_verification_code_hash: string | null
+          phone_verification_expires_at: string | null
+          phone_verification_sent_at: string | null
+          phone_verified_at: string | null
           requested_role: string | null
           role: string
+          sms_notifications_enabled: boolean
           status: string
           status_updated_at: string | null
           status_updated_by: string | null
@@ -1091,8 +1097,14 @@ export type Database = {
           organization_id?: string | null
           permissions?: string[] | null
           phone?: string | null
+          phone_verification_attempts?: number
+          phone_verification_code_hash?: string | null
+          phone_verification_expires_at?: string | null
+          phone_verification_sent_at?: string | null
+          phone_verified_at?: string | null
           requested_role?: string | null
           role?: string
+          sms_notifications_enabled?: boolean
           status?: string
           status_updated_at?: string | null
           status_updated_by?: string | null

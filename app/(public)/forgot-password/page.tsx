@@ -5,6 +5,7 @@ import { PortalAccessShell } from "@/components/site/portal-access-shell";
 import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 
 export const metadata = {
+  robots: { index: false, follow: true },
   title: "Reset AMG Portal Password",
   description: "Request a secure AMG portal password reset link.",
 };

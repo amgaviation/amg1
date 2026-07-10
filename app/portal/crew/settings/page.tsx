@@ -1,10 +1,11 @@
 import { requireRole } from "@/lib/portal/session";
 import { AccountSecurityForm } from "@/components/portal/account-security-form";
+import { SmsSettingsCard, SmsSettingsNotices } from "@/components/portal/sms-settings-card";
 import { PageHeader, SectionCard, Notice } from "@/components/portal/ui/primitives";
 import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { saveCrewProfile } from "@/app/portal/actions/crew";
-import { getCrewProfile } from "@/lib/portal/queries";
+import { getCrewProfile, getProfile } from "@/lib/portal/queries";
 import { AVAILABILITY_STATUS } from "@/lib/portal/constants";
 
 export const metadata = { title: "Settings - Crew Portal" };
@@ -12,11 +13,12 @@ export const metadata = { title: "Settings - Crew Portal" };
 export default async function CrewSettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ success?: string; accountSuccess?: string; accountError?: string }>;
+  searchParams: Promise<{ success?: string; accountSuccess?: string; accountError?: string; sms?: string; smsError?: string }>;
 }) {
   const user = await requireRole("crew");
   const params = await searchParams;
   const profile = (await getCrewProfile(user.id)) as any;
+  const baseProfile = await getProfile(user.id);
   const weeklyAvailability = profile?.weekly_availability && typeof profile.weekly_availability === "object" ? profile.weekly_availability : {};
   const accountErrorMessage =
     params.accountError === "missing-email"
@@ -37,6 +39,7 @@ export default async function CrewSettingsPage({
       {params.accountSuccess === "email" ? <Notice tone="success">Email change saved. Check your inbox if confirmation is required.</Notice> : null}
       {params.accountSuccess === "password" ? <Notice tone="success">Password updated for this portal account.</Notice> : null}
       {accountErrorMessage ? <Notice tone="danger">{accountErrorMessage}</Notice> : null}
+      <SmsSettingsNotices sms={params.sms} smsError={params.smsError} />
       <PageHeader eyebrow="Flight Crew" title="Profile & Settings" description="Maintain the qualification and preference data AMG uses for assignments." />
       {profile?.profile_completion_percent === undefined || profile?.profile_completion_percent < 100 ? (
         <Notice tone="warn">Complete your AMG crew profile before assignment review.</Notice>
@@ -45,7 +48,7 @@ export default async function CrewSettingsPage({
         <form action={saveCrewProfile} className="grid gap-4 lg:grid-cols-3">
           <TextField label="Full Name" name="full_name_display" defaultValue={user.name} disabled />
           <TextField label="Email" name="email_display" defaultValue={user.email} disabled />
-          <TextField label="Phone" name="phone" defaultValue={user.phone ?? ""} disabled hint="Contact AMG Operations if this needs correction." />
+          <TextField label="Phone" name="phone" defaultValue={user.phone ?? ""} disabled hint="Update and verify your number in the SMS Alerts section below." />
           <TextField label="Home Airport" name="home_airport" defaultValue={profile?.home_airport ?? user.homeBase ?? ""} placeholder="KTEB" />
           <TextField label="Closest Major Airport" name="closest_major_airport" defaultValue={profile?.closest_major_airport ?? ""} placeholder="KEWR, KDAL..." />
           <TextField label="Emergency Contact Name" name="emergency_contact_name" defaultValue={profile?.emergency_contact_name ?? ""} />
@@ -110,6 +113,13 @@ export default async function CrewSettingsPage({
           </div>
         </form>
       </SectionCard>
+      <SmsSettingsCard
+        backTo="/portal/crew/settings"
+        phone={baseProfile?.phone ?? user.phone}
+        phoneVerifiedAt={baseProfile?.phone_verified_at ?? null}
+        phoneVerificationSentAt={baseProfile?.phone_verification_sent_at ?? null}
+        smsEnabled={baseProfile?.sms_notifications_enabled ?? true}
+      />
       <AccountSecurityForm email={user.email} backTo="/portal/crew/settings" />
     </>
   );

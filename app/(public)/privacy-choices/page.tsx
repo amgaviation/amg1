@@ -5,6 +5,7 @@ import { submitPrivacyChoicesRequest } from "@/app/(public)/privacy-choices/acti
 import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   title: "AMG Aviation Group - Privacy Choices",
   description: "Submit privacy, data rights, marketing opt-out, SMS opt-out, and cookie preference requests.",
 };

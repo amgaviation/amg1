@@ -4,6 +4,9 @@ import { ConsentScriptLoader } from "@/components/compliance/consent-script-load
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "https://www.amgaviationgroup.com",
+  ),
   title: {
     default: "AMG Aviation Group",
     template: "%s | AMG Aviation Group",
@@ -21,11 +24,29 @@ export const metadata: Metadata = {
     "AMG Aviation Group",
   ],
   authors: [{ name: "AMG Aviation Group" }],
+  // "./" resolves against metadataBase + the current pathname, so every page
+  // self-canonicalizes to the www host (also disarms the vercel.app alias).
+  alternates: {
+    canonical: "./",
+  },
   openGraph: {
-    title: "AMG Aviation Group - Aircraft Support Capabilities",
+    title: "Contract Pilots & Aircraft Movement for Part 91 Owners",
     description:
-      "Aircraft support capabilities and coordination for Part 91 aviation environments.",
+      "Vetted contract pilots, maintenance ferries, and repositioning — quoted within 24 business hours, tracked in one portal, priced flat. Serving the Southeast US.",
+    url: "./",
+    siteName: "AMG Aviation Group",
     type: "website",
+    images: [
+      {
+        url: "/images/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "AMG Aviation Group — contract pilots and aircraft movement for Part 91 owners",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
   },
 };
 

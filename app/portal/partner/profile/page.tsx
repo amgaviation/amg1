@@ -1,10 +1,11 @@
 import { requireRole } from "@/lib/portal/session";
 import { AccountSecurityForm } from "@/components/portal/account-security-form";
+import { SmsSettingsCard, SmsSettingsNotices } from "@/components/portal/sms-settings-card";
 import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { savePartnerProfile } from "@/app/portal/actions/partner";
-import { getPartnerProfile } from "@/lib/portal/queries";
+import { getPartnerProfile, getProfile } from "@/lib/portal/queries";
 import { PARTNER_TYPES } from "@/lib/portal/constants";
 
 export const metadata = { title: "Company Profile - Partner Portal" };
@@ -12,11 +13,12 @@ export const metadata = { title: "Company Profile - Partner Portal" };
 export default async function PartnerProfilePage({
   searchParams,
 }: {
-  searchParams: Promise<{ success?: string; accountSuccess?: string; accountError?: string }>;
+  searchParams: Promise<{ success?: string; accountSuccess?: string; accountError?: string; sms?: string; smsError?: string }>;
 }) {
   const user = await requireRole("partner");
   const params = await searchParams;
   const profile = await getPartnerProfile(user.id);
+  const baseProfile = await getProfile(user.id);
   const accountErrorMessage =
     params.accountError === "missing-email"
       ? "Enter an email address."
@@ -36,6 +38,7 @@ export default async function PartnerProfilePage({
       {params.accountSuccess === "email" ? <Notice tone="success">Email change saved. Check your inbox if confirmation is required.</Notice> : null}
       {params.accountSuccess === "password" ? <Notice tone="success">Password updated for this portal account.</Notice> : null}
       {accountErrorMessage ? <Notice tone="danger">{accountErrorMessage}</Notice> : null}
+      <SmsSettingsNotices sms={params.sms} smsError={params.smsError} />
       <PageHeader eyebrow="Service Partner" title="Company Profile" description="Define the service capabilities AMG Operations can assign to your company." />
       <SectionCard title="Service Profile" icon="building">
         <form action={savePartnerProfile} className="grid gap-4 lg:grid-cols-3">
@@ -57,6 +60,13 @@ export default async function PartnerProfilePage({
           </div>
         </form>
       </SectionCard>
+      <SmsSettingsCard
+        backTo="/portal/partner/profile"
+        phone={baseProfile?.phone ?? user.phone}
+        phoneVerifiedAt={baseProfile?.phone_verified_at ?? null}
+        phoneVerificationSentAt={baseProfile?.phone_verification_sent_at ?? null}
+        smsEnabled={baseProfile?.sms_notifications_enabled ?? true}
+      />
       <AccountSecurityForm email={user.email} backTo="/portal/partner/profile" />
     </>
   );

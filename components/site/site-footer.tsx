@@ -50,7 +50,7 @@ export function SiteFooter() {
                 Get a Quote
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
-              <Link href="/connect" prefetch={false} className="oc-btn oc-btn-ghost-dark">
+              <Link href="/login" prefetch={false} className="oc-btn oc-btn-ghost-dark">
                 Portal login
               </Link>
             </div>

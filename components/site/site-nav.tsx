@@ -135,7 +135,7 @@ export function SiteNav() {
             className="oc-mono hidden min-h-11 items-center gap-2 whitespace-nowrap px-2 text-sm text-white/[0.74] transition-colors hover:text-white lg:inline-flex"
           />
           <Link
-            href="/connect"
+            href="/login"
             prefetch={false}
             onClick={closeMenu}
             className="hidden min-h-11 items-center whitespace-nowrap px-2 font-mono text-[0.66rem] font-medium uppercase leading-none [letter-spacing:0.16em] text-white/[0.74] transition-colors hover:text-[var(--instrument-ink)] sm:inline-flex"
@@ -200,7 +200,7 @@ export function SiteNav() {
                 Get a Quote
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
-              <Link href="/connect" prefetch={false} onClick={closeMenu} className="oc-btn oc-btn-ghost-dark justify-center">
+              <Link href="/login" prefetch={false} onClick={closeMenu} className="oc-btn oc-btn-ghost-dark justify-center">
                 Portal login
               </Link>
             </div>
