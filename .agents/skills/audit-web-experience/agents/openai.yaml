@@ -1,0 +1,13 @@
+interface:
+  display_name: Web Experience Auditor
+  short_description: Find UI, UX, navigation, and frontend defects
+  brand_color: '#1D4ED8'
+  default_prompt: Use $audit-web-experience to conduct a comprehensive evidence-based
+    audit of this website and produce a prioritized remediation backlog.
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true
