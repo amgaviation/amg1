@@ -3,6 +3,7 @@ import "server-only";
 import { createServiceClient } from "@/lib/supabase/server";
 import { absolutePortalUrl } from "@/lib/email/config";
 import { amgEmailLayout } from "@/lib/portal/email-templates";
+import { RESEND_AUTOMATION_EVENTS, automationIdempotencyKey } from "@/lib/email/automation";
 import { sendEmail } from "@/lib/portal/notification-delivery";
 import { invoicePaymentEmailContent } from "@/lib/portal/stripe-invoice-core";
 import {
@@ -92,6 +93,8 @@ export async function emailQuotePdf(quoteId: string, actorId?: string | null) {
         "Questions about scope, timing, or pricing? Reply to this email and AMG Operations will follow up.",
     }),
     attachments: [attachment(pdf)],
+    idempotencyKey: automationIdempotencyKey(RESEND_AUTOMATION_EVENTS.quoteSent, quoteId, email.to),
+    eventType: RESEND_AUTOMATION_EVENTS.quoteSent,
   });
   if (result.status === "sent") {
     await markBillingDocumentEmailed(pdf.document.id, [email.to, ...email.cc]);
@@ -134,6 +137,8 @@ export async function emailInvoicePdf(invoiceId: string, actorId?: string | null
     text: content.text,
     html: content.html,
     attachments: [attachment(pdf)],
+    idempotencyKey: automationIdempotencyKey(RESEND_AUTOMATION_EVENTS.invoiceSent, invoiceId, email.to),
+    eventType: RESEND_AUTOMATION_EVENTS.invoiceSent,
   });
   if (result.status === "sent") {
     await markBillingDocumentEmailed(pdf.document.id, [email.to, ...email.cc]);
@@ -160,6 +165,8 @@ export async function emailReceiptPdf(paymentId: string, actorId?: string | null
       cta: { label: "View Billing", href: absolutePortalUrl("/portal/client/billing") },
     }),
     attachments: [attachment(pdf)],
+    idempotencyKey: automationIdempotencyKey(RESEND_AUTOMATION_EVENTS.paymentReceived, paymentId, email.to),
+    eventType: RESEND_AUTOMATION_EVENTS.paymentReceived,
   });
   if (result.status === "sent") {
     const db = (await createServiceClient()) as any;

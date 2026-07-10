@@ -21,7 +21,7 @@ type QueueDeliveryInput = {
   replyTo?: string | null;
 };
 
-type DeliveryResult = {
+export type DeliveryResult = {
   status: DeliveryStatus;
   providerMessageId?: string;
   error?: string;
@@ -177,9 +177,16 @@ export async function sendEmail(params: {
     content: string;
     content_type?: string;
   }[];
+  idempotencyKey?: string;
+  eventType?: string;
 }): Promise<DeliveryResult> {
   const from = defaultSender("operations");
   const replyTo = replyToAddress(params.replyTo);
+
+  if (params.idempotencyKey) {
+    const duplicate = await hasSentTransactionalEmail(params.idempotencyKey).catch(() => false);
+    if (duplicate) return { status: "suppressed", error: "Duplicate email suppressed" };
+  }
 
   if (!process.env.RESEND_API_KEY || !from) {
     return { status: "suppressed", error: "Resend is not configured" };
@@ -220,6 +227,21 @@ export async function sendEmail(params: {
 
 const TRANSACTIONAL_THREAD_SUBJECT = "Automated System Emails";
 
+async function hasSentTransactionalEmail(idempotencyKey: string) {
+  const db = (await createServiceClient()) as any;
+  const { data } = await db
+    .from("communication_messages")
+    .select("id")
+    .eq("message_type", "email")
+    .eq("direction", "outbound")
+    .eq("provider", "resend")
+    .eq("status", "sent")
+    .eq("idempotency_key", idempotencyKey)
+    .limit(1)
+    .maybeSingle();
+  return Boolean(data?.id);
+}
+
 /**
  * Record an outbound transactional email in communication_messages so the
  * admin Email Log reflects everything the system sends (billing PDFs,
@@ -235,6 +257,8 @@ async function logTransactionalEmail(
     text: string;
     html?: string;
     from: string;
+    idempotencyKey?: string;
+    eventType?: string;
   },
   result: DeliveryResult,
 ) {
@@ -284,6 +308,8 @@ async function logTransactionalEmail(
     body_text: params.text?.slice(0, 8000) ?? null,
     body_preview: params.text?.slice(0, 280) ?? null,
     email_category: "transactional",
+    raw_payload: { idempotency_key: params.idempotencyKey ?? null, event_type: params.eventType ?? null },
+    idempotency_key: params.idempotencyKey ?? null,
     sent_at: result.status === "sent" ? nowIso : null,
     failed_at: result.status === "failed" ? nowIso : null,
     failure_reason: result.status === "failed" ? (result.error ?? null) : null,
