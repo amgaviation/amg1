@@ -185,25 +185,20 @@ export default function Hero() {
         data-fd-hidden
       >
         <h1 className="sr-only">
-          Reliable crew and aircraft movement for owners who fly Part 91 —
-          quoted within 24 business hours, tracked in one portal, priced flat.
+          Owner-controlled aviation support for Part 91 aircraft owners, small flight departments, maintenance facilities, professional crew, and appropriate aviation partners.
         </h1>
 
         <div className="flex h-full flex-col justify-center px-[5vw] pb-[10vh] pt-[8vh]">
           <div className="max-w-[860px]">
             <h2 className="display-lg text-balance font-display font-medium text-t1">
-              Our Responsibility. <span className="whitespace-nowrap">Your Mission.</span>
+              Owner-controlled aviation support, coordinated clearly.
             </h2>
             <p className="mt-5 text-lg leading-snug text-t1">
-              Reliable crew and aircraft
-              <br />
-              movement for Part 91 owners
+              For Part 91 owners, small flight departments, maintenance facilities, professional crew, and aviation partners who need staffing, coordination, documentation, tracking, and closeout support.
             </p>
             <div className="my-4 h-px w-10 bg-amber/70" />
             <p className="hidden max-w-[270px] text-[11px] leading-relaxed text-t2 sm:block">
-              Vetted contract pilots, maintenance ferries, and repositioning —
-              quoted within 24 business hours, tracked in one portal, priced
-              flat.
+              Submit the current support request. AMG reviews scope, coordinates approved support needs, and keeps the file visible through AMG Connect.
             </p>
           </div>
         </div>
@@ -211,10 +206,10 @@ export default function Hero() {
         <div className="absolute bottom-[7vh] right-[4vw] hidden items-center gap-10 sm:flex">
           <span className="microlabel flex items-center gap-2">
             <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-instrument" />
-            Scroll down
+            Review support
           </span>
           <span className="hidden h-px w-24 bg-grid-silver lg:block" />
-          <span className="microlabel hidden lg:block">To start the mission</span>
+          <span className="microlabel hidden lg:block">Request support when ready</span>
         </div>
 
         <div className="absolute bottom-[7vh] left-[5vw] hidden max-w-[52vw] sm:block">

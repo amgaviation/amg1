@@ -18,12 +18,12 @@
 :root {
   /* Flight-deck palette — AMG "Flight Deck" design system */
   --canvas: #070b14;
-  --instrument: #0b5ed4;
-  --instrument-ink: #5b9dff; /* brighter accent for small text on dark (AA) */
-  --amber: #ffb02e;
+  --instrument: #1D4ED8;
+  --instrument-ink: #38BDF8; /* sky-blue accent for small text on dark (AA) */
+  --amber: #D4AF37;
   --t1: #f4f7fa;
-  --t2: #a9b4c6;
-  --t3: #74839e;
+  --t2: #E5E7EB;
+  --t3: #9CA3AF;
   --grid-green: rgba(11, 94, 212, 0.08);
   --grid-silver: rgba(169, 180, 198, 0.06);
 
@@ -31,24 +31,24 @@
   --public-header-height: 80px;
   --public-section-spacing: clamp(4rem, 8vw, 7rem);
   --amg-midnight-navy: #050B14;
-  --amg-deep-blue: #07111F;
-  --amg-accent-blue: #3B82F6;
-  --amg-slate-gray: #9CA3AF;
-  --amg-light-gray: #C0C7D1;
+  --amg-deep-blue: #081525;
+  --amg-accent-blue: #1D4ED8;
+  --amg-slate-gray: #6B7280;
+  --amg-light-gray: #E5E7EB;
   --amg-white: #FFFFFF;
   --amg-bg: #050B14;
   --amg-bg-muted: #07111F;
-  --amg-bg-elevated: rgba(12, 25, 43, 0.94);
+  --amg-bg-elevated: rgba(8, 21, 37, 0.94);
   --amg-bg-glass: rgba(7, 17, 31, 0.78);
   --amg-bg-portal: #050B14;
   --amg-bg-footer: #050B14;
   --amg-text-primary: #FFFFFF;
-  --amg-text-secondary: #C0C7D1;
-  --amg-text-muted: #9CA3AF;
+  --amg-text-secondary: #E5E7EB;
+  --amg-text-muted: #6B7280;
   --amg-text-subtle: rgba(192, 199, 209, 0.72);
   --amg-text-inverse: #050B14;
-  --amg-text-accent: #3B82F6;
-  --amg-border-default: rgba(192, 199, 209, 0.18);
+  --amg-text-accent: #38BDF8;
+  --amg-border-default: rgba(229, 231, 235, 0.16);
   --amg-border-muted: rgba(192, 199, 209, 0.12);
   --amg-border-strong: rgba(192, 199, 209, 0.32);
   --amg-border-accent: rgba(59, 130, 246, 0.52);
@@ -67,16 +67,16 @@
   --oc-muted-dark: #C0C7D1;
   --oc-aluminum: #C0C7D1;
   --oc-aluminum-2: #9CA3AF;
-  --oc-blue: #3B82F6;
-  --oc-blue-soft: #3B82F6;
-  --oc-accent: #3B82F6;
-  --oc-sky: #3B82F6;
+  --oc-blue: #1D4ED8;
+  --oc-blue-soft: #38BDF8;
+  --oc-accent: #D4AF37;
+  --oc-sky: #38BDF8;
   --oc-line: rgb(5 11 20 / 0.14);
   --oc-line-strong: rgb(5 11 20 / 0.24);
-  --oc-line-dark: rgb(192 199 209 / 0.22);
+  --oc-line-dark: rgb(229 231 235 / 0.18);
   --oc-shadow: 0 24px 70px rgb(5 11 20 / 0.14);
-  --oc-display: var(--font-inter), -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
-  --oc-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+  --oc-display: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+  --oc-sans: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
 
   --amg-motion-fast: 160ms;
   --amg-motion-base: 240ms;
@@ -141,8 +141,8 @@
   --sidebar-border: oklch(0.93 0.018 248 / 16%);
   --sidebar-ring: oklch(0.62 0.19 258);
 
-  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
-  --font-display: var(--font-inter), -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, monospace;
 }
 
@@ -215,8 +215,9 @@
   }
   body {
     background:
-      radial-gradient(circle at 84% 0%, rgb(59 130 246 / 0.16), transparent 28rem),
-      linear-gradient(180deg, #050B14 0%, #07111F 48%, #050B14 100%);
+      radial-gradient(circle at 84% 0%, rgb(56 189 248 / 0.10), transparent 28rem),
+      radial-gradient(circle at 10% 15%, rgb(29 78 216 / 0.12), transparent 34rem),
+      linear-gradient(180deg, #050B14 0%, #081525 46%, #050B14 100%);
     color: var(--foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -234,9 +235,9 @@
   }
   .display-heading {
     font-family: var(--font-display);
-    font-weight: 800;
-    letter-spacing: 0;
-    line-height: 1.05;
+    font-weight: 650;
+    letter-spacing: -0.055em;
+    line-height: 0.94;
   }
   .eyebrow {
     font-family: var(--font-display);
@@ -2051,5 +2052,128 @@ html.lenis body {
 @media (prefers-reduced-motion: reduce) {
   .crew-blip-glow {
     animation: none;
+  }
+}
+
+/* ── Build Premium Web pass: AMG operations-briefing system ───────────────
+   Centralized public-site refinements: sharper corporate-aviation surfaces,
+   editorial scale, verified brand colors, restrained motion, and focus states.
+   Scoped to .public-site so authenticated portal layouts keep their shell. */
+.public-site {
+  --briefing-max: 78rem;
+  --briefing-gutter: clamp(1.25rem, 3vw, 2.5rem);
+  --briefing-radius: 0.375rem;
+  --briefing-shadow: 0 28px 90px rgb(0 0 0 / 0.34);
+  background:
+    linear-gradient(90deg, rgb(229 231 235 / 0.035) 1px, transparent 1px),
+    linear-gradient(180deg, rgb(229 231 235 / 0.025) 1px, transparent 1px),
+    radial-gradient(circle at 72% 4%, rgb(56 189 248 / 0.10), transparent 30rem),
+    linear-gradient(180deg, #050B14 0%, #081525 48%, #050B14 100%);
+  background-size: 88px 88px, 88px 88px, auto, auto;
+  overflow-x: clip;
+}
+.public-site .oc-shell {
+  width: min(calc(100% - (var(--briefing-gutter) * 2)), var(--briefing-max));
+  margin-inline: auto;
+}
+.public-site .oc-section {
+  padding-block: clamp(4.5rem, 8vw, 8rem);
+}
+.public-site .oc-display {
+  letter-spacing: -0.045em;
+  line-height: 0.96;
+  text-wrap: balance;
+}
+.public-site .hero-copy-layer .display-lg {
+  font-size: clamp(3.25rem, 8.5vw, 8.25rem);
+  letter-spacing: -0.055em;
+  line-height: 0.92;
+}
+.public-site .oc-eyebrow,
+.public-site .microlabel,
+.public-site .microlabel-green,
+.public-site .microlabel-amber,
+.public-site .oc-mono {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+.public-site .oc-eyebrow,
+.public-site .microlabel,
+.public-site .microlabel-green,
+.public-site .microlabel-amber {
+  letter-spacing: 0.18em;
+}
+.public-site .oc-card-dark,
+.public-site .oc-panel-navy,
+.public-site main > :not(.fd-site) .hud-frame {
+  border-radius: var(--briefing-radius);
+  border-color: rgb(229 231 235 / 0.16);
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 0.055), rgb(255 255 255 / 0.018) 42%, rgb(29 78 216 / 0.045)),
+    #07111F;
+  box-shadow: var(--briefing-shadow);
+}
+.public-site main > :not(.fd-site) .hud-frame {
+  position: relative;
+}
+.public-site main > :not(.fd-site) .hud-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, var(--amber), transparent 5.5rem) top left / 100% 1px no-repeat,
+    linear-gradient(180deg, rgb(56 189 248 / 0.5), transparent 5.5rem) top left / 1px 100% no-repeat;
+  opacity: 0.45;
+}
+.public-site .pub-hero {
+  min-height: clamp(560px, 74svh, 820px);
+  display: grid;
+  align-items: center;
+  background:
+    radial-gradient(circle at 18% 18%, rgb(29 78 216 / 0.22), transparent 30rem),
+    radial-gradient(circle at 90% 0%, rgb(56 189 248 / 0.09), transparent 34rem),
+    linear-gradient(180deg, rgb(5 11 20 / 0.2), rgb(5 11 20 / 0));
+}
+.public-site .oc-btn,
+.public-site .oc-btn-light,
+.public-site .oc-btn-primary,
+.public-site .oc-btn-ghost-dark {
+  border-radius: var(--briefing-radius);
+  min-height: 2.875rem;
+  letter-spacing: 0.14em;
+}
+.public-site a,
+.public-site button {
+  text-underline-offset: 0.18em;
+}
+.public-site a:focus-visible,
+.public-site button:focus-visible,
+.public-site input:focus-visible,
+.public-site select:focus-visible,
+.public-site textarea:focus-visible {
+  outline: 2px solid var(--instrument-ink);
+  outline-offset: 4px;
+}
+.public-site .pub-card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 26px 80px rgb(0 0 0 / 0.34);
+}
+@media (max-width: 640px) {
+  .public-site .hero-copy-layer .display-lg {
+    font-size: clamp(2.75rem, 14vw, 4.4rem);
+  }
+  .public-site .pub-hero {
+    min-height: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .public-site *,
+  .public-site *::before,
+  .public-site *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
   }
 }

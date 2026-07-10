@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 /**
  * Branded 404 for the public site — rendered inside the (public) layout,
  * so it carries the standard nav and footer. Neutral copy, three routes
- * out (spec: Home, Pricing, Request a Quote).
+ * out (spec: Home, Pricing, Request Support).
  */
 export default function PublicNotFound() {
   return (
@@ -33,7 +33,7 @@ export default function PublicNotFound() {
           Pricing
         </Link>
         <Link href="/request" prefetch={false} className="oc-btn oc-btn-light">
-          Request a Quote
+          Request Support
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>

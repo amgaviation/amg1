@@ -6,16 +6,16 @@ import { HeadlineReveal } from "@/components/site/headline-reveal";
 import { PLAN_TABLE } from "@/lib/site-config";
 
 export const metadata: Metadata = {
-  title: "Request a Quote — Written Answer in 24 Business Hours",
+  title: "Request Support — AMG Aviation Group",
   description:
-    "One form, five minutes: aircraft, mission, dates, insurance carrier. A named coordinator replies with a written, itemized quote within 24 business hours.",
+    "Request owner-controlled aviation support coordination from AMG Aviation Group. Submit aircraft, timing, scope, crew, documentation, and insurance context for review.",
 };
 
 /** What lands back in your inbox — the quote's committed contents. */
 const RETURNS = [
-  "Pilot options with qualifications",
-  "Itemized all-in cost",
-  "Timeline to wheels-up",
+  "Reviewed support options and coordination notes",
+  "Itemized quote or next-step clarification",
+  "Timeline, documentation, and closeout expectations",
 ] as const;
 
 // success/error are read client-side inside RequestFormSection (useSearchParams),
@@ -32,11 +32,10 @@ export default function RequestPage() {
           </p>
           <HeadlineReveal
             className="oc-display mt-4 text-5xl text-[var(--oc-paper)] sm:text-6xl"
-            lines={["Five minutes now.", "A written quote in 24 hours."]}
+            lines={["Request support.", "A reviewed path, clearly tracked."]}
           />
           <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]" data-stagger-item>
-            No phone tag. Submit the mission and a named coordinator replies with pilot options,
-            qualifications, and an itemized all-in cost. Prefer to talk?{" "}
+            No phone tag. Submit the aircraft, timing, scope, crew, documentation, and insurance context so AMG can review the support path. Prefer to talk?{" "}
             <PhoneLink source="request_page" className="oc-mono text-[var(--oc-paper)] underline-offset-2 hover:underline" />
           </p>
         </div>
@@ -53,7 +52,7 @@ export default function RequestPage() {
 
           <aside className="grid gap-4 lg:sticky lg:top-28" data-stagger-container>
             <div className="hud-frame oc-card-dark p-6" data-stagger-item>
-              <p className="microlabel-amber">The clock starts at submit</p>
+              <p className="microlabel-amber">Review clock starts when complete</p>
               <dl className="mt-4">
                 {plans.map((plan, i) => (
                   <div
@@ -84,7 +83,7 @@ export default function RequestPage() {
                 ))}
               </ul>
               <p className="mt-5 border-t border-[rgba(169,180,198,0.14)] pt-4 text-[0.83rem] leading-relaxed text-[var(--oc-aluminum-2)]">
-                Written, from a named coordinator — the quote becomes the invoice, line for line.{" "}
+                Written, from a named coordinator — when AMG issues a quote, approved invoice lines mirror the quote.{" "}
                 <Link
                   href="/how-it-works"
                   prefetch={false}

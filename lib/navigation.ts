@@ -33,14 +33,14 @@ export const PUBLIC_FOOTER_GROUPS: { label: string; href: string; items: PublicN
     href: "/",
     items: [
       ...PUBLIC_NAV_LINKS,
-      { label: "Get a Quote", href: "/request" },
+      { label: "Request Support", href: "/request" },
     ],
   },
   {
     label: "AMG Connect",
-    href: "/connect",
+    href: "/login",
     items: [
-      { label: "Portal login", href: "/connect" },
+      { label: "AMG Connect login", href: "/login" },
       { label: "Apply to the pilot network", href: "/pilots/apply" },
     ],
   },

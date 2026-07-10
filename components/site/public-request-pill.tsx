@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 /**
- * Persistent bottom-center "Get a Quote" pill for the public marketing pages —
+ * Persistent bottom-center "Request Support" pill for the public marketing pages —
  * the flight-deck home's signature CTA, ported to every secondary page so the
  * quote action is always one tap away. CSS-only (no GSAP): it stays hidden
  * while the hero is on screen and hides again whenever a section carrying its
@@ -67,16 +67,18 @@ export function PublicRequestPill() {
       ref={ref}
       data-shown={shown}
       className="fixed bottom-6 left-1/2 z-40 -translate-x-1/2 translate-y-4 opacity-0 transition-[opacity,transform] duration-500 ease-out data-[shown=true]:translate-y-0 data-[shown=true]:opacity-100"
-      style={{ pointerEvents: shown ? "auto" : "none" }}
+      style={{ pointerEvents: shown ? "auto" : "none", visibility: shown ? "visible" : "hidden" }}
+      aria-hidden={!shown}
     >
       <div className="rounded-full border border-[var(--oc-line-strong)] bg-[#0A1322] p-1 shadow-[0_18px_50px_rgba(0,0,0,0.5)]">
         <Link
           href="/request"
           prefetch={false}
-          className="group flex items-center gap-2 rounded-full bg-[var(--instrument)] py-2 pl-6 pr-2 text-white shadow-[0_0_40px_rgba(11,94,212,0.35)] transition-shadow hover:shadow-[0_0_60px_rgba(11,94,212,0.55)]"
+          tabIndex={shown ? 0 : -1}
+          className="group flex items-center gap-2 rounded-full bg-[var(--instrument)] py-2 pl-6 pr-2 text-white shadow-[0_0_40px_rgba(11,94,212,0.35)] transition-shadow hover:shadow-[0_0_60px_rgba(11,94,212,0.55)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--instrument-ink)]"
         >
           <span className="whitespace-nowrap font-mono text-xs font-medium uppercase [letter-spacing:0.14em]">
-            Get a Quote
+            Request Support
           </span>
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--canvas)] text-[var(--instrument)] transition-transform duration-500 ease-out group-hover:rotate-45">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
