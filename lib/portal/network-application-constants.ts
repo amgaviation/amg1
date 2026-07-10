@@ -47,6 +47,8 @@ export const NETWORK_DENIAL_REASONS = [
 ] as const;
 
 export const NETWORK_APPLICATION_SOURCES = ["application", "manual", "csv_import", "xlsx_import"] as const;
+export const NETWORK_PROSPECT_IMPORT_MAX_FILE_BYTES = 8 * 1024 * 1024;
+export const NETWORK_PROSPECT_IMPORT_MAX_ROWS = 2000;
 export type NetworkApplicationSource = (typeof NETWORK_APPLICATION_SOURCES)[number];
 
 export const NETWORK_SOURCE_LABELS: Record<NetworkApplicationSource, string> = {

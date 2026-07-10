@@ -52,12 +52,16 @@ export function PortalLogin({
   mode: initialMode = "signin",
   error,
   success,
+  publicSignupEnabled,
 }: {
   mode?: "signin" | "request";
   error?: string;
   success?: string;
+  publicSignupEnabled: boolean;
 }) {
-  const [mode, setMode] = useState<"signin" | "request">(initialMode);
+  const [mode, setMode] = useState<"signin" | "request">(
+    publicSignupEnabled ? initialMode : "signin",
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -134,7 +138,12 @@ export function PortalLogin({
 
         <section className="w-full lg:justify-self-end">
           <div className="rounded-2xl border border-white/[0.12] bg-white/[0.06] p-6 shadow-2xl backdrop-blur-2xl sm:p-8">
-            <div className="mb-6 grid grid-cols-2 gap-1 rounded-full border border-white/[0.10] bg-white/[0.06] p-1">
+            <div
+              className={cn(
+                "mb-6 grid gap-1 rounded-full border border-white/[0.10] bg-white/[0.06] p-1",
+                publicSignupEnabled ? "grid-cols-2" : "grid-cols-1",
+              )}
+            >
               <button
                 type="button"
                 onClick={() => setMode("signin")}
@@ -150,20 +159,22 @@ export function PortalLogin({
                 Sign in
               </button>
 
-              <button
-                type="button"
-                onClick={() => setMode("request")}
-                aria-pressed={!isSignIn}
-                className={cn(
-                  "inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition",
-                  !isSignIn
-                    ? "bg-[var(--instrument)] text-white"
-                    : "text-[var(--oc-aluminum)] hover:text-white"
-                )}
-              >
-                <UserPlus className="h-4 w-4" />
-                Request access
-              </button>
+              {publicSignupEnabled ? (
+                <button
+                  type="button"
+                  onClick={() => setMode("request")}
+                  aria-pressed={!isSignIn}
+                  className={cn(
+                    "inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition",
+                    !isSignIn
+                      ? "bg-[var(--instrument)] text-white"
+                      : "text-[var(--oc-aluminum)] hover:text-white"
+                  )}
+                >
+                  <UserPlus className="h-4 w-4" />
+                  Request access
+                </button>
+              ) : null}
             </div>
 
             {error ? (
@@ -215,7 +226,7 @@ export function PortalLogin({
               </div>
             ) : null}
 
-            {isSignIn ? (
+            {isSignIn || !publicSignupEnabled ? (
               <form action={signIn}>
                 <div className="grid gap-2">
                   <label

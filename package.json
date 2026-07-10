@@ -17,9 +17,10 @@
     "website-editor:verify": "node scripts/verify-website-editor.mjs",
     "import:crew-profiles": "tsx scripts/import-crew-profiles-from-csv.ts",
     "verify:crew-import": "tsx scripts/verify-crew-import-visibility.ts",
-    "stripe:verify": "tsx scripts/verify-stripe-invoice-payments.ts",
+    "stripe:verify": "NODE_OPTIONS=--conditions=react-server tsx scripts/verify-stripe-invoice-payments.ts",
     "stripe:subscriptions:verify": "tsx scripts/verify-stripe-subscriptions.ts",
     "stripe:live-readiness:verify": "tsx scripts/verify-stripe-live-readiness.ts",
+    "security:remediation:verify": "tsx scripts/verify-full-security-remediation.ts",
     "portal:supabase-edit:verify": "node scripts/verify-portal-supabase-edit-contract.mjs",
     "pricing:verify": "tsx scripts/verify-pricing-catalog.ts",
     "lint": "tsc --noEmit",
@@ -60,7 +61,7 @@
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.184.0",
-    "xlsx": "^0.18.5"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.0",
@@ -69,11 +70,17 @@
     "@types/react-dom": "^19.0.1",
     "@types/three": "^0.184.1",
     "postcss": "^8.4.49",
+    "server-only": "^0.0.1",
     "tailwindcss": "^4.0.0",
     "tsx": "^4.21.0",
     "typescript": "^5.7.2"
   },
   "allowScripts": {
     "sharp@0.34.5": true
+  },
+  "overrides": {
+    "next": {
+      "postcss": "8.5.16"
+    }
   }
 }

@@ -69,6 +69,19 @@ export function buildInvoiceCheckoutSummary(
   };
 }
 
+export function invoiceCheckoutIdempotencyKey(
+  invoice: StripePayableInvoice,
+  previousSessionId?: string | null,
+) {
+  return [
+    "amg-invoice-checkout",
+    invoice.id,
+    invoiceAmountDueCents(invoice),
+    normalizedCurrency(invoice.currency),
+    previousSessionId || "initial",
+  ].join(":");
+}
+
 export function stripeAmountMatchesInvoice(invoice: StripePayableInvoice, amount: StripeAmount) {
   return (
     invoiceAmountDueCents(invoice) === Number(amount.amountTotal ?? 0) &&

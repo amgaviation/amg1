@@ -5,6 +5,10 @@ import { addNetworkProspect, importNetworkProspects } from "@/app/portal/actions
 import { TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { Button } from "@/components/ui/button";
+import {
+  NETWORK_PROSPECT_IMPORT_MAX_FILE_BYTES,
+  NETWORK_PROSPECT_IMPORT_MAX_ROWS,
+} from "@/lib/portal/network-application-constants";
 
 /**
  * Manual "Add prospect" + CSV/XLSX "Import prospects" tools for the Network
@@ -135,21 +139,50 @@ export function NetworkProspectTools() {
 
   async function handleFile(file: File) {
     setParseBusy(true);
+    const isXlsx = /\.xlsx?$/i.test(file.name) && !/\.csv$/i.test(file.name);
+    const source = isXlsx ? ("xlsx_import" as const) : ("csv_import" as const);
     try {
-      const isXlsx = /\.xlsx?$/i.test(file.name) && !/\.csv$/i.test(file.name);
+      if (file.size > NETWORK_PROSPECT_IMPORT_MAX_FILE_BYTES) {
+        setParsed({
+          rows: [],
+          errors: ["File is larger than 8 MB. Split it and try again."],
+          source,
+          filename: file.name,
+        });
+        return;
+      }
+
       let matrix: (string | number | null)[][];
       if (isXlsx) {
         const XLSX = await import("xlsx");
-        const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
+        const wb = XLSX.read(await file.arrayBuffer(), {
+          type: "array",
+          dense: true,
+          sheets: 0,
+          sheetRows: NETWORK_PROSPECT_IMPORT_MAX_ROWS + 2,
+        });
         const sheet = wb.Sheets[wb.SheetNames[0]];
         matrix = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: "" }) as string[][];
       } else {
         matrix = parseCsv(await file.text());
       }
+
+      if (Math.max(0, matrix.length - 1) > NETWORK_PROSPECT_IMPORT_MAX_ROWS) {
+        setParsed({
+          rows: [],
+          errors: [
+            `That file has more than ${NETWORK_PROSPECT_IMPORT_MAX_ROWS.toLocaleString()} data rows. The limit is ${NETWORK_PROSPECT_IMPORT_MAX_ROWS.toLocaleString()} per import.`,
+          ],
+          source,
+          filename: file.name,
+        });
+        return;
+      }
+
       const result = rowsFromMatrix(matrix);
-      setParsed({ ...result, source: isXlsx ? "xlsx_import" : "csv_import", filename: file.name });
+      setParsed({ ...result, source, filename: file.name });
     } catch {
-      setParsed({ rows: [], errors: ["File could not be parsed. Confirm it is a valid .csv or .xlsx file."], source: "csv_import", filename: file.name });
+      setParsed({ rows: [], errors: ["File could not be parsed. Confirm it is a valid .csv or .xlsx file."], source, filename: file.name });
     } finally {
       setParseBusy(false);
     }

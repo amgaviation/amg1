@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createClient, createServiceClient } from "@/lib/supabase/server";
-import { isPortalRole, isAdminRole } from "@/lib/portal/constants";
+import { createServiceClient } from "@/lib/supabase/server";
+import { isAdminRole } from "@/lib/portal/constants";
+import { requireApprovedPortalApiUser } from "@/lib/portal/api-guard";
 import { createSafeErrorResponse, logServerError } from "@/lib/errors/user-facing-errors";
 import { isSensitiveDocumentCategory } from "@/lib/compliance/document-classification";
 import { recordSensitiveAccessEvent } from "@/lib/compliance/evidence";
@@ -11,31 +12,11 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json(
-      createSafeErrorResponse({ audience: "client", area: "documents", action: "download", category: "permission" }),
-      { status: 401 },
-    );
-  }
+  const gate = await requireApprovedPortalApiUser();
+  if (gate.response) return gate.response;
+  const user = gate.user;
 
   const db = (await createServiceClient()) as any;
-  const { data: profile } = await db
-    .from("profiles")
-    .select("id, role, status")
-    .eq("id", user.id)
-    .maybeSingle();
-  if (!profile || !isPortalRole(profile.role) || profile.status !== "approved") {
-    return NextResponse.json(
-      createSafeErrorResponse({ audience: "client", area: "documents", action: "download", category: "permission" }),
-      { status: 403 },
-    );
-  }
 
   const { data: doc, error } = await db
     .from("documents")
@@ -45,19 +26,19 @@ export async function GET(
 
   if (error || !doc) {
     return NextResponse.json(
-      createSafeErrorResponse({ audience: profile.role === "admin" ? "admin" : profile.role === "crew" ? "crew" : profile.role === "partner" ? "vendor" : "client", area: "documents", action: "download", category: "not_found" }),
+      createSafeErrorResponse({ audience: user.role === "admin" ? "admin" : user.role === "crew" ? "crew" : user.role === "partner" ? "vendor" : "client", area: "documents", action: "download", category: "not_found" }),
       { status: 404 },
     );
   }
 
   const allowed =
-    isAdminRole(profile.role) ||
+    isAdminRole(user.role) ||
     doc.visibility === "public" ||
     doc.uploaded_by === user.id ||
     doc.scope_id === user.id;
   if (!allowed) {
     return NextResponse.json(
-      createSafeErrorResponse({ audience: profile.role === "crew" ? "crew" : profile.role === "partner" ? "vendor" : "client", area: "documents", action: "download", category: "permission" }),
+      createSafeErrorResponse({ audience: user.role === "crew" ? "crew" : user.role === "partner" ? "vendor" : "client", area: "documents", action: "download", category: "permission" }),
       { status: 403 },
     );
   }
@@ -76,14 +57,14 @@ export async function GET(
   if (downloadError || !file) {
     const referenceId = downloadError ? logServerError("Portal document download failed", downloadError, { userId: user.id, documentId: id }) : undefined;
     return NextResponse.json(
-      createSafeErrorResponse({ audience: profile.role === "admin" ? "admin" : profile.role === "crew" ? "crew" : profile.role === "partner" ? "vendor" : "client", area: "documents", action: "download", category: "unavailable", correlationId: referenceId }),
+      createSafeErrorResponse({ audience: user.role === "admin" ? "admin" : user.role === "crew" ? "crew" : user.role === "partner" ? "vendor" : "client", area: "documents", action: "download", category: "unavailable", correlationId: referenceId }),
       { status: 500 },
     );
   }
 
   await recordSensitiveAccessEvent({
-    actor: { id: profile.id, email: user.email ?? "", role: profile.role },
-    audience: profile.role,
+    actor: user,
+    audience: user.role,
     relatedRecordType: "document",
     relatedRecordId: id,
     sensitive: isSensitiveDocumentCategory(doc.compliance_category ?? doc.doc_type),

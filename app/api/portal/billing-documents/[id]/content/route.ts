@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/portal/session";
+import { requireApprovedPortalApiUser } from "@/lib/portal/api-guard";
 import { isAdminRole } from "@/lib/portal/constants";
 import { createServiceClient } from "@/lib/supabase/server";
 import { createSafeErrorResponse, logServerError } from "@/lib/errors/user-facing-errors";
@@ -10,10 +10,9 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const user = await getSessionUser();
-  if (!user || user.status !== "approved") {
-    return NextResponse.json(createSafeErrorResponse({ audience: "client", area: "documents", action: "download", category: "permission" }), { status: 401 });
-  }
+  const gate = await requireApprovedPortalApiUser();
+  if (gate.response) return gate.response;
+  const user = gate.user;
 
   const { id } = await params;
   const db = (await createServiceClient()) as any;

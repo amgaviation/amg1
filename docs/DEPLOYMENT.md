@@ -17,7 +17,15 @@ NEXT_PUBLIC_APP_URL=
 NEXT_PUBLIC_SITE_URL=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
+AMG_CONNECT_MAINTENANCE_MODE=true
+AMG_CONNECT_PUBLIC_SIGNUP=disabled
 ```
+
+`AMG_CONNECT_MAINTENANCE_MODE` is fail-closed: only the exact value `false`
+reopens normal portal routes. `AMG_CONNECT_PUBLIC_SIGNUP` is also fail-closed:
+only the exact value `enabled` accepts public access requests. During emergency
+maintenance, only approved, active admin and super-admin accounts can use their
+dedicated admin paths.
 
 ## Optional Notification Variables
 

@@ -18,6 +18,7 @@ export {
   type NetworkApplicationStatus,
 } from "@/lib/portal/network-application-constants";
 import { NETWORK_APPLICATION_STATUSES, type NetworkApplicationSource, type NetworkApplicationStatus } from "@/lib/portal/network-application-constants";
+import { NETWORK_PROSPECT_IMPORT_MAX_ROWS } from "@/lib/portal/network-application-constants";
 import {
   buildNetworkDecisionEmailCopy,
   decisionReasonFor,
@@ -886,6 +887,13 @@ export async function importProspects(input: {
   source: "csv_import" | "xlsx_import";
   rows: ProspectInput[];
 }) {
+  if (input.rows.length > NETWORK_PROSPECT_IMPORT_MAX_ROWS) {
+    return {
+      ok: false as const,
+      error: `Too many rows (${input.rows.length}). The limit is ${NETWORK_PROSPECT_IMPORT_MAX_ROWS} per import.`,
+    };
+  }
+
   const db = (await createServiceClient()) as any;
   const batchId = `${input.source === "csv_import" ? "csv" : "xlsx"}-${Date.now()}`;
 

@@ -3,7 +3,6 @@ import "server-only";
 import Stripe from "stripe";
 import { createServiceClient } from "@/lib/supabase/server";
 import { absolutePortalUrl, absoluteSiteUrl } from "@/lib/email/config";
-import { nextBillingDocumentNumber } from "@/lib/portal/billing-numbering";
 import type { SessionUser } from "@/lib/portal/session";
 import { isAdminRole } from "@/lib/portal/constants";
 import {
@@ -13,9 +12,9 @@ import {
 import {
   buildInvoiceCheckoutSummary,
   canInvoiceReceiveStripePayment,
+  invoiceCheckoutIdempotencyKey,
   invoiceAmountDueCents,
   normalizedCurrency,
-  stripeAmountMatchesInvoice,
   type StripePayableInvoice,
 } from "@/lib/portal/stripe-invoice-core";
 
@@ -155,30 +154,34 @@ async function createInvoiceCheckoutSession(invoice: any): Promise<CheckoutResul
   const email = clientEmail(invoice);
 
   try {
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      customer_email: email ?? undefined,
-      success_url: checkout.successUrl,
-      cancel_url: checkout.cancelUrl,
-      metadata: checkout.metadata,
-      payment_intent_data: { metadata: checkout.metadata },
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: checkout.currency,
-            unit_amount: checkout.amountCents,
-            product_data: {
-              name: `Invoice ${invoice.invoice_number}`,
-              description: `AMG Aviation Group invoice ${invoice.invoice_number}`,
+    const previousSessionId = invoice.stripe_checkout_session_id ?? invoice.payment_provider_session_id;
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: "payment",
+        customer_email: email ?? undefined,
+        success_url: checkout.successUrl,
+        cancel_url: checkout.cancelUrl,
+        metadata: checkout.metadata,
+        payment_intent_data: { metadata: checkout.metadata },
+        line_items: [
+          {
+            quantity: 1,
+            price_data: {
+              currency: checkout.currency,
+              unit_amount: checkout.amountCents,
+              product_data: {
+                name: `Invoice ${invoice.invoice_number}`,
+                description: `AMG Aviation Group invoice ${invoice.invoice_number}`,
+              },
             },
           },
-        },
-      ],
-    });
+        ],
+      },
+      { idempotencyKey: invoiceCheckoutIdempotencyKey(payable, previousSessionId) },
+    );
 
     const db = (await createServiceClient()) as any;
-    await db
+    const { data: persistedInvoice, error: persistError } = await db
       .from("invoices")
       .update({
         payment_provider: "stripe",
@@ -186,6 +189,7 @@ async function createInvoiceCheckoutSession(invoice: any): Promise<CheckoutResul
         payment_link_url: session.url,
         payment_status: session.status,
         stripe_checkout_session_id: session.id,
+        stripe_payment_intent_id: paymentIntentId(session.payment_intent),
         stripe_customer_id: customerId(session.customer),
         stripe_payment_url: session.url,
         stripe_payment_status: session.status,
@@ -194,22 +198,20 @@ async function createInvoiceCheckoutSession(invoice: any): Promise<CheckoutResul
         payment_error: null,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", invoice.id);
+      .eq("id", invoice.id)
+      .in("status", ["sent", "viewed", "overdue", "partially_paid"])
+      .select("id")
+      .maybeSingle();
+
+    if (persistError || !persistedInvoice) {
+      console.error("[stripe] checkout session could not be associated with payable invoice", invoice.id, persistError);
+      return { ok: false, reason: "stripe" };
+    }
 
     if (!session.url) return { ok: false, reason: "stripe" };
     return { ok: true, url: session.url, sessionId: session.id };
   } catch (error) {
-    const db = (await createServiceClient()) as any;
-    await db
-      .from("invoices")
-      .update({
-        payment_provider: "stripe",
-        payment_status: "failed",
-        stripe_payment_status: "failed",
-        payment_error: error instanceof Error ? error.message : "Stripe checkout session failed",
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", invoice.id);
+    console.error("[stripe] checkout session creation failed", invoice.id, error);
     return { ok: false, reason: "stripe" };
   }
 }
@@ -301,7 +303,10 @@ async function handleStripeEvent(event: Stripe.Event): Promise<WebhookResult> {
     case "payment_method.attached":
       return handleStripeSubscriptionEvent(event);
     case "payment_intent.succeeded":
-      return markInvoiceStripePaymentIntent(event.data.object as Stripe.PaymentIntent, "succeeded");
+      // Checkout completion is the authoritative payment-ledger event. A
+      // PaymentIntent success can arrive before/after it and must not mutate
+      // invoice state independently.
+      return { ok: true, ignored: true };
     case "payment_intent.payment_failed":
       return markInvoiceStripePaymentIntent(event.data.object as Stripe.PaymentIntent, "failed");
     case "payment_intent.canceled":
@@ -315,35 +320,33 @@ async function markInvoiceStripeStatus(session: Stripe.Checkout.Session, status:
   const invoiceId = session.metadata?.invoice_id;
   if (!invoiceId) return { ok: true, ignored: true };
   const db = (await createServiceClient()) as any;
-  await db
-    .from("invoices")
-    .update({
-      payment_status: status,
-      stripe_payment_status: status,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", invoiceId);
-  return { ok: true };
+  const { data, error } = await db.rpc("update_stripe_invoice_event_status", {
+    p_invoice_id: invoiceId,
+    p_checkout_session_id: session.id,
+    p_payment_intent_id: null,
+    p_status: status,
+    p_error: null,
+  });
+  if (error) return { ok: false, error: "Could not record Stripe session status" };
+  return { ok: true, ignored: data?.outcome !== "applied" && data?.outcome !== "reconciliation_required" };
 }
 
 async function markInvoiceStripePaymentIntent(
   intent: Stripe.PaymentIntent,
-  status: "succeeded" | "failed" | "canceled",
+  status: "failed" | "canceled",
 ): Promise<WebhookResult> {
   const invoiceId = intent.metadata?.invoice_id;
   if (!invoiceId) return { ok: true, ignored: true };
   const db = (await createServiceClient()) as any;
-  await db
-    .from("invoices")
-    .update({
-      stripe_payment_intent_id: intent.id,
-      payment_status: status,
-      stripe_payment_status: status,
-      payment_error: status === "failed" ? intent.last_payment_error?.message ?? "Payment failed" : null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", invoiceId);
-  return { ok: true };
+  const { data, error } = await db.rpc("update_stripe_invoice_event_status", {
+    p_invoice_id: invoiceId,
+    p_checkout_session_id: null,
+    p_payment_intent_id: intent.id,
+    p_status: status,
+    p_error: status === "failed" ? intent.last_payment_error?.message ?? "Payment failed" : "Payment canceled",
+  });
+  if (error) return { ok: false, error: "Could not record Stripe payment intent status" };
+  return { ok: true, ignored: data?.outcome !== "applied" && data?.outcome !== "reconciliation_required" };
 }
 
 async function markInvoicePaidFromCheckoutSession(
@@ -353,117 +356,53 @@ async function markInvoicePaidFromCheckoutSession(
   const invoiceId = session.metadata?.invoice_id;
   if (!invoiceId) return { ok: false, error: "Missing invoice metadata" };
   if (session.payment_status && session.payment_status !== "paid") {
-    await markInvoiceStripeStatus(session, session.payment_status);
+    const statusResult = await markInvoiceStripeStatus(session, session.payment_status);
+    if (!statusResult.ok) return statusResult;
     return { ok: true, ignored: true };
   }
 
-  const db = (await createServiceClient()) as any;
-  const invoice = await loadInvoice(invoiceId);
-  if (!invoice) return { ok: false, error: "Invoice not found" };
-
-  const payable = toPayableInvoice(invoice);
-  if (!stripeAmountMatchesInvoice(payable, { amountTotal: session.amount_total, currency: session.currency })) {
-    await db
-      .from("invoices")
-      .update({
-        payment_status: "amount_mismatch",
-        stripe_payment_status: "amount_mismatch",
-        payment_error: "Stripe amount or currency did not match invoice amount due.",
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", invoice.id);
-    return { ok: false, error: "Stripe amount or currency did not match invoice" };
+  if (session.amount_total == null || !session.currency) {
+    return { ok: false, error: "Stripe payment amount or currency was missing" };
   }
 
+  const db = (await createServiceClient()) as any;
   const intentId = paymentIntentId(session.payment_intent);
-  const { data: existing } = await db
-    .from("payments")
-    .select("id")
-    .or(
-      [
-        `provider_checkout_session_id.eq.${session.id}`,
-        intentId ? `provider_payment_id.eq.${intentId}` : null,
-      ].filter(Boolean).join(","),
-    )
-    .maybeSingle();
-  if (existing) return { ok: true, duplicate: true };
-
   const paidAt = new Date((session.created ?? Math.floor(Date.now() / 1000)) * 1000).toISOString();
-  const amount = Number(session.amount_total ?? 0) / 100;
-  const amountPaid = Number(invoice.amount_paid ?? 0) + amount;
-  const total = Number(invoice.total ?? 0);
-  const amountDue = Math.max(total - amountPaid, 0);
-  const status = amountDue <= 0 ? "paid" : "partially_paid";
-  const receiptNumber = await nextBillingDocumentNumber("receipt");
+  const { data, error } = await db.rpc("record_stripe_invoice_payment", {
+    p_invoice_id: invoiceId,
+    p_checkout_session_id: session.id,
+    p_payment_intent_id: intentId,
+    p_customer_id: customerId(session.customer),
+    p_customer_email: session.customer_details?.email ?? session.customer_email ?? null,
+    p_amount_total: session.amount_total,
+    p_currency: normalizedCurrency(session.currency),
+    p_paid_at: paidAt,
+    p_event_id: eventId,
+    p_payment_url: session.url ?? null,
+  });
 
-  const { data: payment, error: paymentError } = await db
-    .from("payments")
-    .insert({
-      invoice_id: invoice.id,
-      amount,
-      currency: normalizedCurrency(session.currency).toUpperCase(),
-      payment_method: "card",
-      provider: "stripe",
-      provider_payment_id: intentId,
-      provider_checkout_session_id: session.id,
-      provider_customer_id: customerId(session.customer),
-      payment_provider: "stripe",
-      payment_provider_session_id: session.id,
-      payment_status: "paid",
-      payment_reference: intentId ?? session.id,
-      receipt_number: receiptNumber,
-      raw_event_id: eventId,
-      status: "recorded",
-      paid_at: paidAt,
-      notes: "Stripe Checkout payment",
-    })
-    .select("id")
-    .single();
-  if (paymentError || !payment) return { ok: false, error: "Could not record Stripe payment" };
+  if (error || !data || typeof data !== "object") {
+    return { ok: false, error: "Could not record Stripe payment" };
+  }
 
-  await db
-    .from("invoices")
-    .update({
-      amount_paid: amountPaid,
-      amount_due: amountDue,
-      status,
-      paid_at: status === "paid" ? paidAt : invoice.paid_at,
-      payment_provider: "stripe",
-      payment_provider_session_id: session.id,
-      payment_link_url: session.url ?? invoice.payment_link_url ?? null,
-      payment_status: "paid",
-      stripe_checkout_session_id: session.id,
-      stripe_payment_intent_id: intentId,
-      stripe_customer_id: customerId(session.customer),
-      stripe_payment_url: session.url ?? invoice.stripe_payment_url ?? null,
-      stripe_payment_status: "paid",
-      payment_amount_cents: session.amount_total,
-      payment_currency: normalizedCurrency(session.currency),
-      payment_error: null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", invoice.id);
-
-  // The canonical audit log must include the highest-volume payment channel,
-  // not just admin-recorded payments. The paying client is the actor.
-  await db
-    .from("audit_events")
-    .insert({
-      actor_id: invoice.client_id ?? null,
-      actor_email: session.customer_details?.email ?? "stripe-checkout",
-      actor_role: "client",
-      action: "invoice_payment_recorded",
-      detail: `Stripe Checkout payment ${amount} on ${invoice.invoice_number ?? invoice.id} (receipt ${receiptNumber}, session ${session.id})`,
-      entity_type: "invoice",
-      entity_id: invoice.id,
-    })
-    .then(({ error }: { error: unknown }) => {
-      if (error) console.error("[stripe] failed to audit-log payment", payment.id, error);
-    });
+  const outcome = String(data.outcome ?? "");
+  if (outcome === "duplicate") return { ok: true, duplicate: true };
+  if (outcome === "amount_mismatch") {
+    return { ok: false, error: "Stripe amount or currency did not match invoice" };
+  }
+  if (outcome === "invalid_status") {
+    return { ok: false, error: "Invoice is no longer eligible for Stripe payment" };
+  }
+  if (outcome === "reconciliation_required") {
+    return { ok: true };
+  }
+  if (outcome !== "applied" || typeof data.payment_id !== "string") {
+    return { ok: false, error: outcome === "not_found" ? "Invoice not found" : "Could not record Stripe payment" };
+  }
 
   const { emailReceiptPdf } = await import("@/lib/portal/billing-emails");
-  await emailReceiptPdf(payment.id, null).catch((error) => {
-    console.error("[stripe] failed to email Stripe receipt", payment.id, error);
+  await emailReceiptPdf(data.payment_id, null).catch((receiptError) => {
+    console.error("[stripe] failed to email Stripe receipt", data.payment_id, receiptError);
   });
 
   return { ok: true };

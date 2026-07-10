@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import {
   buildInvoiceCheckoutSummary,
   canInvoiceReceiveStripePayment,
+  invoiceCheckoutIdempotencyKey,
   invoicePaymentEmailContent,
   shouldProcessStripeWebhookEvent,
   stripeAmountMatchesInvoice,
@@ -40,6 +41,14 @@ assert.equal(checkout.successUrl, "https://amgaviation.net/payments/stripe/succe
 assert.equal(stripeAmountMatchesInvoice(invoice, { amountTotal: 1285075, currency: "usd" }), true);
 assert.equal(stripeAmountMatchesInvoice(invoice, { amountTotal: 1285074, currency: "usd" }), false);
 assert.equal(stripeAmountMatchesInvoice(invoice, { amountTotal: 1285075, currency: "eur" }), false);
+
+const initialCheckoutKey = invoiceCheckoutIdempotencyKey(invoice, null);
+assert.equal(initialCheckoutKey, invoiceCheckoutIdempotencyKey(invoice, null));
+assert.notEqual(initialCheckoutKey, invoiceCheckoutIdempotencyKey(invoice, "cs_expired_123"));
+assert.notEqual(
+  initialCheckoutKey,
+  invoiceCheckoutIdempotencyKey({ ...invoice, amount_due: invoice.amount_due + 1 }, null),
+);
 
 const email = invoicePaymentEmailContent({
   invoice,
