@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 
 const PASSWORD_SETUP_COOKIE = "amg_password_setup_user";
 
@@ -29,6 +29,28 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
+    return NextResponse.redirect(new URL("/auth/error", url.origin));
+  }
+
+  // Defense-in-depth mirror of requestPasswordReset: a recovery link must not
+  // become a password-setup session for a denied, suspended, deleted, or
+  // deactivated account.
+  const svc = await createServiceClient();
+  const { data: profile } = await svc
+    .from("profiles")
+    .select("status, is_active")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const ineligible =
+    profile &&
+    (profile.status === "denied" ||
+      profile.status === "suspended" ||
+      profile.status === "deleted" ||
+      profile.is_active === false);
+
+  if (ineligible) {
+    await supabase.auth.signOut();
     return NextResponse.redirect(new URL("/auth/error", url.origin));
   }
 

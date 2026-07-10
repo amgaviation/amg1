@@ -153,6 +153,9 @@ const ALLOWED_RESUME_TYPES = new Set([
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ]);
 const ALLOWED_DOC_TYPES = new Set(["application/pdf", "image/jpeg", "image/png"]);
+// Filename-extension allowlists mirror the MIME allowlists above.
+const ALLOWED_RESUME_EXTENSIONS = new Set([".pdf", ".doc", ".docx"]);
+const ALLOWED_DOC_EXTENSIONS = new Set([".pdf", ".jpg", ".jpeg", ".png"]);
 const DISCLAIM =
   "Submission, review, or approval does not guarantee assignment, compensation, contractor status, employment status, or future engagement.";
 
@@ -199,10 +202,16 @@ export function safeFilename(name: string) {
   return safe.slice(0, 140) || "document";
 }
 
-function validateFile(file: File, allowedTypes: Set<string>) {
+function fileExtension(name: string) {
+  const match = /\.[^./\\]+$/.exec(name.trim().toLowerCase());
+  return match ? match[0] : "";
+}
+
+function validateFile(file: File, allowedTypes: Set<string>, allowedExtensions: Set<string>) {
   if (!file.size) return "File is empty.";
   if (file.size > MAX_FILE_SIZE) return "Files must be 50 MB or smaller.";
-  if (file.type && !allowedTypes.has(file.type)) return "File type is not supported.";
+  if (!file.type || !allowedTypes.has(file.type)) return "File type is not supported.";
+  if (!allowedExtensions.has(fileExtension(file.name))) return "File type is not supported.";
   return null;
 }
 
@@ -289,20 +298,20 @@ export function parseNetworkApplicationForm(formData: FormData) {
   const resume = formData.get("resume");
   if (!(resume instanceof File) || !resume.size) errors.resume = "Resume upload is required.";
   if (resume instanceof File && resume.size) {
-    const fileError = validateFile(resume, ALLOWED_RESUME_TYPES);
+    const fileError = validateFile(resume, ALLOWED_RESUME_TYPES, ALLOWED_RESUME_EXTENSIONS);
     if (fileError) errors.resume = fileError;
   }
 
   const certificateFiles = formData.getAll("certificates").filter((item): item is File => item instanceof File && item.size > 0);
   if (certificateFiles.length > 10) errors.certificates = "Upload no more than 10 certificate files.";
   for (const file of certificateFiles) {
-    const fileError = validateFile(file, ALLOWED_DOC_TYPES);
+    const fileError = validateFile(file, ALLOWED_DOC_TYPES, ALLOWED_DOC_EXTENSIONS);
     if (fileError) errors.certificates = fileError;
   }
   const supportingFiles = formData.getAll("supporting_documents").filter((item): item is File => item instanceof File && item.size > 0);
   if (supportingFiles.length > 10) errors.supporting_documents = "Upload no more than 10 supporting documents.";
   for (const file of supportingFiles) {
-    const fileError = validateFile(file, ALLOWED_DOC_TYPES);
+    const fileError = validateFile(file, ALLOWED_DOC_TYPES, ALLOWED_DOC_EXTENSIONS);
     if (fileError) errors.supporting_documents = fileError;
   }
 

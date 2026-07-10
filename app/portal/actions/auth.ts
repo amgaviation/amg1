@@ -117,6 +117,7 @@ async function requestAccessUsingExistingAuthUser({
   businessPurpose,
   company,
   phone,
+  reason,
 }: {
   userId: string;
   email: string;
@@ -124,6 +125,8 @@ async function requestAccessUsingExistingAuthUser({
   businessPurpose: BusinessPurpose;
   company: string;
   phone: string;
+  /** Why the auth user already exists: a released/deleted account or a prior denial. */
+  reason: "release" | "denial";
 }) {
   const svc = await createServiceClient();
 
@@ -171,8 +174,11 @@ async function requestAccessUsingExistingAuthUser({
 
   await logAuditEvent({
     actor: { id: userId, email, role: "client" },
-    action: "access_requested_after_release",
-    detail: `${fullName} submitted a portal access request after account release`,
+    action: reason === "denial" ? "access_rerequested_after_denial" : "access_requested_after_release",
+    detail:
+      reason === "denial"
+        ? `${fullName} re-submitted a portal access request after a previous denial`
+        : `${fullName} submitted a portal access request after account release`,
     entityType: "profile",
     entityId: userId,
   });
@@ -291,6 +297,7 @@ export async function signUp(formData: FormData) {
         businessPurpose,
         company,
         phone,
+        reason: "release",
       });
     }
 
@@ -302,6 +309,7 @@ export async function signUp(formData: FormData) {
         businessPurpose,
         company,
         phone,
+        reason: "release",
       });
     }
 
@@ -325,6 +333,7 @@ export async function signUp(formData: FormData) {
         businessPurpose,
         company,
         phone,
+        reason: "denial",
       });
     }
 
@@ -341,6 +350,7 @@ export async function signUp(formData: FormData) {
       businessPurpose,
       company,
       phone,
+      reason: "release",
     });
   }
 
@@ -488,13 +498,34 @@ export async function requestPasswordReset(formData: FormData) {
 
   if (!email) redirect("/forgot-password?error=missing");
 
-  const supabase = await createClient();
+  // Defense-in-depth: denied, suspended, deleted, or deactivated accounts must
+  // not receive a recovery link. Skip the send silently but still land on the
+  // same success redirect so the response is indistinguishable from an
+  // eligible account (anti-enumeration).
+  const svc = await createServiceClient();
+  const { data: profile } = await svc
+    .from("profiles")
+    .select("status, is_active")
+    .ilike("email", email)
+    .maybeSingle();
 
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: passwordSetupRedirectUrl(),
-  });
+  const ineligible =
+    profile !== null &&
+    profile !== undefined &&
+    (profile.status === "denied" ||
+      profile.status === "suspended" ||
+      profile.status === "deleted" ||
+      profile.is_active === false);
 
-  if (error) redirect("/forgot-password?error=failed");
+  if (!ineligible) {
+    const supabase = await createClient();
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: passwordSetupRedirectUrl(),
+    });
+
+    if (error) redirect("/forgot-password?error=failed");
+  }
 
   redirect("/forgot-password?success=sent");
 }
