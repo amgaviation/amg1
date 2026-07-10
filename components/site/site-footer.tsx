@@ -51,7 +51,7 @@ export function SiteFooter() {
                 Request Support
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
-              <Link href="/login" prefetch={false} className="oc-btn oc-btn-ghost-dark">
+              <Link href="/connect" prefetch={false} className="oc-btn oc-btn-ghost-dark">
                 AMG Connect
               </Link>
             </div>

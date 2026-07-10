@@ -200,7 +200,7 @@ export function SiteNav() {
                 Request Support
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
-              <Link href="/login" prefetch={false} onClick={closeMenu} className="oc-btn oc-btn-ghost-dark justify-center">
+              <Link href="/connect" prefetch={false} onClick={closeMenu} className="oc-btn oc-btn-ghost-dark justify-center">
                 AMG Connect
               </Link>
             </div>

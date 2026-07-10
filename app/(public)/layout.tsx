@@ -17,7 +17,7 @@ const LOCAL_BUSINESS_SCHEMA = {
     addressRegion: "FL",
     addressCountry: "US",
   },
-  areaServed: SITE.region,
+  areaServed: "United States",
   description:
     "Aviation operations support coordination for owner-controlled Part 91 support needs, including crew sourcing assistance, aircraft movement coordination, documentation, tracking, and closeout administration.",
 };

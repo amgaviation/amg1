@@ -2079,15 +2079,14 @@ html.lenis body {
 .public-site .oc-section {
   padding-block: clamp(4.5rem, 8vw, 8rem);
 }
-.public-site .oc-display {
-  letter-spacing: -0.045em;
-  line-height: 0.96;
-  text-wrap: balance;
-}
-.public-site .hero-copy-layer .display-lg {
-  font-size: clamp(3.25rem, 8.5vw, 8.25rem);
+.public-site .oc-display,
+.public-site .display-lg {
   letter-spacing: -0.055em;
   line-height: 0.92;
+  text-wrap: balance;
+}
+.public-site .display-lg {
+  font-size: clamp(3.75rem, 10vw, 9.5rem);
 }
 .public-site .oc-eyebrow,
 .public-site .microlabel,
@@ -2104,7 +2103,7 @@ html.lenis body {
 }
 .public-site .oc-card-dark,
 .public-site .oc-panel-navy,
-.public-site main > :not(.fd-site) .hud-frame {
+.public-site .hud-frame {
   border-radius: var(--briefing-radius);
   border-color: rgb(229 231 235 / 0.16);
   background:
@@ -2112,10 +2111,10 @@ html.lenis body {
     #07111F;
   box-shadow: var(--briefing-shadow);
 }
-.public-site main > :not(.fd-site) .hud-frame {
+.public-site .hud-frame {
   position: relative;
 }
-.public-site main > :not(.fd-site) .hud-frame::before {
+.public-site .hud-frame::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -2160,8 +2159,8 @@ html.lenis body {
   box-shadow: 0 26px 80px rgb(0 0 0 / 0.34);
 }
 @media (max-width: 640px) {
-  .public-site .hero-copy-layer .display-lg {
-    font-size: clamp(2.75rem, 14vw, 4.4rem);
+  .public-site .display-lg {
+    font-size: clamp(3.4rem, 18vw, 4.75rem);
   }
   .public-site .pub-hero {
     min-height: auto;
