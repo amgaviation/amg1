@@ -8,12 +8,10 @@ import {
   QuickLink,
   RecordRow,
   SectionCard,
-  StatCard,
 } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import {
-  countUnread,
   getCrewProfile,
   listCredentials,
   listMissionsForCrew,
@@ -36,11 +34,10 @@ export const dynamic = "force-dynamic";
 
 export default async function CrewDashboardPage() {
   const user = await requireRole("crew");
-  const [missions, crewProfileRaw, credentials, unread, presence] = await Promise.all([
+  const [missions, crewProfileRaw, credentials, presence] = await Promise.all([
     listMissionsForCrew(user.id),
     getCrewProfile(user.id),
     listCredentials(user.id),
-    countUnread(user.id),
     getCrewPresenceState(user.id),
   ]);
   const crewProfile = crewProfileRaw as any;
@@ -70,7 +67,11 @@ export default async function CrewDashboardPage() {
       <PageHeader
         eyebrow="Flight Crew"
         title={`Welcome back, ${user.name.split(" ")[0]}`}
-        description="Assignments, credentials, availability, and operations communication."
+        description={
+          offered.length > 0
+            ? `${offered.length} assignment offer${offered.length === 1 ? "" : "s"} awaiting your response.`
+            : "Assignments, credentials, availability, and expenses."
+        }
         actions={
           crewProfile ? (
             <StatusBadge
@@ -84,19 +85,35 @@ export default async function CrewDashboardPage() {
         }
       />
 
-      {/* Live availability toggle — flip yourself onto the crew map. */}
-      <SectionCard
-        title="Live availability"
-        icon="mapPin"
-        description="Flip active to appear on the crew map for immediate assignment. Auto-shuts off at your chosen time (max 6 hours)."
-        actions={
-          <Button asChild variant="outline" size="sm">
-            <Link href="/portal/crew/live-map">Open map</Link>
-          </Button>
-        }
-      >
-        <GoActiveControl state={presence} defaults={presenceDefaults} />
-      </SectionCard>
+
+      {offered.length > 0 ? (
+        <SectionCard title="Offers Awaiting Your Response" icon="radar" description="Accept or decline — compliance checks run when you accept.">
+          <div className="space-y-3">
+            {offered.map((m) => (
+              <RecordRow
+                key={m.id}
+                href={`/portal/crew/missions/${m.id}`}
+                refLabel={m.ref}
+                title={formatRoute(m.departure_airport, m.arrival_airport)}
+                meta={
+                  <>
+                    {m.tail_number ?? "—"} · {formatDateTime(m.requested_departure)}
+                  </>
+                }
+                tone="warn"
+                trailing={
+                  <>
+                    <StatusBadge label="Offered" tone="warn" />
+                    <span className="text-xs font-semibold text-[var(--deck-accent-ink)]">
+                      Review →
+                    </span>
+                  </>
+                }
+              />
+            ))}
+          </div>
+        </SectionCard>
+      ) : null}
 
       {/* Next assignment hero */}
       {nextAssignment ? (
@@ -124,38 +141,6 @@ export default async function CrewDashboardPage() {
         </Link>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <StatCard
-          label="Pending offers"
-          value={offered.length}
-          icon="radar"
-          tone={offered.length > 0 ? "warn" : "default"}
-          href="/portal/crew/missions"
-          detail={offered.length > 0 ? "Review in Assignments" : undefined}
-        />
-        <StatCard label="Active assignments" value={active.length} icon="plane" href="/portal/crew/missions" />
-        <StatCard
-          label="Credential alerts"
-          value={expiringCreds.length}
-          icon="badgeCheck"
-          tone={expiringCreds.length > 0 ? "danger" : "default"}
-          href="/portal/crew/credentials"
-        />
-        <StatCard
-          label="Unread messages"
-          value={unread}
-          icon="messageSquare"
-          tone={unread > 0 ? "warn" : "default"}
-          href="/portal/crew/messages"
-        />
-        <StatCard
-          label="Profile complete"
-          value={`${profileCompletion}%`}
-          icon="user"
-          tone={profileCompletion >= 100 ? "accent" : "warn"}
-          href="/portal/crew/settings"
-        />
-      </div>
 
       {profileCompletion < 100 ? (
         <Notice tone="warn">
@@ -165,42 +150,36 @@ export default async function CrewDashboardPage() {
         </Notice>
       ) : null}
 
-      <SectionCard
-        title="Quick Actions"
-        icon="zap"
-        bodyClassName="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
-      >
-        <QuickLink href="/portal/crew/availability" icon="calendar" label="Update Availability" />
-        <QuickLink href="/portal/crew/credentials" icon="badgeCheck" label="Upload Credential" />
-        <QuickLink href="/portal/crew/expenses" icon="receipt" label="Submit Expense" />
-        <QuickLink href="/portal/crew/messages?new=1" icon="messageSquare" label="Message Operations" />
-      </SectionCard>
 
-      {offered.length > 0 ? (
-        <SectionCard title="Pending Assignment Offers" icon="radar">
+
+      {expiringCreds.length > 0 ? (
+        <SectionCard
+          title="Credential Alerts"
+          icon="badgeCheck"
+          actions={
+            <Button asChild size="sm" variant="outline">
+              <Link href="/portal/crew/credentials">Manage Credentials</Link>
+            </Button>
+          }
+        >
           <div className="space-y-3">
-            {offered.map((m) => (
-              <RecordRow
-                key={m.id}
-                href={`/portal/crew/missions/${m.id}`}
-                refLabel={m.ref}
-                title={formatRoute(m.departure_airport, m.arrival_airport)}
-                meta={
-                  <>
-                    {m.tail_number ?? "—"} · {formatDateTime(m.requested_departure)}
-                  </>
-                }
-                tone="warn"
-                trailing={
-                  <>
-                    <StatusBadge label="Offered" tone="warn" />
-                    <span className="text-xs font-semibold text-[var(--deck-accent-ink)]">
-                      Review →
-                    </span>
-                  </>
-                }
-              />
-            ))}
+            {expiringCreds.map((c) => {
+              const days = daysUntil(c.expiration_date);
+              return (
+                <RecordRow
+                  key={c.id}
+                  title={c.credential_type}
+                  meta={days !== null ? (days < 0 ? "Expired" : `${days} days remaining`) : "—"}
+                  tone="danger"
+                  trailing={
+                    <StatusBadge
+                      label={CREDENTIAL_STATUS_LABEL[c.status] ?? c.status}
+                      tone={toneFor(CREDENTIAL_STATUS_TONE, c.status)}
+                    />
+                  }
+                />
+              );
+            })}
           </div>
         </SectionCard>
       ) : null}
@@ -252,37 +231,29 @@ export default async function CrewDashboardPage() {
         </SectionCard>
       )}
 
-      {expiringCreds.length > 0 ? (
-        <SectionCard
-          title="Credential Alerts"
-          icon="badgeCheck"
-          actions={
-            <Button asChild size="sm" variant="outline">
-              <Link href="/portal/crew/credentials">Manage Credentials</Link>
-            </Button>
-          }
-        >
-          <div className="space-y-3">
-            {expiringCreds.map((c) => {
-              const days = daysUntil(c.expiration_date);
-              return (
-                <RecordRow
-                  key={c.id}
-                  title={c.credential_type}
-                  meta={days !== null ? (days < 0 ? "Expired" : `${days} days remaining`) : "—"}
-                  tone="danger"
-                  trailing={
-                    <StatusBadge
-                      label={CREDENTIAL_STATUS_LABEL[c.status] ?? c.status}
-                      tone={toneFor(CREDENTIAL_STATUS_TONE, c.status)}
-                    />
-                  }
-                />
-              );
-            })}
-          </div>
-        </SectionCard>
-      ) : null}
+      {/* Live availability toggle — flip yourself onto the crew map. */}
+      <SectionCard
+        title="Live availability"
+        icon="mapPin"
+        description="Flip active to appear on the crew map for immediate assignment. Auto-shuts off at your chosen time (max 6 hours)."
+        actions={
+          <Button asChild variant="outline" size="sm">
+            <Link href="/portal/crew/live-map">Open map</Link>
+          </Button>
+        }
+      >
+        <GoActiveControl state={presence} defaults={presenceDefaults} />
+      </SectionCard>
+
+      <SectionCard
+        title="Expenses & Closeout"
+        icon="receipt"
+        bodyClassName="grid gap-3 sm:grid-cols-3"
+      >
+        <QuickLink href="/portal/crew/expenses" icon="receipt" label="Submit Expense" description="Receipts for reimbursement" />
+        <QuickLink href="/portal/crew/invoices" icon="wallet" label="My Invoices" description="Contractor billing" />
+        <QuickLink href="/portal/crew/availability" icon="calendar" label="Update Availability" description="Windows and status" />
+      </SectionCard>
     </>
   );
 }

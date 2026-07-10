@@ -14,10 +14,11 @@ import { getEntityTimeline, getMissionDetail, listAllCrew, listAllPartners } fro
 import { MIN_GATE_OVERRIDE_REASON_LENGTH, getCrewComplianceIssues, getMissionReadiness } from "@/lib/portal/mission-lifecycle";
 import { countQualifiedCrew, describePoolRequirements, listCrewRequestsForMission, parsePoolRequirements } from "@/lib/portal/pool";
 import { getPublicSupportRequestForMission, publicSupportLabel } from "@/lib/portal/public-support-requests";
-import { CREW_ROLE, MISSION_STATUS, MISSION_STATUS_LABEL, MISSION_STATUS_TONE, PARTNER_TYPES, QUOTE_CATEGORIES, toneFor } from "@/lib/portal/constants";
+import { MissionStatusPanel } from "@/components/portal/ui/status-advance";
+import { CREW_ROLE, MISSION_STATUS, MISSION_STATUS_LABEL, MISSION_STATUS_TONE, PARTNER_TYPES, QUOTE_CATEGORIES, URGENCY_LABEL, URGENCY_TONE, toneFor } from "@/lib/portal/constants";
 import { formatDateTime, formatMoney, formatRoute } from "@/lib/portal/format";
 
-export const metadata = { title: "Mission Detail - Admin Portal" };
+export const metadata = { title: "Support Request - AMG Operations" };
 
 function publicRequestValue(value: string | boolean | string[] | null | undefined) {
   if (Array.isArray(value)) return value.filter(Boolean).join(", ") || "-";
@@ -115,16 +116,22 @@ export default async function AdminTripDetailPage({
         </Notice>
       ) : null}
 
-      {/* Detail-archetype summary header: ref + status + mono key facts */}
+      {/* Persistent record context: ref, status, urgency, SLA, next step. */}
       <div className="flex flex-col gap-4 pb-2 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
-          <p className="deck-eyebrow">Mission Detail</p>
+          <p className="deck-eyebrow">Support Request</p>
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <h1 className="deck-title text-[1.65rem] sm:text-[2rem]">{mission.ref}</h1>
             <StatusBadge
               label={MISSION_STATUS_LABEL[mission.status] ?? mission.status}
               tone={toneFor(MISSION_STATUS_TONE, mission.status)}
             />
+            {mission.urgency && mission.urgency !== "standard" ? (
+              <StatusBadge
+                label={URGENCY_LABEL[mission.urgency] ?? mission.urgency}
+                tone={toneFor(URGENCY_TONE, mission.urgency)}
+              />
+            ) : null}
             <SlaChip mission={mission} />
           </div>
           <p className="deck-mono mt-2.5 !text-[0.8rem] text-[var(--deck-text-2)]">
@@ -134,8 +141,27 @@ export default async function AdminTripDetailPage({
             {" · "}
             {mission.client?.company_name ?? mission.client?.full_name ?? mission.client?.email ?? publicRequest?.email ?? "Unassigned client"}
           </p>
+          {readiness.nextStatus ? (
+            <p className="mt-1.5 text-sm text-[var(--deck-text-2)]">
+              Next step:{" "}
+              <span className="font-semibold text-[var(--deck-text)]">
+                {MISSION_STATUS_LABEL[readiness.nextStatus] ?? readiness.nextStatus}
+              </span>
+              {readiness.blockers.length > 0 ? (
+                <span className="ml-2 font-semibold text-[var(--deck-danger)]">
+                  {readiness.blockers.length} blocker{readiness.blockers.length === 1 ? "" : "s"}
+                </span>
+              ) : null}
+            </p>
+          ) : null}
         </div>
         <div data-portal-action-bar className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/portal/admin/mission-control"
+            className="rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
+          >
+            Board
+          </Link>
           <Link
             href="/portal/admin/trips"
             className="rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-4 py-2 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)]"
@@ -261,51 +287,38 @@ export default async function AdminTripDetailPage({
 
         <div className="space-y-6">
           <SectionCard
-            title="Readiness"
-            icon="shield"
-            description={
-              readiness.nextStatus
-                ? `Gate check for the next step: ${MISSION_STATUS_LABEL[readiness.nextStatus] ?? readiness.nextStatus}.`
-                : "This mission is closed — no further transitions."
-            }
+            title="Status & Next Steps"
+            icon="radar"
+            description="Only this request's legal moves are offered. Gates are enforced on the server; blocked or out-of-flow moves need an audited override."
           >
-            {!readiness.nextStatus ? (
-              <p className="text-sm text-muted-foreground">No gates apply to completed or cancelled missions.</p>
-            ) : readiness.blockers.length === 0 && readiness.warnings.length === 0 ? (
-              <div className="rounded-md border border-[var(--deck-success-line)] bg-[var(--deck-success-tint)] px-3 py-2 text-sm font-semibold text-[var(--deck-success)]">
-                All gates clear.
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {readiness.blockers.map((blocker) => (
-                  <div key={blocker} className="rounded-md border border-[var(--deck-danger-line)] bg-[var(--deck-danger-tint)] px-3 py-2 text-sm text-[var(--deck-danger)]">
-                    {blocker}
-                  </div>
-                ))}
-                {readiness.warnings.map((warning) => (
-                  <div key={warning} className="rounded-md border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] px-3 py-2 text-sm text-[var(--deck-warn)]">
-                    {warning}
-                  </div>
-                ))}
-                <p className="text-xs text-muted-foreground">
-                  Red blockers stop the transition unless an override reason is recorded. Amber warnings never block.
-                </p>
-              </div>
-            )}
-          </SectionCard>
-          <SectionCard title="Status" icon="radar">
-            <form action={updateMissionStatus} className="space-y-4">
-              <input type="hidden" name="mission_id" value={mission.id} />
-              <SelectField label="Mission Status" name="status" defaultValue={mission.status} options={MISSION_STATUS.map((s) => ({ value: s.value, label: s.label }))} />
-              <TextAreaField label="Internal Note" name="internal_notes" defaultValue={mission.internal_notes ?? ""} />
-              <TextAreaField
-                label="Override Reason"
-                name="override_reason"
-                placeholder="Why is it safe to proceed despite blockers or out-of-flow moves?"
-                hint={`Leave blank for normal moves. Required (minimum ${MIN_GATE_OVERRIDE_REASON_LENGTH} characters) to force past readiness blockers or an out-of-flow status change — overrides are audited and notify every admin.`}
-              />
-              <SubmitButton pendingText="Saving...">Update Status</SubmitButton>
-            </form>
+            <MissionStatusPanel
+              mission={mission}
+              blockers={readiness.blockers}
+              warnings={readiness.warnings}
+            />
+            <details className="group mt-5 border-t border-[var(--deck-line)] pt-4">
+              <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-[var(--deck-text-2)] transition-colors hover:text-[var(--deck-text)]">
+                <span
+                  className="inline-block transition-transform group-open:rotate-90"
+                  aria-hidden
+                >
+                  ›
+                </span>
+                Override / manual move
+              </summary>
+              <form action={updateMissionStatus} className="mt-4 space-y-4">
+                <input type="hidden" name="mission_id" value={mission.id} />
+                <SelectField label="Target Status" name="status" defaultValue={mission.status} options={MISSION_STATUS.map((s) => ({ value: s.value, label: s.label }))} />
+                <TextAreaField label="Internal Note" name="internal_notes" defaultValue={mission.internal_notes ?? ""} />
+                <TextAreaField
+                  label="Override Reason"
+                  name="override_reason"
+                  placeholder="Why is it safe to proceed despite blockers or out-of-flow moves?"
+                  hint={`Leave blank for normal moves. Required (minimum ${MIN_GATE_OVERRIDE_REASON_LENGTH} characters) to force past readiness blockers or an out-of-flow status change — overrides are audited and notify every admin.`}
+                />
+                <SubmitButton pendingText="Saving...">Update Status</SubmitButton>
+              </form>
+            </details>
           </SectionCard>
           <SectionCard title="Assign Crew" icon="users">
             <form action={assignCrew} className="space-y-5">

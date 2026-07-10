@@ -7,7 +7,6 @@ import {
   QuickLink,
   RecordRow,
   SectionCard,
-  StatCard,
 } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { Button } from "@/components/ui/button";
@@ -34,9 +33,15 @@ export default async function PartnerDashboardPage() {
     ["assigned", "accepted", "quoted", "in_progress"].includes(a.status)
   );
   const awaitingQuote = assignments.filter((a) => a.status === "assigned");
-  const completed = assignments.filter((a) => a.status === "completed");
-  const completedValue = completed.reduce((sum, a) => sum + Number(a.quote_amount ?? 0), 0);
-  const openValue = open.reduce((sum, a) => sum + Number(a.quote_amount ?? 0), 0);
+  const dueSoon = open
+    .filter(
+      (a) =>
+        a.required_datetime &&
+        new Date(a.required_datetime).getTime() > Date.now() &&
+        new Date(a.required_datetime).getTime() < Date.now() + 14 * 86_400_000
+    )
+    .sort((a, b) => String(a.required_datetime).localeCompare(String(b.required_datetime)))
+    .slice(0, 4);
 
   return (
     <>
@@ -44,43 +49,20 @@ export default async function PartnerDashboardPage() {
       <PageHeader
         eyebrow={profile?.partner_type ?? "Service Partner"}
         title={`Welcome back, ${user.name.split(" ")[0]}`}
-        description="AMG service requests, quotes, supporting documents, and operations communication for brokers, vendors, and facility partners."
+        description={
+          awaitingQuote.length > 0
+            ? `${awaitingQuote.length} service request${awaitingQuote.length === 1 ? "" : "s"} awaiting your response.`
+            : "AMG service requests, quotes, documents, and communication for your assigned work."
+        }
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <StatCard
-          label="Open requests"
-          value={open.length}
-          icon="clipboard"
-          href="/portal/partner/requests"
-          tone={open.length ? "accent" : "default"}
-          detail={openValue > 0 ? `${formatMoney(openValue)} quoted` : undefined}
-        />
-        <StatCard
-          label="Completed work"
-          value={completed.length}
-          icon="check"
-          detail={completedValue > 0 ? `${formatMoney(completedValue)} lifetime` : "AMG-confirmed jobs"}
-        />
-        <StatCard label="Documents" value={docs.length} icon="fileText" href="/portal/partner/documents" />
-        <StatCard
-          label="Unread messages"
-          value={unread}
-          icon="messageSquare"
-          href="/portal/partner/messages"
-          tone={unread ? "warn" : "default"}
-        />
-        <StatCard
-          label="Company profile"
-          value={profile ? "Live" : "Setup"}
-          icon="building"
-          href="/portal/partner/profile"
-          detail={profile?.partner_type ?? "Complete your service profile"}
-        />
-      </div>
 
       {awaitingQuote.length > 0 ? (
-        <SectionCard title="Awaiting Your Response" icon="alert">
+        <SectionCard
+          title="Awaiting Your Response"
+          icon="alert"
+          description="Accept, decline, or submit a quote for newly assigned work."
+        >
           <div className="space-y-3">
             {awaitingQuote.slice(0, 4).map((item) => (
               <RecordRow
@@ -109,16 +91,6 @@ export default async function PartnerDashboardPage() {
         </SectionCard>
       ) : null}
 
-      <SectionCard
-        title="Quick Actions"
-        icon="zap"
-        bodyClassName="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
-      >
-        <QuickLink href="/portal/partner/requests" icon="clipboard" label="Review Requests" />
-        <QuickLink href="/portal/partner/profile" icon="building" label="Update Profile" />
-        <QuickLink href="/portal/partner/documents?upload=1" icon="upload" label="Upload Document" />
-        <QuickLink href="/portal/partner/messages?new=1" icon="messageSquare" label="Message AMG" />
-      </SectionCard>
 
       <SectionCard
         title="Active Service Requests"
@@ -159,6 +131,40 @@ export default async function PartnerDashboardPage() {
             ))}
           </div>
         )}
+      </SectionCard>
+
+      {dueSoon.length > 0 ? (
+        <SectionCard
+          title="Upcoming Due Dates"
+          icon="calendar"
+          description="Assigned work with a required date inside the next 14 days."
+        >
+          <div className="space-y-3">
+            {dueSoon.map((item) => (
+              <RecordRow
+                key={item.id}
+                href={`/portal/partner/requests/${item.id}`}
+                refLabel={item.ref}
+                title={item.service_type}
+                meta={<>{item.location ?? "Location TBD"} · Required {formatDateTime(item.required_datetime)}</>}
+                tone="warn"
+                trailing={
+                  <StatusBadge
+                    label={PARTNER_STATUS_LABEL[item.status] ?? item.status}
+                    tone={toneFor(PARTNER_STATUS_TONE, item.status)}
+                  />
+                }
+              />
+            ))}
+          </div>
+        </SectionCard>
+      ) : null}
+
+      <SectionCard title="Your Workspace" icon="building" bodyClassName="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <QuickLink href="/portal/partner/invoices" icon="wallet" label="Invoices" description="Bill AMG for completed work" />
+        <QuickLink href="/portal/partner/documents?upload=1" icon="upload" label="Documents" description={docs.length > 0 ? `${docs.length} on file` : "Upload supporting files"} />
+        <QuickLink href="/portal/partner/messages?new=1" icon="messageSquare" label="Message AMG" description={unread > 0 ? `${unread} unread` : "Task-scoped threads"} />
+        <QuickLink href="/portal/partner/profile" icon="building" label="Company Profile" description={profile?.partner_type ?? "Complete your service profile"} />
       </SectionCard>
     </>
   );

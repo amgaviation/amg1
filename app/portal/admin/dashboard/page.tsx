@@ -2,39 +2,80 @@ import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { permissionsForRole } from "@/lib/portal/permissions";
 import { ProfileSetupNotice } from "@/components/portal/profile-setup-notice";
-import {
-  EmptyState,
-  QuickLink,
-  RecordRow,
-  SectionCard,
-  StatCard,
-} from "@/components/portal/ui/primitives";
+import { EmptyState, RecordRow, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { StatusDot } from "@/components/portal/ui/status-dot";
 import { Button } from "@/components/ui/button";
-import { getAdminMetrics, listAllMissions, listPendingUsers } from "@/lib/portal/queries";
+import {
+  getAdminMetrics,
+  listAllMissions,
+  listAuditEvents,
+  type MissionListItem,
+} from "@/lib/portal/queries";
 import { createServiceClient } from "@/lib/supabase/server";
-import { listFormSubmissions } from "@/lib/portal/form-submissions";
-import { getPipelineMetrics } from "@/lib/portal/crm";
 import { listMyOpenTasks } from "@/lib/portal/tasks";
 import { getPayoutSummary } from "@/lib/portal/payouts";
+import { slaChipState, type MissionSlaFields } from "@/lib/portal/sla";
 import {
   MISSION_FLOW_STAGES,
   MISSION_STATUS_LABEL,
   MISSION_STATUS_TONE,
   toneFor,
+  type Tone,
 } from "@/lib/portal/constants";
-import { formatDateTime, formatMoney, formatRoute, titleCase } from "@/lib/portal/format";
+import { formatDateTime, formatMoney, formatRoute } from "@/lib/portal/format";
 
 export const metadata = { title: "Command Center - AMG Operations" };
 
 const ACTIVE_MISSION_STATUSES = MISSION_FLOW_STAGES.flatMap((stage) => stage.statuses);
+const INTAKE_STATUSES = ["submitted", "under_review", "awaiting_client_info"];
 
+/** One row in the ranked action queue: what, why now, and where to act. */
+type QueueItem = {
+  rank: number;
+  href: string;
+  refLabel?: string | null;
+  title: string;
+  action: string;
+  due?: string | null;
+  tone: Tone;
+  meta?: string;
+};
+
+function missionClientLabel(mission: MissionListItem): string {
+  return (
+    mission.client?.company_name ??
+    mission.client?.full_name ??
+    mission.client?.email ??
+    "Client TBD"
+  );
+}
+
+function intakeAction(status: string): string {
+  switch (status) {
+    case "submitted":
+      return "Start review";
+    case "under_review":
+      return "Quote or request info";
+    case "awaiting_client_info":
+      return "Waiting on client — follow up";
+    case "quoted":
+      return "Awaiting client approval";
+    default:
+      return "Review";
+  }
+}
+
+/**
+ * Command Center — answers, in order: what needs my action now; what is
+ * scheduled next; what is blocked or at risk; what is assigned to me; what
+ * materially changed. Business statistics live in the Business workspace.
+ */
 export default async function AdminDashboardPage() {
   const user = await requireRole("admin");
-  // The Command Center mirrors the permission matrix: widgets, counts, and
-  // quick links for a module the admin role can't view are omitted — the nav
-  // hides them, so the landing page must not dead-end into them either.
+  // Mirrors the permission matrix: sections and queue rows for a module the
+  // admin role can't view are omitted — the nav hides them, so the landing
+  // page must not dead-end into them either.
   const perms = await permissionsForRole(user.role);
   const countVendorInvoices = async () => {
     if (!perms.invoices.view) return 0;
@@ -45,160 +86,160 @@ export default async function AdminDashboardPage() {
       .in("status", ["submitted", "under_review"]);
     return count ?? 0;
   };
-  const [metrics, missions, pendingUsers, recentSubmissions, myTasks, pipeline, vendorInvoicesOpen, payouts] =
+  const [metrics, missions, myTasks, vendorInvoicesOpen, payouts, recentEvents] =
     await Promise.all([
       getAdminMetrics(),
       perms.missions.view ? listAllMissions() : [],
-      perms.users.view ? listPendingUsers() : [],
-      perms.form_submissions.view ? listFormSubmissions({ status: "new" }) : [],
       perms.tasks.view ? listMyOpenTasks(user.id) : [],
-      getPipelineMetrics(),
       countVendorInvoices(),
-      perms.contractor_billing.view ? getPayoutSummary() : null,
+      perms.contractor_billing.view ? getPayoutSummary().catch(() => null) : null,
+      perms.audit_log.view ? listAuditEvents(10).catch(() => []) : [],
     ]);
 
-  const active = missions
-    .filter((m) => ACTIVE_MISSION_STATUSES.includes(m.status))
-    .slice(0, 6);
-  const now = Date.now();
-  const nextDepartures = missions
-    .filter(
-      (m) =>
-        ACTIVE_MISSION_STATUSES.includes(m.status) &&
-        m.requested_departure &&
-        new Date(m.requested_departure).getTime() >= now
-    )
+  const now = new Date();
+  const nowMs = now.getTime();
+  const active = missions.filter((m) => ACTIVE_MISSION_STATUSES.includes(m.status));
+
+  // ── 1. Ranked action queue ─────────────────────────────────────────
+  const queue: QueueItem[] = [];
+
+  for (const mission of active) {
+    const inIntake = INTAKE_STATUSES.includes(mission.status) || mission.status === "quoted";
+    if (!inIntake) continue;
+    const sla = slaChipState(mission as Partial<MissionSlaFields>, now);
+    const base: Omit<QueueItem, "rank" | "tone" | "action"> = {
+      href: `/portal/admin/trips/${mission.id}`,
+      refLabel: mission.ref,
+      title: formatRoute(mission.departure_airport, mission.arrival_airport),
+      meta: missionClientLabel(mission),
+      due: mission.requested_departure
+        ? `Dep ${formatDateTime(mission.requested_departure)}`
+        : null,
+    };
+    if (mission.urgency === "aog") {
+      queue.push({ ...base, rank: 0, tone: "danger", action: `AOG — ${intakeAction(mission.status)}` });
+    } else if (sla.state === "breached") {
+      queue.push({ ...base, rank: 1, tone: "danger", action: `SLA breached — ${intakeAction(mission.status)}` });
+    } else if (sla.state === "at_risk") {
+      queue.push({ ...base, rank: 2, tone: "warn", action: `SLA at risk — ${intakeAction(mission.status)}` });
+    } else if (mission.urgency === "priority") {
+      queue.push({ ...base, rank: 2, tone: "warn", action: `Priority — ${intakeAction(mission.status)}` });
+    } else if (mission.status === "submitted") {
+      queue.push({ ...base, rank: 3, tone: "warn", action: "New request — start review" });
+    }
+  }
+
+  // Departures inside 48h that are not yet scheduled need crew/schedule work.
+  for (const mission of active) {
+    if (!mission.requested_departure) continue;
+    const dep = new Date(mission.requested_departure).getTime();
+    if (dep < nowMs || dep > nowMs + 48 * 3600_000) continue;
+    if (["approved", "crew_assigned"].includes(mission.status)) {
+      queue.push({
+        rank: 1,
+        href: `/portal/admin/trips/${mission.id}`,
+        refLabel: mission.ref,
+        title: formatRoute(mission.departure_airport, mission.arrival_airport),
+        action:
+          mission.status === "approved"
+            ? "Departs <48h — assign crew"
+            : "Departs <48h — confirm schedule",
+        due: `Dep ${formatDateTime(mission.requested_departure)}`,
+        tone: "danger",
+        meta: missionClientLabel(mission),
+      });
+    }
+  }
+
+  // Aggregate review queues — one row per queue, not per record.
+  const aggregates: (QueueItem | false)[] = [
+    perms.users.view &&
+      metrics.pendingUsers > 0 && {
+        rank: 4,
+        href: "/portal/admin/user-approvals",
+        title: `${metrics.pendingUsers} user approval${metrics.pendingUsers === 1 ? "" : "s"} pending`,
+        action: "Approve or deny access",
+        tone: "warn" as Tone,
+      },
+    perms.form_submissions.view &&
+      metrics.newFormSubmissions > 0 && {
+        rank: 5,
+        href: "/portal/admin/form-submissions?status=new",
+        title: `${metrics.newFormSubmissions} new website submission${metrics.newFormSubmissions === 1 ? "" : "s"}`,
+        action: "Triage and respond",
+        tone: "neutral" as Tone,
+      },
+    perms.documents.view &&
+      metrics.pendingDocuments > 0 && {
+        rank: 5,
+        href: "/portal/admin/documents?status=pending_review",
+        title: `${metrics.pendingDocuments} document${metrics.pendingDocuments === 1 ? "" : "s"} awaiting review`,
+        action: "Review and approve",
+        tone: "neutral" as Tone,
+      },
+    perms.expenses.view &&
+      metrics.pendingExpenses > 0 && {
+        rank: 5,
+        href: "/portal/admin/expenses?status=submitted",
+        title: `${metrics.pendingExpenses} expense${metrics.pendingExpenses === 1 ? "" : "s"} awaiting review`,
+        action: "Approve or reject",
+        tone: "neutral" as Tone,
+      },
+    perms.invoices.view &&
+      vendorInvoicesOpen > 0 && {
+        rank: 5,
+        href: "/portal/admin/vendor-invoices?status=submitted",
+        title: `${vendorInvoicesOpen} vendor invoice${vendorInvoicesOpen === 1 ? "" : "s"} to review`,
+        action: "Review for payment",
+        tone: "neutral" as Tone,
+      },
+    perms.subscriptions.view &&
+      metrics.subscriptionOverages > 0 && {
+        rank: 6,
+        href: "/portal/admin/subscriptions?view=overages",
+        title: `${metrics.subscriptionOverages} subscription overage${metrics.subscriptionOverages === 1 ? "" : "s"}`,
+        action: "Bill or credit the overage",
+        tone: "neutral" as Tone,
+      },
+  ];
+  queue.push(...(aggregates.filter(Boolean) as QueueItem[]));
+  queue.sort((a, b) => a.rank - b.rank);
+  const queueTop = queue.slice(0, 9);
+
+  // ── 2. Scheduled next ──────────────────────────────────────────────
+  const nextDepartures = active
+    .filter((m) => m.requested_departure && new Date(m.requested_departure).getTime() >= nowMs)
     .sort(
       (a, b) =>
         new Date(a.requested_departure!).getTime() - new Date(b.requested_departure!).getTime()
     )
-    .slice(0, 3);
+    .slice(0, 4);
 
-  const flowStages = [
-    ...(perms.missions.view
-      ? MISSION_FLOW_STAGES.map((stage) => ({
-          key: stage.key,
-          label: stage.label,
-          count: missions.filter((m) => stage.statuses.includes(m.status)).length,
-          href: `/portal/admin/trips?status=${stage.statuses.join(",")}`,
-        }))
-      : []),
-    ...(perms.invoices.view
-      ? [
-          {
-            key: "billing",
-            label: "Billing",
-            count: metrics.openInvoices,
-            href: "/portal/admin/invoices",
-          },
-        ]
-      : []),
-  ];
+  // ── 3. Blocked / at risk (outside the intake queue) ───────────────
+  const atRisk = active
+    .filter((m) => {
+      const sla = slaChipState(m as Partial<MissionSlaFields>, now);
+      const stale =
+        m.status === "awaiting_client_info" &&
+        nowMs - new Date(m.updated_at ?? m.created_at).getTime() > 72 * 3600_000;
+      return sla.state === "breached" || stale;
+    })
+    .slice(0, 4);
 
-  // Everything that needs a human decision today, one strip, worst first.
-  const actionQueue = [
-    perms.missions.view &&
-      metrics.submittedMissions > 0 && {
-        href: "/portal/admin/trips?status=submitted",
-        count: metrics.submittedMissions,
-        label: "Unreviewed requests",
-      },
-    perms.users.view &&
-      metrics.pendingUsers > 0 && {
-        href: "/portal/admin/user-approvals",
-        count: metrics.pendingUsers,
-        label: "User approvals",
-      },
-    perms.form_submissions.view &&
-      metrics.newFormSubmissions > 0 && {
-        href: "/portal/admin/form-submissions?status=new",
-        count: metrics.newFormSubmissions,
-        label: "New submissions",
-      },
-    perms.documents.view &&
-      metrics.pendingDocuments > 0 && {
-        href: "/portal/admin/documents?status=pending_review",
-        count: metrics.pendingDocuments,
-        label: "Document reviews",
-      },
-    perms.expenses.view &&
-      metrics.pendingExpenses > 0 && {
-        href: "/portal/admin/expenses?status=submitted",
-        count: metrics.pendingExpenses,
-        label: "Expense reviews",
-      },
-    perms.subscriptions.view &&
-      metrics.subscriptionOverages > 0 && {
-        href: "/portal/admin/subscriptions?view=overages",
-        count: metrics.subscriptionOverages,
-        label: "Subscription overages",
-      },
-    perms.invoices.view &&
-      vendorInvoicesOpen > 0 && {
-        href: "/portal/admin/vendor-invoices?status=submitted",
-        count: vendorInvoicesOpen,
-        label: "Vendor invoices to review",
-      },
-  ].filter(Boolean) as { href: string; count: number; label: string }[];
+  // ── 5. Material recent changes ─────────────────────────────────────
+  const MATERIAL_ACTIONS = /^(mission|quote|invoice|user|crew|partner|payment|subscription)_/;
+  const recentMaterial = (recentEvents ?? [])
+    .filter((event) => MATERIAL_ACTIONS.test(event.action))
+    .slice(0, 6);
 
-  // At-a-glance stats — every tile opens its page.
-  const quickStats = [
-    perms.missions.view && {
-      label: "Active requests",
-      value: metrics.activeMissions,
-      href: "/portal/admin/trips?status=active",
-      icon: "radar",
-    },
-    perms.missions.view && {
-      label: "New requests",
-      value: metrics.submittedMissions,
-      href: "/portal/admin/trips?status=submitted",
-      icon: "plane",
-      tone: metrics.submittedMissions > 0 ? ("warn" as const) : undefined,
-    },
-    perms.invoices.view && {
-      label: "Open invoices",
-      value: metrics.openInvoices,
-      href: "/portal/admin/invoices",
-      icon: "wallet",
-    },
-    perms.crm.view && {
-      label: "Open leads",
-      value: pipeline.openCount ?? 0,
-      href: "/portal/admin/crm?stage=open",
-      icon: "trendingUp",
-    },
-    perms.users.view && {
-      label: "Pending approvals",
-      value: metrics.pendingUsers,
-      href: "/portal/admin/user-approvals",
-      icon: "userCheck",
-      tone: metrics.pendingUsers > 0 ? ("warn" as const) : undefined,
-    },
-    perms.invoices.view && {
-      label: "Vendor invoices",
-      value: vendorInvoicesOpen,
-      href: "/portal/admin/vendor-invoices",
-      icon: "fileText",
-      tone: vendorInvoicesOpen > 0 ? ("warn" as const) : undefined,
-    },
-  ].filter(Boolean) as { label: string; value: number; href: string; icon: string; tone?: "warn" }[];
-
-  // One-click starts for the work admins begin most often.
-  const quickActions = [
-    perms.quotes.add && { href: "/portal/admin/quotes/new", icon: "receipt", label: "New Quote", description: "Price a support request" },
-    perms.invoices.add && { href: "/portal/admin/invoices?new=quote", icon: "wallet", label: "New Invoice", description: "From quote or standalone" },
-    perms.communications.view && { href: "/portal/admin/communications/emails?compose=1", icon: "mail", label: "Compose Email", description: "Templated or custom" },
-    perms.crm.add && { href: "/portal/admin/crm?new=1", icon: "trendingUp", label: "Add Prospect", description: "New pipeline lead" },
-    perms.tasks.add && { href: "/portal/admin/tasks", icon: "check", label: "New Task", description: "Assign ops work" },
-    perms.missions.view && { href: "/portal/admin/calendar", icon: "calendar", label: "Ops Calendar", description: "Departures by day" },
-  ].filter(Boolean) as { href: string; icon: string; label: string; description: string }[];
-
-  const headerCounts = [
-    perms.missions.view ? `${metrics.activeMissions} active` : null,
-    perms.invoices.view ? `${metrics.openInvoices} open invoices` : null,
-    perms.crm.view ? `${pipeline.openCount ?? 0} open leads` : null,
-  ].filter(Boolean);
+  const flowStages = perms.missions.view
+    ? MISSION_FLOW_STAGES.map((stage) => ({
+        key: stage.key,
+        label: stage.label,
+        count: missions.filter((m) => stage.statuses.includes(m.status)).length,
+        href: `/portal/admin/trips?status=${stage.statuses.join(",")}`,
+      }))
+    : [];
 
   return (
     <>
@@ -208,11 +249,11 @@ export default async function AdminDashboardPage() {
         <div className="min-w-0">
           <p className="deck-eyebrow">AMG Operations</p>
           <h1 className="deck-title mt-2 text-[1.65rem] sm:text-[2rem]">Command Center</h1>
-          {headerCounts.length > 0 ? (
-            <p className="deck-mono mt-2.5 !text-[0.8rem] text-[var(--deck-text-2)]">
-              {headerCounts.join(" · ")}
-            </p>
-          ) : null}
+          <p className="mt-2 text-sm leading-6 text-[var(--deck-text-2)]">
+            {queue.length > 0
+              ? `${queue.length} item${queue.length === 1 ? "" : "s"} need${queue.length === 1 ? "s" : ""} attention.`
+              : "Nothing is waiting on you right now."}
+          </p>
         </div>
         <div data-portal-action-bar className="flex flex-wrap items-center gap-2">
           {perms.missions.view ? (
@@ -228,68 +269,37 @@ export default async function AdminDashboardPage() {
         </div>
       </div>
 
-      {quickStats.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
-          {quickStats.map((stat) => (
-            <StatCard
-              key={stat.label}
-              label={stat.label}
-              value={stat.value}
-              href={stat.href}
-              icon={stat.icon}
-              tone={stat.tone}
-            />
+      {/* Support-request flow — one pipeline, shared with Mission Control. */}
+      {flowStages.length > 0 ? (
+        <div className="deck-card deck-scroll-x flex items-stretch overflow-x-auto sm:flex-wrap sm:overflow-hidden">
+          {flowStages.map((stage, index) => (
+            <div key={stage.key} className="flex w-[9rem] flex-none items-center sm:w-auto sm:min-w-[9rem] sm:flex-1">
+              {index > 0 ? (
+                <span className="deck-mono px-1 text-[var(--deck-text-3)]" aria-hidden>
+                  →
+                </span>
+              ) : null}
+              <Link href={stage.href} className="group flex-1 px-4 py-4">
+                <p className="deck-micro text-[var(--deck-text-3)] transition-colors group-hover:text-[var(--deck-accent-ink)]">
+                  {stage.label}
+                </p>
+                <p className="deck-num mt-1 text-[1.7rem] font-bold leading-none text-[var(--deck-text)]">
+                  {stage.count}
+                </p>
+              </Link>
+            </div>
           ))}
         </div>
-      ) : null}
-
-      {quickActions.length > 0 ? (
-        <SectionCard title="Quick Actions" icon="zap" bodyClassName="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {quickActions.map((action) => (
-            <QuickLink
-              key={action.href}
-              href={action.href}
-              icon={action.icon}
-              label={action.label}
-              description={action.description}
-            />
-          ))}
-        </SectionCard>
-      ) : null}
-
-      {/* Mission flow band — the pipeline the whole portal is organized around.
-          On phones it becomes one horizontal scroll strip so the stage arrows
-          keep their meaning instead of wrapping into ragged rows. */}
-      {flowStages.length > 0 ? (
-      <div className="deck-card deck-scroll-x flex items-stretch overflow-x-auto sm:flex-wrap sm:overflow-hidden">
-        {flowStages.map((stage, index) => (
-          <div key={stage.key} className="flex w-[9rem] flex-none items-center sm:w-auto sm:min-w-[9rem] sm:flex-1">
-            {index > 0 ? (
-              <span className="deck-mono px-1 text-[var(--deck-text-3)]" aria-hidden>
-                →
-              </span>
-            ) : null}
-            <Link href={stage.href} className="group flex-1 px-4 py-4">
-              <p className="deck-micro text-[var(--deck-text-3)] transition-colors group-hover:text-[var(--deck-accent-ink)]">
-                {stage.label}
-              </p>
-              <p className="deck-num mt-1 text-[1.7rem] font-bold leading-none text-[var(--deck-text)]">
-                {stage.count}
-              </p>
-            </Link>
-          </div>
-        ))}
-      </div>
       ) : null}
 
       {/* Pilot float runway — cash needed to keep the 7-day payout promise. */}
       {payouts && payouts.openCount > 0 ? (
         <Link
           href="/portal/admin/payouts"
-          className="deck-card deck-card-hover flex flex-wrap items-center gap-x-6 gap-y-2 border-l-[3px] !border-l-[var(--deck-accent)] px-5 py-3.5"
+          className="deck-card deck-card-hover flex flex-wrap items-center gap-x-6 gap-y-2 border-l-[3px] !border-l-[var(--deck-gold)] px-5 py-3.5"
         >
           <div className="min-w-0">
-            <p className="deck-eyebrow">Pilot float runway</p>
+            <p className="deck-eyebrow !text-[var(--deck-gold-deep)]">Pilot payout runway</p>
             <p className="deck-num mt-1 text-[1.4rem] font-bold leading-none text-[var(--deck-text)]">
               {formatMoney(payouts.dueNext7Total)}{" "}
               <span className="text-sm font-medium text-[var(--deck-text-3)]">due next 7 days</span>
@@ -312,62 +322,67 @@ export default async function AdminDashboardPage() {
         </Link>
       ) : null}
 
-      {/* Action queue */}
-      {actionQueue.length > 0 ? (
-        <div className="flex flex-wrap gap-3">
-          {actionQueue.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="deck-card deck-card-hover flex items-center gap-3 border-l-[3px] !border-l-[var(--deck-warn)] px-4 py-2.5"
-            >
-              <span className="deck-num text-lg font-bold text-[var(--deck-text)]">{item.count}</span>
-              <span className="text-sm font-medium text-[var(--deck-text-2)]">{item.label}</span>
-              <span className="deck-mono text-[var(--deck-text-3)]" aria-hidden>
-                →
-              </span>
-            </Link>
-          ))}
-        </div>
-      ) : (
-        <div className="flex items-center gap-2">
-          <StatusDot tone="success" label="Queue clear — nothing waiting on review" pulse />
-        </div>
-      )}
-
-      {/* Working area: live requests + the day's rail */}
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="min-w-0 space-y-5">
+          {/* 1 — Needs action now */}
           <SectionCard
-            title="Active Support Requests"
-            icon="radar"
-            actions={
-              <Button asChild variant="ghost" size="sm">
-                <Link href={`/portal/admin/trips?status=${ACTIVE_MISSION_STATUSES.join(",")}`}>View all</Link>
-              </Button>
-            }
+            title="Needs Action Now"
+            icon="alert"
+            description="Ranked by urgency: AOG, SLA, imminent departures, then review queues."
           >
-            {active.length === 0 ? (
-              <EmptyState
-                icon="radar"
-                title="No active requests"
-                description="Submitted and scheduled support requests will appear here."
-              />
+            {queueTop.length === 0 ? (
+              <div className="flex items-center gap-2 py-2">
+                <StatusDot tone="success" label="Queue clear — nothing waiting on review" pulse />
+              </div>
             ) : (
-              <div className="space-y-3">
-                {active.map((mission) => (
+              <div className="space-y-2.5">
+                {queueTop.map((item, index) => (
+                  <RecordRow
+                    key={`${item.href}-${index}`}
+                    href={item.href}
+                    refLabel={item.refLabel}
+                    title={item.title}
+                    tone={item.tone === "danger" ? "danger" : item.tone === "warn" ? "warn" : "default"}
+                    meta={
+                      <>
+                        <span className="font-medium text-[var(--deck-text-2)]">{item.action}</span>
+                        {item.meta ? <> · {item.meta}</> : null}
+                        {item.due ? <> · {item.due}</> : null}
+                      </>
+                    }
+                  />
+                ))}
+                {queue.length > queueTop.length ? (
+                  <p className="pt-1 text-xs text-[var(--deck-text-3)]">
+                    +{queue.length - queueTop.length} more in{" "}
+                    <Link href="/portal/admin/trips" className="font-semibold text-[var(--deck-accent-ink)] hover:underline">
+                      the request queue
+                    </Link>
+                    .
+                  </p>
+                ) : null}
+              </div>
+            )}
+          </SectionCard>
+
+          {/* 3 — Blocked or at risk */}
+          {atRisk.length > 0 ? (
+            <SectionCard
+              title="At Risk"
+              icon="shield"
+              description="SLA breaches and requests stalled waiting on client information."
+            >
+              <div className="space-y-2.5">
+                {atRisk.map((mission) => (
                   <RecordRow
                     key={mission.id}
                     href={`/portal/admin/trips/${mission.id}`}
                     refLabel={mission.ref}
                     title={formatRoute(mission.departure_airport, mission.arrival_airport)}
+                    tone="danger"
                     meta={
                       <>
-                        {mission.client?.company_name ??
-                          mission.client?.full_name ??
-                          mission.client?.email ??
-                          "Client TBD"}{" "}
-                        · {formatDateTime(mission.requested_departure)}
+                        {missionClientLabel(mission)} · {formatDateTime(mission.requested_departure)}
                       </>
                     }
                     trailing={
@@ -379,73 +394,57 @@ export default async function AdminDashboardPage() {
                   />
                 ))}
               </div>
-            )}
-          </SectionCard>
+            </SectionCard>
+          ) : null}
 
-          {recentSubmissions.length > 0 && (
+          {/* 5 — What changed */}
+          {recentMaterial.length > 0 ? (
             <SectionCard
-              title="New Website Submissions"
-              icon="inbox"
-              description="Unreviewed contact submissions from the public site."
+              title="Recent Activity"
+              icon="history"
               actions={
-                <Button asChild variant="ghost" size="sm">
-                  <Link href="/portal/admin/form-submissions?status=new">View all</Link>
-                </Button>
+                perms.audit_log.view ? (
+                  <Button asChild variant="ghost" size="sm">
+                    <Link href="/portal/admin/audit-log">Audit log</Link>
+                  </Button>
+                ) : undefined
               }
             >
-              <div className="space-y-3">
-                {recentSubmissions.slice(0, 5).map((sub) => (
-                  <RecordRow
-                    key={sub.id}
-                    href="/portal/admin/form-submissions?status=new"
-                    title={sub.full_name}
-                    meta={
-                      <>
-                        {sub.email} · {sub.source_page} ·{" "}
-                        {sub.support_path ?? sub.inquiry_type ?? "General"} ·{" "}
-                        {formatDateTime(sub.created_at)}
-                      </>
-                    }
-                    trailing={<StatusBadge label="New" tone="info" />}
-                  />
+              <ol className="space-y-2.5">
+                {recentMaterial.map((event) => (
+                  <li key={event.id} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-[var(--deck-line)] pb-2.5 last:border-0 last:pb-0">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-[var(--deck-text)]">
+                        {event.action.replace(/_/g, " ")}
+                      </p>
+                      {event.detail ? (
+                        <p className="mt-0.5 line-clamp-2 text-xs leading-5 text-[var(--deck-text-3)]">{event.detail}</p>
+                      ) : null}
+                    </div>
+                    <span className="deck-mono shrink-0 text-[var(--deck-text-3)]">
+                      {formatDateTime(event.created_at)}
+                    </span>
+                  </li>
                 ))}
-              </div>
+              </ol>
             </SectionCard>
-          )}
-
-          {pendingUsers.length > 0 && (
-            <SectionCard
-              title="Pending User Approvals"
-              icon="userCheck"
-              actions={
-                <Button asChild variant="ghost" size="sm">
-                  <Link href="/portal/admin/user-approvals">Manage</Link>
-                </Button>
-              }
-            >
-              <div className="space-y-3">
-                {pendingUsers.slice(0, 4).map((profile) => (
-                  <RecordRow
-                    key={profile.id}
-                    href="/portal/admin/user-approvals"
-                    title={profile.full_name ?? profile.email}
-                    meta={
-                      <>
-                        {titleCase(profile.requested_role ?? profile.role)} ·{" "}
-                        {profile.company_name ?? "No company"} · {formatDateTime(profile.created_at)}
-                      </>
-                    }
-                    trailing={<StatusBadge label="Pending" tone="warn" />}
-                  />
-                ))}
-              </div>
-            </SectionCard>
-          )}
+          ) : null}
         </div>
 
-        {/* Right rail: what's next, my work, the business */}
+        {/* Right rail: what's next + my work */}
         <div className="space-y-5">
-          <SectionCard title="Next Departures" icon="planeTakeoff">
+          {/* 2 — Scheduled next */}
+          <SectionCard
+            title="Next Departures"
+            icon="planeTakeoff"
+            actions={
+              perms.missions.view ? (
+                <Button asChild variant="ghost" size="sm">
+                  <Link href="/portal/admin/calendar">Calendar</Link>
+                </Button>
+              ) : undefined
+            }
+          >
             {nextDepartures.length === 0 ? (
               <p className="text-sm text-[var(--deck-text-3)]">No upcoming departures scheduled.</p>
             ) : (
@@ -475,6 +474,7 @@ export default async function AdminDashboardPage() {
             )}
           </SectionCard>
 
+          {/* 4 — Assigned to me */}
           <SectionCard
             title="My Open Tasks"
             icon="check"
@@ -489,7 +489,7 @@ export default async function AdminDashboardPage() {
             ) : (
               <div className="space-y-2.5">
                 {myTasks.slice(0, 5).map((task) => {
-                  const overdue = task.due_at && new Date(task.due_at) < new Date();
+                  const overdue = task.due_at && new Date(task.due_at) < now;
                   return (
                     <Link
                       key={task.id}
@@ -521,41 +521,12 @@ export default async function AdminDashboardPage() {
             )}
           </SectionCard>
 
-          {perms.crm.view || perms.invoices.view || perms.subscriptions.view || perms.missions.view ? (
-            <SectionCard title="Business" icon="trendingUp" bodyClassName="grid gap-3">
-              {perms.crm.view ? (
-                <QuickLink
-                  href="/portal/admin/crm"
-                  icon="trendingUp"
-                  label="Sales Pipeline"
-                  description={pipeline.openCount ? `${pipeline.openCount} open leads` : "No open leads"}
-                />
-              ) : null}
-              {perms.invoices.view ? (
-                <QuickLink
-                  href="/portal/admin/receivables"
-                  icon="alert"
-                  label="Receivables"
-                  description="Aging + payment reminders"
-                />
-              ) : null}
-              {perms.subscriptions.view ? (
-                <QuickLink
-                  href="/portal/admin/subscriptions"
-                  icon="creditCard"
-                  label="Subscriptions"
-                  description={`${metrics.activeSubscriptions} active`}
-                />
-              ) : null}
-              {perms.missions.view ? (
-                <QuickLink
-                  href="/portal/admin/calendar"
-                  icon="calendar"
-                  label="Ops Calendar"
-                  description="Departures by day"
-                />
-              ) : null}
-            </SectionCard>
+          {perms.missions.view && active.length === 0 && queue.length === 0 ? (
+            <EmptyState
+              icon="radar"
+              title="No active support requests"
+              description="New and scheduled requests will appear here and in Operations."
+            />
           ) : null}
         </div>
       </div>

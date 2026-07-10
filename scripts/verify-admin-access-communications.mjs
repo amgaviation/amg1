@@ -52,10 +52,10 @@ check(
 );
 check(
   "admin nav exposes required grouped categories",
-  ["Operations", "Pipeline", "Directory", "Billing", "Finance", "Comms & Files", "Governance"].every(
+  ["Command Center", "Operations", "Network", "Business", "Communications", "Administration"].every(
     (label) => constants.includes(`label: "${label}"`),
   ) && shell.includes("DECK_NAV"),
-  "DECK_NAV should define the Flight Deck Console admin navigation groups rendered by PortalShell.",
+  "DECK_NAV should define the AMG Connect admin workspaces rendered by PortalShell.",
 );
 check(
   "Finance nav exposes Pricing & Services catalog",

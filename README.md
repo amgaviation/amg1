@@ -23,7 +23,7 @@ The portal UI is a self-contained design system scoped under `.amg-portal`:
 - Component classes: `.deck-card`, `.deck-inset`, `.deck-eyebrow`, `.deck-chip`, `.deck-input`, `.deck-nav-link`, etc. (defined in `@layer components`)
 - Kit: `components/portal/ui/*` (PageHeader, SectionCard, StatCard, RecordRow, QuickLink, FilterTabs, Pagination, DataTable, StatusBadge, fields, NotificationsList)
 - Shell: `components/portal/shell/portal-shell.tsx` (dark sidebar with grouped nav per role, Zulu clock, notifications, admin view switcher)
-- Navigation IA: `DECK_NAV` in `lib/portal/constants.ts`
+- Navigation IA: `DECK_NAV` workspaces in `lib/portal/constants.ts` (short per-role rail + contextual sub-nav; see docs/portal-operational-restructure.md)
 
 Note: a global rule zeroes `tracking-*` utilities; portal code uses `[letter-spacing:...]` arbitrary properties or the `.deck-eyebrow` classes instead.
 
