@@ -66,10 +66,14 @@ export async function createInvoiceFromQuote(formData: FormData) {
     .maybeSingle();
   if (existing) redirect(`/portal/admin/invoices/${existing.id}?error=duplicate`);
 
+  // Email-first send (mirrors sendInvoicePdf): create the invoice as a draft
+  // even for intent=send, and only mark it "sent" — and the quote converted —
+  // once the email provider actually accepts the message.
+  const intent = str(formData, "intent");
   const invoiceId = await createInvoiceDraftFromQuote({
     quoteId,
     actorId: admin.id,
-    status: str(formData, "intent") === "send" ? "sent" : "draft",
+    status: "draft",
     dueDate: str(formData, "due_date") || null,
     terms: str(formData, "terms") || null,
   }).catch(() => null);
@@ -80,28 +84,37 @@ export async function createInvoiceFromQuote(formData: FormData) {
     .select("invoice_number")
     .eq("id", invoiceId)
     .maybeSingle();
-  if (str(formData, "intent") === "send") {
-    await emailInvoicePdf(invoiceId, admin.id).catch((error) => {
+  let emailFailed = false;
+  if (intent === "send") {
+    const outcome = await emailInvoicePdf(invoiceId, admin.id).catch((error) => {
       console.error("[billing] failed to email invoice PDF", invoiceId, error);
+      return null;
     });
-    await db.from("quotes").update({ status: "converted" }).eq("id", quote.id);
+    if (outcome?.result?.status === "sent") {
+      await (db as any)
+        .from("invoices")
+        .update({ status: "sent", sent_at: new Date().toISOString() })
+        .eq("id", invoiceId);
+      await db.from("quotes").update({ status: "converted" }).eq("id", quote.id);
+    } else {
+      emailFailed = true;
+    }
   }
 
   await logAuditEvent({
     actor: admin,
     action: "invoice_created_from_quote",
-    detail: `Created ${invoice?.invoice_number ?? "invoice"} from ${quote.ref}`,
+    detail: `Created ${invoice?.invoice_number ?? "invoice"} from ${quote.ref}${
+      intent === "send" ? (emailFailed ? " (email failed; saved as draft)" : " and emailed it to the client") : ""
+    }`,
     entityType: "invoice",
     entityId: invoiceId,
   });
-  if (quote.client_id && str(formData, "intent") !== "send") {
+  if (quote.client_id && intent !== "send") {
     await notifyUser({
       userId: quote.client_id,
-      title: str(formData, "intent") === "send" ? "Invoice issued" : "Invoice drafted",
-      body:
-        str(formData, "intent") === "send"
-          ? `${invoice?.invoice_number ?? "An invoice"} is available in your billing portal.`
-          : `${invoice?.invoice_number ?? "An invoice"} has been created for AMG review.`,
+      title: "Invoice drafted",
+      body: `${invoice?.invoice_number ?? "An invoice"} has been created for AMG review.`,
       type: "invoice_issued",
       entityType: "invoice",
       entityId: invoiceId,
@@ -109,7 +122,7 @@ export async function createInvoiceFromQuote(formData: FormData) {
   }
   revalidatePath("/portal/admin/invoices");
   revalidatePath("/portal/client/billing");
-  redirect(`/portal/admin/invoices/${invoiceId}?success=created`);
+  redirect(`/portal/admin/invoices/${invoiceId}?success=created${emailFailed ? "&email=failed" : ""}`);
 }
 
 export async function createStandaloneInvoice(formData: FormData) {
@@ -132,6 +145,9 @@ export async function createStandaloneInvoice(formData: FormData) {
   if (!INVOICE_STATUS.some((s) => s.value === status) || status === "paid") {
     redirect("/portal/admin/invoices?error=invalid-status");
   }
+  // Email-first send (mirrors sendInvoicePdf): a "sent" request is inserted as
+  // a draft and only promoted to "sent" once the email provider accepts it.
+  const sendNow = status === "sent";
 
   const { data: invoice, error } = await billingDb
     .from("invoices")
@@ -140,7 +156,7 @@ export async function createStandaloneInvoice(formData: FormData) {
       client_id: clientId,
       mission_id: str(formData, "mission_id") || null,
       aircraft_id: str(formData, "aircraft_id") || null,
-      status,
+      status: sendNow ? "draft" : status,
       subtotal: amount,
       discount: discountTotal,
       discount_total: discountTotal,
@@ -155,28 +171,49 @@ export async function createStandaloneInvoice(formData: FormData) {
       internal_notes: str(formData, "internal_notes") || null,
       created_by: admin.id,
       issued_at: new Date().toISOString(),
-      sent_at: status === "sent" ? new Date().toISOString() : null,
+      sent_at: null,
     })
     .select("id, invoice_number")
     .single();
   if (error || !invoice) redirect("/portal/admin/invoices?error=save");
 
-  await billingDb.from("invoice_line_items").insert(items.map((item) => ({ ...item, invoice_id: invoice.id })));
+  const { error: lineError } = await billingDb
+    .from("invoice_line_items")
+    .insert(items.map((item) => ({ ...item, invoice_id: invoice.id })));
+  if (lineError) {
+    // Never leave a lineless invoice behind: undo the header insert
+    // (mirrors submitVendorInvoice's compensation).
+    await billingDb.from("invoices").delete().eq("id", invoice.id);
+    redirect("/portal/admin/invoices?error=save");
+  }
+
+  let emailFailed = false;
+  if (sendNow) {
+    const outcome = await emailInvoicePdf(invoice.id, admin.id).catch((error) => {
+      console.error("[billing] failed to email standalone invoice PDF", invoice.id, error);
+      return null;
+    });
+    if (outcome?.result?.status === "sent") {
+      await billingDb
+        .from("invoices")
+        .update({ status: "sent", sent_at: new Date().toISOString() })
+        .eq("id", invoice.id);
+    } else {
+      emailFailed = true;
+    }
+  }
   await logAuditEvent({
     actor: admin,
     action: "invoice_created",
-    detail: `Created ${invoice.invoice_number}`,
+    detail: `Created ${invoice.invoice_number}${
+      sendNow ? (emailFailed ? " (email failed; saved as draft)" : " and emailed it to the client") : ""
+    }`,
     entityType: "invoice",
     entityId: invoice.id,
   });
-  if (status === "sent") {
-    await emailInvoicePdf(invoice.id, admin.id).catch((error) => {
-      console.error("[billing] failed to email standalone invoice PDF", invoice.id, error);
-    });
-  }
   revalidatePath("/portal/admin/invoices");
   revalidatePath("/portal/client/billing");
-  redirect(`/portal/admin/invoices/${invoice.id}?success=created`);
+  redirect(`/portal/admin/invoices/${invoice.id}?success=created${emailFailed ? "&email=failed" : ""}`);
 }
 
 export async function updateInvoiceDraft(formData: FormData) {
@@ -235,13 +272,32 @@ export async function updateInvoiceDraft(formData: FormData) {
     .eq("id", invoiceId);
   if (error) redirect(`/portal/admin/invoices/${invoiceId}/edit?error=save`);
 
+  // Replace lines wholesale, guarded so a failed insert never leaves the
+  // invoice lineless: snapshot the old lines first and restore them if the
+  // replacement insert fails (mirrors updateVendorInvoice). The restore
+  // itself is best-effort — either way the admin sees ?error=save.
+  const { data: oldLines } = await billingDb
+    .from("invoice_line_items")
+    .select("*")
+    .eq("invoice_id", invoiceId);
+
   const { error: deleteError } = await billingDb.from("invoice_line_items").delete().eq("invoice_id", invoiceId);
   if (deleteError) redirect(`/portal/admin/invoices/${invoiceId}/edit?error=save`);
   if (items.length) {
     const { error: insertError } = await billingDb
       .from("invoice_line_items")
       .insert(items.map((item) => ({ ...item, invoice_id: invoiceId })));
-    if (insertError) redirect(`/portal/admin/invoices/${invoiceId}/edit?error=save`);
+    if (insertError) {
+      if (oldLines?.length) {
+        await billingDb.from("invoice_line_items").insert(
+          oldLines.map(({ id: _id, invoice_id: _invoiceId, created_at: _createdAt, ...line }: any) => ({
+            ...line,
+            invoice_id: invoiceId,
+          })),
+        );
+      }
+      redirect(`/portal/admin/invoices/${invoiceId}/edit?error=save`);
+    }
   }
 
   await logAuditEvent({

@@ -139,6 +139,9 @@ export async function createQuote(formData: FormData) {
   const payload = quotePayload(formData, settings);
   const clientId = str(formData, "client_id") || mission?.client_id || null;
 
+  // Email-first send (mirrors sendQuote): the quote is inserted as a draft
+  // even for send-now, and only marked "sent" — with the SLA stamp and client
+  // notifications — once the email provider actually accepts the message.
   const { data: quote, error: quoteError } = await billingDb
     .from("quotes")
     .insert({
@@ -146,12 +149,12 @@ export async function createQuote(formData: FormData) {
       quote_number: quoteNumber,
       mission_id: missionId,
       client_id: clientId,
-      status: sendNow ? "sent" : "draft",
+      status: "draft",
       subtotal: totals.subtotal,
       discount_total: totals.discountTotal,
       tax_total: totals.taxTotal,
       total: totals.grandTotal,
-      sent_at: sendNow ? new Date().toISOString() : null,
+      sent_at: null,
       created_by: admin.id,
       ...payload,
     })
@@ -164,9 +167,15 @@ export async function createQuote(formData: FormData) {
   }
 
   if (quote && items.length) {
-    await billingDb
+    const { error: lineError } = await billingDb
       .from("quote_line_items")
       .insert(items.map((it) => ({ ...it, quote_id: quote.id })));
+    if (lineError) {
+      // Never leave a lineless quote behind: undo the header insert
+      // (mirrors submitVendorInvoice's compensation).
+      await billingDb.from("quotes").delete().eq("id", quote.id);
+      redirect("/portal/admin/quotes?error=save");
+    }
   }
   if (missionId) {
     // Only pull the mission to 'quoted' from intake states — a supplemental
@@ -178,25 +187,37 @@ export async function createQuote(formData: FormData) {
       .in("status", ["submitted", "under_review", "awaiting_client_info"]);
   }
 
-  // Stop the SLA response clock the first time a quote actually goes to the
-  // client (create-and-send path). Predicated + failure-safe inside the helper.
-  if (sendNow && missionId) {
-    await stampSlaMetOnQuoteSent(db, missionId);
+  let emailFailed = false;
+  if (sendNow && quote) {
+    const outcome = await emailQuotePdf(quote.id, admin.id).catch((error) => {
+      console.error("[billing] failed to email quote PDF", quote.id, error);
+      return null;
+    });
+    if (outcome?.result?.status === "sent") {
+      await billingDb
+        .from("quotes")
+        .update({ status: "sent", sent_at: new Date().toISOString() })
+        .eq("id", quote.id);
+      // Stop the SLA response clock only now that the quote actually went to
+      // the client. Predicated + failure-safe inside the helper.
+      if (missionId) {
+        await stampSlaMetOnQuoteSent(db, missionId);
+      }
+    } else {
+      emailFailed = true;
+    }
   }
 
   await logAuditEvent({
     actor: admin,
     action: "quote_created",
-    detail: `Created ${quote?.ref ?? "quote"} ($${totals.grandTotal})`,
+    detail: `Created ${quote?.ref ?? "quote"} ($${totals.grandTotal})${
+      sendNow ? (emailFailed ? " (email failed; saved as draft)" : " and emailed it to the client") : ""
+    }`,
     entityType: "quote",
     entityId: quote?.id ?? null,
   });
-  if (sendNow && quote) {
-    await emailQuotePdf(quote.id, admin.id).catch((error) => {
-      console.error("[billing] failed to email quote PDF", quote.id, error);
-    });
-  }
-  if (clientId && sendNow) {
+  if (clientId && sendNow && !emailFailed) {
     await notifyUser({
       userId: clientId,
       title: "Quote ready",
@@ -206,7 +227,7 @@ export async function createQuote(formData: FormData) {
       entityId: quote?.id ?? null,
     });
   }
-  if (quote && sendNow && missionId) {
+  if (quote && sendNow && !emailFailed && missionId) {
     await notifyMissionContactByEmail({
       missionId,
       title: "Quote ready for review",
@@ -222,7 +243,13 @@ export async function createQuote(formData: FormData) {
   }
   if (missionId) revalidatePath(`/portal/admin/trips/${missionId}`);
   revalidatePath("/portal/admin/quotes");
-  redirect(sendNow ? `/portal/admin/quotes/${quote?.id}?success=sent` : `/portal/admin/quotes/${quote?.id}?success=draft`);
+  redirect(
+    sendNow
+      ? emailFailed
+        ? `/portal/admin/quotes/${quote?.id}?success=draft&email=failed`
+        : `/portal/admin/quotes/${quote?.id}?success=sent`
+      : `/portal/admin/quotes/${quote?.id}?success=draft`,
+  );
 }
 
 export async function updateQuoteDraft(formData: FormData) {
@@ -252,11 +279,29 @@ export async function updateQuoteDraft(formData: FormData) {
     })
     .eq("id", quoteId);
   if (headerError) redirect(`/portal/admin/quotes/${quoteId}?error=save`);
+  // Replace lines wholesale, guarded so a failed insert never leaves the
+  // quote lineless: snapshot the old lines first and restore them if the
+  // replacement insert fails (mirrors updateVendorInvoice). The restore
+  // itself is best-effort — either way the admin sees ?error=save.
+  const { data: oldLines } = await billingDb
+    .from("quote_line_items")
+    .select("*")
+    .eq("quote_id", quoteId);
   const { error: deleteError } = await db.from("quote_line_items").delete().eq("quote_id", quoteId);
   if (deleteError) redirect(`/portal/admin/quotes/${quoteId}?error=save`);
   if (items.length) {
     const { error: insertError } = await billingDb.from("quote_line_items").insert(items.map((it) => ({ ...it, quote_id: quoteId })));
-    if (insertError) redirect(`/portal/admin/quotes/${quoteId}?error=save`);
+    if (insertError) {
+      if (oldLines?.length) {
+        await billingDb.from("quote_line_items").insert(
+          oldLines.map(({ id: _id, quote_id: _quoteId, created_at: _createdAt, ...line }: any) => ({
+            ...line,
+            quote_id: quoteId,
+          })),
+        );
+      }
+      redirect(`/portal/admin/quotes/${quoteId}?error=save`);
+    }
   }
   await logAuditEvent({
     actor: admin,
@@ -502,6 +547,7 @@ export async function respondToQuote(formData: FormData) {
 
   let invoiceId: string | null = null;
   let depositInvoice: { amount: number; dueDate: string | null } | null = null;
+  let invoiceEmailFailed = false;
   if (decision === "approved") {
     if (quote.mission_id) {
       // Approval advances the mission only from its quote-pending states.
@@ -517,10 +563,13 @@ export async function respondToQuote(formData: FormData) {
     // and a positive amount resolves; otherwise fall back to the full invoice.
     depositInvoice = resolveQuoteDeposit(quote);
     try {
+      // Email-first send (mirrors sendInvoicePdf): even with auto-send on,
+      // the invoice starts as a draft and is only marked "sent" once the
+      // email provider actually accepts the message.
       invoiceId = await createInvoiceDraftFromQuote({
         quoteId,
         actorId: user.id,
-        status: autoSend ? "sent" : "draft",
+        status: "draft",
         ...(depositInvoice ? { deposit: depositInvoice } : {}),
       });
     } catch (error) {
@@ -532,9 +581,18 @@ export async function respondToQuote(formData: FormData) {
     // When auto-send is on, the deposit invoice is the thing sent (with the
     // hosted Stripe payment link via the existing invoice send path).
     if (autoSend && invoiceId) {
-      await emailInvoicePdf(invoiceId, user.id).catch((error) => {
+      const outcome = await emailInvoicePdf(invoiceId, user.id).catch((error) => {
         console.error("[billing] failed to email invoice PDF after quote approval", invoiceId, error);
+        return null;
       });
+      if (outcome?.result?.status === "sent") {
+        await billingDb
+          .from("invoices")
+          .update({ status: "sent", sent_at: new Date().toISOString() })
+          .eq("id", invoiceId);
+      } else {
+        invoiceEmailFailed = true;
+      }
     }
   }
 
@@ -585,9 +643,11 @@ export async function respondToQuote(formData: FormData) {
     title: `Quote ${decision}`,
     body:
       decision === "approved" && invoiceId
-        ? depositInvoice
-          ? `${user.name} approved ${quote.ref}. Deposit invoice created for ${usd(depositInvoice.amount)}.`
-          : `${user.name} approved ${quote.ref}. Invoice draft created for review.`
+        ? `${
+            depositInvoice
+              ? `${user.name} approved ${quote.ref}. Deposit invoice created for ${usd(depositInvoice.amount)}.`
+              : `${user.name} approved ${quote.ref}. Invoice draft created for review.`
+          }${invoiceEmailFailed ? " The invoice email could not be sent — it was kept as a draft; send it manually." : ""}`
         : `${user.name} ${decision} ${quote.ref}.`,
     type: "quote_response",
     entityType: "quote",

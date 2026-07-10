@@ -23,7 +23,7 @@ export default async function AdminInvoiceDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ success?: string; error?: string; amount?: string }>;
+  searchParams: Promise<{ success?: string; error?: string; amount?: string; email?: string }>;
 }) {
   const user = await requireRolePermission("admin", "invoices");
   const { id } = await params;
@@ -80,6 +80,10 @@ export default async function AdminInvoiceDetailPage({
       ) : flash.success ? (
         <Notice tone="success">Invoice updated.</Notice>
       ) : null}
+      {flash.email === "failed" ? (
+        <Notice tone="warn">The invoice email could not be sent, so the invoice was kept as a draft. Check the recipient email address and use Send to retry.</Notice>
+      ) : null}
+      {flash.error === "send-failed" ? <Notice tone="danger">The invoice email could not be sent. Check the recipient email address and try again.</Notice> : null}
       {flash.error === "duplicate" ? <Notice tone="danger">This quote already has an active invoice.</Notice> : null}
       {flash.error === "payment-required" ? <Notice tone="danger">Record a payment to mark this invoice paid.</Notice> : null}
       {flash.error === "payment-data" ? <Notice tone="danger">Remove full card numbers, CVV codes, bank account numbers, or routing numbers before recording payment details.</Notice> : null}

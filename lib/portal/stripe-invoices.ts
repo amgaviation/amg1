@@ -421,7 +421,13 @@ async function markInvoicePaidFromCheckoutSession(
     .single();
   if (paymentError || !payment) return { ok: false, error: "Could not record Stripe payment" };
 
-  await db
+  // Optimistic concurrency (mirrors recordInvoicePayment): the rollup only
+  // applies if amount_paid is still the value read above. If another payment
+  // (manual/credit/another webhook) landed in between, zero rows update —
+  // undo the payment row and fail this event so it records as failed and
+  // Stripe's retry reprocesses it against a fresh read, instead of
+  // double-counting or clobbering amount_paid.
+  const rollup = db
     .from("invoices")
     .update({
       amount_paid: amountPaid,
@@ -443,6 +449,15 @@ async function markInvoicePaidFromCheckoutSession(
       updated_at: new Date().toISOString(),
     })
     .eq("id", invoice.id);
+  const { data: rolledUp, error: rollupError } = await (
+    invoice.amount_paid == null ? rollup.is("amount_paid", null) : rollup.eq("amount_paid", invoice.amount_paid)
+  )
+    .select("id")
+    .maybeSingle();
+  if (rollupError || !rolledUp) {
+    await db.from("payments").delete().eq("id", payment.id);
+    return { ok: false, error: "Invoice amount_paid changed while recording Stripe payment; retry will reprocess" };
+  }
 
   // The canonical audit log must include the highest-volume payment channel,
   // not just admin-recorded payments. The paying client is the actor.

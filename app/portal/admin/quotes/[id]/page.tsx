@@ -19,7 +19,7 @@ export default async function AdminQuoteDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ success?: string; error?: string }>;
+  searchParams: Promise<{ success?: string; error?: string; email?: string }>;
 }) {
   const user = await requireRolePermission("admin", "quotes");
   const { id } = await params;
@@ -57,6 +57,10 @@ export default async function AdminQuoteDetailPage({
   return (
     <>
       {flash.success ? <Notice tone="success">Quote updated.</Notice> : null}
+      {flash.email === "failed" ? (
+        <Notice tone="warn">The quote email could not be sent, so the quote was kept as a draft. Check the recipient email address and use Send to retry.</Notice>
+      ) : null}
+      {flash.error === "send-failed" ? <Notice tone="danger">The quote email could not be sent. Check the recipient email address and try again.</Notice> : null}
       {flash.error === "locked" ? <Notice tone="danger">This quote is locked. Create a revision before changing sent or approved terms.</Notice> : null}
       {flash.error === "not-approved" ? <Notice tone="danger">Only approved quotes can be converted to invoice.</Notice> : null}
       {flash.error === "revision" ? <Notice tone="danger">A quote revision could not be created.</Notice> : null}
