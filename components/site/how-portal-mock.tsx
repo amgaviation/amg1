@@ -1,7 +1,7 @@
 /**
  * Abstract, CSS-only mission-file mock for the "Inside AMG Connect" section —
- * the page-scale echo of the home page's stylized console illustration
- * (components/flightdeck/connect.tsx). It renders hairline rows, mono field
+ * a page-scale echo of the home page's stylized "Operations Desk" console
+ * illustration. It renders hairline rows, mono field
  * labels and skeleton bars only: no tail numbers, names, amounts or any other
  * real-looking data are fabricated. Field labels are placeholders, values are
  * deliberately blank skeleton blocks, and the panel is labelled as illustrative.
