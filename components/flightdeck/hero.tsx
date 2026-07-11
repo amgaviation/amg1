@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowNE, Magnetic, useSectionProgress } from "./fd-anim";
 
@@ -142,7 +142,35 @@ function OpsPanel() {
 
 export default function Hero() {
   const ref = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const p = useSectionProgress(ref);
+  const [playSky, setPlaySky] = useState(false);
+
+  // The sky loop mounts client-side only, only when motion is allowed, and
+  // only once the hero is near the viewport (a deep link below the fold never
+  // downloads the 6 MB loop). Everyone else keeps the still stratosphere
+  // plate; `?fdstill` forces it (QA hook — hardware video overlays blind
+  // pixel-capture tools).
+  useEffect(() => {
+    const forceStill = window.location.search.includes("fdstill");
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || forceStill) return;
+    const node = ref.current;
+    if (!node || typeof IntersectionObserver === "undefined") {
+      setPlaySky(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setPlaySky(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "25% 0px" }
+    );
+    io.observe(node);
+    return () => io.disconnect();
+  }, []);
 
   const o = 1 - Math.min(1, p / 0.72); // window openness (1 = closed)
   const ix = 37 * o; // horizontal inset %
@@ -211,21 +239,44 @@ export default function Hero() {
             background: "#04060D",
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/flightdeck/stratosphere.webp"
-            alt=""
-            fetchPriority="high"
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              transform: `scale(${skyScale})`,
-              transition: "transform 0.2s linear",
-            }}
-          />
+          {playSky ? (
+            <video
+              ref={videoRef}
+              src="/videos/flightdeck/porthole-sky.mp4"
+              poster="/images/flightdeck/stratosphere.webp"
+              preload="none"
+              autoPlay
+              muted
+              loop
+              playsInline
+              aria-hidden
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                transform: `scale(${skyScale})`,
+                transition: "transform 0.2s linear",
+              }}
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src="/images/flightdeck/stratosphere.webp"
+              alt=""
+              fetchPriority="high"
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                transform: `scale(${skyScale})`,
+                transition: "transform 0.2s linear",
+              }}
+            />
+          )}
           {/* legibility scrims */}
           <div
             aria-hidden
@@ -243,6 +294,20 @@ export default function Hero() {
               inset: 0,
               background:
                 "linear-gradient(180deg, rgba(4,6,13,0.5) 0%, rgba(4,6,13,0) 30%, rgba(4,6,13,0) 55%, rgba(4,6,13,0.78) 100%)",
+            }}
+          />
+          {/* cabin-window depth — an inner edge vignette clipped to the
+              porthole so the sky reads as if seen through glass. Fades out
+              with the window as it opens (strongest while closed). */}
+          <div
+            aria-hidden
+            style={{
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+              boxShadow: "inset 0 0 140px 48px rgba(4,6,13,0.6)",
+              opacity: 0.35 + 0.65 * o,
+              transition: "opacity 0.2s linear",
             }}
           />
 

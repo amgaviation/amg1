@@ -5,10 +5,15 @@ import { useSectionProgress } from "./fd-anim";
 
 /**
  * JET FLYOVER — scroll-scrubbed aircraft crossing the frame (190vh section,
- * 100vh sticky inner, light). The top-down jet travels bottom → top along a
- * dashed route line; three waypoint callouts fade+rise in at set progress
- * points. Under reduced motion `useSectionProgress` returns 1 (jet parked at
- * the top of its travel, all waypoints shown).
+ * 100vh sticky inner, light). A true-transparency top-down jet cutout
+ * travels bottom → top along a dashed route line, casting a soft shadow that
+ * tracks it and carrying a subtle vertical motion blur; three waypoint
+ * callouts fade+rise in at set progress points. Under reduced motion
+ * `useSectionProgress` returns 1 (jet parked at the top of its travel, all
+ * waypoints shown).
+ *
+ * The light "Day Board" field stays plain white per the brand guide — depth
+ * comes from the moving shadow, not from added texture.
  */
 
 function Waypoint({
@@ -74,6 +79,18 @@ export default function JetFlyover() {
       ref={ref}
       style={{ position: "relative", height: "190vh", background: "var(--deck-paper)" }}
     >
+      {/* directional (vertical) motion-blur filter — static, so the filtered
+          bitmap is cached and only the transform updates while scrubbing */}
+      <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
+        <defs>
+          <filter id="fd-jet-motion" x="-15%" y="-15%" width="130%" height="130%">
+            {/* subtle vertical-only blur — a hint of speed that keeps the
+                aircraft geometry accurate (brand guide) */}
+            <feGaussianBlur stdDeviation="0 2.2" />
+          </filter>
+        </defs>
+      </svg>
+
       <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden" }}>
         {/* route line the jet travels along */}
         <svg
@@ -102,9 +119,30 @@ export default function JetFlyover() {
             className="fd-dash-slow"
           />
         </svg>
+
+        {/* soft moving shadow cast below the jet — a blurred ellipse that
+            tracks the aircraft, offset down the field. Reads as the jet's
+            shadow far below, not as texture. */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: 0,
+            width: "30vh",
+            height: "34vh",
+            transform: `translate(-50%, ${jetY + 22}vh)`,
+            transition: "transform 0.22s linear",
+            background:
+              "radial-gradient(closest-side, rgba(7,13,26,0.13), rgba(7,13,26,0.05) 55%, transparent 74%)",
+            filter: "blur(16px)",
+            pointerEvents: "none",
+          }}
+        />
+
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/images/flightdeck/jet-topdown.webp"
+          src="/images/flightdeck/jet-topdown-cutout.webp"
           alt=""
           style={{
             position: "absolute",
@@ -113,11 +151,12 @@ export default function JetFlyover() {
             height: "76vh",
             transform: `translate(-50%, ${jetY}vh)`,
             transition: "transform 0.22s linear",
-            mixBlendMode: "multiply",
-            filter: "drop-shadow(0 40px 60px rgba(7,13,26,0.25))",
+            filter:
+              "url(#fd-jet-motion) drop-shadow(0 34px 46px rgba(7,13,26,0.26))",
             pointerEvents: "none",
           }}
         />
+
         <Waypoint
           show={p > 0.16}
           side="left"
