@@ -138,6 +138,26 @@ export function useSectionProgress(
   return p;
 }
 
+/**
+ * Live viewport size, updated on resize. Defaults to a reasonable size for
+ * SSR / first paint; the real values land on mount. Used by geometry that
+ * must react to viewport dimensions (e.g. the hero fly-through rig).
+ */
+export function useViewport(): { vw: number; vh: number } {
+  const [vp, setVp] = useState({ vw: 1440, vh: 900 });
+  useEffect(() => {
+    const update = () => setVp({ vw: window.innerWidth, vh: window.innerHeight });
+    update();
+    window.addEventListener("resize", update, { passive: true });
+    window.addEventListener("orientationchange", update);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("orientationchange", update);
+    };
+  }, []);
+  return vp;
+}
+
 type CountUpProps = {
   from?: number;
   to: number;
