@@ -9,7 +9,7 @@ import { HowPortalMock } from "@/components/site/how-portal-mock";
 export const metadata: Metadata = {
   title: "How It Works — Four Steps, Timestamped",
   description:
-    "Submit in 5 minutes, quoted within your plan's window (On-Demand 24h, Standard 12h, Priority 4h), crew confirmed in 48 hours, tracked in AMG Connect. What we never do, stated once.",
+    "Submit support details in minutes, receive plan-based quote or review windows, move through crew sourcing and approval gates, and track accepted support in AMG Connect.",
 };
 
 const STEPS: readonly TimelineStep[] = [

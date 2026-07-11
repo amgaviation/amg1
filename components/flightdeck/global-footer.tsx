@@ -9,21 +9,19 @@ import { PUBLIC_LEGAL_FOOTER_LINKS } from "@/lib/navigation";
 import { AFFILIATIONS, OPERATIONAL_CONTROL_STATEMENT, SITE } from "@/lib/site-config";
 import { prefersReducedMotion } from "./reveal";
 
-const CITIES = [
-  "Teterboro",
-  "Boca Raton",
-  "Austin",
-  "Aspen",
-  "Boston",
-  "Las Vegas",
-  "Charleston",
-  "Jackson Hole",
+const SUPPORT_CHECKPOINTS = [
+  "Scope review",
+  "Crew sourcing",
+  "Insurance gate",
+  "Documentation",
+  "Status tracking",
+  "Closeout file",
 ];
-const CITY_H = 44; // px row height for the vertical ticker
+const CHECKPOINT_H = 44; // px row height for the vertical ticker
 
 /**
  * GLOBAL + FOOTER — pinned 140vh dark sequence:
- *  p 0.00–0.50 : "Support anywhere -> [city]" stepped vertical ticker,
+ *  p 0.00–0.50 : "Approved support -> [checkpoint]" stepped vertical ticker,
  *                giant GLOBAL watermark parallaxes up
  *  p 0.10–0.55 : support-route arcs line-draw across the globe
  *  p 0.60–0.85 : globe dims and settles; footer contact + legal block
@@ -38,7 +36,7 @@ export default function GlobalFooter() {
     return runWithMotion(
       ({ gsap }) => {
         const ctx = gsap.context(() => {
-          const steps = CITIES.length - 1;
+          const steps = SUPPORT_CHECKPOINTS.length - 1;
 
           const tl = gsap.timeline({
             defaults: { ease: "none" },
@@ -51,7 +49,7 @@ export default function GlobalFooter() {
             },
           });
 
-          tl.to(".city-rail", { y: -CITY_H * steps, ease: `steps(${steps})`, duration: 0.5 }, 0)
+          tl.to(".city-rail", { y: -CHECKPOINT_H * steps, ease: `steps(${steps})`, duration: 0.5 }, 0)
             .fromTo(".global-word", { yPercent: 24 }, { yPercent: -8, duration: 1 }, 0)
             .fromTo(
               ".globe-wrap",
@@ -119,7 +117,7 @@ export default function GlobalFooter() {
         {/* support-anywhere ticker — backed by a scrim so it reads clear of
             the watermark letterforms */}
         <div className="ticker-row absolute left-1/2 top-[24vh] flex w-max max-w-[92vw] -translate-x-1/2 items-center gap-3 border border-grid-silver bg-canvas/85 px-4 py-2.5 backdrop-blur-sm md:gap-6 md:px-5">
-          <span className="text-base text-t1 md:text-lg">Support anywhere</span>
+          <span className="text-base text-t1 md:text-lg">Approved support</span>
           <svg
             width="20"
             height="20"
@@ -132,9 +130,9 @@ export default function GlobalFooter() {
           </svg>
           <div className="relative h-[44px] overflow-hidden">
             <div className="city-rail will-change-transform">
-              {CITIES.map((c) => (
-                <div key={c} className="flex h-[44px] items-center font-display text-xl text-t1 md:text-2xl">
-                  {c}
+              {SUPPORT_CHECKPOINTS.map((checkpoint) => (
+                <div key={checkpoint} className="flex h-[44px] items-center font-display text-xl text-t1 md:text-2xl">
+                  {checkpoint}
                 </div>
               ))}
             </div>
@@ -188,7 +186,7 @@ export default function GlobalFooter() {
                 Request Support
               </Link>
               <Link
-                href="/connect"
+                href="/login"
                 prefetch={false}
                 className="fd-navlink mt-3 block w-fit text-t2 transition-colors hover:text-instrument"
               >

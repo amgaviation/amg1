@@ -67,13 +67,15 @@ export function PublicRequestPill() {
       ref={ref}
       data-shown={shown}
       className="fixed bottom-6 left-1/2 z-40 -translate-x-1/2 translate-y-4 opacity-0 transition-[opacity,transform] duration-500 ease-out data-[shown=true]:translate-y-0 data-[shown=true]:opacity-100"
-      style={{ pointerEvents: shown ? "auto" : "none" }}
+      style={{ pointerEvents: shown ? "auto" : "none", visibility: shown ? "visible" : "hidden" }}
+      aria-hidden={!shown}
     >
       <div className="rounded-full border border-[var(--oc-line-strong)] bg-[#0A1322] p-1 shadow-[0_18px_50px_rgba(0,0,0,0.5)]">
         <Link
           href="/request"
           prefetch={false}
-          className="group flex items-center gap-2 rounded-full bg-[var(--instrument)] py-2 pl-6 pr-2 text-white shadow-[0_0_40px_rgba(11,94,212,0.35)] transition-shadow hover:shadow-[0_0_60px_rgba(11,94,212,0.55)]"
+          tabIndex={shown ? 0 : -1}
+          className="group flex items-center gap-2 rounded-full bg-[var(--instrument)] py-2 pl-6 pr-2 text-white shadow-[0_0_40px_rgba(11,94,212,0.35)] transition-shadow hover:shadow-[0_0_60px_rgba(11,94,212,0.55)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--instrument-ink)]"
         >
           <span className="whitespace-nowrap font-mono text-xs font-medium uppercase [letter-spacing:0.14em]">
             Request Support

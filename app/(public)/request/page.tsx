@@ -52,7 +52,7 @@ export default function RequestPage() {
 
           <aside className="grid gap-4 lg:sticky lg:top-28" data-stagger-container>
             <div className="hud-frame oc-card-dark p-6" data-stagger-item>
-              <p className="microlabel-amber">The clock starts at submit</p>
+              <p className="microlabel-amber">Review clock starts when complete</p>
               <dl className="mt-4">
                 {plans.map((plan, i) => (
                   <div
@@ -83,7 +83,7 @@ export default function RequestPage() {
                 ))}
               </ul>
               <p className="mt-5 border-t border-[rgba(169,180,198,0.14)] pt-4 text-[0.83rem] leading-relaxed text-[var(--oc-aluminum-2)]">
-                Written, from a named coordinator — the quote becomes the invoice, line for line.{" "}
+                Written, from a named coordinator — when AMG issues a quote, approved invoice lines mirror the quote.{" "}
                 <Link
                   href="/how-it-works"
                   prefetch={false}

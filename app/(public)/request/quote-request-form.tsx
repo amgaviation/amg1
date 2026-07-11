@@ -151,22 +151,29 @@ export function QuoteRequestForm({ error }: { error?: string }) {
         <textarea name="additional_notes" rows={4} className={`${inputClass} min-h-28`} />
       </Field>
 
-      <label className="flex items-start gap-3 text-sm text-[var(--oc-aluminum)]">
+      <div className="flex items-start gap-3 text-sm text-[var(--oc-aluminum)]">
         <input
+          id="support-acknowledgment"
           name="acknowledgment"
           value="accepted"
           type="checkbox"
           required
+          aria-describedby="support-acknowledgment-note"
           className="mt-1 h-4 w-4 accent-[var(--oc-blue)]"
         />
-        <span>
-          I understand AMG will reply with a written, itemized quote and that the terms in{" "}
-          <Link href="/legal" prefetch={false} className="underline underline-offset-2">
-            Legal
-          </Link>{" "}
-          apply.
-        </span>
-      </label>
+        <div>
+          <label htmlFor="support-acknowledgment" className="cursor-pointer">
+            I understand AMG will review this support request and may reply with a written quote or next-step clarification.
+          </label>
+          <p id="support-acknowledgment-note" className="mt-1 text-xs leading-relaxed text-[var(--oc-aluminum-2)]">
+            The terms in{" "}
+            <Link href="/legal" prefetch={false} className="underline underline-offset-2">
+              Legal
+            </Link>{" "}
+            apply.
+          </p>
+        </div>
+      </div>
 
       <div>
         <SubmitQuoteButton />
