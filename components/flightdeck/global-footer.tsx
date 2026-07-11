@@ -1,235 +1,139 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
 import Link from "next/link";
-import { runWithMotion } from "./motion";
-import Globe from "./svg/globe";
+import { Reveal } from "./fd-anim";
 import { CookiePreferencesButton } from "@/components/compliance/cookie-consent";
-import { PUBLIC_LEGAL_FOOTER_LINKS } from "@/lib/navigation";
-import { AFFILIATIONS, OPERATIONAL_CONTROL_STATEMENT, SITE } from "@/lib/site-config";
-import { prefersReducedMotion } from "./reveal";
-
-const CITIES = [
-  "Teterboro",
-  "Boca Raton",
-  "Austin",
-  "Aspen",
-  "Boston",
-  "Las Vegas",
-  "Charleston",
-  "Jackson Hole",
-];
-const CITY_H = 44; // px row height for the vertical ticker
+import { PUBLIC_LEGAL_FOOTER_LINKS, PUBLIC_NAV_LINKS } from "@/lib/navigation";
+import { OPERATIONAL_CONTROL_STATEMENT, SITE } from "@/lib/site-config";
 
 /**
- * GLOBAL + FOOTER — pinned 140vh dark sequence:
- *  p 0.00–0.50 : "Support anywhere -> [city]" stepped vertical ticker,
- *                giant GLOBAL watermark parallaxes up
- *  p 0.10–0.55 : support-route arcs line-draw across the globe
- *  p 0.60–0.85 : globe dims and settles; footer contact + legal block
- *                fades up onto clear ground and rests fully opaque
+ * FOOTER — void footer closing the Flight Deck home. White short mark +
+ * operational-control statement on the left; two mono link columns and a
+ * contact block on the right; a hairline legal row underneath.
+ *
+ * (Replaces the earlier pinned globe/ticker sequence — the design closes on
+ * the monumental CTA band instead.)
  */
+
 export default function GlobalFooter() {
-  const root = useRef<HTMLElement>(null);
-
-  useLayoutEffect(() => {
-    if (prefersReducedMotion()) return;
-
-    return runWithMotion(
-      ({ gsap }) => {
-        const ctx = gsap.context(() => {
-          const steps = CITIES.length - 1;
-
-          const tl = gsap.timeline({
-            defaults: { ease: "none" },
-            scrollTrigger: {
-              trigger: root.current,
-              start: "top top",
-              end: "bottom bottom",
-              scrub: true,
-              pin: ".global-stage",
-            },
-          });
-
-          tl.to(".city-rail", { y: -CITY_H * steps, ease: `steps(${steps})`, duration: 0.5 }, 0)
-            .fromTo(".global-word", { yPercent: 24 }, { yPercent: -8, duration: 1 }, 0)
-            .fromTo(
-              ".globe-wrap",
-              { yPercent: 16, scale: 0.94 },
-              { yPercent: 0, scale: 1, duration: 0.6 },
-              0
-            )
-            .to(".flight-arc", { strokeDashoffset: 0, stagger: 0.06, duration: 0.45 }, 0.1)
-            .to(".ticker-row", { opacity: 0, duration: 0.1 }, 0.52)
-            // The globe yields to the footer — dims and eases down so the
-            // contact links land on clear ground.
-            .to(
-              ".globe-wrap",
-              { opacity: 0.3, yPercent: 6, duration: 0.22, ease: "power1.out" },
-              0.6
-            )
-            // Footer fade completes well before the pin releases, so the copy
-            // always rests at full opacity (fade rule).
-            .fromTo(
-              ".footer-block",
-              { opacity: 0, y: 48 },
-              { opacity: 1, y: 0, duration: 0.22, ease: "power1.out" },
-              0.62
-            )
-            // The persistent CTA pill yields to the footer's own links.
-            // Element reference: the pill lives outside this gsap.context scope.
-            .to(
-              document.querySelector<HTMLElement>(".fd-pill") ?? [],
-              { opacity: 0, pointerEvents: "none", duration: 0.08 },
-              0.82
-            );
-        }, root);
-        return () => ctx.revert();
-      },
-      () => {
-        // Motion chunk failed — the contact/legal block starts CSS-hidden
-        // ([data-fd-hidden]); force it visible rather than lose the footer.
-        const block = root.current?.querySelector<HTMLElement>(".footer-block");
-        if (block) block.style.opacity = "1";
-      }
-    );
-  }, []);
+  const navLinks = PUBLIC_NAV_LINKS;
+  const mid = Math.ceil(navLinks.length / 2);
+  const colA = navLinks.slice(0, mid);
+  const colB = navLinks.slice(mid);
 
   return (
-    <section ref={root} id="global" className="fd-pin-section relative h-[140vh] bg-canvas">
-      <div className="global-stage radar-grid relative h-screen w-full overflow-hidden">
-        {/* giant watermark */}
-        <div className="global-word pointer-events-none absolute inset-x-0 top-[8vh] text-center will-change-transform">
-          <span
-            className="font-display font-medium leading-none text-transparent"
-            style={{
-              fontSize: "clamp(6rem, 22vw, 24rem)",
-              WebkitTextStroke: "1px rgba(91,157,255,0.4)",
-            }}
-          >
-            Global
-          </span>
-        </div>
-
-        {/* globe */}
-        <div className="globe-wrap absolute left-1/2 top-[38vh] w-[90vh] max-w-[92vw] -translate-x-1/2 will-change-transform">
-          <Globe className="w-full opacity-90" />
-        </div>
-
-        {/* support-anywhere ticker — backed by a scrim so it reads clear of
-            the watermark letterforms */}
-        <div className="ticker-row absolute left-1/2 top-[24vh] flex w-max max-w-[92vw] -translate-x-1/2 items-center gap-3 border border-grid-silver bg-canvas/85 px-4 py-2.5 backdrop-blur-sm md:gap-6 md:px-5">
-          <span className="text-base text-t1 md:text-lg">Support anywhere</span>
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            className="shrink-0 text-instrument"
-            aria-hidden="true"
-          >
-            <path d="M2 12h14M12 6l6 6-6 6" stroke="currentColor" strokeWidth="1.5" />
-          </svg>
-          <div className="relative h-[44px] overflow-hidden">
-            <div className="city-rail will-change-transform">
-              {CITIES.map((c) => (
-                <div key={c} className="flex h-[44px] items-center font-display text-xl text-t1 md:text-2xl">
-                  {c}
-                </div>
-              ))}
-            </div>
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-2 bg-gradient-to-b from-canvas to-transparent" />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2 bg-gradient-to-t from-canvas to-transparent" />
-          </div>
-        </div>
-
-        {/* footer block — canvas scrim rises over the globe's lower limb so
-            the contact links sit on clear ground */}
+    <footer
+      id="global"
+      style={{
+        background: "var(--sp-void)",
+        borderTop: "1px solid var(--sp-hair)",
+        padding: "52px clamp(20px,4vw,52px) 36px",
+      }}
+    >
+      <Reveal style={{ maxWidth: 1280, margin: "0 auto" }}>
         <div
-          className="footer-block absolute inset-x-0 bottom-0 bg-gradient-to-t from-canvas via-canvas/90 to-transparent pt-16"
-          data-fd-hidden
+          className="rv fd-footer-top"
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            flexWrap: "wrap",
+            gap: 32,
+          }}
         >
-          <div className="mx-auto grid max-w-7xl gap-10 px-6 pb-16 md:grid-cols-3 md:px-10">
-            <div>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/logo-short.png"
-                alt="AMG Aviation Group"
-                width="1110"
-                height="242"
-                loading="lazy"
-                decoding="async"
-                className="mb-4 h-7 w-auto"
-              />
-              <p className="text-2xl leading-snug text-t1">
-                Your aircraft, supported
-                <br />
-                <span className="text-t3">with total clarity and control</span>
-              </p>
-            </div>
-            <div className="font-mono text-sm text-t1">
-              <a
-                href={`mailto:${SITE.email}`}
-                className="fd-navlink block w-fit transition-colors hover:text-instrument"
-              >
-                {SITE.email}
-              </a>
-              <a
-                href={SITE.phoneHref}
-                className="fd-navlink mt-3 block w-fit transition-colors hover:text-instrument"
-              >
-                {SITE.phone}
-              </a>
-              <Link
-                href="/request"
-                prefetch={false}
-                className="fd-navlink mt-3 block w-fit transition-colors hover:text-instrument"
-              >
-                Request Support
-              </Link>
-              <Link
-                href="/connect"
-                prefetch={false}
-                className="fd-navlink mt-3 block w-fit text-t2 transition-colors hover:text-instrument"
-              >
-                Portal login
-              </Link>
-            </div>
-            <div className="md:text-right">
-              <p className="microlabel text-t2">{SITE.cityState}</p>
-              <p className="microlabel-green mt-2">
-                {AFFILIATIONS.join(" // ").toUpperCase()} // SERVING{" "}
-                {SITE.region.replace("the ", "").toUpperCase()}
-              </p>
-              <p className="mt-4 text-[11px] leading-relaxed text-t2">
-                {OPERATIONAL_CONTROL_STATEMENT} Details in{" "}
-                <Link href="/legal" prefetch={false} className="underline underline-offset-2 hover:text-t1">
-                  Legal
-                </Link>
-                .
-              </p>
-            </div>
+          <div style={{ maxWidth: 440 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/logo-short.png"
+              alt="AMG Aviation Group"
+              width="1110"
+              height="242"
+              loading="lazy"
+              decoding="async"
+              style={{ height: 26, width: "auto", display: "block" }}
+            />
+            <p
+              style={{
+                fontSize: 12.5,
+                lineHeight: 1.7,
+                color: "var(--sp-ink-3)",
+                marginTop: 16,
+              }}
+            >
+              {OPERATIONAL_CONTROL_STATEMENT}
+            </p>
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 border-t border-grid-silver px-6 py-3 md:justify-between md:px-10">
-            <span className="microlabel text-t2">
-              © {new Date().getFullYear()} {SITE.name}
-            </span>
-            <span className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
-              {PUBLIC_LEGAL_FOOTER_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  prefetch={false}
-                  className="microlabel text-t2 transition-colors hover:text-t1"
-                >
+
+          <div style={{ display: "flex", gap: 56, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {colA.map((link) => (
+                <Link key={link.href} href={link.href} prefetch={false} className="fd-foot-link">
                   {link.label}
                 </Link>
               ))}
-              <CookiePreferencesButton className="microlabel text-t2 transition-colors hover:text-t1" />
-            </span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {colB.map((link) => (
+                <Link key={link.href} href={link.href} prefetch={false} className="fd-foot-link">
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+            <div
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: 11.5,
+                color: "var(--sp-ink-2)",
+                lineHeight: 2.1,
+              }}
+            >
+              {SITE.cityState}
+              <br />
+              <a href={SITE.phoneHref} style={{ color: "var(--sp-ink-2)", textDecoration: "none" }}>
+                {SITE.phone}
+              </a>
+              <br />
+              <a href={`mailto:${SITE.email}`} style={{ color: "var(--sp-ink-2)", textDecoration: "none" }}>
+                {SITE.email}
+              </a>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+
+        <div
+          className="rv"
+          style={{
+            "--d": "0.15s",
+            marginTop: 44,
+            paddingTop: 20,
+            borderTop: "1px solid var(--sp-hair)",
+            display: "flex",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 12,
+            alignItems: "center",
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 10.5,
+              letterSpacing: "0.14em",
+              color: "var(--sp-ink-3)",
+            }}
+          >
+            © {new Date().getFullYear()} {SITE.name.toUpperCase()}
+          </span>
+          <span style={{ display: "flex", gap: 22, flexWrap: "wrap", alignItems: "center" }}>
+            {PUBLIC_LEGAL_FOOTER_LINKS.map((link) => (
+              <Link key={link.href} href={link.href} prefetch={false} className="fd-foot-legal">
+                {link.label}
+              </Link>
+            ))}
+            <CookiePreferencesButton className="fd-foot-legal" />
+          </span>
+        </div>
+      </Reveal>
+    </footer>
   );
 }
