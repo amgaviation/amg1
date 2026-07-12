@@ -22,6 +22,30 @@ Generated or edited AI media must be tracked with prompt, model or vendor when k
 
 ## Registered Assets
 
+### `public/images/cabin/cabin-b.webp`
+
+- **File path:** `public/images/cabin/cabin-b.webp` (re-encoded from a 1376×768 source PNG to a ~128 KB WebP; alignment constants are fractional so re-encoding is safe).
+- **Source tool or model:** Higgsfield (AI-generated night private-jet cabin plate), supplied in the design handoff bundle.
+- **Prompt or production brief:** Photoreal night cabin sidewall (quilted dark leather, oval porthole, walnut rail, ceiling curve) for the home hero "porthole fly-through" intro. Painted window center (0.500, 0.5026), size 0.1628W × 0.3802H — the live window frame is composited over it.
+- **Date received:** 2026-07-11.
+- **Intended page or component:** Public home — `components/flightdeck/hero.tsx` (cabin backdrop).
+- **Depicted aircraft class or scenario:** Generic business-jet cabin interior at night; no exterior aircraft, no operating status implied.
+- **Reviewer:** Automated build; pending human sign-off on the draft PR.
+- **Approval status:** Pending review (draft PR).
+- **Notes:** Interior scene only — no tail numbers, registrations, people, manufacturer marks, or airport identifiers rendered. The porthole shows the existing approved `stratosphere.webp` sky.
+
+### `public/images/flightdeck/jet-side.webp`
+
+- **File path:** `public/images/flightdeck/jet-side.webp` (transparent RGBA, ~29 KB WebP; re-encoded from a 1334×351 source PNG).
+- **Source tool or model:** Higgsfield (AI-generated), supplied in the design handoff bundle. Distinct from `jet-topdown-cutout.webp`.
+- **Prompt or production brief:** Photoreal side-profile business jet on transparent background, nose right, for the hero "skywriter" beat (a distant jet that crosses the porthole pane and appears to write the AMG wordmark from its contrail).
+- **Date received:** 2026-07-11.
+- **Intended page or component:** Public home — `components/flightdeck/hero.tsx` (skywriter jet).
+- **Depicted aircraft class or scenario:** Generic business jet in a decorative "distant flyby" role, rendered small (14% of the pane width); not used to represent a specific aircraft category or operating status.
+- **Reviewer:** Automated build; pending human sign-off on the draft PR.
+- **Approval status:** Pending review (draft PR).
+- **Notes:** No tail number, registration, or manufacturer mark rendered. Paired with text labels elsewhere for any operational meaning, per the brand guide's iconography rule.
+
 ### `public/images/flightdeck/jet-topdown-cutout.webp`
 
 - **File path:** `public/images/flightdeck/jet-topdown-cutout.webp`
