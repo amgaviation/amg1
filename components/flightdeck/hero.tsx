@@ -223,6 +223,41 @@ export default function Hero() {
   // Glass overlays (frost, inner shadow, scrims) fade as we pass through.
   const glassFx = clamp01(o * 1.6 - 0.2);
 
+  // Dive dissolve. The only opaque, near-black layers in the rig are the cabin
+  // photo and the window's metal frame + recessed funnel. On wide/ultrawide
+  // viewports the camera dives into the centered oval before the glass has grown
+  // to cover the screen's width, so those dark structures scale up and fill the
+  // edges as hard black bars. Dissolving them during the dive leaves only the
+  // glass sky over the full-bleed sky backdrop — any uncovered edge reads as sky
+  // (on-theme: we are flying into it), never black. Held solid while seated.
+  const diveDissolve = 1 - clamp01((q - 0.08) / 0.3);
+
+  // Porthole → full-frame morph. Late in the dive the oval glass unrounds and
+  // its inset collapses to zero, so the single pane of sky grows edge-to-edge
+  // and fills the viewport as one continuous image — no oval seam, no dark
+  // corners between an oval and the backdrop. Held as a true oval while seated
+  // and through the early dive; only opens up as we pass through.
+  const morphT = clamp01((q - 0.2) / 0.4);
+
+  // The backdrop sky flies WITH the dive — a gentle zoom so its bright core
+  // expands to fill the frame and any darker image edge is pushed off-screen,
+  // keeping the surround luminous sky at every intermediate zoom state.
+  const backdropScale = 1 + 1.05 * clamp01(q);
+
+  // Fade the in-glass sky-written wordmark out before the full-screen arrival
+  // wordmark pins in, so the two never show at once during the handoff.
+  const skywriterFade = 1 - clamp01((q - 0.7) / 0.2);
+
+  // As the pane morphs from oval to full-frame it grows past the size `skyScale`
+  // was tuned for, so the parallax scale (which dips below 1) would leave the
+  // pane's dark backing exposed at the widening edges — the residual right-side
+  // bar. Drive the sky image to a guaranteed over-cover and re-center it as it
+  // opens up, so it fills the full-frame pane edge to edge.
+  const skyImgScale = skyScale * (1 - morphT) + 1.3 * morphT;
+  const skyImgOffset = -8 + 8 * morphT; // -8% (oval) → 0% (full-frame), re-centered
+  const glassInset = glassPad * (1 - morphT);
+  const glassRadius = `${(46 * (1 - morphT)).toFixed(1)}% / ${(40 * (1 - morphT)).toFixed(1)}%`;
+
   // GPU raster guard — clip the rig to the on-screen region (shrinks as 1/s)
   // so the rasterized layer never exceeds the tile budget at high zoom.
   const f = Math.max(0, (1 - 1 / s) * 0.92);
@@ -274,6 +309,27 @@ export default function Hero() {
           background: "var(--sp-void)",
         }}
       >
+        {/* ===== Full-bleed sky backdrop — the safety net behind the rig =====
+            Always covers the viewport, so any edge the cabin/glass doesn't reach
+            reads as sky, never black. Hidden by the opaque cabin while seated;
+            revealed as the cabin dissolves during the dive. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          aria-hidden
+          src="/images/flightdeck/stratosphere.webp"
+          alt=""
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            transform: `scale(${backdropScale.toFixed(3)})`,
+            transformOrigin: "50% 47%",
+            transition: "transform 0.2s linear",
+          }}
+        />
+
         {/* ===== Camera zoom rig: cabin + window scale together into the glass ===== */}
         <div
           style={{
@@ -286,40 +342,49 @@ export default function Hero() {
             willChange: "transform",
           }}
         >
-          {/* cabin wall base */}
+          {/* Cabin layers — dissolve to the sky backdrop during the dive. */}
           <div
             aria-hidden
             style={{
               position: "absolute",
               inset: 0,
-              background: "linear-gradient(180deg, #05070f 0%, #0c111f 45%, #05070f 100%)",
+              opacity: diveDissolve,
+              transition: "opacity 0.16s linear",
             }}
-          />
-          {/* photographic night cabin sidewall, aligned so its painted window
-              sits behind the live frame */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/cabin/cabin-b.webp"
-            alt=""
-            fetchPriority="high"
-            style={{
-              position: "absolute",
-              left: cabinLeft,
-              top: cabinTop,
-              width: `${Math.round(imgW)}px`,
-              height: `${Math.round(imgH)}px`,
-              maxWidth: "none",
-            }}
-          />
-          {/* wall vignette */}
-          <div
-            aria-hidden
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: "radial-gradient(120% 90% at 50% 42%, transparent 40%, rgba(0,0,0,0.72) 100%)",
-            }}
-          />
+          >
+            {/* cabin wall base */}
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "linear-gradient(180deg, #05070f 0%, #0c111f 45%, #05070f 100%)",
+              }}
+            />
+            {/* photographic night cabin sidewall, aligned so its painted window
+                sits behind the live frame */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/cabin/cabin-b.webp"
+              alt=""
+              fetchPriority="high"
+              style={{
+                position: "absolute",
+                left: cabinLeft,
+                top: cabinTop,
+                width: `${Math.round(imgW)}px`,
+                height: `${Math.round(imgH)}px`,
+                maxWidth: "none",
+              }}
+            />
+            {/* wall vignette */}
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "radial-gradient(120% 90% at 50% 42%, transparent 40%, rgba(0,0,0,0.72) 100%)",
+              }}
+            />
+          </div>
 
           {/* ===== Window assembly (fixed shape) ===== */}
           <div
@@ -330,13 +395,25 @@ export default function Hero() {
               transform: "translate(-50%, -50%)",
               width: `${Math.round(closedW)}px`,
               height: `${Math.round(closedH)}px`,
-              borderRadius: RADIUS,
-              background: FRAME_BG,
-              boxShadow: FRAME_SHADOW,
               zIndex: 2,
             }}
           >
-            {/* sloped reveal (recess funnel) */}
+            {/* metal frame face — its own dark background dissolves during the
+                dive so it can't scale up into black edge bars; the glass below
+                keeps diving on the sky backdrop. */}
+            <div
+              aria-hidden
+              style={{
+                position: "absolute",
+                inset: 0,
+                borderRadius: RADIUS,
+                background: FRAME_BG,
+                boxShadow: FRAME_SHADOW,
+                opacity: diveDissolve,
+                transition: "opacity 0.16s linear",
+              }}
+            />
+            {/* sloped reveal (recess funnel) — dissolves with the frame */}
             <div
               aria-hidden
               style={{
@@ -345,17 +422,21 @@ export default function Hero() {
                 borderRadius: RADIUS,
                 background: FUNNEL_BG,
                 boxShadow: FUNNEL_SHADOW,
+                opacity: diveDissolve,
+                transition: "opacity 0.16s linear",
               }}
             />
-            {/* glass pane */}
+            {/* glass pane — unrounds + collapses its inset to full-frame late
+                in the dive (see morphT) so the sky fills the viewport seamlessly */}
             <div
               style={{
                 position: "absolute",
-                inset: glassPad,
-                borderRadius: RADIUS,
+                inset: glassInset,
+                borderRadius: glassRadius,
                 overflow: "hidden",
                 background: "#04060d",
                 transform: "translateZ(0)",
+                transition: "inset 0.16s linear, border-radius 0.16s linear",
               }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -364,13 +445,13 @@ export default function Hero() {
                 alt=""
                 style={{
                   position: "absolute",
-                  left: "-8%",
-                  top: "-8%",
+                  left: `${skyImgOffset.toFixed(2)}%`,
+                  top: `${skyImgOffset.toFixed(2)}%`,
                   width: "116%",
                   height: "116%",
                   objectFit: "cover",
-                  transform: skyTransform,
-                  transition: "transform 0.2s linear",
+                  transform: `scale(${skyImgScale.toFixed(3)})`,
+                  transition: "transform 0.2s linear, left 0.16s linear, top 0.16s linear",
                 }}
               />
               {/* skywriter layer (rides the sky parallax) */}
@@ -381,6 +462,7 @@ export default function Hero() {
                   inset: 0,
                   transform: skyTransform,
                   transition: "transform 0.2s linear",
+                  opacity: skywriterFade,
                   pointerEvents: "none",
                 }}
               >
