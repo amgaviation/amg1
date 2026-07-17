@@ -1,0 +1,92 @@
+/* AMG launch creative kit — navy + champagne-gold, Space Grotesk + Inter */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy0:#05090F; --navy1:#0A1424; --navy2:#0E1B2E;
+  --ink:#F4F7FC; --ink2:#B2BED4; --ink3:#7C89A2;
+  --gold:#D4AF37; --gold2:#E7CD7A;
+  --line:rgba(180,195,220,.16); --lineGold:rgba(212,175,55,.55);
+  --disp:'Space Grotesk',sans-serif; --sans:'InterV',sans-serif;
+  --pad:96px;
+}
+html,body{background:#05090F;width:100%;height:100%;overflow:hidden}
+.card{position:relative;overflow:hidden;color:var(--ink);font-family:var(--sans);
+  background:radial-gradient(125% 95% at 14% 6%, #12243F 0%, #0A1526 46%, #05090F 100%)}
+/* explicit pixel-sized content stage → flexbox has a definite height (margin-auto works) */
+.stage{position:relative;z-index:3;display:flex;flex-direction:column;overflow:hidden}
+/* photo layer + legibility veil */
+.ph{position:absolute;inset:0;background-size:cover;background-position:center;z-index:0}
+.veil{position:absolute;inset:0;z-index:1;
+  background:linear-gradient(180deg, rgba(5,9,15,.45) 0%, rgba(5,9,15,.12) 26%, rgba(5,9,15,.70) 64%, rgba(5,9,15,.97) 100%);}
+/* localized bottom plate guarantees legibility of bottom-aligned text over any photo */
+.plate{position:absolute;left:0;right:0;bottom:0;height:66%;z-index:1;
+  background:linear-gradient(180deg, rgba(5,9,15,0) 0%, rgba(5,9,15,.34) 38%, rgba(5,9,15,.80) 74%, rgba(5,9,15,.96) 100%);}
+.veil.side{background:linear-gradient(90deg, rgba(5,9,15,.90) 0%, rgba(5,9,15,.66) 42%, rgba(5,9,15,.20) 100%),
+  linear-gradient(180deg, rgba(5,9,15,.20) 0%, rgba(5,9,15,.72) 100%);}
+.veil.soft{background:linear-gradient(180deg, rgba(5,9,15,.55) 0%, rgba(5,9,15,.30) 40%, rgba(5,9,15,.80) 100%);}
+.grain{position:absolute;inset:0;z-index:2;opacity:.05;mix-blend-mode:overlay;
+  background-image:radial-gradient(circle at 50% 50%, #fff 0.5px, transparent 0.6px);background-size:3px 3px}
+.main{position:relative;z-index:3;width:100%;display:flex;flex-direction:column}
+
+/* type */
+.eyebrow{font-family:var(--disp);font-weight:600;text-transform:uppercase;letter-spacing:.24em;
+  font-size:21px;color:var(--gold);display:flex;align-items:center;gap:18px;line-height:1}
+.eyebrow::before{content:"";width:52px;height:2px;background:var(--gold);flex:none}
+.eyebrow.plain{gap:0}.eyebrow.plain::before{display:none}
+.kick{font-family:var(--disp);font-weight:600;text-transform:uppercase;letter-spacing:.24em;font-size:19px;color:var(--gold)}
+.h1{font-family:var(--disp);font-weight:600;letter-spacing:-.02em;line-height:.98;color:var(--ink)}
+.lead{font-family:var(--sans);font-weight:400;line-height:1.5;color:var(--ink2)}
+.sub{font-family:var(--disp);font-weight:500;color:var(--gold2);letter-spacing:.01em}
+.tiny{font-family:var(--sans);font-size:24px;line-height:1.5;color:var(--ink3)}
+.hl-gold{color:var(--gold)}
+.hr{height:1px;background:var(--line);border:0;width:100%}
+.hr.g{background:var(--lineGold)}
+
+/* footer */
+.foot{position:relative;z-index:3;display:flex;justify-content:space-between;align-items:flex-end;
+  border-top:1px solid var(--line);padding-top:30px;width:100%}
+.foot img{height:34px;width:auto;display:block;opacity:.96}
+.foot .url{font-family:var(--disp);font-weight:500;letter-spacing:.05em;color:var(--ink2);font-size:24px}
+
+/* ledger */
+.ledger{width:100%;margin-top:8px}
+.lrow{display:flex;justify-content:space-between;align-items:baseline;padding:26px 4px;border-bottom:1px solid var(--line)}
+.lrow .lbl{font-family:var(--sans);font-size:33px;color:var(--ink2)}
+.lrow .amt{font-family:var(--disp);font-weight:500;font-size:38px;color:var(--ink)}
+.lrow.hl{border-bottom:none;background:linear-gradient(90deg, rgba(212,175,55,.14), rgba(212,175,55,0));
+  border-left:3px solid var(--gold);padding-left:22px;margin-top:8px}
+.lrow.hl .lbl{color:var(--ink);font-weight:500}
+.lrow.hl .amt{color:var(--gold);font-weight:700;font-size:44px}
+
+/* steps */
+.step{display:flex;gap:34px;padding:30px 2px;border-top:1px solid var(--line);align-items:flex-start}
+.step:last-child{border-bottom:1px solid var(--line)}
+.step .n{font-family:var(--disp);font-weight:600;font-size:30px;color:var(--gold);min-width:56px;line-height:1.25}
+.step .st .t{font-family:var(--disp);font-weight:600;font-size:38px;color:var(--ink);letter-spacing:-.01em}
+.step .st .d{font-family:var(--sans);font-size:28px;color:var(--ink2);line-height:1.45;margin-top:8px}
+
+/* capability / list rows */
+.list{width:100%}
+.li{display:flex;gap:30px;padding:28px 2px;border-top:1px solid var(--line);align-items:baseline}
+.li:last-child{border-bottom:1px solid var(--line)}
+.li .k{font-family:var(--disp);font-weight:600;font-size:36px;color:var(--ink);letter-spacing:-.01em;min-width:0;flex:0 0 42%}
+.li .v{font-family:var(--sans);font-size:28px;color:var(--ink2);line-height:1.45}
+
+/* bullets */
+.bul{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.bul .b{display:flex;gap:22px;align-items:flex-start;padding:15px 0;font-family:var(--sans);font-size:33px;color:var(--ink);line-height:1.35}
+.bul .b::before{content:"";flex:none;width:26px;height:2px;background:var(--gold);margin-top:24px}
+
+/* chips */
+.chips{display:flex;gap:14px;flex-wrap:wrap}
+.chip{font-family:var(--disp);font-weight:500;text-transform:uppercase;letter-spacing:.16em;font-size:19px;
+  color:var(--ink2);border:1px solid var(--line);border-radius:999px;padding:12px 22px}
+.chip.g{color:var(--gold);border-color:var(--lineGold)}
+
+/* pill CTA */
+.cta{display:inline-flex;align-items:center;gap:16px;font-family:var(--disp);font-weight:600;font-size:30px;
+  color:var(--navy0);background:var(--gold);border-radius:999px;padding:22px 40px;letter-spacing:.01em;align-self:flex-start}
+.cta .arw{font-size:30px}
+
+/* wordmark lockup — fixed-size background box (guaranteed dimensions) */
+.brandrow{display:flex;align-items:center;gap:18px}
+.mark{display:inline-block;flex:none;background-repeat:no-repeat;background-position:left center;background-size:contain}

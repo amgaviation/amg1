@@ -1,0 +1,17 @@
+01-tease 1080 1350
+10-launch-cover 1080 1350
+11-launch-what 1080 1350
+12-pricing 1080 1350
+13-how 1080 1350
+14-launch-cta 1080 1350
+20-crew 1080 1350
+21-ferry 1080 1350
+22-connect 1080 1350
+23-maintenance 1080 1350
+24-partners 1080 1350
+25-owner 1080 1350
+26-closing 1080 1350
+30-tease-story 1080 1920
+31-reel-cover 1080 1920
+40-li-hero 1200 627
+41-email-banner 1200 600
