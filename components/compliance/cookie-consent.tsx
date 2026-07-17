@@ -133,43 +133,44 @@ export function CookieConsentBanner() {
   return (
     <>
       {shouldShowBanner ? (
-        <div className="fixed inset-x-0 bottom-0 z-[80] px-3 pb-3 sm:px-5 sm:pb-5">
-          <div className="mx-auto max-w-6xl overflow-hidden rounded-lg border border-white/[0.12] bg-[#07111F]/96 text-white shadow-[0_-18px_64px_rgba(0,0,0,0.32)] backdrop-blur-xl">
+        <div
+          className="fixed bottom-4 right-4 z-[80] w-[calc(100vw-2rem)] max-w-[340px] sm:bottom-5 sm:right-5"
+          role="region"
+          aria-label="Cookie preferences"
+        >
+          <div className="overflow-hidden rounded-xl border border-white/[0.12] bg-[#07111F]/97 text-white shadow-[0_16px_48px_rgba(0,0,0,0.42)] backdrop-blur-xl">
             <div className="h-px bg-[var(--amg-accent-blue)]" aria-hidden="true" />
-            <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[1fr_auto] lg:items-center">
-              <div className="max-w-3xl">
-                <p className="font-display text-sm font-bold uppercase text-white">Cookie preferences</p>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--amg-text-secondary)]">
-                  AMG uses necessary tools for site and portal operation. Optional analytics, marketing, session recording,
-                  and embedded tools run only after consent. Review the <Link href="/cookie-policy" className="font-semibold text-[var(--amg-accent-blue)] hover:underline">Cookie Policy</Link>.
-                </p>
-              </div>
-              <div className="grid gap-2 sm:grid-cols-[minmax(10rem,1.2fr)_minmax(8rem,1fr)_minmax(7rem,0.85fr)] lg:min-w-[28rem]">
+            <div className="p-4">
+              <p className="font-display text-sm font-bold uppercase tracking-wide text-white">Cookies</p>
+              <p className="mt-1.5 text-xs leading-relaxed text-[var(--amg-text-secondary)]">
+                AMG uses necessary tools to run the site and portal. Optional analytics and marketing run only after
+                consent. See the <Link href="/cookie-policy" className="font-semibold text-[var(--amg-accent-blue)] hover:underline">Cookie Policy</Link>.
+              </p>
+              <div className="mt-3.5 grid gap-2">
                 <button
                   type="button"
                   onClick={acceptAllCookies}
-                  className="min-h-12 rounded-md border border-[var(--amg-accent-blue)] bg-[var(--amg-accent-blue)] px-5 text-sm font-bold uppercase text-white shadow-[0_10px_26px_rgba(59,130,246,0.28)] transition-colors hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amg-accent-blue)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111F]"
+                  className="min-h-10 rounded-md border border-[var(--amg-accent-blue)] bg-[var(--amg-accent-blue)] px-4 text-sm font-bold uppercase text-white shadow-[0_8px_20px_rgba(59,130,246,0.26)] transition-colors hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amg-accent-blue)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111F]"
                 >
-                  Accept all cookies
+                  Accept all
                 </button>
-                <button
-                  type="button"
-                  onClick={rejectOptionalCookies}
-                  className="min-h-12 rounded-md border border-white/[0.18] bg-white/[0.055] px-4 text-sm font-semibold text-white transition-colors hover:border-[var(--amg-accent-blue)] hover:bg-white/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amg-accent-blue)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111F]"
-                >
-                  Reject Optional
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setOpen(true)}
-                  className="min-h-12 rounded-md border border-white/[0.18] bg-transparent px-4 text-sm font-semibold text-[var(--amg-text-secondary)] transition-colors hover:border-[var(--amg-accent-blue)] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amg-accent-blue)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111F]"
-                >
-                  Manage
-                </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={rejectOptionalCookies}
+                    className="min-h-10 rounded-md border border-white/[0.18] bg-white/[0.055] px-3 text-sm font-semibold text-white transition-colors hover:border-[var(--amg-accent-blue)] hover:bg-white/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amg-accent-blue)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111F]"
+                  >
+                    Reject
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOpen(true)}
+                    className="min-h-10 rounded-md border border-white/[0.18] bg-transparent px-3 text-sm font-semibold text-[var(--amg-text-secondary)] transition-colors hover:border-[var(--amg-accent-blue)] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amg-accent-blue)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111F]"
+                  >
+                    Manage
+                  </button>
+                </div>
               </div>
-              <p className="text-xs leading-relaxed text-[var(--amg-text-muted)] lg:col-span-2">
-                You can update preferences later from the footer.
-              </p>
             </div>
           </div>
         </div>
