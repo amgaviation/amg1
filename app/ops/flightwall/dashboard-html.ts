@@ -3,6 +3,12 @@
 // at /ops/flightwall. Kept as a plain exported string (not a bare .html file)
 // so Next.js always bundles it correctly with the route. Edit the markup
 // directly in this template literal — it is plain HTML/CSS/JS.
+//
+// window.FW_CONFIG default is replaced at request time by route.ts, which
+// substitutes the FW_CONFIG_INJECT_MARKER comment with a real <script> tag
+// built from public.flightwall_settings (see lib/flightwall/settings.ts).
+export const FW_CONFIG_INJECT_MARKER = "<!--FW_CONFIG_INJECT-->";
+
 export const dashboardHtml = `<!doctype html>
 <html lang="en">
 <head>
@@ -309,6 +315,18 @@ export const dashboardHtml = `<!doctype html>
   }
 </style>
 
+<!--FW_CONFIG_INJECT-->
+<script>
+  // Injected server-side by app/ops/flightwall/route.ts from
+  // public.flightwall_settings (edited at /portal/admin/settings/flightwall).
+  // Falls back to these defaults if the route ever serves the file directly.
+  window.FW_CONFIG = window.FW_CONFIG || {
+    homeLat: 40.85, homeLon: -74.06, rangeNm: 30, watchlistTails: [],
+    panelOrder: ["map", "requests", "missions", "revenue", "metar"],
+    showMap: true, showRequests: true, showMissions: true, showRevenue: true, showMetar: true,
+    flightsPollSeconds: 30, opsPollSeconds: 30, metarStation: "KTEB"
+  };
+</script>
 <div class="wall" role="img" aria-label="AMG Aviation Group operations display showing live aircraft radar and mission support activity">
   <h2 class="sr-only">Live wall dashboard: aircraft radar scope with nearby flight list, plus AMG Aviation Group operations — new requests, mission board, and revenue.</h2>
 
@@ -329,7 +347,7 @@ export const dashboardHtml = `<!doctype html>
 
   <div class="main">
     <div class="col">
-      <div class="panel" style="flex: 1.35;">
+      <div class="panel" data-panel="map" style="flex: 1.35;">
         <div class="panel-head">
           <span class="label" id="mapRangeLabel">Traffic Map</span>
           <span class="label" id="contactCount">0 contacts</span>
@@ -343,7 +361,7 @@ export const dashboardHtml = `<!doctype html>
           </div>
         </div>
       </div>
-      <div class="panel" style="flex: 1;">
+      <div class="panel" data-panel="map" style="flex: 1;">
         <div class="panel-head">
           <span class="label">Nearby Traffic</span>
         </div>
@@ -378,7 +396,7 @@ export const dashboardHtml = `<!doctype html>
         </div>
       </div>
 
-      <div class="panel" style="flex: 1;">
+      <div class="panel" data-panel="requests" style="flex: 1;">
         <div class="panel-head">
           <span class="label">Latest Requests</span>
           <span class="count mono" id="reqCount">0</span>
@@ -388,7 +406,7 @@ export const dashboardHtml = `<!doctype html>
         </div>
       </div>
 
-      <div class="panel" style="flex: 1.2;">
+      <div class="panel" data-panel="missions" style="flex: 1.2;">
         <div class="panel-head">
           <span class="label">Mission Board</span>
           <span class="count mono" id="missionCount">0</span>
@@ -398,7 +416,7 @@ export const dashboardHtml = `<!doctype html>
         </div>
       </div>
 
-      <div class="panel" style="flex: 0.75;">
+      <div class="panel" data-panel="revenue" style="flex: 0.75;">
         <div class="panel-head">
           <span class="label">Revenue</span>
         </div>
@@ -416,7 +434,7 @@ export const dashboardHtml = `<!doctype html>
     </div>
   </div>
 
-  <div class="ticker mono">
+  <div class="ticker mono" data-panel="metar">
     <span class="metar-cat vfr" id="metarCat">VFR</span>
     <span id="metarStation">KTEB</span>
     <span class="sep">│</span>
@@ -433,11 +451,14 @@ export const dashboardHtml = `<!doctype html>
   // ---- CONFIG ----
   // Hosted same-origin at /ops/flightwall — both data routes are relative and
   // called with the browser's own session cookie. No token lives in this file.
+  // Live-editable at /portal/admin/settings/flightwall — window.FW_CONFIG is
+  // injected server-side from public.flightwall_settings.
+  const FW_CFG = window.FW_CONFIG || {};
   const FLIGHTS_PROXY_URL = "/api/flightwall/flights";
-  const OWN_LAT = 40.85;   // KTEB — replace with your home airport/location
-  const OWN_LON = -74.06;
-  const RANGE_NM = 30;
-  const WATCHLIST = ["N721AM"]; // tail numbers to highlight (Aviation Gold accent)
+  const OWN_LAT = typeof FW_CFG.homeLat === "number" ? FW_CFG.homeLat : 40.85;
+  const OWN_LON = typeof FW_CFG.homeLon === "number" ? FW_CFG.homeLon : -74.06;
+  const RANGE_NM = typeof FW_CFG.rangeNm === "number" ? FW_CFG.rangeNm : 30;
+  const WATCHLIST = Array.isArray(FW_CFG.watchlistTails) ? FW_CFG.watchlistTails : [];
 
   // AMG business bridge — same-origin, gated server-side by trusted-IP-or-
   // admin-session (lib/flightwall/access.ts); the browser sends its portal
@@ -478,7 +499,11 @@ export const dashboardHtml = `<!doctype html>
 
   // ---- demo AMG data (business bridge is a separate, optional concern) ----
   const FIXTURE = {
-    metar: { station: "KTEB", flight_category: "VFR", raw: "KTEB 191851Z 24008KT 10SM FEW250 24/12 A3005" },
+    metar: {
+      station: FW_CFG.metarStation || "KTEB",
+      flight_category: "VFR",
+      raw: (FW_CFG.metarStation || "KTEB") + " — live METAR not yet connected"
+    },
     amg: {
       requests: { new_count: 3, latest: [
         { label: "KTEB → KPBI", name: "J. Sorensen", age_min: 18 },
@@ -805,8 +830,48 @@ export const dashboardHtml = `<!doctype html>
     }
   }
 
+  // ---- panel visibility + order (from FW_CONFIG) ----
+  // map is always the left column and metar always the bottom ticker — those
+  // two positions are structural. The three right-column business panels
+  // (requests/missions/revenue) reorder freely per FW_CONFIG.panelOrder.
+  (function applyPanelConfig() {
+    const showFlags = {
+      map: FW_CFG.showMap !== false,
+      requests: FW_CFG.showRequests !== false,
+      missions: FW_CFG.showMissions !== false,
+      revenue: FW_CFG.showRevenue !== false,
+      metar: FW_CFG.showMetar !== false
+    };
+    document.querySelectorAll("[data-panel]").forEach((el) => {
+      const key = el.getAttribute("data-panel");
+      el.style.display = showFlags[key] === false ? "none" : "";
+    });
+
+    const order = Array.isArray(FW_CFG.panelOrder) ? FW_CFG.panelOrder : [];
+    const reorderable = order.filter((p) => p === "requests" || p === "missions" || p === "revenue");
+    if (reorderable.length > 0) {
+      const rightCol = document.getElementById("reqList")?.closest(".col");
+      if (rightCol) {
+        reorderable.forEach((key) => {
+          const el = rightCol.querySelector('[data-panel="' + key + '"]');
+          if (el) rightCol.appendChild(el);
+        });
+      }
+    }
+  })();
+
+  const FLIGHTS_POLL_MS = (typeof FW_CFG.flightsPollSeconds === "number" ? FW_CFG.flightsPollSeconds : 30) * 1000;
+  const OPS_POLL_MS = (typeof FW_CFG.opsPollSeconds === "number" ? FW_CFG.opsPollSeconds : 30) * 1000;
+
   loadLive();
-  setInterval(loadLive, 30000);
+  // Flights refresh at their own cadence inside loadFlights(); loadLive()
+  // itself is called on the slower of the two configured intervals so the
+  // AMG business panel (usually the less time-sensitive of the two) doesn't
+  // over-poll — flights stay fresh via loadFlights()'s own interval below.
+  setInterval(loadLive, Math.max(FLIGHTS_POLL_MS, OPS_POLL_MS));
+  if (FLIGHTS_POLL_MS < OPS_POLL_MS) {
+    setInterval(loadFlights, FLIGHTS_POLL_MS);
+  }
 })();
 </script>
 

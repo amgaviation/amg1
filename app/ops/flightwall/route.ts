@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { hasFlightwallDashboardAccess } from "@/lib/flightwall/access";
-import { dashboardHtml } from "./dashboard-html";
+import { getFlightwallSettings } from "@/lib/flightwall/settings";
+import { dashboardHtml, FW_CONFIG_INJECT_MARKER } from "./dashboard-html";
 
 export const dynamic = "force-dynamic";
 
@@ -13,13 +14,40 @@ export const dynamic = "force-dynamic";
  * Access: house network (FLIGHTWALL_TRUSTED_IPS) needs no login; anywhere
  * else falls back to the normal portal admin login. See
  * lib/flightwall/access.ts for the exact rule.
+ *
+ * Live settings (location, watchlist, panel visibility/order, poll rate —
+ * editable at /portal/admin/settings/flightwall) are read fresh on every
+ * request and substituted for FW_CONFIG_INJECT_MARKER as a small inline
+ * <script> that runs before the dashboard's own script block.
  */
 export async function GET(request: Request) {
   if (!(await hasFlightwallDashboardAccess())) {
     return NextResponse.redirect(new URL("/login?next=/ops/flightwall", request.url));
   }
 
-  return new NextResponse(dashboardHtml, {
+  const settings = await getFlightwallSettings();
+  const configJson = JSON.stringify({
+    homeLat: settings.homeLat,
+    homeLon: settings.homeLon,
+    rangeNm: settings.rangeNm,
+    watchlistTails: settings.watchlistTails,
+    panelOrder: settings.panelOrder,
+    showMap: settings.showMap,
+    showRequests: settings.showRequests,
+    showMissions: settings.showMissions,
+    showRevenue: settings.showRevenue,
+    showMetar: settings.showMetar,
+    flightsPollSeconds: settings.flightsPollSeconds,
+    opsPollSeconds: settings.opsPollSeconds,
+    metarStation: settings.metarStation,
+  }).replace(/</g, "\\u003c"); // defense in depth: no </script> break-out from a station code etc.
+
+  const html = dashboardHtml.replace(
+    FW_CONFIG_INJECT_MARKER,
+    `<script>window.FW_CONFIG = ${configJson};</script>`
+  );
+
+  return new NextResponse(html, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
       "Cache-Control": "no-store, private",
