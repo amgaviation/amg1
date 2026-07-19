@@ -1,14 +1,21 @@
 import { createHash, timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
+import { hasFlightwallDashboardAccess } from "@/lib/flightwall/access";
 
 export const dynamic = "force-dynamic";
 
 /**
- * FlightWall bridge — read-only ops summary for the AMG FlightWall LED panel.
+ * FlightWall bridge — read-only ops summary for the AMG FlightWall LED panel
+ * and the browser ops dashboard (/ops/flightwall).
  *
- * Auth: `Authorization: Bearer ${FLIGHTWALL_API_TOKEN}` (shared secret,
- * constant-time compare — same precedent as the email status webhook).
+ * Auth, either:
+ *   1. `Authorization: Bearer ${FLIGHTWALL_API_TOKEN}` (shared secret,
+ *      constant-time compare) — used by the physical LED device, which has
+ *      no browser session to present.
+ *   2. hasFlightwallDashboardAccess() — trusted home IP or an authenticated
+ *      portal admin session; used by the browser dashboard (same-origin
+ *      fetch with credentials, no token embedded in client JS).
  * The device polls this every ~45 s; responses are cached in-memory for 30 s.
  *
  * Every section is aggregated defensively: a failing table yields `null` for
@@ -67,7 +74,7 @@ type SummaryBody = {
 // ─── Auth ───────────────────────────────────────────────────────────
 
 /** Constant-time bearer check; hashing both sides avoids length leaks. */
-function isAuthorized(request: Request): boolean {
+function isAuthorizedByToken(request: Request): boolean {
   const token = process.env.FLIGHTWALL_API_TOKEN;
   // Fail closed: unset, too-short, or placeholder tokens never authenticate,
   // so the committed .env.example value ('your-token-here') can't grant access.
@@ -83,6 +90,11 @@ function isAuthorized(request: Request): boolean {
   const expected = createHash("sha256").update(token).digest();
   const candidate = createHash("sha256").update(provided).digest();
   return timingSafeEqual(expected, candidate);
+}
+
+async function isAuthorized(request: Request): Promise<boolean> {
+  if (isAuthorizedByToken(request)) return true;
+  return hasFlightwallDashboardAccess();
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────
@@ -379,7 +391,7 @@ async function buildSummary(): Promise<SummaryBody> {
 }
 
 export async function GET(request: Request) {
-  if (!isAuthorized(request)) {
+  if (!(await isAuthorized(request))) {
     return NextResponse.json(
       { error: "Unauthorized" },
       { status: 401, headers: NO_STORE_HEADERS }
