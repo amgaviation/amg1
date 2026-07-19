@@ -24,6 +24,15 @@ const NY_TZ = "America/New_York";
 const INTAKE_STATUSES = ["submitted", "under_review", "awaiting_client_info"];
 const ACTIVE_STATUSES = ["quoted", "approved", "crew_assigned", "scheduled", "in_progress"];
 const EXCLUDED_PAYMENT_STATUSES = ["failed", "void", "refunded"];
+const EXCLUDED_INVOICE_STATUSES = ["void", "uncollectible", "refunded"];
+
+// Auth fail-closed guardrails: the token must be strong and must not be one of
+// the committed .env.example placeholders, so an unconfigured deploy stays 401.
+const MIN_TOKEN_LENGTH = 32;
+const WEAK_TOKEN_PLACEHOLDERS = new Set(["your-token-here"]);
+
+// Business data must never be cached by any intermediary (proxy, CDN, browser).
+const NO_STORE_HEADERS = { "Cache-Control": "no-store, private" } as const;
 
 type RequestsSection = {
   new_count: number;
@@ -60,7 +69,11 @@ type SummaryBody = {
 /** Constant-time bearer check; hashing both sides avoids length leaks. */
 function isAuthorized(request: Request): boolean {
   const token = process.env.FLIGHTWALL_API_TOKEN;
-  if (!token) return false;
+  // Fail closed: unset, too-short, or placeholder tokens never authenticate,
+  // so the committed .env.example value ('your-token-here') can't grant access.
+  if (!token || token.length < MIN_TOKEN_LENGTH || WEAK_TOKEN_PLACEHOLDERS.has(token)) {
+    return false;
+  }
 
   const header = request.headers.get("authorization") ?? "";
   if (!header.startsWith("Bearer ")) return false;
@@ -290,7 +303,7 @@ async function loadRevenue(db: any, now: Date): Promise<RevenueSection> {
         .gte("paid_at", monthStartIso),
       db
         .from("subscription_billing_invoices")
-        .select("amount_paid, paid_at")
+        .select("amount_paid, paid_at, status, payment_status")
         .gte("paid_at", monthStartIso),
     ]);
     if (paymentsResult.error) throw paymentsResult.error;
@@ -317,7 +330,17 @@ async function loadRevenue(db: any, now: Date): Promise<RevenueSection> {
     for (const row of (subInvoicesResult.data ?? []) as {
       amount_paid: unknown;
       paid_at: string | null;
+      status: string | null;
+      payment_status: string | null;
     }[]) {
+      // Mirror the payments exclusion: void/uncollectible/refunded invoices
+      // must not count toward revenue even if they carry a paid_at timestamp.
+      if (
+        EXCLUDED_INVOICE_STATUSES.includes(row.status ?? "") ||
+        EXCLUDED_INVOICE_STATUSES.includes(row.payment_status ?? "")
+      ) {
+        continue;
+      }
       add(dollarsToCents(row.amount_paid), row.paid_at);
     }
 
@@ -357,28 +380,34 @@ async function buildSummary(): Promise<SummaryBody> {
 
 export async function GET(request: Request) {
   if (!isAuthorized(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401, headers: NO_STORE_HEADERS }
+    );
   }
 
   try {
     if (cache && Date.now() - cache.at < CACHE_TTL_MS) {
-      return NextResponse.json(cache.body);
+      return NextResponse.json(cache.body, { headers: NO_STORE_HEADERS });
     }
     const body = await buildSummary();
     cache = { at: Date.now(), body };
-    return NextResponse.json(body);
+    return NextResponse.json(body, { headers: NO_STORE_HEADERS });
   } catch (error) {
     // buildSummary only throws if the service client itself cannot be created;
     // report a degraded-but-valid payload rather than a 500 so the wall
     // display can show "site: error" instead of blanking.
     console.error("[flightwall] summary failed", error);
-    return NextResponse.json({
-      generated_at: new Date().toISOString(),
-      requests: null,
-      missions: null,
-      submissions: null,
-      revenue: null,
-      site: { state: "error" },
-    } satisfies SummaryBody);
+    return NextResponse.json(
+      {
+        generated_at: new Date().toISOString(),
+        requests: null,
+        missions: null,
+        submissions: null,
+        revenue: null,
+        site: { state: "error" },
+      } satisfies SummaryBody,
+      { headers: NO_STORE_HEADERS }
+    );
   }
 }
