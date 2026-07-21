@@ -534,6 +534,11 @@ export const dashboardHtml = `<!doctype html>
   // (/ops/flightwall/remote) can override region/zoom, focus a panel, or
   // track a specific aircraft; state arrives via /api/flightwall/remote.
   let viewLat = MAP_LAT, viewLon = MAP_LON, viewZoom = MAP_ZOOM;
+  // The FETCH view (region/airport/custom) is independent of the tracked
+  // aircraft: flights are always pulled over this stable wide area so the
+  // target and its neighbours stay in the feed and the view can't ping-pong.
+  let fetchLat = MAP_LAT, fetchLon = MAP_LON, fetchZoom = MAP_ZOOM;
+  let lastTrackedAt = 0; // ms of the last confirmed tracked fix (for stickiness)
   let remote = { focus: "none", trackTail: null, theme: "auto", region: null, airport: null, zoom: null, refreshNonce: null };
 
   // Major-airport reference data ([icao, iata, name, lat, lon, tier]) —
@@ -750,15 +755,19 @@ export const dashboardHtml = `<!doctype html>
   // nm from map center to the far corner of the viewport — drives the ADS-B
   // fetch radius so every visible part of the map has traffic on it
   // (adsb.lol caps point queries at 250 nm).
+  // Radius of the FETCH view (not the possibly-zoomed render view), with a
+  // generous floor so a tracked aircraft is reliably captured even when the
+  // render is zoomed in tight on it.
   function viewportRadiusNm() {
     const wCss = canvas.width / dpr, hCss = canvas.height / dpr;
     if (!wCss || !hCss) return 200;
-    const cwx = lonToWorldX(viewLon, viewZoom);
-    const cwy = latToWorldY(viewLat, viewZoom);
-    const cornerLat = worldYToLat(cwy - hCss / 2, viewZoom);
-    const cornerLon = worldXToLon(cwx - wCss / 2, viewZoom);
-    const nm = haversineNm(viewLat, viewLon, cornerLat, cornerLon);
-    return Math.max(30, Math.min(250, Math.ceil(nm * 1.05)));
+    const cwx = lonToWorldX(fetchLon, fetchZoom);
+    const cwy = latToWorldY(fetchLat, fetchZoom);
+    const cornerLat = worldYToLat(cwy - hCss / 2, fetchZoom);
+    const cornerLon = worldXToLon(cwx - wCss / 2, fetchZoom);
+    const nm = haversineNm(fetchLat, fetchLon, cornerLat, cornerLon);
+    const floor = remote.trackTail ? 120 : 30; // keep the tracked target in range
+    return Math.max(floor, Math.min(250, Math.ceil(nm * 1.05)));
   }
 
   function drawRadar() {
@@ -893,9 +902,10 @@ export const dashboardHtml = `<!doctype html>
     // its heading at its groundspeed for the time since its last fix, so the
     // 1 Hz redraw shows continuous motion even when the data feed is slower.
     // When a specific flight is being tracked, the map shows ONLY that
-    // aircraft — no other regional traffic competes for attention.
+    // aircraft (or nothing while acquiring) — it never falls back to regional
+    // traffic, so the view can't flip between the target and 60+ contacts.
     const trackedContact = findTracked();
-    const drawContacts = remote.trackTail && trackedContact ? [trackedContact] : liveContacts;
+    const drawContacts = remote.trackTail ? (trackedContact ? [trackedContact] : []) : liveContacts;
     const showLabels = viewZoom >= 7 || drawContacts.length <= 30;
     const nowMs = Date.now();
     drawContacts.forEach((c) => {
@@ -1000,8 +1010,9 @@ export const dashboardHtml = `<!doctype html>
     const list = document.getElementById("flightList");
     list.innerHTML = "";
     // While tracking a flight, the list narrows to just that aircraft (its
-    // full detail is in the info card above) — no regional traffic mixed in.
-    const listSource = remote.trackTail && tracked ? [tracked] : contacts;
+    // full detail is in the info card above) — never regional traffic, so it
+    // can't flip between the target and the whole region.
+    const listSource = remote.trackTail ? (tracked ? [tracked] : []) : contacts;
     const sorted = [...listSource].sort((a, b) => a.distance_nm - b.distance_nm).slice(0, kMaxContacts);
     sorted.forEach((c) => {
       const row = document.createElement("div");
@@ -1015,7 +1026,8 @@ export const dashboardHtml = `<!doctype html>
       list.appendChild(row);
     });
     document.getElementById("contactCount").textContent =
-      remote.trackTail && tracked ? "Tracking " + tracked.callsign
+      remote.trackTail
+        ? (tracked ? "Tracking " + tracked.callsign : "Acquiring " + remote.trackTail + "…")
         : contacts.length + " contact" + (contacts.length === 1 ? "" : "s");
   }
 
@@ -1090,7 +1102,7 @@ export const dashboardHtml = `<!doctype html>
   async function loadFlights() {
     // Centered on the MAP view (not home) with a radius covering the visible
     // basemap, so the whole configured region shows traffic like FlightRadar.
-    const url = FLIGHTS_PROXY_URL + "?lat=" + viewLat.toFixed(4) + "&lon=" + viewLon.toFixed(4) + "&radius_nm=" + viewportRadiusNm();
+    const url = FLIGHTS_PROXY_URL + "?lat=" + fetchLat.toFixed(4) + "&lon=" + fetchLon.toFixed(4) + "&radius_nm=" + viewportRadiusNm();
     const res = await fetch(url);
     if (!res.ok) throw new Error("bad status " + res.status);
     const data = await res.json();
@@ -1396,25 +1408,36 @@ export const dashboardHtml = `<!doctype html>
   // Recomputes the live view from saved settings + remote overrides + any
   // tracked aircraft. Returns true when the viewport actually moved.
   function applyView() {
+    // ---- base (fetch) view: region / airport / custom — never the plane ----
     const preset = remote.region ? REGION_PRESETS[remote.region] : null;
-    let lat = preset ? preset.lat : MAP_LAT;
-    let lon = preset ? preset.lon : MAP_LON;
-    let zoom = remote.zoom !== null && remote.zoom !== undefined
+    let baseLat = preset ? preset.lat : MAP_LAT;
+    let baseLon = preset ? preset.lon : MAP_LON;
+    let baseZoom = remote.zoom !== null && remote.zoom !== undefined
       ? remote.zoom
       : (preset ? preset.zoom : MAP_ZOOM);
-    // airport view overrides region/saved; a tracked aircraft overrides both
     const airport = remote.airport ? findAirportByCode(remote.airport) : null;
     if (airport) {
-      lat = airport[3];
-      lon = airport[4];
-      zoom = remote.zoom !== null && remote.zoom !== undefined ? remote.zoom : AIRPORT_VIEW_ZOOM;
+      baseLat = airport[3];
+      baseLon = airport[4];
+      baseZoom = remote.zoom !== null && remote.zoom !== undefined ? remote.zoom : AIRPORT_VIEW_ZOOM;
     }
+    fetchLat = baseLat; fetchLon = baseLon; fetchZoom = baseZoom;
+
+    // ---- render view: follows the tracked aircraft, but "sticky" ----
+    // A single dropped poll must not snap the camera back to the base view;
+    // we hold the last tracked position for a short grace window so the map
+    // stays locked on instead of ping-ponging.
+    let lat = baseLat, lon = baseLon, zoom = baseZoom;
     const tracked = findTracked();
     if (tracked) {
-      lat = tracked.lat;
-      lon = tracked.lon;
-      zoom = Math.max(zoom, 8);
+      lastTrackedAt = Date.now();
+      lat = tracked.lat; lon = tracked.lon;
+      zoom = Math.max(baseZoom, 8);
+    } else if (remote.trackTail && Date.now() - lastTrackedAt < 20000) {
+      // recently tracked — keep the current camera where it is
+      lat = viewLat; lon = viewLon; zoom = viewZoom;
     }
+
     const changed = lat !== viewLat || lon !== viewLon || zoom !== viewZoom;
     viewLat = lat; viewLon = lon; viewZoom = zoom;
     if (changed) scheduleDraw();

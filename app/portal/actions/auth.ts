@@ -212,7 +212,7 @@ export async function signIn(formData: FormData) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, status")
+    .select("role, status, last_login_at")
     .eq("id", data.user.id)
     .single();
 
@@ -232,6 +232,8 @@ export async function signIn(formData: FormData) {
   }
 
   const role: PortalRole = isPortalRole(profile.role) ? profile.role : "client";
+  // Capture "first ever login" before we stamp last_login_at below.
+  const isFirstLogin = !profile.last_login_at;
 
   // last_login stamp and the audit event are independent bookkeeping writes —
   // run them concurrently so a successful login pays one round trip, not two.
@@ -254,7 +256,10 @@ export async function signIn(formData: FormData) {
     }),
   ]);
 
-  if (isApprovedPortalIntroStatus(profile.status)) {
+  // Login intro plays only on a user's very first sign-in, and never for
+  // admins (they log in constantly and don't want the animation each time).
+  const isAdmin = role === "admin" || role === "super_admin";
+  if (isApprovedPortalIntroStatus(profile.status) && isFirstLogin && !isAdmin) {
     await markPortalIntroPending();
   }
 
