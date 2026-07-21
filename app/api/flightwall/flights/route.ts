@@ -21,7 +21,9 @@ const CORS_HEADERS = {
 } as const;
 
 const CACHE_HEADERS = {
-  "Cache-Control": "public, max-age=10, stale-while-revalidate=20",
+  // Short enough that a 1 s dashboard poll cadence gets fresh positions;
+  // still collapses bursts from multiple viewers onto one upstream call.
+  "Cache-Control": "public, max-age=1, stale-while-revalidate=5",
 } as const;
 
 const RESPONSE_HEADERS = { ...CORS_HEADERS, ...CACHE_HEADERS } as const;

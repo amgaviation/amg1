@@ -168,7 +168,7 @@ export default async function AdminFlightwallSettingsPage({
 
         <SectionCard title="Refresh Rate" icon="gauge">
           <div className="grid gap-4 md:grid-cols-2">
-            <TextField label="Flight Positions (seconds)" name="flights_poll_seconds" type="number" min="5" max="300" defaultValue={String(settings.flightsPollSeconds)} />
+            <TextField label="Flight Positions (seconds)" name="flights_poll_seconds" type="number" min="1" max="300" defaultValue={String(settings.flightsPollSeconds)} />
             <TextField label="Business Data (seconds)" name="ops_poll_seconds" type="number" min="10" max="300" defaultValue={String(settings.opsPollSeconds)} />
             <TextField label="METAR Station (ICAO)" name="metar_station" defaultValue={settings.metarStation} maxLength={4} />
           </div>
