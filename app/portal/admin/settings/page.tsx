@@ -18,6 +18,7 @@ const TAB_OPTIONS = [
   { label: "Login & Security", value: "security" },
   { label: "Permissions", value: "permissions" },
   { label: "Billing", value: "billing" },
+  { label: "FlightWall", value: "flightwall" },
   { label: "Email Templates", value: "email-templates" },
   { label: "Compliance", value: "compliance" },
   { label: "Operational", value: "operational" },
@@ -138,6 +139,31 @@ export default async function AdminSettingsPage({
               Manage protected billing settings
             </Link>
           </p>
+        </SectionCard>
+      ) : null}
+
+      {tab === "flightwall" ? (
+        <SectionCard
+          title="FlightWall Dashboard"
+          icon="radar"
+          description="The wall-display ops dashboard shown on the office TV — traffic map view, panels, watchlist, refresh rate."
+        >
+          <div className="grid gap-3 text-sm text-[var(--deck-text-2)]">
+            <p>
+              Configure the map region (Florida, Continental USA, or a custom view), basemap style, home base,
+              watchlisted tail numbers, panel layout, and polling cadence. Changes apply on the dashboard&rsquo;s
+              next load — no redeploy.
+            </p>
+            <p>
+              <Link href="/portal/admin/settings/flightwall" className="text-[var(--deck-accent-ink)] hover:underline">
+                Configure the FlightWall dashboard
+              </Link>
+              {" · "}
+              <Link href="/ops/flightwall" target="_blank" rel="noopener" className="text-[var(--deck-accent-ink)] hover:underline">
+                Open the live display
+              </Link>
+            </p>
+          </div>
         </SectionCard>
       ) : null}
 

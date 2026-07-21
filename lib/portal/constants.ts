@@ -259,7 +259,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
         { label: "Compliance", href: "/portal/admin/compliance", icon: "shield" },
         { label: "Audit Log", href: "/portal/admin/audit-log", icon: "history" },
         { label: "Settings", href: "/portal/admin/settings", icon: "settings" },
-        { label: "FlightWall Dashboard", href: "/portal/admin/settings/flightwall", icon: "radar", secondary: true },
+        { label: "FlightWall Dashboard", href: "/portal/admin/settings/flightwall", icon: "radar" },
         { label: "Security Review", href: "/portal/admin/security-review", icon: "shield", secondary: true },
         { label: "System Health", href: "/portal/admin/system-health", icon: "activity", secondary: true },
       ],
