@@ -25,6 +25,7 @@ type RemoteState = {
   region: string | null; // preset key override, null = use saved settings
   airport: string | null; // ICAO/IATA center override (resolved by the display)
   zoom: number | null; // zoom override, null = use saved settings
+  trackRadiusNm: number | null; // tracking view radius (nm); null = default 100
   refreshNonce: number; // change forces the display to reload
 };
 
@@ -35,6 +36,7 @@ const DEFAULT_STATE: RemoteState = {
   region: null,
   airport: null,
   zoom: null,
+  trackRadiusNm: null,
   refreshNonce: 0,
 };
 
@@ -65,6 +67,10 @@ function sanitize(raw: unknown): RemoteState {
   if (typeof src.zoom === "number" && Number.isFinite(src.zoom)) {
     const z = Math.round(src.zoom);
     if (z >= 3 && z <= 12) out.zoom = z;
+  }
+  if (typeof src.trackRadiusNm === "number" && Number.isFinite(src.trackRadiusNm)) {
+    const r = Math.round(src.trackRadiusNm / 50) * 50; // snap to 50 nm steps
+    if (r >= 50 && r <= 600) out.trackRadiusNm = r;
   }
   if (typeof src.refreshNonce === "number" && Number.isFinite(src.refreshNonce)) {
     out.refreshNonce = Math.max(0, Math.min(1_000_000_000, Math.round(src.refreshNonce)));

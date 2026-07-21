@@ -539,6 +539,45 @@ export const dashboardHtml = `<!doctype html>
   // target and its neighbours stay in the feed and the view can't ping-pong.
   let fetchLat = MAP_LAT, fetchLon = MAP_LON, fetchZoom = MAP_ZOOM;
   let lastTrackedAt = 0; // ms of the last confirmed tracked fix (for stickiness)
+  // Last confirmed tracked contact — kept and dead-reckoned so the target and
+  // everything below the map stay put when a single poll misses it.
+  let stickyTracked = null;
+  let lastTrackInfoSig = "";
+  const TRACK_GRACE_MS = 30000;
+  const DEFAULT_TRACK_RADIUS_NM = 100;
+
+  // Advance a contact along its heading at its groundspeed for the time since
+  // its last fix — returns a {lat, lon} the aircraft is estimated to be at now.
+  function deadReckon(c) {
+    const ageH = Math.min(Date.now() - (c.fixAt || Date.now()), 60000) / 3600000;
+    const dNm = (c.ground_speed_kt || 0) * ageH;
+    if (dNm <= 0.003) return { lat: c.lat, lon: c.lon };
+    const hr = ((c.heading_deg || 0) * Math.PI) / 180;
+    return {
+      lat: c.lat + (dNm / 60) * Math.cos(hr),
+      lon: c.lon + (dNm / (60 * Math.cos((c.lat * Math.PI) / 180))) * Math.sin(hr)
+    };
+  }
+
+  // The aircraft we should be showing right now: the live fix if present,
+  // otherwise the last known one within the grace window (so nothing blinks).
+  function effectiveTracked() {
+    if (!remote.trackTail) return null;
+    const live = findTracked();
+    if (live) { stickyTracked = live; lastTrackedAt = Date.now(); return live; }
+    if (stickyTracked && Date.now() - lastTrackedAt < TRACK_GRACE_MS) return stickyTracked;
+    return null;
+  }
+
+  // Tile zoom that makes the map's half-diagonal ≈ targetNm (used for the
+  // radius-based tracking zoom: default 100 nm, remote steps by 50 nm).
+  function zoomForRadius(lat, targetNm) {
+    const wCss = (canvas.width || 1000) / dpr, hCss = (canvas.height || 700) / dpr;
+    const halfDiagPx = 0.5 * Math.sqrt(wCss * wCss + hCss * hCss);
+    const k = (Math.cos((lat * Math.PI) / 180) * 40075016.686 / 256) / 1852; // nm/px at z0
+    const z = Math.log2((k * halfDiagPx) / Math.max(10, targetNm));
+    return Math.max(4, Math.min(13, Math.round(z)));
+  }
   let remote = { focus: "none", trackTail: null, theme: "auto", region: null, airport: null, zoom: null, refreshNonce: null };
 
   // Major-airport reference data ([icao, iata, name, lat, lon, tier]) —
@@ -776,6 +815,15 @@ export const dashboardHtml = `<!doctype html>
     const wCss = w / dpr, hCss = h / dpr;
     const style = basemapStyle();
 
+    // Per-frame lock: keep the tracked aircraft pinned to the map center using
+    // its dead-reckoned position, so the map glides smoothly at the animation
+    // frame rate instead of snapping once per data poll.
+    const lockTarget = remote.trackTail ? effectiveTracked() : null;
+    if (lockTarget) {
+      const dr = deadReckon(lockTarget);
+      viewLat = dr.lat; viewLon = dr.lon;
+    }
+
     ctx.fillStyle = styleColor("--panel-2");
     ctx.fillRect(0, 0, w, h);
 
@@ -904,20 +952,11 @@ export const dashboardHtml = `<!doctype html>
     // When a specific flight is being tracked, the map shows ONLY that
     // aircraft (or nothing while acquiring) — it never falls back to regional
     // traffic, so the view can't flip between the target and 60+ contacts.
-    const trackedContact = findTracked();
-    const drawContacts = remote.trackTail ? (trackedContact ? [trackedContact] : []) : liveContacts;
+    const drawContacts = remote.trackTail ? (lockTarget ? [lockTarget] : []) : liveContacts;
     const showLabels = viewZoom >= 7 || drawContacts.length <= 30;
-    const nowMs = Date.now();
     drawContacts.forEach((c) => {
-      let dLat = c.lat, dLon = c.lon;
-      const ageH = Math.min(nowMs - (c.fixAt || nowMs), 60000) / 3600000;
-      const dNm = (c.ground_speed_kt || 0) * ageH;
-      if (dNm > 0.003) {
-        const hr = ((c.heading_deg || 0) * Math.PI) / 180;
-        dLat = c.lat + (dNm / 60) * Math.cos(hr);
-        dLon = c.lon + (dNm / (60 * Math.cos((c.lat * Math.PI) / 180))) * Math.sin(hr);
-      }
-      const p = project(dLat, dLon, wCss, hCss);
+      const dr = deadReckon(c);
+      const p = project(dr.lat, dr.lon, wCss, hCss);
       const x = p.x, y = p.y;
       if (x < -20 * dpr || x > w + 20 * dpr || y < -20 * dpr || y > h + 20 * dpr) return;
       const tracked = !!remote.trackTail && (c.reg === remote.trackTail || c.callsign.toUpperCase() === remote.trackTail);
@@ -995,11 +1034,12 @@ export const dashboardHtml = `<!doctype html>
     // Traffic" list stays the nearest few relative to home base.
     liveContacts = contacts.slice(0, kMaxMapContacts);
     applyView(); // fresh positions may recenter the view onto a tracked aircraft
-    const tracked = findTracked();
-    if (tracked) {
+    const tracked = effectiveTracked();
+    const liveTracked = findTracked();
+    if (liveTracked) {
       const last = trackTrail[trackTrail.length - 1];
-      if (!last || last[0] !== tracked.lat || last[1] !== tracked.lon) {
-        trackTrail.push([tracked.lat, tracked.lon]);
+      if (!last || last[0] !== liveTracked.lat || last[1] !== liveTracked.lon) {
+        trackTrail.push([liveTracked.lat, liveTracked.lon]);
         if (trackTrail.length > 600) trackTrail.shift();
       }
     }
@@ -1309,7 +1349,7 @@ export const dashboardHtml = `<!doctype html>
   // Filed-route lookup for the tracked flight (origin/destination/airline).
   function loadRouteInfo() {
     if (!remote.trackTail) return;
-    const c = findTracked();
+    const c = effectiveTracked();
     const cs = (c ? c.callsign.toUpperCase() : remote.trackTail);
     if (routeInfoFor === cs) return;
     routeInfoFor = cs;
@@ -1326,7 +1366,7 @@ export const dashboardHtml = `<!doctype html>
   // Full-track + recent-flights history via /api/flightwall/history (OpenSky).
   function loadHistory() {
     if (!remote.trackTail) return;
-    const c = findTracked();
+    const c = effectiveTracked();
     if (!c || !c.hex || historyFor === c.hex) return;
     historyFor = c.hex;
     fetch("/api/flightwall/history?hex=" + encodeURIComponent(c.hex))
@@ -1359,9 +1399,10 @@ export const dashboardHtml = `<!doctype html>
     if (!remote.trackTail) {
       el.style.display = "none";
       el.innerHTML = "";
+      lastTrackInfoSig = "";
       return;
     }
-    const c = findTracked();
+    const c = effectiveTracked();
     let html = '<div class="fi-head"><span class="fi-callsign">' + remote.trackTail + "</span>";
     if (routeInfo && routeInfo.airline) html += '<span class="fi-airline">' + routeInfo.airline + "</span>";
     html += "</div>";
@@ -1401,7 +1442,12 @@ export const dashboardHtml = `<!doctype html>
           "</div>";
       });
     }
-    el.innerHTML = html;
+    // Only touch the DOM when the content actually changes, so the card
+    // doesn't reflow/flicker on every 1 s poll.
+    if (html !== lastTrackInfoSig) {
+      el.innerHTML = html;
+      lastTrackInfoSig = html;
+    }
     el.style.display = "";
   }
 
@@ -1423,23 +1469,24 @@ export const dashboardHtml = `<!doctype html>
     }
     fetchLat = baseLat; fetchLon = baseLon; fetchZoom = baseZoom;
 
-    // ---- render view: follows the tracked aircraft, but "sticky" ----
-    // A single dropped poll must not snap the camera back to the base view;
-    // we hold the last tracked position for a short grace window so the map
-    // stays locked on instead of ping-ponging.
-    let lat = baseLat, lon = baseLon, zoom = baseZoom;
-    const tracked = findTracked();
-    if (tracked) {
-      lastTrackedAt = Date.now();
-      lat = tracked.lat; lon = tracked.lon;
-      zoom = Math.max(baseZoom, 8);
-    } else if (remote.trackTail && Date.now() - lastTrackedAt < 20000) {
-      // recently tracked — keep the current camera where it is
-      lat = viewLat; lon = viewLon; zoom = viewZoom;
+    // ---- render view ----
+    // When tracking, the map LOCKS onto the aircraft: zoom is radius-based
+    // (default 100 nm, remote steps by 50 nm) and the centering is done every
+    // frame in drawRadar from the dead-reckoned position, so the plane stays
+    // pinned and the map glides instead of snapping. Here we only set the zoom.
+    if (remote.trackTail) {
+      const tgt = effectiveTracked();
+      const radius = typeof remote.trackRadiusNm === "number" ? remote.trackRadiusNm : DEFAULT_TRACK_RADIUS_NM;
+      viewZoom = zoomForRadius(tgt ? tgt.lat : baseLat, radius);
+      // leave viewLat/viewLon to drawRadar (per-frame lock); if not acquired
+      // yet, sit on the base view so the wall isn't blank
+      if (!tgt) { viewLat = baseLat; viewLon = baseLon; }
+      scheduleDraw();
+      return true;
     }
 
-    const changed = lat !== viewLat || lon !== viewLon || zoom !== viewZoom;
-    viewLat = lat; viewLon = lon; viewZoom = zoom;
+    const changed = baseLat !== viewLat || baseLon !== viewLon || baseZoom !== viewZoom;
+    viewLat = baseLat; viewLon = baseLon; viewZoom = baseZoom;
     if (changed) scheduleDraw();
     return changed;
   }
@@ -1535,7 +1582,7 @@ export const dashboardHtml = `<!doctype html>
 
   // 1 Hz animation tick — dead reckoning gives every aircraft continuous
   // 1-second position updates regardless of the data poll cadence.
-  setInterval(function () { if (liveContacts.length) scheduleDraw(); }, 1000);
+  setInterval(function () { if (liveContacts.length || remote.trackTail) scheduleDraw(); }, 1000);
 
   // generic layout widgets refresh on the business-data cadence
   loadWidgets();

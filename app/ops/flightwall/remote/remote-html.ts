@@ -153,8 +153,9 @@ export const remoteHtml = `<!doctype html>
   const REGION_ZOOMS = window.FW_REGION_ZOOMS || {};
   const AIRPORTS = window.FW_AIRPORTS || []; // [icao, iata, name, lat, lon, tier]
   const AIRPORT_ZOOM = 9; // display's default zoom for an airport view
-  let state = { focus: "none", trackTail: null, theme: "auto", region: null, airport: null, zoom: null, refreshNonce: 0 };
+  let state = { focus: "none", trackTail: null, theme: "auto", region: null, airport: null, zoom: null, trackRadiusNm: null, refreshNonce: 0 };
   let pending = false;
+  const DEFAULT_TRACK_RADIUS = 100; // nm, matches the display default
 
   function findAirport(code) {
     if (!code) return null;
@@ -189,7 +190,10 @@ export const remoteHtml = `<!doctype html>
     document.querySelectorAll("[data-region]").forEach((b) => {
       b.classList.toggle("active", (b.getAttribute("data-region") || null) === state.region && !state.airport);
     });
-    document.getElementById("zoomReset").classList.toggle("active", state.zoom === null);
+    document.getElementById("zoomReset").classList.toggle("active", state.trackTail ? (state.trackRadiusNm === null) : (state.zoom === null));
+    // reflect the tracking radius on the reset button so you can read the view
+    const zr = document.getElementById("zoomReset");
+    if (zr) zr.textContent = state.trackTail ? (trackRadius() + " nm") : "Auto";
     document.getElementById("airportBtn").classList.toggle("active", !!state.airport);
     const ap = findAirport(state.airport);
     document.getElementById("airportNote").innerHTML = state.airport
@@ -277,13 +281,23 @@ export const remoteHtml = `<!doctype html>
     send({ trackTail: null });
   });
 
+  // While tracking a flight, zoom is expressed as a radius around the plane
+  // (default 100 nm, ±50 nm per tap). Otherwise it steps the map tile zoom.
+  function trackRadius() {
+    return typeof state.trackRadiusNm === "number" ? state.trackRadiusNm : DEFAULT_TRACK_RADIUS;
+  }
   document.getElementById("zoomIn").addEventListener("click", () => {
-    send({ zoom: Math.min(12, effectiveZoom() + 1) });
+    if (state.trackTail) send({ trackRadiusNm: Math.max(50, trackRadius() - 50) });
+    else send({ zoom: Math.min(12, effectiveZoom() + 1) });
   });
   document.getElementById("zoomOut").addEventListener("click", () => {
-    send({ zoom: Math.max(3, effectiveZoom() - 1) });
+    if (state.trackTail) send({ trackRadiusNm: Math.min(600, trackRadius() + 50) });
+    else send({ zoom: Math.max(3, effectiveZoom() - 1) });
   });
-  document.getElementById("zoomReset").addEventListener("click", () => send({ zoom: null }));
+  document.getElementById("zoomReset").addEventListener("click", () => {
+    if (state.trackTail) send({ trackRadiusNm: null });
+    else send({ zoom: null });
+  });
 
   document.getElementById("refreshBtn").addEventListener("click", () => {
     send({ refreshNonce: (state.refreshNonce || 0) + 1 });
@@ -291,7 +305,7 @@ export const remoteHtml = `<!doctype html>
   document.getElementById("resetBtn").addEventListener("click", () => {
     document.getElementById("tailInput").value = "";
     document.getElementById("airportInput").value = "";
-    send({ focus: "none", trackTail: null, theme: "auto", region: null, airport: null, zoom: null });
+    send({ focus: "none", trackTail: null, theme: "auto", region: null, airport: null, zoom: null, trackRadiusNm: null });
   });
 
   poll();
