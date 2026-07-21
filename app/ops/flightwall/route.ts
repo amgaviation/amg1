@@ -22,7 +22,12 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(request: Request) {
   if (!(await hasFlightwallDashboardAccess())) {
-    return NextResponse.redirect(new URL("/login?next=/ops/flightwall", request.url));
+    const redirect = NextResponse.redirect(new URL("/login?next=/ops/flightwall", request.url));
+    // Keep the gated dashboard out of every search index (defense in depth
+    // alongside the /ops/ robots.txt disallow) — it is an internal wall
+    // display, not a public page.
+    redirect.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+    return redirect;
   }
 
   const settings = await getFlightwallSettings();
@@ -51,6 +56,8 @@ export async function GET(request: Request) {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
       "Cache-Control": "no-store, private",
+      // Internal wall display — never index or archive it, even if the URL leaks.
+      "X-Robots-Tag": "noindex, nofollow, noarchive",
     },
   });
 }
