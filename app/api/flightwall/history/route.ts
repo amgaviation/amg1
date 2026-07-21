@@ -53,7 +53,8 @@ export async function GET(request: Request) {
   const now = Math.floor(Date.now() / 1000);
   const [track, flights] = await Promise.all([
     fetchJson(`https://opensky-network.org/api/tracks/all?icao24=${hex}&time=0`),
-    fetchJson(`https://opensky-network.org/api/flights/aircraft?icao24=${hex}&begin=${now - 3 * 86400}&end=${now}`),
+    // 30 days is the maximum interval OpenSky allows per request
+    fetchJson(`https://opensky-network.org/api/flights/aircraft?icao24=${hex}&begin=${now - 30 * 86400}&end=${now}`),
   ]);
 
   const body: HistoryBody = { path: null, flights: null };
@@ -66,7 +67,7 @@ export async function GET(request: Request) {
   }
   if (Array.isArray(flights)) {
     body.flights = flights
-      .slice(-5)
+      .slice(-15)
       .reverse()
       .map((f: any) => ({
         dep: typeof f.estDepartureAirport === "string" ? f.estDepartureAirport : null,

@@ -1372,8 +1372,8 @@ export const dashboardHtml = `<!doctype html>
       html += '<div class="fi-sub">Waiting for the aircraft to appear in the live feed…</div>';
     }
     if (historyFlights && historyFlights.length) {
-      html += '<div class="fi-sub" style="margin-top:8px; letter-spacing:0.14em; text-transform:uppercase;">Recent flights</div>';
-      historyFlights.slice(0, 4).forEach(function (f) {
+      html += '<div class="fi-sub" style="margin-top:8px; letter-spacing:0.14em; text-transform:uppercase;">Recent flights (30 days)</div>';
+      historyFlights.slice(0, 12).forEach(function (f) {
         html += '<div class="fi-sub mono">' +
           (f.dep || "????") + " → " + (f.arr || "????") +
           " · " + fmtHistTime(f.firstSeen) + " – " + fmtHistTime(f.lastSeen) +
