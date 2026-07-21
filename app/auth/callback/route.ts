@@ -41,14 +41,18 @@ export async function GET(request: NextRequest) {
       if (user) {
         const { data: profile } = await supabase
           .from("profiles")
-          .select("role, status")
+          .select("role, status, last_login_at")
           .eq("id", user.id)
           .maybeSingle();
 
+        // First sign-in only, and never for admins (see auth.ts signIn).
+        const isAdmin = profile?.role === "admin" || profile?.role === "super_admin";
         shouldPlayPortalIntro = Boolean(
           profile &&
             isPortalRole(profile.role) &&
-            isApprovedPortalIntroStatus(profile.status),
+            isApprovedPortalIntroStatus(profile.status) &&
+            !profile.last_login_at &&
+            !isAdmin,
         );
       }
     }
