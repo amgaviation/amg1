@@ -3,19 +3,12 @@ import { requireRole } from "@/lib/portal/session";
 import { getFlightwallSettings, MAP_REGION_PRESETS } from "@/lib/flightwall/settings";
 import { saveFlightwallSettings } from "@/app/portal/actions/flightwall-settings";
 import { DetailRow, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
-import { CheckboxField, TextField } from "@/components/portal/ui/fields";
+import { TextField } from "@/components/portal/ui/fields";
+import { FlightwallLayoutEditor } from "@/components/portal/admin/flightwall-layout-editor";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { Button } from "@/components/ui/button";
 
 export const metadata = { title: "FlightWall Dashboard - Admin Settings" };
-
-const PANEL_LABELS: Record<string, string> = {
-  map: "Traffic Map",
-  requests: "Latest Requests",
-  missions: "Mission Board",
-  revenue: "Revenue",
-  metar: "METAR Ticker",
-};
 
 const MAP_STYLE_LABELS: Record<string, string> = {
   auto: "Auto — follow dashboard theme",
@@ -49,11 +42,18 @@ export default async function AdminFlightwallSettingsPage({
         title="FlightWall Dashboard"
         description="Configure the wall-display ops dashboard (traffic map view, business panels, refresh rate). Changes apply on the next load — no redeploy."
         actions={
-          <Button asChild size="sm" variant="outline">
-            <Link href="/ops/flightwall" target="_blank">
-              Open Dashboard
-            </Link>
-          </Button>
+          <>
+            <Button asChild size="sm" variant="outline">
+              <Link href="/ops/flightwall/remote" target="_blank">
+                Open Remote
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link href="/ops/flightwall" target="_blank">
+                Open Dashboard
+              </Link>
+            </Button>
+          </>
         }
       />
 
@@ -128,28 +128,21 @@ export default async function AdminFlightwallSettingsPage({
           </div>
         </SectionCard>
 
-        <SectionCard title="Panels" description="Show/hide and order — the same order renders top to bottom on the dashboard" icon="layers">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <CheckboxField label={`${PANEL_LABELS.map} — live radar/traffic map`} name="show_map" defaultChecked={settings.showMap} />
-            <CheckboxField label={`${PANEL_LABELS.requests} — new AMG mission requests`} name="show_requests" defaultChecked={settings.showRequests} />
-            <CheckboxField label={`${PANEL_LABELS.missions} — active mission board`} name="show_missions" defaultChecked={settings.showMissions} />
-            <CheckboxField label={`${PANEL_LABELS.revenue} — today / month-to-date`} name="show_revenue" defaultChecked={settings.showRevenue} />
-            <CheckboxField label={`${PANEL_LABELS.metar} — weather ticker`} name="show_metar" defaultChecked={settings.showMetar} />
-          </div>
-          <div className="mt-4 grid gap-3 sm:grid-cols-5">
-            {settings.panelOrder.map((panel, index) => (
-              <label key={index} className="flex flex-col gap-1 text-xs text-[var(--deck-text-3)]">
-                Slot {index + 1}
-                <select name={`panel_slot_${index}`} defaultValue={panel} className={selectClass}>
-                  {Object.entries(PANEL_LABELS).map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ))}
-          </div>
+        <SectionCard
+          title="Layout"
+          description="Visual layout of the wall display — drag to reorder, ✕ to remove, add panels back below"
+          icon="layers"
+        >
+          <FlightwallLayoutEditor
+            initialOrder={settings.panelOrder}
+            initialShow={{
+              map: settings.showMap,
+              requests: settings.showRequests,
+              missions: settings.showMissions,
+              revenue: settings.showRevenue,
+              metar: settings.showMetar,
+            }}
+          />
         </SectionCard>
 
         <SectionCard title="Data Sources" description="Where each panel's numbers come from — read-only reference" icon="clipboard">
