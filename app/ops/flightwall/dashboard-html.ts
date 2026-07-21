@@ -892,9 +892,13 @@ export const dashboardHtml = `<!doctype html>
     // Positions are dead-reckoned between fixes: each contact advances along
     // its heading at its groundspeed for the time since its last fix, so the
     // 1 Hz redraw shows continuous motion even when the data feed is slower.
-    const showLabels = viewZoom >= 7 || liveContacts.length <= 30;
+    // When a specific flight is being tracked, the map shows ONLY that
+    // aircraft — no other regional traffic competes for attention.
+    const trackedContact = findTracked();
+    const drawContacts = remote.trackTail && trackedContact ? [trackedContact] : liveContacts;
+    const showLabels = viewZoom >= 7 || drawContacts.length <= 30;
     const nowMs = Date.now();
-    liveContacts.forEach((c) => {
+    drawContacts.forEach((c) => {
       let dLat = c.lat, dLon = c.lon;
       const ageH = Math.min(nowMs - (c.fixAt || nowMs), 60000) / 3600000;
       const dNm = (c.ground_speed_kt || 0) * ageH;
@@ -995,7 +999,10 @@ export const dashboardHtml = `<!doctype html>
     scheduleDraw();
     const list = document.getElementById("flightList");
     list.innerHTML = "";
-    const sorted = [...contacts].sort((a, b) => a.distance_nm - b.distance_nm).slice(0, kMaxContacts);
+    // While tracking a flight, the list narrows to just that aircraft (its
+    // full detail is in the info card above) — no regional traffic mixed in.
+    const listSource = remote.trackTail && tracked ? [tracked] : contacts;
+    const sorted = [...listSource].sort((a, b) => a.distance_nm - b.distance_nm).slice(0, kMaxContacts);
     sorted.forEach((c) => {
       const row = document.createElement("div");
       row.className = "flight-row" + (c.watchlisted ? " watch" : "");
@@ -1007,7 +1014,9 @@ export const dashboardHtml = `<!doctype html>
         '<span class="dist">' + c.distance_nm.toFixed(1) + "</span>";
       list.appendChild(row);
     });
-    document.getElementById("contactCount").textContent = contacts.length + " contact" + (contacts.length === 1 ? "" : "s");
+    document.getElementById("contactCount").textContent =
+      remote.trackTail && tracked ? "Tracking " + tracked.callsign
+        : contacts.length + " contact" + (contacts.length === 1 ? "" : "s");
   }
 
   // ---- render AMG ops ----
