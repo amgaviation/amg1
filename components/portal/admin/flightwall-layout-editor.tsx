@@ -1,212 +1,186 @@
 "use client";
 
 import { useState, type DragEvent } from "react";
+import { BUILTIN_WIDGETS, GENERIC_WIDGETS, WIDGET_LABELS } from "@/lib/flightwall/widget-catalog";
 
 /**
  * Visual layout editor for the FlightWall wall display — a draggable mock of
- * the actual screen. The map column and METAR ticker are structurally fixed
- * on the dashboard (left column / bottom bar) so they only toggle on/off;
- * the three business panels drag to reorder within the right column.
+ * the two-column wall. EVERY block is movable: drag any card within or
+ * between columns (including the map, nearby-traffic list, and METAR),
+ * remove with ✕, and add anything from the palette — the five bespoke
+ * panels plus 20+ generic data widgets fed from the portal database.
  *
- * Pure client-side state that serializes into the same hidden form fields the
- * saveFlightwallSettings server action already reads (show_* checkboxes and
- * panel_slot_N order slots), so it drops into the existing <form> unchanged.
+ * Serializes to a single hidden `layout_json` field ({left, right} arrays of
+ * widget keys) that the server action validates with sanitizeLayout().
  */
 
-type PanelKey = "map" | "requests" | "missions" | "revenue" | "metar";
-const RIGHT_PANELS: PanelKey[] = ["requests", "missions", "revenue"];
+type Col = "left" | "right";
+type Layout = Record<Col, string[]>;
 
-const PANEL_META: Record<PanelKey, { label: string; hint: string }> = {
-  map: { label: "Traffic Map", hint: "Live basemap + Nearby Traffic list (left column)" },
-  requests: { label: "Latest Requests", hint: "New AMG mission requests" },
-  missions: { label: "Mission Board", hint: "Active mission pipeline" },
-  revenue: { label: "Revenue", hint: "Today / month-to-date" },
-  metar: { label: "METAR Ticker", hint: "Weather strip along the bottom" },
-};
+const DESCRIPTIONS: Record<string, string> = Object.fromEntries(
+  [...BUILTIN_WIDGETS, ...GENERIC_WIDGETS].map((w) => [w.key, w.description])
+);
+const BUILTIN_KEYS = new Set(BUILTIN_WIDGETS.map((w) => w.key));
 
-export function FlightwallLayoutEditor({
-  initialOrder,
-  initialShow,
-}: {
-  initialOrder: string[];
-  initialShow: Record<PanelKey, boolean>;
-}) {
-  const [show, setShow] = useState<Record<PanelKey, boolean>>(initialShow);
-  const [order, setOrder] = useState<PanelKey[]>(() => {
-    const fromSaved = initialOrder.filter((p): p is PanelKey =>
-      (RIGHT_PANELS as string[]).includes(p)
-    );
-    for (const p of RIGHT_PANELS) if (!fromSaved.includes(p)) fromSaved.push(p);
-    return fromSaved;
+export function FlightwallLayoutEditor({ initialLayout }: { initialLayout: Layout }) {
+  const [layout, setLayout] = useState<Layout>({
+    left: [...initialLayout.left],
+    right: [...initialLayout.right],
   });
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const [overIndex, setOverIndex] = useState<number | null>(null);
+  const [drag, setDrag] = useState<{ col: Col; index: number } | null>(null);
+  const [over, setOver] = useState<{ col: Col; index: number } | null>(null);
 
-  const visibleRight = order.filter((p) => show[p]);
-  const hiddenPanels = (Object.keys(PANEL_META) as PanelKey[]).filter((p) => !show[p]);
+  const placed = new Set([...layout.left, ...layout.right]);
+  const palette = [...BUILTIN_WIDGETS, ...GENERIC_WIDGETS].filter((w) => !placed.has(w.key));
 
-  function onDragStart(e: DragEvent, index: number) {
-    setDragIndex(index);
-    e.dataTransfer.effectAllowed = "move";
-    // Firefox needs data set for a drag to start
-    e.dataTransfer.setData("text/plain", String(index));
+  function move(from: { col: Col; index: number }, to: { col: Col; index: number }) {
+    setLayout((prev) => {
+      const next: Layout = { left: [...prev.left], right: [...prev.right] };
+      const [key] = next[from.col].splice(from.index, 1);
+      if (key === undefined) return prev;
+      const target = Math.min(to.index, next[to.col].length);
+      next[to.col].splice(target, 0, key);
+      return next;
+    });
   }
 
-  function onDragOver(e: DragEvent, index: number) {
+  function onDragStart(e: DragEvent, col: Col, index: number) {
+    setDrag({ col, index });
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", `${col}:${index}`);
+  }
+  function onDragOverCard(e: DragEvent, col: Col, index: number) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = "move";
+    if (!over || over.col !== col || over.index !== index) setOver({ col, index });
+  }
+  function onDropCard(e: DragEvent, col: Col, index: number) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (drag) move(drag, { col, index });
+    setDrag(null);
+    setOver(null);
+  }
+  function onDragOverColumn(e: DragEvent, col: Col) {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
-    if (index !== overIndex) setOverIndex(index);
+    if (!over || over.col !== col || over.index !== layout[col].length) setOver({ col, index: layout[col].length });
   }
-
-  function onDrop(e: DragEvent, index: number) {
+  function onDropColumn(e: DragEvent, col: Col) {
     e.preventDefault();
-    if (dragIndex === null || dragIndex === index) {
-      setDragIndex(null);
-      setOverIndex(null);
-      return;
-    }
-    // indices are into visibleRight; map back into the full order array
-    const moved = visibleRight[dragIndex];
-    const target = visibleRight[index];
-    const next = order.filter((p) => p !== moved);
-    next.splice(next.indexOf(target) + (dragIndex < index ? 1 : 0), 0, moved);
-    setOrder(next);
-    setDragIndex(null);
-    setOverIndex(null);
+    if (drag) move(drag, { col, index: layout[col].length });
+    setDrag(null);
+    setOver(null);
   }
 
-  function remove(panel: PanelKey) {
-    setShow((s) => ({ ...s, [panel]: false }));
+  function remove(col: Col, index: number) {
+    setLayout((prev) => {
+      const next: Layout = { left: [...prev.left], right: [...prev.right] };
+      next[col].splice(index, 1);
+      return next;
+    });
   }
-  function add(panel: PanelKey) {
-    setShow((s) => ({ ...s, [panel]: true }));
+  function add(key: string) {
+    setLayout((prev) => {
+      // heavier visual blocks default left, data lists default right
+      const col: Col = key === "map" || key === "nearby" ? "left" : "right";
+      const next: Layout = { left: [...prev.left], right: [...prev.right] };
+      next[col].push(key);
+      return next;
+    });
   }
-
-  // full slot order the server action expects: map first, right-column order,
-  // metar last (the dashboard treats map/metar positions as structural anyway)
-  const slotOrder: PanelKey[] = ["map", ...order, "metar"];
 
   const cardBase =
-    "rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2.5";
+    "rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2.5 flex cursor-grab items-center justify-between gap-2 active:cursor-grabbing";
   const chipBtn =
     "rounded-md border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-2.5 py-1.5 text-xs text-[var(--deck-text-2)] hover:border-[var(--deck-accent-ink)] hover:text-[var(--deck-text)]";
 
-  return (
-    <div>
-      {/* serialized state — same names the server action already parses */}
-      {(Object.keys(PANEL_META) as PanelKey[]).map((p) =>
-        show[p] ? <input key={p} type="hidden" name={`show_${p}`} value="on" /> : null
-      )}
-      {slotOrder.map((p, i) => (
-        <input key={`slot-${i}`} type="hidden" name={`panel_slot_${i}`} value={p} />
-      ))}
-
-      {/* wall mock */}
-      <div className="rounded-xl border border-[var(--deck-line)] bg-[var(--deck-inset,rgba(0,0,0,0.15))] p-3">
-        <div className="grid gap-2 md:grid-cols-[1.55fr_1fr]">
-          {/* left column — map (fixed position, toggle only) */}
-          <div
-            className={`${cardBase} flex min-h-[180px] flex-col justify-between ${show.map ? "" : "opacity-40 border-dashed"}`}
-          >
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <p className="text-sm font-medium text-[var(--deck-text)]">{PANEL_META.map.label}</p>
-                <p className="mt-0.5 text-xs text-[var(--deck-text-3)]">{PANEL_META.map.hint}</p>
-              </div>
-              {show.map ? (
-                <button
-                  type="button"
-                  onClick={() => remove("map")}
-                  aria-label="Remove Traffic Map"
-                  className="text-[var(--deck-text-3)] hover:text-[var(--deck-text)]"
-                >
-                  ✕
-                </button>
+  function renderCard(key: string, col: Col, index: number) {
+    const isDragging = drag && drag.col === col && drag.index === index;
+    const isOver = over && over.col === col && over.index === index && !isDragging;
+    return (
+      <div
+        key={key}
+        draggable
+        onDragStart={(e) => onDragStart(e, col, index)}
+        onDragOver={(e) => onDragOverCard(e, col, index)}
+        onDrop={(e) => onDropCard(e, col, index)}
+        onDragEnd={() => {
+          setDrag(null);
+          setOver(null);
+        }}
+        className={`${cardBase} ${isDragging ? "opacity-50" : ""} ${isOver ? "border-[var(--deck-accent-ink)]" : ""}`}
+      >
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span aria-hidden className="select-none text-[var(--deck-text-3)]">⠿</span>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-[var(--deck-text)]">
+              {WIDGET_LABELS[key] ?? key}
+              {!BUILTIN_KEYS.has(key) ? (
+                <span className="ml-1.5 text-[10px] uppercase tracking-[0.14em] text-[var(--deck-text-3)]">data</span>
               ) : null}
-            </div>
-            <p className="text-[10px] uppercase tracking-[0.18em] text-[var(--deck-text-3)]">
-              Fixed left column
             </p>
-          </div>
-
-          {/* right column — draggable business panels */}
-          <div className="flex min-h-[180px] flex-col gap-2">
-            {visibleRight.length === 0 ? (
-              <div className={`${cardBase} border-dashed text-xs text-[var(--deck-text-3)]`}>
-                No business panels — add one below.
-              </div>
-            ) : null}
-            {visibleRight.map((p, i) => (
-              <div
-                key={p}
-                draggable
-                onDragStart={(e) => onDragStart(e, i)}
-                onDragOver={(e) => onDragOver(e, i)}
-                onDrop={(e) => onDrop(e, i)}
-                onDragEnd={() => {
-                  setDragIndex(null);
-                  setOverIndex(null);
-                }}
-                className={`${cardBase} flex cursor-grab items-center justify-between gap-2 active:cursor-grabbing ${
-                  dragIndex === i ? "opacity-50" : ""
-                } ${overIndex === i && dragIndex !== null && dragIndex !== i ? "border-[var(--deck-accent-ink)]" : ""}`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <span aria-hidden className="select-none text-[var(--deck-text-3)]">⠿</span>
-                  <div>
-                    <p className="text-sm font-medium text-[var(--deck-text)]">{PANEL_META[p].label}</p>
-                    <p className="mt-0.5 text-xs text-[var(--deck-text-3)]">{PANEL_META[p].hint}</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => remove(p)}
-                  aria-label={`Remove ${PANEL_META[p].label}`}
-                  className="text-[var(--deck-text-3)] hover:text-[var(--deck-text)]"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
+            <p className="truncate text-xs text-[var(--deck-text-3)]">{DESCRIPTIONS[key] ?? ""}</p>
           </div>
         </div>
-
-        {/* metar ticker — fixed bottom strip, toggle only */}
-        <div
-          className={`${cardBase} mt-2 flex items-center justify-between ${show.metar ? "" : "opacity-40 border-dashed"}`}
+        <button
+          type="button"
+          onClick={() => remove(col, index)}
+          aria-label={`Remove ${WIDGET_LABELS[key] ?? key}`}
+          className="shrink-0 text-[var(--deck-text-3)] hover:text-[var(--deck-text)]"
         >
-          <div>
-            <span className="text-sm font-medium text-[var(--deck-text)]">{PANEL_META.metar.label}</span>
-            <span className="ml-2 text-xs text-[var(--deck-text-3)]">{PANEL_META.metar.hint} · fixed bottom bar</span>
-          </div>
-          {show.metar ? (
-            <button
-              type="button"
-              onClick={() => remove("metar")}
-              aria-label="Remove METAR Ticker"
-              className="text-[var(--deck-text-3)] hover:text-[var(--deck-text)]"
-            >
-              ✕
-            </button>
-          ) : null}
+          ✕
+        </button>
+      </div>
+    );
+  }
+
+  function renderColumn(col: Col, title: string) {
+    return (
+      <div
+        onDragOver={(e) => onDragOverColumn(e, col)}
+        onDrop={(e) => onDropColumn(e, col)}
+        className="flex min-h-[220px] flex-col gap-2 rounded-lg border border-dashed border-[var(--deck-line)] p-2"
+      >
+        <p className="px-1 text-[10px] uppercase tracking-[0.18em] text-[var(--deck-text-3)]">{title}</p>
+        {layout[col].map((key, i) => renderCard(key, col, i))}
+        {layout[col].length === 0 ? (
+          <p className="px-1 py-6 text-center text-xs text-[var(--deck-text-3)]">Drop panels here</p>
+        ) : null}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <input type="hidden" name="layout_json" value={JSON.stringify(layout)} />
+
+      <div className="rounded-xl border border-[var(--deck-line)] bg-[var(--deck-inset,rgba(0,0,0,0.15))] p-3">
+        <div className="grid gap-2 md:grid-cols-[1.55fr_1fr]">
+          {renderColumn("left", "Left column (wide)")}
+          {renderColumn("right", "Right column")}
         </div>
       </div>
 
-      {/* add-back chips for removed panels */}
-      {hiddenPanels.length > 0 ? (
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="text-xs text-[var(--deck-text-3)]">Add panel:</span>
-          {hiddenPanels.map((p) => (
-            <button key={p} type="button" onClick={() => add(p)} className={chipBtn}>
-              + {PANEL_META[p].label}
-            </button>
-          ))}
+      {palette.length > 0 ? (
+        <div className="mt-3">
+          <p className="mb-1.5 text-xs text-[var(--deck-text-3)]">
+            Add to the wall ({palette.length} available — data widgets pull live from the portal database):
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {palette.map((w) => (
+              <button key={w.key} type="button" onClick={() => add(w.key)} className={chipBtn} title={w.description}>
+                + {w.label}
+              </button>
+            ))}
+          </div>
         </div>
       ) : null}
 
       <p className="mt-3 text-xs text-[var(--deck-text-3)]">
-        Drag the right-column panels to reorder them. The map column and METAR ticker hold fixed positions on the wall —
-        remove them with ✕ or add them back above. Layout applies when you save.
+        Drag any card within or between columns — nothing is fixed. ✕ removes a panel (it returns to the palette).
+        The left column renders wider on the wall; layout applies on the dashboard&rsquo;s next load after saving.
       </p>
     </div>
   );

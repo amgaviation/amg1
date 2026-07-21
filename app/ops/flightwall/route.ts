@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { hasFlightwallDashboardAccess } from "@/lib/flightwall/access";
-import { getFlightwallSettings } from "@/lib/flightwall/settings";
-import { FLIGHTWALL_AIRPORTS } from "@/lib/flightwall/airports";
+import { getAllFlightwallAirports, getFlightwallSettings } from "@/lib/flightwall/settings";
+import { WIDGET_LABELS } from "@/lib/flightwall/widget-catalog";
 import { dashboardHtml, FW_CONFIG_INJECT_MARKER } from "./dashboard-html";
 
 export const dynamic = "force-dynamic";
@@ -51,11 +51,16 @@ export async function GET(request: Request) {
     mapCenterLon: settings.mapCenterLon,
     mapZoom: settings.mapZoom,
     mapStyle: settings.mapStyle,
+    layout: settings.layout,
   }).replace(/</g, "\\u003c"); // defense in depth: no </script> break-out from a station code etc.
+
+  const airports = await getAllFlightwallAirports(settings);
+  const airportsJson = JSON.stringify(airports).replace(/</g, "\\u003c");
+  const labelsJson = JSON.stringify(WIDGET_LABELS).replace(/</g, "\\u003c");
 
   const html = dashboardHtml.replace(
     FW_CONFIG_INJECT_MARKER,
-    `<script>window.FW_CONFIG = ${configJson}; window.FW_AIRPORTS = ${JSON.stringify(FLIGHTWALL_AIRPORTS)};</script>`
+    `<script>window.FW_CONFIG = ${configJson}; window.FW_AIRPORTS = ${airportsJson}; window.FW_WIDGET_LABELS = ${labelsJson};</script>`
   );
 
   return new NextResponse(html, {

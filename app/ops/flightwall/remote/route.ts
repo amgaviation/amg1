@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { hasFlightwallDashboardAccess } from "@/lib/flightwall/access";
-import { getFlightwallSettings, MAP_REGION_PRESETS } from "@/lib/flightwall/settings";
-import { FLIGHTWALL_AIRPORTS } from "@/lib/flightwall/airports";
+import { getAllFlightwallAirports, getFlightwallSettings, MAP_REGION_PRESETS } from "@/lib/flightwall/settings";
 import { remoteHtml } from "./remote-html";
 
 export const dynamic = "force-dynamic";
@@ -26,10 +25,11 @@ export async function GET(request: Request) {
   const settings = await getFlightwallSettings();
   const regionZooms: Record<string, number> = {};
   for (const [key, preset] of Object.entries(MAP_REGION_PRESETS)) regionZooms[key] = preset.zoom;
+  const airports = await getAllFlightwallAirports(settings);
   const inject =
     `<script>window.FW_REMOTE_DEFAULT_ZOOM = ${JSON.stringify(settings.mapZoom)}; ` +
     `window.FW_REGION_ZOOMS = ${JSON.stringify(regionZooms)}; ` +
-    `window.FW_AIRPORTS = ${JSON.stringify(FLIGHTWALL_AIRPORTS)};</script>\n<script>`;
+    `window.FW_AIRPORTS = ${JSON.stringify(airports).replace(/</g, "\\u003c")};</script>\n<script>`;
   const html = remoteHtml.replace("<script>", inject);
 
   return new NextResponse(html, {

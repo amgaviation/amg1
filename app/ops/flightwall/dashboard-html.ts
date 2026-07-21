@@ -211,27 +211,16 @@ export const dashboardHtml = `<!doctype html>
     z-index: 1;
   }
 
-  /* ---- remote focus modes (driven by /ops/flightwall/remote) ---- */
-  .main[data-focus="map"] { grid-template-columns: 1fr; }
-  .main[data-focus="map"] > .col:last-child { display: none; }
-  .main[data-focus="requests"],
-  .main[data-focus="missions"],
-  .main[data-focus="revenue"],
-  .main[data-focus="financial"] { grid-template-columns: 1fr; }
-  .main[data-focus="requests"] > .col:first-child,
-  .main[data-focus="missions"] > .col:first-child,
-  .main[data-focus="revenue"] > .col:first-child,
-  .main[data-focus="financial"] > .col:first-child { display: none; }
-  .main[data-focus="requests"] [data-panel]:not([data-panel="requests"]),
-  .main[data-focus="missions"] [data-panel]:not([data-panel="missions"]),
-  .main[data-focus="revenue"] [data-panel]:not([data-panel="revenue"]),
-  .main[data-focus="financial"] [data-panel]:not([data-panel="revenue"]) { display: none !important; }
-  .main[data-focus="requests"] [data-panel="requests"],
-  .main[data-focus="missions"] [data-panel="missions"],
-  .main[data-focus="revenue"] [data-panel="revenue"],
-  .main[data-focus="financial"] [data-panel="revenue"] { flex: 1 !important; }
-  /* financial mode: wall-readable figures */
+  /* ---- remote focus modes (visibility is JS-driven; see applyFocus) ---- */
   .main[data-focus="financial"] .revenue-figure { font-size: clamp(56px, 8vw, 120px); }
+
+  /* ---- generic data widgets (layout editor palette) ---- */
+  .widget-row {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+    padding: 8px 16px; border-bottom: 1px solid var(--line); font-size: 13px;
+  }
+  .widget-row .wsub { color: var(--text-dim); font-size: 11px; white-space: nowrap; }
+  .widget-empty { padding: 12px 16px; font-size: 12px; color: var(--text-dim); }
 
   /* ---- tracked flight info card (top of Nearby Traffic while tracking) ---- */
   .flight-info {
@@ -420,7 +409,7 @@ export const dashboardHtml = `<!doctype html>
           </div>
         </div>
       </div>
-      <div class="panel" data-panel="map" style="flex: 1;">
+      <div class="panel" data-panel="nearby" style="flex: 1;">
         <div class="panel-head">
           <span class="label">Nearby Traffic</span>
         </div>
@@ -564,6 +553,11 @@ export const dashboardHtml = `<!doctype html>
   let trackTrail = [];
   let routeInfo = null;
   let routeInfoFor = null;
+  // OpenSky-backed history for the tracked airframe (full current-flight
+  // track + recent flights with dep/arr airports and times)
+  let historyPath = null;
+  let historyFlights = null;
+  let historyFor = null;
 
   // AMG business bridge — same-origin, gated server-side by trusted-IP-or-
   // admin-session (lib/flightwall/access.ts); the browser sends its portal
@@ -590,6 +584,8 @@ export const dashboardHtml = `<!doctype html>
     return {
       callsign,
       reg: (ac.r || "").toUpperCase(),
+      hex: typeof ac.hex === "string" ? ac.hex.toLowerCase() : "",
+      fixAt: Date.now(),
       type: ac.t || "",
       lat: ac.lat,
       lon: ac.lon,
@@ -840,7 +836,21 @@ export const dashboardHtml = `<!doctype html>
       }
     }
 
-    // ---- tracked flight path: breadcrumb trail + dashed line to destination ----
+    // ---- tracked flight path ----
+    // full current-flight track from OpenSky (thin), our own breadcrumbs
+    // since tracking began (brighter), dashed line to filed destination
+    if (historyPath && historyPath.length > 1) {
+      ctx.beginPath();
+      for (let i = 0; i < historyPath.length; i++) {
+        const hp = project(historyPath[i][0], historyPath[i][1], wCss, hCss);
+        if (i === 0) ctx.moveTo(hp.x, hp.y); else ctx.lineTo(hp.x, hp.y);
+      }
+      ctx.strokeStyle = gold;
+      ctx.globalAlpha = 0.3;
+      ctx.lineWidth = 1.1 * dpr;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
     if (trackTrail.length > 1) {
       ctx.beginPath();
       for (let i = 0; i < trackTrail.length; i++) {
@@ -878,11 +888,22 @@ export const dashboardHtml = `<!doctype html>
       ctx.strokeStyle = amgBlue; ctx.lineWidth = 1 * dpr; ctx.stroke();
     }
 
-    // ---- aircraft: heading-oriented chevrons + short trail (FR24 look) ----
-    // Labels suppress themselves on busy wide views to keep the wall legible.
+    // ---- aircraft (FR24 look) ----
+    // Positions are dead-reckoned between fixes: each contact advances along
+    // its heading at its groundspeed for the time since its last fix, so the
+    // 1 Hz redraw shows continuous motion even when the data feed is slower.
     const showLabels = viewZoom >= 7 || liveContacts.length <= 30;
+    const nowMs = Date.now();
     liveContacts.forEach((c) => {
-      const p = project(c.lat, c.lon, wCss, hCss);
+      let dLat = c.lat, dLon = c.lon;
+      const ageH = Math.min(nowMs - (c.fixAt || nowMs), 60000) / 3600000;
+      const dNm = (c.ground_speed_kt || 0) * ageH;
+      if (dNm > 0.003) {
+        const hr = ((c.heading_deg || 0) * Math.PI) / 180;
+        dLat = c.lat + (dNm / 60) * Math.cos(hr);
+        dLon = c.lon + (dNm / (60 * Math.cos((c.lat * Math.PI) / 180))) * Math.sin(hr);
+      }
+      const p = project(dLat, dLon, wCss, hCss);
       const x = p.x, y = p.y;
       if (x < -20 * dpr || x > w + 20 * dpr || y < -20 * dpr || y > h + 20 * dpr) return;
       const tracked = !!remote.trackTail && (c.reg === remote.trackTail || c.callsign.toUpperCase() === remote.trackTail);
@@ -970,7 +991,8 @@ export const dashboardHtml = `<!doctype html>
     }
     renderTrackInfo();
     loadRouteInfo();
-    scheduleDraw(); // static map redraws on each poll — no continuous animation loop
+    loadHistory();
+    scheduleDraw();
     const list = document.getElementById("flightList");
     list.innerHTML = "";
     const sorted = [...contacts].sort((a, b) => a.distance_nm - b.distance_nm).slice(0, kMaxContacts);
@@ -1101,9 +1123,38 @@ export const dashboardHtml = `<!doctype html>
   // map is always the left column and metar always the bottom ticker — those
   // two positions are structural. The three right-column business panels
   // (requests/missions/revenue) reorder freely per FW_CONFIG.panelOrder.
-  (function applyPanelConfig() {
+  // ---- wall layout (free-form, from the portal layout editor) ----
+  // FW_CFG.layout = {left:[keys], right:[keys]} places EVERY panel — the
+  // map, nearby list, and metar included, nothing is positionally fixed.
+  // Unknown keys render as generic data widgets fed by /api/flightwall/widgets.
+  const BUILTIN_PANEL_KEYS = ["map", "nearby", "requests", "missions", "revenue", "metar"];
+  const WIDGET_LABELS_JS = window.FW_WIDGET_LABELS || {};
+  let placedKeys = null; // Set of keys on the wall (null = legacy mode)
+  let genericWidgetKeys = [];
+
+  function createWidgetPanel(key) {
+    const panel = document.createElement("div");
+    panel.className = "panel";
+    panel.setAttribute("data-panel", key);
+    panel.style.flex = "1";
+    panel.innerHTML =
+      '<div class="panel-head"><span class="label">' + (WIDGET_LABELS_JS[key] || key) + "</span>" +
+      '<span class="count mono" data-widget-count>—</span></div>' +
+      '<div class="panel-body"><div class="widget-list" data-widget-list>' +
+      '<div class="widget-empty">Loading…</div></div></div>';
+    return panel;
+  }
+
+  function applyLayoutVisibility() {
+    if (placedKeys) {
+      document.querySelectorAll("[data-panel]").forEach((el) => {
+        el.style.display = placedKeys.has(el.getAttribute("data-panel")) ? "" : "none";
+      });
+      return;
+    }
     const showFlags = {
       map: FW_CFG.showMap !== false,
+      nearby: FW_CFG.showMap !== false,
       requests: FW_CFG.showRequests !== false,
       missions: FW_CFG.showMissions !== false,
       revenue: FW_CFG.showRevenue !== false,
@@ -1113,19 +1164,113 @@ export const dashboardHtml = `<!doctype html>
       const key = el.getAttribute("data-panel");
       el.style.display = showFlags[key] === false ? "none" : "";
     });
+  }
 
-    const order = Array.isArray(FW_CFG.panelOrder) ? FW_CFG.panelOrder : [];
-    const reorderable = order.filter((p) => p === "requests" || p === "missions" || p === "revenue");
-    if (reorderable.length > 0) {
-      const rightCol = document.getElementById("reqList")?.closest(".col");
-      if (rightCol) {
-        reorderable.forEach((key) => {
-          const el = rightCol.querySelector('[data-panel="' + key + '"]');
-          if (el) rightCol.appendChild(el);
-        });
+  (function buildLayout() {
+    const layout = FW_CFG.layout && Array.isArray(FW_CFG.layout.left) && Array.isArray(FW_CFG.layout.right)
+      ? FW_CFG.layout
+      : null;
+
+    if (!layout) {
+      // legacy mode: original columns + show flags + right-column ordering
+      applyLayoutVisibility();
+      const order = Array.isArray(FW_CFG.panelOrder) ? FW_CFG.panelOrder : [];
+      const reorderable = order.filter((p) => p === "requests" || p === "missions" || p === "revenue");
+      if (reorderable.length > 0) {
+        const rightCol = document.getElementById("reqList")?.closest(".col");
+        if (rightCol) {
+          reorderable.forEach((key) => {
+            const el = rightCol.querySelector('[data-panel="' + key + '"]');
+            if (el) rightCol.appendChild(el);
+          });
+        }
       }
+      return;
     }
+
+    placedKeys = new Set(layout.left.concat(layout.right));
+    genericWidgetKeys = layout.left.concat(layout.right).filter((k) => BUILTIN_PANEL_KEYS.indexOf(k) === -1);
+
+    const main = document.querySelector(".main");
+    const cols = main.querySelectorAll(":scope > .col");
+    const leftCol = cols[0], rightCol = cols[1];
+
+    // metar leaves the fixed bottom bar and becomes a normal panel
+    const tickerEl = document.querySelector('.ticker[data-panel="metar"]');
+    let metarPanel = null;
+    if (tickerEl) {
+      metarPanel = document.createElement("div");
+      metarPanel.className = "panel";
+      metarPanel.setAttribute("data-panel", "metar");
+      metarPanel.style.flex = "0 0 auto";
+      const head = document.createElement("div");
+      head.className = "panel-head";
+      head.innerHTML = '<span class="label">Weather</span>';
+      metarPanel.appendChild(head);
+      tickerEl.removeAttribute("data-panel");
+      tickerEl.style.border = "0";
+      metarPanel.appendChild(tickerEl);
+      document.querySelector(".wall").style.gridTemplateRows = "56px 1fr";
+    }
+
+    const builtinNodes = {};
+    document.querySelectorAll("[data-panel]").forEach((el) => {
+      builtinNodes[el.getAttribute("data-panel")] = el;
+    });
+    if (metarPanel) builtinNodes.metar = metarPanel;
+
+    function nodeFor(key) {
+      return builtinNodes[key] || createWidgetPanel(key);
+    }
+    layout.left.forEach((key) => leftCol.appendChild(nodeFor(key)));
+    layout.right.forEach((key) => rightCol.appendChild(nodeFor(key)));
+    applyLayoutVisibility();
   })();
+
+  // generic widget data: count + latest rows from the portal database
+  async function loadWidgets() {
+    if (!genericWidgetKeys.length) return;
+    try {
+      const res = await fetch("/api/flightwall/widgets?keys=" + genericWidgetKeys.join(","), { credentials: "include" });
+      if (!res.ok) return;
+      const data = await res.json();
+      const widgets = (data && data.widgets) || {};
+      genericWidgetKeys.forEach((key) => {
+        const panel = document.querySelector('[data-panel="' + key + '"]');
+        if (!panel) return;
+        const countEl = panel.querySelector("[data-widget-count]");
+        const listEl = panel.querySelector("[data-widget-list]");
+        const w = widgets[key];
+        if (!w) {
+          if (countEl) countEl.textContent = "—";
+          if (listEl) listEl.innerHTML = '<div class="widget-empty">Unavailable</div>';
+          return;
+        }
+        if (countEl) countEl.textContent = w.count === null ? "—" : String(w.count);
+        if (listEl) {
+          listEl.innerHTML = "";
+          if (!w.rows.length) {
+            listEl.innerHTML = '<div class="widget-empty">No records</div>';
+          } else {
+            w.rows.forEach((row) => {
+              const div = document.createElement("div");
+              div.className = "widget-row";
+              const label = document.createElement("span");
+              label.textContent = row.label;
+              const sub = document.createElement("span");
+              sub.className = "wsub";
+              sub.textContent = row.sub;
+              div.appendChild(label);
+              div.appendChild(sub);
+              listEl.appendChild(div);
+            });
+          }
+        }
+      });
+    } catch (err) {
+      // widget feed unreachable — panels keep their last data
+    }
+  }
 
   // ---- remote control (/ops/flightwall/remote via /api/flightwall/remote) ----
   const REMOTE_URL = "/api/flightwall/remote";
@@ -1155,6 +1300,31 @@ export const dashboardHtml = `<!doctype html>
         scheduleDraw(); // destination line becomes drawable
       })
       .catch(function () {});
+  }
+
+  // Full-track + recent-flights history via /api/flightwall/history (OpenSky).
+  function loadHistory() {
+    if (!remote.trackTail) return;
+    const c = findTracked();
+    if (!c || !c.hex || historyFor === c.hex) return;
+    historyFor = c.hex;
+    fetch("/api/flightwall/history?hex=" + encodeURIComponent(c.hex))
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) return;
+        historyPath = Array.isArray(d.path) ? d.path : null;
+        historyFlights = Array.isArray(d.flights) ? d.flights : null;
+        renderTrackInfo();
+        scheduleDraw();
+      })
+      .catch(function () {});
+  }
+
+  function fmtHistTime(ts) {
+    if (!ts) return "—";
+    const d = new Date(ts * 1000);
+    return (d.getUTCMonth() + 1) + "/" + d.getUTCDate() + " " +
+      String(d.getUTCHours()).padStart(2, "0") + ":" + String(d.getUTCMinutes()).padStart(2, "0") + "Z";
   }
 
   function fiCell(k, v) {
@@ -1194,9 +1364,21 @@ export const dashboardHtml = `<!doctype html>
         const etaMin = Math.round((dn / c.ground_speed_kt) * 60);
         html += fiCell("To dest", dn.toFixed(0) + " nm") + fiCell("ETA est", fmtEta(etaMin));
       }
+      if (historyFlights && historyFlights.length && historyFlights[0].firstSeen) {
+        html += fiCell("Departed", fmtHistTime(historyFlights[0].firstSeen));
+      }
       html += "</div>";
     } else {
       html += '<div class="fi-sub">Waiting for the aircraft to appear in the live feed…</div>';
+    }
+    if (historyFlights && historyFlights.length) {
+      html += '<div class="fi-sub" style="margin-top:8px; letter-spacing:0.14em; text-transform:uppercase;">Recent flights</div>';
+      historyFlights.slice(0, 4).forEach(function (f) {
+        html += '<div class="fi-sub mono">' +
+          (f.dep || "????") + " → " + (f.arr || "????") +
+          " · " + fmtHistTime(f.firstSeen) + " – " + fmtHistTime(f.lastSeen) +
+          "</div>";
+      });
     }
     el.innerHTML = html;
     el.style.display = "";
@@ -1230,6 +1412,36 @@ export const dashboardHtml = `<!doctype html>
     return changed;
   }
 
+  // Focus/expand: hide every panel except the target ("financial" = revenue
+  // with wall-sized figures; "map" keeps the nearby list). JS-driven so it
+  // works with any free-form layout.
+  function applyFocus() {
+    const main = document.querySelector(".main");
+    if (!main) return;
+    const focus = remote.focus || "none";
+    main.setAttribute("data-focus", focus);
+    const cols = main.querySelectorAll(":scope > .col");
+    if (focus === "none") {
+      applyLayoutVisibility();
+      main.style.gridTemplateColumns = "";
+      cols.forEach((c) => { c.style.display = ""; });
+      return;
+    }
+    const target = focus === "financial" ? "revenue" : focus;
+    document.querySelectorAll("[data-panel]").forEach((el) => {
+      const key = el.getAttribute("data-panel");
+      const show = key === target || (target === "map" && key === "nearby");
+      el.style.display = show ? "" : "none";
+    });
+    cols.forEach((c) => {
+      const panels = c.querySelectorAll("[data-panel]");
+      let any = false;
+      panels.forEach((el) => { if (el.style.display !== "none") any = true; });
+      c.style.display = any ? "" : "none";
+    });
+    main.style.gridTemplateColumns = "1fr";
+  }
+
   function applyRemote(prev) {
     // theme override (auto = fall back to OS preference handling)
     if (remote.theme === "dark" || remote.theme === "light") {
@@ -1238,17 +1450,19 @@ export const dashboardHtml = `<!doctype html>
       root.removeAttribute("data-theme");
     }
 
-    // focus/expand a panel (financial = revenue full-screen, big figures)
-    const main = document.querySelector(".main");
-    if (main) main.setAttribute("data-focus", remote.focus || "none");
+    applyFocus();
 
-    // switching tracked aircraft resets the breadcrumb trail + route lookup
+    // switching tracked aircraft resets the trail + route/history lookups
     if (prev && prev.trackTail !== remote.trackTail) {
       trackTrail = [];
       routeInfo = null;
       routeInfoFor = null;
+      historyPath = null;
+      historyFlights = null;
+      historyFor = null;
       renderTrackInfo();
       loadRouteInfo();
+      loadHistory();
     }
 
     const moved = applyView();
@@ -1286,6 +1500,14 @@ export const dashboardHtml = `<!doctype html>
 
   const FLIGHTS_POLL_MS = (typeof FW_CFG.flightsPollSeconds === "number" ? FW_CFG.flightsPollSeconds : 30) * 1000;
   const OPS_POLL_MS = (typeof FW_CFG.opsPollSeconds === "number" ? FW_CFG.opsPollSeconds : 30) * 1000;
+
+  // 1 Hz animation tick — dead reckoning gives every aircraft continuous
+  // 1-second position updates regardless of the data poll cadence.
+  setInterval(function () { if (liveContacts.length) scheduleDraw(); }, 1000);
+
+  // generic layout widgets refresh on the business-data cadence
+  loadWidgets();
+  setInterval(loadWidgets, OPS_POLL_MS);
 
   loadLive();
   // Flights refresh at their own cadence inside loadFlights(); loadLive()
