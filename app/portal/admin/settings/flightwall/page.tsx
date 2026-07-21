@@ -28,6 +28,21 @@ export default async function AdminFlightwallSettingsPage({
   const params = await searchParams;
   const settings = await getFlightwallSettings();
 
+  // Editor starts from the saved free-form layout, or a faithful translation
+  // of the legacy panel_order/show flags on first use.
+  const initialLayout = settings.layout ?? {
+    left: settings.showMap ? ["map", "nearby"] : [],
+    right: [
+      ...settings.panelOrder.filter(
+        (p) =>
+          (p === "requests" && settings.showRequests) ||
+          (p === "missions" && settings.showMissions) ||
+          (p === "revenue" && settings.showRevenue)
+      ),
+      ...(settings.showMetar ? ["metar"] : []),
+    ],
+  };
+
   const errorMessage =
     params.error === "invalid"
       ? "One or more values were out of range — nothing was saved."
@@ -130,19 +145,30 @@ export default async function AdminFlightwallSettingsPage({
 
         <SectionCard
           title="Layout"
-          description="Visual layout of the wall display — drag to reorder, ✕ to remove, add panels back below"
+          description="Visual layout of the wall display — drag anything anywhere, remove with ✕, add data widgets from the palette"
           icon="layers"
         >
-          <FlightwallLayoutEditor
-            initialOrder={settings.panelOrder}
-            initialShow={{
-              map: settings.showMap,
-              requests: settings.showRequests,
-              missions: settings.showMissions,
-              revenue: settings.showRevenue,
-              metar: settings.showMetar,
-            }}
+          <FlightwallLayoutEditor initialLayout={initialLayout} />
+        </SectionCard>
+
+        <SectionCard
+          title="Airports"
+          description="Extra airports for the map layer and the remote's Go To Airport box — one per line: ICAO, IATA, Name, latitude, longitude"
+          icon="planeLanding"
+        >
+          <textarea
+            name="custom_airports"
+            rows={5}
+            defaultValue={settings.customAirports
+              .map((ap) => `${ap[0]}, ${ap[1]}, ${ap[2]}, ${ap[3]}, ${ap[4]}`)
+              .join("\n")}
+            placeholder={"KPMP, PMP, Pompano Beach Airpark, 26.2471, -80.1111"}
+            className="w-full rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-3 py-2.5 font-mono text-xs text-[var(--deck-text)]"
           />
+          <p className="mt-2 text-xs text-[var(--deck-text-3)]">
+            ~90 major US airports are built in, and active rows from the portal&rsquo;s airports table are included
+            automatically. Entries here are added on top (and can override a built-in by reusing its ICAO).
+          </p>
         </SectionCard>
 
         <SectionCard title="Data Sources" description="Where each panel's numbers come from — read-only reference" icon="clipboard">

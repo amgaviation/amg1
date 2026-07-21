@@ -1,6 +1,8 @@
 import "server-only";
 
 import { createServiceClient } from "@/lib/supabase/server";
+import { FLIGHTWALL_AIRPORTS, type FlightwallAirport } from "@/lib/flightwall/airports";
+import { ALL_WIDGET_KEYS } from "@/lib/flightwall/widget-catalog";
 
 /**
  * Editable configuration for the FlightWall ops dashboard (/ops/flightwall),
@@ -27,7 +29,52 @@ export type FlightwallSettings = {
   mapCenterLon: number;
   mapZoom: number;
   mapStyle: "auto" | "dark" | "light";
+  /** Free-form wall layout ({left, right} widget-key columns); null = legacy panel_order layout. */
+  layout: FlightwallLayout | null;
+  /** Admin-added airports merged into the map layer + remote lookup. */
+  customAirports: FlightwallAirport[];
 };
+
+export type FlightwallLayout = { left: string[]; right: string[] };
+
+/** Validates an unknown value into a layout: known widget keys only,
+ * de-duplicated across both columns; null when nothing valid remains. */
+export function sanitizeLayout(raw: unknown): FlightwallLayout | null {
+  if (!raw || typeof raw !== "object") return null;
+  const src = raw as { left?: unknown; right?: unknown };
+  const seen = new Set<string>();
+  const clean = (list: unknown): string[] =>
+    (Array.isArray(list) ? list : [])
+      .filter((k): k is string => typeof k === "string" && ALL_WIDGET_KEYS.includes(k) && !seen.has(k))
+      .map((k) => (seen.add(k), k))
+      .slice(0, 16);
+  const left = clean(src.left);
+  const right = clean(src.right);
+  if (left.length === 0 && right.length === 0) return null;
+  return { left, right };
+}
+
+function sanitizeCustomAirports(raw: unknown): FlightwallAirport[] {
+  if (!Array.isArray(raw)) return [];
+  const out: FlightwallAirport[] = [];
+  for (const entry of raw) {
+    if (!Array.isArray(entry) || entry.length < 5) continue;
+    const [icao, iata, name, lat, lon, tier] = entry;
+    if (typeof icao !== "string" || !/^[A-Z0-9]{3,4}$/.test(icao)) continue;
+    if (typeof lat !== "number" || lat < -90 || lat > 90) continue;
+    if (typeof lon !== "number" || lon < -180 || lon > 180) continue;
+    out.push([
+      icao,
+      typeof iata === "string" ? iata : "",
+      typeof name === "string" ? name.slice(0, 40) : icao,
+      lat,
+      lon,
+      tier === 1 ? 1 : 2,
+    ]);
+    if (out.length >= 100) break;
+  }
+  return out;
+}
 
 /**
  * Named map views for the traffic map (real CARTO/OSM basemap). The preset is
@@ -65,6 +112,8 @@ export const DEFAULT_FLIGHTWALL_SETTINGS: FlightwallSettings = {
   mapCenterLon: MAP_REGION_PRESETS.florida.lon,
   mapZoom: MAP_REGION_PRESETS.florida.zoom,
   mapStyle: "auto",
+  layout: null,
+  customAirports: [],
 };
 
 const KNOWN_PANELS = new Set(["map", "requests", "missions", "revenue", "metar"]);
@@ -88,6 +137,8 @@ type Row = {
   map_center_lon: number | null;
   map_zoom: number | null;
   map_style: string | null;
+  layout: unknown;
+  custom_airports: unknown;
 };
 
 function fromRow(row: Row): FlightwallSettings {
@@ -123,7 +174,46 @@ function fromRow(row: Row): FlightwallSettings {
     mapCenterLon: row.map_center_lon ?? d.mapCenterLon,
     mapZoom: row.map_zoom ?? d.mapZoom,
     mapStyle,
+    layout: sanitizeLayout(row.layout),
+    customAirports: sanitizeCustomAirports(row.custom_airports),
   };
+}
+
+/**
+ * Every airport the wall + remote know: the built-in dataset, the portal's
+ * public.airports table (best-effort — its columns already match), and the
+ * admin's custom additions from settings. De-duplicated by ICAO, later
+ * sources win so an admin entry can correct a built-in one.
+ */
+export async function getAllFlightwallAirports(settings: FlightwallSettings): Promise<FlightwallAirport[]> {
+  const merged = new Map<string, FlightwallAirport>();
+  for (const ap of FLIGHTWALL_AIRPORTS) merged.set(ap[0], ap);
+  try {
+    const supabase = (await createServiceClient()) as any;
+    const { data } = await supabase
+      .from("airports")
+      .select("icao, iata, name, latitude, longitude, is_active")
+      .limit(500);
+    for (const row of data ?? []) {
+      if (row.is_active === false) continue;
+      const icao = typeof row.icao === "string" ? row.icao.toUpperCase() : "";
+      const lat = Number(row.latitude);
+      const lon = Number(row.longitude);
+      if (!/^[A-Z0-9]{3,4}$/.test(icao) || !Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+      merged.set(icao, [
+        icao,
+        typeof row.iata === "string" ? row.iata.toUpperCase() : "",
+        typeof row.name === "string" ? row.name.slice(0, 40) : icao,
+        lat,
+        lon,
+        2,
+      ]);
+    }
+  } catch (error) {
+    console.error("[flightwall] airports table read failed (using built-ins)", error);
+  }
+  for (const ap of settings.customAirports) merged.set(ap[0], ap);
+  return Array.from(merged.values());
 }
 
 /** Reads the singleton settings row, service-role (bypasses RLS by design —

@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent } from "@/lib/portal/audit";
-import { MAP_REGION_PRESETS, MAP_STYLES } from "@/lib/flightwall/settings";
+import { MAP_REGION_PRESETS, MAP_STYLES, sanitizeLayout, type FlightwallLayout } from "@/lib/flightwall/settings";
+import type { FlightwallAirport } from "@/lib/flightwall/airports";
 import { actor, bool, num, str } from "./_helpers";
 
 const KNOWN_PANELS = ["map", "requests", "missions", "revenue", "metar"] as const;
@@ -60,6 +61,42 @@ function parseMapView(
   return { region, lat, lon, zoom };
 }
 
+/** Layout from the visual editor (hidden layout_json field). */
+function parseLayout(fd: FormData): FlightwallLayout | null {
+  const raw = str(fd, "layout_json");
+  if (!raw) return null;
+  try {
+    return sanitizeLayout(JSON.parse(raw));
+  } catch {
+    return null;
+  }
+}
+
+/** Custom airports, one per line: "ICAO, IATA, Name, lat, lon". */
+function parseCustomAirports(raw: string): FlightwallAirport[] | null {
+  const out: FlightwallAirport[] = [];
+  for (const line of raw.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    const parts = trimmed.split(",").map((p) => p.trim());
+    if (parts.length < 5) return null;
+    const icao = parts[0].toUpperCase();
+    const iata = parts[1].toUpperCase();
+    // name may itself contain commas only if the line has extras — keep it
+    // simple: name is everything between iata and the last two numbers.
+    const lat = Number(parts[parts.length - 2]);
+    const lon = Number(parts[parts.length - 1]);
+    const name = parts.slice(2, parts.length - 2).join(", ");
+    if (!/^[A-Z0-9]{3,4}$/.test(icao)) return null;
+    if (iata && !/^[A-Z0-9]{3}$/.test(iata)) return null;
+    if (!Number.isFinite(lat) || lat < -90 || lat > 90) return null;
+    if (!Number.isFinite(lon) || lon < -180 || lon > 180) return null;
+    out.push([icao, iata, name.slice(0, 40) || icao, lat, lon, 2]);
+    if (out.length >= 100) break;
+  }
+  return out;
+}
+
 export async function saveFlightwallSettings(formData: FormData) {
   const admin = await actor(["admin"]);
 
@@ -70,8 +107,11 @@ export async function saveFlightwallSettings(formData: FormData) {
   const metarStation = str(formData, "metar_station").toUpperCase().slice(0, 4);
   const mapView = parseMapView(formData);
   const mapStyle = str(formData, "map_style");
+  const layout = parseLayout(formData);
+  const customAirports = parseCustomAirports(str(formData, "custom_airports"));
 
   if (
+    customAirports === null ||
     homeLat === null || homeLat < -90 || homeLat > 90 ||
     homeLon === null || homeLon < -180 || homeLon > 180 ||
     flightsPollSeconds === null || flightsPollSeconds < 1 || flightsPollSeconds > 300 ||
@@ -93,11 +133,15 @@ export async function saveFlightwallSettings(formData: FormData) {
       home_lon: homeLon,
       watchlist_tails: parseTails(str(formData, "watchlist_tails")),
       panel_order: parsePanelOrder(formData),
-      show_map: bool(formData, "show_map"),
-      show_requests: bool(formData, "show_requests"),
-      show_missions: bool(formData, "show_missions"),
-      show_revenue: bool(formData, "show_revenue"),
-      show_metar: bool(formData, "show_metar"),
+      // Show flags follow the layout when the visual editor submitted one
+      // (membership = visible); legacy checkboxes otherwise.
+      show_map: layout ? layout.left.concat(layout.right).includes("map") : bool(formData, "show_map"),
+      show_requests: layout ? layout.left.concat(layout.right).includes("requests") : bool(formData, "show_requests"),
+      show_missions: layout ? layout.left.concat(layout.right).includes("missions") : bool(formData, "show_missions"),
+      show_revenue: layout ? layout.left.concat(layout.right).includes("revenue") : bool(formData, "show_revenue"),
+      show_metar: layout ? layout.left.concat(layout.right).includes("metar") : bool(formData, "show_metar"),
+      layout: layout,
+      custom_airports: customAirports,
       flights_poll_seconds: flightsPollSeconds,
       ops_poll_seconds: opsPollSeconds,
       metar_station: metarStation,
