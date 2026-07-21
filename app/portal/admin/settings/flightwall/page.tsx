@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
-import { getFlightwallSettings } from "@/lib/flightwall/settings";
+import { getFlightwallSettings, MAP_REGION_PRESETS } from "@/lib/flightwall/settings";
 import { saveFlightwallSettings } from "@/app/portal/actions/flightwall-settings";
 import { DetailRow, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { CheckboxField, TextField } from "@/components/portal/ui/fields";
@@ -16,6 +16,15 @@ const PANEL_LABELS: Record<string, string> = {
   revenue: "Revenue",
   metar: "METAR Ticker",
 };
+
+const MAP_STYLE_LABELS: Record<string, string> = {
+  auto: "Auto — follow dashboard theme",
+  dark: "Dark (FlightRadar night look)",
+  light: "Light",
+};
+
+const selectClass =
+  "rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-2.5 py-2 text-sm text-[var(--deck-text)]";
 
 export default async function AdminFlightwallSettingsPage({
   searchParams,
@@ -38,7 +47,7 @@ export default async function AdminFlightwallSettingsPage({
       <PageHeader
         eyebrow="Admin / Settings"
         title="FlightWall Dashboard"
-        description="Configure the wall-display ops dashboard (traffic map, business panels, refresh rate). Changes apply on the next load — no redeploy."
+        description="Configure the wall-display ops dashboard (traffic map view, business panels, refresh rate). Changes apply on the next load — no redeploy."
         actions={
           <Button asChild size="sm" variant="outline">
             <Link href="/ops/flightwall" target="_blank">
@@ -69,11 +78,47 @@ export default async function AdminFlightwallSettingsPage({
       </SectionCard>
 
       <form action={saveFlightwallSettings}>
-        <SectionCard title="Location & Traffic Map" description="Feeds live ADS-B tracking via adsb.lol" icon="mapPin">
+        <SectionCard
+          title="Map View"
+          description="Real basemap (CARTO / OpenStreetMap) under live ADS-B traffic — pick a region or dial in a custom view"
+          icon="radar"
+        >
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="flex flex-col gap-1 text-xs text-[var(--deck-text-3)]">
+              Map View
+              <select name="map_region" defaultValue={settings.mapRegion} className={selectClass}>
+                {Object.entries(MAP_REGION_PRESETS).map(([value, preset]) => (
+                  <option key={value} value={value}>
+                    {preset.label}
+                  </option>
+                ))}
+                <option value="custom">Custom (use the fields below)</option>
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 text-xs text-[var(--deck-text-3)]">
+              Basemap Style
+              <select name="map_style" defaultValue={settings.mapStyle} className={selectClass}>
+                {Object.entries(MAP_STYLE_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <TextField label="Custom Center Latitude" name="map_center_lat" type="number" step="0.0001" min="-90" max="90" defaultValue={String(settings.mapCenterLat)} />
+            <TextField label="Custom Center Longitude" name="map_center_lon" type="number" step="0.0001" min="-180" max="180" defaultValue={String(settings.mapCenterLon)} />
+            <TextField label="Custom Zoom (3 continent – 12 city)" name="map_zoom" type="number" min="3" max="12" defaultValue={String(settings.mapZoom)} />
+          </div>
+          <p className="mt-3 text-xs text-[var(--deck-text-3)]">
+            Picking a named region overrides the custom fields; choose Custom to use them. The custom fields always show
+            the currently active view, so switching to Custom starts from what&rsquo;s on the wall right now.
+          </p>
+        </SectionCard>
+
+        <SectionCard title="Home Base & Watchlist" description="Distances and the nearby-traffic list are measured from home base; watchlisted tails glow gold" icon="mapPin">
           <div className="grid gap-4 md:grid-cols-2">
             <TextField label="Home Latitude" name="home_lat" type="number" step="0.0001" min="-90" max="90" defaultValue={String(settings.homeLat)} />
             <TextField label="Home Longitude" name="home_lon" type="number" step="0.0001" min="-180" max="180" defaultValue={String(settings.homeLon)} />
-            <TextField label="Map Range (nm)" name="range_nm" type="number" min="5" max="250" defaultValue={String(settings.rangeNm)} />
             <TextField
               label="Watchlist Tail Numbers"
               name="watchlist_tails"
@@ -95,11 +140,7 @@ export default async function AdminFlightwallSettingsPage({
             {settings.panelOrder.map((panel, index) => (
               <label key={index} className="flex flex-col gap-1 text-xs text-[var(--deck-text-3)]">
                 Slot {index + 1}
-                <select
-                  name={`panel_slot_${index}`}
-                  defaultValue={panel}
-                  className="rounded-lg border border-[var(--deck-line-strong)] bg-[var(--deck-panel)] px-2.5 py-2 text-sm text-[var(--deck-text)]"
-                >
+                <select name={`panel_slot_${index}`} defaultValue={panel} className={selectClass}>
                   {Object.entries(PANEL_LABELS).map(([value, label]) => (
                     <option key={value} value={value}>
                       {label}
@@ -113,7 +154,8 @@ export default async function AdminFlightwallSettingsPage({
 
         <SectionCard title="Data Sources" description="Where each panel's numbers come from — read-only reference" icon="clipboard">
           <DetailRow label="Traffic Map">
-            Live public ADS-B positions from adsb.lol, proxied through /api/flightwall/flights (no PII).
+            CARTO / OpenStreetMap basemap tiles with live public ADS-B positions from adsb.lol, proxied through
+            /api/flightwall/flights (no PII).
           </DetailRow>
           <DetailRow label="Latest Requests">
             missions in intake status (submitted / under_review / awaiting_client_info), joined to
