@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent } from "@/lib/portal/audit";
+import { MAP_REGION_PRESETS, MAP_STYLES } from "@/lib/flightwall/settings";
 import { actor, bool, num, str } from "./_helpers";
 
 const KNOWN_PANELS = ["map", "requests", "missions", "revenue", "metar"] as const;
@@ -36,23 +37,48 @@ function parsePanelOrder(fd: FormData): string[] {
   return chosen;
 }
 
+/** Map view: a named preset is authoritative (its center/zoom overwrite the
+ * stored values so the row is always self-consistent); "custom" validates the
+ * admin-typed center + zoom. Returns null on invalid input. */
+function parseMapView(
+  fd: FormData
+): { region: string; lat: number; lon: number; zoom: number } | null {
+  const region = str(fd, "map_region");
+  const preset = MAP_REGION_PRESETS[region];
+  if (preset) {
+    return { region, lat: preset.lat, lon: preset.lon, zoom: preset.zoom };
+  }
+  if (region !== "custom") return null;
+  const lat = num(fd, "map_center_lat");
+  const lon = num(fd, "map_center_lon");
+  const zoomRaw = num(fd, "map_zoom");
+  if (lat === null || lat < -90 || lat > 90) return null;
+  if (lon === null || lon < -180 || lon > 180) return null;
+  if (zoomRaw === null) return null;
+  const zoom = Math.round(zoomRaw);
+  if (zoom < 3 || zoom > 12) return null;
+  return { region, lat, lon, zoom };
+}
+
 export async function saveFlightwallSettings(formData: FormData) {
   const admin = await actor(["admin"]);
 
   const homeLat = num(formData, "home_lat");
   const homeLon = num(formData, "home_lon");
-  const rangeNm = num(formData, "range_nm");
   const flightsPollSeconds = num(formData, "flights_poll_seconds");
   const opsPollSeconds = num(formData, "ops_poll_seconds");
   const metarStation = str(formData, "metar_station").toUpperCase().slice(0, 4);
+  const mapView = parseMapView(formData);
+  const mapStyle = str(formData, "map_style");
 
   if (
     homeLat === null || homeLat < -90 || homeLat > 90 ||
     homeLon === null || homeLon < -180 || homeLon > 180 ||
-    rangeNm === null || rangeNm < 5 || rangeNm > 250 ||
     flightsPollSeconds === null || flightsPollSeconds < 5 || flightsPollSeconds > 300 ||
     opsPollSeconds === null || opsPollSeconds < 10 || opsPollSeconds > 300 ||
-    metarStation.length < 3
+    metarStation.length < 3 ||
+    mapView === null ||
+    !MAP_STYLES.includes(mapStyle as (typeof MAP_STYLES)[number])
   ) {
     redirect(`${SETTINGS_PATH}?error=invalid`);
   }
@@ -65,7 +91,6 @@ export async function saveFlightwallSettings(formData: FormData) {
     .update({
       home_lat: homeLat,
       home_lon: homeLon,
-      range_nm: rangeNm,
       watchlist_tails: parseTails(str(formData, "watchlist_tails")),
       panel_order: parsePanelOrder(formData),
       show_map: bool(formData, "show_map"),
@@ -76,6 +101,11 @@ export async function saveFlightwallSettings(formData: FormData) {
       flights_poll_seconds: flightsPollSeconds,
       ops_poll_seconds: opsPollSeconds,
       metar_station: metarStation,
+      map_region: mapView.region,
+      map_center_lat: mapView.lat,
+      map_center_lon: mapView.lon,
+      map_zoom: mapView.zoom,
+      map_style: mapStyle,
       updated_at: new Date().toISOString(),
       updated_by: admin.id,
     })
@@ -89,7 +119,7 @@ export async function saveFlightwallSettings(formData: FormData) {
   await logAuditEvent({
     actor: admin,
     action: "flightwall_settings_updated",
-    detail: `range=${rangeNm}nm metar=${metarStation}`,
+    detail: `map=${mapView.region}@z${mapView.zoom} style=${mapStyle} metar=${metarStation}`,
     entityType: "flightwall_settings",
     entityId: "global",
   });

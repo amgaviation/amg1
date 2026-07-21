@@ -45,6 +45,11 @@ export async function GET(request: Request) {
     flightsPollSeconds: settings.flightsPollSeconds,
     opsPollSeconds: settings.opsPollSeconds,
     metarStation: settings.metarStation,
+    mapRegion: settings.mapRegion,
+    mapCenterLat: settings.mapCenterLat,
+    mapCenterLon: settings.mapCenterLon,
+    mapZoom: settings.mapZoom,
+    mapStyle: settings.mapStyle,
   }).replace(/</g, "\\u003c"); // defense in depth: no </script> break-out from a station code etc.
 
   const html = dashboardHtml.replace(

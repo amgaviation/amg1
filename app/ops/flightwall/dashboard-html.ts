@@ -199,6 +199,17 @@ export const dashboardHtml = `<!doctype html>
     z-index: 1;
   }
   .radar-caption b { color: var(--sky-blue); font-weight: 600; }
+  .map-attrib {
+    /* CARTO/OSM basemap attribution — required by the tile provider terms */
+    position: absolute;
+    right: 8px;
+    bottom: 5px;
+    font-size: 9px;
+    letter-spacing: 0.02em;
+    color: var(--text-dim);
+    opacity: 0.85;
+    z-index: 1;
+  }
 
   /* ---- flight list ---- */
   .flight-list { overflow-y: auto; height: 100%; }
@@ -324,7 +335,8 @@ export const dashboardHtml = `<!doctype html>
     homeLat: 40.85, homeLon: -74.06, rangeNm: 30, watchlistTails: [],
     panelOrder: ["map", "requests", "missions", "revenue", "metar"],
     showMap: true, showRequests: true, showMissions: true, showRevenue: true, showMetar: true,
-    flightsPollSeconds: 30, opsPollSeconds: 30, metarStation: "KTEB"
+    flightsPollSeconds: 30, opsPollSeconds: 30, metarStation: "KTEB",
+    mapRegion: "florida", mapCenterLat: 27.9, mapCenterLon: -83.2, mapZoom: 6, mapStyle: "auto"
   };
 </script>
 <div class="wall" role="img" aria-label="AMG Aviation Group operations display showing live aircraft radar and mission support activity">
@@ -357,6 +369,7 @@ export const dashboardHtml = `<!doctype html>
             <div class="radar-scope">
               <canvas id="radar" width="600" height="600" aria-hidden="true"></canvas>
               <div class="radar-caption" id="mapCaption"></div>
+              <div class="map-attrib">&copy; OpenStreetMap &middot; &copy; CARTO</div>
             </div>
           </div>
         </div>
@@ -460,6 +473,20 @@ export const dashboardHtml = `<!doctype html>
   const RANGE_NM = typeof FW_CFG.rangeNm === "number" ? FW_CFG.rangeNm : 30;
   const WATCHLIST = Array.isArray(FW_CFG.watchlistTails) ? FW_CFG.watchlistTails : [];
 
+  // Map view — region preset resolved to center+zoom server-side (see
+  // /portal/admin/settings/flightwall). The view is independent of home:
+  // the wall can show all of Florida while distance/"nearby" numbers stay
+  // relative to the ops base at homeLat/homeLon.
+  const MAP_LAT = typeof FW_CFG.mapCenterLat === "number" ? FW_CFG.mapCenterLat : 27.9;
+  const MAP_LON = typeof FW_CFG.mapCenterLon === "number" ? FW_CFG.mapCenterLon : -83.2;
+  const MAP_ZOOM = Math.max(3, Math.min(12, typeof FW_CFG.mapZoom === "number" ? Math.round(FW_CFG.mapZoom) : 6));
+  const MAP_STYLE = FW_CFG.mapStyle === "dark" || FW_CFG.mapStyle === "light" ? FW_CFG.mapStyle : "auto";
+  const MAP_REGION_LABELS = {
+    florida: "Florida", usa: "Continental USA", northeast: "Northeast Corridor",
+    southeast: "Southeast US", gulf: "Gulf Coast", custom: "Custom View"
+  };
+  const MAP_REGION_LABEL = MAP_REGION_LABELS[FW_CFG.mapRegion] || "Custom View";
+
   // AMG business bridge — same-origin, gated server-side by trusted-IP-or-
   // admin-session (lib/flightwall/access.ts); the browser sends its portal
   // session cookie via credentials:'include', no bearer token needed here.
@@ -495,7 +522,8 @@ export const dashboardHtml = `<!doctype html>
     };
   }
 
-  const kMaxContacts = 10;
+  const kMaxContacts = 10;     // "Nearby Traffic" list rows
+  const kMaxMapContacts = 300; // aircraft drawn on the basemap (perf cap)
 
   // ---- demo AMG data (business bridge is a separate, optional concern) ----
   const FIXTURE = {
@@ -551,11 +579,11 @@ export const dashboardHtml = `<!doctype html>
   }
   tickClock(); setInterval(tickClock, 1000);
 
-  document.getElementById("mapRangeLabel").textContent = "Traffic Map · " + RANGE_NM + "nm";
+  document.getElementById("mapRangeLabel").textContent = "Traffic Map · " + MAP_REGION_LABEL;
   document.getElementById("mapCaption").innerHTML =
+    MAP_REGION_LABEL + ' <b>· N up</b> · base ' +
     Math.abs(OWN_LAT).toFixed(2) + (OWN_LAT >= 0 ? "N" : "S") + " " +
-    Math.abs(OWN_LON).toFixed(2) + (OWN_LON >= 0 ? "E" : "W") +
-    ' <b>· N up</b>';
+    Math.abs(OWN_LON).toFixed(2) + (OWN_LON >= 0 ? "E" : "W");
 
   // ---- radar ----
   const canvas = document.getElementById("radar");
@@ -573,56 +601,130 @@ export const dashboardHtml = `<!doctype html>
     canvas.height = box.height * dpr;
   }
 
-  // Flat map view (FlightRadar24-style): north-up rectangle, lat/lon
-  // graticule, own position centered, aircraft drawn as heading-oriented
-  // chevrons with a short trail — not a sweeping ATC-scope radar.
-  // NOTE: this is a vector-drawn map (no tile imagery). A real street/terrain
-  // basemap (e.g. OpenStreetMap raster tiles via Leaflet) can be layered in
-  // once this page is hosted outside a sandboxed preview that blocks
-  // cross-origin image/tile requests — swap in a <img>/canvas tile grid under
-  // this drawing if that literal look is wanted later.
-  function project(lat, lon, cx, cy, halfW, halfH) {
-    const cosOwnLat = Math.cos((OWN_LAT * Math.PI) / 180);
-    const nmPerDegree = 60;
-    const dxNm = (lon - OWN_LON) * nmPerDegree * cosOwnLat;
-    const dyNm = (lat - OWN_LAT) * nmPerDegree;
+  // FlightRadar-style real basemap: CARTO raster tiles (OpenStreetMap data)
+  // drawn on the canvas via standard Web-Mercator slippy-tile math, with the
+  // live traffic overlay on top. *.basemaps.cartocdn.com is already
+  // allowlisted in the site CSP img-src (same provider as the portal crew
+  // map). View center + zoom come from portal settings (Florida by default).
+  const TILE = 256;
+  const TILE_SUBS = ["a", "b", "c", "d"];
+  const TILE_CACHE_MAX = 220;
+  const tileCache = new Map(); // url -> { img, ok }
+  let drawQueued = false;
+
+  function isDarkTheme() {
+    const forced = root.getAttribute("data-theme");
+    return (forced || root.dataset.themeAuto || "dark") !== "light";
+  }
+  function basemapStyle() {
+    if (MAP_STYLE === "dark") return "dark_all";
+    if (MAP_STYLE === "light") return "light_all";
+    return isDarkTheme() ? "dark_all" : "light_all";
+  }
+
+  function lonToWorldX(lon, z) { return ((lon + 180) / 360) * Math.pow(2, z) * TILE; }
+  function latToWorldY(lat, z) {
+    const clamped = Math.max(-85.0511, Math.min(85.0511, lat));
+    const r = (clamped * Math.PI) / 180;
+    return ((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * Math.pow(2, z) * TILE;
+  }
+  function worldXToLon(x, z) { return (x / (Math.pow(2, z) * TILE)) * 360 - 180; }
+  function worldYToLat(y, z) {
+    const n = Math.PI - (2 * Math.PI * y) / (Math.pow(2, z) * TILE);
+    return (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+  }
+
+  function scheduleDraw() {
+    if (drawQueued) return;
+    drawQueued = true;
+    requestAnimationFrame(() => { drawQueued = false; drawRadar(); });
+  }
+
+  // Lazily loads (and caches) one basemap tile; redraws when it arrives.
+  function tileImage(style, z, x, y) {
+    const n = Math.pow(2, z);
+    const wx = ((x % n) + n) % n; // wrap around the antimeridian
+    if (y < 0 || y >= n) return null;
+    const retina = dpr > 1 ? "@2x" : "";
+    const sub = TILE_SUBS[(wx + y) % TILE_SUBS.length];
+    const url = "https://" + sub + ".basemaps.cartocdn.com/" + style + "/" + z + "/" + wx + "/" + y + retina + ".png";
+    let entry = tileCache.get(url);
+    if (entry) return entry;
+    if (tileCache.size >= TILE_CACHE_MAX) {
+      tileCache.delete(tileCache.keys().next().value);
+    }
+    const img = new Image();
+    entry = { img: img, ok: false };
+    tileCache.set(url, entry);
+    img.crossOrigin = "anonymous";
+    img.onload = () => { entry.ok = true; scheduleDraw(); };
+    img.src = url;
+    return entry;
+  }
+
+  // device-pixel position of a lat/lon in the current view
+  function project(lat, lon, wCss, hCss) {
+    const cwx = lonToWorldX(MAP_LON, MAP_ZOOM);
+    const cwy = latToWorldY(MAP_LAT, MAP_ZOOM);
     return {
-      x: cx + (dxNm / RANGE_NM) * halfW,
-      y: cy - (dyNm / RANGE_NM) * halfH // minus: north is up
+      x: (lonToWorldX(lon, MAP_ZOOM) - cwx + wCss / 2) * dpr,
+      y: (latToWorldY(lat, MAP_ZOOM) - cwy + hCss / 2) * dpr
     };
+  }
+
+  // nm from map center to the far corner of the viewport — drives the ADS-B
+  // fetch radius so every visible part of the map has traffic on it
+  // (adsb.lol caps point queries at 250 nm).
+  function viewportRadiusNm() {
+    const wCss = canvas.width / dpr, hCss = canvas.height / dpr;
+    if (!wCss || !hCss) return 200;
+    const cwx = lonToWorldX(MAP_LON, MAP_ZOOM);
+    const cwy = latToWorldY(MAP_LAT, MAP_ZOOM);
+    const cornerLat = worldYToLat(cwy - hCss / 2, MAP_ZOOM);
+    const cornerLon = worldXToLon(cwx - wCss / 2, MAP_ZOOM);
+    const nm = haversineNm(MAP_LAT, MAP_LON, cornerLat, cornerLon);
+    return Math.max(30, Math.min(250, Math.ceil(nm * 1.05)));
   }
 
   function drawRadar() {
     const w = canvas.width, h = canvas.height;
-    const pad = 10 * dpr;
-    const cx = w / 2, cy = h / 2;
-    const halfW = w / 2 - pad, halfH = h / 2 - pad;
-    ctx.clearRect(0, 0, w, h);
+    if (!w || !h) return;
+    const wCss = w / dpr, hCss = h / dpr;
+    const style = basemapStyle();
 
-    const line = styleColor("--line");
+    ctx.fillStyle = styleColor("--panel-2");
+    ctx.fillRect(0, 0, w, h);
+
+    // ---- basemap tiles ----
+    const cwx = lonToWorldX(MAP_LON, MAP_ZOOM);
+    const cwy = latToWorldY(MAP_LAT, MAP_ZOOM);
+    const tlx = cwx - wCss / 2, tly = cwy - hCss / 2;
+    const x0 = Math.floor(tlx / TILE), x1 = Math.floor((tlx + wCss) / TILE);
+    const y0 = Math.floor(tly / TILE), y1 = Math.floor((tly + hCss) / TILE);
+    for (let ty = y0; ty <= y1; ty++) {
+      for (let tx = x0; tx <= x1; tx++) {
+        const entry = tileImage(style, MAP_ZOOM, tx, ty);
+        if (!entry || !entry.ok) continue;
+        ctx.drawImage(entry.img, (tx * TILE - tlx) * dpr, (ty * TILE - tly) * dpr, TILE * dpr, TILE * dpr);
+      }
+    }
+
     const skyBlue = styleColor("--sky-blue");
     const gold = styleColor("--aviation-gold");
     const dim = styleColor("--text-dim");
     const amgBlue = styleColor("--amg-blue");
+    // readable over dark map imagery regardless of panel theme tokens
+    const labelColor = style === "dark_all" ? "#c8d2de" : "#3f4a58";
 
-    // graticule: lines every ~10 nm, quiet and flat (no glow, per brand guide)
-    ctx.strokeStyle = line;
-    ctx.lineWidth = 1 * dpr;
-    const stepNm = RANGE_NM <= 15 ? 5 : 10;
-    for (let d = -RANGE_NM; d <= RANGE_NM; d += stepNm) {
-      const gx = cx + (d / RANGE_NM) * halfW;
-      const gy = cy - (d / RANGE_NM) * halfH;
-      ctx.beginPath(); ctx.moveTo(gx, cy - halfH); ctx.lineTo(gx, cy + halfH); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(cx - halfW, gy); ctx.lineTo(cx + halfW, gy); ctx.stroke();
-    }
-    ctx.strokeStyle = dim;
-    ctx.lineWidth = 1.4 * dpr;
-    ctx.strokeRect(cx - halfW, cy - halfH, halfW * 2, halfH * 2);
-
-    // scale bar (bottom-left) instead of concentric range rings
-    const barNm = stepNm;
-    const barPx = (barNm / RANGE_NM) * halfW;
-    const barX = cx - halfW + 10 * dpr, barY = cy + halfH - 12 * dpr;
+    // ---- scale bar (bottom-left), round nm length near 1/4 panel width ----
+    const metersPerPx = (Math.cos((MAP_LAT * Math.PI) / 180) * 40075016.686) / (Math.pow(2, MAP_ZOOM) * TILE);
+    const nmPerPx = metersPerPx / 1852;
+    const targetNm = nmPerPx * (wCss / 4);
+    const steps = [5, 10, 25, 50, 100, 200, 400, 800];
+    let barNm = steps[0];
+    for (let i = 0; i < steps.length; i++) { if (steps[i] <= targetNm) barNm = steps[i]; }
+    const barPx = (barNm / nmPerPx) * dpr;
+    const barX = 12 * dpr, barY = h - 14 * dpr;
     ctx.strokeStyle = dim; ctx.lineWidth = 1.5 * dpr;
     ctx.beginPath();
     ctx.moveTo(barX, barY); ctx.lineTo(barX + barPx, barY);
@@ -633,29 +735,27 @@ export const dashboardHtml = `<!doctype html>
     ctx.font = (10 * dpr) + "px Inter, sans-serif";
     ctx.fillText(barNm + " nm", barX, barY - 8 * dpr);
 
-    // own position
-    ctx.beginPath();
-    ctx.arc(cx, cy, 4 * dpr, 0, Math.PI * 2);
-    ctx.fillStyle = amgBlue;
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(cx, cy, 8 * dpr, 0, Math.PI * 2);
-    ctx.strokeStyle = amgBlue;
-    ctx.lineWidth = 1 * dpr;
-    ctx.stroke();
+    // ---- home base marker ----
+    const home = project(OWN_LAT, OWN_LON, wCss, hCss);
+    if (home.x >= 0 && home.x <= w && home.y >= 0 && home.y <= h) {
+      ctx.beginPath(); ctx.arc(home.x, home.y, 4 * dpr, 0, Math.PI * 2);
+      ctx.fillStyle = amgBlue; ctx.fill();
+      ctx.beginPath(); ctx.arc(home.x, home.y, 8 * dpr, 0, Math.PI * 2);
+      ctx.strokeStyle = amgBlue; ctx.lineWidth = 1 * dpr; ctx.stroke();
+    }
 
-    // contacts — heading-oriented chevron glyph + short heading trail, in the
-    // FR24 visual language, using the same equirectangular projection as the
-    // firmware's flight_radar_scene.cpp.
+    // ---- aircraft: heading-oriented chevrons + short trail (FR24 look) ----
+    // Labels suppress themselves on busy wide views to keep the wall legible.
+    const showLabels = MAP_ZOOM >= 7 || liveContacts.length <= 30;
     liveContacts.forEach((c) => {
-      const { x, y } = project(c.lat, c.lon, cx, cy, halfW, halfH);
-      if (x < cx - halfW - 20 * dpr || x > cx + halfW + 20 * dpr) return;
-      if (y < cy - halfH - 20 * dpr || y > cy + halfH + 20 * dpr) return;
+      const p = project(c.lat, c.lon, wCss, hCss);
+      const x = p.x, y = p.y;
+      if (x < -20 * dpr || x > w + 20 * dpr || y < -20 * dpr || y > h + 20 * dpr) return;
       const color = c.watchlisted ? gold : skyBlue;
       const heading = (c.heading_deg || 0) * (Math.PI / 180);
 
       // short trail behind the aircraft, opposite its heading
-      const trailLen = 14 * dpr;
+      const trailLen = 12 * dpr;
       ctx.beginPath();
       ctx.moveTo(x, y);
       ctx.lineTo(x - Math.sin(heading) * trailLen, y + Math.cos(heading) * trailLen);
@@ -669,7 +769,7 @@ export const dashboardHtml = `<!doctype html>
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(heading);
-      const s = (c.watchlisted ? 6 : 5) * dpr;
+      const s = (c.watchlisted ? 6 : 4.5) * dpr;
       ctx.beginPath();
       ctx.moveTo(0, -s);
       ctx.lineTo(s * 0.6, s * 0.7);
@@ -688,26 +788,31 @@ export const dashboardHtml = `<!doctype html>
         ctx.stroke();
       }
 
-      ctx.fillStyle = styleColor("--text-mid");
-      ctx.font = (9 * dpr) + "px Inter, sans-serif";
-      ctx.fillText(c.callsign, x + 9 * dpr, y - 7 * dpr);
-      ctx.fillStyle = dim;
-      ctx.font = (8 * dpr) + "px Inter, sans-serif";
-      ctx.fillText(Math.round(c.altitude_ft / 100) + "00ft", x + 9 * dpr, y + 3 * dpr);
+      if (showLabels || c.watchlisted) {
+        ctx.fillStyle = labelColor;
+        ctx.font = (9 * dpr) + "px Inter, sans-serif";
+        ctx.fillText(c.callsign, x + 8 * dpr, y - 6 * dpr);
+        ctx.fillStyle = dim;
+        ctx.font = (8 * dpr) + "px Inter, sans-serif";
+        ctx.fillText(Math.round(c.altitude_ft / 100) + "00ft", x + 8 * dpr, y + 4 * dpr);
+      }
     });
   }
 
   sizeCanvas();
-  window.addEventListener("resize", () => { sizeCanvas(); drawRadar(); });
+  window.addEventListener("resize", () => { sizeCanvas(); scheduleDraw(); });
+  mq.addEventListener("change", scheduleDraw); // auto basemap style follows OS theme
   drawRadar();
 
   // ---- render flight list ----
   function renderFlights(contacts) {
-    liveContacts = contacts;
-    drawRadar(); // static map redraws on each poll — no continuous animation loop
+    // Map draws everything in view (up to the perf cap); the "Nearby
+    // Traffic" list stays the nearest few relative to home base.
+    liveContacts = contacts.slice(0, kMaxMapContacts);
+    scheduleDraw(); // static map redraws on each poll — no continuous animation loop
     const list = document.getElementById("flightList");
     list.innerHTML = "";
-    const sorted = [...contacts].sort((a, b) => a.distance_nm - b.distance_nm);
+    const sorted = [...contacts].sort((a, b) => a.distance_nm - b.distance_nm).slice(0, kMaxContacts);
     sorted.forEach((c) => {
       const row = document.createElement("div");
       row.className = "flight-row" + (c.watchlisted ? " watch" : "");
@@ -791,15 +896,16 @@ export const dashboardHtml = `<!doctype html>
   document.getElementById("tickerMsg").textContent = messages[0];
 
   async function loadFlights() {
-    const url = FLIGHTS_PROXY_URL + "?lat=" + OWN_LAT + "&lon=" + OWN_LON + "&radius_nm=" + RANGE_NM;
+    // Centered on the MAP view (not home) with a radius covering the visible
+    // basemap, so the whole configured region shows traffic like FlightRadar.
+    const url = FLIGHTS_PROXY_URL + "?lat=" + MAP_LAT.toFixed(4) + "&lon=" + MAP_LON.toFixed(4) + "&radius_nm=" + viewportRadiusNm();
     const res = await fetch(url);
     if (!res.ok) throw new Error("bad status " + res.status);
     const data = await res.json();
     const contacts = (data.ac || [])
       .map(mapAircraft)
       .filter(Boolean)
-      .sort((a, b) => a.distance_nm - b.distance_nm)
-      .slice(0, kMaxContacts);
+      .sort((a, b) => a.distance_nm - b.distance_nm);
     renderFlights(contacts);
   }
 

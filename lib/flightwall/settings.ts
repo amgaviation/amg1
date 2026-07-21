@@ -22,7 +22,29 @@ export type FlightwallSettings = {
   flightsPollSeconds: number;
   opsPollSeconds: number;
   metarStation: string;
+  mapRegion: string;
+  mapCenterLat: number;
+  mapCenterLon: number;
+  mapZoom: number;
+  mapStyle: "auto" | "dark" | "light";
 };
+
+/**
+ * Named map views for the traffic map (real CARTO/OSM basemap). The preset is
+ * authoritative: picking one in the portal overwrites center/zoom with these
+ * values server-side, so the stored row is always self-consistent and the
+ * dashboard only ever reads center+zoom. "custom" keeps whatever the admin
+ * typed.
+ */
+export const MAP_REGION_PRESETS: Record<string, { label: string; lat: number; lon: number; zoom: number }> = {
+  florida: { label: "Florida", lat: 27.9, lon: -83.2, zoom: 6 },
+  usa: { label: "Continental USA", lat: 39.5, lon: -98.35, zoom: 4 },
+  northeast: { label: "Northeast Corridor", lat: 41.0, lon: -73.9, zoom: 6 },
+  southeast: { label: "Southeast US", lat: 31.2, lon: -83.4, zoom: 5 },
+  gulf: { label: "Gulf Coast", lat: 28.8, lon: -89.5, zoom: 5 },
+};
+
+export const MAP_STYLES = ["auto", "dark", "light"] as const;
 
 export const DEFAULT_FLIGHTWALL_SETTINGS: FlightwallSettings = {
   homeLat: 40.85,
@@ -38,6 +60,11 @@ export const DEFAULT_FLIGHTWALL_SETTINGS: FlightwallSettings = {
   flightsPollSeconds: 30,
   opsPollSeconds: 30,
   metarStation: "KTEB",
+  mapRegion: "florida",
+  mapCenterLat: MAP_REGION_PRESETS.florida.lat,
+  mapCenterLon: MAP_REGION_PRESETS.florida.lon,
+  mapZoom: MAP_REGION_PRESETS.florida.zoom,
+  mapStyle: "auto",
 };
 
 const KNOWN_PANELS = new Set(["map", "requests", "missions", "revenue", "metar"]);
@@ -56,6 +83,11 @@ type Row = {
   flights_poll_seconds: number;
   ops_poll_seconds: number;
   metar_station: string;
+  map_region: string | null;
+  map_center_lat: number | null;
+  map_center_lon: number | null;
+  map_zoom: number | null;
+  map_style: string | null;
 };
 
 function fromRow(row: Row): FlightwallSettings {
@@ -65,6 +97,10 @@ function fromRow(row: Row): FlightwallSettings {
   for (const panel of DEFAULT_FLIGHTWALL_SETTINGS.panelOrder) {
     if (!order.includes(panel)) order.push(panel);
   }
+  const d = DEFAULT_FLIGHTWALL_SETTINGS;
+  const mapStyle = MAP_STYLES.includes(row.map_style as (typeof MAP_STYLES)[number])
+    ? (row.map_style as FlightwallSettings["mapStyle"])
+    : d.mapStyle;
   return {
     homeLat: row.home_lat,
     homeLon: row.home_lon,
@@ -79,6 +115,14 @@ function fromRow(row: Row): FlightwallSettings {
     flightsPollSeconds: row.flights_poll_seconds,
     opsPollSeconds: row.ops_poll_seconds,
     metarStation: row.metar_station,
+    // Map-view columns are newer than the table itself (see the
+    // flightwall_map_view migration) — null-coalesce so a not-yet-migrated
+    // database still renders the default Florida view instead of breaking.
+    mapRegion: row.map_region ?? d.mapRegion,
+    mapCenterLat: row.map_center_lat ?? d.mapCenterLat,
+    mapCenterLon: row.map_center_lon ?? d.mapCenterLon,
+    mapZoom: row.map_zoom ?? d.mapZoom,
+    mapStyle,
   };
 }
 
@@ -91,11 +135,13 @@ export async function getFlightwallSettings(): Promise<FlightwallSettings> {
     // gap as crm_leads/network_applications elsewhere) — cast the client,
     // matching the existing repo-wide workaround, not the individual call.
     const supabase = (await createServiceClient()) as any;
+    // select("*") rather than a column list: the map-view columns landed
+    // after the table, and a named select would 42703 the whole read (and
+    // silently discard the admin's saved settings) on any environment where
+    // the migration hasn't run yet. fromRow() fills gaps with defaults.
     const { data, error } = await supabase
       .from("flightwall_settings")
-      .select(
-        "home_lat, home_lon, range_nm, watchlist_tails, panel_order, show_map, show_requests, show_missions, show_revenue, show_metar, flights_poll_seconds, ops_poll_seconds, metar_station"
-      )
+      .select("*")
       .eq("id", true)
       .maybeSingle();
     if (error || !data) return DEFAULT_FLIGHTWALL_SETTINGS;
