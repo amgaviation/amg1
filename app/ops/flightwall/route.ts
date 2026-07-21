@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { hasFlightwallDashboardAccess } from "@/lib/flightwall/access";
 import { getFlightwallSettings } from "@/lib/flightwall/settings";
+import { FLIGHTWALL_AIRPORTS } from "@/lib/flightwall/airports";
 import { dashboardHtml, FW_CONFIG_INJECT_MARKER } from "./dashboard-html";
 
 export const dynamic = "force-dynamic";
@@ -54,7 +55,7 @@ export async function GET(request: Request) {
 
   const html = dashboardHtml.replace(
     FW_CONFIG_INJECT_MARKER,
-    `<script>window.FW_CONFIG = ${configJson};</script>`
+    `<script>window.FW_CONFIG = ${configJson}; window.FW_AIRPORTS = ${JSON.stringify(FLIGHTWALL_AIRPORTS)};</script>`
   );
 
   return new NextResponse(html, {
