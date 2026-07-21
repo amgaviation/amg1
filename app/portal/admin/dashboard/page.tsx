@@ -256,6 +256,14 @@ export default async function AdminDashboardPage() {
           </p>
         </div>
         <div data-portal-action-bar className="flex flex-wrap items-center gap-2">
+          {/* Wall-display kiosk page (no portal chrome) — new tab so the
+              admin session tab isn't taken over; configure it under
+              Settings → FlightWall Dashboard. */}
+          <Button asChild variant="outline" size="sm">
+            <Link href="/ops/flightwall" target="_blank" rel="noopener">
+              FlightWall
+            </Link>
+          </Button>
           {perms.missions.view ? (
             <Button asChild variant="outline" size="sm">
               <Link href="/portal/admin/mission-control">Mission Control</Link>
