@@ -74,7 +74,7 @@ export async function saveFlightwallSettings(formData: FormData) {
   if (
     homeLat === null || homeLat < -90 || homeLat > 90 ||
     homeLon === null || homeLon < -180 || homeLon > 180 ||
-    flightsPollSeconds === null || flightsPollSeconds < 5 || flightsPollSeconds > 300 ||
+    flightsPollSeconds === null || flightsPollSeconds < 1 || flightsPollSeconds > 300 ||
     opsPollSeconds === null || opsPollSeconds < 10 || opsPollSeconds > 300 ||
     metarStation.length < 3 ||
     mapView === null ||
