@@ -233,6 +233,30 @@ export const dashboardHtml = `<!doctype html>
   /* financial mode: wall-readable figures */
   .main[data-focus="financial"] .revenue-figure { font-size: clamp(56px, 8vw, 120px); }
 
+  /* ---- tracked flight info card (top of Nearby Traffic while tracking) ---- */
+  .flight-info {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--aviation-gold);
+    background: color-mix(in srgb, var(--aviation-gold) 6%, transparent);
+  }
+  .fi-head { display: flex; align-items: baseline; gap: 10px; }
+  .fi-callsign {
+    font-family: "Barlow Condensed", "Arial Narrow", "Nimbus Sans Narrow", sans-serif;
+    font-size: 22px; font-weight: 700; color: var(--aviation-gold); letter-spacing: 0.04em;
+  }
+  .fi-airline { font-size: 12px; color: var(--text-mid); }
+  .fi-route { margin-top: 2px; font-size: 15px; font-weight: 600; letter-spacing: 0.06em; }
+  .fi-sub { margin-top: 2px; font-size: 11px; color: var(--text-dim); }
+  .fi-grid {
+    margin-top: 8px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px 12px;
+  }
+  .fi-cell { display: flex; flex-direction: column; gap: 1px; }
+  .fi-k { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-dim); }
+  .fi-v { font-size: 13px; font-weight: 600; }
+
   /* ---- flight list ---- */
   .flight-list { overflow-y: auto; height: 100%; }
   .flight-row {
@@ -401,6 +425,7 @@ export const dashboardHtml = `<!doctype html>
           <span class="label">Nearby Traffic</span>
         </div>
         <div class="panel-body">
+          <div class="flight-info" id="flightInfo" style="display:none"></div>
           <div class="flight-row" style="border-bottom: 1px solid var(--line);">
             <span class="col-h">Callsign</span>
             <span class="col-h">Route / Type</span>
@@ -520,7 +545,25 @@ export const dashboardHtml = `<!doctype html>
   // (/ops/flightwall/remote) can override region/zoom, focus a panel, or
   // track a specific aircraft; state arrives via /api/flightwall/remote.
   let viewLat = MAP_LAT, viewLon = MAP_LON, viewZoom = MAP_ZOOM;
-  let remote = { focus: "none", trackTail: null, theme: "auto", region: null, zoom: null, refreshNonce: null };
+  let remote = { focus: "none", trackTail: null, theme: "auto", region: null, airport: null, zoom: null, refreshNonce: null };
+
+  // Major-airport reference data ([icao, iata, name, lat, lon, tier]) —
+  // subtle map layer + "go to airport" resolution. Injected server-side.
+  const AIRPORTS = window.FW_AIRPORTS || [];
+  const AIRPORT_VIEW_ZOOM = 9;
+  function findAirportByCode(code) {
+    if (!code) return null;
+    for (let i = 0; i < AIRPORTS.length; i++) {
+      if (AIRPORTS[i][0] === code || AIRPORTS[i][1] === code) return AIRPORTS[i];
+    }
+    return null;
+  }
+
+  // Tracked-flight state: breadcrumb trail accumulated while tracking, plus
+  // filed-route info from /api/flightwall/route-info (adsbdb).
+  let trackTrail = [];
+  let routeInfo = null;
+  let routeInfoFor = null;
 
   // AMG business bridge — same-origin, gated server-side by trusted-IP-or-
   // admin-session (lib/flightwall/access.ts); the browser sends its portal
@@ -771,6 +814,61 @@ export const dashboardHtml = `<!doctype html>
     ctx.font = (10 * dpr) + "px Inter, sans-serif";
     ctx.fillText(barNm + " nm", barX, barY - 8 * dpr);
 
+    // ---- airport reference layer (subtle — aircraft always draw over it) ----
+    if (viewZoom >= 5 && AIRPORTS.length) {
+      const apStroke = style === "dark_all" ? "rgba(148,163,184,0.5)" : "rgba(71,85,105,0.5)";
+      const apText = style === "dark_all" ? "rgba(148,163,184,0.7)" : "rgba(71,85,105,0.75)";
+      ctx.font = (8.5 * dpr) + "px Inter, sans-serif";
+      for (let i = 0; i < AIRPORTS.length; i++) {
+        const ap = AIRPORTS[i];
+        const tier = ap[5];
+        if (tier === 2 && viewZoom < 7) continue;
+        const pp = project(ap[3], ap[4], wCss, hCss);
+        if (pp.x < 0 || pp.x > w || pp.y < 0 || pp.y > h) continue;
+        const r = (tier === 1 ? 3 : 2.4) * dpr;
+        ctx.beginPath();
+        ctx.moveTo(pp.x, pp.y - r); ctx.lineTo(pp.x + r, pp.y);
+        ctx.lineTo(pp.x, pp.y + r); ctx.lineTo(pp.x - r, pp.y);
+        ctx.closePath();
+        ctx.strokeStyle = apStroke;
+        ctx.lineWidth = 1 * dpr;
+        ctx.stroke();
+        if (viewZoom >= (tier === 1 ? 6 : 8)) {
+          ctx.fillStyle = apText;
+          ctx.fillText(ap[0], pp.x + 5 * dpr, pp.y - 4 * dpr);
+        }
+      }
+    }
+
+    // ---- tracked flight path: breadcrumb trail + dashed line to destination ----
+    if (trackTrail.length > 1) {
+      ctx.beginPath();
+      for (let i = 0; i < trackTrail.length; i++) {
+        const tp = project(trackTrail[i][0], trackTrail[i][1], wCss, hCss);
+        if (i === 0) ctx.moveTo(tp.x, tp.y); else ctx.lineTo(tp.x, tp.y);
+      }
+      ctx.strokeStyle = gold;
+      ctx.globalAlpha = 0.55;
+      ctx.lineWidth = 1.6 * dpr;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    const trackedNow = findTracked();
+    if (trackedNow && routeInfo && routeInfo.destination && routeInfo.destination.lat) {
+      const from = project(trackedNow.lat, trackedNow.lon, wCss, hCss);
+      const to = project(routeInfo.destination.lat, routeInfo.destination.lon, wCss, hCss);
+      ctx.beginPath();
+      ctx.setLineDash([6 * dpr, 5 * dpr]);
+      ctx.moveTo(from.x, from.y);
+      ctx.lineTo(to.x, to.y);
+      ctx.strokeStyle = gold;
+      ctx.globalAlpha = 0.4;
+      ctx.lineWidth = 1.2 * dpr;
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+    }
+
     // ---- home base marker ----
     const home = project(OWN_LAT, OWN_LON, wCss, hCss);
     if (home.x >= 0 && home.x <= w && home.y >= 0 && home.y <= h) {
@@ -862,6 +960,16 @@ export const dashboardHtml = `<!doctype html>
     // Traffic" list stays the nearest few relative to home base.
     liveContacts = contacts.slice(0, kMaxMapContacts);
     applyView(); // fresh positions may recenter the view onto a tracked aircraft
+    const tracked = findTracked();
+    if (tracked) {
+      const last = trackTrail[trackTrail.length - 1];
+      if (!last || last[0] !== tracked.lat || last[1] !== tracked.lon) {
+        trackTrail.push([tracked.lat, tracked.lon]);
+        if (trackTrail.length > 600) trackTrail.shift();
+      }
+    }
+    renderTrackInfo();
+    loadRouteInfo();
     scheduleDraw(); // static map redraws on each poll — no continuous animation loop
     const list = document.getElementById("flightList");
     list.innerHTML = "";
@@ -1032,6 +1140,68 @@ export const dashboardHtml = `<!doctype html>
     return null;
   }
 
+  // Filed-route lookup for the tracked flight (origin/destination/airline).
+  function loadRouteInfo() {
+    if (!remote.trackTail) return;
+    const c = findTracked();
+    const cs = (c ? c.callsign.toUpperCase() : remote.trackTail);
+    if (routeInfoFor === cs) return;
+    routeInfoFor = cs;
+    fetch("/api/flightwall/route-info?callsign=" + encodeURIComponent(cs))
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        routeInfo = d && d.route ? d.route : null;
+        renderTrackInfo();
+        scheduleDraw(); // destination line becomes drawable
+      })
+      .catch(function () {});
+  }
+
+  function fiCell(k, v) {
+    return '<div class="fi-cell"><span class="fi-k">' + k + '</span><span class="fi-v mono">' + v + "</span></div>";
+  }
+
+  // Tracked-flight card at the top of the Nearby Traffic panel.
+  function renderTrackInfo() {
+    const el = document.getElementById("flightInfo");
+    if (!el) return;
+    if (!remote.trackTail) {
+      el.style.display = "none";
+      el.innerHTML = "";
+      return;
+    }
+    const c = findTracked();
+    let html = '<div class="fi-head"><span class="fi-callsign">' + remote.trackTail + "</span>";
+    if (routeInfo && routeInfo.airline) html += '<span class="fi-airline">' + routeInfo.airline + "</span>";
+    html += "</div>";
+    if (routeInfo && (routeInfo.origin || routeInfo.destination)) {
+      const o = routeInfo.origin, dst = routeInfo.destination;
+      html += '<div class="fi-route mono">' + (o ? o.icao : "????") + " → " + (dst ? dst.icao : "????") + "</div>";
+      html += '<div class="fi-sub">' + (o ? o.name : "Unknown origin") + " → " + (dst ? dst.name : "Unknown destination") + "</div>";
+    } else {
+      html += '<div class="fi-sub">No filed route found for this callsign.</div>';
+    }
+    if (c) {
+      html += '<div class="fi-grid">' +
+        fiCell("Type", c.type || "—") +
+        fiCell("Reg", c.reg || "—") +
+        fiCell("Altitude", c.altitude_ft.toLocaleString() + " ft") +
+        fiCell("Speed", c.ground_speed_kt + " kt") +
+        fiCell("Heading", Math.round(c.heading_deg || 0) + "°") +
+        fiCell("From base", c.distance_nm.toFixed(0) + " nm");
+      if (routeInfo && routeInfo.destination && routeInfo.destination.lat && c.ground_speed_kt > 40) {
+        const dn = haversineNm(c.lat, c.lon, routeInfo.destination.lat, routeInfo.destination.lon);
+        const etaMin = Math.round((dn / c.ground_speed_kt) * 60);
+        html += fiCell("To dest", dn.toFixed(0) + " nm") + fiCell("ETA est", fmtEta(etaMin));
+      }
+      html += "</div>";
+    } else {
+      html += '<div class="fi-sub">Waiting for the aircraft to appear in the live feed…</div>';
+    }
+    el.innerHTML = html;
+    el.style.display = "";
+  }
+
   // Recomputes the live view from saved settings + remote overrides + any
   // tracked aircraft. Returns true when the viewport actually moved.
   function applyView() {
@@ -1041,6 +1211,13 @@ export const dashboardHtml = `<!doctype html>
     let zoom = remote.zoom !== null && remote.zoom !== undefined
       ? remote.zoom
       : (preset ? preset.zoom : MAP_ZOOM);
+    // airport view overrides region/saved; a tracked aircraft overrides both
+    const airport = remote.airport ? findAirportByCode(remote.airport) : null;
+    if (airport) {
+      lat = airport[3];
+      lon = airport[4];
+      zoom = remote.zoom !== null && remote.zoom !== undefined ? remote.zoom : AIRPORT_VIEW_ZOOM;
+    }
     const tracked = findTracked();
     if (tracked) {
       lat = tracked.lat;
@@ -1065,11 +1242,20 @@ export const dashboardHtml = `<!doctype html>
     const main = document.querySelector(".main");
     if (main) main.setAttribute("data-focus", remote.focus || "none");
 
+    // switching tracked aircraft resets the breadcrumb trail + route lookup
+    if (prev && prev.trackTail !== remote.trackTail) {
+      trackTrail = [];
+      routeInfo = null;
+      routeInfoFor = null;
+      renderTrackInfo();
+      loadRouteInfo();
+    }
+
     const moved = applyView();
     // focus changes resize the canvas box; re-measure either way (cheap)
     sizeCanvas();
     scheduleDraw();
-    const viewChanged = prev && (prev.region !== remote.region || prev.zoom !== remote.zoom || prev.trackTail !== remote.trackTail);
+    const viewChanged = prev && (prev.region !== remote.region || prev.airport !== remote.airport || prev.zoom !== remote.zoom || prev.trackTail !== remote.trackTail);
     if (moved || viewChanged) {
       loadFlights().catch(function () {});
     }

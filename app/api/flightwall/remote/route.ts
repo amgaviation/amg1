@@ -23,6 +23,7 @@ type RemoteState = {
   trackTail: string | null;
   theme: "auto" | "dark" | "light";
   region: string | null; // preset key override, null = use saved settings
+  airport: string | null; // ICAO/IATA center override (resolved by the display)
   zoom: number | null; // zoom override, null = use saved settings
   refreshNonce: number; // change forces the display to reload
 };
@@ -32,6 +33,7 @@ const DEFAULT_STATE: RemoteState = {
   trackTail: null,
   theme: "auto",
   region: null,
+  airport: null,
   zoom: null,
   refreshNonce: 0,
 };
@@ -55,6 +57,10 @@ function sanitize(raw: unknown): RemoteState {
   }
   if (typeof src.region === "string" && MAP_REGION_PRESETS[src.region]) {
     out.region = src.region;
+  }
+  if (typeof src.airport === "string") {
+    const code = src.airport.trim().toUpperCase();
+    out.airport = /^[A-Z0-9]{3,4}$/.test(code) ? code : null;
   }
   if (typeof src.zoom === "number" && Number.isFinite(src.zoom)) {
     const z = Math.round(src.zoom);

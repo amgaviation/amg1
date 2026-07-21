@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { hasFlightwallDashboardAccess } from "@/lib/flightwall/access";
-import { getFlightwallSettings } from "@/lib/flightwall/settings";
+import { getFlightwallSettings, MAP_REGION_PRESETS } from "@/lib/flightwall/settings";
+import { FLIGHTWALL_AIRPORTS } from "@/lib/flightwall/airports";
 import { remoteHtml } from "./remote-html";
 
 export const dynamic = "force-dynamic";
@@ -19,12 +20,17 @@ export async function GET(request: Request) {
     return redirect;
   }
 
-  // The zoom +/- buttons step from the saved default when no override is set.
+  // The zoom +/- buttons step from the *effective* base zoom (saved default,
+  // or the active region preset's zoom, or the airport-view default) — so the
+  // first tap moves exactly one level instead of jumping to the saved zoom.
   const settings = await getFlightwallSettings();
-  const html = remoteHtml.replace(
-    "<script>",
-    `<script>window.FW_REMOTE_DEFAULT_ZOOM = ${JSON.stringify(settings.mapZoom)};</script>\n<script>`
-  );
+  const regionZooms: Record<string, number> = {};
+  for (const [key, preset] of Object.entries(MAP_REGION_PRESETS)) regionZooms[key] = preset.zoom;
+  const inject =
+    `<script>window.FW_REMOTE_DEFAULT_ZOOM = ${JSON.stringify(settings.mapZoom)}; ` +
+    `window.FW_REGION_ZOOMS = ${JSON.stringify(regionZooms)}; ` +
+    `window.FW_AIRPORTS = ${JSON.stringify(FLIGHTWALL_AIRPORTS)};</script>\n<script>`;
+  const html = remoteHtml.replace("<script>", inject);
 
   return new NextResponse(html, {
     headers: {

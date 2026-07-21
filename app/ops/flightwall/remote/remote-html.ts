@@ -107,6 +107,12 @@ export const remoteHtml = `<!doctype html>
       <button data-region="southeast">Southeast</button>
       <button data-region="gulf">Gulf Coast</button>
     </div>
+    <p class="label" style="margin-top: 14px;">Go To Airport</p>
+    <div class="row">
+      <input type="text" id="airportInput" placeholder="ICAO / IATA e.g. KMIA or MIA" maxlength="4" autocapitalize="characters" autocomplete="off" />
+      <button id="airportBtn" style="flex:0 0 auto; padding: 12px 18px;">Go</button>
+    </div>
+    <p class="tracknote" id="airportNote"></p>
     <p class="label" style="margin-top: 14px;">Map Zoom</p>
     <div class="grid">
       <button id="zoomOut">− Zoom Out</button>
@@ -143,10 +149,30 @@ export const remoteHtml = `<!doctype html>
 (function () {
   "use strict";
   const API = "/api/flightwall/remote";
-  // zoom buttons need the saved default to step from when no override is set
   const SAVED_ZOOM = window.FW_REMOTE_DEFAULT_ZOOM || 6;
-  let state = { focus: "none", trackTail: null, theme: "auto", region: null, zoom: null, refreshNonce: 0 };
+  const REGION_ZOOMS = window.FW_REGION_ZOOMS || {};
+  const AIRPORTS = window.FW_AIRPORTS || []; // [icao, iata, name, lat, lon, tier]
+  const AIRPORT_ZOOM = 9; // display's default zoom for an airport view
+  let state = { focus: "none", trackTail: null, theme: "auto", region: null, airport: null, zoom: null, refreshNonce: 0 };
   let pending = false;
+
+  function findAirport(code) {
+    if (!code) return null;
+    for (let i = 0; i < AIRPORTS.length; i++) {
+      if (AIRPORTS[i][0] === code || AIRPORTS[i][1] === code) return AIRPORTS[i];
+    }
+    return null;
+  }
+
+  // What the display is actually zoomed to when no override is set — the
+  // zoom buttons step one level from HERE (stepping from the saved default
+  // while a region/airport view is active caused multi-level jumps).
+  function effectiveZoom() {
+    if (state.zoom !== null && state.zoom !== undefined) return state.zoom;
+    if (state.airport) return AIRPORT_ZOOM;
+    if (state.region && REGION_ZOOMS[state.region]) return REGION_ZOOMS[state.region];
+    return SAVED_ZOOM;
+  }
 
   function setConn(ok, label) {
     document.getElementById("connDot").className = "dot " + (ok ? "ok" : "err");
@@ -161,9 +187,14 @@ export const remoteHtml = `<!doctype html>
       b.classList.toggle("active", b.getAttribute("data-theme") === state.theme);
     });
     document.querySelectorAll("[data-region]").forEach((b) => {
-      b.classList.toggle("active", (b.getAttribute("data-region") || null) === state.region);
+      b.classList.toggle("active", (b.getAttribute("data-region") || null) === state.region && !state.airport);
     });
     document.getElementById("zoomReset").classList.toggle("active", state.zoom === null);
+    document.getElementById("airportBtn").classList.toggle("active", !!state.airport);
+    const ap = findAirport(state.airport);
+    document.getElementById("airportNote").innerHTML = state.airport
+      ? (ap ? 'Viewing <b>' + ap[0] + "</b> — " + ap[2] : 'Viewing <b>' + state.airport + "</b>")
+      : "";
     document.getElementById("trackBtn").classList.toggle("active", !!state.trackTail);
     document.getElementById("trackNote").innerHTML = state.trackTail
       ? 'Tracking <b>' + state.trackTail + "</b> — map follows it when it appears in the feed."
@@ -213,10 +244,25 @@ export const remoteHtml = `<!doctype html>
   document.querySelectorAll("[data-region]").forEach((b) => {
     b.addEventListener("click", () => {
       const r = b.getAttribute("data-region");
-      // clearing region also clears the zoom override so "Saved Default"
-      // really is the saved settings view again
-      send(r ? { region: r } : { region: null, zoom: null });
+      // a region view replaces any airport view and clears the zoom override
+      // so each preset opens at its own natural zoom; "Saved Default" clears
+      // everything back to the saved settings view
+      send(r ? { region: r, airport: null, zoom: null } : { region: null, airport: null, zoom: null });
     });
+  });
+
+  document.getElementById("airportBtn").addEventListener("click", () => {
+    const code = document.getElementById("airportInput").value.trim().toUpperCase();
+    if (!code) return;
+    const ap = findAirport(code);
+    if (!ap) {
+      document.getElementById("airportNote").textContent = "Unknown code “" + code + "” — try the ICAO (K···) or IATA code of a major US airport.";
+      return;
+    }
+    send({ airport: ap[0], region: null, zoom: null });
+  });
+  document.getElementById("airportInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.getElementById("airportBtn").click();
   });
 
   document.getElementById("trackBtn").addEventListener("click", () => {
@@ -232,10 +278,10 @@ export const remoteHtml = `<!doctype html>
   });
 
   document.getElementById("zoomIn").addEventListener("click", () => {
-    send({ zoom: Math.min(12, (state.zoom === null ? SAVED_ZOOM : state.zoom) + 1) });
+    send({ zoom: Math.min(12, effectiveZoom() + 1) });
   });
   document.getElementById("zoomOut").addEventListener("click", () => {
-    send({ zoom: Math.max(3, (state.zoom === null ? SAVED_ZOOM : state.zoom) - 1) });
+    send({ zoom: Math.max(3, effectiveZoom() - 1) });
   });
   document.getElementById("zoomReset").addEventListener("click", () => send({ zoom: null }));
 
@@ -244,7 +290,8 @@ export const remoteHtml = `<!doctype html>
   });
   document.getElementById("resetBtn").addEventListener("click", () => {
     document.getElementById("tailInput").value = "";
-    send({ focus: "none", trackTail: null, theme: "auto", region: null, zoom: null });
+    document.getElementById("airportInput").value = "";
+    send({ focus: "none", trackTail: null, theme: "auto", region: null, airport: null, zoom: null });
   });
 
   poll();
