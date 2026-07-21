@@ -211,6 +211,28 @@ export const dashboardHtml = `<!doctype html>
     z-index: 1;
   }
 
+  /* ---- remote focus modes (driven by /ops/flightwall/remote) ---- */
+  .main[data-focus="map"] { grid-template-columns: 1fr; }
+  .main[data-focus="map"] > .col:last-child { display: none; }
+  .main[data-focus="requests"],
+  .main[data-focus="missions"],
+  .main[data-focus="revenue"],
+  .main[data-focus="financial"] { grid-template-columns: 1fr; }
+  .main[data-focus="requests"] > .col:first-child,
+  .main[data-focus="missions"] > .col:first-child,
+  .main[data-focus="revenue"] > .col:first-child,
+  .main[data-focus="financial"] > .col:first-child { display: none; }
+  .main[data-focus="requests"] [data-panel]:not([data-panel="requests"]),
+  .main[data-focus="missions"] [data-panel]:not([data-panel="missions"]),
+  .main[data-focus="revenue"] [data-panel]:not([data-panel="revenue"]),
+  .main[data-focus="financial"] [data-panel]:not([data-panel="revenue"]) { display: none !important; }
+  .main[data-focus="requests"] [data-panel="requests"],
+  .main[data-focus="missions"] [data-panel="missions"],
+  .main[data-focus="revenue"] [data-panel="revenue"],
+  .main[data-focus="financial"] [data-panel="revenue"] { flex: 1 !important; }
+  /* financial mode: wall-readable figures */
+  .main[data-focus="financial"] .revenue-figure { font-size: clamp(56px, 8vw, 120px); }
+
   /* ---- flight list ---- */
   .flight-list { overflow-y: auto; height: 100%; }
   .flight-row {
@@ -486,6 +508,19 @@ export const dashboardHtml = `<!doctype html>
     southeast: "Southeast US", gulf: "Gulf Coast", custom: "Custom View"
   };
   const MAP_REGION_LABEL = MAP_REGION_LABELS[FW_CFG.mapRegion] || "Custom View";
+  const REGION_PRESETS = {
+    florida: { lat: 27.9, lon: -83.2, zoom: 6 },
+    usa: { lat: 39.5, lon: -98.35, zoom: 4 },
+    northeast: { lat: 41.0, lon: -73.9, zoom: 6 },
+    southeast: { lat: 31.2, lon: -83.4, zoom: 5 },
+    gulf: { lat: 28.8, lon: -89.5, zoom: 5 }
+  };
+
+  // Live view state — starts at the saved settings view. The remote
+  // (/ops/flightwall/remote) can override region/zoom, focus a panel, or
+  // track a specific aircraft; state arrives via /api/flightwall/remote.
+  let viewLat = MAP_LAT, viewLon = MAP_LON, viewZoom = MAP_ZOOM;
+  let remote = { focus: "none", trackTail: null, theme: "auto", region: null, zoom: null, refreshNonce: null };
 
   // AMG business bridge — same-origin, gated server-side by trusted-IP-or-
   // admin-session (lib/flightwall/access.ts); the browser sends its portal
@@ -511,6 +546,7 @@ export const dashboardHtml = `<!doctype html>
     const altitude_ft = typeof ac.alt_baro === "number" ? ac.alt_baro : 0; // "ground" string -> 0
     return {
       callsign,
+      reg: (ac.r || "").toUpperCase(),
       type: ac.t || "",
       lat: ac.lat,
       lon: ac.lon,
@@ -664,11 +700,11 @@ export const dashboardHtml = `<!doctype html>
 
   // device-pixel position of a lat/lon in the current view
   function project(lat, lon, wCss, hCss) {
-    const cwx = lonToWorldX(MAP_LON, MAP_ZOOM);
-    const cwy = latToWorldY(MAP_LAT, MAP_ZOOM);
+    const cwx = lonToWorldX(viewLon, viewZoom);
+    const cwy = latToWorldY(viewLat, viewZoom);
     return {
-      x: (lonToWorldX(lon, MAP_ZOOM) - cwx + wCss / 2) * dpr,
-      y: (latToWorldY(lat, MAP_ZOOM) - cwy + hCss / 2) * dpr
+      x: (lonToWorldX(lon, viewZoom) - cwx + wCss / 2) * dpr,
+      y: (latToWorldY(lat, viewZoom) - cwy + hCss / 2) * dpr
     };
   }
 
@@ -678,11 +714,11 @@ export const dashboardHtml = `<!doctype html>
   function viewportRadiusNm() {
     const wCss = canvas.width / dpr, hCss = canvas.height / dpr;
     if (!wCss || !hCss) return 200;
-    const cwx = lonToWorldX(MAP_LON, MAP_ZOOM);
-    const cwy = latToWorldY(MAP_LAT, MAP_ZOOM);
-    const cornerLat = worldYToLat(cwy - hCss / 2, MAP_ZOOM);
-    const cornerLon = worldXToLon(cwx - wCss / 2, MAP_ZOOM);
-    const nm = haversineNm(MAP_LAT, MAP_LON, cornerLat, cornerLon);
+    const cwx = lonToWorldX(viewLon, viewZoom);
+    const cwy = latToWorldY(viewLat, viewZoom);
+    const cornerLat = worldYToLat(cwy - hCss / 2, viewZoom);
+    const cornerLon = worldXToLon(cwx - wCss / 2, viewZoom);
+    const nm = haversineNm(viewLat, viewLon, cornerLat, cornerLon);
     return Math.max(30, Math.min(250, Math.ceil(nm * 1.05)));
   }
 
@@ -696,14 +732,14 @@ export const dashboardHtml = `<!doctype html>
     ctx.fillRect(0, 0, w, h);
 
     // ---- basemap tiles ----
-    const cwx = lonToWorldX(MAP_LON, MAP_ZOOM);
-    const cwy = latToWorldY(MAP_LAT, MAP_ZOOM);
+    const cwx = lonToWorldX(viewLon, viewZoom);
+    const cwy = latToWorldY(viewLat, viewZoom);
     const tlx = cwx - wCss / 2, tly = cwy - hCss / 2;
     const x0 = Math.floor(tlx / TILE), x1 = Math.floor((tlx + wCss) / TILE);
     const y0 = Math.floor(tly / TILE), y1 = Math.floor((tly + hCss) / TILE);
     for (let ty = y0; ty <= y1; ty++) {
       for (let tx = x0; tx <= x1; tx++) {
-        const entry = tileImage(style, MAP_ZOOM, tx, ty);
+        const entry = tileImage(style, viewZoom, tx, ty);
         if (!entry || !entry.ok) continue;
         ctx.drawImage(entry.img, (tx * TILE - tlx) * dpr, (ty * TILE - tly) * dpr, TILE * dpr, TILE * dpr);
       }
@@ -717,7 +753,7 @@ export const dashboardHtml = `<!doctype html>
     const labelColor = style === "dark_all" ? "#c8d2de" : "#3f4a58";
 
     // ---- scale bar (bottom-left), round nm length near 1/4 panel width ----
-    const metersPerPx = (Math.cos((MAP_LAT * Math.PI) / 180) * 40075016.686) / (Math.pow(2, MAP_ZOOM) * TILE);
+    const metersPerPx = (Math.cos((viewLat * Math.PI) / 180) * 40075016.686) / (Math.pow(2, viewZoom) * TILE);
     const nmPerPx = metersPerPx / 1852;
     const targetNm = nmPerPx * (wCss / 4);
     const steps = [5, 10, 25, 50, 100, 200, 400, 800];
@@ -746,12 +782,14 @@ export const dashboardHtml = `<!doctype html>
 
     // ---- aircraft: heading-oriented chevrons + short trail (FR24 look) ----
     // Labels suppress themselves on busy wide views to keep the wall legible.
-    const showLabels = MAP_ZOOM >= 7 || liveContacts.length <= 30;
+    const showLabels = viewZoom >= 7 || liveContacts.length <= 30;
     liveContacts.forEach((c) => {
       const p = project(c.lat, c.lon, wCss, hCss);
       const x = p.x, y = p.y;
       if (x < -20 * dpr || x > w + 20 * dpr || y < -20 * dpr || y > h + 20 * dpr) return;
-      const color = c.watchlisted ? gold : skyBlue;
+      const tracked = !!remote.trackTail && (c.reg === remote.trackTail || c.callsign.toUpperCase() === remote.trackTail);
+      const highlight = c.watchlisted || tracked;
+      const color = highlight ? gold : skyBlue;
       const heading = (c.heading_deg || 0) * (Math.PI / 180);
 
       // short trail behind the aircraft, opposite its heading
@@ -765,30 +803,44 @@ export const dashboardHtml = `<!doctype html>
       ctx.stroke();
       ctx.globalAlpha = 1;
 
-      // chevron glyph pointing along heading (0deg = north = up)
+      // aircraft glyph: top-down plane silhouette pointing along heading
+      // (0deg = north = up) — nose, swept wings, fuselage, tailplane
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(heading);
-      const s = (c.watchlisted ? 6 : 4.5) * dpr;
+      const s = (highlight ? 7 : 5.5) * dpr;
       ctx.beginPath();
-      ctx.moveTo(0, -s);
-      ctx.lineTo(s * 0.6, s * 0.7);
-      ctx.lineTo(0, s * 0.35);
-      ctx.lineTo(-s * 0.6, s * 0.7);
+      ctx.moveTo(0, -s);                                             // nose
+      ctx.quadraticCurveTo(s * 0.24, -s * 0.72, s * 0.20, -s * 0.22); // right forward fuselage
+      ctx.lineTo(s * 0.95, s * 0.18);                                // right wing leading edge
+      ctx.lineTo(s * 0.95, s * 0.42);                                // right wingtip
+      ctx.lineTo(s * 0.18, s * 0.26);                                // right wing trailing edge
+      ctx.lineTo(s * 0.15, s * 0.62);                                // aft fuselage
+      ctx.lineTo(s * 0.46, s * 0.88);                                // right stabilizer leading edge
+      ctx.lineTo(s * 0.46, s * 1.02);                                // right stab tip
+      ctx.lineTo(0, s * 0.90);                                       // tail cone
+      ctx.lineTo(-s * 0.46, s * 1.02);                               // mirror left side
+      ctx.lineTo(-s * 0.46, s * 0.88);
+      ctx.lineTo(-s * 0.15, s * 0.62);
+      ctx.lineTo(-s * 0.18, s * 0.26);
+      ctx.lineTo(-s * 0.95, s * 0.42);
+      ctx.lineTo(-s * 0.95, s * 0.18);
+      ctx.lineTo(-s * 0.20, -s * 0.22);
+      ctx.quadraticCurveTo(-s * 0.24, -s * 0.72, 0, -s);
       ctx.closePath();
       ctx.fillStyle = color;
       ctx.fill();
       ctx.restore();
 
-      if (c.watchlisted) {
+      if (highlight) {
         ctx.beginPath();
-        ctx.arc(x, y, 10 * dpr, 0, Math.PI * 2);
+        ctx.arc(x, y, (tracked ? 13 : 11) * dpr, 0, Math.PI * 2);
         ctx.strokeStyle = gold;
-        ctx.lineWidth = 1 * dpr;
+        ctx.lineWidth = (tracked ? 1.6 : 1) * dpr;
         ctx.stroke();
       }
 
-      if (showLabels || c.watchlisted) {
+      if (showLabels || highlight) {
         ctx.fillStyle = labelColor;
         ctx.font = (9 * dpr) + "px Inter, sans-serif";
         ctx.fillText(c.callsign, x + 8 * dpr, y - 6 * dpr);
@@ -809,6 +861,7 @@ export const dashboardHtml = `<!doctype html>
     // Map draws everything in view (up to the perf cap); the "Nearby
     // Traffic" list stays the nearest few relative to home base.
     liveContacts = contacts.slice(0, kMaxMapContacts);
+    applyView(); // fresh positions may recenter the view onto a tracked aircraft
     scheduleDraw(); // static map redraws on each poll — no continuous animation loop
     const list = document.getElementById("flightList");
     list.innerHTML = "";
@@ -898,7 +951,7 @@ export const dashboardHtml = `<!doctype html>
   async function loadFlights() {
     // Centered on the MAP view (not home) with a radius covering the visible
     // basemap, so the whole configured region shows traffic like FlightRadar.
-    const url = FLIGHTS_PROXY_URL + "?lat=" + MAP_LAT.toFixed(4) + "&lon=" + MAP_LON.toFixed(4) + "&radius_nm=" + viewportRadiusNm();
+    const url = FLIGHTS_PROXY_URL + "?lat=" + viewLat.toFixed(4) + "&lon=" + viewLon.toFixed(4) + "&radius_nm=" + viewportRadiusNm();
     const res = await fetch(url);
     if (!res.ok) throw new Error("bad status " + res.status);
     const data = await res.json();
@@ -965,6 +1018,85 @@ export const dashboardHtml = `<!doctype html>
       }
     }
   })();
+
+  // ---- remote control (/ops/flightwall/remote via /api/flightwall/remote) ----
+  const REMOTE_URL = "/api/flightwall/remote";
+  let baselineNonce = null;
+
+  function findTracked() {
+    if (!remote.trackTail) return null;
+    for (let i = 0; i < liveContacts.length; i++) {
+      const c = liveContacts[i];
+      if (c.reg === remote.trackTail || c.callsign.toUpperCase() === remote.trackTail) return c;
+    }
+    return null;
+  }
+
+  // Recomputes the live view from saved settings + remote overrides + any
+  // tracked aircraft. Returns true when the viewport actually moved.
+  function applyView() {
+    const preset = remote.region ? REGION_PRESETS[remote.region] : null;
+    let lat = preset ? preset.lat : MAP_LAT;
+    let lon = preset ? preset.lon : MAP_LON;
+    let zoom = remote.zoom !== null && remote.zoom !== undefined
+      ? remote.zoom
+      : (preset ? preset.zoom : MAP_ZOOM);
+    const tracked = findTracked();
+    if (tracked) {
+      lat = tracked.lat;
+      lon = tracked.lon;
+      zoom = Math.max(zoom, 8);
+    }
+    const changed = lat !== viewLat || lon !== viewLon || zoom !== viewZoom;
+    viewLat = lat; viewLon = lon; viewZoom = zoom;
+    if (changed) scheduleDraw();
+    return changed;
+  }
+
+  function applyRemote(prev) {
+    // theme override (auto = fall back to OS preference handling)
+    if (remote.theme === "dark" || remote.theme === "light") {
+      root.setAttribute("data-theme", remote.theme);
+    } else {
+      root.removeAttribute("data-theme");
+    }
+
+    // focus/expand a panel (financial = revenue full-screen, big figures)
+    const main = document.querySelector(".main");
+    if (main) main.setAttribute("data-focus", remote.focus || "none");
+
+    const moved = applyView();
+    // focus changes resize the canvas box; re-measure either way (cheap)
+    sizeCanvas();
+    scheduleDraw();
+    const viewChanged = prev && (prev.region !== remote.region || prev.zoom !== remote.zoom || prev.trackTail !== remote.trackTail);
+    if (moved || viewChanged) {
+      loadFlights().catch(function () {});
+    }
+  }
+
+  async function pollRemote() {
+    try {
+      const res = await fetch(REMOTE_URL, { credentials: "include" });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data || !data.state) return;
+      const prev = remote;
+      remote = data.state;
+      // a bumped nonce is the remote's "Reload Display" button
+      if (baselineNonce === null) {
+        baselineNonce = remote.refreshNonce || 0;
+      } else if ((remote.refreshNonce || 0) !== baselineNonce) {
+        location.reload();
+        return;
+      }
+      applyRemote(prev);
+    } catch (err) {
+      // remote channel unreachable — display keeps its last state
+    }
+  }
+  pollRemote();
+  setInterval(pollRemote, 4000);
 
   const FLIGHTS_POLL_MS = (typeof FW_CFG.flightsPollSeconds === "number" ? FW_CFG.flightsPollSeconds : 30) * 1000;
   const OPS_POLL_MS = (typeof FW_CFG.opsPollSeconds === "number" ? FW_CFG.opsPollSeconds : 30) * 1000;
