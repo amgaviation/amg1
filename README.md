@@ -123,3 +123,12 @@ Vercel Preview/local should use Stripe test keys unless AMG intentionally wants 
 Subscription tiers support separate test and live Stripe Price IDs. Live mode blocks subscription checkout unless the selected tier/cadence has a live Price ID. Test mode uses a test Price ID, or the legacy Price ID fields for backwards-compatible local testing, and rejects live-only configuration.
 
 Admins can review Stripe mode, configured-key presence, webhook status, missing Price ID counts, and last webhook status at `/portal/admin/settings/billing`. The page only displays yes/no status and counts; it never displays secret values.
+# ForeFlight Flight Intelligence (admin-only)
+
+ForeFlight remains the source of truth. AMG Flight Intelligence is a private analytical mirror; it never determines FAA compliance, legal eligibility, or medical validity.
+
+ForeFlight Business users should export their Logbook as CSV from ForeFlight and upload it at **Portal → AMG Operations → Flight Intelligence**. The MVP accepts a UTF-8 `.csv` no larger than 10 MB and requires the ForeFlight-compatible headers `Date`, `Aircraft ID`, and `Total Time`. It recognizes common optional labels for time categories, landings, approaches, holds, route, and remarks. Preview validates every row before import; invalid rows are not written. The original source CSV is stored privately with batch and source-row provenance.
+
+Imports are idempotent by canonical flight-row SHA-256 fingerprint. Re-importing the same source file is rejected; overlapping files add only previously unseen entries. Findings and currency views are planning aids with source-field evidence and data-gap disclosures. Flight reviews and medical certificates are intentionally shown as insufficient data until verified source documents are added.
+
+Gmail automation is not enabled in this MVP. The next safe step is a separately approved Gmail OAuth integration with a dedicated mailbox, attachment allowlist, consent/retention policy, and inbound-webhook verification; no Gmail secret or mailbox access is assumed here.

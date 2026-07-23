@@ -1,0 +1,5 @@
+import assert from "node:assert/strict"; import test from "node:test"; import { audit, fingerprint, parseForeFlightCsv } from "../lib/foreflight/logbook";
+const csv=`Date,Aircraft ID,Total Time,PIC,SIC,Dual Received,Solo,Cross Country,Night,Actual Instrument,Simulated Instrument,Day Landings,Night Landings,Approaches,Holds,From,To\n2026-07-01,N123AB,1.2,1.2,0,0,0,1.2,0,0,0,3,0,1,0,KTEB,KHPN`;
+test("parses valid ForeFlight-compatible rows and fingerprints stably",()=>{const p=parseForeFlightCsv(csv);assert.equal(p.entries.length,1);assert.equal(p.issues.length,0);assert.equal(p.entries[0].fingerprint,fingerprint({...p.entries[0],fingerprint:undefined} as any));});
+test("rejects malformed required values",()=>{const p=parseForeFlightCsv(csv.replace("1.2,1.2","oops,1.2"));assert.equal(p.entries.length,0);assert.ok(p.issues.length>0);});
+test("audit flags impossible subcategory time",()=>{const p=parseForeFlightCsv(csv.replace(",1.2,0,0",",2.0,0,0"));assert.ok(audit(p.entries[0]).some(x=>x.ruleCode==="SUBCATEGORY_EXCEEDS_TOTAL"));});

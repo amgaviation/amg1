@@ -25,7 +25,8 @@
     "schema:manifest": "node scripts/generate-schema-manifest.mjs",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
-    "test": "npm run typecheck"
+    "test": "tsx --test tests/**/*.test.ts && npm run typecheck",
+    "test:logbook": "tsx --test tests/foreflight-logbook.test.ts"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.2",
