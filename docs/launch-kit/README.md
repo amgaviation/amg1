@@ -1,0 +1,71 @@
+# AMG Launch Kit
+
+Everything needed to sell and deliver AMG's first engagements. These are operating
+documents, not background reading — they are meant to be printed, sent, filled in,
+and argued with.
+
+Read `00-REVIEW.md` first if it exists: it is an adversarial review of everything
+here, and where it disagrees with a document, the review wins until the document
+is corrected.
+
+## The documents
+
+| # | Document | What it is for |
+|---|---|---|
+| 01 | [Coordination Services Agreement](01-coordination-services-agreement.md) | The contract between AMG and the aircraft **owner**, plus a cover note to counsel. **Draft for review — not legal advice.** |
+| 02 | [Insurance Gate and Trip File](02-insurance-gate-and-trip-file.md) | The checklist that runs before any pilot launches, the broker email templates, and what is retained per job. **The most operationally important document here.** |
+| 03 | [Capability One-Pager and Proposal](03-capability-one-pager-and-proposal.md) | The PDF attached to every first reply and left on every shop counter, and the proposal sent after a qualifying call. |
+| 04 | [Call Scripts and Objections](04-call-scripts-and-objections.md) | Shop call, insurance broker call, inbound owner call, voicemails, and twelve objections answered. |
+| 05 | [Email Sequences](05-email-sequences.md) | Four audiences, four touches each, plus deliverability and CAN-SPAM rules. |
+| 06 | [Pilot Bench Recruiting](06-pilot-bench-recruiting.md) | Supply side. Selling a ferry with no pilot to fly it is worse than not selling it. |
+| 07 | [Mission SOP and Tracker](07-mission-sop-and-tracker.md) | The runbook from inbound request to closeout, the daily rhythm, and the tracker spec. |
+| 08 | [First 90 Days](08-first-90-days.md) | Sequencing: what blocks selling, what does not, and the honest arithmetic on the 14-day target. |
+| 09 | [Prospect List](09-prospect-list.md) | Starter contacts in calling order, each marked VERIFIED or UNVERIFIED. |
+
+Supporting research lives one level up: `../LAUNCH_INTELLIGENCE_BRIEF.md` (verified
+market and regulatory findings) and `../LAUNCH_PLAN_14_DAY.md` (earlier plan, partly
+superseded by the brief).
+
+## Trackers
+
+`trackers/*.csv` import straight into Google Sheets. Row 1 is headers; row 2 is a
+legend of allowed values — delete it once the columns are familiar. Columns match
+the spec in document 07 exactly.
+
+- `pipeline.csv` — one row per contact
+- `pilot-bench.csv` — one row per pilot
+- `jobs-delivered.csv` — one row per completed job
+- `mail-merge.csv` — the send list for document 05
+
+## The rules everything here is built on
+
+1. **AMG never furnishes the aircraft.** Supplying labour is not supplying
+   transportation. This one sentence is what keeps AMG outside Part 119/135.
+2. **The owner contracts with AMG.** Always — even when a shop or broker brought
+   the lead. The shop is a referral source, never the customer.
+3. **The owner pays the pilot directly.** AMG's invoice has one line. AMG never
+   handles trip funds, never marks anything up, never takes a vendor rebate.
+4. **No written broker approval, no flight.** The insurance gate is not friction
+   slowing the sale down. It is the thing being sold.
+5. **On a trip where Tony is PIC, there is no coordination fee** — pilot services
+   only, under a separate agreement engaging him personally.
+
+## Before any of this is used
+
+Blocking, and only Tony can clear them:
+
+- **Aviation insurance bound.** Describe all four services verbatim on the
+  application — Fla. Stat. §627.409 lets an insurer rescind for a material
+  misrepresentation, including an innocent one.
+- **Document 01 reviewed by a Florida aviation attorney.** Sell while they work;
+  do not sign anything first.
+- **Founder credentials and photo** into `lib/site-config.ts` (`TEAM_ROSTER`).
+- **Real street address** into `SITE.streetAddress` — CAN-SPAM requires a physical
+  postal address in every commercial email, so cold outreach is blocked until this
+  is published.
+- **FDACS**: confirm which §501.604 exemption applies before the first sales call.
+- **Verify the AOPA membership** in `AFFILIATIONS` is current, or remove it.
+
+Every published day rate in these documents is a benchmark, not a commitment.
+Do not publish a rate band until twelve pilots have confirmed their number in
+writing.
