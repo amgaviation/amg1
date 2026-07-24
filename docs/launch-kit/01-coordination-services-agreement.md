@@ -1,6 +1,8 @@
 # AMG Coordination Services Agreement
 
-**DRAFT FOR COUNSEL REVIEW. This is not legal advice. It was drafted by AMG Aviation Group for review, correction, and execution-approval by a licensed Florida attorney. Do not sign it or send it to a customer until counsel has cleared it.**
+**DRAFT — NOT YET CLEARED BY COUNSEL. This is not legal advice. It was drafted by AMG Aviation Group for review, correction, and execution-approval by a licensed Florida attorney.**
+
+**Until counsel's redline is back, this draft may be sent to a prospective customer and signed only if all of the following are true:** (1) the customer is told, in writing in the transmitting email, that the agreement is in final legal review and may be reissued; (2) Sections 2 (No Operational Control), 6 (Insurance Condition Precedent), 7 (Waiver of Subrogation), and the single-line coordination fee in Section 4 are present and unaltered; and (3) AMG's own liability and E&O coverage is bound. **Do not alter this draft to close a deal.** Any customer-requested change waits for counsel.
 
 ---
 

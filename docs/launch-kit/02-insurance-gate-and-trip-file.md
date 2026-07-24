@@ -56,7 +56,7 @@ The friend's total time is irrelevant. The owner's comfort is irrelevant. The mo
 **Watch for the disguises:**
 
 - "He's not being paid, the owner's just covering his hotel and rental car." Compensation includes goods and services. Air-carrier and enforcement precedent has treated logged flight time itself as compensation. Do not litigate the edge — the certificate level is the bright line, and AMG stays on the safe side of it.
-- "He's only the second pilot, he's not PIC." Then Gate 5 applies, and the underwriter question in Section 5 has to be answered before anything moves. A private certificate still cannot be compensated for the right seat on a Part 91 flight where the second pilot is a required crewmember or is being paid as one.
+- "He's only the second pilot, he's not PIC." Then Gate 4 applies, and the underwriter question in Section 5 has to be answered before anything moves. A private certificate still cannot be compensated for the right seat on a Part 91 flight where the second pilot is a required crewmember or is being paid as one.
 - "He's going to give the owner some instruction on the way." Instruction requires a CFI (14 CFR 61.193). See Section 5 — this is the setup that voids the insurance requirement the owner was trying to satisfy.
 - "It's a ferry, it's not really a trip." 61.113(a) does not care what kind of flight it is.
 
@@ -364,7 +364,7 @@ Reasons this holds up in practice:
 
 When an owner pushes on the timeline, the answer is not an apology:
 
-> "I can have a qualified pilot committed today. What I can't compress is your underwriter naming him in writing, and that's the piece that keeps your hull claim from being denied. On a jet that's typically one to three business days. I'll send the package to your broker within the hour and push it every day until it's back."
+> "I can usually have a qualified pilot identified and asked the same day. What I can't compress is your underwriter naming him in writing, and that's the piece that keeps your hull claim from being denied. On a jet that's typically one to three business days. I'll send the package to your broker within the hour and push it every day until it's back."
 
 ---
 
@@ -387,7 +387,7 @@ One file per job. It is opened when the job is accepted and it is not closed unt
 |---|---|---|
 | Signed AMG coordination agreement, this job | Owner | Establishes the owner as AMG's contracting party and defines the scope as coordination only |
 | **Waiver of subrogation in favor of AMG** on the owner's hull and liability policy | Owner's broker | The most valuable page in the file. Standalone, non-negotiable, obtained before the pilot launches. It is what stops the owner's insurer from paying the hull claim and then coming after AMG |
-| Owner's COI showing AMG as additional insured where obtained | Owner's broker | Corroborates the coverage picture at the time of the flight |
+| Owner's COI showing AMG as additional insured, and the waiver of subrogation in AMG's favour | Owner's broker | Section 7 of the agreement makes both a pre-launch condition. "Where obtained" is not an option: if the carrier declines either, that is a decision for AMG before a pilot is placed, not a gap to file around |
 | Written owner authorization to proceed, naming the pilot and the dates | Owner, email | Documents that the owner selected and engaged the pilot |
 | Confirmation the owner pays the pilot directly | Owner, email or agreement clause | Evidence AMG never handled trip funds |
 
@@ -542,6 +542,9 @@ Why it fails, in order:
 - Either way, the **written underwriter approval naming that individual** (Gate 6) is still required. A confirmed requirement is not a confirmed pilot.
 
 ---
+
+
+If someone quotes you 61.55(a)(1) — "an SIC only needs a private certificate" — they are reading the right rule. 61.55 sets the crew qualification; 61.113(a) is what bars a private pilot from being *paid* for it. Both apply.
 
 ## 6. One-page gate — run this on the phone
 

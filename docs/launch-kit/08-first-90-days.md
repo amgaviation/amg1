@@ -65,7 +65,7 @@ Counsel review runs one to three weeks. Fourteen days of not calling anyone is f
 3. Indemnity running the correct direction.
 4. That the fee is stated as a coordination fee for a service, never per flight, per leg, or per hour.
 
-If a job appears before the redline is back, sell it on the draft with those four items intact, and tell the customer plainly that the agreement is in final legal review. Nobody has ever been offended by that sentence.
+If a job appears before the redline is back, sell it on the draft under the four conditions printed at the top of document 01 — including the sentence in the covering email that the agreement is in final legal review. Send that email; do not say it on the phone only. Nobody has ever been offended by that sentence.
 
 ### FDACS
 
@@ -205,7 +205,7 @@ It is arithmetically impossible. Not hard. Impossible. The insurance gate alone 
 
 There are exactly three paths out, and they are not mutually exclusive but one of them has to be primary.
 
-**(a) Day-scaled coordination fee.** The flat fee already breaks above two days: $895 is 75-128% of a single turboprop ferry pilot day at published rates, and 3.7% of a 14-day coverage assignment that is far more work. The flat fee is wrong at both ends; day-scaling fixes the top end and only a lower base fixes the bottom. Move to $495/$895 for days 1-2, then **+$150/day piston and +$250/day turboprop & light jet**, with a soft cap at 25-30% of pilot spend. Effect: a 10-day turbine coverage job goes from $895 to roughly $2,900, and 33 events a month becomes about 12. Also fix the piston number — $495 is roughly 100% of one piston pilot day at $400-600, which is unsellable to the most price-sensitive segment AMG has. Piston starts at $295-$395 or piston comes off the price list.
+**(a) Day-scaled coordination fee.** The flat fee already breaks above two days: $895 is 75-128% of a single turboprop ferry pilot day at published rates, and 3.7% of a 14-day coverage assignment that is far more work. The flat fee is wrong at both ends; day-scaling fixes the top end and only a lower base fixes the bottom. Move to $495/$895 for days 1-2, then **+$150/day piston and +$250/day turboprop & light jet**, with a soft cap at 25-30% of pilot spend. Effect: a 10-day turbine coverage job goes from $895 to roughly $2,900, and 33 events a month becomes about 12. The piston number is a separate open decision, not a day-scaling question: $495 is roughly 100% of one piston pilot day at $400-600, which is heavy for the most price-sensitive segment AMG has. The argument for repricing to $295-$395, and the argument for holding $495 because the coordination work does not vary by aircraft class, are both set out under "Two open pricing decisions" in the kit README. Decide it there and propagate one number. Until then, $495 is the published price and the one to quote.
 
 **(b) Prepaid credit blocks.** One sale produces six events. Sell six blocks and you have 36 events off six closes. This is the only path that reduces *selling* effort rather than *delivery* effort — the coordination work per event is unchanged.
 

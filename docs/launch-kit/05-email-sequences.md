@@ -2,7 +2,7 @@
 
 Four audiences. Four touches each over about 12 business days. Sixteen emails total.
 
-**Rules these were written to.** 50–125 words, under 80 preferred. Subject lines are two to four words, all lowercase, no punctuation. One ask per email — never two. Touch 1 carries the sequence; 58% of replies come from it, so it states the price and the structure in the body rather than gating them behind a call.
+**Rules these were written to.** 50–125 words, under 80 preferred. Subject lines are two to four words, all lowercase, no punctuation. One ask per email — never two. Touch 1 carries the sequence; it states the price and the structure in the body rather than gating them behind a call. Track reply-by-touch from the first send and re-baseline this document at 200 sends against real numbers, so it states the price and the structure in the body rather than gating them behind a call.
 
 **Why the price is in the email.** The advice to never quote cold is written for enterprise software with a discovery call in front of it. This is a transaction-sized service with a published price. A Director of Maintenance's actual fear is an open-ended bill from a stranger. One sentence kills it: *$895 flat, the owner pays the pilot directly, no markup, no rebates.* Withholding the number reads as a setup for a markup.
 
@@ -147,7 +147,7 @@ Target: producer or account executive on owner-flown and small-fleet Part 91 acc
 
 # SEQUENCE 3 — AIRCRAFT DEALERS AND BROKERS
 
-Careful audience. When the dealer holds title, the dealer is the owner and can contract with AMG directly. When the dealer does not hold title, the seller or buyer contracts and the dealer is a referral source. Never quote one all-in delivered price for moving an airplane. Never imply AMG can supply an airplane.
+Careful audience. When the dealer holds title, the dealer is the owner and can contract with AMG directly. When the dealer does not hold title, the party that holds title contracts with AMG and the dealer is a referral source. A pre-closing buyer does not own the aircraft and cannot be AMG's contracting party. Never quote one all-in delivered price for moving an airplane. Never imply AMG can supply an airplane.
 
 ### 3.1 — Day 1
 
@@ -155,7 +155,7 @@ Careful audience. When the dealer holds title, the dealer is the owner and can c
 
 > {{first_name}} — Tony Gonzalez, AMG Aviation Group, North Lauderdale. Corporate pilot.
 >
-> When a {{company}} airplane needs to get to a pre-buy or out to a buyer, I source the pilot. If you hold title you contract with me directly; if you don't, the owner does. Either way the pilot is paid direct by whoever holds title and my invoice is one line — $895 turboprop and light jet, $495 piston, days one and two.
+> When a {{company}} airplane needs to get to a pre-buy or out to a buyer, I source the pilot. If you hold title you contract with me directly; if you don't, the titled owner does — not the buyer, not before closing. Either way the pilot is paid direct by whoever holds title and my invoice is one line — $895 turboprop and light jet, $495 piston, days one and two.
 >
 > How many moves does {{company}} do in a normal month?
 
@@ -225,7 +225,7 @@ Target: chief pilot or aviation manager at a one-to-three airplane department. T
 
 > {{first_name}} — a quick one, since you'd know.
 >
-> For your domestic Part 91 SIC seat, are you holding contract right-seaters to 61.55(b) currency inside twelve calendar months, or asking for an SIC type rating? 61.55(a)(3) exempts domestic US operations, but about half the departments I talk to are still requiring the rating and paying for it.
+> For your domestic Part 91 SIC seat, are you holding contract right-seaters to 61.55(b) currency inside twelve calendar months, or asking for an SIC type rating? 61.55(a)(3) exempts domestic US operations, but the item I see confused most often is whether are still requiring the rating and paying for it.
 >
 > Curious where {{company}} lands on that.
 
@@ -368,7 +368,7 @@ Add the sequence itself. A contact emailed on day 20 gets touch 4 on day 32.
 | Domain purchased, SPF/DKIM/DMARC published | 1 | day 1 |
 | Warm-up complete | 15–21 | ~day 21–30 |
 | First real sequence email sent | 22 | ~day 31 |
-| First replies arrive (touch 1 pulls 58%) | 23–25 | ~day 33–36 |
+| First replies arrive (re-baseline against measured reply-by-touch) | 23–25 | ~day 33–36 |
 | First qualifying call | ~27 | ~day 38 |
 | First engagement signed and flown | ~30 | ~day 42 |
 | First invoice paid, net 15 | ~40 | ~day 55 |

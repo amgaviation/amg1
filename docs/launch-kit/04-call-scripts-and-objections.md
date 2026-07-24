@@ -9,7 +9,7 @@ Read this before the first call of the day. It is written to be said out loud.
 ## Ground rules that apply to every call on this page
 
 - Manual dial only. No auto-dialer, no bulk SMS, no ringless voicemail.
-- Florida is two-party consent for recording (Fla. Stat. §934.03). Do not record a call unless both sides have said yes on the recording.
+- Florida is two-party consent for recording (Fla. Stat. §934.03). Do not record calls — a solo operator has no reliable way to capture consent on every call. Write notes instead.
 - No major sales presentation over the phone. The pattern AMG operates under is: short call, then a face-to-face or a written agreement to finish the sale. That is the §501.604(3) exemption posture under the Florida Telemarketing Act — and it is still unconfirmed with FDACS. Confirm it before running any volume.
 - Keep a written DNC policy and honor removal requests on the call, no argument, no "just one thing." 47 CFR 64.1200(d).
 - Never say "dispatch." AMG coordinates.
@@ -233,7 +233,7 @@ Every W-2 employer-of-record competitor sells exactly the thing AMG refuses. Hav
 
 ### 3. "What if the pilot bends my airplane?"
 
-> "Then it's a hull claim on your policy, same as if you'd hired him yourself — which is exactly why I won't move without your broker naming him in writing first. A pilot your underwriter already approved is a claim that gets paid. A pilot nobody told them about is the claim that turns into a coverage fight.
+> "Then it's a hull claim on your policy, same as if you'd hired him yourself — which is exactly why I won't move without your broker naming him in writing first. Then it's a hull claim on your policy, same as if you'd hired him yourself — which is exactly why I won't move without your broker naming him in writing first. I can't tell you how a carrier will handle a claim; nobody outside that carrier can. What I can tell you is that 'the pilot was never approved' is one of the arguments they can make, and it's the one argument I can take off the table before the airplane moves.
 >
 > On top of that, the pilot carries his own non-owned aircraft liability and I get a copy of the COI before he launches.
 >
@@ -261,7 +261,7 @@ Never keep a list of available aircraft. Never say "we can get you to Teterboro 
 >
 > I'm sourcing a pilot who's actually qualified in your make and model, pulling his certificate, medical, ratings, last recurrent completion cert, total time, multi, turbine, time in type and 90-day times, his W-9 and his non-owned COI — and if it's two-crew, his 61.55(b) currency inside the last twelve calendar months. Then I put all of that in front of your broker and I don't stop until I have an email naming him. If it's a ferry, I'm also making sure the 8130-7 and its limitations are in the file before he walks out to the airplane.
 >
-> The $895 is that file existing. If you want to run it yourself, you can — it's maybe four to six hours of your time and one phone call to an underwriter you may not have a relationship with. If your time's worth less than that, do it yourself and I mean that."
+> The $895 is that file existing. If you want to run it yourself, you can — it's a morning of your time and one phone call to an underwriter you may not have a relationship with you may not have a relationship with. If your time's worth less than that, do it yourself and I mean that."
 
 If he's on a one-day piston ferry and the fee really is 100% of a pilot day — know that's a real weakness in the current pricing. Do not pretend it isn't. Say:
 
@@ -273,7 +273,9 @@ If he's on a one-day piston ferry and the fee really is 100% of a pilot day — 
 
 He cannot claim a number. Answer without one.
 
-> "I don't have pilots. I don't keep a bench and I'm not going to quote you a roster number, because a roster number tells you nothing about whether anybody on it is current in your airplane and approved on your policy.
+> "I keep a bench, and I'm not going to quote you a number off it — a roster count tells you nothing about whether anybody on it is current in your airplane and clears your policy. Some of them would be right for a King Air and none of them would be right for your Baron.
+>
+> What I do is source to the airplane. You tell me it's a King Air 350 out of Fort Lauderdale on Thursday, and I go to the people on my bench who are current in a 350 and will clear your open pilot warranty — and if nobody on it does, I go outside it and tell you that's what I'm doing. If I can't find one that clears, you hear that the same day instead of getting strung along.
 >
 > What I do is source to the airplane. You tell me it's a King Air 350 out of Fort Lauderdale on Thursday, and I go find people current in a 350 who'll clear your open pilot warranty. If I can't find one that clears, I'll tell you that same day instead of stringing you along."
 
@@ -295,7 +297,7 @@ New company. Answer honestly and still win.
 >
 > My fee I'll scope, not discount. If it's a straight repositioning on an airworthy airplane and your broker already covers the pilot under the open pilot warranty, there's less work in it and the number reflects that. If it's out of annual with a permit and an endorsement, there's more, and it's going to cost more. Tell me which one you've got and I'll price the actual job.
 >
-> What I won't do is cut the fee and cut the file. That's the part you're buying."
+> My fee I'll scope, not discount. Days one and two are the base by aircraft class. If it's a straight repositioning on an airworthy airplane and your broker already covers the pilot under the open pilot warranty, there's less work in it and the number reflects that. If it's out of annual and moving under a special flight permit, there's a documented permit-ferry supplement of $250, because the permit and its operating limitations are real extra work. What I won't do is cut the fee and cut the file. That's the part you're buying."
 
 ---
 
@@ -408,7 +410,7 @@ Say no early. A bad first trip costs more than ten calls that went nowhere.
 | He wants a dry lease with AMG-supplied crew as a condition. | Classic sham dry lease. Walk. |
 | He wants AMG to pay fuel, handling, or hangar and rebill it. | AMG doesn't pay trip operating expenses. |
 | He wants AMG to make the go/no-go, fuel, route, or release call. | Operational control. That's the PIC and the owner. |
-| He won't provide a waiver of subrogation in favor of AMG. | Pre-dispatch condition, not a negotiation. |
+| He won't provide a waiver of subrogation in favor of AMG. | Pre-launch condition, not a negotiation. |
 | Registration, ownership, or airworthiness status doesn't add up. | Stop. Do not talk yourself into it. |
 
 Decline language:

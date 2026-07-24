@@ -22,7 +22,7 @@ North Lauderdale, FL · Florida and the Southeast US
 
 AMG Aviation Group is run by Antonio "Tony" Gonzalez, a working corporate pilot. AMG sources and coordinates qualified contract pilots for aircraft owners who need a seat filled and do not have one. That is the whole business.
 
-AMG is not an air carrier, not a charter operator, not a Part 135 certificate holder, not a management company, and not an air charter broker. **AMG never furnishes the aircraft.** AMG supplies coordination and, on request, a pilot's labor. The owner supplies the airplane.
+AMG is not an air carrier, not a charter operator, not a Part 135 certificate holder, not a management company, and not an air charter broker. **AMG never furnishes the aircraft.** AMG supplies coordination. The owner supplies the airplane and engages the pilot directly. AMG furnishes neither aircraft nor crew.
 
 ### What AMG does
 

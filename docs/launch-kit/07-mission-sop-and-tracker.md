@@ -87,7 +87,7 @@ Scope is where the fee is calculated. Days 1–2 are the base fee.
 Two known problems, both live, both to be handled out loud rather than hidden:
 
 - **The flat fee breaks above two days.** $895 is 75-128% of a single turboprop ferry pilot day at published rates, and 3.7% of a fourteen-day coverage block that is far more work. The flat fee is wrong at both ends; day-scaling fixes the top end and only a lower base fixes the bottom. Day-scaling above corrects the top end. Apply the soft cap by hand and write the applied number in the tracker.
-- **$495 on a piston is roughly one full piston pilot day** ($400–600/day). That is heavy for the most price-sensitive segment. Where the job is one piston ferry leg and nothing else, expect to discount toward $350–395 or bundle it into a multi-leg scope. Record any discount and the reason — a pattern of discounts is the pricing data.
+- **$495 on a piston is roughly one full piston pilot day** ($400–600/day). That is heavy for the most price-sensitive segment. The published piston price is $495 and that is the number to quote until it is formally changed — see "Two open pricing decisions" in the kit README. Do not improvise a lower number on a call. If you discount, record the amount and the reason in the tracker; a pattern of discounts is the evidence that settles the open decision.
 
 **Pilot day rates the owner should expect to pay directly** (AMG quotes these as market information, never as AMG's price): piston ferry $400–600; turboprop / light jet ferry $700–1,200; turboprop trip $1,200–2,100; light jet trip $1,500–2,500. Phenom 300, CJ3+/CJ4 and PC-24 are quoted individually.
 
@@ -238,7 +238,7 @@ AMG does **not** advise on weather, does not recommend a departure time, does no
 
 If a pilot asks AMG to make the call, AMG does not make the call.
 
-Recording note: Florida is a two-party consent state under Fla. Stat. §934.03. Do not record a call without everyone's consent on the recording.
+Recording note: Florida is a two-party consent state under Fla. Stat. §934.03. Do not record calls; write notes instead.
 
 ---
 
@@ -343,7 +343,7 @@ On the sham dry lease specifically: a dry lease that requires the lessee to use 
 
 ## 3.1 The closeout file (retained, private, never published)
 
-One folder per job. Naming: `YYYY-MM-DD_JobNNN_LastName`. Retain **seven years** — beyond any plausible statute of limitations on a hull claim or a subrogation action.
+One folder per job. Naming: `YYYY-MM-DD_JobNNN_LastName`. Retain per the schedule in document 02: the full trip file **seven years**, and broker approval emails, the waiver of subrogation, the coordination agreement and any permit-ferry file **ten years or permanently**. Where the two documents differ, 02 governs.
 
 Contents:
 
@@ -435,16 +435,18 @@ Exact column headers, in order (row 1, frozen):
 | K | `Aircraft` | Make/model + category. Category is what drives pricing |
 | L | `Requirement` | `Ferry` / `Callout Coverage` / `Second Pilot` / `Mentor Pilot` / `Overflow` / `Unknown` |
 | M | `Permit Needed` | `Yes` / `No` / `Unknown` |
-| N | `Quoted Fee` | Currency |
-| O | `Expected Close` | Date |
-| P | `Actual Collected` | Currency |
-| Q | `Date Collected` | Date |
-| R | `Next Action` | Text — a verb and an object. "Call re broker contact," not "follow up" |
-| S | `Next Action Date` | Date |
-| T | `Last Contact` | Date |
-| U | `Days Since Contact` | Formula |
-| V | `Tony Is PIC` | `Yes` / `No` |
-| W | `Notes` | Text — dated entries, newest on top |
+| N | `Waiver of Subrogation Rcvd` | `Yes` / `No` / `Requested` — pre-launch condition |
+| O | `Broker Approval Rcvd` | `Yes` / `No` / `Submitted` — date in Notes |
+| P | `Quoted Fee` | Currency |
+| Q | `Expected Close` | Date |
+| R | `Actual Collected` | Currency |
+| S | `Date Collected` | Date |
+| T | `Next Action` | Text — a verb and an object. "Call re broker contact," not "follow up" |
+| U | `Next Action Date` | Date |
+| V | `Last Contact` | Date |
+| W | `Days Since Contact` | Formula |
+| X | `Tony Is PIC` | `Yes` / `No` |
+| Y | `Notes` | Text — dated entries, newest on top |
 
 **Stage values** (column I — use a data validation dropdown, exactly these strings):
 
@@ -489,7 +491,7 @@ Collected YTD            =SUMIFS($P:$P,$Q:$Q,">="&DATE(YEAR(TODAY()),1,1))
 Overdue actions          =COUNTIFS($S:$S,"<"&TODAY(),$S:$S,"<>")
 Due today                =COUNTIFS($S:$S,TODAY())
 Proposals out            =COUNTIF($I:$I,"04 Proposal Sent")
-Close rate               =COUNTIF($I:$I,"12 Closed - Delivered")/COUNTIFS($I:$I,"<>01 Inbound",$I:$I,"<>")
+Close rate               =IFERROR(COUNTIF($I:$I,"12 Closed - Delivered")/(COUNTIFS($I:$I,"<>")-1),"")
 Avg collected fee        =AVERAGEIF($P:$P,">0")
 Fee realization          =IFERROR(SUMIF($P:$P,">0")/SUMIFS($N:$N,$P:$P,">0"),"")
 Declines by reason       =COUNTIF($J:$J,"Insurance")      (repeat for the other three)
@@ -525,7 +527,7 @@ The bench is the inventory. It is also the constraint — a job AMG cannot staff
 | O | `90-Day` | Number |
 | P | `Last Recurrent` | Date |
 | Q | `Recurrent Provider` | Text |
-| R | `61.55(b) Currency Date` | Date — domestic Part 91 SIC only |
+| R | `61.55(b) Currency Date` — per aircraft type, not make and model | Date — domestic Part 91 SIC only |
 | S | `W-9 On File` | `Yes` / `No` |
 | T | `Non-Owned COI Expires` | Date |
 | U | `Day Rate Asked` | Currency |
@@ -537,6 +539,7 @@ The bench is the inventory. It is also the constraint — a job AMG cannot staff
 | AA | `Status` | `Active` / `Docs Expired` / `Paused` / `Do Not Use` |
 | AB | `Docs Complete` | Formula |
 | AC | `Notes` | Text |
+| AD | `Categories` | `Piston` / `Turboprop` / `Light Jet` / `Trip` / `Mentor-SIC` — multi-value; the rule of three in document 06 counts against this column |
 
 **Formulas and rules:**
 
@@ -552,7 +555,9 @@ Conditional format, columns G / T / R, amber:
 
 Bench counts:
 Turbine-ready & complete  =COUNTIFS($AB:$AB,"COMPLETE",$M:$M,">=500",$AA:$AA,"Active")
-Piston-ready & complete   =COUNTIFS($AB:$AB,"COMPLETE",$AA:$AA,"Active")
+Piston-ready & complete   =COUNTIFS($AB:$AB,"COMPLETE",$AA:$AA,"Active",$AD:$AD,"*Piston*")
+(Column AD `Categories` on Tab 2 carries the category values — without it the rule of three in
+document 06 cannot be counted and this row silently returns the whole active bench.)
 Docs expiring in 45 days  =COUNTIFS($T:$T,">="&TODAY(),$T:$T,"<="&TODAY()+45)
 ```
 
@@ -613,7 +618,7 @@ Pilot revenue YTD       =SUMIFS($J:$J,$B:$B,">="&DATE(YEAR(TODAY()),1,1))
 Avg take rate           =AVERAGEIF($L:$L,">0")
 Avg hours to approval   =AVERAGE($T:$T)
 Turbine avg to approval =AVERAGEIFS($T:$T,$D:$D,"Light Jet")
-Permit ferry share      =COUNTIF($R:$R,"Yes")/COUNTA($A:$A)-1
+Permit ferry share      =IFERROR(COUNTIF($R:$R,"Yes")/(COUNTA($A:$A)-1),"")
 ```
 
 Column T is the number that becomes marketing once there are enough rows to average honestly. "Median 38 hours from request to written underwriter approval on turbine work" is a claim AMG can substantiate from this column. "Fast turnaround" is not a claim at all.
@@ -642,7 +647,7 @@ Tony is a working corporate pilot. The schedule below is what a full weekday on 
 **Phone rules, non-negotiable:**
 
 - **Manual dial only.** No auto-dialer, no predictive dialer, no bulk SMS, no ringless voicemail. Not for "just this list."
-- **Florida is two-party consent** (Fla. Stat. §934.03). Do not record a call unless everyone on it has consented on the recording.
+- **Florida is two-party consent** (Fla. Stat. §934.03). Do not record calls — a solo operator has no reliable way to capture consent on every call. Write notes instead.
 - **Maintain a written internal DNC policy** and honor requests immediately, regardless of B2B status. 47 CFR 64.1200(d) requires the written policy. A DNC request goes into Tab 1 as `Do Not Contact` in Notes and the row moves to `Lost` the same hour.
 - **Florida Telemarketing Act (§§501.601–501.626).** A "commercial telephone seller" needs an FDACS license under §501.605 or a filed exemption affidavit under §501.604. The B2B exemption at §501.604(10) does **not** cover AMG — it requires three years operating under the same name. The exemption that plausibly fits is §501.604(3): no major sales presentation by phone, with the sale completed at a later face-to-face meeting. **That is precisely why the ramp visit is in the middle of the day and the phone block is short.** The call gets a meeting; the meeting gets the sale. **CONFIRM THIS WITH FDACS IN WRITING BEFORE SCALING CALL VOLUME** and put the response in the corporate file.
 

@@ -162,7 +162,7 @@ your broker for written approval before the flight.*
 
 Every one of these calls should also end with AMG's own ask: a **waiver of subrogation in
 favor of AMG** on the owner's hull and liability policy is a standalone, non-negotiable,
-pre-dispatch condition in AMG's agreement. Brokers will tell you fast whether their
+pre-launch condition in AMG's agreement. Brokers will tell you fast whether their
 carriers will endorse it. That intelligence is worth more than the lead.
 
 ### VERIFIED

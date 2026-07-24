@@ -195,7 +195,7 @@ The record is **not** a substitute for the insurance gate. The gate in `02-insur
 
 **Currency**
 - Last recurrent training completion — provider, course, aircraft, date, certificate of completion on file
-- 61.55(b) SIC currency date per make and model, where the pilot is being used as SIC on domestic Part 91 (see `02`; this is 61.55(b) currency, not an SIC type rating — 61.55(a)(3) exempts domestic US operations)
+- 61.55(b) SIC currency date in that aircraft type, where the pilot is being used as SIC on domestic Part 91 (see `02`; this is 61.55(b) currency, not an SIC type rating — 61.55(a)(3) exempts domestic US operations)
 - 61.57 landing currency, day and night
 - IPC date if instrument currency lapsed
 
@@ -238,7 +238,7 @@ Treat all of these as stale until re-confirmed at the time of the job:
 |---|---|---|
 | Medical certificate | Class and age dependent | Every offer |
 | Recurrent training completion | Annual or 12/24-month cycle, and underwriter-driven | Every offer |
-| 61.55(b) SIC currency | Preceding 12 calendar months, per make and model | Every SIC offer |
+| 61.55(b) SIC currency | Preceding 12 calendar months, in that aircraft type | Every SIC offer |
 | 61.57 landing currency (day/night) | 90 days | Every offer |
 | Flight review / 61.56 | 24 calendar months | Every offer |
 | Instrument currency / IPC | 6 calendar months of experience, then IPC | Every IFR offer |

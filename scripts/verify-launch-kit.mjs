@@ -162,6 +162,53 @@ banAssertedUse(
   "claims verification as a product, which creates an uninsured duty of care",
 );
 
+// --- HIGH/MEDIUM findings 6-23 -------------------------------------------
+// Each was a sentence that read naturally and was wrong. They come back during
+// an edit unless something is watching.
+banEverywhere(
+  /is a claim that gets paid/i,
+  "promises a coverage outcome; only the carrier can say how a claim is handled",
+);
+banEverywhere(
+  /I don't have pilots|I don't keep a bench/i,
+  "false to a customer and contradicted by documents 06 and 07",
+);
+banEverywhere(/58% of replies/i, "cites a reply rate AMG has never measured");
+banEverywhere(
+  /about half the departments I talk to/i,
+  "claims a survey of flight departments that did not happen",
+);
+banEverywhere(/\bPre-dispatch\b/i, "uses 'dispatch', which the kit bans");
+banEverywhere(
+  /AMG supplies coordination and, on request, a pilot's labor/i,
+  "reads as furnishing crew; AMG furnishes neither aircraft nor crew",
+);
+banEverywhere(
+  /I can have a qualified pilot committed today/i,
+  "promises a third party's availability",
+);
+banEverywhere(
+  /discount toward \$350/i,
+  "improvises a piston price below the published one; see the README open decision",
+);
+banEverywhere(
+  /Do not sign it or send it to a customer until counsel has cleared it/i,
+  "forbids what document 08 instructs; the header becomes the exhibit, not the shield",
+);
+banEverywhere(
+  /Then Gate 5 applies/i,
+  "wrong gate cross-reference — the SIC gate is Gate 4",
+);
+banEverywhere(
+  /COUNTIF\(\$R:\$R,"Yes"\)\/COUNTA\(\$A:\$A\)-1/,
+  "operator-precedence bug: divides then subtracts, negative forever",
+);
+assert.match(
+  docs["01-coordination-services-agreement.md"],
+  /may be sent to a prospective customer and signed only if all of the following are true/,
+  "01: the conditional send rule was removed",
+);
+
 console.log(
   `Launch kit: ${names.length} documents checked. All five STOP findings from 00-REVIEW.md remain fixed.`,
 );
