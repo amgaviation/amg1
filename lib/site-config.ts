@@ -176,13 +176,37 @@ export const SITE_EVENTS = {
 
 export type SiteEventName = (typeof SITE_EVENTS)[keyof typeof SITE_EVENTS];
 
+/**
+ * Public FAA Airman Registry inquiry. Linking it next to the founder's
+ * credentials invites a stranger to check them — which is the move that faked
+ * proof is trying, and failing, to imitate. §803 of the 2024 FAA
+ * Reauthorization lets AIRCRAFT OWNERS withhold registry PII; it does not touch
+ * AIRMAN certificate data, so this stays verifiable.
+ */
+export const AIRMAN_REGISTRY_URL = "https://amsrvs.registry.faa.gov/airmeninquiry/";
+
 export const TEAM_ROSTER = [
   {
     name: "Antonio Gonzalez",
     role: "Founder & Chief Pilot",
-    // TODO before launch: certificates held, hours, and types (e.g. "ATP, CFII · 4,200 hrs · PC-12/TBM")
+    /**
+     * TODO — BLOCKING, and the highest-value unfilled field on the site.
+     *
+     * For a company whose product is the founder's judgement, a team page with
+     * no verifiable founder is the biggest credibility hole we have. A Director
+     * of Maintenance checking AMG out before returning a call currently finds a
+     * name and a paragraph.
+     *
+     * Format: certificate level, ratings, approximate total time, types, and
+     * the month of last recurrent.
+     * Example: "ATP · CFII · ~4,200 hrs · PC-12 / TBM 940 · recurrent Mar 2026"
+     *
+     * Claim only what is true and current — this sits next to a link inviting
+     * anyone to verify it against the FAA Airman Registry, which is the point.
+     */
     credentials: null as string | null,
-    // TODO before launch: real photo (spec bans initial-avatars)
+    // TODO before launch: real photo, on a ramp or flight deck (spec bans
+    // initial-avatars, and a stock portrait is worse than none).
     photo: null as string | null,
     bio: "Antonio runs AMG end to end: he sources and vets every network pilot, prices every quote, and coordinates every mission personally. Based in North Lauderdale, FL, he built AMG around one idea — an owner should know what a mission costs, who is flying it, and when they'll hear back, before they ever pick up the phone.",
   },
