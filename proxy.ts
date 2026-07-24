@@ -7,6 +7,16 @@ import {
 } from "@/lib/portal/intro";
 
 export async function proxy(request: NextRequest) {
+  // The client, crew, and partner areas are intentionally not offered during
+  // the manual revenue sprint. Admin routes remain available for lead intake,
+  // qualification, proposals, follow-up, invoices, and payment tracking.
+  if (/^\/portal\/(client|crew|partner)(?:\/|$)/.test(request.nextUrl.pathname)) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/portal-maintenance";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
+
   let supabaseResponse = NextResponse.next({ request });
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

@@ -86,11 +86,11 @@ export const COMMITMENTS = [
 
 /** Mission types for the quote form dropdown (spec §10). */
 export const MISSION_TYPES = [
-  "Crew coverage",
-  "Maintenance ferry",
-  "Repositioning",
-  "Insurance-required second pilot",
-  "Other",
+  "Temporary contract pilot coverage",
+  "Maintenance ferry / repositioning coordination",
+  "Insurance / mentor / second-pilot need",
+  "Flight-department overflow",
+  "Other Part 91 support",
 ] as const;
 
 /**

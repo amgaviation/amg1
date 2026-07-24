@@ -11,24 +11,24 @@ import { ArrowR, Reveal } from "./fd-anim";
 
 const ROWS = [
   {
-    title: "Contract pilot support",
-    body: "Coverage matched to aircraft qualifications, availability, and mission requirements — subject to review.",
-    href: "/pilots",
+    title: "Your pilot is unavailable",
+    body: "Request temporary contract pilot coverage for a planned absence, training gap, or unexpected scheduling issue.",
+    href: "/request",
   },
   {
-    title: "Ferry & repositioning",
-    body: "Movement coordination where the owner/operator and assigned crew retain defined responsibilities.",
-    href: "/how-it-works",
+    title: "Your aircraft is in maintenance",
+    body: "Request coordination for a maintenance ferry or repositioning after the aircraft, timing, and approval requirements are reviewed.",
+    href: "/request",
   },
   {
-    title: "Maintenance flight support",
-    body: "Positioning to and from facilities with the requirement, status, and next action kept visible.",
-    href: "/how-it-works",
+    title: "Insurance requires another pilot",
+    body: "Share the insurer or mentor-pilot requirement so AMG can review the support path with the owner or operator.",
+    href: "/request",
   },
   {
-    title: "Owner visibility",
-    body: "Requests, aircraft, documents, and role-based updates stay in view through AMG Connect.",
-    href: "/login",
+    title: "Your flight department needs overflow",
+    body: "Request short-term support coordination when your internal team needs additional capacity.",
+    href: "/request",
   },
 ];
 
@@ -82,12 +82,12 @@ export default function Capabilities() {
             >
               <span className="rv-mask">
                 <span className="rv-inner" style={{ "--d": "0.1s" }}>
-                  Aircraft support, mapped
+                  Solve the aircraft problem
                 </span>
               </span>
               <span className="rv-mask">
                 <span className="rv-inner" style={{ "--d": "0.2s" }}>
-                  by operational need.
+                  in front of you.
                 </span>
               </span>
             </h2>
