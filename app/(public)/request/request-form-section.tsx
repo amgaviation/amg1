@@ -20,12 +20,12 @@ function RequestOutcome() {
       <div className="oc-card-dark p-8 text-center lg:p-10" role="status">
         <h2 className="oc-display text-3xl text-[var(--oc-paper)]">Received.</h2>
         <p className="mt-4 text-base leading-relaxed text-[var(--oc-aluminum)]">
-          You&apos;ll have a written quote within 24 business hours — or your plan&apos;s
-          window if you&apos;re a member. It will come from a named coordinator.
+          AMG will review the information before discussing availability, scope,
+          pricing, or any next step. This submission does not confirm service.
         </p>
         <div className="mt-8 flex justify-center">
           <Link href="/how-it-works" prefetch={false} className="oc-btn oc-btn-ghost-dark">
-            What happens next
+            Review boundaries
             <ArrowUpRight className="h-4 w-4" />
           </Link>
         </div>

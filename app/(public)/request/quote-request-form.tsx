@@ -105,13 +105,16 @@ export function QuoteRequestForm({ error }: { error?: string }) {
         <Field label="Phone">
           <input name="phone" type="tel" required autoComplete="tel" className={inputClass} />
         </Field>
+        <Field label="Company or flight department" hint="Optional">
+          <input name="company" autoComplete="organization" className={inputClass} />
+        </Field>
         <Field label="Aircraft type" hint="Make and model — e.g. SR22, PC-12, King Air 250">
           <input name="aircraft_type" required className={inputClass} />
         </Field>
         <Field label="Tail number" hint="If you'd rather share it by phone, leave blank">
           <input name="tail_number" className={inputClass} />
         </Field>
-        <Field label="Mission type">
+        <Field label="What support do you need?">
           <select name="support_type" required className={inputClass} defaultValue="">
             <option value="" disabled>
               Select…
@@ -132,13 +135,6 @@ export function QuoteRequestForm({ error }: { error?: string }) {
         <Field label="Insurance broker contact" hint="Name or email — speeds up pilot approval on your policy">
           <input name="insurance_broker" className={inputClass} />
         </Field>
-        <Field label="Plan status">
-          <select name="plan_status" className={inputClass} defaultValue="No plan yet">
-            <option value="No plan yet">No plan yet</option>
-            <option value="Standard member">Standard member</option>
-            <option value="Priority member">Priority member</option>
-          </select>
-        </Field>
         <Field label="Origin" hint="If known">
           <input name="origin" className={inputClass} placeholder="e.g. KTPA" />
         </Field>
@@ -147,7 +143,7 @@ export function QuoteRequestForm({ error }: { error?: string }) {
         </Field>
       </div>
 
-      <Field label="Anything else">
+      <Field label="What happened?" hint="Include timing, any insurance or mentor-pilot requirement, and what you need help coordinating.">
         <textarea name="additional_notes" rows={4} className={`${inputClass} min-h-28`} />
       </Field>
 
@@ -160,7 +156,7 @@ export function QuoteRequestForm({ error }: { error?: string }) {
           className="mt-1 h-4 w-4 accent-[var(--oc-blue)]"
         />
         <span>
-          I understand AMG will reply with a written, itemized quote and that the terms in{" "}
+          I understand this is a request for review, not confirmed service, a crew assignment, aircraft movement, or an operational commitment, and that the terms in{" "}
           <Link href="/legal" prefetch={false} className="underline underline-offset-2">
             Legal
           </Link>{" "}
@@ -179,7 +175,7 @@ function SubmitQuoteButton() {
   const { pending } = useFormStatus();
   return (
     <button type="submit" disabled={pending} className="oc-btn oc-btn-light disabled:cursor-not-allowed disabled:opacity-60">
-      {pending ? "Sending…" : "Request Support"}
+      {pending ? "Sending…" : "Submit Request"}
       <ArrowRight className="h-4 w-4" />
     </button>
   );

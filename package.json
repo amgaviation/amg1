@@ -15,6 +15,7 @@
     "compliance:verify": "node scripts/verify-compliance-foundation.mjs",
     "compliance:check": "node scripts/verify-compliance-foundation.mjs && node scripts/verify-compliance-hardening.mjs && node scripts/verify-website-editor.mjs",
     "website-editor:verify": "node scripts/verify-website-editor.mjs",
+    "revenue-sprint:verify": "node scripts/verify-revenue-sprint.mjs",
     "import:crew-profiles": "tsx scripts/import-crew-profiles-from-csv.ts",
     "verify:crew-import": "tsx scripts/verify-crew-import-visibility.ts",
     "stripe:verify": "tsx scripts/verify-stripe-invoice-payments.ts",

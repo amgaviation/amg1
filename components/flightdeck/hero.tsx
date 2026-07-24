@@ -82,7 +82,7 @@ function OpsPanel() {
             color: "var(--sp-ink-3)",
           }}
         >
-          Operations Desk
+          Support intake
         </span>
         <span
           style={{
@@ -101,12 +101,12 @@ function OpsPanel() {
             className="fd-pulse"
             style={{ width: 6, height: 6, borderRadius: 99, background: "var(--sp-sky)" }}
           />
-          Live
+          Review required
         </span>
       </div>
       <div style={{ padding: "18px 20px 20px" }}>
         <div style={{ fontFamily: "var(--font-mono)", fontSize: 11.5, color: "var(--sp-ink-3)" }}>
-          SR-2026-0142
+          Request received
         </div>
         <div
           style={{
@@ -118,7 +118,7 @@ function OpsPanel() {
             lineHeight: 1.08,
           }}
         >
-          Maintenance ferry under review
+          Maintenance ferry coordination
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 18 }}>
           <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--sp-ink-1)" }}>
@@ -154,8 +154,8 @@ function OpsPanel() {
             color: "var(--sp-ink-3)",
           }}
         >
-          <span>Next update</span>
-          <span style={{ color: "var(--sp-ink-1)" }}>1500 ET</span>
+          <span>Next step</span>
+          <span style={{ color: "var(--sp-ink-1)" }}>Scope review</span>
         </div>
       </div>
     </div>
@@ -656,7 +656,7 @@ export default function Hero() {
                     color: "var(--sp-ink-2)",
                   }}
                 >
-                  Aircraft Operations Support
+                  Part 91 support coordination
                 </span>
               </div>
               <p
@@ -673,7 +673,7 @@ export default function Hero() {
               >
                 <span className="hero-line">
                   <span style={{ "--d": "0.16s", fontWeight: 700, display: "block" }}>
-                    Mission Ready.
+                    Your pilot is unavailable.
                   </span>
                 </span>
                 <span className="hero-line">
@@ -685,7 +685,7 @@ export default function Hero() {
                       display: "block",
                     }}
                   >
-                    Owner Focused.
+                    Your aircraft still needs to move.
                   </span>
                 </span>
               </p>
@@ -711,20 +711,15 @@ export default function Hero() {
                     textShadow: "0 1px 18px rgba(4,6,13,0.6)",
                   }}
                 >
-                  AMG coordinates the people, planning, and operational support
-                  required to keep aircraft moving, owners informed, and missions
-                  properly supported.
+                  Temporary contract pilot coverage, maintenance ferry and
+                  repositioning coordination, insurance-related pilot needs, and
+                  flight-department overflow — reviewed manually for your aircraft.
                 </p>
                 <div className="hero-fade" style={{ "--d": "0.54s", display: "flex", gap: 12 }}>
                   <Magnetic>
                     <Link href="/request" className="fd-btn fd-btn-primary">
                       Request Support <ArrowNE />
                     </Link>
-                  </Magnetic>
-                  <Magnetic>
-                    <a href="#capabilities" className="fd-btn fd-btn-ghost">
-                      Capabilities
-                    </a>
                   </Magnetic>
                 </div>
               </div>

@@ -1,18 +1,14 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { CountUp, Reveal } from "./fd-anim";
+import { Reveal } from "./fd-anim";
 
-/**
- * STATS BAND — three hairline-split figures on the light canvas. Each
- * numeral counts when scrolled into view; the pass-through markup figure
- * counts DOWN 9 → 0 to land on "$0".
- */
+/** Three concise proof points for the public support-intake path. */
 
 const STATS: { render: () => ReactNode; label: string }[] = [
-  { render: () => (<><CountUp to={24} /> hr</>), label: "Quote response" },
-  { render: () => (<><CountUp to={7} duration={1100} /> days</>), label: "Pilot payment" },
-  { render: () => (<>$<CountUp from={9} to={0} duration={1100} /></>), label: "Pass-through markup" },
+  { render: () => <>4</>, label: "Immediate support paths" },
+  { render: () => <>$995</>, label: "Starting coordination fee" },
+  { render: () => <>Manual</>, label: "Review before acceptance" },
 ];
 
 export default function StatsBand() {
