@@ -37,10 +37,10 @@ export const PUBLIC_FOOTER_GROUPS: { label: string; href: string; items: PublicN
     ],
   },
   {
-    label: "AMG Connect",
-    href: "/connect",
+    label: "Support",
+    href: "/request",
     items: [
-      { label: "Portal login", href: "/connect" },
+      { label: "Request Support", href: "/request" },
       { label: "Apply to the pilot network", href: "/pilots/apply" },
     ],
   },

@@ -8,8 +8,8 @@ export const metadata: Metadata = {
 };
 
 const FEES = [
-  ["Temporary contract pilot coverage", "Starting at $995", "Reviewed against aircraft, timing, qualifications, availability, and owner/operator requirements."],
-  ["Maintenance ferry / repositioning coordination", "Starting at $995", "Reviewed against aircraft status, facility timing, route, assigned crew, and required approvals."],
+  ["Temporary contract pilot coverage", "Scope reviewed", "Reviewed against aircraft, timing, qualifications, availability, and owner/operator requirements."],
+  ["Maintenance ferry / repositioning coordination", "Scope reviewed", "Reviewed against aircraft status, facility timing, route, assigned crew, and required approvals."],
   ["Insurance, mentor, or second-pilot needs", "Scope reviewed", "AMG reviews the stated insurance or experience requirement before discussing a support path."],
   ["Flight-department overflow", "Custom scope", "For teams that need short-term coordination support around a specific operational need."],
 ] as const;

@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 const root = new URL("..", import.meta.url);
 const read = (path) => readFile(new URL(path, root), "utf8");
 
-const [hero, capabilities, pricing, request, form, proxy, maintenance, crm, siteConfig] = await Promise.all([
+const [hero, capabilities, pricing, request, form, proxy, maintenance, crm, siteConfig, howItWorks, nav, footer] = await Promise.all([
   read("components/flightdeck/hero.tsx"),
   read("components/flightdeck/capabilities.tsx"),
   read("app/(public)/pricing/page.tsx"),
@@ -14,6 +14,9 @@ const [hero, capabilities, pricing, request, form, proxy, maintenance, crm, site
   read("app/(public)/portal-maintenance/page.tsx"),
   read("lib/portal/crm.ts"),
   read("lib/site-config.ts"),
+  read("app/(public)/how-it-works/page.tsx"),
+  read("components/site/site-nav.tsx"),
+  read("components/site/site-footer.tsx"),
 ]);
 
 for (const copy of [hero, capabilities, pricing, request, form]) {
@@ -23,8 +26,11 @@ assert.match(hero, /Your pilot is unavailable/);
 assert.match(hero, /Your aircraft still needs to move/);
 assert.match(capabilities, /Insurance requires another pilot/);
 assert.match(capabilities, /flight department needs overflow/i);
-assert.match(pricing, /Starting at \$995/);
+assert.doesNotMatch(pricing, /Starting at \$995/);
 assert.doesNotMatch(pricing, /subscription|monthly plan/i);
+assert.doesNotMatch(howItWorks, /AMG Connect|24 business|12 business|4 business/i);
+assert.doesNotMatch(nav, /\/connect|AMG Connect/);
+assert.doesNotMatch(footer, /\/connect|AMG Connect/);
 assert.match(siteConfig, /Temporary contract pilot coverage/);
 assert.match(siteConfig, /Insurance \/ mentor \/ second-pilot need/);
 assert.match(form, /not confirmed service, a crew assignment, aircraft movement, or an operational commitment/i);

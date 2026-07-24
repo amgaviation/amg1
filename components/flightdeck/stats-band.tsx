@@ -7,7 +7,7 @@ import { Reveal } from "./fd-anim";
 
 const STATS: { render: () => ReactNode; label: string }[] = [
   { render: () => <>4</>, label: "Immediate support paths" },
-  { render: () => <>$995</>, label: "Starting coordination fee" },
+  { render: () => <>Direct</>, label: "Manual coordination review" },
   { render: () => <>Manual</>, label: "Review before acceptance" },
 ];
 

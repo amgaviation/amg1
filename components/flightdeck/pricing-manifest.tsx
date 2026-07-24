@@ -4,8 +4,8 @@ import Link from "next/link";
 import { Reveal } from "./fd-anim";
 
 const STARTING_FEES = [
-  { label: "Temporary pilot coverage coordination", amount: "Starting at $995" },
-  { label: "Maintenance ferry / repositioning coordination", amount: "Starting at $995" },
+  { label: "Temporary pilot coverage coordination", amount: "Scope reviewed" },
+  { label: "Maintenance ferry / repositioning coordination", amount: "Scope reviewed" },
   { label: "Flight-department overflow", amount: "Custom scope" },
 ] as const;
 

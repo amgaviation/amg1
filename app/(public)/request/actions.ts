@@ -64,17 +64,15 @@ export async function submitQuoteRequest(formData: FormData) {
   if (!String(formData.get("additional_notes") ?? "").trim()) {
     formData.set(
       "message",
-      `Quote request: ${formData.get("support_type") ?? "mission"} — ${formData.get("aircraft_type") ?? "aircraft"}`,
+      `Support request: ${formData.get("support_type") ?? "mission"} — ${formData.get("aircraft_type") ?? "aircraft"}`,
     );
   }
 
-  // Portal Spec §3.1: insurance carrier & broker contact and plan status ride
-  // in the notes so the coordinator and the portal mission record capture
-  // them — the shared normalizer has no dedicated columns for these fields.
+  // Insurance information rides in the notes because the shared form schema
+  // has no dedicated columns for it.
   const specLines = [
     ["Insurance carrier", formData.get("insurance_carrier")],
     ["Insurance broker contact", formData.get("insurance_broker")],
-    ["Plan status", formData.get("plan_status")],
   ]
     .map(([label, value]) => {
       const text = String(value ?? "").trim();
