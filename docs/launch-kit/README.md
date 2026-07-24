@@ -4,9 +4,26 @@ Everything needed to sell and deliver AMG's first engagements. These are operati
 documents, not background reading — they are meant to be printed, sent, filled in,
 and argued with.
 
-Read `00-REVIEW.md` first if it exists: it is an adversarial review of everything
-here, and where it disagrees with a document, the review wins until the document
-is corrected.
+## Read `00-REVIEW.md` first — the kit is not ready to use
+
+An adversarial review of everything here found **27 issues, five of them
+STOP-severity**. Where the review disagrees with a document, **the review wins
+until the document is corrected.**
+
+The five STOP items, none of which are style notes:
+
+1. **Four documents publish four different take rates for the same job**, and the
+   pricing model does not close arithmetically.
+2. **AMG "clears" flights to launch** — language that claims an authority AMG does
+   not have and must never imply.
+3. **The fee is collected before the insurance gate that can kill the job**, and no
+   document says what happens to the money when the gate fails.
+4. **The prepaid credit block is sold against terms that contradict the agreement**,
+   and no block agreement exists.
+5. **The kit sells jets on day one from a bench of zero**, against its own rule.
+
+Fix those before any of this reaches a customer. Everything below describes what
+the documents are *for*, not that they are finished.
 
 ## The documents
 
@@ -20,7 +37,10 @@ is corrected.
 | 06 | [Pilot Bench Recruiting](06-pilot-bench-recruiting.md) | Supply side. Selling a ferry with no pilot to fly it is worse than not selling it. |
 | 07 | [Mission SOP and Tracker](07-mission-sop-and-tracker.md) | The runbook from inbound request to closeout, the daily rhythm, and the tracker spec. |
 | 08 | [First 90 Days](08-first-90-days.md) | Sequencing: what blocks selling, what does not, and the honest arithmetic on the 14-day target. |
-| 09 | [Prospect List](09-prospect-list.md) | Starter contacts in calling order, each marked VERIFIED or UNVERIFIED. |
+
+**Not written yet: 09, the prospect list.** The agent building it did not finish.
+Build it by hand from §VI of `../LAUNCH_INTELLIGENCE_BRIEF.md`, which has the
+sources, the costs, and the two Florida insurance brokers already verified.
 
 Supporting research lives one level up: `../LAUNCH_INTELLIGENCE_BRIEF.md` (verified
 market and regulatory findings) and `../LAUNCH_PLAN_14_DAY.md` (earlier plan, partly
