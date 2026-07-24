@@ -10,30 +10,26 @@ An adversarial review of everything here found **27 issues, five at STOP severit
 Where the review disagrees with a document, **the review wins until the document is
 corrected.**
 
-**The five STOP findings are now fixed** (commit history has the detail):
+**All 27 findings are now applied** — the five STOP items and the 22 High, Medium,
+and Low findings behind them. `npm run launch-kit:verify` guards them and runs as part
+of `npm test`. Read the review anyway: it is the clearest statement of *why* each of
+these documents says what it says, and the next person to edit them needs that.
+
+What the STOP findings were:
 
 1. **Take-rate arithmetic.** Four documents published four different take rates for the
    same job, and the 25–30% cap was unreachable on any one- or two-day job at published
-   rates. The cap now applies to the day-scaled portion, not the base, and the one-day
-   ratio is stated honestly (75–128% of a single pilot day) rather than dressed up.
+   rates. The cap now applies to the day-scaled portion, and the one-day ratio is stated
+   honestly rather than dressed up.
 2. **AMG does not clear, launch, fly, or move anything.** A signed "CLEARED TO LAUNCH"
-   block was the single best exhibit a plaintiff could ask for. Replaced with "AMG
-   coordination complete", and every operational verb now has the PIC or the owner as
-   its subject.
-3. **The fee vs the gate.** The fee was collected before the insurance gate that most
-   often kills the job, with no term covering the decline. Now 50% on signature, 50% at
-   pilot acceptance, and if the underwriter declines every candidate the owner owes the
-   first half and nothing more.
-4. **The prepaid block** is gated until counsel delivers a block agreement, which is now
-   a third item in the counsel engagement. Unearned balances go in a separate account.
+   block was the best operational-control exhibit a plaintiff could ask for.
+3. **The fee vs the gate.** Money was collected before the insurance step that most often
+   kills the job, with no term covering the decline. Now 50/50, and a universal
+   underwriter decline means the owner owes the first half and nothing more.
+4. **The prepaid block** is gated until counsel delivers a block agreement.
 5. **No selling what the bench cannot staff.** Light jet pricing is out of the day-one
-   emails, the three-deep rule explicitly binds documents 03 and 05, and the false claim
-   that an insurance-approved pilot exists *before* the call is corrected — approval is
-   always trip-specific and always after.
-
-`npm run launch-kit:verify` guards all five. The remaining 22 findings (High, Medium,
-Low) are documented in the review and not yet applied — read it before using any
-document.
+   emails, and the claim that an insurance-approved pilot exists *before* the call is
+   corrected — approval is trip-specific and always after.
 
 ## The documents
 
