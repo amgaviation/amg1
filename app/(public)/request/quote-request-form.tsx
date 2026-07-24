@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { submitQuoteRequest } from "./actions";
 import { trackSiteEvent } from "@/lib/site-analytics";
-import { MISSION_TYPES, SITE_EVENTS } from "@/lib/site-config";
+import { MISSION_TYPES, REQUESTER_RELATIONSHIPS, SITE_EVENTS } from "@/lib/site-config";
 
 function Field({
   label,
@@ -126,6 +126,23 @@ export function QuoteRequestForm({ error }: { error?: string }) {
             {MISSION_TYPES.map((type) => (
               <option key={type} value={type}>
                 {type}
+              </option>
+            ))}
+          </select>
+        </Field>
+        {/* AMG contracts with the aircraft owner and nobody else — a shop or
+            broker can refer, but the owner signs and the owner pays. Asking
+            here means the first phone call already knows whether it needs to
+            reach the owner, instead of discovering it at proposal. */}
+        <Field
+          label="Are you the aircraft owner?"
+          hint="AMG contracts with the owner. Referrals are welcome either way."
+        >
+          <select name="requester_relationship" className={inputClass} defaultValue="">
+            <option value="">Select…</option>
+            {REQUESTER_RELATIONSHIPS.map((relationship) => (
+              <option key={relationship} value={relationship}>
+                {relationship}
               </option>
             ))}
           </select>

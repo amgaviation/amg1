@@ -154,6 +154,27 @@ export const COMMITMENTS = [
   { value: "$0", label: "markup or vendor rebate" },
 ] as const;
 
+/**
+ * Who is submitting the request.
+ *
+ * AMG contracts with the aircraft owner and nobody else. A shop, broker, or
+ * flight department can refer, but the owner signs the coordination agreement
+ * and pays AMG — money flowing from a party that does not own the aircraft, to
+ * move that aircraft, is the one arrangement in this business that starts to
+ * resemble an uncertificated air carrier operation.
+ *
+ * Capturing it at intake means the first callback already knows whether it has
+ * to reach the owner, rather than discovering it at proposal.
+ */
+export const REQUESTER_RELATIONSHIPS = [
+  "I own the aircraft",
+  "I manage or operate it for the owner",
+  "I'm the chief pilot or flight department",
+  "I'm a maintenance shop referring a customer",
+  "I'm a broker or dealer",
+  "Something else",
+] as const;
+
 /** Mission types for the quote form dropdown (spec §10). */
 export const MISSION_TYPES = [
   "Temporary contract pilot coverage",
