@@ -15,8 +15,8 @@ const FOUNDER_FACTS = [
   { label: "Based in", value: SITE.cityState },
   { label: "Serving", value: SITE.region.replace("the ", "") },
   { label: "Quote response", value: "24 business hrs" },
-  { label: "Pilot payment", value: "Within 7 days" },
-  { label: "Pass-through markup", value: "$0" },
+  { label: "Pilot engagement", value: "Direct with owner" },
+  { label: "Markup or rebate", value: "$0" },
 ] as const;
 
 /** The seats one senior team actually covers — the page's real message. */

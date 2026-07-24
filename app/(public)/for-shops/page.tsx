@@ -4,64 +4,80 @@ import { SITE } from "@/lib/site-config";
 import { HeadlineReveal } from "@/components/site/headline-reveal";
 import { QuoteButton } from "@/components/site/quote-button";
 
+/**
+ * FOR SHOPS — rewritten to the only structure that is safe for AMG.
+ *
+ * The shop is a REFERRAL SOURCE. The aircraft owner is always AMG's contracting
+ * party and always pays AMG directly.
+ *
+ * The previous version sold "Fleet Agreements" with tailored SLAs, automatic
+ * fee-credit remedies and consolidated monthly invoicing to "MROs, brokers, and
+ * flight departments", and offered to run ferries "under your shop's name".
+ * That inverted the relationship: money flowing shop -> AMG -> pilot to move an
+ * aircraft the shop does not own is the one arrangement in this business that
+ * genuinely starts to resemble an uncertificated air carrier operation. The
+ * SLA and remedy language also promised availability AMG cannot guarantee, and
+ * referenced owner subscription plans AMG does not currently sell.
+ *
+ * Nothing on this page may imply AMG contracts with anyone other than the
+ * aircraft owner, or that crew availability is guaranteed.
+ */
 export const metadata: Metadata = {
-  title: "For Shops & Flight Departments — Fleet Agreements",
+  title: "For Maintenance Shops — Aircraft Repositioning Referrals",
   description:
-    "MROs, brokers, and 1–2 aircraft flight departments: volume coordination pricing, a dedicated coordinator, tailored SLAs, and monthly invoicing under one Fleet Agreement.",
+    "Independent maintenance shops: when a customer asks how to get the aircraft to you, or home after the work is signed off, refer them to AMG. The aircraft owner contracts with AMG directly.",
 };
 
-const FLEET_TERMS = [
+const HOW_IT_WORKS = [
   {
-    title: "Volume coordination pricing",
-    body: "Per-mission fees priced to your actual monthly movement volume — and we show you the math.",
+    title: "You refer, you don't contract",
+    body: "Hand your customer our number, or send us their name with their permission. The aircraft owner signs AMG's coordination agreement and pays AMG directly. Your shop is never the contracting party and never carries the cost.",
   },
   {
-    title: "Dedicated coordinator",
-    body: "One person who knows your shop, your customers' tail numbers, and your schedule.",
+    title: "You never pick the pilot",
+    body: "AMG sources qualified contract pilots and puts their certificates, currency, and time in type in front of the owner's insurance broker for written approval. The owner selects the pilot. Your shop stays out of that decision entirely.",
   },
   {
-    title: "Tailored SLAs",
-    body: "Quote and sourcing windows set to how your intake actually works, with the same automatic fee-credit remedy our owner plans carry.",
+    title: "The owner pays the pilot",
+    body: "AMG charges one flat coordination fee. Pilot day rate, positioning, per diem, and lodging are paid by the owner directly to the pilot or vendor. AMG never marks up, never takes a vendor rebate, and never handles trip funds.",
   },
   {
-    title: "Monthly invoicing",
-    body: "One consolidated invoice, every pass-through receipt attached, zero markup.",
+    title: "We answer either way",
+    body: "If AMG cannot staff a referral, we say so quickly so your customer is not left waiting on us. We do not promise availability. We would rather decline early than leave a slot on your ramp uncertain.",
   },
 ] as const;
 
 export default function ForShopsPage() {
   return (
     <>
-      {/* Hero — the pain-led lockup beside the page's signature
-          instrument: the shuttle loop, a customer aircraft moving between
-          the shop and the owner's field on a standing cadence. */}
       <section className="pub-hero oc-shell pb-14 pt-[calc(var(--public-header-height)+4rem)]">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(330px,410px)] lg:items-center">
           <div className="max-w-3xl" data-stagger-container>
             <p className="oc-eyebrow" data-stagger-item>
-              For shops & flight departments // one standing arrangement
+              For maintenance shops // referrals
             </p>
             <HeadlineReveal
               className="oc-display mt-4 text-5xl text-[var(--oc-paper)] sm:text-6xl"
-              lines={["Customer aircraft stuck.", "A pilot out two weeks.", "Every month."]}
+              lines={["The work is signed off.", "Nobody can come get it."]}
             />
             <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]" data-stagger-item>
-              MROs and brokers need aircraft moved inbound and outbound on a schedule; 1–2 aircraft
-              flight departments have no bench when a pilot is sick, training, or on vacation.
-              Fleet Agreements make that a standing arrangement instead of a monthly scramble.
+              An aircraft you cannot get onto your ramp is a slot you cannot bill, and one sitting
+              finished on the ramp is a space you cannot reuse. When a customer asks how to get the
+              aircraft to you, or home afterwards, send them to AMG. We coordinate the crew. Your
+              shop stays out of it.
             </p>
           </div>
 
           <div className="shuttle-panel hud-frame p-6 sm:p-7" data-scroll-animate>
             <div className="flex items-baseline justify-between gap-4">
-              <p className="microlabel-green">Fleet agreement // standing</p>
-              <p className="microlabel">Recurring cadence</p>
+              <p className="microlabel-green">Referral // owner contracts</p>
+              <p className="microlabel">Inbound &amp; outbound</p>
             </div>
 
             <div
               className="mt-8"
               role="img"
-              aria-label="Diagram: customer aircraft shuttling between your shop and the owner's field, inbound and outbound, as a standing arrangement."
+              aria-label="Diagram: a customer aircraft moving between your shop and the owner's field, inbound and outbound."
             >
               <div className="flex items-center gap-3" aria-hidden="true">
                 <div className="shuttle-node">
@@ -87,7 +103,7 @@ export default function ForShopsPage() {
             </div>
 
             <p className="microlabel mt-8 border-t border-[rgba(169,180,198,0.14)] pt-4 leading-relaxed">
-              Quoted · insured · tracked — under your shop&apos;s name
+              The owner contracts with AMG — not your shop
             </p>
           </div>
         </div>
@@ -146,17 +162,17 @@ export default function ForShopsPage() {
         `}</style>
       </section>
 
-      {/* The four Fleet Agreement terms — set as a term sheet, not cards:
-          full-width hairline rows that read like the agreement schedule. */}
+      {/* How a referral runs — hairline rows that read like a process sheet
+          rather than a term sheet, because there is no standing agreement. */}
       <section className="oc-section">
         <div className="oc-shell">
           <div className="mb-2 flex items-baseline justify-between gap-4" data-scroll-animate>
-            <p className="oc-eyebrow">Fleet agreement // the terms</p>
-            <p className="microlabel hidden sm:block">One agreement, four commitments</p>
+            <p className="oc-eyebrow">How a referral works</p>
+            <p className="microlabel hidden sm:block">Four things that never change</p>
           </div>
 
           <div data-stagger-container>
-            {FLEET_TERMS.map((term, index) => (
+            {HOW_IT_WORKS.map((term, index) => (
               <div
                 key={term.title}
                 data-stagger-item
@@ -164,7 +180,7 @@ export default function ForShopsPage() {
               >
                 <div>
                   <span className="font-mono text-[10px] [letter-spacing:0.16em] text-[var(--amber)]">
-                    T-{String(index + 1).padStart(2, "0")}
+                    {String(index + 1).padStart(2, "0")}
                   </span>
                   <h2 className="oc-display mt-2 text-xl text-[var(--oc-paper)] sm:text-2xl">
                     {term.title}
@@ -178,22 +194,22 @@ export default function ForShopsPage() {
             ))}
           </div>
 
-          {/* The shop's customer answer — copy beside the MRO ramp. */}
           <div className="oc-panel-navy mt-12 overflow-hidden rounded-xl" data-scroll-animate>
             <div className="grid lg:grid-cols-[1.05fr_0.95fr]">
               <div className="p-8 lg:p-10">
-                <p className="oc-eyebrow">Under your shop&apos;s name</p>
+                <p className="oc-eyebrow">A clean answer for your service counter</p>
                 <h2 className="oc-display mt-3 text-2xl text-[var(--oc-paper)] sm:text-3xl">
-                  A clean answer to &ldquo;how do I get it to you?&rdquo;
+                  &ldquo;How do I get it to you?&rdquo;
                 </h2>
                 <p className="mt-4 max-w-2xl text-base leading-relaxed text-[var(--oc-aluminum)]">
-                  We run the ferry under your shop&apos;s name, so your customers get a quoted,
-                  insured, tracked flight to your door — and back — without you staffing it.
+                  Right now that question costs your service writer twenty minutes and ends with the
+                  number of someone they hope is still flying. Give them ours instead. We take it
+                  from there, and the owner deals with us directly.
                 </p>
                 <p className="mt-6 max-w-2xl text-base leading-relaxed text-[var(--oc-aluminum)]">
-                  Fleet Agreements are the one thing we quote-price, and here&apos;s why: fleet
-                  needs genuinely vary. We price after seeing your volume, and we&apos;ll show you
-                  the math.
+                  If you would rather present the coordination on your own work order to your own
+                  customer, we can talk about that — the owner still signs AMG&apos;s agreement and
+                  the pilot is still engaged by the owner. Ask and we will walk you through it.
                 </p>
               </div>
               <div className="relative min-h-[240px] lg:min-h-0">

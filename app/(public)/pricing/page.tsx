@@ -23,9 +23,10 @@ export default function PricingPage() {
             lines={["What it costs", "to get the aircraft moving."]}
           />
           <p className="mt-6 text-lg leading-relaxed text-[var(--oc-aluminum)]" data-stagger-item>
-            AMG charges one flat coordination fee. Everything else — pilot day rate, positioning,
-            per diem, lodging — is passed through at cost with receipts. No retainer, no
-            subscription, no markup on the pilot.
+            AMG charges one flat coordination fee, and that is the only line on our invoice. The
+            pilot&apos;s day rate, positioning, per diem, and lodging are paid by you directly to
+            the pilot or vendor. We never handle trip funds, never mark anything up, and never take
+            a vendor rebate. No retainer, no subscription.
           </p>
         </div>
       </section>
@@ -86,9 +87,10 @@ export default function PricingPage() {
               ))}
             </dl>
             <p className="mt-6 max-w-3xl text-sm leading-6 text-[var(--oc-aluminum)]">
-              Add airline positioning, per diem, and lodging where the mission requires it. AMG
-              bills these at cost and shows you the receipts. We make the same fee whether your
-              pilot costs $500 or $800.
+              {DAY_RATES.note} Add airline positioning, per diem, and lodging where the mission
+              requires it — also paid by you, directly. AMG earns the same fee whether your pilot
+              costs $500 or $2,000, which is exactly why we have no reason to steer you to an
+              expensive one.
             </p>
           </div>
 

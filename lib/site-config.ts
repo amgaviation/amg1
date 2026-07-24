@@ -25,12 +25,32 @@ export const OPERATIONAL_CONTROL_STATEMENT =
   "AMG is a crew-sourcing and coordination service. We are not an air carrier and do not operate aircraft; aircraft owners retain operational control.";
 
 /** Business Plan §6.1 pass-through benchmarks, republished quarterly. */
+/**
+ * Pilot day-rate benchmarks, split by MISSION rather than by aircraft class.
+ *
+ * The single "turboprop & light jet $1,000-1,600" band conflated two different
+ * markets: a single pilot repositioning an empty airframe is priced nothing
+ * like a crew flying an owner on a revenue trip. Publishing one number for both
+ * meant quoting under market on trip work and over market on ferry work.
+ *
+ * These are pass-through benchmarks the OWNER pays the pilot — AMG does not set
+ * them, collect them, or mark them up. Common light jets in South Florida
+ * (Phenom 300, CJ3+/CJ4, PC-24) sit above these bands often enough that they
+ * are quoted individually.
+ *
+ * NOT YET REPUBLISHED: confirm each band against at least twelve pilots who
+ * have given you their actual number in writing before this goes on the page.
+ * Publishing a rate you cannot fill is worse than publishing no rate.
+ */
 export const DAY_RATES = {
   updated: "July 2026",
   bands: [
-    { band: "Piston", range: "$500–800/day" },
-    { band: "Turboprop & light jet", range: "$1,000–1,600/day" },
+    { band: "Piston — ferry or reposition", range: "$400–600/day" },
+    { band: "Turboprop & light jet — ferry", range: "$700–1,200/day" },
+    { band: "Turboprop — trip & callout", range: "$1,200–2,100/day" },
+    { band: "Light jet — trip & callout", range: "$1,500–2,500/day" },
   ],
+  note: "Benchmarks only, paid by the owner directly to the pilot. Phenom 300, CJ3+/CJ4, and PC-24 are quoted individually.",
 } as const;
 
 /**
@@ -75,58 +95,32 @@ export const COORDINATION_FEES = {
   ],
   /** Said once, near the numbers, so the fee is never mistaken for a quote. */
   disclaimer:
-    "Starting fees are AMG's coordination fee only. Pilot day rate, airline positioning, per diem, lodging, fuel, and vendor costs are passed through at cost with receipts and no markup. A starting fee is not an accepted assignment, confirmed crew, aircraft movement, operational release, or guarantee of availability. Aircraft owners and operators retain operational control.",
+    "Starting fees are AMG's coordination fee only, and it is the only amount AMG invoices. Pilot day rate, airline positioning, per diem, lodging, fuel, and vendor costs are paid by the aircraft owner directly to the pilot or vendor; AMG does not handle trip funds, mark up third-party costs, or accept vendor rebates. A starting fee is not an accepted assignment, confirmed crew, aircraft movement, operational release, or guarantee of availability. Aircraft owners and operators retain operational control.",
 } as const;
 
-/** Business Plan §6.2 — worked example, verbatim numbers. */
-export const WORKED_EXAMPLE = {
-  title: "What a mission actually costs.",
-  scenario: "SR22 maintenance ferry, Tampa → Atlanta, Standard plan member:",
-  lines: [
-    { label: "Contract pilot (1 day)", amount: "$600" },
-    { label: "Airline return", amount: "$240" },
-    { label: "Per diem", amount: "$75" },
-    { label: "AMG coordination", amount: "$295" },
-  ],
-  total: "≈ $1,210 all-in. Quoted in 12 business hours.",
-  note: "We make the same flat fee whether your pilot costs $500 or $700 — every pass-through cost is billed at cost, receipts included, zero markup.",
-} as const;
-
-/** Business Plan §6.2 plan table. Band A = piston; Band B = turboprop/light jet. */
-export const PLAN_TABLE = {
-  plans: ["On-Demand", "Standard", "Priority"],
-  bandA: {
-    label: "Band A — Piston",
-    monthly: ["$0", "$149/mo", "$349/mo"],
-    coordination: ["$495", "$295", "$195"],
-  },
-  bandB: {
-    label: "Band B — Turboprop & Light Jet",
-    monthly: ["$0", "$299/mo", "$649/mo"],
-    coordination: ["$895", "$595", "$395"],
-  },
-  sla: {
-    quoteResponse: ["24 business hours", "12 business hours", "4 business hours"],
-    sourcingWindow: ["Best effort", "48 hours", "24 hours + first call on network crew"],
-    remedy: [
-      "—",
-      "Missed window → that month's plan fee is credited, automatically",
-      "Missed window → that month's plan fee is credited, automatically",
-    ],
-    portal: [
-      "Per-mission",
-      "Full account",
-      "Full account + dedicated coordinator + request line staffed 0700–2200",
-    ],
-    annual: ["—", "Pay 10 months, get 12", "Pay 10 months, get 12"],
-  },
-} as const;
+/*
+ * REMOVED: WORKED_EXAMPLE and PLAN_TABLE.
+ *
+ * These held the retired subscription product — Standard/Priority tiers at
+ * $149-$649/mo, per-tier SLA windows, automatic fee-credit remedies, and a
+ * worked example priced as a "Standard plan member". AMG does not sell
+ * subscriptions and will not until on-demand demand is proven.
+ *
+ * They rendered through components/site/fare-board.tsx and
+ * components/site/worked-example.tsx, neither of which was imported by any
+ * page. Dead, but loaded: the next person to reach for a pricing component
+ * would have republished a product that was deliberately withdrawn. Both
+ * components are deleted with this change.
+ *
+ * If subscriptions come back, they come back through a fresh decision and a
+ * fresh review of the SLA and remedy language — not by re-mounting these.
+ */
 
 /** Spec §3 — commitments band. */
 export const COMMITMENTS = [
   { value: "24 hr", label: "quote response" },
-  { value: "7 days", label: "pilot payment" },
-  { value: "$0", label: "pass-through markup" },
+  { value: "Direct", label: "owner pays the pilot" },
+  { value: "$0", label: "markup or vendor rebate" },
 ] as const;
 
 /** Mission types for the quote form dropdown (spec §10). */

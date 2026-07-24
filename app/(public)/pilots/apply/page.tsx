@@ -5,7 +5,7 @@ import { NetworkApplicationForm } from "./network-application-form";
 export const metadata: Metadata = {
   title: "Apply to the AMG Pilot Network",
   description:
-    "Submit your certificates, type experience, and availability for AMG network vetting. Verified pilots fly vetted missions and are paid within 7 days of completion.",
+    "Submit your certificates, type experience, and availability for AMG network vetting. Verified pilots fly vetted missions with rate, expenses, and the owner's insurance approval confirmed before launch.",
 };
 
 /** What happens to the file after submit — mirrors the /pilots gate items. */
@@ -33,7 +33,7 @@ export default function PilotNetworkApplyPage() {
               Tell us your certificates, types, hours, and availability. We verify every file —
               certificate cross-check, medical currency, type experience, insurance history, and a
               reference call — so owners never have to ask twice. Vetted once, you fly as often as
-              the mission flow supports, and you&apos;re paid within 7 days of every completion.
+              the mission flow supports, with your terms confirmed in writing before every launch.
             </p>
             <div
               className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-[11px] uppercase [letter-spacing:0.16em] text-[var(--oc-aluminum-2)]"
@@ -41,7 +41,7 @@ export default function PilotNetworkApplyPage() {
             >
               <span>Uploads: secure portal only</span>
               <span className="oc-dot" aria-hidden="true" />
-              <span className="text-[var(--oc-aluminum)]">Paid within 7 days of completion</span>
+              <span className="text-[var(--oc-aluminum)]">Rate and terms confirmed before launch</span>
             </div>
           </div>
 

@@ -1,5 +1,24 @@
 # AMG Aviation Group — 14-Day Revenue Launch
 
+> **Superseded in part.** This was written before the market-intelligence research
+> completed. `docs/LAUNCH_INTELLIGENCE_BRIEF.md` is the verified version and wins
+> wherever the two disagree. The corrections that matter most:
+>
+> - **The owner pays the pilot directly.** This doc's "pass-throughs at cost with
+>   receipts" model made AMG the pilot's paymaster. AMG now invoices one line —
+>   its coordination fee — and never handles trip funds. §5 below is wrong on this.
+> - **The $495 piston fee is the pricing problem, not the $895 turbine fee.** A
+>   $495 fee against a $400–600/day piston ferry pilot is roughly one full pilot
+>   day, charged to the most price-sensitive segment in aviation.
+> - **The flat fee breaks above two days.** $895 is a 35% take on a one-day ferry
+>   and 3.7% on a 14-day coverage, for more work. Day-scale it.
+> - **Do not lead with 14 CFR 119.1(e)(3)** in sales calls. It is an exception from
+>   certification, not an authorization to carry persons or property for
+>   compensation. §1 of the brief explains why reciting it invites the question
+>   that breaks it.
+> - **`/for-shops` and `/pilots` carried live claims worse than anything in §7
+>   below.** Both are fixed; see the brief's closing table.
+
 Operating plan. Objective: **$5,000–$10,000 collected within 14 days**, from work AMG can legally
 sell today, without creating regulatory or insurance exposure that ends the company in month three.
 

@@ -8,10 +8,10 @@
 // something AMG actually does today. "Worldwide coordination" was removed: the
 // service area is the Southeast US and we should not imply otherwise.
 const ITEMS = [
-  "Ops desk 0700–2200 ET",
+  "Calls returned same business day",
   "N-reg · Part 91",
   "Crew · credential-reviewed",
-  "$0 pass-through markup",
+  "$0 markup · no vendor rebates",
   "Quote · 24 hr",
   "KTPA → KATL",
   "Ferry · repositioning",
