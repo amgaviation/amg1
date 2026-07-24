@@ -17,6 +17,7 @@
     "website-editor:verify": "node scripts/verify-website-editor.mjs",
     "revenue-sprint:verify": "node scripts/verify-revenue-sprint.mjs",
     "launch-kit:verify": "node scripts/verify-launch-kit.mjs",
+    "launch:ready": "node scripts/verify-launch-ready.mjs",
     "import:crew-profiles": "tsx scripts/import-crew-profiles-from-csv.ts",
     "verify:crew-import": "tsx scripts/verify-crew-import-visibility.ts",
     "stripe:verify": "tsx scripts/verify-stripe-invoice-payments.ts",

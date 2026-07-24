@@ -44,6 +44,7 @@ What the STOP findings were:
 | 07 | [Mission SOP and Tracker](07-mission-sop-and-tracker.md) | The runbook from inbound request to closeout, the daily rhythm, and the tracker spec. |
 | 08 | [First 90 Days](08-first-90-days.md) | Sequencing: what blocks selling, what does not, and the honest arithmetic on the 14-day target. |
 | 09 | [Prospect List](09-prospect-list.md) | 27 Florida contacts in calling order — 20 VERIFIED, 7 UNVERIFIED, off-profile ones flagged. |
+| 10 | [Blocker Clearance](10-blocker-clearance.md) | The four things only Tony can do, each with its artifact prepared. `npm run launch:ready` enforces them. |
 
 **Every entry in 09 is marked VERIFIED or UNVERIFIED.** Confirm an UNVERIFIED entry
 before dialling it; a name that turns out to be wrong costs credibility in a market
@@ -80,6 +81,12 @@ the spec in document 07 exactly.
    only, under a separate agreement engaging him personally.
 
 ## Before any of this is used
+
+Run **`npm run launch:ready`**. It reads the codebase, not a checklist, so four of
+the six checks cannot be satisfied by ticking a box. Document
+[10](10-blocker-clearance.md) has the prepared artifact for each one — the verbatim
+insurance-application service description, the attorney engagement email, the exact
+`TEAM_ROSTER` edit.
 
 Blocking, and only Tony can clear them:
 
