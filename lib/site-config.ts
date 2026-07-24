@@ -20,9 +20,19 @@ export const SITE = {
   url: "https://amgaviationgroup.com",
 } as const;
 
-/** Footer operational-control statement — said once sitewide, per spec §1. */
+/**
+ * Operational-control statement — said once sitewide (spec §1), and reused as
+ * the tail of every quote, invoice, and receipt disclaimer.
+ *
+ * A footer on the website is not where a claims adjuster or an FSDO inspector
+ * looks. They look at the paperwork attached to the job. Naming each thing AMG
+ * is not — air carrier, commercial operator, air charter broker, certificate
+ * holder — closes the gaps that "we're just a coordinator" leaves open, and
+ * citing 14 CFR 1.1 anchors it to the actual definition rather than a
+ * characterisation of it.
+ */
 export const OPERATIONAL_CONTROL_STATEMENT =
-  "AMG is a crew-sourcing and coordination service. We are not an air carrier and do not operate aircraft; aircraft owners retain operational control.";
+  "AMG Aviation Group is not an air carrier, commercial operator, air charter broker, or Part 135 certificate holder. AMG does not own, provide, lease, dispatch, or operate aircraft and never holds operational control as defined in 14 CFR 1.1. The aircraft owner and the pilot in command retain all operational authority.";
 
 /** Business Plan §6.1 pass-through benchmarks, republished quarterly. */
 /**

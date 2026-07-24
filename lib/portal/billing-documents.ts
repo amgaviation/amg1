@@ -8,6 +8,7 @@ import {
 } from "@/lib/portal/billing-config";
 import { nextBillingDocumentNumber, type BillingDocumentType } from "@/lib/portal/billing-numbering";
 import { renderBillingPdf, type BillingPdfInput } from "@/lib/portal/billing-pdfs";
+import { OPERATIONAL_CONTROL_STATEMENT } from "@/lib/site-config";
 
 const BUCKET = "billing-documents";
 
@@ -164,10 +165,33 @@ function settingsTerms(settings: BillingSettings, kind: BillingDocumentType) {
   return null;
 }
 
+/**
+ * The disclaimer on every quote, invoice, and receipt, with the
+ * operational-control statement always appended.
+ *
+ * Appended rather than merely defaulted, on purpose. `getBillingSettings()`
+ * spreads stored values over the defaults, so an admin who edits a disclaimer
+ * in the settings UI silently replaces whatever the default said — including
+ * the one sentence that establishes AMG is not an air carrier and does not hold
+ * operational control. That statement is the thing a claims adjuster or an FSDO
+ * inspector reads off the paperwork attached to a job, and it should not be
+ * removable by an ordinary copy edit.
+ *
+ * Admins keep full control of the commercial wording. They just cannot delete
+ * the legal position by accident. The guard is idempotent, so a stored
+ * disclaimer that already ends with the statement is not doubled up.
+ */
 function settingsDisclaimer(settings: BillingSettings, kind: BillingDocumentType) {
-  if (kind === "quote") return settings.quote_disclaimer;
-  if (kind === "invoice") return settings.invoice_disclaimer;
-  return settings.receipt_disclaimer;
+  const stored =
+    kind === "quote"
+      ? settings.quote_disclaimer
+      : kind === "invoice"
+        ? settings.invoice_disclaimer
+        : settings.receipt_disclaimer;
+
+  const text = (stored ?? "").trim();
+  if (text.includes(OPERATIONAL_CONTROL_STATEMENT)) return text;
+  return text ? `${text} ${OPERATIONAL_CONTROL_STATEMENT}` : OPERATIONAL_CONTROL_STATEMENT;
 }
 
 export async function buildQuotePdfInput(quoteId: string): Promise<BillingPdfInput> {
