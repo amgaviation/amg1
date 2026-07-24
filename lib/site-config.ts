@@ -93,6 +93,27 @@ export const COORDINATION_FEES = {
         "Short-term coordination support when your own crew is out of capacity. Scoped to the specific gap, not a standing retainer.",
     },
   ],
+  /**
+   * A flat fee is structurally broken past two days. $895 is a ~35% take on a
+   * one-day ferry and ~3.7% on a 14-day coverage — for materially more work.
+   * Locum tenens staffing never has this problem because it bills per day, and
+   * neither does yacht delivery. So: the starting fee covers days 1-2, then the
+   * engagement scales, soft-capped so the fee can never look predatory against
+   * total pilot spend.
+   *
+   * OPEN QUESTION for Tony: the coordination work is nearly identical for a
+   * King Air ferry and a CJ4 ferry — same sourcing, same insurance gate, same
+   * scheduling. Class-tiering the FEE while the pass-throughs already scale by
+   * class may double-count the same variable. The defensible version of the
+   * class tier is that turbine jobs carry a mandatory underwriter-endorsement
+   * step piston jobs often skip. Decide before this goes live.
+   */
+  dayScale: {
+    covers: "Days 1–2",
+    piston: "+$150/day",
+    turbine: "+$250/day",
+    cap: "Additional days are soft-capped so AMG's total fee stays under 25–30% of pilot spend.",
+  },
   /** Said once, near the numbers, so the fee is never mistaken for a quote. */
   disclaimer:
     "Starting fees are AMG's coordination fee only, and it is the only amount AMG invoices. Pilot day rate, airline positioning, per diem, lodging, fuel, and vendor costs are paid by the aircraft owner directly to the pilot or vendor; AMG does not handle trip funds, mark up third-party costs, or accept vendor rebates. A starting fee is not an accepted assignment, confirmed crew, aircraft movement, operational release, or guarantee of availability. Aircraft owners and operators retain operational control.",

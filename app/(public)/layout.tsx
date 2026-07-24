@@ -2,10 +2,23 @@ import localFont from "next/font/local";
 import { PublicShell } from "@/components/site/public-shell";
 import { SITE } from "@/lib/site-config";
 
-/** schema.org LocalBusiness with address/phone (spec §12 SEO basics). */
-const LOCAL_BUSINESS_SCHEMA = {
+/**
+ * schema.org ProfessionalService (spec §12 SEO basics).
+ *
+ * ProfessionalService rather than the bare LocalBusiness: AMG has no premises a
+ * customer visits, and the service-area shape is what actually matches.
+ *
+ * areaServed was "United States", which is the same unsubstantiated-reach claim
+ * we removed from the ticker — AMG works Florida and the Southeast, and a
+ * nationwide claim in structured data is still a claim. Named states instead.
+ *
+ * The service list mirrors what /pricing sells. Keep the two in step: this is
+ * the machine-readable version of the same promise, and a mismatch between them
+ * is the kind of thing that gets read back to you.
+ */
+const PROFESSIONAL_SERVICE_SCHEMA = {
   "@context": "https://schema.org",
-  "@type": "LocalBusiness",
+  "@type": "ProfessionalService",
   name: SITE.name,
   url: SITE.url,
   telephone: SITE.phone,
@@ -17,9 +30,28 @@ const LOCAL_BUSINESS_SCHEMA = {
     addressRegion: "FL",
     addressCountry: "US",
   },
-  areaServed: "United States",
+  areaServed: ["Florida", "Georgia", "Alabama", "South Carolina", "North Carolina", "Tennessee"],
+  knowsAbout: [
+    "Part 91 aircraft operations support",
+    "Contract pilot sourcing",
+    "Maintenance ferry coordination",
+    "Aircraft repositioning",
+  ],
+  hasOfferCatalog: {
+    "@type": "OfferCatalog",
+    name: "Aircraft support coordination",
+    itemListElement: [
+      "Temporary contract pilot coverage",
+      "Maintenance ferry and repositioning coordination",
+      "Insurance, mentor, or second-pilot coordination",
+      "Flight-department overflow coordination",
+    ].map((name) => ({
+      "@type": "Offer",
+      itemOffered: { "@type": "Service", name },
+    })),
+  },
   description:
-    "Aviation operations support coordination for owner-controlled Part 91 support needs, including crew sourcing assistance, aircraft movement coordination, documentation, tracking, and closeout administration.",
+    "Aviation operations support coordination for owner-controlled Part 91 aircraft: contract crew sourcing, maintenance ferry and repositioning coordination, documentation, and closeout administration. AMG is not an air carrier and does not operate aircraft; owners retain operational control.",
 };
 
 // AMG Brand & Voice Guide 2026 type system (authoritative over the older
@@ -78,7 +110,7 @@ export default function PublicLayout({
     >
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(LOCAL_BUSINESS_SCHEMA) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(PROFESSIONAL_SERVICE_SCHEMA) }}
       />
       <PublicShell>{children}</PublicShell>
     </div>

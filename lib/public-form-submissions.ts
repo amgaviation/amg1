@@ -2,7 +2,7 @@ import "server-only";
 
 import { AMG_EMAIL_BRAND } from "@/lib/email/config";
 import { amgEmailLayout } from "@/lib/portal/email-templates";
-import { sendEmail } from "@/lib/portal/notification-delivery";
+import { sendEmail, sendSms } from "@/lib/portal/notification-delivery";
 import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
 import {
   recordComplianceEvidence,
@@ -95,6 +95,67 @@ function normalizedRows(submission: NormalizedPublicFormSubmission, id: string) 
     row("Submission Type", submission.submissionType === "support_request" ? "Support Request" : "Contact Inquiry"),
     row("Inquiry / Support Type", submission.supportType ?? submission.serviceInterest),
   ]);
+}
+
+/**
+ * Recipients for the new-lead SMS. Comma-separated E.164 numbers in
+ * `AMG_LEAD_ALERT_SMS_TO`; unset means the alert is simply skipped.
+ */
+function leadAlertRecipients(): string[] {
+  return (process.env.AMG_LEAD_ALERT_SMS_TO ?? "")
+    .split(",")
+    .map((number) => number.trim())
+    .filter(Boolean);
+}
+
+/**
+ * The SMS body. Deliberately short and deliberately thin on detail: this is a
+ * "pick up the phone" nudge, not a record. Everything else is already in the
+ * email and the database, and an SMS is the one channel we cannot control the
+ * storage of — so no tail number, no route, no insurance detail.
+ */
+function buildLeadAlertSms(
+  submission: NormalizedPublicFormSubmission,
+  missionRef: string | null,
+) {
+  const lines = [
+    submission.submissionType === "support_request"
+      ? `AMG support request${missionRef ? ` ${missionRef}` : ""}`
+      : "AMG contact inquiry",
+    submission.requesterName,
+    submission.phone || submission.email,
+    submission.supportType || submission.serviceInterest || null,
+    submission.aircraft || null,
+  ].filter(Boolean);
+  return lines.join(" — ");
+}
+
+/**
+ * Fire-and-report the lead SMS. Never allowed to fail the submission: the
+ * request is already saved and the emails already sent by the time this runs,
+ * so a Twilio outage must not turn a captured lead into an error page.
+ */
+async function sendLeadAlertSms(
+  submission: NormalizedPublicFormSubmission,
+  missionRef: string | null,
+): Promise<string[]> {
+  const recipients = leadAlertRecipients();
+  if (!recipients.length) return [];
+
+  const body = buildLeadAlertSms(submission, missionRef);
+  const results = await Promise.all(
+    recipients.map(async (to) => {
+      try {
+        const result = await sendSms({ to, body });
+        return result.status === "sent"
+          ? null
+          : `lead SMS to ${to}: ${result.error || result.status}`;
+      } catch (error) {
+        return `lead SMS to ${to}: ${error instanceof Error ? error.message : "threw"}`;
+      }
+    }),
+  );
+  return results.filter(Boolean) as string[];
 }
 
 function buildInternalEmail(submission: NormalizedPublicFormSubmission, id: string) {
@@ -591,9 +652,18 @@ export async function saveAndEmailSubmission(
     { sent: confirmationSent, error: confirmationSent ? null : confirmationResult.error || confirmationResult.status },
   );
 
+  // An owner whose pilot just called out submits at 21:40. Email to a shared
+  // inbox does not wake anyone; this does. Runs after the record is safely
+  // stored so a Twilio failure can only ever produce a warning.
+  const smsWarnings = await sendLeadAlertSms(
+    submission,
+    routedSupportRequest?.missionRef ?? null,
+  );
+
   const warnings = [
     internalSent ? null : `internal email: ${internalResult.error || internalResult.status}`,
     confirmationSent ? null : `confirmation email: ${confirmationResult.error || confirmationResult.status}`,
+    ...smsWarnings,
   ].filter(Boolean) as string[];
 
   if (warnings.length) {

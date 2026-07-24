@@ -94,6 +94,23 @@ export default function PricingPage() {
             </p>
           </div>
 
+          {/* Day-scaling, stated up front rather than discovered at quote time.
+              A buyer who finds out on the proposal that a 5-day job costs more
+              than the headline feels bait-and-switched; one who read it here
+              does not. */}
+          <div className="oc-card-dark mt-6 p-6 sm:p-8">
+            <h2 className="oc-display text-2xl text-[var(--oc-paper)]">
+              Longer assignments scale by the day.
+            </h2>
+            <p className="mt-4 max-w-3xl text-sm leading-6 text-[var(--oc-aluminum)]">
+              The starting fee covers {COORDINATION_FEES.dayScale.covers.toLowerCase()}. After that,
+              coordination continues — crew changes, schedule slips, revised approvals — so the fee
+              continues with it: {COORDINATION_FEES.dayScale.piston} piston,{" "}
+              {COORDINATION_FEES.dayScale.turbine} turboprop and light jet.{" "}
+              {COORDINATION_FEES.dayScale.cap}
+            </p>
+          </div>
+
           <div className="oc-card-dark mt-6 p-6 sm:p-8">
             <h2 className="oc-display text-2xl text-[var(--oc-paper)]">
               What a starting fee does — and does not — mean
