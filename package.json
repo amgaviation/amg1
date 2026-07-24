@@ -26,7 +26,7 @@
     "schema:manifest": "node scripts/generate-schema-manifest.mjs",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
-    "test": "npm run typecheck"
+    "test": "npm run typecheck && npm run revenue-sprint:verify"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.2",
