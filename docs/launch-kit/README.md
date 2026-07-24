@@ -69,3 +69,26 @@ Blocking, and only Tony can clear them:
 Every published day rate in these documents is a benchmark, not a commitment.
 Do not publish a rate band until twelve pilots have confirmed their number in
 writing.
+
+## Two open pricing decisions
+
+Both are live on the site right now at one value and recommended in these
+documents at another. Neither is mine to settle — pick one and make the site and
+the kit agree.
+
+1. **The piston coordination fee.** The site publishes **$495**. Document 08
+   argues that is roughly one full piston pilot day ($400–600) charged to the
+   most price-sensitive segment in aviation, and recommends **$295–$395, or
+   taking piston off the published price list entirely** and quoting it case by
+   case. The counter-argument for holding $495: the coordination work — sourcing,
+   the insurance gate, scheduling — is nearly identical regardless of aircraft
+   class, so pricing off the pilot's day rate undervalues it.
+2. **Whether the fee should be class-tiered at all.** Turbine jobs carry a
+   mandatory underwriter-endorsement step that piston jobs often skip, which is
+   the defensible reason for a tier. Absent that, class-tiering the fee while the
+   pass-throughs already scale by class may be charging twice for the same
+   variable.
+
+Day-scaling (+$150/day piston, +$250/day turbine beyond day 2) is already live on
+`/pricing` and is not in dispute — document 08 calls it the single change that
+most improves revenue per hour of Tony's time.
