@@ -108,8 +108,12 @@ export function QuoteRequestForm({ error }: { error?: string }) {
         <Field label="Company or flight department" hint="Optional">
           <input name="company" autoComplete="organization" className={inputClass} />
         </Field>
+        {/* Aircraft type and dates were required, which stopped anyone who did
+            not yet have the full picture — often the exact person with an
+            urgent problem. The server only requires name, email, and the
+            acknowledgement; the rest we can get on the callback. */}
         <Field label="Aircraft type" hint="Make and model — e.g. SR22, PC-12, King Air 250">
-          <input name="aircraft_type" required className={inputClass} />
+          <input name="aircraft_type" className={inputClass} />
         </Field>
         <Field label="Tail number" hint="If you'd rather share it by phone, leave blank">
           <input name="tail_number" className={inputClass} />
@@ -127,7 +131,7 @@ export function QuoteRequestForm({ error }: { error?: string }) {
           </select>
         </Field>
         <Field label="Dates" hint="Exact or approximate — e.g. 'week of Aug 10'">
-          <input name="requested_dates" required className={inputClass} />
+          <input name="requested_dates" className={inputClass} />
         </Field>
         <Field label="Insurance carrier" hint="If unknown now, we'll collect it before crew confirmation">
           <input name="insurance_carrier" className={inputClass} />

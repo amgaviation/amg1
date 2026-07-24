@@ -33,6 +33,51 @@ export const DAY_RATES = {
   ],
 } as const;
 
+/**
+ * Published starting coordination fees. These are the On-Demand figures from
+ * the Business Plan §6.2 plan table, restated without the subscription tiers
+ * (subscriptions are not sold until demand is proven). A price on the page is
+ * a qualifying tool: it filters out buyers who were never going to pay, and it
+ * signals a real business. "Starting at" is load-bearing — every engagement is
+ * still scoped and quoted before anything is accepted.
+ */
+export const COORDINATION_FEES = {
+  updated: "July 2026",
+  tiers: [
+    {
+      title: "Temporary contract pilot coverage",
+      from: "$495",
+      band: "Piston · from $495 · Turboprop & light jet · from $895",
+      detail:
+        "A pilot called out, went on vacation, lost a medical, or is in recurrent. AMG scopes the requirement, sources qualified contract crew, and coordinates the details. The owner selects the pilot and retains operational control.",
+    },
+    {
+      title: "Maintenance ferry / repositioning coordination",
+      from: "$495",
+      band: "Piston · from $495 · Turboprop & light jet · from $895",
+      detail:
+        "The aircraft has to get to the shop, or home after the work is signed off. AMG coordinates crew, timing, and the paperwork around the movement.",
+    },
+    {
+      title: "Insurance, mentor, or second-pilot requirement",
+      from: "$495",
+      band: "Priced against the requirement your underwriter set",
+      detail:
+        "Your policy requires a second pilot, a mentor pilot, or a specific hour/type minimum. AMG sources crew who meet the written requirement and documents it for your broker.",
+    },
+    {
+      title: "Flight-department overflow",
+      from: "Custom",
+      band: "Scoped per department",
+      detail:
+        "Short-term coordination support when your own crew is out of capacity. Scoped to the specific gap, not a standing retainer.",
+    },
+  ],
+  /** Said once, near the numbers, so the fee is never mistaken for a quote. */
+  disclaimer:
+    "Starting fees are AMG's coordination fee only. Pilot day rate, airline positioning, per diem, lodging, fuel, and vendor costs are passed through at cost with receipts and no markup. A starting fee is not an accepted assignment, confirmed crew, aircraft movement, operational release, or guarantee of availability. Aircraft owners and operators retain operational control.",
+} as const;
+
 /** Business Plan §6.2 — worked example, verbatim numbers. */
 export const WORKED_EXAMPLE = {
   title: "What a mission actually costs.",

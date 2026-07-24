@@ -4,6 +4,9 @@
  * Mono micro-labels separated by small rotated blue squares.
  */
 
+// Every line here is a claim a customer could hold us to, so each one has to be
+// something AMG actually does today. "Worldwide coordination" was removed: the
+// service area is the Southeast US and we should not imply otherwise.
 const ITEMS = [
   "Ops desk 0700–2200 ET",
   "N-reg · Part 91",
@@ -12,7 +15,7 @@ const ITEMS = [
   "Quote · 24 hr",
   "KTPA → KATL",
   "Ferry · repositioning",
-  "US based · worldwide coordination",
+  "Florida & the Southeast",
 ];
 
 export default function Ticker() {
