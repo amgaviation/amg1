@@ -41,7 +41,7 @@ Target: owner, GM, Director of Maintenance. The shop is a referral source, never
 
 > {{first_name}} — Tony Gonzalez, AMG Aviation Group. Working corporate pilot, North Lauderdale.
 >
-> When a {{company}} customer has an airplane parked somewhere because nobody can bring it to {{home_field}}, I source the pilot. The owner contracts with me and pays the pilot direct. My invoice is one line: $895 flat for turboprop and light jet, $495 piston, days one and two. No markup on anything, no rebates to anyone.
+> When a {{company}} customer has an airplane parked somewhere because nobody can bring it to {{home_field}}, I source the pilot. The owner contracts with me and pays the pilot direct. My invoice is one line: $495 piston, $895 turboprop, days one and two. No markup on anything, no rebates to anyone.
 >
 > Do you have one sitting right now?
 
@@ -213,7 +213,7 @@ Target: chief pilot or aviation manager at a one-to-three airplane department. T
 
 > {{first_name}} — Tony Gonzalez, AMG Aviation Group. Corporate pilot out of {{city}}.
 >
-> One-and-two-pilot departments have the same hole: recurrent, a medical, a vacation, and the airplane sits. I source the contract pilot, run him through your carrier for written approval before he flies, and hand you the file. You pay him direct. My fee is separate and flat — $895 turboprop and light jet, days one and two.
+> One-and-two-pilot departments have the same hole: recurrent, a medical, a vacation, and the airplane sits. I source the contract pilot, run him through your carrier for written approval before he flies, and hand you the file. You pay him direct. My fee is separate and flat — $495 piston, $895 turboprop, days one and two.
 >
 > When is {{company}}'s next recurrent window?
 

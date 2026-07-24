@@ -97,7 +97,7 @@ You are also solving a problem the broker already has: the client who calls and 
 
 Then the reason you're worth listing:
 
-> "The reason I think I belong on it — I don't launch anybody until you or the underwriter has put it in writing. I pull the certificates, the medical, the currency, the recurrent completion cert, the time in type, the 61.55(b) currency if it's a two-crew airplane, and the pilot's own non-owned COI. Then I put all of it in front of you and I wait for an email naming that specific pilot as within the open pilot warranty or added by endorsement. No email, no flight. On a turbine I assume the warranty doesn't cover it and I plan on a written endorsement, 24 to 72 hours.
+> "The reason I think I belong on it — I don't put a pilot on a job until you or the underwriter has put it in writing. I pull the certificates, the medical, the currency, the recurrent completion cert, the time in type, the 61.55(b) currency if it's a two-crew airplane, and the pilot's own non-owned COI. Then I put all of it in front of you and I wait for an email naming that specific pilot as within the open pilot warranty or added by endorsement. No email, no flight. On a turbine I assume the warranty doesn't cover it and I plan on a written endorsement, 24 to 72 hours.
 >
 > I'd rather be the guy who makes your file cleaner than the guy who makes your Friday worse."
 
@@ -160,7 +160,7 @@ Never "we verify the pilot." That sentence creates a duty of care nobody is insu
 >
 > You contract with me. You pay the pilot **directly** — I never touch trip funds. My invoice has one line on it: the coordination fee. I don't mark up the pilot, I don't mark up fuel, I don't take anything from the shop, and I don't rebill you for anything except an out-of-pocket I fronted at cost, like a positioning airline ticket, with the receipt attached.
 >
-> Coordination fee is $495 on a piston, $895 on a turboprop or light jet, for the first two days. Beyond two days it scales — $150 a day piston, $250 a day turboprop and light jet — and I cap it so I'm never taking more than about a quarter to a third of what you're paying the pilot.
+> Coordination fee is $495 on a piston, $895 on a turboprop or light jet, for the first two days. Beyond two days it scales — $150 a day piston, $250 a day turboprop and light jet — and on anything past a couple of days I cap the total so the fee stays inside about a quarter to a third of what you're paying the pilot. On a one-day job I won't pretend otherwise: the fee is a big share of a single pilot day, because the work is the same whether the leg is forty-five minutes or four hours.
 >
 > Pilot day rates are the pilot's, and they run roughly: piston ferry four to six hundred; turboprop or light jet ferry seven to twelve; turboprop trip twelve hundred to twenty-one; light jet trip fifteen hundred to twenty-five. Phenom 300, CJ3+, CJ4, PC-24 — those I quote individually."
 
@@ -339,7 +339,7 @@ Sell the approval step as the product, not as a delay.
 
 ### 12. "Just bill me net 30."
 
-> "Terms are fine on my coordination fee — that part we can talk about.
+> "On my fee it's half on signature and half when the pilot accepts. That part's fixed — it's in the agreement — but the second half only lands if there's a pilot to send.
 >
 > The pilot's a different animal. You're paying him directly, not through me, so his terms are between you and him, and most contract guys want a deposit or day-of payment. I can't put him on net 30 on your behalf because I don't handle the money and I'm not going to start. The day I'm collecting trip funds and paying them out, I'm a management company with somebody else's money in my account, and that's not the business.
 >

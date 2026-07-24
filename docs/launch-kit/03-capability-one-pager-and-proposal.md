@@ -38,7 +38,7 @@ AMG is not an air carrier, not a charter operator, not a Part 135 certificate ho
 | Piston | $495 | +$150 |
 | Turboprop and light jet | $895 | +$250 |
 
-That is AMG's coordination fee. It is one line on one invoice, and it is the only thing AMG charges. On multi-day coverage the fee is soft-capped at 25–30% of total pilot spend.
+That is AMG's coordination fee. It is one line on one invoice, and it is the only thing AMG charges. Days 1–2 are a flat minimum: most of the work — sourcing, document collection, and the underwriter submission — happens before the airplane moves and does not scale with the length of the trip. On a one- or two-day job the fee is a high share of pilot spend and it is quoted that way deliberately. From day 3 onward the per-day addition is soft-capped so that the *total* fee does not exceed 25–30% of total pilot spend on coverage assignments. The applied cap is calculated by hand on every multi-day quote and the number written into the tracker.
 
 No markup on anything. No vendor rebates. No percentage of the pilot's rate. On a short one-day ferry the fee is a high share of pilot spend and it does not shrink because the leg is short — most of the work happens before the airplane moves.
 
@@ -53,6 +53,8 @@ No markup on anything. No vendor rebates. No percentage of the pilot's rate. On 
 - Turboprop trip: $1,200–2,100/day
 - Light jet trip: $1,500–2,500/day
 - Phenom 300, CJ3+/CJ4, PC-24: quoted individually
+
+Light jet and type-specific work is quoted individually and is accepted only where AMG can staff it. AMG will say on the first call whether a category is one it can staff, before anything is quoted.
 
 If AMG fronts an airline positioning ticket, it is reimbursed at cost as a documented AMG out-of-pocket — never as an hourly or per-leg amount, and never as pilot pay.
 
@@ -130,7 +132,7 @@ Sent by email within the window promised on the call, as a PDF plus the same tex
 
 **$[495 / 895] — [aircraft class], days 1–2.** Additional days at $[150 / 250] per day.
 
-One line, one invoice, due [net 15 / on completion]. It is the only amount AMG bills. No markup, no percentage of pilot pay, no rebates from any vendor.
+Half on signature, half at pilot acceptance. One line, one invoice, no markup, no percentage of pilot pay, no rebates from any vendor. If your underwriter declines every pilot I put in front of them, you owe the first half and nothing more.
 
 ### 4. Estimated pilot cost and expenses — **PAID BY THE OWNER DIRECTLY**
 
@@ -163,7 +165,7 @@ Fuel, handling, landing, hangar, and any maintenance remain the owner's costs, p
 | Pilot identified, qualification package sent to broker | | X | [date] |
 | Broker written approval received | | X | [date] — 24–72 hrs on turbines |
 | Special flight permit in hand, if required | X | | [date] |
-| Trip file complete, launch authorized | | X | [date] |
+| Trip file complete, AMG coordination closed | | X | [date] |
 | Flight | | | [date] |
 
 ### 7. Operational control
@@ -216,10 +218,10 @@ Use this as the calibration reference for filling in the template. Numbers are i
 
 **Total cost of the move: $2,005 – $2,255**, of which **$895 is payable to AMG** and **$1,110 – $1,360 is payable directly by you to the pilot and vendors.**
 
-Said plainly: on a 45-minute ferry the coordination fee runs roughly 65–80% of pilot spend. That ratio is a function of the leg being short, not of the work being small. The work is finding a 250-current pilot who clears your 3,000/1,500/250 minimums, getting your underwriter to name him in writing, and having that email in the file before he touches the airplane. That happens whether the leg is 45 minutes or four hours. If this were a five-day coverage assignment instead, the fee would be $895 + $250/day for days 3–5 = $1,645, soft-capped at 25–30% of pilot spend.
+Said plainly: on a 45-minute ferry the coordination fee runs 75–90% of the pilot's day rate. That ratio is a function of the leg being short, not of the work being small. The work is finding a 250-current pilot who clears your 3,000/1,500/250 minimums, getting your underwriter to name him in writing, and having that email in the file before he touches the airplane. That happens whether the leg is 45 minutes or four hours. If this were a five-day coverage assignment instead, the fee would be $895 + $250/day for days 3–5 = $1,645, soft-capped at 25–30% of pilot spend.
 
 **5. What AMG needs from you.** Broker contact and COI with waiver of subrogation in AMG's favor; shop's release-to-service confirmation; registration and airworthiness certificate on board; ramp contact at KFXE and hangar access at KAPF; signed agreement.
 
-**6. Next steps.** Signed agreement and broker contact by Friday July 25. Pilot identified and package to your underwriter same day. Written approval expected Monday July 27 — turbine, so assume 24–72 hours. Trip file complete and launch authorized Tuesday July 28. Ferry Wednesday July 29, weather and PIC judgment permitting.
+**6. Next steps.** Signed agreement and broker contact by Friday July 25. Pilot identified and package to your underwriter same day. Written approval expected Monday July 27 — turbine, so assume 24–72 hours. Trip file complete and AMG coordination closed Tuesday July 28. Ferry Wednesday July 29, weather and PIC judgment permitting.
 
 **7 and 8.** Operational control statement, not-an-accepted-assignment line, and acceptance block exactly as in the template.

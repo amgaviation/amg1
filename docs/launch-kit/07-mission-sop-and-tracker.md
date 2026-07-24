@@ -86,7 +86,7 @@ Scope is where the fee is calculated. Days 1–2 are the base fee.
 
 Two known problems, both live, both to be handled out loud rather than hidden:
 
-- **The flat fee breaks above two days.** $895 is a 35% take on a one-day ferry and 3.7% on a fourteen-day coverage block that is far more work. Day-scaling above corrects the top end. Apply the soft cap by hand and write the applied number in the tracker.
+- **The flat fee breaks above two days.** $895 is 75-128% of a single turboprop ferry pilot day at published rates, and 3.7% of a fourteen-day coverage block that is far more work. The flat fee is wrong at both ends; day-scaling fixes the top end and only a lower base fixes the bottom. Day-scaling above corrects the top end. Apply the soft cap by hand and write the applied number in the tracker.
 - **$495 on a piston is roughly one full piston pilot day** ($400–600/day). That is heavy for the most price-sensitive segment. Where the job is one piston ferry leg and nothing else, expect to discount toward $350–395 or bundle it into a multi-leg scope. Record any discount and the reason — a pattern of discounts is the pricing data.
 
 **Pilot day rates the owner should expect to pay directly** (AMG quotes these as market information, never as AMG's price): piston ferry $400–600; turboprop / light jet ferry $700–1,200; turboprop trip $1,200–2,100; light jet trip $1,500–2,500. Phenom 300, CJ3+/CJ4 and PC-24 are quoted individually.
@@ -133,7 +133,7 @@ At acceptance, request from the owner in the same email:
 
 **Who:** Tony invoices. Owner pays.
 **Produces:** Paid invoice, one line, coordination fee. Recorded in tracker as `Actual Collected`.
-**Gate to next step:** Coordination fee received before pilot sourcing effort begins in earnest, or on a firm agreed date for established repeat owners.
+**Gate to next step:** 50% of the coordination fee received. Balance invoiced at pilot acceptance or completion per §4 of the agreement. If the underwriter declines every candidate, AMG retains the earned 50% and invoices nothing further — say this on the scope call, before taking the first payment, not after the decline.
 **Elapsed:** Invoice same day as signature. Payment 0–10 days.
 
 Payment comes from the aircraft owner or the owner's entity. Not from a passenger, not from the shop, not from a broker. If a shop offers to pay AMG's fee on the owner's behalf, decline it and route the invoice back to the owner. This is a hard line, not a preference.

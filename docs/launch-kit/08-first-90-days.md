@@ -145,6 +145,18 @@ One job is an anecdote. The question in this window is whether the same customer
 
 ### The prepaid credit block
 
+> **Blocked until counsel delivers a block agreement.** Do not sell a block, quote a block, or mention a
+> block price to a customer until a written Prepaid Coordination Credit Agreement exists, containing at
+> minimum: the refund right below stated verbatim, an express statement that credit is applied only against
+> AMG coordination fees for aircraft the buyer owns, the block's precedence over the integration clause in
+> §11 of the Coordination Services Agreement, and the balance-on-every-invoice obligation. Add it to the
+> counsel engagement in document 01 as a third document and expect the budget to rise accordingly. Selling
+> a prepayment against a document that does not exist is how a small company acquires its first genuinely
+> bad problem.
+>
+> Hold unearned block balances in a separate bank account from operating cash. A sentence telling yourself
+> not to spend the float is not a control; a second account is.
+
 **Offer:** $5,000 paid up front, drawing down at **$795 per coordinated event** instead of $895. Six events at $795 is $4,770; the $230 remainder stays on the balance or is refunded. Roughly an 11% discount in exchange for cash up front and volume commitment on their side.
 
 **Who can buy it — read this carefully.** The block is bought by an **aircraft owner**: a multi-aircraft owner, a small flight department, or a family office that moves airplanes often enough to justify it.
@@ -193,7 +205,7 @@ It is arithmetically impossible. Not hard. Impossible. The insurance gate alone 
 
 There are exactly three paths out, and they are not mutually exclusive but one of them has to be primary.
 
-**(a) Day-scaled coordination fee.** The flat fee already breaks above two days: $895 is a 35% take on a one-day ferry and 3.7% on a 14-day coverage assignment that is far more work. Move to $495/$895 for days 1-2, then **+$150/day piston and +$250/day turboprop & light jet**, with a soft cap at 25-30% of pilot spend. Effect: a 10-day turbine coverage job goes from $895 to roughly $2,900, and 33 events a month becomes about 12. Also fix the piston number — $495 is roughly 100% of one piston pilot day at $400-600, which is unsellable to the most price-sensitive segment AMG has. Piston starts at $295-$395 or piston comes off the price list.
+**(a) Day-scaled coordination fee.** The flat fee already breaks above two days: $895 is 75-128% of a single turboprop ferry pilot day at published rates, and 3.7% of a 14-day coverage assignment that is far more work. The flat fee is wrong at both ends; day-scaling fixes the top end and only a lower base fixes the bottom. Move to $495/$895 for days 1-2, then **+$150/day piston and +$250/day turboprop & light jet**, with a soft cap at 25-30% of pilot spend. Effect: a 10-day turbine coverage job goes from $895 to roughly $2,900, and 33 events a month becomes about 12. Also fix the piston number — $495 is roughly 100% of one piston pilot day at $400-600, which is unsellable to the most price-sensitive segment AMG has. Piston starts at $295-$395 or piston comes off the price list.
 
 **(b) Prepaid credit blocks.** One sale produces six events. Sell six blocks and you have 36 events off six closes. This is the only path that reduces *selling* effort rather than *delivery* effort — the coordination work per event is unchanged.
 

@@ -132,7 +132,7 @@ Applies whenever the pilot is serving as **second in command** in an aircraft ty
 
 **How this gets sold, not apologized for.** The approval step is the product. The pitch:
 
-> "The step that takes the time is getting your underwriter to name the pilot in writing. That's also the step that keeps your hull coverage intact if anything goes sideways. I'm not going to move your airplane without it, and you don't want me to."
+> "The step that takes the time is getting your underwriter to name the pilot in writing. That's also the step that keeps your hull coverage intact if anything goes sideways. I'm not going to put a pilot in front of your airplane without it, and you don't want me to."
 
 Never promise "someone there tomorrow morning" on a jet. On a piston with a genuine, confirmed-in-writing open pilot warranty, next-morning is sometimes real. On a turbine, quote 24-72 hours for approval from the moment the complete pilot package goes to the broker.
 
@@ -325,7 +325,7 @@ Do not argue with the broker. Do not ask him to reconsider. Ask him to type the 
 
 **Phone script:**
 
-> "That's what I was hoping. Do me a favor — put that in an email to me and copy [owner]. Something like: 'Confirming [pilot name] meets the open pilot warranty on [N-number] as currently written.' That's it, one line. It's for the owner's file and mine. I don't fly anybody without it."
+> "That's what I was hoping. Do me a favor — put that in an email to me and copy [owner]. Something like: 'Confirming [pilot name] meets the open pilot warranty on [N-number] as currently written.' That's it, one line. It's for the owner's file and mine. I don't coordinate a pilot without it."
 
 **Email version — reply on the existing thread:**
 
@@ -545,7 +545,7 @@ Why it fails, in order:
 
 ## 6. One-page gate — run this on the phone
 
-Print it. Keep it by the phone. No launch until every box is ticked.
+Print it. Keep it by the phone. AMG does not complete coordination, and does not tell the owner the file is ready, until every box is ticked.
 
 ```
 AMG INSURANCE GATE — [N-NUMBER] ______________  [DATE] ____________
@@ -617,8 +617,10 @@ PERMIT FERRY?  [ ] NO   [ ] YES → items 7A-7D required
         itemized as AMG out-of-pocket reimbursement. Never hourly,
         never per-leg, never as pilot pay.
 
-ALL BOXES TICKED — CLEARED TO LAUNCH
-Signed ____________________________  Date/time ___________________
+ALL BOXES TICKED — AMG COORDINATION COMPLETE. FILE CLOSED PRE-FLIGHT.
+AMG makes no release, authorization, or go/no-go decision. The decision to
+fly is the PIC's, and airworthiness release is the owner's and the mechanic's.
+Coordination complete, signed ____________________  Date/time ______________
 ```
 
 ---

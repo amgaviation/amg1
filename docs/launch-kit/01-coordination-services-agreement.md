@@ -48,13 +48,15 @@ Because Owner, not AMG, is the payer of pilot compensation, AMG issues no Form 1
 
 ## 4. Fee and Payment
 
-Owner will pay AMG a coordination fee in the amount stated on the first page. The fee is earned and due at engagement and becomes non-refundable at the moment a pilot accepts the engagement, whether or not the flight subsequently occurs. The fee covers AMG's coordination service only. AMG's invoice will state the coordination fee as a single line item, will contain no markup on any third-party cost, and will include no charge stated per flight, per leg, per flight hour, or per mile.
+Owner will pay AMG a coordination fee in the amount stated on the first page. Fifty percent (50%) of the fee is due on execution of this Agreement and is earned when AMG begins sourcing. The balance is due on the earlier of (i) the date a pilot accepts the engagement or (ii) completion of the engagement.
+
+If the engagement terminates because Owner's broker or underwriter declines to approve any pilot AMG presents, or because Owner elects not to proceed after such a decline, AMG will retain the earned portion and will invoice no balance. The fee is otherwise non-refundable once a pilot has accepted the engagement, whether or not the flight subsequently occurs. Nothing in this paragraph obligates AMG to present more than three candidate pilots. The fee covers AMG's coordination service only. AMG's invoice will state the coordination fee as a single line item, will contain no markup on any third-party cost, and will include no charge stated per flight, per leg, per flight hour, or per mile.
 
 Owner pays the pilot directly. AMG will not receive, hold, escrow, disburse, prepay, advance, or reconcile any trip funds, and there is no pass-through, true-up, deposit, or reconciliation of any amount under this Agreement.
 
 If, at Owner's written request, AMG purchases an airline positioning ticket or similar item for a pilot, AMG will invoice that item as an AMG out-of-pocket expense at documented cost with the receipt attached. Such reimbursement is not pilot compensation and will never be stated as an hourly, per-leg, or per-diem amount.
 
-Invoices are due on receipt. Amounts unpaid after fifteen (15) days bear interest at 1.5% per month or the maximum rate Florida law allows, whichever is less.
+Invoices are due on receipt unless a different term is stated on the invoice. Amounts unpaid after fifteen (15) days bear interest at 1.5% per month or the maximum rate Florida law allows, whichever is less.
 
 Cancellation, rescheduling, standby, and minimum-day terms as between Owner and the pilot are governed solely by Owner's separate agreement with the pilot, and AMG is not a party to and bears no liability under those terms.
 
@@ -135,12 +137,14 @@ The business is built on one line: **AMG never furnishes the aircraft.** Illegal
 
 ## Scope of the engagement
 
-Two documents. Nothing else in this engagement.
+Three documents. Nothing else in this engagement.
 
 1. **The AMG Coordination Services Agreement above** — AMG to aircraft owner. One page, plus signature block. Review, correct, and tell me what is unenforceable.
 2. **Independent contract pilot referral terms** — a short document between AMG and each pilot, covering independent contractor status, confidentiality, non-circumvention of the owner relationship, the pilot's obligation to carry non-owned aircraft liability coverage, the pilot's obligation to produce certificates, medical, recurrent completion cert and logged times, and the express statement that the pilot contracts with and is paid by the owner and not by AMG. I have not drafted this yet. I'd like you to draft it.
 
-**Budget: \$1,000–\$2,000 for both documents.** If that number isn't workable, tell me before you start rather than after.
+3. **Prepaid coordination credit agreement** — a short document under which an aircraft owner prepays a capped balance (currently $5,000) drawn down against per-event coordination fees. It must state that unearned credit is refundable in cash on 30 days' written notice for any reason, that the balance appears on every invoice, that credit applies only to aircraft the buyer owns, and that its terms survive the integration clause in Section 11 of the agreement above. I have not drafted this. Tell me what it does to the budget and whether Florida treats an unearned balance like this as anything other than an ordinary contractual liability.
+
+**Budget: \$1,000–\$2,000 for the first two documents; quote me separately for the third.** If that number isn't workable, tell me before you start rather than after.
 
 **Turnaround: five business days.** I have a first customer waiting.
 

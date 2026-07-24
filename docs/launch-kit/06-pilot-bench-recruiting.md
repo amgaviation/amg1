@@ -10,7 +10,7 @@ Companion documents: `02-insurance-gate-and-trip-file.md` (the gate itself), `01
 
 Everything written so far is demand-side. It assumes that when an owner says yes, there is a qualified pilot who can be at the airplane. There isn't one yet.
 
-Selling a ferry with no pilot to fly it is worse than not selling it. A ferry AMG cannot staff costs the shop a slot, costs the owner a week, and costs AMG the referral source permanently — in a market this small, once. The bench is the product. The coordination fee is what an owner pays for the fact that a qualified, insurance-approved pilot exists before the phone call, not after it.
+Selling a ferry with no pilot to fly it is worse than not selling it. A ferry AMG cannot staff costs the shop a slot, costs the owner a week, and costs AMG the referral source permanently — in a market this small, once. The bench is the product. The coordination fee is what an owner pays for a qualified pilot being *findable* on the day he calls, and for that pilot's file reaching his underwriter complete and first time. Approval itself is always trip-specific and always after the call — that is what the gate in `02` is. The bench is what makes the gate fast, not what lets it be skipped.
 
 Second reason this document exists: the published day-rate bands in the pricing work are blocked on twelve written rate confirmations from real pilots. Those confirmations come out of recruiting. Section 6 is how they get collected.
 
@@ -283,7 +283,7 @@ South Florida — FXE, PMP, BCT, TMB, OPF, FLL, PBI — is dense enough that 18 
 
 ### 5.4 Do not sell ahead of the bench
 
-If a category is not three deep, AMG does not put it in a proposal, does not name it on a call, and does not imply it on the website. The correct sentence to an owner is: "That's outside what I can staff right now. I'd rather tell you that than take the job and miss." That sentence costs one job and preserves the referral source.
+If a category is not three deep, AMG does not put it in a proposal, name it on a call, print it on the one-pager, or quote it in an email. **This rule binds documents 03 and 05 as well as this one.** Before any price sheet or email sequence goes out, check the Tab 2 bench counts by category and delete every category that is not three deep. The correct sentence to an owner is: "That's outside what I can staff right now. I'd rather tell you that than take the job and miss." That sentence costs one job and preserves the referral source.
 
 ---
 

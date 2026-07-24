@@ -4,26 +4,36 @@ Everything needed to sell and deliver AMG's first engagements. These are operati
 documents, not background reading — they are meant to be printed, sent, filled in,
 and argued with.
 
-## Read `00-REVIEW.md` first — the kit is not ready to use
+## Read `00-REVIEW.md` first
 
-An adversarial review of everything here found **27 issues, five of them
-STOP-severity**. Where the review disagrees with a document, **the review wins
-until the document is corrected.**
+An adversarial review of everything here found **27 issues, five at STOP severity**.
+Where the review disagrees with a document, **the review wins until the document is
+corrected.**
 
-The five STOP items, none of which are style notes:
+**The five STOP findings are now fixed** (commit history has the detail):
 
-1. **Four documents publish four different take rates for the same job**, and the
-   pricing model does not close arithmetically.
-2. **AMG "clears" flights to launch** — language that claims an authority AMG does
-   not have and must never imply.
-3. **The fee is collected before the insurance gate that can kill the job**, and no
-   document says what happens to the money when the gate fails.
-4. **The prepaid credit block is sold against terms that contradict the agreement**,
-   and no block agreement exists.
-5. **The kit sells jets on day one from a bench of zero**, against its own rule.
+1. **Take-rate arithmetic.** Four documents published four different take rates for the
+   same job, and the 25–30% cap was unreachable on any one- or two-day job at published
+   rates. The cap now applies to the day-scaled portion, not the base, and the one-day
+   ratio is stated honestly (75–128% of a single pilot day) rather than dressed up.
+2. **AMG does not clear, launch, fly, or move anything.** A signed "CLEARED TO LAUNCH"
+   block was the single best exhibit a plaintiff could ask for. Replaced with "AMG
+   coordination complete", and every operational verb now has the PIC or the owner as
+   its subject.
+3. **The fee vs the gate.** The fee was collected before the insurance gate that most
+   often kills the job, with no term covering the decline. Now 50% on signature, 50% at
+   pilot acceptance, and if the underwriter declines every candidate the owner owes the
+   first half and nothing more.
+4. **The prepaid block** is gated until counsel delivers a block agreement, which is now
+   a third item in the counsel engagement. Unearned balances go in a separate account.
+5. **No selling what the bench cannot staff.** Light jet pricing is out of the day-one
+   emails, the three-deep rule explicitly binds documents 03 and 05, and the false claim
+   that an insurance-approved pilot exists *before* the call is corrected — approval is
+   always trip-specific and always after.
 
-Fix those before any of this reaches a customer. Everything below describes what
-the documents are *for*, not that they are finished.
+`npm run launch-kit:verify` guards all five. The remaining 22 findings (High, Medium,
+Low) are documented in the review and not yet applied — read it before using any
+document.
 
 ## The documents
 
@@ -37,10 +47,13 @@ the documents are *for*, not that they are finished.
 | 06 | [Pilot Bench Recruiting](06-pilot-bench-recruiting.md) | Supply side. Selling a ferry with no pilot to fly it is worse than not selling it. |
 | 07 | [Mission SOP and Tracker](07-mission-sop-and-tracker.md) | The runbook from inbound request to closeout, the daily rhythm, and the tracker spec. |
 | 08 | [First 90 Days](08-first-90-days.md) | Sequencing: what blocks selling, what does not, and the honest arithmetic on the 14-day target. |
+| 09 | [Prospect List](09-prospect-list.md) | 27 Florida contacts in calling order — 20 VERIFIED, 7 UNVERIFIED, off-profile ones flagged. |
 
-**Not written yet: 09, the prospect list.** The agent building it did not finish.
-Build it by hand from §VI of `../LAUNCH_INTELLIGENCE_BRIEF.md`, which has the
-sources, the costs, and the two Florida insurance brokers already verified.
+**Every entry in 09 is marked VERIFIED or UNVERIFIED.** Confirm an UNVERIFIED entry
+before dialling it; a name that turns out to be wrong costs credibility in a market
+this small. Entries flagged off-profile (FBO-integrated, charter-affiliated,
+jet-only) are listed so you can skip them deliberately rather than rediscover them.
+Known gap: no coverage yet at KTMB, KSUA, KAPF, or KPBI.
 
 Supporting research lives one level up: `../LAUNCH_INTELLIGENCE_BRIEF.md` (verified
 market and regulatory findings) and `../LAUNCH_PLAN_14_DAY.md` (earlier plan, partly
