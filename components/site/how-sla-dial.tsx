@@ -18,7 +18,7 @@ const START_ANGLE = 150; // gap faces the bottom
 const CENTER = 160;
 
 const ARCS = [
-  { plan: "On-Demand", window: "24 business hrs", hours: 24, r: 134, alpha: 0.4 },
+  { plan: "On-Demand", window: "within 24 hrs", hours: 24, r: 134, alpha: 0.4 },
   { plan: "Standard", window: "12 business hrs", hours: 12, r: 112, alpha: 0.66 },
   { plan: "Priority", window: "4 business hrs", hours: 4, r: 90, alpha: 1 },
 ] as const;
@@ -93,7 +93,7 @@ export function HowSlaDial() {
             viewBox="0 0 320 320"
             className="block h-auto w-full"
             role="img"
-            aria-label="Quote-window gauge: On-Demand answered within 24 business hours, Standard within 12, Priority within 4."
+            aria-label="Quote-window gauge: On-Demand answered within 24 hours, Standard within 12, Priority within 4."
           >
             {/* tick ring */}
             {TICKS.map((t, i) => (

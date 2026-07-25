@@ -9,7 +9,7 @@
  * site-config is plain constants and safe on both sides.
  */
 
-import { DAY_RATES } from "@/lib/site-config";
+import { DAY_RATES, REFERRAL_PROGRAM } from "@/lib/site-config";
 
 export const LEAD_BUSINESS_TYPES = [
   { value: "mro", label: "MRO / Service Center / Avionics" },
@@ -117,8 +117,12 @@ const WHO =
  * look like an uncertificated air carrier operation.
  */
 const VALUE: Record<LeadBusinessType, string> = {
-  mro: "For shops, it works as a straightforward referral. When a customer asks how to get their aircraft to you, or home again after the work is signed off, you can point them to us. The owner contracts with us directly and pays us directly, so nothing runs through your books and you are not in the middle of it. We can also send maintenance work your way when one of our clients needs a shop that fits your capabilities.",
-  broker: "For brokers and dealers, we cover the flying that transactions depend on. Pre-buy positioning, delivery flights, and moving aircraft between showings. Your client contracts with us directly, so the crew arrangement stays separate from the sale.",
+  mro: `For shops, it works as a straightforward referral. When a customer asks how to get their aircraft to you, or home again after the work is signed off, you can point them to us. The owner contracts with us directly and pays us directly, so nothing runs through your books and you are not in the middle of it. We can also send maintenance work your way when one of our clients needs a shop that fits your capabilities.
+
+There is a referral arrangement attached to it. A customer you send us takes ${REFERRAL_PROGRAM.clientDiscountPercent}% off our coordination fee, and your shop receives a referral commission of ${REFERRAL_PROGRAM.partnerCommissionPercent}% of that fee, paid by us out of our own side. Your customer's quote is disclosed either way, so nobody is finding out about it later.`,
+  broker: `For brokers and dealers, we cover the flying that transactions depend on. Pre-buy positioning, delivery flights, and moving aircraft between showings. Your client contracts with us directly, so the crew arrangement stays separate from the sale.
+
+A client you refer takes ${REFERRAL_PROGRAM.clientDiscountPercent}% off our coordination fee, and you receive a referral commission of ${REFERRAL_PROGRAM.partnerCommissionPercent}% of that fee, paid by us and disclosed on their quote.`,
   owner: "We source qualified contract pilots for maintenance ferries, repositioning, PIC or SIC coverage, and the second pilot your insurance carrier asks for. You retain operational control of your aircraft at all times.",
   flight_dept: "For flight departments, we cover the gaps that scheduling cannot solve on its own. Vacation, recurrent training, a medical, or two trips on the same day. You get qualified contract coverage without adding a salary, and your department keeps operational control.",
   general: "We source qualified contract pilots for maintenance ferries, repositioning, PIC and SIC coverage, and insurance-required second pilots.",
@@ -156,7 +160,7 @@ function introTemplate(type: LeadBusinessType): TemplateCopy {
     subject: subjects[type],
     body: `Hi {{first_name}},
 
-I'm {{sender_name}}, owner and pilot with AMG Aviation Group in North Lauderdale, Florida.
+I'm {{sender_name}} with AMG Aviation Group here in Southeast Florida.
 
 ${WHO}
 
@@ -188,7 +192,7 @@ I wanted to follow up on my note from last week in case it arrived during a busy
 
 ${context[type]}
 
-Send me ${ASK[type]} and I'll have an itemized quote back to you within 24 business hours. There's no obligation attached to it, and it gives you a real number for planning either way.
+Send me ${ASK[type]} and I'll have an itemized quote back to you within 24 hours. There's no obligation attached to it, and it gives you a real number for planning either way.
 
 ${SIGN_OFF}`,
   };
@@ -201,7 +205,7 @@ function readyToQuoteTemplate(type: LeadBusinessType): TemplateCopy {
 
 Good speaking with you. To put a real number in front of you, I need the aircraft type and tail number, where it is now and where it needs to go, your dates or the window if the dates are still soft, and what the mission is: ferry, repositioning, PIC or SIC coverage, or a second pilot. I also need your insurance carrier, since the open pilot warranty determines who is eligible before anything else does.
 
-Once I have that, you'll have an itemized quote within 24 business hours. It will include pilot options with their qualifications so you're choosing the crew, the day rate and the number of days, travel and per diem estimated at cost, and our flat coordination fee as the only AMG line on it.
+Once I have that, you'll have an itemized quote within 24 hours. It will include pilot options with their qualifications so you're choosing the crew, the day rate and the number of days, travel and per diem estimated at cost, and our flat coordination fee as the only AMG line on it.
 
 ${SIGN_OFF}`,
   };
@@ -260,7 +264,7 @@ function lostTemplate(type: LeadBusinessType): TemplateCopy {
 
 Understood. The timing isn't right, and I won't keep following up.
 
-Our pricing stays published at {{pricing_url}} if you ever want to check a number without needing to talk to anyone. And if something comes up down the road, one reply gets you a quote within 24 business hours.
+Our pricing stays published at {{pricing_url}} if you ever want to check a number without needing to talk to anyone. And if something comes up down the road, one reply gets you a quote within 24 hours.
 
 Thank you for the consideration, and safe flying.
 

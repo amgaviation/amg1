@@ -12,7 +12,7 @@ const ITEMS = [
   "N-reg · Part 91",
   "Crew · credential-reviewed",
   "$0 markup · no vendor rebates",
-  "First reply · 24 business hrs",
+  "First reply · within 24 hrs",
   "KTPA → KATL",
   "Ferry · repositioning",
   "Florida & the Southeast",

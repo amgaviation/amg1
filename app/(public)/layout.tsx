@@ -23,7 +23,6 @@ const PROFESSIONAL_SERVICE_SCHEMA = {
   url: SITE.url,
   telephone: SITE.phone,
   email: SITE.email,
-  founder: { "@type": "Person", name: SITE.founder },
   address: {
     "@type": "PostalAddress",
     streetAddress: SITE.streetLine,

@@ -191,7 +191,7 @@ for (const [name, source] of Object.entries({ howItWorks, ticker, team })) {
     `${name}: reintroduced tiered SLA windows`,
   );
 }
-assert.match(ticker, /24 business hrs/, "ticker: expected the 24-business-hour commitment");
+assert.match(ticker, /within 24 hrs/, "ticker: expected the 24-hour reply commitment");
 assert.doesNotMatch(
   prose(howItWorks),
   /does not promise availability, acceptance, or a response time/i,

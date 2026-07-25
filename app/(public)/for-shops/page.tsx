@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { SITE } from "@/lib/site-config";
 import { HeadlineReveal } from "@/components/site/headline-reveal";
 import { QuoteButton } from "@/components/site/quote-button";
 
@@ -239,7 +238,7 @@ export default function ForShopsPage() {
           <div className="mt-12 flex flex-wrap items-center gap-4" data-scroll-animate>
             <QuoteButton>Talk to us</QuoteButton>
             <span className="text-sm text-[var(--oc-aluminum-2)]">
-              Or call {SITE.founder} directly — the number in the footer reaches him.
+              Or call us directly — the number in the footer reaches the coordinator on duty.
             </span>
           </div>
         </div>
