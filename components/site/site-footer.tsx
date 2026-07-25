@@ -97,6 +97,17 @@ export function SiteFooter() {
           </span>
           <span className="flex flex-wrap items-center gap-3">
             <CookiePreferencesButton className="text-[var(--oc-aluminum-2)] transition-colors hover:text-white" />
+            {/* Staff entry point, deliberately understated. The external client,
+                crew, and partner areas remain closed; this reaches the admin
+                workspace only. Not a customer-facing offer, so it sits in the
+                legal row rather than the nav or a link column. */}
+            <Link
+              href="/login"
+              prefetch={false}
+              className="inline-flex min-h-9 items-center transition-colors hover:text-white"
+            >
+              Staff Login
+            </Link>
             <span>{SITE.cityState}</span>
           </span>
         </div>
