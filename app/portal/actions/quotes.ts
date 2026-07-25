@@ -13,6 +13,8 @@ import { emailInvoicePdf, emailQuotePdf } from "@/lib/portal/billing-emails";
 import { nextBillingDocumentNumber } from "@/lib/portal/billing-numbering";
 import { stampSlaMetOnQuoteSent } from "@/lib/portal/sla";
 import { isAdminRole } from "@/lib/portal/constants";
+import { start } from "workflow/api";
+import { quoteFollowUp } from "@/workflows/quote-follow-up";
 import { actor, bool, num, str } from "./_helpers";
 
 function usd(value: number) {
@@ -453,6 +455,15 @@ export async function sendQuote(formData: FormData) {
       entityType: "quote",
       entityId: quoteId,
     });
+  }
+  // Durable follow-up: nudge at 2, 5 and 10 days until the client answers.
+  // Deliberately non-fatal — the quote has already gone out and been marked
+  // sent, so a scheduling failure must not send the admin to an error page for
+  // an email that succeeded. It costs a follow-up, not the quote.
+  try {
+    await start(quoteFollowUp, [quoteId]);
+  } catch (error) {
+    console.error("[quotes] failed to start follow-up workflow", quoteId, error);
   }
   revalidatePath(`/portal/admin/quotes/${quoteId}`);
   redirect(`/portal/admin/quotes/${quoteId}?success=sent`);

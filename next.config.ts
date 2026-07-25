@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withWorkflow } from "workflow/next";
 
 // Enforced Content-Security-Policy: the browser blocks any resource whose origin
 // is not allowlisted below. Origins mirror the site's real third parties — Supabase
@@ -90,4 +91,8 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// withWorkflow compiles the "use workflow" / "use step" directives and mounts
+// the SDK's internal routes under /.well-known/workflow/. proxy.ts matches only
+// /portal/:path*, so those routes are already outside the middleware matcher and
+// need no exclusion added there.
+export default withWorkflow(nextConfig);
