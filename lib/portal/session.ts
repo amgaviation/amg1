@@ -58,8 +58,17 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
 export async function requireUser(): Promise<SessionUser> {
   const user = await getSessionUser();
   if (!user) redirect("/login");
+  // Route the known non-approved states to the page that explains them, then
+  // refuse everything else. The denylist alone was fail-open: it happens to
+  // cover all six values the schema currently permits
+  // (20260701113000_access_management_waitlist.sql pins the check constraint),
+  // but a seventh status added later would silently pass here while the RLS
+  // policies — which require status = 'approved' — rejected it. The server
+  // actions and the API guard already require "approved"; this makes the page
+  // guard agree with them.
   if (user.status === "suspended" || user.status === "deleted") redirect("/access-denied");
   if (user.status === "pending" || user.status === "pending_approval" || user.status === "waitlisted" || user.status === "denied") redirect("/pending-approval");
+  if (user.status !== "approved") redirect("/access-denied");
   return user;
 }
 
