@@ -7,8 +7,8 @@ import { ChevronDown, LogOut, Menu, X } from "lucide-react";
 import { signOut } from "@/app/portal/actions/auth";
 import { CommandPalette } from "@/components/portal/shell/command-palette";
 import { Breadcrumbs } from "@/components/portal/ui/breadcrumbs";
+import { HelpMenu, IdleTipCoach } from "@/components/portal/ui/help-tips";
 import { PortalIcon } from "@/components/portal/ui/icon";
-import { RoleBadge } from "@/components/portal/ui/status-badge";
 import { ThemeToggle } from "@/components/portal/ui/theme-toggle";
 import { cn } from "@/lib/utils";
 import { initials } from "@/lib/portal/format";
@@ -28,11 +28,12 @@ import {
 import { navModuleForHref } from "@/lib/portal/permissions-catalog";
 
 /**
- * AMG Connect shell — the chrome every portal page renders inside.
+ * AMG Connect "Horizon" shell — the chrome every portal page renders inside.
  *
- * One short workspace rail per role (navy chrome), a contextual sub-nav
- * strip for the destinations inside the active workspace, and a status
- * strip with breadcrumbs, Zulu clock, notifications, and the account menu.
+ * One quiet paper rail per role: workspaces with their destinations inline
+ * (the active workspace stays expanded, others expand on demand), a clean
+ * top bar with search, UTC clock, help, notifications, and the account
+ * menu, and an idle-time tip coach for contextual guidance.
  *
  * Rendered once by the per-role layout (app/portal/<role>/layout.tsx). Pages
  * that still render their own <PortalShell> are harmless: a nested shell
@@ -229,16 +230,30 @@ export function PortalShell({
 
   return (
     <ShellNestingContext.Provider value={true}>
-      <div className="amg-portal relative min-h-screen bg-[var(--deck-canvas)] overflow-x-clip lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
+      <div className="amg-portal relative min-h-screen bg-[var(--deck-canvas)] overflow-x-clip lg:grid lg:grid-cols-[16.5rem_minmax(0,1fr)]">
         {/* Desktop sidebar */}
         <aside className="deck-chrome-surface sticky top-0 hidden h-screen flex-col border-r border-[var(--deck-chrome-line)] lg:flex">
-          <SidebarContent
-            role={role}
-            user={user}
-            navGroups={navGroups}
-            activeGroup={activeGroup}
-            primaryAction={showPrimaryAction ? primaryAction : undefined}
-          />
+          <Suspense
+            fallback={
+              <SidebarContent
+                role={role}
+                user={user}
+                navGroups={navGroups}
+                activeGroup={activeGroup}
+                pathname={pathname}
+                primaryAction={showPrimaryAction ? primaryAction : undefined}
+              />
+            }
+          >
+            <SidebarWithQuery
+              role={role}
+              user={user}
+              navGroups={navGroups}
+              activeGroup={activeGroup}
+              pathname={pathname}
+              primaryAction={showPrimaryAction ? primaryAction : undefined}
+            />
+          </Suspense>
         </aside>
 
         {/* Mobile drawer */}
@@ -251,32 +266,47 @@ export function PortalShell({
             <aside ref={drawerRef} className="deck-chrome-surface absolute left-0 top-0 flex h-[100dvh] w-[18rem] max-w-[85vw] flex-col border-r border-[var(--deck-chrome-line)] shadow-[var(--deck-shadow-modal)] [padding-left:env(safe-area-inset-left)]">
               <button
                 onClick={() => setOpen(false)}
-                className="absolute right-3 top-3 z-10 rounded-md border border-[var(--deck-chrome-line)] p-2.5 text-[var(--deck-chrome-muted)] transition-colors hover:text-[var(--deck-chrome-text)]"
+                className="absolute right-3 top-3 z-10 rounded-lg border border-[var(--deck-chrome-line)] p-2.5 text-[var(--deck-chrome-muted)] transition-colors hover:text-[var(--deck-chrome-text)]"
                 aria-label="Close menu"
               >
                 <X className="h-5 w-5" />
               </button>
-              <SidebarContent
-                role={role}
-                user={user}
-                navGroups={navGroups}
-                activeGroup={activeGroup}
-                primaryAction={showPrimaryAction ? primaryAction : undefined}
-                onNavigate={() => setOpen(false)}
-                expandable
-                showWorkspaceSwitch
-              />
+              <Suspense
+                fallback={
+                  <SidebarContent
+                    role={role}
+                    user={user}
+                    navGroups={navGroups}
+                    activeGroup={activeGroup}
+                    pathname={pathname}
+                    primaryAction={showPrimaryAction ? primaryAction : undefined}
+                    onNavigate={() => setOpen(false)}
+                    showWorkspaceSwitch
+                  />
+                }
+              >
+                <SidebarWithQuery
+                  role={role}
+                  user={user}
+                  navGroups={navGroups}
+                  activeGroup={activeGroup}
+                  pathname={pathname}
+                  primaryAction={showPrimaryAction ? primaryAction : undefined}
+                  onNavigate={() => setOpen(false)}
+                  showWorkspaceSwitch
+                />
+              </Suspense>
             </aside>
           </div>
         )}
 
         <div className="flex min-h-screen min-w-0 flex-col">
-          {/* Status strip */}
-          <header className="sticky top-0 z-30 flex h-12 items-center justify-between gap-3 border-b border-[var(--deck-line)] bg-[var(--deck-canvas)]/90 px-4 backdrop-blur-xl sm:px-5 lg:px-8">
+          {/* Top bar */}
+          <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-[var(--deck-line)] bg-[var(--deck-panel)]/95 px-4 backdrop-blur-xl sm:px-5 lg:px-8">
             <div className="flex min-w-0 items-center gap-3">
               <button
                 onClick={() => setOpen(true)}
-                className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-2.5 text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)] lg:hidden"
+                className="rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-2.5 text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-line-strong)] hover:text-[var(--deck-text)] lg:hidden"
                 aria-label="Open menu"
               >
                 <Menu className="h-5 w-5" />
@@ -293,7 +323,7 @@ export function PortalShell({
               {showPrimaryAction ? (
                 <Link
                   href={primaryAction!.href}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-[var(--deck-accent)] p-2.5 text-xs font-semibold text-[var(--deck-on-accent)] transition-colors hover:opacity-90 lg:hidden"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--deck-accent)] p-2.5 text-xs font-semibold text-[var(--deck-on-accent)] transition-opacity hover:opacity-90 lg:hidden"
                   aria-label={primaryAction!.label}
                 >
                   <PortalIcon name={primaryAction!.icon} className="h-4 w-4" />
@@ -304,13 +334,15 @@ export function PortalShell({
 
               <ZuluClock />
 
+              <HelpMenu />
+
               {isAdminRole(user.role) ? <PreviewMenu role={role} /> : null}
 
               <ThemeToggle />
 
               <Link
                 href={NOTIFICATIONS_HREF[role]}
-                className="relative rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-2.5 text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)] lg:p-1.5"
+                className="relative rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] p-2.5 text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-line-strong)] hover:text-[var(--deck-text)] lg:p-1.5"
                 aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ""}`}
               >
                 <PortalIcon name="bell" className="h-4 w-4" />
@@ -343,101 +375,23 @@ export function PortalShell({
             </div>
           ) : null}
 
-          {/* Contextual sub-navigation for the active workspace. */}
-          {activeGroup && activeGroup.items.filter((i) => !i.secondary).length > 1 ? (
-            <Suspense fallback={<WorkspaceSubnav group={activeGroup} pathname={pathname} />}>
-              <WorkspaceSubnavWithQuery group={activeGroup} pathname={pathname} />
-            </Suspense>
-          ) : null}
-
           {/* Main content */}
-          <main className="w-full max-w-full min-w-0 overflow-hidden flex-1 px-4 py-6 sm:px-5 lg:px-8 lg:py-7">
-            <div className="mx-auto w-full max-w-[96rem] min-w-0 space-y-5">
+          <main className="w-full max-w-full min-w-0 overflow-hidden flex-1 px-4 py-6 sm:px-5 lg:px-8 lg:py-8">
+            <div className="mx-auto w-full max-w-[90rem] min-w-0 space-y-6">
               {children}
             </div>
           </main>
 
           <footer className="border-t border-[var(--deck-line)] px-4 py-3 sm:px-8">
             <p className="deck-micro text-[var(--deck-text-3)]">
-              AMG Aviation Group · AMG Connect · UTC Ops
+              AMG Aviation Group · AMG Connect · Times in UTC
             </p>
           </footer>
+
+          <IdleTipCoach />
         </div>
       </div>
     </ShellNestingContext.Provider>
-  );
-}
-
-/**
- * Second-level navigation: the destinations inside the active workspace.
- * Plain links — browser back/forward and deep links keep working, and the
- * strip scrolls horizontally on phones without hiding anything essential.
- */
-function WorkspaceSubnavWithQuery({ group, pathname }: { group: NavGroup; pathname: string }) {
-  const searchParams = useSearchParams();
-  return <WorkspaceSubnav group={group} pathname={pathname} search={searchParams?.toString() ?? ""} />;
-}
-
-function WorkspaceSubnav({
-  group,
-  pathname,
-  search = "",
-}: {
-  group: NavGroup;
-  pathname: string;
-  search?: string;
-}) {
-  const items = group.items.filter((item) => !item.secondary);
-  const current = new URLSearchParams(search);
-
-  // Longest-prefix match wins; items that pin query params (e.g. ?pool=open)
-  // win when those params are present and lose when they are not.
-  let activeHref: string | null = null;
-  let bestScore = -1;
-  for (const item of items) {
-    const [base, query] = item.href.split("?");
-    if (!(pathname === base || pathname.startsWith(`${base}/`))) continue;
-    let score = base.length * 10;
-    if (query) {
-      const wanted = new URLSearchParams(query);
-      let matched = true;
-      for (const [key, value] of wanted.entries()) {
-        if (current.get(key) !== value) matched = false;
-      }
-      score += matched ? 1000 : -5;
-    }
-    if (score > bestScore) {
-      bestScore = score;
-      activeHref = item.href;
-    }
-  }
-
-  return (
-    <nav
-      aria-label={`${group.label} sections`}
-      className="border-b border-[var(--deck-line)] bg-[var(--deck-panel)] px-4 sm:px-5 lg:px-8"
-    >
-      <div className="deck-scroll-x -mb-px flex gap-1 overflow-x-auto">
-        {items.map((item) => {
-          const active = item.href === activeHref;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              aria-current={active ? "page" : undefined}
-              className={cn(
-                "flex min-h-[2.75rem] shrink-0 items-center gap-1.5 border-b-2 px-3 text-[0.82rem] font-medium transition-colors",
-                active
-                  ? "border-[var(--deck-accent)] font-semibold text-[var(--deck-accent-ink)]"
-                  : "border-transparent text-[var(--deck-text-2)] hover:border-[var(--deck-line-strong)] hover:text-[var(--deck-text)]"
-              )}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
   );
 }
 
@@ -454,11 +408,11 @@ function ZuluClock() {
   const mm = String(now.getUTCMinutes()).padStart(2, "0");
   return (
     <div
-      className="deck-mono hidden items-center gap-1.5 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-2.5 py-1.5 text-[var(--deck-text-2)] md:flex"
+      className="deck-num hidden items-center gap-1.5 rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] px-2.5 py-1.5 text-xs text-[var(--deck-text-2)] md:flex"
       title="Coordinated Universal Time"
     >
       <span className="h-1.5 w-1.5 rounded-full bg-[var(--deck-success)]" aria-hidden />
-      <span className="deck-num font-semibold">{hh}{mm}Z</span>
+      <span className="font-semibold">{hh}:{mm} UTC</span>
     </div>
   );
 }
@@ -481,7 +435,7 @@ function PreviewMenu({ role }: { role: PortalRole }) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="inline-flex items-center gap-1.5 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] px-2.5 py-1.5 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)] px-2.5 py-1.5 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-line-strong)] hover:text-[var(--deck-text)]"
       >
         <PortalIcon name="layers" className="h-3.5 w-3.5" />
         Preview
@@ -490,7 +444,7 @@ function PreviewMenu({ role }: { role: PortalRole }) {
       {open ? (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden />
-          <div className="deck-card absolute right-0 z-50 mt-2 w-64 p-1.5">
+          <div className="deck-card absolute right-0 z-50 mt-2 w-64 p-1.5 shadow-[var(--deck-shadow-pop)]">
             <p className="px-3 pb-1.5 pt-2 text-[0.7rem] leading-4 text-[var(--deck-text-3)]">
               Open a role&apos;s workspace layout with your admin account. Not an
               impersonation — you keep your own access and identity.
@@ -501,7 +455,7 @@ function PreviewMenu({ role }: { role: PortalRole }) {
                 href={ROLE_HOME[t.role]}
                 onClick={() => setOpen(false)}
                 className={cn(
-                  "flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors hover:bg-[var(--deck-accent-tint)]",
+                  "flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors hover:bg-[var(--deck-accent-tint)]",
                   t.role === role
                     ? "font-semibold text-[var(--deck-accent-ink)]"
                     : "text-[var(--deck-text-2)]"
@@ -517,7 +471,7 @@ function PreviewMenu({ role }: { role: PortalRole }) {
               <Link
                 href={ROLE_HOME.admin}
                 onClick={() => setOpen(false)}
-                className="mt-1 flex items-center gap-2 rounded-md border-t border-[var(--deck-line)] px-3 py-2 text-sm font-semibold text-[var(--deck-text)] hover:bg-[var(--deck-accent-tint)]"
+                className="mt-1 flex items-center gap-2 rounded-lg border-t border-[var(--deck-line)] px-3 py-2 text-sm font-semibold text-[var(--deck-text)] hover:bg-[var(--deck-accent-tint)]"
               >
                 <PortalIcon name="gauge" className="h-4 w-4" />
                 Back to Operations
@@ -540,14 +494,14 @@ function UserMenu({ role, user }: { role: PortalRole; user: ShellUser }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-label="Account menu"
-        className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] text-[0.68rem] font-bold text-[var(--deck-accent-ink)] transition-colors hover:border-[var(--deck-accent)]"
+        className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-[var(--deck-line-strong)] bg-[var(--deck-accent-tint)] text-[0.68rem] font-bold text-[var(--deck-accent-ink)] transition-colors hover:border-[var(--deck-accent)]"
       >
         <Avatar user={user} className="flex h-full w-full items-center justify-center rounded-full" />
       </button>
       {open ? (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden />
-          <div className="deck-card absolute right-0 z-50 mt-2 w-64 overflow-hidden">
+          <div className="deck-card absolute right-0 z-50 mt-2 w-64 overflow-hidden shadow-[var(--deck-shadow-pop)]">
             <div className="border-b border-[var(--deck-line)] px-4 py-3">
               <p className="truncate text-sm font-semibold text-[var(--deck-text)]">{user.name}</p>
               <p className="truncate text-xs text-[var(--deck-text-3)]">
@@ -559,7 +513,7 @@ function UserMenu({ role, user }: { role: PortalRole; user: ShellUser }) {
               <Link
                 href={PROFILE_HREF[role]}
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-[var(--deck-text-2)] transition-colors hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)]"
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-[var(--deck-text-2)] transition-colors hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)]"
               >
                 <PortalIcon name="users" className="h-4 w-4" />
                 Profile
@@ -567,7 +521,7 @@ function UserMenu({ role, user }: { role: PortalRole; user: ShellUser }) {
               <Link
                 href={SETTINGS_HREF[role]}
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-[var(--deck-text-2)] transition-colors hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)]"
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-[var(--deck-text-2)] transition-colors hover:bg-[var(--deck-accent-tint)] hover:text-[var(--deck-text)]"
               >
                 <PortalIcon name="settings" className="h-4 w-4" />
                 Settings
@@ -576,7 +530,7 @@ function UserMenu({ role, user }: { role: PortalRole; user: ShellUser }) {
                 <button
                   type="submit"
                   onClick={clearPortalIntroBrowserState}
-                  className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm text-[var(--deck-text-2)] transition-colors hover:bg-[var(--deck-danger-tint)] hover:text-[var(--deck-danger)]"
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-[var(--deck-text-2)] transition-colors hover:bg-[var(--deck-danger-tint)] hover:text-[var(--deck-danger)]"
                 >
                   <LogOut className="h-4 w-4" />
                   Sign out
@@ -590,31 +544,69 @@ function UserMenu({ role, user }: { role: PortalRole; user: ShellUser }) {
   );
 }
 
+function SidebarWithQuery(props: Omit<Parameters<typeof SidebarContent>[0], "search">) {
+  const searchParams = useSearchParams();
+  return <SidebarContent {...props} search={searchParams?.toString() ?? ""} />;
+}
+
+/**
+ * The Horizon rail: brand, primary action, then every workspace with its
+ * destinations inline. The active workspace stays expanded; others expand
+ * on demand (chevron) or on navigation. One navigation surface on every
+ * screen size — the mobile drawer renders the same content.
+ */
 function SidebarContent({
   role,
   user,
   navGroups,
   activeGroup,
+  pathname,
+  search = "",
   primaryAction,
   onNavigate,
-  expandable = false,
   showWorkspaceSwitch = false,
 }: {
   role: PortalRole;
   user: ShellUser;
   navGroups: NavGroup[];
   activeGroup: NavGroup | null;
+  pathname: string;
+  search?: string;
   primaryAction?: NavItem;
   onNavigate?: () => void;
-  /** Mobile drawer: workspaces expand in place so every destination stays reachable. */
-  expandable?: boolean;
   showWorkspaceSwitch?: boolean;
 }) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const current = new URLSearchParams(search);
 
   function isExpanded(group: NavGroup) {
     if (group.label in expanded) return expanded[group.label];
     return group.label === activeGroup?.label;
+  }
+
+  /** Item-level active: longest base match wins; query-pinned items (e.g.
+   *  ?pool=open) win only when their params are present. */
+  function activeItemHref(group: NavGroup): string | null {
+    let best: string | null = null;
+    let bestScore = -1;
+    for (const item of group.items) {
+      const [base, query] = item.href.split("?");
+      if (!(pathname === base || pathname.startsWith(`${base}/`))) continue;
+      let score = base.length * 10;
+      if (query) {
+        const wanted = new URLSearchParams(query);
+        let matched = true;
+        for (const [key, value] of wanted.entries()) {
+          if (current.get(key) !== value) matched = false;
+        }
+        score += matched ? 1000 : -5;
+      }
+      if (score > bestScore) {
+        bestScore = score;
+        best = item.href;
+      }
+    }
+    return best;
   }
 
   return (
@@ -624,19 +616,24 @@ function SidebarContent({
         <Link href="/" className="inline-flex items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/images/logo-white.png"
+            src="/images/logo-navy.png"
             alt="AMG Aviation Group"
             width="1088"
             height="221"
-            className="h-6 w-auto"
+            className="logo-when-light h-6 w-auto"
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/logo-white.png"
+            alt=""
+            width="1088"
+            height="221"
+            className="logo-when-dark h-6 w-auto"
           />
         </Link>
-        <p className="deck-micro mt-2.5 text-[var(--deck-chrome-muted)]">
-          AMG Connect
+        <p className="deck-micro mt-2 text-[var(--deck-chrome-muted)]">
+          AMG Connect · {ROLE_SHORT[role]}
         </p>
-        <div className="mt-3">
-          <RoleBadge role={role} />
-        </div>
       </div>
 
       {/* Primary action — the most common "start work" step, never buried in nav. */}
@@ -645,7 +642,7 @@ function SidebarContent({
           <Link
             href={primaryAction.href}
             onClick={onNavigate}
-            className="flex min-h-[2.75rem] items-center justify-center gap-2 rounded-md bg-[var(--deck-accent)] px-3 text-sm font-semibold text-[var(--deck-on-accent)] transition-colors hover:opacity-90"
+            className="flex min-h-[2.6rem] items-center justify-center gap-2 rounded-[calc(var(--radius)-2px)] bg-[var(--deck-accent)] px-3 text-sm font-semibold text-[var(--deck-on-accent)] shadow-[var(--deck-shadow-card)] transition-opacity hover:opacity-90"
           >
             <PortalIcon name={primaryAction.icon} className="h-4 w-4" />
             {primaryAction.label}
@@ -653,24 +650,27 @@ function SidebarContent({
         </div>
       ) : null}
 
-      {/* Workspace rail */}
+      {/* Workspaces */}
       <nav className="deck-scroll flex-1 overflow-y-auto px-3 py-4">
-        <div className="space-y-0.5">
+        <div className="space-y-1">
           {navGroups.map((group) => {
             const isActive = group.label === activeGroup?.label;
             const subItems = group.items.filter(
               (item) => !item.secondary && baseOf(item.href) !== baseOf(group.href ?? "")
             );
-            const showItems = expandable && subItems.length > 0 && isExpanded(group);
+            const showItems = subItems.length > 0 && isExpanded(group);
+            const activeHref = isActive ? activeItemHref(group) : null;
+            const groupItemActive =
+              isActive && (!activeHref || baseOf(activeHref) === baseOf(group.href ?? ""));
             return (
               <div key={group.label}>
                 <div className="flex items-center">
                   <Link
                     href={group.href ?? group.items[0].href}
                     onClick={onNavigate}
-                    data-active={isActive}
-                    className="deck-nav-link flex-1"
-                    aria-current={isActive ? "page" : undefined}
+                    data-active={groupItemActive}
+                    className={cn("deck-nav-link flex-1", isActive && !groupItemActive && "!text-[var(--deck-chrome-text)] font-semibold")}
+                    aria-current={groupItemActive ? "page" : undefined}
                   >
                     <PortalIcon
                       name={group.icon ?? group.items[0].icon}
@@ -678,18 +678,18 @@ function SidebarContent({
                     />
                     <span className="min-w-0 flex-1 truncate">{group.label}</span>
                   </Link>
-                  {expandable && subItems.length > 0 ? (
+                  {subItems.length > 0 ? (
                     <button
                       type="button"
                       onClick={() =>
-                        setExpanded((current) => ({
-                          ...current,
+                        setExpanded((state) => ({
+                          ...state,
                           [group.label]: !isExpanded(group),
                         }))
                       }
                       aria-expanded={isExpanded(group)}
                       aria-label={`${isExpanded(group) ? "Collapse" : "Expand"} ${group.label}`}
-                      className="min-h-[2.75rem] rounded-md px-2 text-[var(--deck-chrome-muted)] transition-colors hover:text-[var(--deck-chrome-text)]"
+                      className="min-h-[2.4rem] rounded-lg px-2 text-[var(--deck-chrome-muted)] transition-colors hover:text-[var(--deck-chrome-text)]"
                     >
                       <ChevronDown
                         className={cn("h-3.5 w-3.5", !isExpanded(group) && "-rotate-90")}
@@ -698,13 +698,15 @@ function SidebarContent({
                   ) : null}
                 </div>
                 {showItems ? (
-                  <div className="ml-4 space-y-0.5 border-l border-[var(--deck-chrome-line)] pl-2">
+                  <div className="ml-[1.35rem] space-y-0.5 border-l border-[var(--deck-chrome-line)] py-0.5 pl-2.5">
                     {subItems.map((item) => (
                       <Link
                         key={item.href}
                         href={item.href}
                         onClick={onNavigate}
-                        className="deck-nav-link !min-h-[2.5rem]"
+                        data-active={item.href === activeHref}
+                        aria-current={item.href === activeHref ? "page" : undefined}
+                        className="deck-nav-link !min-h-[2.15rem] !text-[0.8125rem]"
                       >
                         <span className="min-w-0 flex-1 truncate">{item.label}</span>
                       </Link>
@@ -752,21 +754,18 @@ function SidebarContent({
       {/* User card */}
       <div className="shrink-0 border-t border-[var(--deck-chrome-line)] px-4 py-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] text-xs font-bold text-[var(--deck-chrome-accent)]">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--deck-accent-tint)] text-xs font-bold text-[var(--deck-chrome-accent)]">
             <Avatar user={user} className="flex h-full w-full items-center justify-center rounded-full" />
           </div>
           <div className="min-w-0">
             <p className="truncate text-xs font-semibold text-[var(--deck-chrome-text)]">
               {user.name}
             </p>
-            <p className="truncate text-[0.68rem] text-[var(--deck-chrome-muted)]">
+            <p className="truncate text-[0.7rem] text-[var(--deck-chrome-muted)]">
               {user.companyName ?? user.email}
             </p>
           </div>
         </div>
-        <p className="deck-micro mt-3 !text-[9px] text-[var(--deck-chrome-muted)]">
-          AMG Aviation Group
-        </p>
       </div>
     </>
   );

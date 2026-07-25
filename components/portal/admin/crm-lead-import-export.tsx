@@ -165,7 +165,7 @@ export function CrmLeadImportExport() {
 
       <div className="grid gap-4">
         <label className="grid gap-1.5">
-          <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">
+          <span className="deck-eyebrow !text-[var(--deck-text-2)]">
             Lead file (CSV, Excel)
           </span>
           <input
@@ -192,7 +192,7 @@ export function CrmLeadImportExport() {
 
             {/* Column mapping */}
             <div className="deck-inset grid gap-2 p-4">
-              <p className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">Column Mapping</p>
+              <p className="deck-eyebrow !text-[var(--deck-text-2)]">Column Mapping</p>
               <div className="grid gap-2">
                 {parsed.columns.map((column) => (
                   <div
@@ -216,7 +216,7 @@ export function CrmLeadImportExport() {
             {/* Preview */}
             {preview.rows.length ? (
               <div className="deck-inset overflow-x-auto p-4">
-                <p className="deck-eyebrow mb-2 !text-[0.6rem] !text-[var(--deck-text-2)]">
+                <p className="deck-eyebrow mb-2 !text-[var(--deck-text-2)]">
                   Preview (first {Math.min(preview.rows.length, 5)})
                 </p>
                 <table className="w-full text-left text-xs">

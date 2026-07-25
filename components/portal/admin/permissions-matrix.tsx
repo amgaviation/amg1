@@ -96,7 +96,7 @@ export function PermissionsMatrix({
             <div className="overflow-x-auto">
               <table className="w-full min-w-[36rem] text-sm">
                 <thead>
-                  <tr className="border-b border-[var(--deck-line)] text-left text-xs uppercase text-[var(--deck-text-2)]">
+                  <tr className="border-b border-[var(--deck-line)] text-left text-xs text-[var(--deck-text-2)]">
                     <th className="sticky left-0 z-10 bg-[var(--deck-panel)] py-2 pr-4 font-medium">Module</th>
                     {PERMISSION_ACTIONS.map((a) => (
                       <th key={a} className="px-3 py-2 text-center font-medium">

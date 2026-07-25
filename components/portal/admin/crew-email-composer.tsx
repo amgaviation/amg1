@@ -106,7 +106,7 @@ export function CrewEmailComposer({
           <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
             <div className="grid gap-4">
               <label className="grid gap-2">
-                <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">Recipient</span>
+                <span className="deck-eyebrow !text-[var(--deck-text-2)]">Recipient</span>
                 <input value={crewEmail} disabled className={`${inputClassName} text-[var(--deck-text-2)]`} />
               </label>
 
@@ -122,7 +122,7 @@ export function CrewEmailComposer({
 
               {overrideRecipient ? (
                 <label className="grid gap-2">
-                  <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">Override Email</span>
+                  <span className="deck-eyebrow !text-[var(--deck-text-2)]">Override Email</span>
                   <input
                     type="email"
                     value={recipientEmail}
@@ -133,7 +133,7 @@ export function CrewEmailComposer({
               ) : null}
 
               <label className="grid gap-2">
-                <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">Template</span>
+                <span className="deck-eyebrow !text-[var(--deck-text-2)]">Template</span>
                 <DeckSelect
                   aria-label="Template"
                   value={templateKey}
@@ -143,7 +143,7 @@ export function CrewEmailComposer({
               </label>
 
               <label className="grid gap-2">
-                <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">Related Mission</span>
+                <span className="deck-eyebrow !text-[var(--deck-text-2)]">Related Mission</span>
                 <DeckSelect
                   aria-label="Related Mission"
                   value={missionId || "__none__"}
@@ -153,7 +153,7 @@ export function CrewEmailComposer({
               </label>
 
               <label className="grid gap-2">
-                <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">Requested Documents</span>
+                <span className="deck-eyebrow !text-[var(--deck-text-2)]">Requested Documents</span>
                 <textarea
                   value={requestedDocuments}
                   onChange={(event) => setRequestedDocuments(event.target.value)}
@@ -165,12 +165,12 @@ export function CrewEmailComposer({
 
             <div className="grid gap-4">
               <label className="grid gap-2">
-                <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">Subject</span>
+                <span className="deck-eyebrow !text-[var(--deck-text-2)]">Subject</span>
                 <input name="subject" value={subject} onChange={(event) => setSubject(event.target.value)} className={inputClassName} />
               </label>
 
               <label className="grid gap-2">
-                <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">Body</span>
+                <span className="deck-eyebrow !text-[var(--deck-text-2)]">Body</span>
                 <textarea
                   name="body"
                   value={body}

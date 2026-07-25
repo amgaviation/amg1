@@ -27,7 +27,7 @@ export function Field({
 }) {
   return (
     <label className={cn("grid gap-1.5", className)}>
-      <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">
+      <span className="deck-eyebrow !text-[var(--deck-text-2)]">
         {label}
         {required ? <span className="ml-1 text-[var(--deck-accent-ink)]">*</span> : null}
       </span>

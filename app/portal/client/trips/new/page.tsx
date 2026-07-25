@@ -102,7 +102,7 @@ export default async function NewTripPage({
             </div>
             {savedPassengers.length > 0 ? (
               <div className="mt-4">
-                <p className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">
+                <p className="deck-eyebrow !text-[var(--deck-text-2)]">
                   Saved Passengers
                 </p>
                 <p className="mt-1 text-xs text-[var(--deck-text-3)]">

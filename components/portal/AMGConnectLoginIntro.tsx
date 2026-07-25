@@ -137,7 +137,7 @@ export function AMGConnectLoginIntro({ onComplete }: { onComplete: () => void })
         type="button"
         onClick={reveal}
         className={cn(
-          "absolute bottom-5 right-5 min-h-10 rounded-md border border-[var(--deck-chrome-line)] bg-[var(--deck-ink)]/45 px-4 text-xs font-semibold uppercase text-[var(--deck-chrome-muted)] shadow-[var(--deck-shadow-modal)] backdrop-blur-md transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-chrome-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--deck-accent)] sm:bottom-7 sm:right-7",
+          "absolute bottom-5 right-5 min-h-10 rounded-md border border-[var(--deck-chrome-line)] bg-[var(--deck-ink)]/45 px-4 text-xs font-medium text-[var(--deck-chrome-muted)] shadow-[var(--deck-shadow-modal)] backdrop-blur-md transition-colors hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-chrome-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--deck-accent)] sm:bottom-7 sm:right-7",
           showSkip ? "opacity-100" : "pointer-events-none opacity-0",
         )}
         aria-label="Skip AMG Connect intro"

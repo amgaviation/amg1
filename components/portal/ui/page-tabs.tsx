@@ -37,7 +37,7 @@ export function PageTabs({
             role="tab"
             aria-selected={isActive}
             className={cn(
-              "shrink-0 rounded-[0.25rem] border px-3 py-2 font-mono text-[0.68rem] font-semibold uppercase [letter-spacing:0.08em] transition-colors sm:py-1.5",
+              "shrink-0 rounded-full border px-3 py-2 text-[0.8125rem] font-medium transition-colors sm:py-1.5",
               isActive
                 ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]"
                 : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"

@@ -279,7 +279,7 @@ function DraftHistory({
       ) : null}
 
       <div className="space-y-2 border-t border-[var(--deck-line)] pt-4">
-        <h3 className="text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]">
+        <h3 className="text-xs font-medium text-[var(--deck-text-3)]">
           Publish Events
         </h3>
         {events.length ? events.map((event) => {

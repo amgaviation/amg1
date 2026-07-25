@@ -1,4 +1,18 @@
-# AMG Portal v4 — "Manifest" Ground-Up Rebuild
+# AMG Portal — design system history
+
+> **v5 "Horizon" (current, July 2026):** the portal experience layer was
+> rebuilt again on top of the v4 contracts — light paper rail with inline
+> workspace navigation (no navy chrome, no horizontal sub-nav strip),
+> Barlow Condensed / Inter / JetBrains Mono type per the 2026 Brand & Voice
+> Guide, sentence-case labels (no uppercase mono microtype), soft-elevation
+> white surfaces on a cool-gray canvas, 12px radius, pill status badges and
+> filter tabs, AMG Blue primary actions, and an idle-time contextual help
+> system (`lib/portal/tips.ts`, `components/portal/ui/help-tips.tsx`).
+> Token NAMES, kit exports, routes, and all v4 backend/verify contracts are
+> unchanged — only values and component internals moved. The v4 notes below
+> remain for the stable-contract list.
+
+# AMG Portal v4 — "Manifest" Ground-Up Rebuild (historical)
 
 Branch: `rebuild/portal-v4`. Database: existing Supabase project `vsynqnqlouvphiniqaiy`
 (57 tables, RLS on) — **schema is frozen; the portal rebuilds around it.**

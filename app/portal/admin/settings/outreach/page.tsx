@@ -81,19 +81,19 @@ export default async function OutreachSettingsPage({
       <SectionCard title="Status" icon="activity">
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
-            <p className="text-xs uppercase text-[var(--deck-text-3)]">Sending</p>
+            <p className="text-xs font-medium text-[var(--deck-text-3)]">Sending</p>
             <div className="mt-1">
               <StatusBadge tone={live ? "success" : "neutral"} label={live ? "Live" : "Not sending"} />
             </div>
           </div>
           <div>
-            <p className="text-xs uppercase text-[var(--deck-text-3)]">Sent (last 24h)</p>
+            <p className="text-xs font-medium text-[var(--deck-text-3)]">Sent (last 24h)</p>
             <p className="mt-1 text-lg">
               {sent24h} <span className="text-sm text-[var(--deck-text-3)]">/ {settings.dailySendCap}</span>
             </p>
           </div>
           <div>
-            <p className="text-xs uppercase text-[var(--deck-text-3)]">Suppressed addresses</p>
+            <p className="text-xs font-medium text-[var(--deck-text-3)]">Suppressed addresses</p>
             <p className="mt-1 text-lg">{suppressed}</p>
           </div>
         </div>

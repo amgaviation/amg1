@@ -210,11 +210,11 @@ export default async function AdminTripDetailPage({
               />
               {publicDetails.length ? (
                 <div className="mt-5 grid gap-3">
-                  <p className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-3)]">Category Details</p>
+                  <p className="deck-eyebrow !text-[var(--deck-text-3)]">Category Details</p>
                   <div className="grid gap-2">
                     {publicDetails.map(([key, value]) => (
                       <div key={key} className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-3">
-                        <p className="text-[0.65rem] font-semibold uppercase [letter-spacing:0.18em] text-[var(--deck-text-2)]">{publicSupportLabel(key)}</p>
+                        <p className="text-xs font-medium text-[var(--deck-text-3)]">{publicSupportLabel(key)}</p>
                         <p className="mt-1 whitespace-pre-wrap text-sm text-[var(--deck-text)]">{value}</p>
                       </div>
                     ))}
@@ -223,7 +223,7 @@ export default async function AdminTripDetailPage({
               ) : null}
               {rawSubmissionDetails.length ? (
                 <div className="mt-5 grid gap-3">
-                  <p className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-3)]">Original Form Submission</p>
+                  <p className="deck-eyebrow !text-[var(--deck-text-3)]">Original Form Submission</p>
                   <div className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-3">
                     <dl>
                       {rawSubmissionDetails.map(([key, value]) => (
@@ -325,7 +325,7 @@ export default async function AdminTripDetailPage({
               <input type="hidden" name="mission_id" value={mission.id} />
               {[0, 1, 2].map((index) => (
                 <div key={index} className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-3 space-y-3">
-                  <p className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-3)]">Crew Slot {index + 1}</p>
+                  <p className="deck-eyebrow !text-[var(--deck-text-3)]">Crew Slot {index + 1}</p>
                   <SelectField label="Crew Member" name="crew_id[]" defaultValue="" options={[{ value: "", label: "Select crew..." }, ...crew.map((c) => ({ value: c.id, label: c.full_name ?? c.email }))]} />
                   <SelectField label="Crew Role" name="crew_role[]" defaultValue={index === 0 ? "pic" : index === 1 ? "sic" : "support"} options={CREW_ROLE.map((r) => ({ value: r.value, label: r.label }))} />
                   <TextAreaField label="Duty Notes" name="duty_notes[]" />
@@ -367,7 +367,7 @@ export default async function AdminTripDetailPage({
             </form>
 
             <div className="mt-6 space-y-3 border-t border-[var(--deck-line)] pt-4">
-              <p className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-3)]">Crew Requests</p>
+              <p className="deck-eyebrow !text-[var(--deck-text-3)]">Crew Requests</p>
               {pendingPoolRequests.length === 0 && decidedPoolRequests.length === 0 ? (
                 <p className="text-sm text-[var(--deck-text-2)]">No crew requests yet.</p>
               ) : null}
@@ -437,7 +437,7 @@ export default async function AdminTripDetailPage({
               <input type="hidden" name="mission_id" value={mission.id} />
               {[0, 1, 2, 3, 4].map((index) => (
                 <div key={index} className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-3 space-y-3">
-                  <p className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-3)]">Quote Line {index + 1}</p>
+                  <p className="deck-eyebrow !text-[var(--deck-text-3)]">Quote Line {index + 1}</p>
                   <SelectField label="Category" name="category[]" defaultValue={index === 0 ? QUOTE_CATEGORIES[0] : ""} options={[{ value: "", label: "Select category..." }, ...QUOTE_CATEGORIES.map((c) => ({ value: c, label: c }))]} />
                   <TextField label="Description" name="description[]" defaultValue={index === 0 ? `Operations support for ${mission.ref}` : ""} />
                   <TextAreaField label="Line Notes (client-visible)" name="client_notes[]" />

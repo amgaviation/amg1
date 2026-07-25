@@ -330,7 +330,7 @@ export function CrewMap({
         <div className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)]/90 px-3 py-1.5 text-xs font-semibold text-[var(--deck-text)] shadow-[var(--deck-shadow-card)] backdrop-blur">
           <span className="deck-num">{onlineTotal}</span> crew online
         </div>
-        <span className="flex items-center gap-1.5 rounded-[0.25rem] border border-[var(--deck-success-line)] bg-[var(--deck-success-tint)] px-2.5 py-1 text-[0.62rem] font-bold uppercase text-[var(--deck-success)]">
+        <span className="flex items-center gap-1.5 rounded-full border border-[var(--deck-success-line)] bg-[var(--deck-success-tint)] px-2.5 py-1 text-[0.8125rem] font-medium text-[var(--deck-success)]">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--deck-success)]" />
           Live
         </span>
@@ -448,7 +448,7 @@ function HoverCard({ blip, variant, pos }: { blip: MapBlip; variant: MapVariant;
 function CardStat({ label, value }: { label: string; value: string | number }) {
   return (
     <div>
-      <p className="text-[0.58rem] font-bold uppercase text-[var(--deck-text-3)]">{label}</p>
+      <p className="text-xs font-medium text-[var(--deck-text-3)]">{label}</p>
       <p className="deck-num mt-0.5 text-sm font-semibold text-[var(--deck-text)]">{value}</p>
     </div>
   );

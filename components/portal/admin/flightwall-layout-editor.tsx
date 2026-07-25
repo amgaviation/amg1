@@ -118,7 +118,7 @@ export function FlightwallLayoutEditor({ initialLayout }: { initialLayout: Layou
             <p className="truncate text-sm font-medium text-[var(--deck-text)]">
               {WIDGET_LABELS[key] ?? key}
               {!BUILTIN_KEYS.has(key) ? (
-                <span className="ml-1.5 text-[10px] uppercase tracking-[0.14em] text-[var(--deck-text-3)]">data</span>
+                <span className="ml-1.5 text-xs font-medium text-[var(--deck-text-3)]">data</span>
               ) : null}
             </p>
             <p className="truncate text-xs text-[var(--deck-text-3)]">{DESCRIPTIONS[key] ?? ""}</p>
@@ -143,7 +143,7 @@ export function FlightwallLayoutEditor({ initialLayout }: { initialLayout: Layou
         onDrop={(e) => onDropColumn(e, col)}
         className="flex min-h-[220px] flex-col gap-2 rounded-lg border border-dashed border-[var(--deck-line)] p-2"
       >
-        <p className="px-1 text-[10px] uppercase tracking-[0.18em] text-[var(--deck-text-3)]">{title}</p>
+        <p className="px-1 text-xs font-medium text-[var(--deck-text-3)]">{title}</p>
         {layout[col].map((key, i) => renderCard(key, col, i))}
         {layout[col].length === 0 ? (
           <p className="px-1 py-6 text-center text-xs text-[var(--deck-text-3)]">Drop panels here</p>

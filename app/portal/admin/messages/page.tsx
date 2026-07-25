@@ -161,7 +161,7 @@ function Select({
   options: { value?: string; id?: string; label: string }[];
 }) {
   return (
-    <label className="deck-eyebrow grid gap-1 !text-[0.6rem] !text-[var(--deck-text-2)]">
+    <label className="deck-eyebrow grid gap-1 !text-[var(--deck-text-2)]">
       {fieldLabel}
       <DeckSelect
         name={name}
@@ -179,7 +179,7 @@ function TemplatePreview({ templates }: { templates: CommunicationTemplate[] }) 
   if (!templates.length) return null;
   return (
     <details className="deck-inset p-3">
-      <summary className="deck-eyebrow cursor-pointer !text-[0.6rem] !text-[var(--deck-text-2)]">
+      <summary className="deck-eyebrow cursor-pointer !text-[var(--deck-text-2)]">
         Preview operational templates
       </summary>
       <div className="mt-3 grid gap-3">
@@ -217,7 +217,7 @@ function ComposeForm({
         </label>
       ) : null}
       <div className="grid gap-3 md:grid-cols-2">
-        <label className="deck-eyebrow grid gap-1 !text-[0.6rem] !text-[var(--deck-text-2)]">
+        <label className="deck-eyebrow grid gap-1 !text-[var(--deck-text-2)]">
           From
           <input value="AMG Operations" disabled className="deck-input font-normal normal-case text-[var(--deck-text-3)] [letter-spacing:normal]" />
         </label>
@@ -227,25 +227,25 @@ function ComposeForm({
           options={templates.map((template) => ({ value: template.id, label: template.name }))}
         />
       </div>
-      <label className="deck-eyebrow grid gap-1 !text-[0.6rem] !text-[var(--deck-text-2)]">
+      <label className="deck-eyebrow grid gap-1 !text-[var(--deck-text-2)]">
         To
         <input name="to" type="text" required placeholder="name@example.com, ops@example.com" className="deck-input font-normal normal-case [letter-spacing:normal]" />
       </label>
       <div className="grid gap-3 md:grid-cols-2">
-        <label className="deck-eyebrow grid gap-1 !text-[0.6rem] !text-[var(--deck-text-2)]">
+        <label className="deck-eyebrow grid gap-1 !text-[var(--deck-text-2)]">
           Cc
           <input name="cc" type="text" className="deck-input font-normal normal-case [letter-spacing:normal]" />
         </label>
-        <label className="deck-eyebrow grid gap-1 !text-[0.6rem] !text-[var(--deck-text-2)]">
+        <label className="deck-eyebrow grid gap-1 !text-[var(--deck-text-2)]">
           Bcc
           <input name="bcc" type="text" className="deck-input font-normal normal-case [letter-spacing:normal]" />
         </label>
       </div>
-      <label className="deck-eyebrow grid gap-1 !text-[0.6rem] !text-[var(--deck-text-2)]">
+      <label className="deck-eyebrow grid gap-1 !text-[var(--deck-text-2)]">
         Subject
         <input name="subject" defaultValue={thread?.subject ?? ""} placeholder="Leave blank to use selected template subject" className="deck-input font-normal normal-case [letter-spacing:normal]" />
       </label>
-      <label className="deck-eyebrow grid gap-1 !text-[0.6rem] !text-[var(--deck-text-2)]">
+      <label className="deck-eyebrow grid gap-1 !text-[var(--deck-text-2)]">
         Body
         <textarea name="body" rows={7} placeholder="Leave blank to use selected template body" className="deck-input font-normal normal-case leading-6 [letter-spacing:normal]" />
       </label>
@@ -256,7 +256,7 @@ function ComposeForm({
         <Select name="related_quote_id" label="Quote" defaultValue={thread?.related_quote_id} options={records.quotes} />
         <Select name="related_invoice_id" label="Invoice" defaultValue={thread?.related_invoice_id} options={records.invoices} />
       </div>
-      <label className="deck-eyebrow grid gap-1 !text-[0.6rem] !text-[var(--deck-text-2)]">
+      <label className="deck-eyebrow grid gap-1 !text-[var(--deck-text-2)]">
         Attachments
         <input name="attachments" type="file" multiple className="deck-input font-normal normal-case [letter-spacing:normal]" />
       </label>
@@ -396,7 +396,7 @@ function ThreadDetail({
       <div className="grid gap-4 lg:grid-cols-2">
         <form action={addCommunicationInternalNoteAction} className="grid gap-3 rounded-md border border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)] p-4">
           <input type="hidden" name="thread_id" value={detail.thread.id} />
-          <label className="deck-eyebrow grid gap-1 !text-[0.6rem] !text-[var(--deck-warn)]">
+          <label className="deck-eyebrow grid gap-1 !text-[var(--deck-warn)]">
             Internal Note
             <textarea name="body" required rows={4} className="deck-input !border-[var(--deck-warn-line)] font-normal normal-case leading-6 [letter-spacing:normal]" />
           </label>

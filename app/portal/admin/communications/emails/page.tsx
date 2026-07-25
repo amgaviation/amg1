@@ -505,13 +505,13 @@ export default async function AdminEmailsPage({
             <input type="hidden" name="back_to" value={composeHref} />
             <input type="hidden" name="general_thread" value="on" />
 
-            <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
+            <label className="grid gap-2 text-xs font-medium text-[var(--deck-text-3)]">
               Recipients
               <RecipientPicker name="to" groups={audienceGroups} />
             </label>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
+              <label className="grid gap-2 text-xs font-medium text-[var(--deck-text-3)]">
                 Template
                 <DeckSelect
                   name="template_id"
@@ -524,7 +524,7 @@ export default async function AdminEmailsPage({
                   }))}
                 />
               </label>
-              <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
+              <label className="grid gap-2 text-xs font-medium text-[var(--deck-text-3)]">
                 Category
                 <DeckSelect
                   name="category"
@@ -536,7 +536,7 @@ export default async function AdminEmailsPage({
               </label>
             </div>
 
-            <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
+            <label className="grid gap-2 text-xs font-medium text-[var(--deck-text-3)]">
               Related Client
               <Combobox
                 name="related_client_id"
@@ -549,7 +549,7 @@ export default async function AdminEmailsPage({
               />
             </label>
 
-            <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
+            <label className="grid gap-2 text-xs font-medium text-[var(--deck-text-3)]">
               Subject
               <input
                 name="subject"
@@ -558,7 +558,7 @@ export default async function AdminEmailsPage({
               />
             </label>
 
-            <label className="grid gap-2 text-xs font-semibold uppercase [letter-spacing:0.1em] text-[var(--deck-text-3)]">
+            <label className="grid gap-2 text-xs font-medium text-[var(--deck-text-3)]">
               Body
               <textarea
                 name="body"

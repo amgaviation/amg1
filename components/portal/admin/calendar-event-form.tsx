@@ -172,7 +172,7 @@ export function CalendarEventForm({
       </div>
 
       <div className="grid gap-2">
-        <span className="text-[0.64rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]">
+        <span className="text-xs font-medium text-[var(--deck-text-3)]">
           Link People
         </span>
         <AttendeePicker groups={peopleGroups} initial={event?.attendees ?? []} />

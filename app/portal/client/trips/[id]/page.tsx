@@ -201,7 +201,7 @@ export default async function ClientTripDetailPage({
                 {mission.crew.map((ca) => (
                   <div key={ca.id} className="deck-inset px-4 py-3">
                     <p className="text-sm font-semibold">{ca.crew?.full_name ?? "—"}</p>
-                    <p className="mt-0.5 text-xs text-[var(--deck-text-2)] uppercase [letter-spacing:0.08em]">{ca.crew_role} · {ca.status}</p>
+                    <p className="mt-0.5 text-xs font-medium text-[var(--deck-text-2)]">{ca.crew_role} · {ca.status}</p>
                   </div>
                 ))}
               </div>
