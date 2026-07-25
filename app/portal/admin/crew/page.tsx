@@ -252,7 +252,11 @@ export default async function AdminCrewPage({
           title: "Notes",
           rows: [
             { label: "Resume Notes", value: profile?.resume_notes },
-            { label: "Internal Notes", value: profile?.notes ?? profile?.ops_notes },
+            // Separate rows, not `notes ?? ops_notes`: the fallback rendered a
+            // crew-authored, crew-visible field under an "Internal Notes"
+            // heading whenever the real internal field was empty.
+            { label: "Internal Notes", value: profile?.notes },
+            { label: "Qualifications (crew-authored, visible to crew)", value: profile?.ops_notes },
           ],
         },
         {
@@ -380,7 +384,8 @@ export default async function AdminCrewPage({
           { name: "crew_status", label: "Crew Status" },
           { name: "resume_notes", label: "Resume Notes", type: "textarea", fullWidth: true },
           { name: "notes", label: "Internal Notes", type: "textarea", fullWidth: true },
-          { name: "ops_notes", label: "Qualifications / Internal Notes", type: "textarea", fullWidth: true },
+          // NOT private — see the note on the same field in [crewId]/page.tsx.
+          { name: "ops_notes", label: "Qualifications (crew-authored, visible to crew)", type: "textarea", fullWidth: true },
         ]}
         createAction={saveCrewRecord}
         updateAction={saveCrewRecord}
