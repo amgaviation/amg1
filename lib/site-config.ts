@@ -11,7 +11,20 @@ export const SITE = {
   founder: "Antonio Gonzalez",
   chiefPilot: "Antonio Gonzalez",
   cityState: "North Lauderdale, FL",
-  streetAddress: "North Lauderdale, FL", // TODO before launch: publish full street address
+  /**
+   * Full postal address. CAN-SPAM (15 U.S.C. §7704(a)(5)) requires a valid
+   * physical postal address in every commercial email, so cold outreach was
+   * blocked until this was real. It also feeds the footer and the
+   * schema.org PostalAddress.
+   *
+   * This is published: it appears on the site, in every outbound email footer,
+   * and in structured data. If a separate business mailing address is set up
+   * later — a USPS-registered PO box or a CMRA mailbox both satisfy CAN-SPAM —
+   * change it here and it propagates everywhere.
+   */
+  streetAddress: "1165 Cove Lake Rd, North Lauderdale, FL 33068",
+  streetLine: "1165 Cove Lake Rd",
+  postalCode: "33068",
   region: "the Southeast US",
   phone: "+1 (954) 408-1730",
   phoneHref: "tel:+19544081730",
