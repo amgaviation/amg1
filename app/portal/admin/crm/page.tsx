@@ -165,6 +165,9 @@ export default async function CrmPipelinePage({
             </Link>
           </Button>
           <Button asChild variant="outline" size="sm">
+            <Link href="/portal/admin/crm/prospecting">Find Prospects</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
             <Link href={importHref}>Import / Export</Link>
           </Button>
           <Button asChild size="sm">
