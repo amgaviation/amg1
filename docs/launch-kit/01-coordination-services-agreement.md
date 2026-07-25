@@ -20,7 +20,7 @@ Agreement No. \_\_\_\_\_\_\_\_\_\_ Date: \_\_\_\_\_\_\_\_\_\_
 
 **Coordination Fee:** \$\_\_\_\_\_\_\_\_\_ **Engagement:** \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
-This Agreement is between AMG Aviation Group, a Florida company ("AMG"), and the Owner identified above ("Owner"). Owner is the registered owner or the lawful lessee in possession of the Aircraft and operates it under 14 CFR Part 91.
+This Agreement is between AMG Aviation Group LLC, a Florida limited liability company ("AMG"), and the Owner identified above ("Owner"). Owner is the registered owner or the lawful lessee in possession of the Aircraft and operates it under 14 CFR Part 91.
 
 ---
 
