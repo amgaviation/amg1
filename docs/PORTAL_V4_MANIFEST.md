@@ -1,6 +1,17 @@
 # AMG Portal — design system history
 
-> **v5 "Horizon" (current, July 2026):** the portal experience layer was
+> **v6 "Meridian" (current, late July 2026):** the frame itself changed —
+> no sidebar anywhere. A top bar carries the brand and the role's
+> workspaces as pills; the active workspace's destinations render as an
+> underline tab row beneath; content sits centered (max 86rem) on an open
+> canvas. Page anatomy is recomposed through the shared primitives:
+> PageHeader is a ruled page band, SectionCard renders as an open
+> typographic section (no card box), StatCard is a rule-accented editorial
+> stat, RecordRow is a flat white slab with tone as a left signal rail,
+> QuickLink is an arrow list row. Idle tips + Help menu carried over.
+> All v4/v5 contracts (token names, kit exports, verify assertions) hold.
+
+> **v5 "Horizon" (superseded, July 2026):** the portal experience layer was
 > rebuilt again on top of the v4 contracts — light paper rail with inline
 > workspace navigation (no navy chrome, no horizontal sub-nav strip),
 > Barlow Condensed / Inter / JetBrains Mono type per the 2026 Brand & Voice
