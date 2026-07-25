@@ -20,7 +20,7 @@ Agreement No. \_\_\_\_\_\_\_\_\_\_ Date: \_\_\_\_\_\_\_\_\_\_
 
 **Coordination Fee:** \$\_\_\_\_\_\_\_\_\_ **Engagement:** \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
-This Agreement is between AMG Aviation Group, a Florida company ("AMG"), and the Owner identified above ("Owner"). Owner is the registered owner or the lawful lessee in possession of the Aircraft and operates it under 14 CFR Part 91.
+This Agreement is between AMG Aviation Group LLC, a Florida limited liability company ("AMG"), and the Owner identified above ("Owner"). Owner is the registered owner or the lawful lessee in possession of the Aircraft and operates it under 14 CFR Part 91.
 
 ---
 
@@ -131,7 +131,7 @@ Email: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
 To: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 From: Antonio Gonzalez, AMG Aviation Group, North Lauderdale, FL — (954) 408-1730, information@amgaviationgroup.com
-Re: Two-document engagement — Part 91 pilot coordination
+Re: Three-document engagement — Part 91 pilot coordination
 
 I'm a working corporate pilot. AMG Aviation Group sells coordination and administrative support to Part 91 aircraft owners. Four services: temporary and contract pilot sourcing; maintenance ferry and repositioning coordination; second-pilot, mentor-pilot and insurer-required-pilot coordination; and short-term flight department overflow.
 

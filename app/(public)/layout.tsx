@@ -26,8 +26,10 @@ const PROFESSIONAL_SERVICE_SCHEMA = {
   founder: { "@type": "Person", name: SITE.founder },
   address: {
     "@type": "PostalAddress",
+    streetAddress: SITE.streetLine,
     addressLocality: "North Lauderdale",
     addressRegion: "FL",
+    postalCode: SITE.postalCode,
     addressCountry: "US",
   },
   areaServed: ["Florida", "Georgia", "Alabama", "South Carolina", "North Carolina", "Tennessee"],
