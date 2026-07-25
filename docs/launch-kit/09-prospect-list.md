@@ -329,18 +329,76 @@ them into the tier they belong in.
 | Segment | Verified | Unverified | Total |
 |---|---|---|---|
 | 1. Independent maintenance shops | 9 | 3 | 12 |
+| 1b. Gap fill — KTMB, KAPF | 2 | 1 | 3 |
 | 2. Aviation insurance brokers | 4 | 4 | 8 |
 | 3. Aircraft dealers and brokers (IADA) | 7 | 0 | 7 |
-| **Total** | **20** | **7** | **27** |
+| **Total** | **22** | **8** | **30** |
 
 Segment 3 listings are verified against the IADA directory; the **phone numbers are not**
 — pull each from the company's own site before calling.
 
-## Gaps to fill next
+## Gap fill — KTMB and KAPF (added after the first pass)
 
-Nothing on this list yet covers **KTMB (Kendall-Tamiami), KSUA (Stuart), KAPF (Naples),
-KPBI (West Palm Beach) or KOCF beyond one shop.** Those fields have independent piston and
-turboprop shops that did not surface in this pass. The efficient way to close the gap is
-the FAA repair station database filtered to Florida, cross-checked against each airport
-authority's own tenant directory — both are primary sources, and the airport tenant
-directory tells you who actually has a hangar rather than who bought search placement.
+The first pass left **KTMB, KSUA, KAPF and KPBI** uncovered. This closes KTMB and KAPF.
+Each entry below was checked the same way as the rest of the list: VERIFIED means the
+company's own site was read; UNVERIFIED means the details come from a directory only.
+
+### VERIFIED
+
+**ASG Aerospace LLC** — VERIFIED
+- KTMB: Hangar 249, 12906 SW 139th Avenue, Miami FL 33186 — 305-253-0802 / 305-397-5662
+- info@asgaerospace.com | asgaerospace.com | FAA CRS# 9A1R325B
+- Work: their own site says "turboprop to corporate jets", and separately names large
+  aircraft, corporate jets, and "smaller piston airplanes". Also avionics installs, parts
+  fabrication, and cabin WiFi.
+- On profile: no FBO, no charter, no flight school, no management arm found on their site.
+  A standalone shop with its own hangar at a field with heavy owner-flown traffic. This is
+  a first-call target, not a second.
+
+**Rexair** — VERIFIED
+- 304 Citation Point, Naples FL 34104 (KAPF) — 239-649-8822 | rexair.net
+- Work: piston, turbine/turboprop, and jet. Their own site lists annuals, 100-hours,
+  pre-buys, modifications, insurance repair quotes, and AOG.
+- FLAG: **they also run a flight school.** Not disqualifying — the exclusion list is FBO,
+  charter, and management — but a school means in-house aircraft and in-house instructors,
+  so they may reach for their own CFI before calling anyone. Ask early who moves a
+  customer's aircraft when the customer cannot come get it. Their answer tells you whether
+  this is a referral source or a dead end.
+- No FAA repair station number published on the site. Get the CRS number on the first call.
+
+### UNVERIFIED — confirm before calling
+
+**J.V. Air Maintenance, Inc.** — UNVERIFIED
+- 13955 SW 127th St, Miami FL 33186 (KTMB) — 305-238-3358
+- Directory listings describe an FAA/INAC/IDAC certified repair station, 25+ years, working
+  Citation, Hawker, Falcon, Challenger and Learjet plus King Air, Jetstream, Saab, Embraer
+  turboprops and piston engines. On paper that is exactly the profile.
+- **Why UNVERIFIED:** both `jvairmaintenance.com` and `jvair.com` failed to resolve on
+  2026-07-24, so nothing here comes from the company itself. Address and phone are from
+  third-party directories.
+- FLAG: FlightAware lists J.V. Air under KTMB *FBO services*. That may be a directory
+  categorisation rather than an actual FBO operation, but confirm it before treating them
+  as a standalone shop. Call the number, ask whether they run a ramp.
+
+### Excluded from this pass
+
+- **Naples Jet Center (KAPF)** — FBO-integrated, with its own management and Part 135
+  activity on the field. Off profile for a first call, same reasoning as Banyan.
+- **Sarasota Avionics, Lantana (KLNA)** — already on this list; noted here only because a
+  KPBI search surfaces it. KLNA sits six miles south of KPBI and is the practical way to
+  reach that market.
+
+## Still uncovered
+
+**KSUA and KPBI proper.** Neither field surfaced an independent airframe shop in this pass.
+KSUA has East Coast Aviation Service on the field (already on this list, segment 1) and is
+otherwise dominated by FBOs — Atlantic and APP Jet Center. KPBI is a commercial airport
+where the general aviation maintenance market sits at the satellite fields, KLNA and F45,
+rather than on the main field.
+
+The efficient way to finish this is the FAA repair station database filtered to Florida,
+cross-checked against each airport authority's own tenant directory — both are primary
+sources, and the tenant directory tells you who actually has a hangar rather than who
+bought search placement. Budget 3-4 hours; the FAA set is a relational family joined on
+designator and certificate number, not one spreadsheet, and its published copy carries a
+last-modified date well behind the live dashboard.
