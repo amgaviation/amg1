@@ -1,5 +1,7 @@
 import "server-only";
 
+import { bestEffortClientIp, type HeaderReader } from "@/lib/security/client-ip";
+
 /**
  * Best-effort in-memory, per-key rate limiter for public POST endpoints.
  *
@@ -56,25 +58,21 @@ export function rateLimit(key: string, limit: number, windowMs: number): RateLim
   return { ok: true, remaining: limit - existing.count, retryAfterSeconds };
 }
 
-/** Anything with a `get(name)` — a real `Headers`, or Next's `ReadonlyHeaders`. */
-type HeaderReader = Pick<Headers, "get">;
-
 /**
- * Best-effort client IP from common proxy headers. Vercel/most reverse proxies
- * set `x-forwarded-for` (client is the first entry). Falls back to `x-real-ip`,
- * then a shared bucket so an unknown-IP flood is still coarsely limited.
+ * Best-effort client IP for use as a rate-limit key.
+ *
+ * Delegates to the shared resolver, which prefers the platform-set header a
+ * caller cannot forge before falling back to the spoofable proxy hints. A
+ * rotating `X-Forwarded-For` could previously mint a fresh bucket per request
+ * and evade the limiter outright; off-platform that is still possible, which is
+ * why this stays a coarse abuse brake and not a quota.
  *
  * Works with both a Fetch `Headers` (API routes) and the `ReadonlyHeaders`
  * returned by `next/headers` (Server Actions), so callers on either surface
  * share one IP-resolution path.
  */
 export function clientIpFromHeaders(headers: HeaderReader): string {
-  const forwarded = headers.get("x-forwarded-for");
-  if (forwarded) {
-    const first = forwarded.split(",")[0]?.trim();
-    if (first) return first;
-  }
-  return headers.get("x-real-ip")?.trim() || "unknown";
+  return bestEffortClientIp(headers);
 }
 
 export function clientIpFromRequest(request: Request): string {
