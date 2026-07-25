@@ -219,32 +219,31 @@ export type SiteEventName = (typeof SITE_EVENTS)[keyof typeof SITE_EVENTS];
  */
 export const AIRMAN_REGISTRY_URL = "https://amsrvs.registry.faa.gov/airmeninquiry/";
 
-export const TEAM_ROSTER = [
-  {
-    name: "Antonio Gonzalez",
-    role: "Founder & Chief Pilot",
-    /**
-     * TODO — BLOCKING, and the highest-value unfilled field on the site.
-     *
-     * For a company whose product is the founder's judgement, a team page with
-     * no verifiable founder is the biggest credibility hole we have. A Director
-     * of Maintenance checking AMG out before returning a call currently finds a
-     * name and a paragraph.
-     *
-     * Format: certificate level, ratings, approximate total time, types, and
-     * the month of last recurrent.
-     * Example: "ATP · CFII · ~4,200 hrs · PC-12 / TBM 940 · recurrent Mar 2026"
-     *
-     * Claim only what is true and current — this sits next to a link inviting
-     * anyone to verify it against the FAA Airman Registry, which is the point.
-     */
-    credentials: null as string | null,
-    // TODO before launch: real photo, on a ramp or flight deck (spec bans
-    // initial-avatars, and a stock portrait is worse than none).
-    photo: null as string | null,
-    bio: "Antonio runs AMG end to end: he sources and vets every network pilot, prices every quote, and coordinates every mission personally. Based in North Lauderdale, FL, he built AMG around one idea — an owner should know what a mission costs, who is flying it, and when they'll hear back, before they ever pick up the phone.",
-  },
-] as const;
+/**
+ * Named personnel shown on /team.
+ *
+ * Empty at the owner's request. The page renders its personnel section only
+ * when this has entries, so an empty roster is a supported state rather than a
+ * heading with nothing under it — /team still carries the duty board, the
+ * response commitment, and affiliations.
+ *
+ * Worth knowing before this stays empty for long: the reference doc
+ * (docs/amg-aviation-group-reference.md) requires visible people, and a buyer
+ * deciding whether to hand AMG an aircraft problem generally looks for who is
+ * behind it. If a profile goes back, the entry needs a real photo and a
+ * credentials line — certificate level, ratings, approximate total time, types,
+ * and month of last recurrent, e.g. "ATP · CFII · ~4,200 hrs · PC-12 / TBM 940
+ * · recurrent Mar 2026". Claim only what is true and current: it renders beside
+ * a link inviting anyone to verify it against the FAA Airman Registry, which is
+ * the entire point of publishing it.
+ */
+export const TEAM_ROSTER: readonly {
+  name: string;
+  role: string;
+  credentials: string | null;
+  photo: string | null;
+  bio: string;
+}[] = [];
 
 /** Affiliations shown in the footer and on /team. Verify membership is active before launch. */
 /**
