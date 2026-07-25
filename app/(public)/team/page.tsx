@@ -94,6 +94,10 @@ export default function TeamPage() {
       {/* Personnel file — the roster as a dossier, not a card grid. The
           photo path stays live for the day a real photo lands; absent one,
           the file leads with the facts column (no fabricated portrait). */}
+      {/* Rendered only when there is someone to show. An empty roster is a
+          supported state, so /team degrades to the duty board and affiliations
+          rather than printing a personnel heading over nothing. */}
+      {TEAM_ROSTER.length > 0 ? (
       <section className="oc-section">
         <div className="oc-shell grid gap-4" data-stagger-container>
           {TEAM_ROSTER.map((person, index) => (
@@ -166,6 +170,7 @@ export default function TeamPage() {
           ))}
         </div>
       </section>
+      ) : null}
 
       {/* Duty board — four seats, one set of initials: what "small, senior
           team by design" actually means operationally. */}
