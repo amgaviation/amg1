@@ -35,7 +35,6 @@ const [
   forShops,
   pilots,
   pilotsApply,
-  team,
   legal,
   publicLayout,
   submissions,
@@ -59,7 +58,6 @@ const [
   read("app/(public)/for-shops/page.tsx"),
   read("app/(public)/pilots/page.tsx"),
   read("app/(public)/pilots/apply/page.tsx"),
-  read("app/(public)/team/page.tsx"),
   read("app/(public)/legal/page.tsx"),
   read("app/(public)/layout.tsx"),
   read("lib/public-form-submissions.ts"),
@@ -76,7 +74,7 @@ const [
 const prose = (source) =>
   source.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
 
-const PUBLIC_COPY = { hero, capabilities, pricing, request, form, forShops, pilots, team, legal };
+const PUBLIC_COPY = { hero, capabilities, pricing, request, form, forShops, pilots, legal };
 
 // ---------------------------------------------------------------------------
 // Positioning: AMG coordinates. It does not carry, and it does not dispatch.
@@ -158,7 +156,7 @@ assert.match(
 // ---------------------------------------------------------------------------
 // AMG is not the pilot's paymaster and is not fronting pilot pay.
 // ---------------------------------------------------------------------------
-for (const [name, source] of Object.entries({ pilots, pilotsApply, team, siteConfig })) {
+for (const [name, source] of Object.entries({ pilots, pilotsApply, siteConfig })) {
   assert.doesNotMatch(
     prose(source),
     /whether or not the owner has paid|paid (you )?within 7 days|paid in 7 days/i,
@@ -184,7 +182,7 @@ assert.match(
 // Response time: one commitment, phrased the same way everywhere. The tiered
 // windows (12/4 business hours) belonged to the withdrawn subscription plans.
 // ---------------------------------------------------------------------------
-for (const [name, source] of Object.entries({ howItWorks, ticker, team })) {
+for (const [name, source] of Object.entries({ howItWorks, ticker })) {
   assert.doesNotMatch(
     prose(source),
     /\b(12|4)\s*business\s*h/i,

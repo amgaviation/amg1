@@ -31,26 +31,10 @@ const clearance = await read("docs/launch-kit/CLEARANCE.md").catch(() => "");
 const checks = [];
 const check = (name, ok, detail) => checks.push({ name, ok, detail });
 
-// --- 3. Founder credentials -----------------------------------------------
-const credentials = config.match(/credentials:\s*(null|"([^"]*)")/);
-check(
-  "Founder credentials published",
-  Boolean(credentials && credentials[2]?.trim()),
-  "lib/site-config.ts TEAM_ROSTER.credentials is still null. Certificate level, "
-    + "ratings, approximate total time, types, last recurrent. It renders beside a "
-    + "link inviting anyone to verify it against the FAA Airman Registry.",
-);
-
-const photo = config.match(/photo:\s*(null|"([^"]*)")/);
-const photoPath = photo?.[2]?.trim();
-check(
-  "Founder photo published",
-  Boolean(photoPath) && (await exists(`public${photoPath}`)),
-  photoPath
-    ? `TEAM_ROSTER.photo points at ${photoPath}, which does not exist under public/.`
-    : "lib/site-config.ts TEAM_ROSTER.photo is still null. A ramp or flight-deck "
-      + "photo. A stock portrait is worse than none.",
-);
+// --- 3. Founder credentials / photo ----------------------------------------
+// Removed with the /team page. If a team page comes back, restore these two
+// checks along with TEAM_ROSTER — an unverifiable founder on a page that
+// invites verification was the point of gating on them.
 
 // --- 4. Street address ------------------------------------------------------
 const street = config.match(/streetAddress:\s*"([^"]*)"/)?.[1] ?? "";
