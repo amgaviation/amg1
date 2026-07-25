@@ -21,18 +21,20 @@ export function PageHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4 pb-2 sm:flex-row sm:items-end sm:justify-between">
+    <div className="flex flex-col gap-5 border-b border-[var(--deck-line)] pb-6 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
-        {eyebrow ? <p className="deck-eyebrow">{eyebrow}</p> : null}
-        <h1 className="deck-title mt-2 break-words text-[1.65rem] sm:text-[2rem]">{title}</h1>
+        {eyebrow ? (
+          <p className="text-[0.8125rem] font-medium text-[var(--deck-text-3)]">{eyebrow}</p>
+        ) : null}
+        <h1 className="deck-title mt-1.5 break-words text-[2rem] sm:text-[2.5rem]">{title}</h1>
         {description ? (
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--deck-text-2)]">
+          <p className="mt-2.5 max-w-2xl text-[0.9375rem] leading-6 text-[var(--deck-text-2)]">
             {description}
           </p>
         ) : null}
       </div>
       {actions ? (
-        <div data-portal-action-bar className="flex flex-wrap items-center gap-2">
+        <div data-portal-action-bar className="flex flex-wrap items-center gap-2 pb-1">
           {actions}
         </div>
       ) : null}
@@ -58,22 +60,21 @@ export function SectionCard({
   bodyClassName?: string;
   children: React.ReactNode;
 }) {
+  // Open composition: a typographic section header over unboxed content.
+  // Tables, forms, and rows bring their own surfaces — the section itself
+  // no longer draws a card around everything.
   return (
-    <section className={cn("deck-card overflow-hidden", className)}>
+    <section className={cn("min-w-0", className)}>
       {title ? (
-        <header className="deck-card-header">
-          <div className="flex min-w-0 items-center gap-3">
+        <header className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2 border-b border-[var(--deck-line-strong)] pb-3">
+          <div className="flex min-w-0 items-center gap-2.5">
             {icon ? (
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]">
-                <PortalIcon name={icon} className="h-4 w-4" />
-              </span>
+              <PortalIcon name={icon} className="h-[1.05rem] w-[1.05rem] shrink-0 text-[var(--deck-text-3)]" />
             ) : null}
             <div className="min-w-0">
-              <h2 className="text-[0.95rem] font-semibold text-[var(--deck-text)]">
-                {title}
-              </h2>
+              <h2 className="deck-title text-[1.2rem]">{title}</h2>
               {description ? (
-                <p className="mt-0.5 text-xs leading-5 text-[var(--deck-text-3)]">
+                <p className="mt-0.5 text-[0.8125rem] leading-5 text-[var(--deck-text-3)]">
                   {description}
                 </p>
               ) : null}
@@ -89,7 +90,7 @@ export function SectionCard({
           ) : null}
         </header>
       ) : null}
-      <div className={cn("p-5", bodyClassName)}>{children}</div>
+      <div className={cn(title ? "pt-4" : "", bodyClassName)}>{children}</div>
     </section>
   );
 }
@@ -118,29 +119,31 @@ export function StatCard({
     info: "text-[var(--deck-info)]",
   }[tone];
 
+  // Editorial stat: a rule-accented figure, no box. Grids of these read as
+  // one stat band instead of a wall of cards.
   const inner = (
     <div
       className={cn(
-        "deck-card deck-gold-rail h-full p-5",
-        href && "deck-card-hover"
+        "deck-gold-rail group h-full border-l-2 py-1 pl-4 transition-colors",
+        href ? "border-[var(--deck-line-strong)] hover:border-[var(--deck-accent)]" : "border-[var(--deck-line-strong)]"
       )}
     >
       <div className="flex items-start justify-between gap-3">
-        <p className="deck-eyebrow">{label}</p>
+        <p className="text-[0.8125rem] font-medium text-[var(--deck-text-3)]">{label}</p>
         {icon ? (
-          <PortalIcon name={icon} className="h-4 w-4 shrink-0 text-[var(--deck-text-3)]" />
+          <PortalIcon name={icon} className="h-4 w-4 shrink-0 text-[var(--deck-text-3)] opacity-70" />
         ) : null}
       </div>
-      <p className={cn("deck-num mt-3 text-[2.1rem] font-bold leading-none", toneText)}>
+      <p className={cn("deck-num mt-2 text-[2rem] font-bold leading-none", toneText)}>
         {value}
       </p>
       {detail ? (
-        <p className="mt-2 text-xs leading-5 text-[var(--deck-text-3)]">{detail}</p>
+        <p className="mt-1.5 text-xs leading-5 text-[var(--deck-text-3)]">{detail}</p>
       ) : null}
     </div>
   );
   return href ? (
-    <Link href={href} className="block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]">
+    <Link href={href} className="block h-full rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]">
       {inner}
     </Link>
   ) : (
@@ -161,8 +164,8 @@ export function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-[var(--radius)] bg-[var(--deck-panel-2)] px-6 py-12 text-center">
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--deck-accent-tint)]">
+    <div className="flex flex-col items-center justify-center px-6 py-14 text-center">
+      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[var(--deck-accent-tint)]">
         <PortalIcon name={icon} className="h-5 w-5 text-[var(--deck-accent-ink)]" />
       </div>
       <h3 className="text-sm font-semibold text-[var(--deck-text)]">{title}</h3>
@@ -272,17 +275,17 @@ export function RecordRow({
   tone?: "default" | "warn" | "danger" | "gold";
 }) {
   const toneCls = {
-    default: "",
-    warn: "!border-[var(--deck-warn-line)] bg-[var(--deck-warn-tint)]",
-    danger: "!border-[var(--deck-danger-line)] bg-[var(--deck-danger-tint)]",
-    gold: "!border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)]",
+    default: "border-[var(--deck-line)] bg-[var(--deck-panel)]",
+    warn: "border-l-[3px] !border-l-[var(--deck-warn)] border-[var(--deck-line)] bg-[var(--deck-panel)]",
+    danger: "border-l-[3px] !border-l-[var(--deck-danger)] border-[var(--deck-line)] bg-[var(--deck-panel)]",
+    gold: "border-l-[3px] !border-l-[var(--deck-accent)] border-[var(--deck-line)] bg-[var(--deck-panel)]",
   }[tone];
   const inner = (
     <div
       className={cn(
-        // Wrap (trailing badges drop under the body) only on phones — desktop
-        // keeps the classic single-line row with the trailing pinned right.
-        "deck-inset flex items-start justify-between gap-3 p-4 max-sm:flex-wrap sm:gap-4",
+        // Flat record slab: white surface, hairline edge, tone as a left
+        // signal rail. Wraps on phones so trailing badges drop under the body.
+        "flex items-start justify-between gap-3 rounded-[calc(var(--radius)-2px)] border p-4 max-sm:flex-wrap sm:gap-4",
         href && "deck-card-hover",
         toneCls
       )}
@@ -332,9 +335,9 @@ export function QuickLink({
   return (
     <Link
       href={href}
-      className="deck-inset deck-card-hover group flex items-center gap-3 p-3.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
+      className="group flex items-center gap-3.5 rounded-lg border-b border-[var(--deck-line)] px-1 py-3 transition-colors last:border-0 hover:bg-[var(--deck-panel)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]"
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[var(--deck-accent-line)] bg-[var(--deck-panel)] text-[var(--deck-accent-ink)]">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]">
         <PortalIcon name={icon} className="h-4 w-4" />
       </span>
       <span className="min-w-0 flex-1">

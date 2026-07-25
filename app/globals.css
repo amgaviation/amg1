@@ -352,9 +352,9 @@
 
     /* Surfaces + text — soft cool-gray canvas so white work surfaces float
        on elevation instead of drawing boxes around everything */
-    --deck-canvas: #F4F6F9;
+    --deck-canvas: #F7F8FA;
     --deck-panel: #FFFFFF;
-    --deck-panel-2: #F2F4F7;
+    --deck-panel-2: #F1F3F6;
     --deck-line: #E8EAEF;
     --deck-line-strong: #D6DBE3;
     --deck-text: #101828;
@@ -1123,9 +1123,9 @@ html {
     background: transparent;
   }
   .amg-portal .deck-inset {
-    border: 1px solid transparent;
+    border: 1px solid var(--deck-line);
     border-radius: calc(var(--radius) - 2px);
-    background: var(--deck-panel-2);
+    background: var(--deck-panel);
   }
   /* Legacy KPI accent rail — retired in Horizon; class name kept for the
      page contract, metric tiles now read on type hierarchy alone */
