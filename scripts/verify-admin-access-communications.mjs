@@ -52,7 +52,7 @@ check(
 );
 check(
   "admin nav exposes required grouped categories",
-  ["Command Center", "Operations", "Network", "Business", "Communications", "Administration"].every(
+  ["Home", "Operations", "Network", "Business", "Comms", "Admin"].every(
     (label) => constants.includes(`label: "${label}"`),
   ) && shell.includes("DECK_NAV"),
   "DECK_NAV should define the AMG Connect admin workspaces rendered by PortalShell.",

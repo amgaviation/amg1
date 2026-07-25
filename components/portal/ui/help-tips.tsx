@@ -173,7 +173,7 @@ export function IdleTipCoach() {
       role="status"
       aria-live="polite"
       className={cn(
-        "deck-card fixed bottom-5 right-5 z-40 w-[20rem] max-w-[calc(100vw-2.5rem)] p-4 shadow-[var(--deck-shadow-pop)]",
+        "deck-card fixed bottom-5 left-5 z-40 w-[20rem] max-w-[calc(100vw-2.5rem)] p-4 shadow-[var(--deck-shadow-pop)]",
         "motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-200"
       )}
     >

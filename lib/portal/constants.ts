@@ -89,7 +89,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       items: [{ label: "Home", href: "/portal/client/dashboard", icon: "gauge" }],
     },
     {
-      label: "Support Requests",
+      label: "Requests",
       href: "/portal/client/trips",
       icon: "plane",
       items: [
@@ -99,7 +99,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       ],
     },
     {
-      label: "Aircraft & Passengers",
+      label: "Aircraft",
       href: "/portal/client/aircraft",
       icon: "planeTakeoff",
       items: [
@@ -118,7 +118,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       ],
     },
     {
-      label: "Messages & Documents",
+      label: "Messages",
       href: "/portal/client/messages",
       icon: "messageSquare",
       items: [
@@ -162,7 +162,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       ],
     },
     {
-      label: "Expenses & Payouts",
+      label: "Expenses",
       href: "/portal/crew/expenses",
       icon: "receipt",
       items: [
@@ -172,7 +172,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       ],
     },
     {
-      label: "Messages & Documents",
+      label: "Messages",
       href: "/portal/crew/messages",
       icon: "messageSquare",
       items: [
@@ -184,7 +184,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
   ],
   admin: [
     {
-      label: "Command Center",
+      label: "Home",
       href: "/portal/admin/dashboard",
       icon: "gauge",
       items: [{ label: "Command Center", href: "/portal/admin/dashboard", icon: "gauge" }],
@@ -237,7 +237,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       ],
     },
     {
-      label: "Communications",
+      label: "Comms",
       href: "/portal/admin/communications",
       icon: "messageSquare",
       items: [
@@ -249,7 +249,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       ],
     },
     {
-      label: "Administration",
+      label: "Admin",
       href: "/portal/admin/user-approvals",
       icon: "shield",
       items: [
@@ -273,7 +273,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       items: [{ label: "Home", href: "/portal/partner/dashboard", icon: "gauge" }],
     },
     {
-      label: "Service Requests",
+      label: "Requests",
       href: "/portal/partner/requests",
       icon: "clipboard",
       items: [

@@ -3,7 +3,7 @@
 import { Suspense, createContext, useContext, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { ChevronDown, LogOut, Menu, X } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
 import { signOut } from "@/app/portal/actions/auth";
 import { CommandPalette } from "@/components/portal/shell/command-palette";
 import { HelpMenu, IdleTipCoach } from "@/components/portal/ui/help-tips";
@@ -245,15 +245,12 @@ export function PortalShell({
               <img src="/images/logo-navy.png" alt="AMG Aviation Group" width="1088" height="221" className="logo-when-light h-5 w-auto sm:h-6" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/images/logo-white.png" alt="" width="1088" height="221" className="logo-when-dark h-5 w-auto sm:h-6" />
-              <span className="hidden text-[0.8125rem] font-medium text-[var(--deck-text-3)] 2xl:inline">
-                Connect
-              </span>
             </Link>
 
             {/* Workspace navigation */}
             <nav
               aria-label="Workspaces"
-              className="deck-scroll-x hidden min-w-0 flex-1 items-center gap-0.5 overflow-x-auto lg:flex"
+              className="hidden min-w-0 flex-1 flex-wrap items-center gap-x-0.5 gap-y-1 lg:flex"
             >
               {navGroups.map((group) => {
                 const isActive = group.label === activeGroup?.label;
@@ -291,8 +288,6 @@ export function PortalShell({
               {isAdminRole(user.role) ? <CommandPalette /> : null}
               <ZuluClock />
               <HelpMenu />
-              {isAdminRole(user.role) ? <PreviewMenu role={role} /> : null}
-              <ThemeToggle />
               <Link
                 href={NOTIFICATIONS_HREF[role]}
                 className="relative rounded-lg p-2 text-[var(--deck-text-2)] transition-colors hover:bg-[var(--deck-panel-2)] hover:text-[var(--deck-text)]"
@@ -429,7 +424,7 @@ function ContextTabs({
 
   return (
     <nav aria-label={`${group.label} sections`} className="border-t border-[var(--deck-line)]">
-      <div className="deck-scroll-x mx-auto -mb-px flex w-full max-w-[86rem] gap-1 overflow-x-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto -mb-px flex w-full max-w-[86rem] flex-wrap gap-x-1 px-4 sm:px-6 lg:px-8">
         {items.map((item) => {
           const active = item.href === activeHref;
           return (
@@ -476,73 +471,17 @@ function ZuluClock() {
 }
 
 /**
- * Admin layout preview — opens another role's workspace with the admin's own
- * account. Explicitly a preview: it never impersonates a user or changes the
- * acting role, and the shell shows a persistent banner while inside one.
+ * Avatar dropdown: identity, profile, settings, theme, sign out — plus, for
+ * admins, layout previews (open another role's workspace with your own
+ * account; never an impersonation, the shell banners while inside one).
  */
-function PreviewMenu({ role }: { role: PortalRole }) {
-  const [open, setOpen] = useState(false);
-  const targets: { role: PortalRole; label: string }[] = [
-    { role: "client", label: "Client workspace" },
-    { role: "crew", label: "Crew workspace" },
-    { role: "partner", label: "Partner workspace" },
-  ];
-  return (
-    <div className="relative hidden md:block">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        className="inline-flex items-center gap-1.5 rounded-full border border-[var(--deck-line)] px-3 py-1.5 text-xs font-semibold text-[var(--deck-text-2)] transition-colors hover:border-[var(--deck-line-strong)] hover:text-[var(--deck-text)]"
-      >
-        <PortalIcon name="layers" className="h-3.5 w-3.5" />
-        Preview
-        <ChevronDown className={cn("h-3 w-3", open && "rotate-180")} />
-      </button>
-      {open ? (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden />
-          <div className="deck-card absolute right-0 z-50 mt-2 w-64 p-1.5 shadow-[var(--deck-shadow-pop)]">
-            <p className="px-3 pb-1.5 pt-2 text-[0.7rem] leading-4 text-[var(--deck-text-3)]">
-              Open a role&apos;s workspace layout with your admin account. Not an
-              impersonation — you keep your own access and identity.
-            </p>
-            {targets.map((t) => (
-              <Link
-                key={t.role}
-                href={ROLE_HOME[t.role]}
-                onClick={() => setOpen(false)}
-                className={cn(
-                  "flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors hover:bg-[var(--deck-accent-tint)]",
-                  t.role === role ? "font-semibold text-[var(--deck-accent-ink)]" : "text-[var(--deck-text-2)]"
-                )}
-              >
-                {t.label}
-                {t.role === role ? (
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--deck-accent)]" aria-hidden />
-                ) : null}
-              </Link>
-            ))}
-            {role !== "admin" && role !== "super_admin" ? (
-              <Link
-                href={ROLE_HOME.admin}
-                onClick={() => setOpen(false)}
-                className="mt-1 flex items-center gap-2 rounded-lg border-t border-[var(--deck-line)] px-3 py-2 text-sm font-semibold text-[var(--deck-text)] hover:bg-[var(--deck-accent-tint)]"
-              >
-                <PortalIcon name="gauge" className="h-4 w-4" />
-                Back to Operations
-              </Link>
-            ) : null}
-          </div>
-        </>
-      ) : null}
-    </div>
-  );
-}
-
-/** Avatar dropdown: identity, workspace label, profile, settings, sign out. */
 function UserMenu({ role, user }: { role: PortalRole; user: ShellUser }) {
   const [open, setOpen] = useState(false);
+  const previewTargets: { role: PortalRole; label: string }[] = [
+    { role: "client", label: "Client layout" },
+    { role: "crew", label: "Crew layout" },
+    { role: "partner", label: "Partner layout" },
+  ];
   return (
     <div className="relative">
       <button
@@ -580,7 +519,42 @@ function UserMenu({ role, user }: { role: PortalRole; user: ShellUser }) {
                 <PortalIcon name="settings" className="h-4 w-4" />
                 Settings
               </Link>
-              <form action={signOut}>
+              <div className="flex items-center justify-between rounded-lg px-3 py-1.5">
+                <span className="text-sm text-[var(--deck-text-2)]">Theme</span>
+                <ThemeToggle />
+              </div>
+              {isAdminRole(user.role) ? (
+                <div className="mt-1 border-t border-[var(--deck-line)] pt-1.5">
+                  <p className="px-3 pb-1 pt-1 text-[0.7rem] font-medium text-[var(--deck-text-3)]">
+                    Preview layouts — your account, not another user&apos;s view
+                  </p>
+                  {previewTargets.map((t) => (
+                    <Link
+                      key={t.role}
+                      href={ROLE_HOME[t.role]}
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        "flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm transition-colors hover:bg-[var(--deck-accent-tint)]",
+                        t.role === role ? "font-semibold text-[var(--deck-accent-ink)]" : "text-[var(--deck-text-2)]"
+                      )}
+                    >
+                      <PortalIcon name="layers" className="h-3.5 w-3.5 opacity-70" />
+                      {t.label}
+                    </Link>
+                  ))}
+                  {role !== "admin" && role !== "super_admin" ? (
+                    <Link
+                      href={ROLE_HOME[user.role]}
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm font-semibold text-[var(--deck-text)] hover:bg-[var(--deck-accent-tint)]"
+                    >
+                      <PortalIcon name="gauge" className="h-3.5 w-3.5" />
+                      Back to Operations
+                    </Link>
+                  ) : null}
+                </div>
+              ) : null}
+              <form action={signOut} className="mt-1 border-t border-[var(--deck-line)] pt-1.5">
                 <button
                   type="submit"
                   onClick={clearPortalIntroBrowserState}
