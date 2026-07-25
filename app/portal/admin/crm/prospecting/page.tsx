@@ -5,7 +5,7 @@ import { TextField } from "@/components/portal/ui/fields";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { Button } from "@/components/ui/button";
-import { runProspectingPass } from "@/app/portal/actions/outreach";
+import { runFaaImport, runProspectingPass } from "@/app/portal/actions/outreach";
 import { LEAD_BUSINESS_TYPES } from "@/lib/portal/lead-email-templates";
 import { prospectingConfigured } from "@/lib/portal/prospecting";
 import { getOutreachSettings } from "@/lib/portal/outreach-settings";
@@ -13,6 +13,8 @@ import { SITE } from "@/lib/site-config";
 
 export const metadata = { title: "Prospecting — AMG Operations" };
 export const dynamic = "force-dynamic";
+// The FAA import streams a ~70 MB archive and scans ~193 MB of records.
+export const maxDuration = 300;
 
 const PATH = "/portal/admin/crm/prospecting";
 
@@ -39,6 +41,20 @@ export default async function ProspectingPage({
           {rejected && rejected !== "0" ? `, ${rejected} candidate(s) rejected as unverifiable` : ""}.
         </Notice>
       ) : null}
+      {params.success === "faa" ? (
+        <Notice tone="success">
+          FAA import finished. {(params.detail ?? "").split("|")[0] ?? "0"} owner(s) added
+          {(params.detail ?? "").split("|")[2] && (params.detail ?? "").split("|")[2] !== "0"
+            ? `, ${(params.detail ?? "").split("|")[2]} already in the pipeline`
+            : ""}
+          .
+        </Notice>
+      ) : null}
+      {params.error === "states" ? <Notice tone="danger">Enter at least one two-letter state code.</Notice> : null}
+      {params.error === "classes" ? <Notice tone="danger">Pick at least one aircraft class.</Notice> : null}
+      {params.error === "faa" ? (
+        <Notice tone="danger">FAA import failed. {params.detail ?? ""}</Notice>
+      ) : null}
       {params.error === "types" ? <Notice tone="danger">Pick at least one target profile.</Notice> : null}
       {params.error === "run" ? (
         <Notice tone="danger">Prospecting failed. {params.detail ?? ""}</Notice>
@@ -47,7 +63,7 @@ export default async function ProspectingPage({
       <PageHeader
         eyebrow="AMG Operations"
         title="Prospecting"
-        description="Searches the web for real aviation businesses in your area, finds a published named contact, and adds them to the pipeline. Nothing is emailed here."
+        description="Builds the pipeline from public records. The FAA Aircraft Registry is the primary source and needs no key. Nothing is emailed here, and nothing is enrolled in outreach."
         actions={
           <Button asChild variant="outline" size="sm">
             <Link href="/portal/admin/crm">← Pipeline</Link>
@@ -56,16 +72,104 @@ export default async function ProspectingPage({
       />
 
       {!configured ? (
-        <SectionCard title="Not configured" icon="alertTriangle">
+        <SectionCard title="Web search is off" icon="alertTriangle">
           <p className="text-sm text-[var(--deck-text-3)]">
-            Prospecting needs an <code>ANTHROPIC_API_KEY</code> environment variable in Vercel.
-            Everything runs on AMG&rsquo;s own server against this database; the key is only used to
-            search and read public pages.
+            The optional web-search source needs an <code>ANTHROPIC_API_KEY</code>. It is the only
+            part of prospecting that does, and the FAA import below works without it. Worth knowing
+            before adding one: real aviation business sites almost never publish email addresses,
+            so web search is the only way to find a named contact with an address attached.
           </p>
         </SectionCard>
       ) : null}
 
-      <SectionCard title="Run a pass" icon="search">
+      <SectionCard title="FAA Aircraft Registry" icon="database">
+        <div className="grid gap-3 text-sm text-[var(--deck-text-2)]">
+          <p>
+            The registry is the actual record of every aircraft owner in the country: public domain,
+            updated daily, no key and no cost. For Part 91 owners this beats searching the web,
+            because it is not a guess at who owns an aircraft, it is the record of who owns it.
+          </p>
+          <p>
+            Florida alone currently holds about <strong>2,660 turbine aircraft</strong> across{" "}
+            <strong>2,054 owners</strong> once multiple tails are collapsed to one contact.
+          </p>
+          <p className="text-[var(--deck-text-3)]">
+            The registry carries names and mailing addresses but <strong>no email</strong>, so these
+            leads are a call-and-mail list. They are not enrolled in the email sequence, which would
+            have nothing to send to.
+          </p>
+        </div>
+
+        <form action={runFaaImport} className="mt-5 grid gap-5">
+          <input type="hidden" name="back_to" value={PATH} />
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            <TextField label="States (two-letter, comma separated)" name="states" defaultValue="FL" />
+            <TextField
+              label="How many owners"
+              name="limit"
+              type="number"
+              defaultValue="100"
+              hint="Highest fit score first. Max 500."
+            />
+            <div>
+              <p className="text-sm font-medium">Aircraft class</p>
+              <div className="mt-2 flex flex-wrap gap-3">
+                {[
+                  { value: "jet", label: "Jet" },
+                  { value: "turboprop", label: "Turboprop" },
+                  { value: "piston", label: "Piston" },
+                ].map((c) => (
+                  <label key={c.value} className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      name="engine_classes"
+                      value={c.value}
+                      defaultChecked={c.value !== "piston"}
+                      className="h-4 w-4"
+                    />
+                    {c.label}
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <label className="flex items-center gap-3">
+            <input type="checkbox" name="corporate_only" defaultChecked className="h-4 w-4" />
+            <span className="text-sm">
+              Corporate and LLC owners only
+              <span className="block text-xs text-[var(--deck-text-3)]">
+                Filters out individually-registered aircraft, which are mostly owner-flown.
+              </span>
+            </span>
+          </label>
+
+          <div>
+            <SubmitButton pendingText="Downloading and scanning the registry…">
+              Import owners
+            </SubmitButton>
+          </div>
+        </form>
+      </SectionCard>
+
+      <SectionCard title="How owners are ranked" icon="barChart">
+        <div className="grid gap-3 text-sm text-[var(--deck-text-2)]">
+          <p>
+            A 16,000-row state list worked alphabetically is useless, so each owner gets a fit score
+            out of 100: turbine over piston, corporate over individual, more seats, older airframe
+            (maintenance downtime, and therefore ferry work, rises with age).
+          </p>
+          <p>
+            Fleet size is deliberately <strong>not</strong> a straight bonus. Two to four aircraft is
+            the sweet spot, enough movement to need help and not enough to justify staff pilots. Past
+            ten the owner is a commercial operator or has its own crews. The first version of this
+            ranked a 98-aircraft cargo operator top, which is the opposite of the target.
+          </p>
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Web search (optional, needs a key)" icon="search">
         <form action={runProspectingPass} className="grid gap-5">
           <input type="hidden" name="back_to" value={PATH} />
 

@@ -8,6 +8,7 @@ import { logAuditEvent } from "@/lib/portal/audit";
 import { suppressEmail } from "@/lib/portal/lead-suppression";
 import { isLeadBusinessType } from "@/lib/portal/lead-email-templates";
 import { runProspecting } from "@/lib/portal/prospecting";
+import { importFaaProspects } from "@/lib/portal/faa-import";
 import { getOutreachSettings } from "@/lib/portal/outreach-settings";
 import { SITE } from "@/lib/site-config";
 import { createServiceClient } from "@/lib/supabase/server";
@@ -262,6 +263,68 @@ export async function runProspectingPass(formData: FormData) {
       withStatus(backTo, "success", "prospected"),
       "detail",
       `${result.created}|${result.rejected.length}`,
+    ),
+  );
+}
+
+/**
+ * Import owners from the FAA Aircraft Registry.
+ *
+ * Streams a ~70 MB archive and scans ~193 MB of records, so it is slow by
+ * nature. Kept synchronous with a long maxDuration on the hosting page rather
+ * than made durable: the whole point is that an admin runs it, watches it, and
+ * looks at what came back.
+ */
+export async function runFaaImport(formData: FormData) {
+  const admin = await actor(["admin"], "crm.add");
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/crm/prospecting");
+
+  const states = str(formData, "states")
+    .split(/[,\s]+/)
+    .map((value) => value.trim().toUpperCase())
+    .filter((value) => /^[A-Z]{2}$/.test(value));
+  if (!states.length) redirect(withStatus(backTo, "error", "states"));
+
+  const engineClasses = formData
+    .getAll("engine_classes")
+    .map((value) => String(value))
+    .filter((value): value is "piston" | "turboprop" | "jet" =>
+      value === "piston" || value === "turboprop" || value === "jet",
+    );
+  if (!engineClasses.length) redirect(withStatus(backTo, "error", "classes"));
+
+  const requested = num(formData, "limit");
+  const limit = Math.min(500, Math.max(1, Math.round(requested ?? 100)));
+
+  const result = await importFaaProspects({
+    filter: {
+      states,
+      engineClasses,
+      corporateOnly: str(formData, "corporate_only") === "on",
+      limit,
+    },
+    actorId: admin.id,
+    actorEmail: admin.email,
+  });
+
+  await logAuditEvent({
+    actor: admin,
+    action: "faa_import",
+    detail: result.ok
+      ? `FAA import created ${result.created} lead(s) from ${result.matched} matched owners.`
+      : `FAA import failed: ${result.error}`,
+  });
+
+  if (!result.ok) {
+    redirect(withStatus(withStatus(backTo, "error", "faa"), "detail", (result.error ?? "").slice(0, 200)));
+  }
+
+  revalidatePath("/portal/admin/crm");
+  redirect(
+    withStatus(
+      withStatus(backTo, "success", "faa"),
+      "detail",
+      `${result.created}|${result.matched}|${result.skipped}`,
     ),
   );
 }
