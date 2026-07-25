@@ -18,3 +18,11 @@ on public.portal_password_setup_tokens (token_hash);
 
 create index if not exists portal_password_setup_tokens_email_idx
 on public.portal_password_setup_tokens (lower(email));
+
+-- Deny-all by design, matching calendar_events / scheduled_emails /
+-- flightwall_remote: RLS on, no policies, so only the service role reads this.
+-- Without it, default grants put every invited user's email, internal id, and
+-- live-invite state one anon-key PostgREST call away — a ready-made phishing
+-- list. Tokens are stored hashed, so that would be disclosure rather than
+-- account takeover, but there is no reason for the rows to be reachable at all.
+alter table public.portal_password_setup_tokens enable row level security;

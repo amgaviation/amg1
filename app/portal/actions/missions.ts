@@ -660,7 +660,9 @@ export async function provideRequestedInfo(formData: FormData) {
     .eq("id", missionId)
     .maybeSingle();
   if (!mission) redirect("/portal/client/trips?error=notfound");
-  if (user.role !== "admin" && mission.client_id !== user.id) {
+  // isAdminRole, not role === "admin" — a super_admin is an admin everywhere
+  // else in the codebase and was being refused here.
+  if (!isAdminRole(user.role) && mission.client_id !== user.id) {
     redirect("/portal/client/trips?error=forbidden");
   }
   if (mission.status !== "awaiting_client_info") {

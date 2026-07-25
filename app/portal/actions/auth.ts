@@ -266,6 +266,52 @@ export async function signIn(formData: FormData) {
   redirect(ROLE_HOME[role]);
 }
 
+/**
+ * Start the Google OAuth handshake. Used by both the sign-in and the
+ * request-access tab — the flow is identical either way, because a first-time
+ * Google user is exactly an access request.
+ *
+ * No approval decision happens here. The handle_new_user trigger provisions a
+ * brand-new Google identity as role=client / status=pending_approval /
+ * is_active=false, and /auth/callback enforces the same status gates this
+ * module's signIn does. So OAuth is a way to authenticate, never a way into the
+ * portal ahead of an admin's approval.
+ *
+ * signInWithOAuth on the server does not set a session — it returns the URL to
+ * hand the browser. The session is established on the callback.
+ */
+export async function signInWithGoogle(formData: FormData) {
+  await clearPortalIntroPending();
+
+  // Portal destinations only. safeRedirectPath alone accepts any same-origin
+  // path, and this value is a hidden form field the caller can edit — it should
+  // not be able to steer the post-login landing anywhere but the portal.
+  // /auth/callback no longer derives its access decision from this, but there
+  // is no reason to keep handing it a wider range than it needs.
+  const requested = safeRedirectPath(field(formData, "next"), "/portal");
+  const next = requested.startsWith("/portal") ? requested : "/portal";
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${getSiteUrl()}/auth/callback?next=${encodeURIComponent(next)}`,
+      // Always show the account chooser. Without it Google silently reuses
+      // whichever account the browser last used, which on a shared ops machine
+      // signs you in as someone else with no visible prompt.
+      queryParams: { prompt: "select_account" },
+    },
+  });
+
+  if (error || !data?.url) {
+    // Most likely cause is the Google provider not being enabled (or its client
+    // ID/secret not set) for this Supabase project.
+    redirect("/login?error=oauth");
+  }
+
+  redirect(data.url);
+}
+
 export async function signUp(formData: FormData) {
   const email = field(formData, "email").toLowerCase();
   const fullName = field(formData, "full_name");

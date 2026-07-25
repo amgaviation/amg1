@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { logAuditEvent } from "@/lib/portal/audit";
+import { isAdminRole } from "@/lib/portal/constants";
 import { createServiceClient } from "@/lib/supabase/server";
 import { actor, safeRedirectPath, str } from "./_helpers";
 
@@ -19,7 +20,11 @@ export async function updateBillingContact(formData: FormData) {
   const profileId = str(formData, "profile_id") || user.id;
   const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/client/settings");
 
-  if (user.role !== "admin" && profileId !== user.id) redirect("/access-denied");
+  // isAdminRole, not role === "admin": a super_admin failed the literal
+  // comparison and was refused edits on anyone else's billing contact. Fails
+  // closed, so this is a bug rather than a hole, but every sibling check in the
+  // codebase uses the helper.
+  if (!isAdminRole(user.role) && profileId !== user.id) redirect("/access-denied");
 
   const { error } = await db
     .from("profiles")

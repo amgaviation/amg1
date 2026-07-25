@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logAuditEvent, notifyAdmins } from "@/lib/portal/audit";
 import { PARTNER_STATUS } from "@/lib/portal/constants";
+import { canPartnerRequote, canPartnerTransition } from "@/lib/portal/partner-lifecycle";
 import { actor, num, str } from "./_helpers";
 
 function arr(formData: FormData, key: string): string[] {
@@ -21,11 +22,26 @@ export async function respondToServiceRequest(formData: FormData) {
   const decision = str(formData, "decision"); // accepted | declined
   const status = decision === "accepted" ? "accepted" : "declined";
 
+  // A decline is terminal and completed work is done — neither should be
+  // answerable again. Previously any assignment could be re-responded to at
+  // any point in its life.
+  const { data: current } = await db
+    .from("mission_partner_assignments")
+    .select("status")
+    .eq("id", id)
+    .eq("partner_id", user.id)
+    .maybeSingle();
+  if (!current) redirect(`/portal/partner/requests/${id}?error=not-found`);
+  if (!canPartnerTransition(current.status, status)) {
+    redirect(`/portal/partner/requests/${id}?error=illegal-transition`);
+  }
+
   const { data: row } = await db
     .from("mission_partner_assignments")
     .update({ status, responded_at: new Date().toISOString() })
     .eq("id", id)
     .eq("partner_id", user.id)
+    .eq("status", current.status)
     .select("ref, mission_id")
     .maybeSingle();
 
@@ -55,6 +71,20 @@ export async function submitServiceQuote(formData: FormData) {
   const amount = num(formData, "quote_amount");
   if (amount === null || amount < 0) redirect(`/portal/partner/requests/${id}?error=invalid`);
 
+  // Read the current status before pricing: the update below is scoped only by
+  // partner_id, so on its own it would let a vendor re-price a job that is
+  // already underway or finished and reset the row to "quoted".
+  const { data: current } = await db
+    .from("mission_partner_assignments")
+    .select("status")
+    .eq("id", id)
+    .eq("partner_id", user.id)
+    .maybeSingle();
+  if (!current) redirect(`/portal/partner/requests/${id}?error=not-found`);
+  if (!canPartnerRequote(current.status)) {
+    redirect(`/portal/partner/requests/${id}?error=quote-locked`);
+  }
+
   const { data: row } = await db
     .from("mission_partner_assignments")
     .update({
@@ -64,8 +94,12 @@ export async function submitServiceQuote(formData: FormData) {
     })
     .eq("id", id)
     .eq("partner_id", user.id)
+    // Optimistic concurrency, matching updateMissionStatus: the status we
+    // validated has to still be the status we write against.
+    .eq("status", current.status)
     .select("ref")
     .maybeSingle();
+  if (!row) redirect(`/portal/partner/requests/${id}?error=quote-locked`);
 
   await logAuditEvent({
     actor: user,
@@ -94,11 +128,24 @@ export async function updateServiceMilestone(formData: FormData) {
   if (!PARTNER_STATUS.some((s) => s.value === status)) {
     redirect(`/portal/partner/requests/${id}?error=invalid-status`);
   }
+  // Vocabulary membership alone said nothing about ORDER — `completed →
+  // quoted` and `declined → accepted` were both accepted. Check the pair.
+  const { data: current } = await db
+    .from("mission_partner_assignments")
+    .select("status")
+    .eq("id", id)
+    .eq("partner_id", user.id)
+    .maybeSingle();
+  if (!current) redirect(`/portal/partner/requests/${id}?error=not-found`);
+  if (!canPartnerTransition(current.status, status)) {
+    redirect(`/portal/partner/requests/${id}?error=illegal-transition`);
+  }
   await db
     .from("mission_partner_assignments")
     .update({ status, partner_notes: str(formData, "partner_notes") || null })
     .eq("id", id)
-    .eq("partner_id", user.id);
+    .eq("partner_id", user.id)
+    .eq("status", current.status);
   await logAuditEvent({
     actor: user,
     action: "partner_milestone",

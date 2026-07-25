@@ -98,7 +98,11 @@ const crewFields: DetailFormField[] = [
   { name: "crew_status", label: "Crew Status" },
   { name: "resume_notes", label: "Resume Notes", type: "textarea", fullWidth: true },
   { name: "notes", label: "Internal Notes", type: "textarea", fullWidth: true },
-  { name: "ops_notes", label: "Qualifications / Internal Notes", type: "textarea", fullWidth: true },
+  // NOT private. ops_notes is the same column the pilot edits as "Operations
+  // Notes" on their own settings page — they can read anything typed here and
+  // their next profile save overwrites it. "Internal Notes" (notes) is the
+  // staff-only field; keep confidential assessments there.
+  { name: "ops_notes", label: "Qualifications (crew-authored, visible to crew)", type: "textarea", fullWidth: true },
 ];
 
 function listText(value?: string[] | null) {
@@ -442,7 +446,7 @@ export default async function AdminCrewDetailPage({
               items={[
                 { label: "Resume Notes", value: profile?.resume_notes },
                 { label: "Profile Notes", value: profile?.notes },
-                { label: "Operations Notes", value: profile?.ops_notes },
+                { label: "Qualifications (crew-authored, visible to crew)", value: profile?.ops_notes },
               ]}
             />
           </SectionCard>

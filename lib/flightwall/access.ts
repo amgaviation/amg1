@@ -3,6 +3,7 @@ import "server-only";
 import { headers } from "next/headers";
 import { getSessionUser } from "@/lib/portal/session";
 import { isAdminRole } from "@/lib/portal/constants";
+import { trustedClientIp } from "@/lib/security/client-ip";
 
 /**
  * Access gate for the FlightWall ops dashboard (/ops/flightwall) and its
@@ -20,25 +21,20 @@ import { isAdminRole } from "@/lib/portal/constants";
  * that churn.
  */
 
-async function requestIp(): Promise<string | null> {
-  const h = await headers();
-  // Vercel sets x-forwarded-for to "client, proxy1, proxy2, ..."; the first
-  // entry is the original client. x-real-ip is a fallback for other hosts.
-  const forwarded = h.get("x-forwarded-for");
-  if (forwarded) {
-    const first = forwarded.split(",")[0]?.trim();
-    if (first) return first;
-  }
-  return h.get("x-real-ip");
-}
-
 async function isTrustedIp(): Promise<boolean> {
   const allowlist = (process.env.FLIGHTWALL_TRUSTED_IPS ?? "")
     .split(",")
     .map((entry) => entry.trim())
     .filter(Boolean);
   if (allowlist.length === 0) return false;
-  const ip = await requestIp();
+  // trustedClientIp, not the best-effort reader: this comparison GRANTS ACCESS
+  // without a session, so the IP has to come from a header the caller cannot
+  // set. Reading x-forwarded-for here meant `curl -H "X-Forwarded-For: <house
+  // IP>"` returned the ops and revenue feed to anyone who guessed the office
+  // address. Off-platform this returns null and the allowlist simply never
+  // matches, which is the correct failure direction — the admin session below
+  // is still a way in, the spoofed header is not.
+  const ip = trustedClientIp(await headers());
   return ip !== null && allowlist.includes(ip);
 }
 
@@ -46,5 +42,12 @@ async function isTrustedIp(): Promise<boolean> {
 export async function hasFlightwallDashboardAccess(): Promise<boolean> {
   if (await isTrustedIp()) return true;
   const user = await getSessionUser();
-  return user !== null && isAdminRole(user.role);
+  // Status, not just role. getSessionUser resolves any valid JWT carrying a
+  // portal role; the status filtering lives in requireUser, a page guard that
+  // never runs for these API routes. Without this, an admin who has been
+  // suspended keeps reading /api/flightwall/summary — today's revenue,
+  // invoices, payments, active missions, client names — and can drive
+  // /api/flightwall/remote, until their token happens to expire. Every
+  // sibling admin API path already checks status.
+  return user !== null && user.status === "approved" && isAdminRole(user.role);
 }
