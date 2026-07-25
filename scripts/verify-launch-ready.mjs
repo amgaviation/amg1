@@ -65,13 +65,29 @@ check(
 );
 
 // --- Affiliations -----------------------------------------------------------
-const affiliations = config.match(/AFFILIATIONS = \[([^\]]*)\]/s)?.[1] ?? "";
+// Structural now: an entry renders only once verifiedOn carries a date, so an
+// unverified badge cannot reach the page. This check reports which are dark.
+const affBlock = config.match(/export const AFFILIATIONS[^;]*?\n\] as const;/s)?.[0] ?? "";
+const affEntries = [...affBlock.matchAll(/label:\s*"([^"]+)"\s*,\s*verifiedOn:\s*(null|"([^"]*)")/g)];
+const unverified = affEntries.filter((m) => !m[3]?.trim()).map((m) => m[1]);
 check(
   "Affiliations verified",
-  affiliations.trim() === "" || /verified/i.test(config.slice(0, config.indexOf("AFFILIATIONS"))
-    .split("\n").slice(-6).join("\n")),
-  "AFFILIATIONS still lists a membership with no verification note. Confirm it is "
-    + "current and say so in a comment above it, or remove the entry.",
+  unverified.length === 0,
+  `${unverified.join(", ")} listed with verifiedOn: null, so ${unverified.length === 1 ? "it is" : "they are"} `
+    + "not rendered anywhere. Confirm the membership is current and set verifiedOn "
+    + "to that date, or delete the entry. Re-check annually.",
+);
+
+// --- Lead alert -------------------------------------------------------------
+// Cannot be read from the repo — it lives in Vercel Production. Reported as an
+// open item so it is not forgotten; the code warns loudly at runtime too.
+check(
+  "Lead alert SMS configured",
+  false,
+  "AMG_LEAD_ALERT_SMS_TO cannot be verified from here — set it in Vercel "
+    + "Production (comma-separated E.164). Until then a support request at 21:40 "
+    + "sends email only and pages nobody. Tick this off in CLEARANCE.md once set: "
+    + "`- [x] Lead alert SMS — <last 4 digits>, YYYY-MM-DD`.",
 );
 
 // --- 1 & 2. Insurance and counsel -------------------------------------------

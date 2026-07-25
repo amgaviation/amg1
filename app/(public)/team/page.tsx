@@ -4,7 +4,7 @@ import { PhoneLink } from "@/components/site/tracked-link";
 import { HeadlineReveal } from "@/components/site/headline-reveal";
 import { QuoteButton } from "@/components/site/quote-button";
 import { TeamDutyClock } from "@/components/site/team-duty-clock";
-import { AFFILIATIONS, AIRMAN_REGISTRY_URL, SITE, TEAM_ROSTER } from "@/lib/site-config";
+import { renderableAffiliations, AIRMAN_REGISTRY_URL, SITE, TEAM_ROSTER } from "@/lib/site-config";
 
 /**
  * Supporting facts column for the no-photo founder file. Published numbers
@@ -208,13 +208,13 @@ export default function TeamPage() {
         <div className="oc-shell">
           <div className="flex flex-col gap-6 rounded-xl border border-[var(--oc-line-dark)] bg-white/[0.02] p-8 sm:flex-row sm:items-center sm:justify-between" data-scroll-animate>
             <div className="flex flex-wrap items-center gap-2">
-              {AFFILIATIONS.map((affiliation) => (
+              {renderableAffiliations().map((affiliation) => (
                 <span
-                  key={affiliation}
+                  key={affiliation.label}
                   className="inline-flex items-center gap-2 rounded-full border border-[var(--oc-line-dark)] bg-white/[0.04] px-3 py-1.5 text-[0.75rem] font-semibold uppercase text-[var(--oc-aluminum)]"
                 >
                   <span className="oc-dot" aria-hidden="true" />
-                  {affiliation}
+                  {affiliation.label}
                 </span>
               ))}
             </div>

@@ -3,7 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 import { CookiePreferencesButton } from "@/components/compliance/cookie-consent";
 import { PhoneLink } from "@/components/site/tracked-link";
 import { PUBLIC_FOOTER_GROUPS } from "@/lib/navigation";
-import { AFFILIATIONS, OPERATIONAL_CONTROL_STATEMENT, SITE } from "@/lib/site-config";
+import { renderableAffiliations, OPERATIONAL_CONTROL_STATEMENT, SITE } from "@/lib/site-config";
 
 export function SiteFooter() {
   return (
@@ -36,13 +36,13 @@ export function SiteFooter() {
               </a>
             </address>
             <div className="mt-5 flex flex-wrap items-center gap-2">
-              {AFFILIATIONS.map((affiliation) => (
+              {renderableAffiliations().map((affiliation) => (
                 <span
-                  key={affiliation}
+                  key={affiliation.label}
                   className="inline-flex items-center gap-2 rounded-sm border border-[var(--oc-line-dark)] bg-white/[0.04] px-3 py-1.5 text-[0.75rem] font-semibold uppercase text-[var(--oc-aluminum)]"
                 >
                   <span className="oc-dot" aria-hidden="true" />
-                  {affiliation}
+                  {affiliation.label}
                 </span>
               ))}
             </div>
