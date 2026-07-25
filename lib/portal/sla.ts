@@ -10,24 +10,23 @@ import {
  * SLA commitment clock — the intake -> quote-sent response window AMG promises
  * by plan tier, plus the automatic plan-fee credit remedy when it is missed.
  *
- * TIER -> HOURS MAPPING (docs/amg-aviation-group-reference.md, launch pricing
- * table row "Quote response commitment | 24 business hours | 12 business hours
- * | 4 business hours" across the On-Demand / Standard / Priority columns):
+ * TIER -> HOURS MAPPING. Windows are CALENDAR hours, matching the published
+ * promise of a reply "within 24 hours":
  *
- *   On-Demand (no active plan) .... 24 business hours  (widest)
- *   Standard ...................... 12 business hours
- *   Priority ......................  4 business hours  (fastest)
+ *   On-Demand (no active plan) .... 24 hours  (widest)
+ *   Standard ...................... 12 hours
+ *   Priority ......................  4 hours  (fastest)
  *
  * The remedy for a missed window is a plan-fee credit (reference: "Missed
  * committed response/sourcing windows trigger automatic plan-fee credits." and,
  * for the sourcing window, "month's fee credited") — see lib/portal/sweeps/
  * sla-sweep.ts.
  *
- * BUSINESS HOURS: Monday-Friday, 09:00-18:00 in America/New_York (AMG's
- * operating zone; matches lib/portal/timezones DEFAULT_TIMEZONE). Weekends and
- * outside-hours time do not count toward the window. Chosen because AMG quotes
- * are produced by coordinators during business hours, and the marketing promise
- * is explicitly stated in *business* hours.
+ * The clock runs continuously, including overnight and weekends. It previously
+ * counted only Monday-Friday 09:00-18:00, which made "24 business hours" close
+ * to three calendar days. The promise was changed to plain hours because that
+ * is what a buyer understands by it, and the tracked deadline follows the
+ * promise rather than the other way round.
  */
 
 // ─── Business-hours configuration ──────────────────────────────────────────
@@ -39,7 +38,7 @@ export const SLA_BUSINESS_DAY_START_HOUR = 9;
 export const SLA_BUSINESS_DAY_END_HOUR = 18;
 
 // ─── Tier -> window mapping ─────────────────────────────────────────────────
-/** Promised quote-response window, in business hours, per plan tier. */
+/** Promised quote-response window, in calendar hours, per plan tier. */
 export const SLA_WINDOW_HOURS = {
   onDemand: 24,
   standard: 12,
@@ -100,6 +99,26 @@ function zonedInstant(y: number, m: number, d: number, hour: number, tz: string)
  * configured business day (09:00-18:00 in `tz`). Returns the absolute instant
  * the deadline lands on. `hours` is treated at minute granularity, so whole and
  * fractional business hours both resolve exactly.
+ */
+/**
+ * Deadline `hours` clock-hours after `from`.
+ *
+ * Replaces business-hours arithmetic for the response commitment. "24 business
+ * hours" under a Mon-Fri 09:00-18:00 day is nearly three calendar days, which
+ * is not what a buyer reads when a site promises a 24-hour reply, and is not a
+ * promise worth advertising as fast service.
+ *
+ * The trade this accepts: the clock now runs overnight and through weekends, so
+ * a Saturday-evening request is due Sunday evening. That is the cost of making
+ * the promise mean what it says.
+ */
+export function calendarHoursDeadline(from: Date, hours: number): Date {
+  return new Date(from.getTime() + hours * 60 * 60 * 1000);
+}
+
+/**
+ * Business-hours arithmetic, retained for any window still expressed that way.
+ * No longer used for the response commitment — see calendarHoursDeadline.
  */
 export function businessHoursDeadline(from: Date, hours: number, tz: string = SLA_BUSINESS_TZ): Date {
   let remainingMin = Math.max(0, Math.round(hours * 60));
@@ -204,7 +223,11 @@ export async function stampSlaDueAtOnIntake(
 ): Promise<void> {
   try {
     const hours = await resolveClientSlaWindow(db, params.clientId);
-    const dueAt = businessHoursDeadline(params.from, hours).toISOString();
+    // Calendar hours, not business hours. The public promise is now "within 24
+    // hours" rather than "24 business hours", and the tracked deadline has to
+    // mean the same thing the site says or the SLA chip reports met on a
+    // mission the customer experienced as three days late.
+    const dueAt = calendarHoursDeadline(params.from, hours).toISOString();
     await (db as any)
       .from("missions")
       .update({ sla_due_at: dueAt } satisfies Partial<MissionSlaFields>)

@@ -14,7 +14,7 @@ import { renderableAffiliations, AIRMAN_REGISTRY_URL, SITE, TEAM_ROSTER } from "
 const FOUNDER_FACTS = [
   { label: "Based in", value: SITE.cityState },
   { label: "Serving", value: SITE.region.replace("the ", "") },
-  { label: "Quote response", value: "24 business hrs" },
+  { label: "Quote response", value: "within 24 hrs" },
   { label: "Pilot engagement", value: "Direct with owner" },
   { label: "Markup or rebate", value: "$0" },
 ] as const;
@@ -30,7 +30,7 @@ const DUTY_BOARD = [
 export const metadata: Metadata = {
   title: "Team — The People Behind Every Mission",
   description:
-    "AMG is a small, senior team by design, founded by Antonio Gonzalez in North Lauderdale, FL. You'll know your coordinator by name, and they'll know your airplane by tail number.",
+    "AMG is a small, senior team by design, based in Southeast Florida. You'll know your coordinator by name, and they'll know your airplane by tail number.",
 };
 
 export default function TeamPage() {
@@ -68,7 +68,7 @@ export default function TeamPage() {
               <div className="flex items-baseline justify-between gap-4 py-2.5">
                 <dt className="microlabel">Coordinator</dt>
                 <dd className="font-mono text-[11px] uppercase [letter-spacing:0.14em] text-[var(--oc-paper)]">
-                  {SITE.founder}
+                  AMG Operations
                 </dd>
               </div>
               <div className="flex items-baseline justify-between gap-4 border-t border-[rgba(169,180,198,0.14)] py-2.5">
@@ -83,7 +83,7 @@ export default function TeamPage() {
               <div className="flex items-baseline justify-between gap-4 border-t border-[rgba(169,180,198,0.14)] py-2.5 pb-0">
                 <dt className="microlabel">First reply</dt>
                 <dd className="font-mono text-[11px] uppercase [letter-spacing:0.14em] text-[var(--oc-aluminum)]">
-                  ≤ 24 business hrs
+                  within 24 hrs
                 </dd>
               </div>
             </dl>

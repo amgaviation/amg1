@@ -7,6 +7,9 @@ import { leadOutreach } from "@/workflows/lead-outreach";
 import { logAuditEvent } from "@/lib/portal/audit";
 import { suppressEmail } from "@/lib/portal/lead-suppression";
 import { isLeadBusinessType } from "@/lib/portal/lead-email-templates";
+import { runProspecting } from "@/lib/portal/prospecting";
+import { getOutreachSettings } from "@/lib/portal/outreach-settings";
+import { SITE } from "@/lib/site-config";
 import { createServiceClient } from "@/lib/supabase/server";
 import { actor, num, safeRedirectPath, str } from "./_helpers";
 
@@ -205,4 +208,60 @@ export async function suppressLeadEmail(formData: FormData) {
 
   revalidatePath(backTo);
   redirect(withStatus(backTo, "success", "suppressed"));
+}
+
+/**
+ * Run one prospecting pass.
+ *
+ * Synchronous rather than a workflow: the run takes a minute or two, the admin
+ * is watching, and a durable multi-day sleep buys nothing here. It creates
+ * leads at stage "new" and enrols nobody in outreach, so a bad run costs a few
+ * CRM rows to delete and cannot email anyone.
+ */
+export async function runProspectingPass(formData: FormData) {
+  const admin = await actor(["admin"], "crm.add");
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/crm/prospecting");
+
+  const types = formData
+    .getAll("business_types")
+    .map((value) => String(value))
+    .filter(isLeadBusinessType);
+  if (!types.length) redirect(withStatus(backTo, "error", "types"));
+
+  const settings = await getOutreachSettings();
+  const requested = num(formData, "count");
+  const count = Math.min(
+    settings.prospectingBatchSize,
+    Math.max(1, Math.round(requested ?? settings.prospectingBatchSize)),
+  );
+  const region = str(formData, "region") || `${SITE.serviceRegion} and the Southeast US`;
+
+  const result = await runProspecting({
+    businessTypes: types,
+    region,
+    count,
+    actorId: admin.id,
+    actorEmail: admin.email,
+  });
+
+  await logAuditEvent({
+    actor: admin,
+    action: "prospecting_run",
+    detail: result.ok
+      ? `Prospecting created ${result.created} lead(s); ${result.rejected.length} rejected.`
+      : `Prospecting failed: ${result.error}`,
+  });
+
+  if (!result.ok) {
+    redirect(withStatus(withStatus(backTo, "error", "run"), "detail", (result.error ?? "").slice(0, 200)));
+  }
+
+  revalidatePath("/portal/admin/crm");
+  redirect(
+    withStatus(
+      withStatus(backTo, "success", "prospected"),
+      "detail",
+      `${result.created}|${result.rejected.length}`,
+    ),
+  );
 }

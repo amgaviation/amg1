@@ -8,9 +8,17 @@
 export const SITE = {
   name: "AMG Aviation Group",
   shortName: "AMG",
-  founder: "Antonio Gonzalez",
-  chiefPilot: "Antonio Gonzalez",
-  cityState: "North Lauderdale, FL",
+  /**
+   * Region, not a city. The owner's name and the specific municipality are
+   * deliberately not published: outreach and public copy say "Southeast
+   * Florida".
+   *
+   * NOTE: streetAddress below is a separate matter and must stay real. CAN-SPAM
+   * requires a physical postal address in every commercial email, and "Southeast
+   * Florida" does not satisfy it. It appears in the email footer only, not in
+   * body copy.
+   */
+  cityState: "Southeast Florida",
   /**
    * Full postal address. CAN-SPAM (15 U.S.C. §7704(a)(5)) requires a valid
    * physical postal address in every commercial email, so cold outreach was
@@ -23,6 +31,8 @@ export const SITE = {
    * change it here and it propagates everywhere.
    */
   streetAddress: "1165 Cove Lake Rd, North Lauderdale, FL 33068",
+  /** Region phrase for prose. Never a substitute for streetAddress in email. */
+  serviceRegion: "Southeast Florida",
   streetLine: "1165 Cove Lake Rd",
   postalCode: "33068",
   region: "the Southeast US",
@@ -75,6 +85,50 @@ export const DAY_RATES = {
   ],
   note: "Benchmarks only, paid by the owner directly to the pilot. Phenom 300, CJ3+/CJ4, and PC-24 are quoted individually.",
 } as const;
+
+/**
+ * Partner referral program.
+ *
+ * A partner (shop, broker, FBO) refers an aircraft owner. The owner gets 15%
+ * off AMG's coordination fee, and the partner receives 15% of the standard
+ * coordination fee as a commission. Both percentages are taken against the
+ * standard fee, before the discount, so the two are symmetric and easy to state
+ * out loud.
+ *
+ * Worked on the $495 piston fee: the owner pays $420.75, the partner receives
+ * $74.25, AMG retains $346.50, which is 70% of the standard fee.
+ *
+ * BOUNDARY, and the reason this is written down rather than assumed. The owner
+ * remains AMG's contracting and paying party. The partner is paid a commission
+ * BY AMG out of AMG's own fee; no money moves from the partner to AMG, and the
+ * partner never contracts for the flight. That distinction is what keeps this a
+ * referral commission rather than the shop buying aircraft movement it does not
+ * own, which is the arrangement that starts to resemble an uncertificated air
+ * carrier operation.
+ *
+ * DISCLOSURE IS REQUIRED, not optional. A maintenance shop advising its own
+ * customer while receiving a commission on that advice is a conflict of
+ * interest, and an undisclosed one invites a FDUTPA claim. The referred owner
+ * must be told, in the quote, that the referring partner receives a commission.
+ * See disclosure below, which is why it lives next to the numbers.
+ */
+export const REFERRAL_PROGRAM = {
+  clientDiscountPercent: 15,
+  partnerCommissionPercent: 15,
+  basis: "AMG's standard coordination fee, before the discount",
+  disclosure:
+    "This quote reflects a 15% referred-client discount. The referring partner receives a referral commission from AMG equal to 15% of the standard coordination fee. The commission is paid by AMG out of its own fee and does not increase what you pay.",
+} as const;
+
+/** Fee after the referred-client discount, to cents. */
+export function referredClientFee(standardFee: number): number {
+  return Math.round(standardFee * (1 - REFERRAL_PROGRAM.clientDiscountPercent / 100) * 100) / 100;
+}
+
+/** Commission owed to the referring partner, to cents. */
+export function partnerCommission(standardFee: number): number {
+  return Math.round(standardFee * (REFERRAL_PROGRAM.partnerCommissionPercent / 100) * 100) / 100;
+}
 
 /**
  * Published starting coordination fees. These are the On-Demand figures from
