@@ -388,17 +388,32 @@ company's own site was read; UNVERIFIED means the details come from a directory 
   KPBI search surfaces it. KLNA sits six miles south of KPBI and is the practical way to
   reach that market.
 
-## Still uncovered
+## KSUA and KPBI — checked, and the answer is there is nothing to add
 
-**KSUA and KPBI proper.** Neither field surfaced an independent airframe shop in this pass.
-KSUA has East Coast Aviation Service on the field (already on this list, segment 1) and is
-otherwise dominated by FBOs — Atlantic and APP Jet Center. KPBI is a commercial airport
-where the general aviation maintenance market sits at the satellite fields, KLNA and F45,
-rather than on the main field.
+This is a verified negative, not an unfinished search. Both fields were checked against
+AirNav's on-field business listings on 2026-07-25:
 
-The efficient way to finish this is the FAA repair station database filtered to Florida,
-cross-checked against each airport authority's own tenant directory — both are primary
-sources, and the tenant directory tells you who actually has a hangar rather than who
-bought search placement. Budget 3-4 hours; the FAA set is a relational family joined on
-designator and certificate number, not one spreadsheet, and its published copy carries a
-last-modified date well behind the live dashboard.
+**KSUA (Witham Field).** The only businesses listed on the field are two FBOs — APP Jet
+Center-Stuart (772-781-4720) and Atlantic Aviation (772-288-6700) — plus an aircraft
+detailer. Atlantic advertises maintenance and avionics among its services, which is
+precisely the FBO-integrated profile this list excludes: internal departments, established
+vendor relationships, and corporate procurement. **East Coast Aviation Service is already
+on this list and is the right KSUA contact.** There is no second independent shop there to
+find.
+
+**KLNA (Palm Beach County Park).** One FBO on the field, Stellar Aviation of South Palm
+Beach (561-656-9815). No independent maintenance operator listed separately. **Sarasota
+Avionics' Lantana shop, already on this list, is the KLNA contact** — and KLNA sits six
+miles south of KPBI, which makes it the practical way into that market. KPBI itself is a
+commercial airport; its general-aviation maintenance market lives at the satellite fields.
+
+**What this means operationally.** Do not spend a field day driving KSUA or KPBI looking
+for shops. The two contacts you already have are the coverage. Spend the day at KTMB
+instead, where the first pass and the gap fill together produced four on-profile targets.
+
+If you want to prove this independently rather than take it on trust, the primary source is
+the FAA repair station database filtered to Florida, cross-checked against each airport
+authority's tenant directory. Budget 3-4 hours: the FAA set is a relational family joined
+on designator and certificate number, not one spreadsheet, and the published copy lags the
+live dashboard. GlobalAir's per-airport directories return 403 to automated fetches, so
+they are a browser job, not a scripted one.
