@@ -30,7 +30,19 @@ export async function GET(request: NextRequest) {
   const canPeople = perms.clients.view || perms.crew.view || perms.partners.view || perms.users.view;
 
   const db = (await createServiceClient()) as any;
+
+  // `.or()` takes a PostgREST filter STRING, so the search term lands inside a
+  // grammar where `,` separates clauses and `.` separates operands — an
+  // unescaped term can append a clause against a column the select() never
+  // exposed, turning this into a blind oracle over the whole row. (The
+  // `.ilike()` calls below pass the value as an argument and are already safe.)
+  //
+  // Stripping the metacharacters would break searching for an email address,
+  // which is the common case, so quote instead: PostgREST treats a
+  // double-quoted value as a literal. Escape backslash first, then the quote,
+  // or the escape itself becomes an injection point.
   const like = `%${q}%`;
+  const quoted = `"${like.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
   const results: SearchResult[] = [];
   const none = Promise.resolve({ data: [] });
 
@@ -39,7 +51,7 @@ export async function GET(request: NextRequest) {
       ? db
           .from("missions")
           .select("id, ref, departure_airport, arrival_airport, tail_number, status")
-          .or(`ref.ilike.${like},departure_airport.ilike.${like},arrival_airport.ilike.${like},tail_number.ilike.${like}`)
+          .or(`ref.ilike.${quoted},departure_airport.ilike.${quoted},arrival_airport.ilike.${quoted},tail_number.ilike.${quoted}`)
           .limit(5)
       : none,
     canPeople
@@ -47,7 +59,7 @@ export async function GET(request: NextRequest) {
           .from("profiles")
           .select("id, full_name, email, company_name, role")
           .eq("is_deleted", false)
-          .or(`full_name.ilike.${like},email.ilike.${like},company_name.ilike.${like}`)
+          .or(`full_name.ilike.${quoted},email.ilike.${quoted},company_name.ilike.${quoted}`)
           .limit(5)
       : none,
     perms.invoices.view
@@ -64,14 +76,14 @@ export async function GET(request: NextRequest) {
       ? db
           .from("crm_leads")
           .select("id, full_name, company, stage")
-          .or(`full_name.ilike.${like},company.ilike.${like},email.ilike.${like}`)
+          .or(`full_name.ilike.${quoted},company.ilike.${quoted},email.ilike.${quoted}`)
           .limit(5)
       : none,
     perms.aircraft.view
       ? db
           .from("aircraft")
           .select("id, tail_number, make, model")
-          .or(`tail_number.ilike.${like},make.ilike.${like},model.ilike.${like}`)
+          .or(`tail_number.ilike.${quoted},make.ilike.${quoted},model.ilike.${quoted}`)
           .limit(5)
       : none,
   ]);
