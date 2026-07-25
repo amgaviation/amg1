@@ -234,4 +234,33 @@ export const TEAM_ROSTER = [
 ] as const;
 
 /** Affiliations shown in the footer and on /team. Verify membership is active before launch. */
-export const AFFILIATIONS = ["AOPA Member"] as const;
+/**
+ * Affiliations shown in the footer and on /team.
+ *
+ * An affiliation is a claim about a third party's endorsement of AMG, and an
+ * expired or lapsed membership displayed as current is exactly the kind of small
+ * untruth that costs a referral in a market this size. So verification is
+ * structural rather than a reminder: an entry renders only once `verifiedOn`
+ * carries a real date, and `renderableAffiliations()` is the only way the site
+ * reads this list.
+ *
+ * To publish one: confirm the membership is current, then set `verifiedOn` to
+ * the date you confirmed it. Re-check annually — the date is there so a stale
+ * claim is visible rather than invisible.
+ */
+export type Affiliation = {
+  label: string;
+  /** ISO date the membership was last confirmed current. null = do not display. */
+  verifiedOn: string | null;
+};
+
+export const AFFILIATIONS: readonly Affiliation[] = [
+  // TODO: confirm this membership is active, then set verifiedOn: "YYYY-MM-DD".
+  // Until then it does not render — an unverified badge is worse than no badge.
+  { label: "AOPA Member", verifiedOn: null },
+] as const;
+
+/** The affiliations the site may actually display. */
+export function renderableAffiliations(): Affiliation[] {
+  return AFFILIATIONS.filter((a) => Boolean(a.verifiedOn?.trim()));
+}

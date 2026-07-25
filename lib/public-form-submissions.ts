@@ -140,7 +140,18 @@ async function sendLeadAlertSms(
   missionRef: string | null,
 ): Promise<string[]> {
   const recipients = leadAlertRecipients();
-  if (!recipients.length) return [];
+  if (!recipients.length) {
+    // Not an error — the alert is opt-in. But an unconfigured alert on a live
+    // site is indistinguishable from a working one until the first 9pm request
+    // goes unanswered, so say it out loud on every submission rather than
+    // returning quietly. Surfaces as a warning in the submission result too,
+    // which is what the admin sees.
+    console.warn(
+      "[lead-alert] AMG_LEAD_ALERT_SMS_TO is not set — no SMS sent for this request. " +
+        "Emails were still delivered. Set it in Vercel Production to be paged on new leads.",
+    );
+    return ["lead SMS: AMG_LEAD_ALERT_SMS_TO not configured (emails still sent)"];
+  }
 
   const body = buildLeadAlertSms(submission, missionRef);
   const results = await Promise.all(
