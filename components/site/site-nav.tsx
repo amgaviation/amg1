@@ -92,18 +92,20 @@ export function SiteNav() {
           href="/"
           prefetch={false}
           onClick={closeMenu}
-          className="relative z-50 flex min-h-11 flex-col justify-center gap-1"
+          className="relative z-50 flex min-h-11 shrink-0 flex-col justify-center gap-1"
           aria-label="AMG Aviation Group home"
         >
+          {/* self-start: the column-flex parent's default align-items:stretch
+              would pull the wordmark to the tagline's width and distort it */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/logo-short.png"
             alt="AMG Aviation Group"
             width="1110"
             height="242"
-            className="h-6 w-auto md:h-7"
+            className="h-6 w-auto self-start md:h-7"
           />
-          <span className="font-mono text-[0.6875rem] uppercase [letter-spacing:0.2em] text-[var(--t2)] max-sm:hidden">
+          <span className="whitespace-nowrap font-mono text-[0.6875rem] uppercase [letter-spacing:0.2em] text-[var(--t2)] max-sm:hidden">
             Owner-controlled aviation support
           </span>
         </Link>
@@ -119,7 +121,7 @@ export function SiteNav() {
                   onClick={closeMenu}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "inline-flex min-h-11 items-center gap-1.5 rounded-sm px-3 font-mono text-[0.72rem] font-medium uppercase leading-none [letter-spacing:0.16em] text-white/[0.82] transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--instrument-ink)]",
+                    "inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-sm px-3 font-mono text-[0.72rem] font-medium uppercase leading-none [letter-spacing:0.16em] text-white/[0.82] transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--instrument-ink)]",
                     active && "bg-[rgba(11,94,212,0.08)] text-white"
                   )}
                 >
@@ -150,7 +152,7 @@ export function SiteNav() {
             href="/request"
             prefetch={false}
             onClick={closeMenu}
-            className="oc-btn oc-btn-light !hidden sm:!inline-flex"
+            className="oc-btn oc-btn-light whitespace-nowrap !hidden sm:!inline-flex"
           >
             Request Support
             <ArrowUpRight className="h-4 w-4" />
