@@ -321,3 +321,8 @@ export function buildLeadEmail(
     body: mergeLeadEmailText(copy.body, variables),
   };
 }
+
+/** Narrow untrusted form input to a known business type. */
+export function isLeadBusinessType(value: string): value is LeadBusinessType {
+  return LEAD_BUSINESS_TYPES.some((entry) => entry.value === value);
+}

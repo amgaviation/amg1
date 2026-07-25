@@ -4,8 +4,23 @@ import { createServiceClient } from "@/lib/supabase/server";
 import type { SessionUser } from "@/lib/portal/session";
 import { queueNotificationDeliveries } from "@/lib/portal/notification-delivery";
 
+/**
+ * Who performed an audited action.
+ *
+ * Widened beyond SessionUser so background automation can be recorded honestly:
+ * a null id and a role outside the portal vocabulary say "no person did this",
+ * which is more truthful than borrowing an admin's identity for work an
+ * unattended workflow performed. actor_id and actor_role are both nullable
+ * columns, so this is representable.
+ */
+export type AuditActor = {
+  id: string | null;
+  email: string;
+  role: SessionUser["role"] | "automation";
+};
+
 export type AuditInput = {
-  actor: Pick<SessionUser, "id" | "email" | "role">;
+  actor: AuditActor;
   action: string;
   detail?: string;
   entityType?: string;

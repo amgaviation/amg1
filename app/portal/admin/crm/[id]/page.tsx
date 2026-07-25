@@ -21,6 +21,8 @@ import {
 } from "@/app/portal/actions/crm";
 import { LeadEmailComposer } from "@/components/portal/admin/lead-email-composer";
 import { LEAD_SOURCES, LEAD_STAGES, getLead, listLeadActivities } from "@/lib/portal/crm";
+import { LEAD_BUSINESS_TYPES } from "@/lib/portal/lead-email-templates";
+import { startLeadOutreach } from "@/app/portal/actions/outreach";
 import { emailProviderStatus, getLeadEmailTemplates } from "@/lib/portal/lead-email";
 import { detectLeadBusinessType } from "@/lib/portal/lead-email-templates";
 import { listAllUsers, listClients } from "@/lib/portal/queries";
@@ -189,6 +191,54 @@ export default async function LeadDetailPage({
               <TextField label="Lost Reason (if lost)" name="lost_reason" defaultValue={lead.lost_reason ?? ""} />
               <SubmitButton variant="outline" pendingText="Updating…">Update Stage</SubmitButton>
             </form>
+          </SectionCard>
+
+          {/* Automated outreach */}
+          <SectionCard
+            title="Automated Outreach"
+            icon="send"
+            description="Three touches — introduction, then two follow-ups — sent on the schedule in Settings. Stops automatically if the lead replies, unsubscribes, or moves past Contacted."
+          >
+            {lead.do_not_contact ? (
+              <p className="text-sm text-[var(--deck-text-3)]">
+                This lead is marked do-not-contact. Outreach will not send.
+              </p>
+            ) : !lead.email ? (
+              <p className="text-sm text-[var(--deck-text-3)]">
+                Add an email address before starting outreach.
+              </p>
+            ) : (
+              <form action={startLeadOutreach} className="grid gap-3">
+                <input type="hidden" name="lead_id" value={lead.id} />
+                <input type="hidden" name="back_to" value={`/portal/admin/crm/${lead.id}`} />
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <span className="text-[var(--deck-text-3)]">Status:</span>
+                  <StatusBadge
+                    tone={
+                      lead.outreach_state === "completed"
+                        ? "success"
+                        : lead.outreach_state === "stopped" || lead.outreach_state === "suppressed"
+                          ? "neutral"
+                          : lead.outreach_state === "failed"
+                            ? "danger"
+                            : lead.outreach_state
+                              ? "info"
+                              : "neutral"
+                    }
+                    label={lead.outreach_state ? titleCase(lead.outreach_state) : "Not started"}
+                  />
+                </div>
+                <SelectField
+                  label="Business Type"
+                  name="business_type"
+                  defaultValue="general"
+                  options={LEAD_BUSINESS_TYPES.map((t) => ({ value: t.value, label: t.label }))}
+                />
+                <SubmitButton variant="outline" pendingText="Starting…">
+                  {lead.outreach_state ? "Restart Outreach" : "Start Outreach"}
+                </SubmitButton>
+              </form>
+            )}
           </SectionCard>
 
           {/* Convert */}
