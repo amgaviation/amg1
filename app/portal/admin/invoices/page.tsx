@@ -147,7 +147,7 @@ export default async function AdminInvoicesPage({
     `${basePath}${listQuery(params, { new: tab, page: undefined })}`;
   const createTabClass = (active: boolean) =>
     cn(
-      "shrink-0 rounded-[0.25rem] border px-3 py-1.5 font-mono text-[0.68rem] font-semibold uppercase [letter-spacing:0.08em] transition-colors",
+      "shrink-0 rounded-full border px-3 py-1.5 text-[0.8125rem] font-medium transition-colors",
       active
         ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]"
         : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"

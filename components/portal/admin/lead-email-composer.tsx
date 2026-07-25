@@ -73,7 +73,7 @@ export function LeadEmailComposer({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="grid gap-1.5">
-              <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">Template</span>
+              <span className="deck-eyebrow !text-[var(--deck-text-2)]">Template</span>
               <DeckSelect
                 aria-label="Email template"
                 options={STAGE_OPTIONS}
@@ -87,7 +87,7 @@ export function LeadEmailComposer({
               />
             </label>
             <label className="grid gap-1.5">
-              <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">Business Type</span>
+              <span className="deck-eyebrow !text-[var(--deck-text-2)]">Business Type</span>
               <DeckSelect
                 aria-label="Lead business type"
                 options={TYPE_OPTIONS}
@@ -124,7 +124,7 @@ export function LeadEmailComposer({
             </p>
             <div className="flex flex-wrap items-end gap-2">
               <label className="grid gap-1.5">
-                <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">
+                <span className="deck-eyebrow !text-[var(--deck-text-2)]">
                   Send later
                 </span>
                 <input

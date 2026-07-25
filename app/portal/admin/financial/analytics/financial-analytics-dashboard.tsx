@@ -71,7 +71,7 @@ function MetricCard({ metric }: { metric: FinancialMetric }) {
       <div className="flex min-h-8 items-start justify-between gap-3">
         <p className="deck-eyebrow-chrome">{metric.label}</p>
         {metric.delta !== null ? (
-          <span className={cn("inline-flex items-center gap-1 rounded-[0.25rem] border px-2 py-1 text-[0.68rem] font-semibold", positive ? "border-[var(--deck-success-line)] text-[var(--deck-success)]" : "border-[var(--deck-warn-line)] text-[var(--deck-warn)]")}>
+          <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[0.68rem] font-semibold", positive ? "border-[var(--deck-success-line)] text-[var(--deck-success)]" : "border-[var(--deck-warn-line)] text-[var(--deck-warn)]")}>
             {positive ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}
             {metric.deltaLabel}
           </span>
@@ -80,7 +80,7 @@ function MetricCard({ metric }: { metric: FinancialMetric }) {
       <p className="deck-display mt-4 text-3xl leading-none text-[var(--deck-chrome-text)] sm:text-4xl">{metric.formatted}</p>
       <p className="mt-3 text-xs leading-5 text-[var(--deck-chrome-muted)]">{metric.detail}</p>
       <p
-        className="deck-eyebrow-chrome mt-3 truncate border-t border-[var(--deck-chrome-line)] pt-3 !text-[0.6rem]"
+        className="deck-eyebrow-chrome mt-3 truncate border-t border-[var(--deck-chrome-line)] pt-3"
         title={metric.source}
       >
         {metric.source}
@@ -102,12 +102,12 @@ function BarChart({ points, secondaryLabel }: { points: ChartPoint[]; secondaryL
         <div key={point.label} className="grid grid-cols-[4.6rem_1fr_5.2rem] items-center gap-3 text-xs">
           <span className="truncate font-mono text-[var(--deck-text-3)]">{point.label}</span>
           <div className="space-y-1">
-            <div className="h-3 overflow-hidden rounded-[0.25rem] bg-[var(--deck-line)]">
-              <div className="h-full rounded-[0.25rem] bg-[var(--deck-success)]" style={{ width: `${Math.max(2, (point.value / max) * 100)}%` }} />
+            <div className="h-3 overflow-hidden rounded-lg bg-[var(--deck-line)]">
+              <div className="h-full rounded-lg bg-[var(--deck-success)]" style={{ width: `${Math.max(2, (point.value / max) * 100)}%` }} />
             </div>
             {typeof point.secondary === "number" ? (
-              <div className="h-2 overflow-hidden rounded-[0.25rem] bg-[var(--deck-line)]">
-                <div className="h-full rounded-[0.25rem] bg-[var(--deck-info)]" style={{ width: `${Math.max(2, (point.secondary / max) * 100)}%` }} />
+              <div className="h-2 overflow-hidden rounded-lg bg-[var(--deck-line)]">
+                <div className="h-full rounded-lg bg-[var(--deck-info)]" style={{ width: `${Math.max(2, (point.secondary / max) * 100)}%` }} />
               </div>
             ) : null}
           </div>
@@ -127,8 +127,8 @@ function BreakdownChart({ points }: { points: BreakdownPoint[] }) {
       {points.map((point) => (
         <div key={point.label} className="grid grid-cols-[minmax(5.5rem,9rem)_1fr_5.5rem] items-center gap-3 text-xs">
           <span className="truncate text-[var(--deck-text-2)]">{labelize(point.label)}</span>
-          <div className="h-3 overflow-hidden rounded-[0.25rem] bg-[var(--deck-line)]">
-            <div className="h-full rounded-[0.25rem] bg-[var(--deck-accent)]" style={{ width: `${Math.max(2, (point.value / max) * 100)}%` }} />
+          <div className="h-3 overflow-hidden rounded-lg bg-[var(--deck-line)]">
+            <div className="h-full rounded-lg bg-[var(--deck-accent)]" style={{ width: `${Math.max(2, (point.value / max) * 100)}%` }} />
           </div>
           <span className="text-right font-mono text-[var(--deck-text-2)]">{formatMoney(point.value)}</span>
         </div>
@@ -279,12 +279,12 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
       <section className="rounded-md border border-[var(--deck-chrome-line)] bg-[var(--deck-ink)] p-4 text-[var(--deck-chrome-text)] shadow-[var(--deck-shadow-card)]">
         <div className="grid gap-4 xl:grid-cols-[1fr_auto] xl:items-center">
           <div className="flex flex-wrap items-center gap-3 text-xs">
-            <span className="inline-flex min-h-9 items-center gap-2 rounded-[0.25rem] border border-[var(--deck-success-line)] bg-[var(--deck-success-tint)] px-3 font-semibold text-[var(--deck-success)]">
+            <span className="inline-flex min-h-9 items-center gap-2 rounded-full border border-[var(--deck-success-line)] bg-[var(--deck-success-tint)] px-3 font-semibold text-[var(--deck-success)]">
               <Activity className="h-4 w-4" />
               Stripe {labelize(data.stripeHealth.mode)}
             </span>
             <span className="text-[var(--deck-chrome-muted)]">Last refreshed {formatDateTime(data.reportedAt)}</span>
-            <span className={cn("inline-flex min-h-8 items-center rounded-[0.25rem] px-3 font-semibold", autoRefresh ? "bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]" : "bg-[var(--deck-chrome-2)] text-[var(--deck-chrome-muted)]")}>
+            <span className={cn("inline-flex min-h-8 items-center rounded-full px-3 font-semibold", autoRefresh ? "bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]" : "bg-[var(--deck-chrome-2)] text-[var(--deck-chrome-muted)]")}>
               Auto-refresh {autoRefresh ? "on" : "off"}
             </span>
           </div>

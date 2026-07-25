@@ -410,7 +410,7 @@ export function AdminRecordManager({
                   type="button"
                   onClick={() => updateFilter(chipFilter!.key, option.value)}
                   className={cn(
-                    "shrink-0 rounded-[0.25rem] border px-3 py-2 font-mono text-[0.68rem] font-semibold uppercase [letter-spacing:0.08em] transition-colors sm:py-1.5",
+                    "shrink-0 rounded-full border px-3 py-2 text-[0.8125rem] font-medium transition-colors sm:py-1.5",
                     active
                       ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]"
                       : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"
@@ -426,7 +426,7 @@ export function AdminRecordManager({
                 onClick={() => setShowHidden((value) => !value)}
                 aria-pressed={showHidden}
                 className={cn(
-                  "shrink-0 rounded-[0.25rem] border border-dashed px-3 py-2 font-mono text-[0.68rem] font-semibold uppercase [letter-spacing:0.08em] transition-colors sm:py-1.5",
+                  "shrink-0 rounded-full border border-dashed px-3 py-2 text-[0.8125rem] font-medium transition-colors sm:py-1.5",
                   showHidden
                     ? "border-[var(--deck-warn)] bg-[var(--deck-warn-tint)] text-[var(--deck-warn)]"
                     : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-3)] hover:border-[var(--deck-warn-line)] hover:text-[var(--deck-text-2)]"
@@ -548,7 +548,7 @@ export function AdminRecordManager({
                       </th>
                     ) : null}
                     {columns.map((column) => (
-                      <th key={column.key} className={cn("whitespace-nowrap bg-[var(--deck-panel-2)] px-4 py-3 text-left text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]", column.className)}>
+                      <th key={column.key} className={cn("whitespace-nowrap bg-[var(--deck-panel-2)] px-4 py-3 text-left text-xs font-medium text-[var(--deck-text-3)]", column.className)}>
                         {column.sortable ? (
                           <button type="button" className="inline-flex items-center gap-1 rounded-sm outline-none transition-colors hover:text-[var(--deck-text)] focus-visible:ring-2 focus-visible:ring-[var(--deck-accent)]" onClick={() => toggleSort(column.key)}>
                             {column.label}
@@ -561,7 +561,7 @@ export function AdminRecordManager({
                         )}
                       </th>
                     ))}
-                    <th data-portal-table-actions className="min-w-[6.5rem] bg-[var(--deck-panel-2)] px-4 py-3 text-right text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]">
+                    <th data-portal-table-actions className="min-w-[6.5rem] bg-[var(--deck-panel-2)] px-4 py-3 text-right text-xs font-medium text-[var(--deck-text-3)]">
                       <span className="sr-only">Open record</span>
                     </th>
                   </tr>
@@ -625,7 +625,7 @@ export function AdminRecordManager({
                             <StatusBadge label={row.secondaryStatus.label} tone={row.secondaryStatus.tone} />
                           ) : typeof row.cells[column.key] === "boolean" ? (
                             <span className={cn(
-                              "inline-flex rounded-[0.25rem] border px-2 py-0.5 text-xs font-semibold",
+                              "inline-flex rounded-full border px-2 py-0.5 text-xs font-medium",
                               row.cells[column.key]
                                 ? "border-[var(--deck-success-line)] bg-[var(--deck-success-tint)] text-[var(--deck-success)]"
                                 : "border-[var(--deck-line)] bg-[var(--deck-panel-2)] text-[var(--deck-text-2)]"
@@ -692,7 +692,7 @@ export function AdminRecordManager({
                     <dl className="mt-3 grid gap-2 text-sm text-[var(--deck-text-2)]">
                       {columns.slice(2, 6).map((column) => (
                         <div key={column.key} className="grid grid-cols-[7rem_1fr] gap-2">
-                          <dt className="text-xs font-semibold uppercase text-[var(--deck-text-3)]">{column.label}</dt>
+                          <dt className="text-xs font-medium text-[var(--deck-text-3)]">{column.label}</dt>
                           <dd className="min-w-0 truncate">{valueText(row.cells[column.key])}</dd>
                         </div>
                       ))}
@@ -775,7 +775,7 @@ export function AdminRecordManager({
             <div className="grid gap-4 p-5 sm:p-6">
               {recordActions.length || archiveAction ? (
                 <section className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4">
-                  <h4 className="text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]">Review Actions</h4>
+                  <h4 className="text-xs font-medium text-[var(--deck-text-3)]">Review Actions</h4>
                   <div data-portal-action-bar className="mt-3 flex flex-wrap gap-2">
                     {recordActions.map((action) => (
                       <form key={`${selected.id}-detail-${action.label}`} action={action.action}>
@@ -818,11 +818,11 @@ export function AdminRecordManager({
               ) : null}
               {(selected.detailSections?.length ? selected.detailSections : [{ title: "Details", rows: selected.details }]).map((section) => (
                 <section key={section.title} className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-4">
-                  <h4 className="text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]">{section.title}</h4>
+                  <h4 className="text-xs font-medium text-[var(--deck-text-3)]">{section.title}</h4>
                   <dl className="mt-3">
                     {section.rows.map((detail) => (
                       <div key={`${section.title}-${detail.label}`} className="grid gap-1 border-b border-[var(--deck-line)] py-2.5 last:border-0 sm:grid-cols-[10rem_1fr] sm:gap-4">
-                        <dt className="text-[0.64rem] font-bold uppercase [letter-spacing:0.12em] text-[var(--deck-text-3)]">{detail.label}</dt>
+                        <dt className="text-xs font-medium text-[var(--deck-text-3)]">{detail.label}</dt>
                         <dd className="min-w-0 break-words text-sm leading-5 text-[var(--deck-text)]">{valueText(detail.value)}</dd>
                       </div>
                     ))}
@@ -832,7 +832,7 @@ export function AdminRecordManager({
 
               {selected.tabs?.map((tab) => (
                 <section key={tab.title} className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-4">
-                  <h4 className="text-[0.66rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]">{tab.title}</h4>
+                  <h4 className="text-xs font-medium text-[var(--deck-text-3)]">{tab.title}</h4>
                   {tab.rows?.length ? (
                     <dl className="mt-3">
                       {tab.rows.map((item) => (
@@ -870,7 +870,7 @@ export function AdminRecordManager({
               <div className="grid gap-4 md:grid-cols-2">
                 {fields.map((field) => (
                   <div key={field.name} className={cn("grid gap-2", field.fullWidth && "md:col-span-2", field.className)}>
-                    <label htmlFor={field.name} className="text-[0.64rem] font-bold uppercase [letter-spacing:0.16em] text-[var(--deck-text-3)]">
+                    <label htmlFor={field.name} className="text-xs font-medium text-[var(--deck-text-3)]">
                       {field.label}
                       {field.required ? <span className="ml-1 text-[var(--deck-accent-ink)]">*</span> : null}
                     </label>

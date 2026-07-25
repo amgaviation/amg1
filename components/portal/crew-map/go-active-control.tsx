@@ -245,7 +245,7 @@ export function GoActiveControl({
             </p>
 
             {/* Airport */}
-            <label className="mt-4 block text-[0.66rem] font-bold uppercase [letter-spacing:0.14em] text-[var(--deck-text-3)]">
+            <label className="mt-4 block text-xs font-medium text-[var(--deck-text-3)]">
               My airport
             </label>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -255,7 +255,7 @@ export function GoActiveControl({
                   type="button"
                   onClick={() => setAirport(a.code)}
                   className={cn(
-                    "rounded-[0.25rem] border px-3 py-1.5 text-xs transition-colors",
+                    "rounded-full border px-3 py-1.5 text-[0.8125rem] font-medium transition-colors",
                     airport === a.code
                       ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]"
                       : "border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] text-[var(--deck-text)]"
@@ -310,7 +310,7 @@ export function GoActiveControl({
             ) : null}
 
             {/* Duration */}
-            <label className="mt-4 block text-[0.66rem] font-bold uppercase [letter-spacing:0.14em] text-[var(--deck-text-3)]">
+            <label className="mt-4 block text-xs font-medium text-[var(--deck-text-3)]">
               Duration
             </label>
             <div className="mt-1.5 flex gap-1.5">

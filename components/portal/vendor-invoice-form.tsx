@@ -124,7 +124,7 @@ export function VendorInvoiceForm({
                 key={line.key}
                 className="grid gap-2 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel-2)] p-3 sm:grid-cols-[1fr_6rem_8rem_7rem_2.5rem] sm:items-end"
               >
-                <label className="grid gap-1.5 text-[0.6rem] font-bold uppercase [letter-spacing:0.14em] text-[var(--deck-text-3)]">
+                <label className="grid gap-1.5 text-xs font-medium text-[var(--deck-text-3)]">
                   Description
                   <input
                     name="line_description"
@@ -134,7 +134,7 @@ export function VendorInvoiceForm({
                     className="deck-input font-normal normal-case"
                   />
                 </label>
-                <label className="grid gap-1.5 text-[0.6rem] font-bold uppercase [letter-spacing:0.14em] text-[var(--deck-text-3)]">
+                <label className="grid gap-1.5 text-xs font-medium text-[var(--deck-text-3)]">
                   Qty
                   <input
                     name="line_quantity"
@@ -144,7 +144,7 @@ export function VendorInvoiceForm({
                     className="deck-input font-normal normal-case"
                   />
                 </label>
-                <label className="grid gap-1.5 text-[0.6rem] font-bold uppercase [letter-spacing:0.14em] text-[var(--deck-text-3)]">
+                <label className="grid gap-1.5 text-xs font-medium text-[var(--deck-text-3)]">
                   Rate / Amount
                   <input
                     name="line_unit_amount"

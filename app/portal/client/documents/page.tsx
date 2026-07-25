@@ -53,7 +53,7 @@ export default async function ClientDocumentsPage({
           </div>
           <div className="mt-4">
             <label className="grid gap-2">
-              <span className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">
+              <span className="deck-eyebrow !text-[var(--deck-text-2)]">
                 File <span className="text-[var(--deck-accent-ink)]">*</span>
               </span>
               <input

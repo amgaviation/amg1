@@ -228,7 +228,7 @@ export function RecordEditForm({
         <div className="grid gap-4 md:grid-cols-2">
           {fields.map((field) => (
             <div key={field.name} className={cn("grid gap-2", field.fullWidth && "md:col-span-2")}>
-              <label htmlFor={field.name} className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-2)]">
+              <label htmlFor={field.name} className="deck-eyebrow !text-[var(--deck-text-2)]">
                 {field.label}
                 {field.required ? <span className="ml-1 text-[var(--deck-accent-ink)]">*</span> : null}
               </label>

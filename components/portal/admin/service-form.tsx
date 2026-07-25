@@ -1190,7 +1190,7 @@ export function ServiceForm({
         >
           <dl className="grid gap-3 text-sm md:grid-cols-2">
             <div>
-              <dt className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-3)]">Sync Status</dt>
+              <dt className="deck-eyebrow !text-[var(--deck-text-3)]">Sync Status</dt>
               <dd className="mt-1">
                 <StatusBadge
                   label={service.stripe_sync_status.replace(/_/g, " ")}
@@ -1199,15 +1199,15 @@ export function ServiceForm({
               </dd>
             </div>
             <div>
-              <dt className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-3)]">Sync Error</dt>
+              <dt className="deck-eyebrow !text-[var(--deck-text-3)]">Sync Error</dt>
               <dd className="mt-1 break-words text-[var(--deck-text)]">{service.stripe_sync_error ?? "—"}</dd>
             </div>
             <div>
-              <dt className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-3)]">Product ID (Test)</dt>
+              <dt className="deck-eyebrow !text-[var(--deck-text-3)]">Product ID (Test)</dt>
               <dd className="deck-mono mt-1 break-all">{service.stripe_product_id_test ?? "not created"}</dd>
             </div>
             <div>
-              <dt className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-3)]">Product ID (Live)</dt>
+              <dt className="deck-eyebrow !text-[var(--deck-text-3)]">Product ID (Live)</dt>
               <dd className="deck-mono mt-1 break-all">{service.stripe_product_id_live ?? "not created"}</dd>
             </div>
           </dl>

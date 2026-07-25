@@ -139,7 +139,7 @@ export function DataTable<T>({
                 <TableHead
                   key={i}
                   className={cn(
-                    "h-10 text-[0.62rem] font-bold uppercase text-[var(--deck-text-3)] [letter-spacing:0.14em]",
+                    "h-10 text-xs font-medium text-[var(--deck-text-3)]",
                     c.align === "right" && "text-right",
                     c.align === "center" && "text-center",
                     c.className

@@ -64,7 +64,7 @@ export function SectionCard({
         <header className="deck-card-header">
           <div className="flex min-w-0 items-center gap-3">
             {icon ? (
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]">
                 <PortalIcon name={icon} className="h-4 w-4" />
               </span>
             ) : null}
@@ -121,7 +121,7 @@ export function StatCard({
   const inner = (
     <div
       className={cn(
-        "deck-card deck-gold-rail h-full p-5 pl-6",
+        "deck-card deck-gold-rail h-full p-5",
         href && "deck-card-hover"
       )}
     >
@@ -161,8 +161,8 @@ export function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-md border border-dashed border-[var(--deck-line-strong)] bg-[var(--deck-panel-2)] px-6 py-12 text-center">
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-md border border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)]">
+    <div className="flex flex-col items-center justify-center rounded-[var(--radius)] bg-[var(--deck-panel-2)] px-6 py-12 text-center">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--deck-accent-tint)]">
         <PortalIcon name={icon} className="h-5 w-5 text-[var(--deck-accent-ink)]" />
       </div>
       <h3 className="text-sm font-semibold text-[var(--deck-text)]">{title}</h3>
@@ -193,7 +193,7 @@ export function DetailRow({
 }) {
   return (
     <div className="grid gap-1 border-b border-[var(--deck-line)] py-3 last:border-0 sm:grid-cols-[9.5rem_1fr] sm:gap-4">
-      <dt className="deck-eyebrow !text-[0.6rem] !text-[var(--deck-text-3)] sm:self-center">
+      <dt className="deck-eyebrow !text-[var(--deck-text-3)] sm:self-center">
         {label}
       </dt>
       <dd className="min-w-0 break-words text-sm text-[var(--deck-text)]">{children}</dd>
@@ -248,7 +248,7 @@ export function Notice({
     warn: "bg-[var(--deck-warn)]",
   }[tone];
   return (
-    <div className={cn("relative overflow-hidden rounded-md border px-4 py-3 pl-5 text-sm", cls)}>
+    <div className={cn("relative overflow-hidden rounded-[calc(var(--radius)-2px)] border px-4 py-3 pl-5 text-sm", cls)}>
       <span className={cn("absolute inset-y-0 left-0 w-1", rail)} aria-hidden />
       {children}
     </div>
@@ -385,9 +385,9 @@ export function FilterTabs({
             href={qs ? `${basePath}?${qs}` : basePath}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "shrink-0 rounded-[0.25rem] border px-3 py-2 font-mono text-[0.68rem] font-semibold uppercase [letter-spacing:0.08em] transition-colors sm:py-1.5",
+              "shrink-0 rounded-full border px-3.5 py-2 text-[0.8125rem] font-medium transition-colors sm:py-1.5",
               active
-                ? "border-[var(--deck-accent)] bg-[var(--deck-accent-tint)] text-[var(--deck-accent-ink)]"
+                ? "border-transparent bg-[var(--deck-accent)] text-[var(--deck-on-accent)]"
                 : "border-[var(--deck-line-strong)] bg-[var(--deck-panel)] text-[var(--deck-text-2)] hover:border-[var(--deck-accent-line)] hover:text-[var(--deck-text)]"
             )}
           >
