@@ -283,7 +283,13 @@ export async function signIn(formData: FormData) {
 export async function signInWithGoogle(formData: FormData) {
   await clearPortalIntroPending();
 
-  const next = safeRedirectPath(field(formData, "next"), "/portal");
+  // Portal destinations only. safeRedirectPath alone accepts any same-origin
+  // path, and this value is a hidden form field the caller can edit — it should
+  // not be able to steer the post-login landing anywhere but the portal.
+  // /auth/callback no longer derives its access decision from this, but there
+  // is no reason to keep handing it a wider range than it needs.
+  const requested = safeRedirectPath(field(formData, "next"), "/portal");
+  const next = requested.startsWith("/portal") ? requested : "/portal";
   const supabase = await createClient();
 
   const { data, error } = await supabase.auth.signInWithOAuth({
