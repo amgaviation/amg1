@@ -6,7 +6,10 @@
  * operational control, and fees are flat published coordination fees.
  *
  * Keep this module client-safe: no "server-only", no supabase imports.
+ * site-config is plain constants and safe on both sides.
  */
+
+import { DAY_RATES } from "@/lib/site-config";
 
 export const LEAD_BUSINESS_TYPES = [
   { value: "mro", label: "MRO / Service Center / Avionics" },
@@ -58,6 +61,25 @@ export function detectLeadBusinessType(lead: {
   return "general";
 }
 
+/**
+ * Day-rate copy for outreach, derived from DAY_RATES rather than restated.
+ *
+ * These templates previously hardcoded "piston $500-$800/day, turboprop and
+ * light jet $1,000-$1,600/day, updated quarterly" — none of which matched
+ * lib/site-config.ts. A prospect who clicked through from the email saw
+ * different numbers than the email had quoted them. That was survivable while
+ * a human reviewed each send; it is not once the sequence sends unattended to
+ * strangers, where a pricing claim that contradicts the published page is both
+ * a trust problem and a deceptive-advertising one.
+ *
+ * Deriving it means the email and the pricing page cannot disagree. Change the
+ * rates in one place.
+ */
+function dayRateSummary(): string {
+  const bands = DAY_RATES.bands.map((b) => `${b.band}: ${b.range}`).join("; ");
+  return `Published network day-rate benchmarks (${DAY_RATES.updated}) — ${bands}. ${DAY_RATES.note}`;
+}
+
 const SIGN_OFF = `{{sender_name}}
 AMG Aviation Group — Crew Sourcing & Flight Coordination
 {{ops_email}}`;
@@ -88,15 +110,13 @@ const INTRO_PITCH: Record<LeadBusinessType, { subject: string; pitch: string; ex
     subject: "Contract pilots for your aircraft — quoted within 24 business hours",
     pitch:
       "AMG Aviation Group sources vetted contract pilots for Part 91 owners — maintenance ferries, repositioning, contract PIC/SIC coverage, and insurance-required second pilots. You retain operational control of your aircraft at all times.",
-    extra:
-      "Published network day-rate ranges: piston $500–$800/day, turboprop and light jet $1,000–$1,600/day, updated quarterly.",
+    extra: dayRateSummary(),
   },
   flight_dept: {
     subject: "Contract PIC/SIC coverage — quoted within 24 business hours",
     pitch:
       "AMG Aviation Group backs up small flight departments with vetted contract PIC/SIC coverage — vacations, overlapping trips, medical downtime, and insurance-required second pilots — without adding headcount. Your department keeps operational control at all times.",
-    extra:
-      "Published network day-rate ranges: piston $500–$800/day, turboprop and light jet $1,000–$1,600/day, updated quarterly.",
+    extra: dayRateSummary(),
   },
   general: {
     subject: "Crew sourcing and flight coordination — quoted within 24 business hours",
