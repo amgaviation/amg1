@@ -18,6 +18,23 @@ function withStatus(base: string, key: string, value: string) {
   return `${base}${separator}${key}=${encodeURIComponent(value)}`;
 }
 
+/**
+ * Editing a lead template revokes its standing approval.
+ *
+ * The automated sequence sends unattended, so the approval flag is the record
+ * that a human read this exact copy and accepted it going to strangers. New
+ * copy has not been read, and quietly inheriting the old approval would defeat
+ * the gate entirely. Only the lead family matters — every other template family
+ * is sent by a person who is looking at it.
+ */
+async function revokeOutreachApprovalIfLeadTemplate(db: any, key: string) {
+  if (!key.startsWith("lead_")) return;
+  await db
+    .from("outreach_settings")
+    .update({ templates_approved_at: null, templates_approved_by: null })
+    .eq("id", true);
+}
+
 /** Save a global override for an email template (upsert by template_key). */
 export async function saveEmailTemplate(formData: FormData) {
   const admin = await actor(["admin"], "settings.edit");
@@ -67,6 +84,8 @@ export async function saveEmailTemplate(formData: FormData) {
     if (error) redirect(withStatus(backTo, "error", "save"));
   }
 
+  await revokeOutreachApprovalIfLeadTemplate(db, key);
+
   await logAuditEvent({
     actor: admin,
     action: "email_template_saved",
@@ -92,6 +111,10 @@ export async function resetEmailTemplate(formData: FormData) {
   const db = (await createServiceClient()) as any;
   const { error } = await db.from("communication_templates").delete().eq("template_key", key);
   if (error) redirect(withStatus(backTo, "error", "save"));
+
+  // Reverting to the shipped default is still a copy change the approver has
+  // not seen in its current form.
+  await revokeOutreachApprovalIfLeadTemplate(db, key);
 
   await logAuditEvent({
     actor: admin,

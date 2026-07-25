@@ -41,6 +41,7 @@ const [
   submissions,
   billingConfig,
   billingDocuments,
+  leadTemplates,
 ] = await Promise.all([
   read("components/flightdeck/hero.tsx"),
   read("components/flightdeck/capabilities.tsx"),
@@ -64,6 +65,7 @@ const [
   read("lib/public-form-submissions.ts"),
   read("lib/portal/billing-config.ts"),
   read("lib/portal/billing-documents.ts"),
+  read("lib/portal/lead-email-templates.ts"),
 ]);
 
 /**
@@ -232,6 +234,27 @@ assert.match(
 // ---------------------------------------------------------------------------
 assert.match(submissions, /AMG_LEAD_ALERT_SMS_TO/, "submissions: lead SMS alert was removed");
 assert.match(submissions, /sendSms/, "submissions: lead SMS alert was removed");
+
+// ---------------------------------------------------------------------------
+// Automated outreach quotes prices to strangers with no human in the loop, so
+// the email and the pricing page must not be able to disagree. The templates
+// used to restate day rates by hand and had drifted to figures that appeared
+// nowhere in site-config: piston $500-$800 against a real $400-600, turboprop
+// and light jet $1,000-$1,600 against a real $700-1,200. Derive, never restate.
+// ---------------------------------------------------------------------------
+assert.match(
+  leadTemplates,
+  /DAY_RATES\.bands\.map/,
+  "lead templates: day rates must be derived from site-config DAY_RATES, not restated",
+);
+// prose() first: the doc comment above dayRateSummary quotes the old drifted
+// figures in order to explain why they were removed, and a raw match fires on
+// the explanation rather than on live copy.
+assert.doesNotMatch(
+  prose(leadTemplates),
+  /\$\d[\d,]*\s*[–-]\s*\$?\d[\d,]*\s*\/\s*day/i,
+  "lead templates: found a hardcoded day-rate range — derive it from DAY_RATES instead",
+);
 
 console.log(
   "Public copy, positioning, reach, pricing structure, pilot-payment, shop-referral, SLA, portal, billing-disclaimer, and lead-alert checks passed.",

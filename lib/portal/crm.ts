@@ -24,6 +24,12 @@ export type Lead = {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  contact_first_name?: string | null;
+  contact_title?: string | null;
+  do_not_contact?: boolean;
+  last_outreach_at?: string | null;
+  outreach_state?: string | null;
+  outreach_started_at?: string | null;
   owner?: { id: string; full_name: string | null; email: string } | null;
   converted_profile?: { id: string; full_name: string | null; email: string } | null;
 };

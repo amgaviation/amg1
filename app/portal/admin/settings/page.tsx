@@ -20,6 +20,7 @@ const TAB_OPTIONS = [
   { label: "Billing", value: "billing" },
   { label: "FlightWall", value: "flightwall" },
   { label: "Email Templates", value: "email-templates" },
+  { label: "Lead Outreach", value: "outreach" },
   { label: "Compliance", value: "compliance" },
   { label: "Operational", value: "operational" },
 ];
@@ -178,6 +179,27 @@ export default async function AdminSettingsPage({
             <p>
               <Link href="/portal/admin/settings/email-templates" className="text-[var(--deck-accent-ink)] hover:underline">
                 Edit email templates
+              </Link>
+            </p>
+          </div>
+        </SectionCard>
+      ) : null}
+
+      {tab === "outreach" ? (
+        <SectionCard title="Lead Outreach" icon="send">
+          <div className="grid gap-3 text-sm text-[var(--deck-text-2)]">
+            <p>
+              Automated three-touch outreach to sales-pipeline leads: an introduction, then two
+              follow-ups if the lead stays silent. Control the master switch, the daily send cap,
+              follow-up spacing, and the days and hours sends are allowed to land.
+            </p>
+            <p>
+              Nothing sends unless automation is switched on <em>and</em> the lead templates have
+              been approved. Editing any lead template clears that approval.
+            </p>
+            <p>
+              <Link href="/portal/admin/settings/outreach" className="text-[var(--deck-accent-ink)] hover:underline">
+                Open lead outreach settings
               </Link>
             </p>
           </div>
