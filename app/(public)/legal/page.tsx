@@ -18,11 +18,11 @@ export const metadata: Metadata = {
 const PLAN_TERMS = [
   {
     title: "Cancellation",
-    body: "Monthly plans cancel anytime, effective at the end of the billing period. Annual plans refund unused whole months minus one.",
+    body: "Cancel a coordination engagement any time before a pilot accepts and the fee is refunded in full. Once a pilot has accepted the assignment, the coordination fee is earned. Terms between the owner and the pilot are set in their own agreement.",
   },
   {
-    title: "Missed-window remedy",
-    body: "If AMG misses a committed quote or sourcing window on a Standard or Priority plan, that month's plan fee is credited — automatically, without being asked.",
+    title: "If we miss a committed window",
+    body: "If AMG commits to a quote or sourcing window in writing and misses it, the coordination fee is refunded in full, without being asked. AMG does not guarantee crew availability and will decline early rather than leave a request open.",
   },
   {
     title: "When AMG declines a mission",
@@ -30,7 +30,7 @@ const PLAN_TERMS = [
   },
   {
     title: "Fees and pass-throughs",
-    body: "AMG's fees are flat, published coordination fees and plan fees. Pilot compensation, travel, lodging, and per diem pass through at cost with receipts and zero markup.",
+    body: "AMG charges one flat, published coordination fee. Pilot compensation, travel, lodging, and per diem are paid by the aircraft owner directly to the pilot or vendor. AMG does not handle trip funds, does not mark up third-party costs, and accepts no vendor rebates.",
   },
 ] as const;
 

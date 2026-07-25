@@ -68,9 +68,13 @@ export async function submitQuoteRequest(formData: FormData) {
     );
   }
 
-  // Insurance information rides in the notes because the shared form schema
-  // has no dedicated columns for it.
+  // Insurance details and the requester's relationship to the aircraft ride in
+  // the notes because the shared form schema has no dedicated columns. The
+  // relationship leads: AMG contracts with the owner and nobody else, so
+  // whether this submitter IS the owner determines who the callback has to
+  // reach and whether a referral conversation is needed at all.
   const specLines = [
+    ["Relationship to aircraft", formData.get("requester_relationship")],
     ["Insurance carrier", formData.get("insurance_carrier")],
     ["Insurance broker contact", formData.get("insurance_broker")],
   ]

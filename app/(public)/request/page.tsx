@@ -48,6 +48,24 @@ export default function RequestPage() {
           </div>
 
           <aside className="grid gap-4 lg:sticky lg:top-28" data-stagger-container>
+            {/* An owner whose pilot just called out is not going to fill in
+                twelve fields. Give the urgent case a one-tap exit to a human
+                before they bounce; the form is for everything else. */}
+            <div className="oc-card-dark p-6" data-stagger-item>
+              <p className="microlabel-amber">Need it handled today?</p>
+              <p className="mt-4 text-sm leading-6 text-[var(--oc-aluminum)]">
+                Skip the form and call. Same-day and next-morning requests are worth a two-minute
+                conversation.
+              </p>
+              <PhoneLink
+                source="request_urgent"
+                className="oc-btn oc-btn-light mt-5 w-full justify-center"
+              />
+              <p className="oc-mono mt-3 text-[0.7rem] uppercase [letter-spacing:0.14em] text-[var(--oc-aluminum)]">
+                Request line 0700–2200 ET
+              </p>
+            </div>
+
             <div className="hud-frame oc-card-dark p-6" data-stagger-item>
               <p className="microlabel-amber">Manual review</p>
               <p className="mt-4 text-sm leading-6 text-[var(--oc-aluminum)]">AMG reviews each request before discussing availability, scope, pricing, or next steps.</p>

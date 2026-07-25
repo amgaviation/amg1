@@ -3,32 +3,47 @@
 import { useEffect, useState } from "react";
 
 /**
- * D+7 payment clock for the /pilots hero — the page's signature strip.
- * Seven day cells (D+1 … D+7) fill in sequence on first view, ending on
- * the amber-tagged D+7 "PAID" cell: the network's strongest published
- * commitment (payment within 7 days of mission completion) drawn as an
- * instrument instead of stated in a bullet.
+ * Pre-launch clearance strip for the /pilots hero — the page's signature
+ * instrument. Four gates fill in sequence on first view, ending on the
+ * amber-tagged "CLEARED" cell.
  *
- * Idiom matches the other secondary-page instruments: server markup is
- * the finished state, mount arms the empty state only when motion is
- * allowed, cells transition in via CSS, and a safety timer force-fills.
+ * This replaces the old D+7 payment clock, which drew AMG's strongest published
+ * commitment as "paid within 7 days, whether or not the owner has paid us yet."
+ * AMG no longer pays pilots: the pilot contracts with and is paid by the
+ * aircraft owner, which keeps AMG out of paymaster and 1099 territory and off
+ * the hook for fronting five figures of pilot pay against a four-figure fee.
+ *
+ * What a contract pilot actually wants to know before accepting an assignment
+ * from an unfamiliar coordinator is whether the terms are real and whether the
+ * insurance is sorted before he shows up. That is what this now draws.
+ *
+ * Idiom matches the other secondary-page instruments: server markup is the
+ * finished state, mount arms the empty state only when motion is allowed, cells
+ * transition in via CSS, and a safety timer force-fills.
  */
 
-const DAYS = [1, 2, 3, 4, 5, 6, 7] as const;
+const GATES = [
+  { n: 1, label: "Rate" },
+  { n: 2, label: "Expenses" },
+  { n: 3, label: "Insurance" },
+  { n: 4, label: "Launch" },
+] as const;
 
-export function PilotsPayClock() {
-  const [lit, setLit] = useState(7);
+export function PilotsClearanceStrip() {
+  // Explicit number: GATES is `as const`, so `GATES.length` narrows to the
+  // literal 4 and the setter would reject every intermediate value.
+  const [lit, setLit] = useState<number>(GATES.length);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     setLit(0);
     const timers: number[] = [];
-    DAYS.forEach((day) => {
-      timers.push(window.setTimeout(() => setLit(day), 350 + day * 130));
+    GATES.forEach((gate) => {
+      timers.push(window.setTimeout(() => setLit(gate.n), 350 + gate.n * 190));
     });
     // Safety net: the strip always ends full.
-    timers.push(window.setTimeout(() => setLit(7), 2000));
+    timers.push(window.setTimeout(() => setLit(GATES.length), 2000));
     return () => timers.forEach((t) => window.clearTimeout(t));
   }, []);
 
@@ -36,27 +51,30 @@ export function PilotsPayClock() {
     <div
       className="pay-clock"
       role="img"
-      aria-label="Payment clock: paid within 7 days of mission completion, whether or not the owner has paid AMG yet."
+      aria-label="Pre-launch clearance: your day rate, your expenses, and the owner's written insurance approval are all confirmed before you launch."
     >
       <div className="flex items-baseline justify-between gap-4">
-        <p className="microlabel-green">Payment clock</p>
-        <p className="microlabel hidden sm:block">From mission completion</p>
+        <p className="microlabel-green">Before you launch</p>
+        <p className="microlabel hidden sm:block">Confirmed in writing</p>
       </div>
-      <div className="mt-3 grid grid-cols-7 gap-1.5" aria-hidden="true">
-        {DAYS.map((day) => (
+      <div className="mt-3 grid grid-cols-4 gap-1.5" aria-hidden="true">
+        {GATES.map((gate) => (
           <div
-            key={day}
-            data-lit={day <= lit ? "true" : undefined}
-            data-final={day === 7 ? "true" : undefined}
+            key={gate.n}
+            data-lit={gate.n <= lit ? "true" : undefined}
+            data-final={gate.n === GATES.length ? "true" : undefined}
             className="pc-cell"
           >
-            <span className="pc-day">D+{day}</span>
-            {day === 7 ? <span className="pc-paid">Paid</span> : null}
+            <span className="pc-day">{gate.label}</span>
+            {gate.n === GATES.length ? <span className="pc-paid">Cleared</span> : null}
           </div>
         ))}
       </div>
-      <p className="mt-3 max-w-md font-mono text-[10px] uppercase leading-relaxed [letter-spacing:0.18em] text-[var(--oc-aluminum-2)]" aria-hidden="true">
-        Paid within 7 days — whether or not the owner has paid us yet
+      <p
+        className="mt-3 max-w-md font-mono text-[10px] uppercase leading-relaxed [letter-spacing:0.18em] text-[var(--oc-aluminum-2)]"
+        aria-hidden="true"
+      >
+        Rate, expenses, and the owner&apos;s insurance approval — settled before you go
       </p>
 
       <style>{`

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { ArrowUpRight, Menu, Phone, X } from "lucide-react";
 import { PUBLIC_NAV_LINKS } from "@/lib/navigation";
 import { PhoneLink } from "@/components/site/tracked-link";
+import { SITE } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
 
 function normalizePath(path: string) {
@@ -134,6 +135,17 @@ export function SiteNav() {
             source="nav"
             className="oc-mono hidden min-h-11 items-center gap-2 whitespace-nowrap px-2 text-sm text-white/[0.74] transition-colors hover:text-white lg:inline-flex"
           />
+          {/* Below lg the full number does not fit, and burying the only phone
+              number behind a hamburger costs us the caller whose pilot just
+              called out. A tap target stays on the bar at every width. */}
+          <PhoneLink
+            source="nav_compact"
+            label=""
+            aria-label={`Call AMG at ${SITE.phone}`}
+            className="inline-flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-sm border border-white/[0.18] text-white transition-colors hover:border-white/[0.42] lg:hidden"
+          >
+            <Phone className="h-5 w-5" aria-hidden="true" />
+          </PhoneLink>
           <Link
             href="/request"
             prefetch={false}

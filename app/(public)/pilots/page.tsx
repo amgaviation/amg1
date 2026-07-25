@@ -4,7 +4,7 @@ import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import { TrackedLink } from "@/components/site/tracked-link";
 import { HeadlineReveal } from "@/components/site/headline-reveal";
-import { PilotsPayClock } from "@/components/site/pilots-pay-clock";
+import { PilotsClearanceStrip } from "@/components/site/pilots-clearance-strip";
 import { DAY_RATES, SITE, SITE_EVENTS } from "@/lib/site-config";
 
 /** The site's brand CTA styling, applied to a click-tracked apply link. */
@@ -21,10 +21,22 @@ function ApplyArrow() {
   );
 }
 
+/**
+ * The recruiting hook here used to be "paid in 7 days — whether or not the
+ * owner has paid us yet." That promise made AMG the pilot's paymaster (the
+ * employment and control optic AMG exists to avoid), the 1099-NEC payer, and
+ * — operationally — a lender fronting five figures of pilot pay against an
+ * $895 fee. A single 14-day turbine coverage at $1,650/day is $23,100 AMG had
+ * promised to advance before collecting a dollar.
+ *
+ * The pilot now contracts with and is paid by the aircraft owner. AMG's value
+ * to the pilot is the work, the paperwork, and getting the owner's insurance
+ * approval confirmed in writing before launch — not float.
+ */
 export const metadata: Metadata = {
-  title: "Pilots — Fly Vetted Missions, Paid in 7 Days",
+  title: "Pilots — Fly Vetted Missions, Terms Confirmed Before You Launch",
   description:
-    "Join AMG's contract pilot network: we source the clients, paper the agreements, and pay you within 7 days of mission completion — no exclusivity, no invoice-chasing.",
+    "Join AMG's contract pilot network: we source the clients, paper the agreements, and confirm your rate, terms, and the owner's insurance approval in writing before you launch. No exclusivity.",
 };
 
 const VETTING = [
@@ -40,12 +52,12 @@ const WHAT_YOU_GET = [
     body: `Ferries, repositioning, crew coverage, and second-pilot work across ${SITE.region}.`,
   },
   {
-    title: "Paid in 7 days",
-    body: "Within 7 days of mission completion — whether or not the owner has paid us yet.",
+    title: "Terms confirmed in writing",
+    body: "Your day rate, expenses, and the owner's written insurance approval are confirmed before you launch. You contract with the owner and the owner pays you directly.",
   },
   {
     title: "Zero client-chasing",
-    body: "We source the clients, paper the agreements, and handle every invoice and receipt.",
+    body: "We source the clients and paper the agreements. If an owner is slow to pay, we chase it with you.",
   },
   {
     title: "No exclusivity",
@@ -57,8 +69,8 @@ export default function PilotsPage() {
   return (
     <>
       {/* Hero — the only image-led hero on the secondary pages: crew
-          walking out at dusk, copy over a hard left scrim, and the D+7
-          payment clock as the page's signature instrument. */}
+          walking out at dusk, copy over a hard left scrim, and the pre-launch
+          clearance strip as the page's signature instrument. */}
       <section className="relative isolate overflow-hidden border-b border-[rgba(169,180,198,0.1)]">
         <div className="absolute inset-0" aria-hidden="true">
           <Image
@@ -95,16 +107,16 @@ export default function PilotsPage() {
         <div className="oc-shell relative z-10 pb-16 pt-[calc(var(--public-header-height)+4.5rem)]">
           <div className="max-w-3xl" data-stagger-container>
             <p className="oc-eyebrow" data-stagger-item>
-              Vetted once // paid in 7 days
+              Vetted once // terms up front
             </p>
             <HeadlineReveal
               className="oc-display mt-4 text-5xl text-[var(--oc-paper)] sm:text-6xl"
-              lines={["Fly vetted missions.", "Get paid in 7 days."]}
+              lines={["Fly vetted missions.", "Know the terms first."]}
             />
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-[var(--oc-aluminum)]" data-stagger-item>
               Join AMG&apos;s contract pilot network: we source the clients, paper the agreements,
-              and pay you within 7 days of mission completion — whether or not the owner has paid
-              us yet.
+              and confirm your rate, your expenses, and the owner&apos;s written insurance approval
+              before you launch. You contract with the owner and the owner pays you directly.
             </p>
             <div className="mt-9" data-stagger-item>
               <TrackedLink
@@ -122,7 +134,7 @@ export default function PilotsPage() {
           </div>
 
           <div className="mt-14 max-w-xl" data-scroll-animate>
-            <PilotsPayClock />
+            <PilotsClearanceStrip />
           </div>
         </div>
       </section>

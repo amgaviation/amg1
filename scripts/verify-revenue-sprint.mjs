@@ -1,10 +1,47 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
+/**
+ * Copy guard for the public site.
+ *
+ * Everything asserted here is either a claim someone could hold AMG to, or a
+ * legal position the rest of the business depends on. The point is that a
+ * future copy edit cannot quietly undo a decision made for a compliance reason.
+ *
+ * Assertions test INTENT, not strings. "No retainer, no subscription" is the
+ * opposite of selling a subscription, so a bare /subscription/ match would be a
+ * false positive — guard the product (a monthly price, a plan name) instead.
+ *
+ * Run: npm run revenue-sprint:verify
+ */
+
 const root = new URL("..", import.meta.url);
 const read = (path) => readFile(new URL(path, root), "utf8");
 
-const [hero, capabilities, pricing, request, form, proxy, maintenance, crm, siteConfig, howItWorks, nav, footer] = await Promise.all([
+const [
+  hero,
+  capabilities,
+  pricing,
+  request,
+  form,
+  proxy,
+  maintenance,
+  crm,
+  siteConfig,
+  howItWorks,
+  nav,
+  footer,
+  ticker,
+  forShops,
+  pilots,
+  pilotsApply,
+  team,
+  legal,
+  publicLayout,
+  submissions,
+  billingConfig,
+  billingDocuments,
+] = await Promise.all([
   read("components/flightdeck/hero.tsx"),
   read("components/flightdeck/capabilities.tsx"),
   read("app/(public)/pricing/page.tsx"),
@@ -17,23 +54,160 @@ const [hero, capabilities, pricing, request, form, proxy, maintenance, crm, site
   read("app/(public)/how-it-works/page.tsx"),
   read("components/site/site-nav.tsx"),
   read("components/site/site-footer.tsx"),
+  read("components/flightdeck/ticker.tsx"),
+  read("app/(public)/for-shops/page.tsx"),
+  read("app/(public)/pilots/page.tsx"),
+  read("app/(public)/pilots/apply/page.tsx"),
+  read("app/(public)/team/page.tsx"),
+  read("app/(public)/legal/page.tsx"),
+  read("app/(public)/layout.tsx"),
+  read("lib/public-form-submissions.ts"),
+  read("lib/portal/billing-config.ts"),
+  read("lib/portal/billing-documents.ts"),
 ]);
 
-for (const copy of [hero, capabilities, pricing, request, form]) {
-  assert.doesNotMatch(copy, /private charter|booking|aircraft-and-crew/i);
+/**
+ * Strip JS/JSX comments before matching copy. Several of these files carry
+ * comments that quote the exact phrasing being banned, to explain why — those
+ * must not trip the assertion they document.
+ */
+const prose = (source) =>
+  source.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
+
+const PUBLIC_COPY = { hero, capabilities, pricing, request, form, forShops, pilots, team, legal };
+
+// ---------------------------------------------------------------------------
+// Positioning: AMG coordinates. It does not carry, and it does not dispatch.
+// ---------------------------------------------------------------------------
+for (const [name, source] of Object.entries(PUBLIC_COPY)) {
+  assert.doesNotMatch(
+    prose(source),
+    /private charter|aircraft-and-crew|\bbooking\b|\bdispatch(es|ing)?\b/i,
+    `${name}: uses operator/carrier vocabulary`,
+  );
 }
+
 assert.match(hero, /Your pilot is unavailable/);
 assert.match(hero, /Your aircraft still needs to move/);
 assert.match(capabilities, /Insurance requires another pilot/);
 assert.match(capabilities, /flight department needs overflow/i);
+
+// ---------------------------------------------------------------------------
+// Reach: Florida and the Southeast. Not the country, not the world. Structured
+// data counts — a nationwide claim is still a claim when a machine reads it.
+// ---------------------------------------------------------------------------
+for (const [name, source] of Object.entries({ ...PUBLIC_COPY, ticker })) {
+  assert.doesNotMatch(
+    prose(source),
+    /worldwide|nationwide|around the globe/i,
+    `${name}: claims reach AMG does not have`,
+  );
+}
+assert.doesNotMatch(
+  publicLayout,
+  /areaServed:\s*"United States"/,
+  "layout: structured data claims nationwide service",
+);
+assert.match(
+  publicLayout,
+  /"@type":\s*"ProfessionalService"/,
+  "layout: expected ProfessionalService schema",
+);
+
+// ---------------------------------------------------------------------------
+// Subscriptions are withdrawn until on-demand demand is proven.
+// ---------------------------------------------------------------------------
 assert.doesNotMatch(pricing, /Starting at \$995/);
-assert.doesNotMatch(pricing, /subscription|monthly plan/i);
-assert.doesNotMatch(howItWorks, /AMG Connect|24 business|12 business|4 business/i);
+assert.doesNotMatch(
+  prose(pricing),
+  /\$\d+\s*\/\s*mo\b|per month|monthly plan|Standard plan|Priority plan/i,
+  "pricing: reintroduced subscription pricing",
+);
+assert.doesNotMatch(
+  prose(legal),
+  /plan fee|Standard or Priority/i,
+  "legal: references subscription plans AMG does not sell",
+);
+assert.doesNotMatch(
+  siteConfig,
+  /export const (PLAN_TABLE|WORKED_EXAMPLE)\b/,
+  "site-config: the subscription tables were deleted deliberately",
+);
+
+// ---------------------------------------------------------------------------
+// The money structure: the owner pays the pilot. AMG never handles trip funds.
+// ---------------------------------------------------------------------------
+assert.match(
+  prose(pricing),
+  /paid by you directly to/i,
+  "pricing: must state the owner pays the pilot directly",
+);
+assert.doesNotMatch(
+  prose(pricing) + prose(legal),
+  /pass(ed)?[- ]through at cost with receipts/i,
+  "pricing/legal: reinstated the pass-through billing model",
+);
+assert.match(
+  billingConfig,
+  /AMG invoices its coordination fee only/,
+  "billing-config: invoice terms must not promise pass-through billing",
+);
+
+// ---------------------------------------------------------------------------
+// AMG is not the pilot's paymaster and is not fronting pilot pay.
+// ---------------------------------------------------------------------------
+for (const [name, source] of Object.entries({ pilots, pilotsApply, team, siteConfig })) {
+  assert.doesNotMatch(
+    prose(source),
+    /whether or not the owner has paid|paid (you )?within 7 days|paid in 7 days/i,
+    `${name}: reinstated the 7-day pilot payment promise`,
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Shops refer; owners contract. Never a standing arrangement sold to a non-owner.
+// ---------------------------------------------------------------------------
+assert.doesNotMatch(
+  prose(forShops),
+  /fleet agreement|tailored SLA|fee-credit remedy|under your shop's name/i,
+  "for-shops: reinstated the Fleet Agreement framing",
+);
+assert.match(
+  prose(forShops),
+  /owner contracts with AMG|owner signs AMG's coordination agreement/i,
+  "for-shops: must state the owner is the contracting party",
+);
+
+// ---------------------------------------------------------------------------
+// Response time: one commitment, phrased the same way everywhere. The tiered
+// windows (12/4 business hours) belonged to the withdrawn subscription plans.
+// ---------------------------------------------------------------------------
+for (const [name, source] of Object.entries({ howItWorks, ticker, team })) {
+  assert.doesNotMatch(
+    prose(source),
+    /\b(12|4)\s*business\s*h/i,
+    `${name}: reintroduced tiered SLA windows`,
+  );
+}
+assert.match(ticker, /24 business hrs/, "ticker: expected the 24-business-hour commitment");
+assert.doesNotMatch(
+  prose(howItWorks),
+  /does not promise availability, acceptance, or a response time/i,
+  "how-it-works: contradicts the 24-business-hour commitment made elsewhere",
+);
+
+// ---------------------------------------------------------------------------
+// Portal stays closed; intake stays honest.
+// ---------------------------------------------------------------------------
+assert.doesNotMatch(howItWorks, /AMG Connect/i);
 assert.doesNotMatch(nav, /\/connect|AMG Connect/);
 assert.doesNotMatch(footer, /\/connect|AMG Connect/);
 assert.match(siteConfig, /Temporary contract pilot coverage/);
 assert.match(siteConfig, /Insurance \/ mentor \/ second-pilot need/);
-assert.match(form, /not confirmed service, a crew assignment, aircraft movement, or an operational commitment/i);
+assert.match(
+  form,
+  /not confirmed service, a crew assignment, aircraft movement, or an operational commitment/i,
+);
 assert.match(proxy, /portal\\\/\(client\|crew\|partner\)/);
 assert.match(proxy, /portal-maintenance/);
 assert.match(maintenance, /External portal access is temporarily unavailable/);
@@ -41,4 +215,24 @@ assert.match(crm, /"proposal"/);
 assert.match(crm, /"won"/);
 assert.match(crm, /next_action_at/);
 
-console.log("Revenue sprint copy, intake, maintenance-mode, and CRM workflow checks passed.");
+// ---------------------------------------------------------------------------
+// The operational-control statement reaches the paperwork, not just the footer.
+// A claims adjuster reads the invoice attached to the job, not the website.
+// ---------------------------------------------------------------------------
+assert.match(siteConfig, /not an air carrier, commercial operator, air charter broker/i);
+assert.match(siteConfig, /14 CFR 1\.1/);
+assert.match(
+  billingDocuments,
+  /OPERATIONAL_CONTROL_STATEMENT/,
+  "billing-documents: quotes and invoices must carry the control statement",
+);
+
+// ---------------------------------------------------------------------------
+// A lead that arrives at 21:40 has to reach a human.
+// ---------------------------------------------------------------------------
+assert.match(submissions, /AMG_LEAD_ALERT_SMS_TO/, "submissions: lead SMS alert was removed");
+assert.match(submissions, /sendSms/, "submissions: lead SMS alert was removed");
+
+console.log(
+  "Public copy, positioning, reach, pricing structure, pilot-payment, shop-referral, SLA, portal, billing-disclaimer, and lead-alert checks passed.",
+);

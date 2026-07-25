@@ -33,23 +33,32 @@ export function TrackedLink({
   );
 }
 
-/** tel: link for the published phone number; fires the phone_tap event. */
+/**
+ * tel: link for the published phone number; fires the phone_tap event.
+ *
+ * `children` wins over `label` so callers can render an icon-only tap target
+ * (pass `label=""` and an aria-label). Remaining props forward to the anchor.
+ */
 export function PhoneLink({
   className,
   label,
   source,
+  children,
+  ...rest
 }: {
   className?: string;
   label?: string;
   source: string;
-}) {
+  children?: React.ReactNode;
+} & Omit<React.ComponentProps<"a">, "href" | "onClick" | "className" | "children">) {
   return (
     <a
       href={SITE.phoneHref}
       className={className}
       onClick={() => trackSiteEvent(SITE_EVENTS.phoneTap, { source })}
+      {...rest}
     >
-      {label ?? SITE.phone}
+      {children ?? label ?? SITE.phone}
     </a>
   );
 }

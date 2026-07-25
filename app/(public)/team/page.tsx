@@ -4,7 +4,7 @@ import { PhoneLink } from "@/components/site/tracked-link";
 import { HeadlineReveal } from "@/components/site/headline-reveal";
 import { QuoteButton } from "@/components/site/quote-button";
 import { TeamDutyClock } from "@/components/site/team-duty-clock";
-import { AFFILIATIONS, SITE, TEAM_ROSTER } from "@/lib/site-config";
+import { AFFILIATIONS, AIRMAN_REGISTRY_URL, SITE, TEAM_ROSTER } from "@/lib/site-config";
 
 /**
  * Supporting facts column for the no-photo founder file. Published numbers
@@ -15,8 +15,8 @@ const FOUNDER_FACTS = [
   { label: "Based in", value: SITE.cityState },
   { label: "Serving", value: SITE.region.replace("the ", "") },
   { label: "Quote response", value: "24 business hrs" },
-  { label: "Pilot payment", value: "Within 7 days" },
-  { label: "Pass-through markup", value: "$0" },
+  { label: "Pilot engagement", value: "Direct with owner" },
+  { label: "Markup or rebate", value: "$0" },
 ] as const;
 
 /** The seats one senior team actually covers — the page's real message. */
@@ -122,7 +122,23 @@ export default function TeamPage() {
                 <h2 className="oc-display mt-3 text-3xl text-[var(--oc-paper)]">{person.name}</h2>
                 <p className="mt-1 text-sm font-semibold uppercase text-[var(--oc-blue)]">{person.role}</p>
                 {person.credentials ? (
-                  <p className="oc-mono mt-3 text-sm text-[var(--oc-aluminum)]">{person.credentials}</p>
+                  <>
+                    <p className="oc-mono mt-3 text-sm text-[var(--oc-aluminum)]">
+                      {person.credentials}
+                    </p>
+                    {/* Inviting the check is the point. Anyone deciding whether to
+                        hand AMG an aircraft problem can confirm the certificate
+                        themselves in about thirty seconds, and knowing that is
+                        what makes the claim worth making. */}
+                    <a
+                      href={AIRMAN_REGISTRY_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="oc-mono mt-2 inline-flex min-h-11 items-center text-xs uppercase [letter-spacing:0.14em] text-[var(--oc-blue)] underline-offset-4 hover:underline"
+                    >
+                      Verify at the FAA Airman Registry
+                    </a>
+                  </>
                 ) : null}
                 <div className="pub-draw-rule mt-5" aria-hidden="true" />
                 <p className="mt-5 max-w-2xl text-base leading-relaxed text-[var(--oc-aluminum)]">

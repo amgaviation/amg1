@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createServiceClient } from "@/lib/supabase/server";
+import { OPERATIONAL_CONTROL_STATEMENT } from "@/lib/site-config";
 
 export type BillingSettings = {
   id: "global";
@@ -45,13 +46,16 @@ export const DEFAULT_BILLING_SETTINGS: BillingSettings = {
   quote_terms:
     "Quotes are estimates based on currently available support details and are subject to aircraft status, crew availability, owner/operator approval, operating conditions, fuel, taxes, fees, and final AMG review.",
   invoice_terms:
-    "Invoices are due according to the terms shown on the invoice. Late, third-party, bank, wire, processing, airport, handling, international, and operational pass-through charges may be billed separately when applicable.",
+    "Invoices are due according to the terms shown on the invoice. AMG invoices its coordination fee only. Pilot compensation, positioning, per diem, lodging, fuel, and vendor costs are paid by the aircraft owner directly to the pilot or vendor and do not appear on an AMG invoice.",
   quote_disclaimer:
-    "This quote does not constitute mission acceptance, aircraft availability, crew assignment, operational authorization, or a binding commitment until the applicable support scope is reviewed and confirmed by AMG Aviation Group in writing.",
+    "This quote does not constitute mission acceptance, aircraft availability, crew assignment, operational authorization, or a binding commitment until the applicable support scope is reviewed and confirmed by AMG Aviation Group in writing. " +
+    OPERATIONAL_CONTROL_STATEMENT,
   invoice_disclaimer:
-    "This invoice reflects services, expenses, and pass-through charges known at issue. Additional verified charges may be invoiced separately.",
+    "This invoice reflects AMG coordination services known at issue. Additional verified AMG charges may be invoiced separately. " +
+    OPERATIONAL_CONTROL_STATEMENT,
   receipt_disclaimer:
-    "This receipt confirms payment recorded by AMG Aviation Group and does not waive any outstanding balance, adjustment, or separately billable pass-through charge.",
+    "This receipt confirms payment recorded by AMG Aviation Group and does not waive any outstanding balance or adjustment. " +
+    OPERATIONAL_CONTROL_STATEMENT,
   tax_rate: 0,
   default_deposit_percent: 0,
   auto_send_invoice_on_quote_approval: false,
