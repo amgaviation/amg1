@@ -240,7 +240,10 @@ export async function leadOutreach(leadId: string, businessType: LeadBusinessTyp
       return { leadId, outcome: "failed", reason: result.reason };
     }
 
-    await log(leadId, "outreach_email", `${touch.label} sent — "${result.subject}"`);
+    // "outreach_touch" not "outreach_email": sendLeadEmail already writes the
+    // outreach_email row that the daily cap counts, and a second one here would
+    // make every send count twice against the cap.
+    await log(leadId, "outreach_touch", `${touch.label} sent — "${result.subject}"`);
     await setLeadState(leadId, touch.state, true);
   }
 

@@ -216,9 +216,17 @@ export async function sendLeadEmail(
     }
 
     const activityBody = `To: ${recipientEmail}\nSubject: ${subject}\n\n${body}`;
+    // The type distinguishes who sent it, and that distinction is load-bearing.
+    // workflows/lead-outreach.ts decides whether to keep sending by looking for
+    // HUMAN activity on the lead, and "email" is one of the types it counts. If
+    // an automated send wrote "email", the sequence would see its own intro on
+    // the next check, conclude the lead had replied, and stop — turning a
+    // three-touch sequence into a one-touch one while logging that a reply
+    // arrived. "outreach_email" is also what the daily cap counts, so this row
+    // is the single record of one send.
     await db.from("crm_activities").insert({
       lead_id: lead.id,
-      activity_type: "email",
+      activity_type: user.id === null ? "outreach_email" : "email",
       body: activityBody.length > 4000 ? `${activityBody.slice(0, 3999)}…` : activityBody,
       created_by: user.id,
       created_by_email: user.email,

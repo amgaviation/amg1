@@ -800,6 +800,69 @@ async function findThreadForInbound(client: Db, inbound: NormalizedInboundMessag
   return null;
 }
 
+/**
+ * Attach an inbound reply to the CRM lead it came from.
+ *
+ * Outreach emails to leads carry no thread token — a lead is not a portal user,
+ * so there is no thread to reference — which means findThreadForInbound cannot
+ * match them and the reply lands in a fresh needs_review thread with no
+ * connection to the pipeline.
+ *
+ * Two things then go wrong, and the second is the serious one. The reply is
+ * invisible on the lead's own timeline, so the record of the conversation is
+ * split in half. And workflows/lead-outreach.ts decides whether to keep sending
+ * by looking for human activity ON THE LEAD, so without a row here the sequence
+ * would send follow-ups to somebody who has already written back. That is the
+ * single worst thing an outreach system can do.
+ *
+ * Matching on from-address is the only signal available. It is a weak key in
+ * general, but here the address is one AMG chose to email, so a message from it
+ * is a reply to that outreach by construction.
+ */
+async function linkInboundToLead(
+  client: Db,
+  inbound: NormalizedInboundMessage,
+  threadId: string,
+): Promise<void> {
+  if (!inbound.fromEmail) return;
+  try {
+    const { data: leads } = await (client as any)
+      .from("crm_leads")
+      .select("id, stage")
+      .ilike("email", inbound.fromEmail.trim())
+      .limit(5);
+    if (!leads?.length) return;
+
+    const body = (inbound.bodyText || stripHtml(inbound.bodyHtml ?? "") || "").slice(0, 3500);
+    for (const lead of leads) {
+      await (client as any).from("crm_activities").insert({
+        lead_id: lead.id,
+        activity_type: "reply",
+        body: `Reply from ${inbound.fromEmail}\nSubject: ${inbound.subject || "(none)"}\n\n${body}`,
+        created_by_email: inbound.fromEmail,
+      });
+
+      // A reply is the outcome outreach exists to produce, so move the lead out
+      // of the automated stages. Only from the stages automation owns; a lead a
+      // person has already advanced is left where they put it.
+      if (lead.stage === "new" || lead.stage === "contacted") {
+        await (client as any)
+          .from("crm_leads")
+          .update({ stage: "qualified", outreach_state: "completed", updated_at: now() })
+          .eq("id", lead.id);
+      }
+    }
+
+    await (client as any)
+      .from("communication_threads")
+      .update({ status: "needs_review" })
+      .eq("id", threadId);
+  } catch (error) {
+    // Never fail the webhook over CRM bookkeeping: the message itself is stored.
+    console.error("[inbound] failed to link reply to lead", error);
+  }
+}
+
 export async function storeInboundCommunication(inbound: NormalizedInboundMessage) {
   const client = await db();
   const { data: existing } = await client
@@ -906,6 +969,8 @@ export async function storeInboundCommunication(inbound: NormalizedInboundMessag
     updated_at: now(),
   }).eq("id", thread.id);
   await addAudit({ db: client, threadId: thread.id, messageId: message.id, eventType: "inbound_received", metadata: { provider: inbound.provider } });
+
+  await linkInboundToLead(client, inbound, thread.id);
 
   return { ok: true as const, threadId: thread.id, messageId: message.id, duplicate: false };
 }
