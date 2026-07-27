@@ -14,7 +14,6 @@ export const PUBLIC_NAV_LINKS: PublicNavItem[] = [
   { label: "Pricing", href: "/pricing" },
   { label: "How It Works", href: "/how-it-works" },
   ...(MISSION_CASE_STUDIES.length ? [{ label: "Missions", href: "/missions" }] : []),
-  { label: "Team", href: "/team" },
   { label: "Pilots", href: "/pilots" },
   { label: "For Shops", href: "/for-shops" },
 ];

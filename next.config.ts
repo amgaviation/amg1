@@ -76,7 +76,11 @@ const nextConfig: NextConfig = {
       { source: "/services", destination: "/how-it-works", permanent: true },
       { source: "/aircraft", destination: "/how-it-works", permanent: true },
       { source: "/aircraft-support", destination: "/how-it-works", permanent: true },
-      { source: "/about", destination: "/team", permanent: true },
+      { source: "/about", destination: "/how-it-works", permanent: true },
+      // /team is removed. Temporary (307) rather than permanent on purpose: a
+      // 301 is cached hard by browsers and would fight a decision to put the
+      // page back, which is a live possibility while the roster is empty.
+      { source: "/team", destination: "/how-it-works", permanent: false },
       { source: "/crew-network", destination: "/pilots", permanent: true },
       { source: "/crew-network/apply", destination: "/pilots/apply", permanent: true },
       { source: "/pilot-network", destination: "/pilots", permanent: true },

@@ -264,41 +264,6 @@ export const SITE_EVENTS = {
 
 export type SiteEventName = (typeof SITE_EVENTS)[keyof typeof SITE_EVENTS];
 
-/**
- * Public FAA Airman Registry inquiry. Linking it next to the founder's
- * credentials invites a stranger to check them — which is the move that faked
- * proof is trying, and failing, to imitate. §803 of the 2024 FAA
- * Reauthorization lets AIRCRAFT OWNERS withhold registry PII; it does not touch
- * AIRMAN certificate data, so this stays verifiable.
- */
-export const AIRMAN_REGISTRY_URL = "https://amsrvs.registry.faa.gov/airmeninquiry/";
-
-/**
- * Named personnel shown on /team.
- *
- * Empty at the owner's request. The page renders its personnel section only
- * when this has entries, so an empty roster is a supported state rather than a
- * heading with nothing under it — /team still carries the duty board, the
- * response commitment, and affiliations.
- *
- * Worth knowing before this stays empty for long: the reference doc
- * (docs/amg-aviation-group-reference.md) requires visible people, and a buyer
- * deciding whether to hand AMG an aircraft problem generally looks for who is
- * behind it. If a profile goes back, the entry needs a real photo and a
- * credentials line — certificate level, ratings, approximate total time, types,
- * and month of last recurrent, e.g. "ATP · CFII · ~4,200 hrs · PC-12 / TBM 940
- * · recurrent Mar 2026". Claim only what is true and current: it renders beside
- * a link inviting anyone to verify it against the FAA Airman Registry, which is
- * the entire point of publishing it.
- */
-export const TEAM_ROSTER: readonly {
-  name: string;
-  role: string;
-  credentials: string | null;
-  photo: string | null;
-  bio: string;
-}[] = [];
-
 /** Affiliations shown in the footer and on /team. Verify membership is active before launch. */
 /**
  * Affiliations shown in the footer and on /team.

@@ -6,7 +6,6 @@ const publicRoutes = [
   "/pricing",
   "/how-it-works",
   "/missions",
-  "/team",
   "/pilots",
   "/pilots/apply",
   "/for-shops",
