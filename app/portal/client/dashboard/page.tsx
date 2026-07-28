@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/portal/session";
 import { ProfileSetupNotice } from "@/components/portal/profile-setup-notice";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import {
   EmptyState,
   Notice,
@@ -25,7 +26,7 @@ import {
   MISSION_STATUS_TONE,
   toneFor,
 } from "@/lib/portal/constants";
-import { formatDateTime, formatMoney, formatRoute } from "@/lib/portal/format";
+import { formatMoney, formatRoute } from "@/lib/portal/format";
 
 export const metadata = { title: "Home - Client Portal" };
 
@@ -195,7 +196,7 @@ export default async function ClientDashboardPage({
                       AMG needs more information to keep this request moving
                     </span>
                     {" · "}
-                    {formatDateTime(m.requested_departure)}
+                    <LocalTime value={m.requested_departure} />
                   </>
                 }
                 trailing={<StatusBadge label="Respond" tone="warn" />}
@@ -251,7 +252,7 @@ export default async function ClientDashboardPage({
               </p>
               <p className="mt-2 text-sm text-[var(--deck-chrome-muted)]">
                 {nextDeparture.tail_number ?? "Aircraft TBD"} ·{" "}
-                {formatDateTime(nextDeparture.requested_departure)} ·{" "}
+                <LocalTime value={nextDeparture.requested_departure} /> ·{" "}
                 {CLIENT_MISSION_STATUS_LABEL[nextDeparture.status] ?? nextDeparture.status}
               </p>
             </div>
@@ -296,7 +297,7 @@ export default async function ClientDashboardPage({
                 title={formatRoute(m.departure_airport, m.arrival_airport)}
                 meta={
                   <>
-                    {m.tail_number ?? "Aircraft TBD"} · {formatDateTime(m.requested_departure)}
+                    {m.tail_number ?? "Aircraft TBD"} · <LocalTime value={m.requested_departure} />
                   </>
                 }
                 trailing={

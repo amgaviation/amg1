@@ -37,7 +37,27 @@ export type Lead = {
 export type LeadActivity = {
   id: string;
   lead_id: string;
-  activity_type: "note" | "call" | "email" | "meeting" | "stage_change";
+  /**
+   * Mirrors crm_activities_activity_type_check. The outreach automation writes
+   * most of these, so a type listing only the hand-entry values misrepresents
+   * what is actually in the table.
+   */
+  activity_type:
+    | "note"
+    | "call"
+    | "email"
+    | "meeting"
+    | "stage_change"
+    | "prospected"
+    | "outreach_started"
+    | "outreach_email"
+    | "outreach_touch"
+    | "outreach_skipped"
+    | "outreach_stopped"
+    | "outreach_failed"
+    | "outreach_completed"
+    | "reply"
+    | "unsubscribed";
   body: string;
   created_by: string | null;
   created_by_email: string | null;

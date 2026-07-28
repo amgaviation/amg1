@@ -4,10 +4,11 @@ import { PageHeader, SectionCard, EmptyState, Notice, StatCard } from "@/compone
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { FileField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { submitExpense } from "@/app/portal/actions/crew";
 import { listExpensesForCrew, listMissionsForCrew } from "@/lib/portal/queries";
 import { EXPENSE_CATEGORIES, EXPENSE_CATEGORY_LABEL, EXPENSE_STATUS_LABEL, EXPENSE_STATUS_TONE, toneFor } from "@/lib/portal/constants";
-import { formatDate, formatMoney } from "@/lib/portal/format";
+import { formatMoney } from "@/lib/portal/format";
 
 export const metadata = { title: "Expenses - Crew Portal" };
 
@@ -110,7 +111,7 @@ export default async function CrewExpensesPage({
               <div key={expense.id} className="deck-inset grid gap-3 p-4 sm:grid-cols-[1fr_auto_auto]">
                 <div>
                   <p className="text-sm font-semibold">{EXPENSE_CATEGORY_LABEL[expense.category] ?? expense.category} - {expense.mission?.ref ?? "General"}</p>
-                  <p className="mt-1 text-xs text-[var(--deck-text-2)]">{formatDate(expense.expense_date)} | {expense.merchant ?? "No merchant"} | {expense.notes ?? "No notes"}</p>
+                  <p className="mt-1 text-xs text-[var(--deck-text-2)]"><LocalTime value={expense.expense_date} mode="date" /> | {expense.merchant ?? "No merchant"} | {expense.notes ?? "No notes"}</p>
                 </div>
                 <p className="font-mono text-sm font-semibold">{formatMoney(expense.amount)}</p>
                 <StatusBadge label={EXPENSE_STATUS_LABEL[expense.status] ?? expense.status} tone={toneFor(EXPENSE_STATUS_TONE, expense.status)} />

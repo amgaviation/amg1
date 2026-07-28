@@ -3,6 +3,7 @@ import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard, EmptyState, Notice } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { listMissionsForCrew } from "@/lib/portal/queries";
 import { listPoolMissionsForCrew, describePoolRequirements, type PoolMission } from "@/lib/portal/pool";
 import { requestPoolMission } from "@/app/portal/actions/crew";
@@ -11,7 +12,7 @@ import {
   CREW_ASSIGNMENT_STATUS_LABEL, CREW_ASSIGNMENT_STATUS_TONE,
   URGENCY_LABEL, URGENCY_TONE, toneFor, labelFor
 } from "@/lib/portal/constants";
-import { formatRoute, formatDateTime } from "@/lib/portal/format";
+import { formatRoute } from "@/lib/portal/format";
 
 export const metadata = { title: "Assignments — Crew Portal" };
 
@@ -45,11 +46,11 @@ function PoolMissionCard({ mission }: { mission: PoolMission }) {
       <dl className="mt-3 grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-2">
         <div className="flex justify-between gap-3 sm:justify-start">
           <dt className="text-[var(--deck-text-2)]">Departure</dt>
-          <dd className="font-mono text-xs sm:ml-auto">{formatDateTime(mission.requested_departure)}</dd>
+          <dd className="font-mono text-xs sm:ml-auto"><LocalTime value={mission.requested_departure} /></dd>
         </div>
         <div className="flex justify-between gap-3 sm:justify-start">
           <dt className="text-[var(--deck-text-2)]">Arrival</dt>
-          <dd className="font-mono text-xs sm:ml-auto">{formatDateTime(mission.requested_arrival)}</dd>
+          <dd className="font-mono text-xs sm:ml-auto"><LocalTime value={mission.requested_arrival} /></dd>
         </div>
         <div className="flex justify-between gap-3 sm:justify-start">
           <dt className="text-[var(--deck-text-2)]">Aircraft Type</dt>
@@ -153,7 +154,7 @@ export default async function CrewMissionsPage({
                     <span className="text-xs text-[var(--deck-text-2)]">{MISSION_TYPE_LABEL[m.mission_type] ?? m.mission_type}</span>
                   </div>
                   <p className="mt-1 font-semibold">{formatRoute(m.departure_airport, m.arrival_airport)}</p>
-                  <p className="mt-0.5 text-xs text-[var(--deck-text-2)]">{m.tail_number ?? "—"} · {formatDateTime(m.requested_departure)}</p>
+                  <p className="mt-0.5 text-xs text-[var(--deck-text-2)]">{m.tail_number ?? "—"} · <LocalTime value={m.requested_departure} /></p>
                 </div>
                 <div className="flex flex-col gap-2 items-end">
                   <StatusBadge label={MISSION_STATUS_LABEL[m.status] ?? m.status} tone={toneFor(MISSION_STATUS_TONE, m.status)} />

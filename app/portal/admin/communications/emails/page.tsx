@@ -9,6 +9,7 @@ import {
 import { RecordListShell } from "@/components/portal/ui/record-list-shell";
 import { FormModal, RecordModal } from "@/components/portal/ui/record-modal";
 import { DataTable } from "@/components/portal/ui/data-table";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { Button } from "@/components/ui/button";
@@ -342,7 +343,7 @@ export default async function AdminEmailsPage({
                 priority: "secondary",
                 cell: (row) => (
                   <span className="deck-mono whitespace-nowrap text-[var(--deck-text-2)]">
-                    {formatDateTime(row.sent_at ?? row.created_at)}
+                    <LocalTime value={row.sent_at ?? row.created_at} />
                   </span>
                 ),
               },
@@ -464,14 +465,14 @@ export default async function AdminEmailsPage({
             </DetailRow>
             <DetailRow label="Timeline">
               <span className="grid gap-0.5 text-sm">
-                <span>Created {formatDateTime(record.created_at)}</span>
-                {record.sent_at ? <span>Sent {formatDateTime(record.sent_at)}</span> : null}
+                <span>Created <LocalTime value={record.created_at} /></span>
+                {record.sent_at ? <span>Sent <LocalTime value={record.sent_at} /></span> : null}
                 {record.delivered_at ? (
-                  <span>Delivered {formatDateTime(record.delivered_at)}</span>
+                  <span>Delivered <LocalTime value={record.delivered_at} /></span>
                 ) : null}
-                {record.failed_at ? <span>Failed {formatDateTime(record.failed_at)}</span> : null}
+                {record.failed_at ? <span>Failed <LocalTime value={record.failed_at} /></span> : null}
                 {record.received_at ? (
-                  <span>Received {formatDateTime(record.received_at)}</span>
+                  <span>Received <LocalTime value={record.received_at} /></span>
                 ) : null}
               </span>
             </DetailRow>

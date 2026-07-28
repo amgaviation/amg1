@@ -4,9 +4,10 @@ import { manageSubscriptionBilling } from "@/app/portal/actions/subscriptions";
 import { EmptyState, Notice, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { listSubscriptionsForClient } from "@/lib/portal/queries";
 import { SUBSCRIPTION_STATUS_LABEL, SUBSCRIPTION_STATUS_TONE, toneFor } from "@/lib/portal/constants";
-import { formatDate, formatMoney } from "@/lib/portal/format";
+import { formatMoney } from "@/lib/portal/format";
 
 export const metadata = { title: "Subscriptions - Client Portal" };
 
@@ -59,7 +60,7 @@ export default async function ClientSubscriptionsPage() {
                   <span>{subscription.included_admin_hours} admin hrs</span>
                 </div>
                 <div className="mt-4 flex flex-wrap justify-between gap-3 text-xs">
-                  <span className="text-[var(--deck-text-2)]">Renews {formatDate(subscription.current_period_end ?? subscription.renewal_date)}</span>
+                  <span className="text-[var(--deck-text-2)]">Renews <LocalTime value={subscription.current_period_end ?? subscription.renewal_date} mode="date" /></span>
                   <span className="font-semibold text-[var(--deck-accent-ink)]">
                     {formatMoney(Number(subscription.amount_cents ?? 0) > 0 ? Number(subscription.amount_cents) / 100 : Number(subscription.custom_price ?? subscription.monthly_price))} {subscription.billing_cadence}
                   </span>

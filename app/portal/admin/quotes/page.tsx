@@ -5,6 +5,7 @@ import { TableSelectionScope } from "@/components/portal/ui/data-table-selection
 import { BulkResultNotice } from "@/components/portal/ui/bulk-result-notice";
 import { bulkDeleteQuotes } from "@/app/portal/actions/bulk-records";
 import { DetailRow, EmptyState, FilterTabs } from "@/components/portal/ui/primitives";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { RecordListShell } from "@/components/portal/ui/record-list-shell";
 import { RecordModal } from "@/components/portal/ui/record-modal";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -252,7 +253,7 @@ export default async function AdminQuotesPage({
                   hideOnMobile: true,
                   cell: (row) => (
                     <span className="whitespace-nowrap text-[var(--deck-text-2)]">
-                      {formatDateTime(row.created_at)}
+                      <LocalTime value={row.created_at} />
                     </span>
                   ),
                 },
@@ -389,17 +390,17 @@ export default async function AdminQuotesPage({
               )}
             </DetailRow>
             {record.expires_at ? (
-              <DetailRow label="Expires">{formatDate(record.expires_at)}</DetailRow>
+              <DetailRow label="Expires"><LocalTime value={record.expires_at} mode="date" /></DetailRow>
             ) : null}
             <DetailRow label="Timeline">
               <span className="grid gap-0.5 text-sm">
-                <span>Created {formatDateTime(record.created_at)}</span>
-                {record.sent_at ? <span>Sent {formatDateTime(record.sent_at)}</span> : null}
+                <span>Created <LocalTime value={record.created_at} /></span>
+                {record.sent_at ? <span>Sent <LocalTime value={record.sent_at} /></span> : null}
                 {record.approved_at ? (
-                  <span>Approved {formatDateTime(record.approved_at)}</span>
+                  <span>Approved <LocalTime value={record.approved_at} /></span>
                 ) : null}
                 {record.rejected_at ? (
-                  <span>Rejected {formatDateTime(record.rejected_at)}</span>
+                  <span>Rejected <LocalTime value={record.rejected_at} /></span>
                 ) : null}
               </span>
             </DetailRow>

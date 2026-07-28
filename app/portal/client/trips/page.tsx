@@ -10,6 +10,7 @@ import {
   SectionCard,
 } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { Button } from "@/components/ui/button";
 import { listMissionsForClient } from "@/lib/portal/queries";
 import {
@@ -20,7 +21,7 @@ import {
   URGENCY_TONE,
   toneFor,
 } from "@/lib/portal/constants";
-import { formatDateTime, formatRoute } from "@/lib/portal/format";
+import { formatRoute } from "@/lib/portal/format";
 
 export const metadata = { title: "Support Requests - Client Portal" };
 
@@ -99,7 +100,7 @@ export default async function ClientTripsPage({
                   <>
                     {MISSION_TYPE_LABEL[m.mission_type] ?? m.mission_type} ·{" "}
                     {m.tail_number ?? "Aircraft TBD"} ·{" "}
-                    {formatDateTime(m.requested_departure)} · {m.passenger_count} pax
+                    <LocalTime value={m.requested_departure} /> · {m.passenger_count} pax
                   </>
                 }
                 trailing={

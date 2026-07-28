@@ -12,6 +12,7 @@ import {
   detailValue,
   type DetailFormField,
 } from "@/components/portal/admin/record-detail";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { Notice, PageHeader, SectionCard, Timeline } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -412,7 +413,7 @@ export default async function AdminCrewDetailPage({
                         <div>
                           <p className="text-sm font-semibold text-[var(--deck-text)]">{message.subject}</p>
                           <p className="mt-1 font-mono text-xs text-[var(--deck-text-3)]">
-                            {formatDateTime(message.sentAt ?? message.createdAt)} - {message.recipientEmail}
+                            <LocalTime value={message.sentAt ?? message.createdAt} /> - {message.recipientEmail}
                           </p>
                         </div>
                         <StatusBadge label={message.status.replace(/_/g, " ")} tone={message.status === "failed" || message.status === "bounced" ? "danger" : "success"} />

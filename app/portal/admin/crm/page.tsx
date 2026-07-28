@@ -14,6 +14,7 @@ import { TableSelectionScope } from "@/components/portal/ui/data-table-selection
 import { BulkResultNotice } from "@/components/portal/ui/bulk-result-notice";
 import { bulkDeleteLeads } from "@/app/portal/actions/bulk-records";
 import { DeckSelect, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,7 @@ import {
   listLeads,
 } from "@/lib/portal/crm";
 import { listAllUsers } from "@/lib/portal/queries";
-import { formatDate, formatDateTime, formatMoney, titleCase } from "@/lib/portal/format";
+import { formatDateTime, formatMoney, titleCase } from "@/lib/portal/format";
 
 export const metadata = { title: "Sales Pipeline - AMG Operations" };
 export const dynamic = "force-dynamic";
@@ -348,7 +349,7 @@ export default async function CrmPipelinePage({
                           : undefined
                       }
                     >
-                      {formatDate(lead.next_action_at)}
+                      <LocalTime value={lead.next_action_at} mode="date" />
                     </span>
                   ) : (
                     "—"
@@ -415,7 +416,7 @@ export default async function CrmPipelinePage({
                       : undefined
                   }
                 >
-                  {formatDateTime(record.next_action_at)}
+                  <LocalTime value={record.next_action_at} />
                 </span>
               ) : (
                 "—"
@@ -424,8 +425,8 @@ export default async function CrmPipelinePage({
             <DetailRow label="Owner">
               {record.owner?.full_name ?? record.owner?.email ?? "—"}
             </DetailRow>
-            <DetailRow label="Created">{formatDateTime(record.created_at)}</DetailRow>
-            <DetailRow label="Updated">{formatDateTime(record.updated_at)}</DetailRow>
+            <DetailRow label="Created"><LocalTime value={record.created_at} /></DetailRow>
+            <DetailRow label="Updated"><LocalTime value={record.updated_at} /></DetailRow>
             {record.lost_reason ? (
               <DetailRow label="Lost Reason">{record.lost_reason}</DetailRow>
             ) : null}
@@ -582,7 +583,7 @@ export default async function CrmPipelinePage({
                     </p>
                   </div>
                   <span className="deck-mono shrink-0 text-xs text-[var(--deck-text-2)]">
-                    {formatDateTime(row.send_at)}
+                    <LocalTime value={row.send_at} />
                   </span>
                   <StatusBadge
                     label={row.status === "scheduled" ? "Scheduled" : row.status === "sent" ? "Sent" : row.status === "failed" ? "Failed" : row.status === "sending" ? "Sending" : "Cancelled"}

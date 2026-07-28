@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { DataTable } from "@/components/portal/ui/data-table";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import {
   EmptyState,
   FilterTabs,
@@ -22,7 +23,7 @@ import {
   URGENCY_TONE,
   toneFor,
 } from "@/lib/portal/constants";
-import { formatDateTime, formatRoute } from "@/lib/portal/format";
+import { formatRoute } from "@/lib/portal/format";
 import { DeckSelect } from "@/components/portal/ui/fields";
 
 export const metadata = { title: "Support Requests - AMG Operations" };
@@ -225,7 +226,7 @@ export default async function AdminTripsPage({
                 cell: (row) =>
                   row.client?.company_name ?? row.client?.full_name ?? row.client?.email ?? "—",
               },
-              { header: "Requested Departure", cell: (row) => formatDateTime(row.requested_departure) },
+              { header: "Requested Departure", cell: (row) => <LocalTime value={row.requested_departure} /> },
               {
                 header: "Urgency",
                 cell: (row) => (

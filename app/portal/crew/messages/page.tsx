@@ -2,11 +2,11 @@ import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { EmptyState, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { MessageUnreadBadge } from "@/components/portal/ui/message-unread-badge";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { startThread } from "@/app/portal/actions/messages";
 import { listThreadsForUser } from "@/lib/portal/queries";
-import { formatDateTime } from "@/lib/portal/format";
 import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 
 export const metadata = { title: "Messages - Crew Portal" };
@@ -41,7 +41,7 @@ export default async function CrewMessagesPage({
         {threads.length === 0 ? <EmptyState icon="messageSquare" title="No messages yet" description="Start a thread above to contact AMG Operations." /> : (
           <div className="space-y-2">{threads.map((thread) => (
             <Link key={thread.id} href={`/portal/crew/messages/${thread.id}`} className="block deck-inset deck-card-hover p-4">
-              <div className="flex items-center justify-between gap-3"><p className="flex min-w-0 items-center gap-2 text-sm font-semibold"><span className="truncate">{thread.title ?? "AMG Operations"}</span><MessageUnreadBadge count={thread.unread_count} /></p><span className="text-xs text-[var(--deck-text-2)]">{formatDateTime(thread.last_message_at)}</span></div>
+              <div className="flex items-center justify-between gap-3"><p className="flex min-w-0 items-center gap-2 text-sm font-semibold"><span className="truncate">{thread.title ?? "AMG Operations"}</span><MessageUnreadBadge count={thread.unread_count} /></p><span className="text-xs text-[var(--deck-text-2)]"><LocalTime value={thread.last_message_at} /></span></div>
               {thread.last_body ? <p className="mt-1 line-clamp-1 text-xs text-[var(--deck-text-2)]">{thread.last_body}</p> : null}
             </Link>
           ))}</div>

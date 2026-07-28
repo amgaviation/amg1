@@ -4,9 +4,10 @@ import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard, DetailRow, Notice } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { getQuoteDetail } from "@/lib/portal/queries";
 import { QUOTE_STATUS_LABEL, QUOTE_STATUS_TONE, toneFor, isAdminRole } from "@/lib/portal/constants";
-import { formatDate, formatMoney } from "@/lib/portal/format";
+import { formatMoney } from "@/lib/portal/format";
 import { respondToQuote } from "@/app/portal/actions/quotes";
 
 export const metadata = { title: "Quote Detail — Client Portal" };
@@ -182,7 +183,7 @@ export default async function ClientQuoteDetailPage({
             <dl>
               <DetailRow label="Reference">{quote.ref}</DetailRow>
               <DetailRow label="Status"><StatusBadge label={QUOTE_STATUS_LABEL[quote.status] ?? quote.status} tone={toneFor(QUOTE_STATUS_TONE, quote.status)} /></DetailRow>
-              <DetailRow label="Created">{formatDate(quote.created_at)}</DetailRow>
+              <DetailRow label="Created"><LocalTime value={quote.created_at} mode="date" /></DetailRow>
               {quote.mission ? <DetailRow label="Mission"><Link href={`/portal/client/trips/${quote.mission.id}`} className="font-mono text-[var(--deck-accent-ink)] hover:underline">{quote.mission.ref}</Link></DetailRow> : null}
               <DetailRow label="Total">{formatMoney(quote.total)}</DetailRow>
               <DetailRow label="Deposit Required">{(quote as any).deposit_required ? formatMoney((quote as any).deposit_amount ?? 0) : "-"}</DetailRow>

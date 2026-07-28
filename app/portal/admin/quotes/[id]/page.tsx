@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { DataTable } from "@/components/portal/ui/data-table";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { Notice, SectionCard, Timeline } from "@/components/portal/ui/primitives";
 import { DescriptionList } from "@/components/portal/ui/description-list";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -139,8 +140,8 @@ export default async function AdminQuoteDetailPage({
               emptyLabel="No PDFs generated."
               columns={[
                 { header: "Document", cell: (row) => row.document_number },
-                { header: "Generated", cell: (row) => formatDateTime(row.created_at) },
-                { header: "Sent", cell: (row) => formatDateTime(row.emailed_at) },
+                { header: "Generated", cell: (row) => <LocalTime value={row.created_at} /> },
+                { header: "Sent", cell: (row) => <LocalTime value={row.emailed_at} /> },
                 { header: "Recipients", cell: (row) => row.emailed_to?.join(", ") || "-" },
                 {
                   header: "File",

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { archiveService, duplicateService, retryStripeSync } from "@/app/portal/actions/services";
 import { DataTable } from "@/components/portal/ui/data-table";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { DetailRow, EmptyState, Notice, PageHeader, SectionCard, StatCard, Timeline } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -190,8 +191,8 @@ export default async function ServiceDetailPage({
               <DetailRow label="Internal Description">{service.description ?? "—"}</DetailRow>
               <DetailRow label="Client Description">{service.client_description ?? "—"}</DetailRow>
               <DetailRow label="Internal Notes">{service.notes_internal ?? "—"}</DetailRow>
-              <DetailRow label="Created">{formatDateTime(service.created_at)}</DetailRow>
-              <DetailRow label="Updated">{formatDateTime(service.updated_at)}</DetailRow>
+              <DetailRow label="Created"><LocalTime value={service.created_at} /></DetailRow>
+              <DetailRow label="Updated"><LocalTime value={service.updated_at} /></DetailRow>
             </dl>
           </SectionCard>
 

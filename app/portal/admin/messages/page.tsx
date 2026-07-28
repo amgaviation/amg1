@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { EmptyState, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { Button } from "@/components/ui/button";
-import { formatDateTime } from "@/lib/portal/format";
 import { cn } from "@/lib/utils";
 import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 import type { ErrorCategory } from "@/lib/errors/user-facing-errors";
@@ -129,7 +129,7 @@ function ThreadRow({ thread, selectedId, query }: { thread: ThreadSummary; selec
           <p className="truncate text-sm font-semibold text-[var(--deck-text)]">{thread.subject ?? "AMG Operations"}</p>
           <p className="mt-1 truncate text-xs text-[var(--deck-text-3)]">{thread.sender_label ?? "AMG Operations"}</p>
         </div>
-        <span className="shrink-0 text-[0.65rem] text-[var(--deck-text-3)]">{formatDateTime(thread.last_message_at ?? thread.created_at)}</span>
+        <span className="shrink-0 text-[0.65rem] text-[var(--deck-text-3)]"><LocalTime value={thread.last_message_at ?? thread.created_at} /></span>
       </div>
       <p className="mt-2 line-clamp-2 text-xs leading-5 text-[var(--deck-text-3)]">{thread.last_message_preview ?? "No message body stored yet."}</p>
       <div className="mt-3 flex flex-wrap gap-1.5">
@@ -371,7 +371,7 @@ function MessageBubble({ message }: { message: CommunicationMessage }) {
           <p className="text-sm font-semibold text-[var(--deck-text)]">
             {isNote ? "Internal Note" : message.from_name ?? message.from_email ?? "AMG Operations"}
           </p>
-          <p className="text-xs text-[var(--deck-text-3)]">{formatDateTime(message.created_at)}</p>
+          <p className="text-xs text-[var(--deck-text-3)]"><LocalTime value={message.created_at} /></p>
         </div>
         <div className="flex flex-wrap gap-1.5">
           <StatusBadge label={label(message.status)} tone={statusTone(message.status)} />

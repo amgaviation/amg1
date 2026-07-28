@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { DataTable } from "@/components/portal/ui/data-table";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { DetailRow, EmptyState, FilterTabs, Notice } from "@/components/portal/ui/primitives";
 import { RecordListShell } from "@/components/portal/ui/record-list-shell";
 import { RecordModal } from "@/components/portal/ui/record-modal";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { Button } from "@/components/ui/button";
-import { formatDate, formatDateTime, formatMoney } from "@/lib/portal/format";
+import { formatDateTime, formatMoney } from "@/lib/portal/format";
 import {
   getVendorInvoice,
   listVendorInvoicesForSubmitter,
@@ -184,7 +185,7 @@ export async function VendorInvoicesList({
                   <span className="deck-num font-semibold">{formatMoney(Number(row.total))}</span>
                 ),
               },
-              { header: "Submitted", hideOnMobile: true, cell: (row) => formatDate(row.created_at) },
+              { header: "Submitted", hideOnMobile: true, cell: (row) => <LocalTime value={row.created_at} mode="date" /> },
               {
                 header: "Status",
                 cell: (row) => (
@@ -235,7 +236,7 @@ export async function VendorInvoicesList({
           {record.invoice.status === "paid" ? (
             <div className="mb-4">
               <Notice tone="success">
-                Paid {record.invoice.paid_at ? formatDate(record.invoice.paid_at) : ""}
+                Paid {record.invoice.paid_at ? <LocalTime value={record.invoice.paid_at} mode="date" /> : ""}
                 {record.invoice.payment_reference ? ` — reference ${record.invoice.payment_reference}` : ""}
               </Notice>
             </div>
@@ -253,9 +254,13 @@ export async function VendorInvoicesList({
             {record.invoice.bill_from_address ? (
               <DetailRow label="Remit To">{record.invoice.bill_from_address}</DetailRow>
             ) : null}
-            <DetailRow label="Invoice Date">{formatDate(record.invoice.invoice_date)}</DetailRow>
+            <DetailRow label="Invoice Date">
+              <LocalTime value={record.invoice.invoice_date} mode="date" />
+            </DetailRow>
             {record.invoice.due_date ? (
-              <DetailRow label="Due">{formatDate(record.invoice.due_date)}</DetailRow>
+              <DetailRow label="Due">
+                <LocalTime value={record.invoice.due_date} mode="date" />
+              </DetailRow>
             ) : null}
             <DetailRow label="Mission">{record.invoice.mission?.ref ?? "Not linked"}</DetailRow>
             {record.invoice.payment_instructions ? (

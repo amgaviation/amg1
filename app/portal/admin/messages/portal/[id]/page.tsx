@@ -1,12 +1,13 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { markThreadRead } from "@/lib/portal/queries";
 import { postMessage } from "@/app/portal/actions/messages";
 import { isAdminRole } from "@/lib/portal/constants";
-import { formatDateTime, initials } from "@/lib/portal/format";
+import { initials } from "@/lib/portal/format";
 import {
   ADMIN_MESSAGE_ALIAS,
   getThreadWithMessagesForDisplay,
@@ -58,7 +59,7 @@ export default async function AdminPortalThreadPage({ params }: { params: Promis
                 <div className={`max-w-[75%] rounded-md border px-4 py-3 ${isOutbound ? "border-[var(--deck-accent-line)] bg-[var(--deck-accent-tint)]" : "border-[var(--deck-line)] bg-[var(--deck-panel)]"}`}>
                   <p className="mb-1 text-xs font-semibold text-[var(--deck-text-2)]">{senderLabel}</p>
                   <p className="whitespace-pre-wrap text-sm leading-6">{message.body}</p>
-                  <p className="mt-1 text-[0.65rem] text-[var(--deck-text-2)]">{formatDateTime(message.created_at)}</p>
+                  <p className="mt-1 text-[0.65rem] text-[var(--deck-text-2)]"><LocalTime value={message.created_at} /></p>
                 </div>
               </div>
             );

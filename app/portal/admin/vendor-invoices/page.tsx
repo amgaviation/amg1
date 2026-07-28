@@ -5,6 +5,7 @@ import { DetailRow, EmptyState, FilterTabs, Notice } from "@/components/portal/u
 import { RecordListShell } from "@/components/portal/ui/record-list-shell";
 import { RecordModal } from "@/components/portal/ui/record-modal";
 import { DeckSelect, TextAreaField, TextField } from "@/components/portal/ui/fields";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { Button } from "@/components/ui/button";
@@ -183,7 +184,7 @@ export default async function AdminVendorInvoicesPage({
                 align: "right",
                 cell: (row) => <span className="deck-num font-semibold">{formatMoney(Number(row.total))}</span>,
               },
-              { header: "Submitted", hideOnMobile: true, cell: (row) => formatDate(row.created_at) },
+              { header: "Submitted", hideOnMobile: true, cell: (row) => <LocalTime value={row.created_at} mode="date" /> },
               {
                 header: "Status",
                 cell: (row) => (
@@ -242,7 +243,7 @@ export default async function AdminVendorInvoicesPage({
             ) : null}
             <DetailRow label="Their Invoice #">{detail.invoice.invoice_number ?? "—"}</DetailRow>
             <DetailRow label="Dates">
-              Invoiced {formatDate(detail.invoice.invoice_date)}
+              Invoiced <LocalTime value={detail.invoice.invoice_date} mode="date" />
               {detail.invoice.due_date ? ` · due ${formatDate(detail.invoice.due_date)}` : ""}
             </DetailRow>
             <DetailRow label="Mission">{detail.invoice.mission?.ref ?? "Not linked"}</DetailRow>
@@ -255,7 +256,7 @@ export default async function AdminVendorInvoicesPage({
             ) : null}
             {detail.invoice.paid_at ? (
               <DetailRow label="Paid">
-                {formatDateTime(detail.invoice.paid_at)}
+                <LocalTime value={detail.invoice.paid_at} />
                 {detail.invoice.payment_reference ? ` — ref ${detail.invoice.payment_reference}` : ""}
               </DetailRow>
             ) : null}

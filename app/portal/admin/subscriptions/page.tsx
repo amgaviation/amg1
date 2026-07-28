@@ -9,6 +9,7 @@ import { currentStripeMode } from "@/lib/portal/stripe-mode";
 import { resolveTestStripeKey } from "@/lib/portal/stripe-custom-subscriptions";
 import { DataTable } from "@/components/portal/ui/data-table";
 import { DeckSelect, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import {
   DetailRow,
   EmptyState,
@@ -39,7 +40,7 @@ import {
   SUBSCRIPTION_SYNC_STATUS_TONE,
   toneFor,
 } from "@/lib/portal/constants";
-import { formatDate, formatDateTime, formatMoney } from "@/lib/portal/format";
+import { formatMoney } from "@/lib/portal/format";
 
 export const metadata = { title: "Subscriptions - Admin Portal" };
 
@@ -331,7 +332,7 @@ export default async function AdminSubscriptionsPage({
                 header: "Renewal",
                 cell: (row) => (
                   <span className="deck-mono whitespace-nowrap text-[var(--deck-text-2)]">
-                    {formatDate(row.renewal_date)}
+                    <LocalTime value={row.renewal_date} mode="date" />
                   </span>
                 ),
               },
@@ -403,8 +404,8 @@ export default async function AdminSubscriptionsPage({
           columns={[
             { header: "Event", cell: (row) => row.event_type ?? row.type },
             { header: "Stripe Event ID", cell: (row) => <span className="font-mono text-xs">{row.stripe_event_id}</span> },
-            { header: "Received", cell: (row) => formatDateTime(row.received_at ?? row.created_at) },
-            { header: "Processed", cell: (row) => formatDateTime(row.processed_at) },
+            { header: "Received", cell: (row) => <LocalTime value={row.received_at ?? row.created_at} /> },
+            { header: "Processed", cell: (row) => <LocalTime value={row.processed_at} /> },
             { header: "Status", cell: (row) => <StatusBadge label={row.status} tone={row.status === "failed" || row.status === "retry_needed" ? "danger" : row.status === "processed" ? "success" : "neutral"} /> },
             { header: "Subscription", cell: (row) => row.portal_subscription_id ? <Link href={`${basePath}/${row.portal_subscription_id}`} className="text-[var(--deck-accent-ink)] hover:underline">Open</Link> : row.stripe_subscription_id ?? "-" },
             { header: "Invoice", cell: (row) => row.stripe_invoice_id ?? "-" },
@@ -502,11 +503,11 @@ export default async function AdminSubscriptionsPage({
             <DetailRow label="Annual Fee">
               <span className="deck-num">{formatMoney(record.annual_price)}</span>
             </DetailRow>
-            <DetailRow label="Start">{formatDate(record.start_date)}</DetailRow>
-            <DetailRow label="Renewal">{formatDate(record.renewal_date)}</DetailRow>
+            <DetailRow label="Start"><LocalTime value={record.start_date} mode="date" /></DetailRow>
+            <DetailRow label="Renewal"><LocalTime value={record.renewal_date} mode="date" /></DetailRow>
             <DetailRow label="Source">{record.source ?? "manual"}</DetailRow>
             <DetailRow label="Last Sync">
-              {formatDateTime(record.stripe_last_synced_at ?? record.updated_at)}
+              <LocalTime value={record.stripe_last_synced_at ?? record.updated_at} />
             </DetailRow>
             <DetailRow label="Warning">{record.stripe_sync_warning ?? "—"}</DetailRow>
           </dl>

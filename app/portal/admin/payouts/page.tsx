@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { DataTable, type Column } from "@/components/portal/ui/data-table";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import {
   EmptyState,
   Notice,
@@ -24,7 +25,7 @@ import {
   VENDOR_INVOICE_STATUS_LABEL,
   VENDOR_INVOICE_STATUS_TONE,
 } from "@/lib/portal/vendor-invoices";
-import { formatDate, formatMoney } from "@/lib/portal/format";
+import { formatMoney } from "@/lib/portal/format";
 
 export const metadata = { title: "Payouts - AMG Operations" };
 export const dynamic = "force-dynamic";
@@ -87,7 +88,7 @@ const payoutColumns: Column<PayoutRow>[] = [
       ),
   },
   { header: "Crew", cell: (row) => row.crewName ?? "—" },
-  { header: "Due", cell: (row) => formatDate(row.dueAt) },
+  { header: "Due", cell: (row) => <LocalTime value={row.dueAt} mode="date" /> },
   { header: "SLA", cell: (row) => daysBadge(row) },
   {
     header: "Vendor Invoice",

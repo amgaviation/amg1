@@ -4,10 +4,11 @@ import { PageHeader, SectionCard, EmptyState, Notice, StatCard } from "@/compone
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { FileField, SelectField, TextField } from "@/components/portal/ui/fields";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { addCredential } from "@/app/portal/actions/crew";
 import { listCredentials } from "@/lib/portal/queries";
 import { CREDENTIAL_STATUS_LABEL, CREDENTIAL_STATUS_TONE, CREDENTIAL_TYPES, toneFor } from "@/lib/portal/constants";
-import { daysUntil, formatDate } from "@/lib/portal/format";
+import { daysUntil } from "@/lib/portal/format";
 
 export const metadata = { title: "Credentials - Crew Portal" };
 
@@ -81,7 +82,7 @@ export default async function CrewCredentialsPage({
                       {credential.days < 0
                         ? `Expired ${Math.abs(credential.days)}d ago`
                         : `${credential.days}d remaining`}{" "}
-                      · {formatDate(credential.expiration_date)}
+                      · <LocalTime value={credential.expiration_date} mode="date" />
                     </p>
                   </div>
                   <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[var(--deck-panel-2)]">
@@ -134,7 +135,7 @@ export default async function CrewCredentialsPage({
                   <div>
                     <p className="text-sm font-semibold">{credential.credential_type}</p>
                     <p className="mt-1 text-xs text-[var(--deck-text-2)]">
-                      {credential.identifier ?? "No identifier"} | Expires {formatDate(credential.expiration_date)}
+                      {credential.identifier ?? "No identifier"} | Expires <LocalTime value={credential.expiration_date} mode="date" />
                       {days !== null ? ` | ${days < 0 ? "Expired" : `${days} days remaining`}` : ""}
                     </p>
                   </div>

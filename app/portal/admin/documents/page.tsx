@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { DataTable } from "@/components/portal/ui/data-table";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { TableSelectionScope } from "@/components/portal/ui/data-table-selection";
 import { BulkResultNotice } from "@/components/portal/ui/bulk-result-notice";
 import { bulkDeleteDocuments } from "@/app/portal/actions/bulk-records";
@@ -12,7 +13,6 @@ import { reviewDocument } from "@/app/portal/actions/admin";
 import { uploadDocument } from "@/app/portal/actions/documents";
 import { listAllDocuments, listAllUsers } from "@/lib/portal/queries";
 import { DOCUMENT_STATUS, DOCUMENT_STATUS_LABEL, DOCUMENT_STATUS_TONE, DOCUMENT_TYPES, DOCUMENT_VISIBILITY, DOCUMENT_VISIBILITY_LABEL, toneFor } from "@/lib/portal/constants";
-import { formatDate } from "@/lib/portal/format";
 
 export const metadata = { title: "Documents - Admin Portal" };
 
@@ -161,8 +161,8 @@ export default async function AdminDocumentsPage({
             { header: "Name", cell: (row) => <div><p className="text-sm font-semibold">{row.name}</p><p className="text-xs text-[var(--deck-text-2)]">{row.doc_type}</p></div> },
             { header: "Owner", cell: (row) => <div><p className="text-sm">{ownerLabel(row.scope_id)}</p><p className="text-xs text-[var(--deck-text-2)]">{row.scope_type}</p></div> },
             { header: "Visibility", cell: (row) => DOCUMENT_VISIBILITY_LABEL[row.visibility] ?? row.visibility },
-            { header: "Uploaded", cell: (row) => formatDate(row.created_at) },
-            { header: "Expires", cell: (row) => formatDate(row.expiration_date) },
+            { header: "Uploaded", cell: (row) => <LocalTime value={row.created_at} mode="date" /> },
+            { header: "Expires", cell: (row) => <LocalTime value={row.expiration_date} mode="date" /> },
             { header: "Status", cell: (row) => <StatusBadge label={DOCUMENT_STATUS_LABEL[row.status] ?? row.status} tone={toneFor(DOCUMENT_STATUS_TONE, row.status)} /> },
             { header: "File", cell: (row) => <Link href={`/portal/documents/${row.id}/view`} className="text-[var(--deck-accent-ink)] hover:underline">View</Link> },
             { header: "Review", cell: (row) => (

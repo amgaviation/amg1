@@ -218,6 +218,19 @@ export async function importMroLeads(formData: FormData) {
     redirect(withStatus(withStatus(backTo, "error", "mro"), "detail", (result.error ?? "").slice(0, 200)));
   }
 
+  // Nothing created but rows were rejected is a failure wearing a success
+  // notice. Report it as the error it is, with the database's own message,
+  // rather than a cheerful "0 lead(s) added".
+  if (result.created === 0 && result.failed > 0) {
+    redirect(
+      withStatus(
+        withStatus(backTo, "error", "mro"),
+        "detail",
+        `${result.failed} row(s) rejected. ${result.firstError ?? ""}`.slice(0, 200),
+      ),
+    );
+  }
+
   revalidatePath("/portal/admin/crm");
   redirect(
     withStatus(

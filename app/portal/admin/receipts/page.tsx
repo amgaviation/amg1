@@ -8,6 +8,7 @@ import {
   FilterTabs,
   Notice,
 } from "@/components/portal/ui/primitives";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { RecordListShell } from "@/components/portal/ui/record-list-shell";
 import { RecordModal } from "@/components/portal/ui/record-modal";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -252,7 +253,7 @@ export default async function AdminReceiptsPage({
                 hideOnMobile: true,
                 cell: (row) => (
                   <span className="deck-mono whitespace-nowrap text-[var(--deck-text-2)]">
-                    {formatDateTime(row.created_at)}
+                    <LocalTime value={row.created_at} />
                   </span>
                 ),
               },
@@ -323,8 +324,8 @@ export default async function AdminReceiptsPage({
               <span className="deck-num">{formatMoney(record.payment?.amount ?? 0)}</span>
             </DetailRow>
             <DetailRow label="Method">{record.payment?.payment_method ?? "—"}</DetailRow>
-            <DetailRow label="Generated">{formatDateTime(record.created_at)}</DetailRow>
-            <DetailRow label="Sent">{formatDateTime(record.emailed_at)}</DetailRow>
+            <DetailRow label="Generated"><LocalTime value={record.created_at} /></DetailRow>
+            <DetailRow label="Sent"><LocalTime value={record.emailed_at} /></DetailRow>
             <DetailRow label="Recipients">{record.emailed_to?.join(", ") || "—"}</DetailRow>
             <DetailRow label="File">
               <span className="deck-mono break-all">{record.file_name}</span>

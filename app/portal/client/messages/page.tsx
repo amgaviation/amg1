@@ -3,9 +3,9 @@ import { PageHeader, SectionCard, EmptyState, Notice, RecordRow } from "@/compon
 import { MessageUnreadBadge } from "@/components/portal/ui/message-unread-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { TextAreaField, TextField } from "@/components/portal/ui/fields";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { listThreadsForUser } from "@/lib/portal/queries";
 import { startThread } from "@/app/portal/actions/messages";
-import { formatDateTime } from "@/lib/portal/format";
 import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 
 export const metadata = { title: "Messages — Client Portal" };
@@ -65,7 +65,7 @@ export default async function ClientMessagesPage({
                 trailing={
                   <>
                     <span className="deck-mono text-[var(--deck-text-3)]">
-                      {formatDateTime(t.last_message_at)}
+                      <LocalTime value={t.last_message_at} />
                     </span>
                     <MessageUnreadBadge count={t.unread_count} />
                   </>

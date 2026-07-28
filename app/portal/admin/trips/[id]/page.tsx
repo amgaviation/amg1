@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SlaChip } from "@/components/portal/ui/sla-chip";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { assignCrew, assignPartner, unassignCrew } from "@/app/portal/actions/admin";
 import { createQuote } from "@/app/portal/actions/quotes";
 import { decideCrewPoolRequest, updateMissionNotes, updateMissionPool, updateMissionStatus } from "@/app/portal/actions/missions";
@@ -137,7 +138,7 @@ export default async function AdminTripDetailPage({
           <p className="deck-mono mt-2.5 !text-[0.8rem] text-[var(--deck-text-2)]">
             {formatRoute(mission.departure_airport, mission.arrival_airport)}
             {" · DEP "}
-            {formatDateTime(mission.requested_departure)}
+            <LocalTime value={mission.requested_departure} />
             {" · "}
             {mission.client?.company_name ?? mission.client?.full_name ?? mission.client?.email ?? publicRequest?.email ?? "Unassigned client"}
           </p>

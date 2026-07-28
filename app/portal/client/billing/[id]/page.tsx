@@ -3,6 +3,7 @@ import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { payInvoiceWithStripe } from "@/app/portal/actions/invoice-payments";
 import { DataTable } from "@/components/portal/ui/data-table";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { DetailRow, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -83,7 +84,7 @@ export default async function ClientInvoicePage({
               getKey={(row) => row.id}
               emptyLabel="No receipts available yet."
               columns={[
-                { header: "Date", cell: (row) => formatDate(row.paid_at) },
+                { header: "Date", cell: (row) => <LocalTime value={row.paid_at} mode="date" /> },
                 { header: "Method", cell: (row) => row.payment_method ?? "-" },
                 { header: "Amount", cell: (row) => formatMoney(row.amount), align: "right" },
                 {
@@ -106,7 +107,7 @@ export default async function ClientInvoicePage({
             <DetailRow label="Status"><StatusBadge label={INVOICE_STATUS_LABEL[invoice.status] ?? invoice.status} tone={toneFor(INVOICE_STATUS_TONE, invoice.status)} /></DetailRow>
             <DetailRow label="Mission">{invoice.mission?.ref ?? "-"}</DetailRow>
             <DetailRow label="Quote">{invoice.quote?.ref ?? "-"}</DetailRow>
-            <DetailRow label="Due">{formatDate(invoice.due_date)}</DetailRow>
+            <DetailRow label="Due"><LocalTime value={invoice.due_date} mode="date" /></DetailRow>
             <DetailRow label="Total">{formatMoney(invoice.total)}</DetailRow>
             <DetailRow label="Deposit">{formatMoney((invoice as any).deposit_amount ?? 0)}</DetailRow>
             <DetailRow label="Paid">{formatMoney(invoice.amount_paid)}</DetailRow>

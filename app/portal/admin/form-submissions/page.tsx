@@ -10,6 +10,7 @@ import {
 import { RecordListShell } from "@/components/portal/ui/record-list-shell";
 import { RecordModal } from "@/components/portal/ui/record-modal";
 import { DataTable } from "@/components/portal/ui/data-table";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { Button } from "@/components/ui/button";
@@ -232,7 +233,7 @@ export default async function AdminFormSubmissionsPage({
                 header: "Submitted",
                 cell: (row) => (
                   <span className="deck-mono whitespace-nowrap text-[var(--deck-text-2)]">
-                    {formatDateTime(row.created_at)}
+                    <LocalTime value={row.created_at} />
                   </span>
                 ),
               },
@@ -303,7 +304,7 @@ export default async function AdminFormSubmissionsPage({
                     record.inquiry_type
                 )}
               </DetailRow>
-              <DetailRow label="Submitted">{formatDateTime(record.created_at)}</DetailRow>
+              <DetailRow label="Submitted"><LocalTime value={record.created_at} /></DetailRow>
               <DetailRow label="Internal Email">
                 {record.email_sent
                   ? `Yes${record.email_sent_at ? ` (${formatDateTime(record.email_sent_at)})` : ""}`

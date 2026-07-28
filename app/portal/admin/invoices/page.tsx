@@ -6,6 +6,7 @@ import { DataTable } from "@/components/portal/ui/data-table";
 import { TableSelectionScope } from "@/components/portal/ui/data-table-selection";
 import { BulkResultNotice } from "@/components/portal/ui/bulk-result-notice";
 import { bulkDeleteInvoices } from "@/app/portal/actions/bulk-records";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { DetailRow, EmptyState, FilterTabs, Notice } from "@/components/portal/ui/primitives";
 import { RecordListShell } from "@/components/portal/ui/record-list-shell";
 import { FormModal, RecordModal } from "@/components/portal/ui/record-modal";
@@ -300,7 +301,7 @@ export default async function AdminInvoicesPage({
                   hideOnMobile: true,
                   cell: (row) => (
                     <span className="whitespace-nowrap text-[var(--deck-text-2)]">
-                      {formatDate(row.due_date)}
+                      <LocalTime value={row.due_date} mode="date" />
                     </span>
                   ),
                 },
@@ -398,7 +399,7 @@ export default async function AdminInvoicesPage({
                 "Standalone invoice"
               )}
             </DetailRow>
-            <DetailRow label="Due Date">{formatDate(record.due_date)}</DetailRow>
+            <DetailRow label="Due Date"><LocalTime value={record.due_date} mode="date" /></DetailRow>
             <DetailRow label="Totals">
               <span className="grid gap-0.5 text-sm">
                 <span>
@@ -435,10 +436,10 @@ export default async function AdminInvoicesPage({
             ) : null}
             <DetailRow label="Timeline">
               <span className="grid gap-0.5 text-sm">
-                <span>Created {formatDateTime(record.created_at)}</span>
-                {record.issued_at ? <span>Issued {formatDateTime(record.issued_at)}</span> : null}
-                {record.sent_at ? <span>Sent {formatDateTime(record.sent_at)}</span> : null}
-                {record.paid_at ? <span>Paid {formatDateTime(record.paid_at)}</span> : null}
+                <span>Created <LocalTime value={record.created_at} /></span>
+                {record.issued_at ? <span>Issued <LocalTime value={record.issued_at} /></span> : null}
+                {record.sent_at ? <span>Sent <LocalTime value={record.sent_at} /></span> : null}
+                {record.paid_at ? <span>Paid <LocalTime value={record.paid_at} /></span> : null}
               </span>
             </DetailRow>
             {record.terms ? <DetailRow label="Terms">{record.terms}</DetailRow> : null}
