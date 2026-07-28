@@ -81,15 +81,34 @@ export const resendProvider: EmailProvider = {
       status: "sent",
     };
   },
-  async validateWebhookSignature(payload: string, signature: string | null) {
+  async validateWebhookSignature(payload: string, headers: Headers) {
     const secret = process.env.RESEND_WEBHOOK_SECRET;
     if (!secret) return false;
-    if (!signature) return false;
 
-    const normalized = signature.replace(/^sha256=/, "");
-    const expected = createHmac("sha256", secret).update(payload).digest("hex");
-    const left = Buffer.from(normalized);
-    const right = Buffer.from(expected);
-    return left.length === right.length && timingSafeEqual(left, right);
+    // Resend signs webhooks with Svix. The signed content is
+    // `${id}.${timestamp}.${body}`, HMAC-SHA256'd with the base64-decoded
+    // portion of the `whsec_…` secret; the digest is base64. The
+    // `svix-signature` header carries one or more space-separated
+    // `v1,<sig>` values (a secret can rotate through multiple keys), so a
+    // match against any current key passes. (The earlier implementation
+    // hex-HMAC'd only the body with the raw secret string — it could never
+    // match a real Svix signature, so every genuine event 401'd.)
+    const id = headers.get("svix-id") ?? headers.get("webhook-id");
+    const timestamp = headers.get("svix-timestamp") ?? headers.get("webhook-timestamp");
+    const signatureHeader = headers.get("svix-signature") ?? headers.get("webhook-signature");
+    if (!id || !timestamp || !signatureHeader) return false;
+
+    const key = Buffer.from(secret.replace(/^whsec_/, ""), "base64");
+    const expected = createHmac("sha256", key)
+      .update(`${id}.${timestamp}.${payload}`)
+      .digest("base64");
+    const expectedBuf = Buffer.from(expected);
+
+    return signatureHeader.split(" ").some((entry) => {
+      const [version, value] = entry.split(",");
+      if (version !== "v1" || !value) return false;
+      const candidate = Buffer.from(value);
+      return candidate.length === expectedBuf.length && timingSafeEqual(candidate, expectedBuf);
+    });
   },
 };
