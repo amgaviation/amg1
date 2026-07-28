@@ -6,7 +6,7 @@ import type { SessionUser } from "@/lib/portal/session";
 import { replyToAddress } from "@/lib/email/config";
 import { getEmailProvider, emailProviderStatus } from "@/lib/email/provider";
 import { COMMUNICATION_ATTACHMENT_BUCKET, communicationAttachmentPath, validateAttachment } from "@/lib/email/attachments";
-import { normalizeEmailList, isValidEmailAddress, generateCommunicationPublicId, subjectWithThreadToken, extractThreadPublicId } from "@/lib/email/threading";
+import { normalizeEmailList, isValidEmailAddress, generateCommunicationPublicId, subjectWithThreadToken, extractThreadPublicId, extractThreadPublicIdFromAddresses } from "@/lib/email/threading";
 import { operationalEmailHtml, operationalEmailText, stripHtml, interpolateTemplate } from "@/lib/email/templates";
 import type { NormalizedInboundMessage, SendEmailInput } from "@/lib/email/types";
 import { logServerError } from "@/lib/errors/user-facing-errors";
@@ -754,9 +754,21 @@ export async function linkCommunicationThread(formData: FormData, user: SessionU
 }
 
 async function findThreadForInbound(client: Db, inbound: NormalizedInboundMessage): Promise<CommunicationThread | null> {
-  const token = extractThreadPublicId(inbound.subject) || extractThreadPublicId(inbound.references) || extractThreadPublicId(inbound.inReplyTo);
+  // Priority order, strongest signal first: the subject token survives Gmail's
+  // "Re:" prefix; the thread+<id>@ plus-address survives even a stripped subject;
+  // References/In-Reply-To carry the token when the client quotes it. public_ids
+  // are uppercase, so normalize before the (case-sensitive) equality lookup.
+  const token =
+    extractThreadPublicId(inbound.subject) ||
+    extractThreadPublicIdFromAddresses([...(inbound.toEmails ?? []), ...(inbound.ccEmails ?? [])]) ||
+    extractThreadPublicId(inbound.references) ||
+    extractThreadPublicId(inbound.inReplyTo);
   if (token) {
-    const { data } = await client.from("communication_threads").select("*").eq("public_id", token).maybeSingle();
+    const { data } = await client
+      .from("communication_threads")
+      .select("*")
+      .eq("public_id", token.toUpperCase())
+      .maybeSingle();
     if (data) return data as CommunicationThread;
   }
 
