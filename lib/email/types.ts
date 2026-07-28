@@ -57,5 +57,5 @@ export type EmailProvider = {
   name: string;
   configured(): boolean;
   sendEmail(input: SendEmailInput): Promise<SendEmailResult>;
-  validateWebhookSignature?(payload: string, signature: string | null): Promise<boolean>;
+  validateWebhookSignature?(payload: string, headers: Headers): Promise<boolean>;
 };

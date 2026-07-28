@@ -22,11 +22,7 @@ export async function POST(request: Request) {
 
   // Verify whenever a secret is configured (not just in production).
   if (secret) {
-    const signature =
-      request.headers.get("svix-signature") ??
-      request.headers.get("resend-signature") ??
-      request.headers.get("x-resend-signature");
-    const valid = await provider.validateWebhookSignature?.(raw, signature);
+    const valid = await provider.validateWebhookSignature?.(raw, request.headers);
     if (!valid) {
       const referenceId = logServerError("Inbound email webhook signature failed", new Error("Invalid signature"), {
         route: "/api/webhooks/email/inbound",
