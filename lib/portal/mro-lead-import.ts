@@ -27,6 +27,16 @@ export type MroImportResult = {
   skippedExisting: number;
   skippedSuppressed: number;
   failed: number;
+  /**
+   * Why the first failing row failed.
+   *
+   * Counting failures without keeping their reason is how "it imported nothing"
+   * becomes an unexplained zero: a missing column rejects all 204 rows
+   * identically, and the operator sees a success notice reading "0 added" with
+   * nothing to act on. The first message is enough — the rows are homogeneous,
+   * so they overwhelmingly fail for the same reason.
+   */
+  firstError: string | null;
 } | { ok: false; error: string };
 
 type SeedLead = {
@@ -103,6 +113,7 @@ export async function importSoutheastMroLeads(params: {
   let skippedExisting = 0;
   let skippedSuppressed = 0;
   let failed = 0;
+  let firstError: string | null = null;
 
   for (const lead of leads) {
     const email = lead.email.trim().toLowerCase();
@@ -149,20 +160,26 @@ export async function importSoutheastMroLeads(params: {
 
     if (error || !row) {
       failed += 1;
+      firstError ??= error?.message ?? "Insert returned no row.";
       continue;
     }
 
-    await db.from("crm_activities").insert({
+    // Bookkeeping, not the import itself — a lead that landed should not be
+    // reported as failed because its activity row did not. But the reason is
+    // still surfaced, because a constraint that rejects every activity is
+    // exactly the kind of fault that otherwise runs silently for weeks.
+    const { error: activityError } = await db.from("crm_activities").insert({
       lead_id: row.id,
       activity_type: "prospected",
       body: `Imported from the FAA Part 145 directory.\n${lead.company}${location ? ` — ${location}` : ""}`,
       created_by: params.actorId,
       created_by_email: params.actorEmail,
     });
+    if (activityError) firstError ??= `Lead saved, activity log failed: ${activityError.message}`;
 
     seen.add(email);
     created += 1;
   }
 
-  return { ok: true, created, skippedExisting, skippedSuppressed, failed };
+  return { ok: true, created, skippedExisting, skippedSuppressed, failed, firstError };
 }
