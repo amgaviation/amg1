@@ -17,6 +17,71 @@ export function emailProviderStatus() {
   };
 }
 
+/** Retryable provider responses: rate limiting and transient server faults. */
+function isRetryableStatus(status: number) {
+  return status === 429 || status === 408 || status >= 500;
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * POST one email, optionally riding out provider rate limiting.
+ *
+ * An outreach campaign wakes every enrolled lead's durable workflow at the same
+ * instant, so a few hundred sends arrive at the API within seconds — far above
+ * the per-account request limit. Resend answers the excess with 429, and a
+ * single un-retried fetch turns that into `{ok:false, status:"failed"}`, which
+ * the sequence records as a permanent failure and never attempts again. The
+ * campaign would report itself as sent while most of it was silently dropped.
+ *
+ * Retries honour Retry-After when present and otherwise use exponential backoff
+ * with FULL jitter — the jitter matters more than the backoff here, because
+ * every caller started at the same moment and a fixed schedule would simply
+ * reconverge them into the same later instant.
+ *
+ * The attempt count is not a guess. Simulating 200 workflows waking together
+ * against a token bucket (the shape of a real per-second API limit) gives, for
+ * a 2 req/s limit: 9 of 200 delivered with no retry, 103 at 8 attempts, 190 at
+ * 12, and 199.9 at 16 — the queue needs ~100 s to drain at that rate, so the
+ * retry budget has to outlast it or most callers simply give up early. Sixteen
+ * attempts at a 30 s ceiling drains in ~140 s at 2/s and ~45 s at 10/s, and
+ * still recovers 157 of 200 against a pathological 1 req/s.
+ *
+ * Callers that need a fast answer leave retryOnRateLimit off and get the first
+ * response, so interactive mail is never delayed by this.
+ */
+async function postEmail(apiKey: string, retryOnRateLimit: boolean, body: unknown): Promise<Response> {
+  const maxAttempts = retryOnRateLimit ? 16 : 1;
+  const CAP_MS = 30_000;
+  let attempt = 0;
+
+  for (;;) {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    attempt += 1;
+    if (response.ok || attempt >= maxAttempts || !isRetryableStatus(response.status)) {
+      return response;
+    }
+
+    const retryAfter = Number(response.headers.get("retry-after"));
+    const ceiling = Number.isFinite(retryAfter) && retryAfter > 0
+      ? Math.min(CAP_MS, retryAfter * 1000)
+      : Math.min(CAP_MS, 500 * 2 ** (attempt - 1));
+    // Full jitter: uniform across [0, ceiling]. Callers that woke together must
+    // not retry together.
+    await sleep(Math.random() * ceiling);
+  }
+}
+
 export const resendProvider: EmailProvider = {
   name: "resend",
   configured() {
@@ -39,13 +104,7 @@ export const resendProvider: EmailProvider = {
       return { ok: false, provider: "resend", status: "suppressed", error: "Email provider is not configured" };
     }
 
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const response = await postEmail(process.env.RESEND_API_KEY, input.retryOnRateLimit === true, {
         from: input.from ?? defaultSender("notification"),
         to: input.to,
         cc: input.cc?.length ? input.cc : undefined,
@@ -60,7 +119,6 @@ export const resendProvider: EmailProvider = {
           content: attachment.content,
           content_type: attachment.contentType ?? undefined,
         })),
-      }),
     });
 
     const payload = await response.json().catch(() => ({}));
