@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getEmailProvider } from "@/lib/email/provider";
 import { normalizeInboundEmailPayload } from "@/lib/email/inbound";
+import { enrichInboundWithResendContent } from "@/lib/email/resend-inbound";
 import { storeInboundCommunication } from "@/lib/portal/communications";
 import { logServerError } from "@/lib/errors/user-facing-errors";
 
@@ -33,7 +34,9 @@ export async function POST(request: Request) {
 
   try {
     const payload = JSON.parse(raw || "{}") as Record<string, unknown>;
-    const inbound = normalizeInboundEmailPayload(payload);
+    // Resend's inbound webhook is metadata-only; fetch the parsed body/headers
+    // from the Received Emails API before storing so replies aren't blank.
+    const inbound = await enrichInboundWithResendContent(normalizeInboundEmailPayload(payload));
     const result = await storeInboundCommunication(inbound);
     return NextResponse.json(result);
   } catch (error) {
