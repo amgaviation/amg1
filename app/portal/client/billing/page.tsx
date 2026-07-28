@@ -1,5 +1,6 @@
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { DataTable } from "@/components/portal/ui/data-table";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { EmptyState, PageHeader, SectionCard, StatCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { listInvoicesForClient } from "@/lib/portal/queries";
@@ -78,7 +79,7 @@ export default async function ClientBillingPage() {
                     daysOverdue(row.due_date) > 0;
                   return overdue ? (
                     <span className="font-semibold text-[var(--deck-danger)]">
-                      {formatDate(row.due_date)} · {daysOverdue(row.due_date)}d overdue
+                      <LocalTime value={row.due_date} mode="date" /> · {daysOverdue(row.due_date)}d overdue
                     </span>
                   ) : (
                     formatDate(row.due_date)

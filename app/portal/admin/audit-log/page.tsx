@@ -1,8 +1,8 @@
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { DataTable } from "@/components/portal/ui/data-table";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { listAuditEvents } from "@/lib/portal/queries";
-import { formatDateTime } from "@/lib/portal/format";
 
 export const metadata = { title: "Audit Log - Admin Portal" };
 
@@ -18,7 +18,7 @@ export default async function AdminAuditLogPage() {
           getKey={(row) => row.id}
           emptyLabel="No audit events yet."
           columns={[
-            { header: "Time", cell: (row) => formatDateTime(row.created_at) },
+            { header: "Time", cell: (row) => <LocalTime value={row.created_at} /> },
             { header: "Actor", cell: (row) => row.actor_email ?? row.actor_id ?? "System" },
             { header: "Action", cell: (row) => row.action },
             { header: "Entity", cell: (row) => [row.entity_type, row.entity_id].filter(Boolean).join(" / ") || "-" },

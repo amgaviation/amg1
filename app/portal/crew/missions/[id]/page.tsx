@@ -4,6 +4,7 @@ import { SectionCard, DetailRow, Notice } from "@/components/portal/ui/primitive
 import { DescriptionList } from "@/components/portal/ui/description-list";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { getMissionDetail } from "@/lib/portal/queries";
 import { getPoolMissionForCrew, type PoolMission } from "@/lib/portal/pool";
 import { requestPoolMission, respondToAssignment } from "@/app/portal/actions/crew";
@@ -83,7 +84,7 @@ export default async function CrewMissionDetailPage({
           <p className="deck-mono mt-2.5 !text-[0.8rem] text-[var(--deck-text-2)]">
             {formatRoute(mission.departure_airport, mission.arrival_airport)}
             {" · DEP "}
-            {formatDateTime(mission.requested_departure)}
+            <LocalTime value={mission.requested_departure} />
             {" · "}
             {labelFor(MISSION_TYPE_LABEL, mission.mission_type)}
           </p>

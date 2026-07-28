@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/portal/session";
 import { permissionsForRole } from "@/lib/portal/permissions";
 import { ProfileSetupNotice } from "@/components/portal/profile-setup-notice";
 import { EmptyState, RecordRow, SectionCard } from "@/components/portal/ui/primitives";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { StatusDot } from "@/components/portal/ui/status-dot";
 import { Button } from "@/components/ui/button";
@@ -390,7 +391,7 @@ export default async function AdminDashboardPage() {
                     tone="danger"
                     meta={
                       <>
-                        {missionClientLabel(mission)} · {formatDateTime(mission.requested_departure)}
+                        {missionClientLabel(mission)} · <LocalTime value={mission.requested_departure} />
                       </>
                     }
                     trailing={
@@ -430,7 +431,7 @@ export default async function AdminDashboardPage() {
                       ) : null}
                     </div>
                     <span className="deck-mono shrink-0 text-[var(--deck-text-3)]">
-                      {formatDateTime(event.created_at)}
+                      <LocalTime value={event.created_at} />
                     </span>
                   </li>
                 ))}
@@ -474,7 +475,7 @@ export default async function AdminDashboardPage() {
                       {formatRoute(mission.departure_airport, mission.arrival_airport)}
                     </p>
                     <p className="mt-1 text-xs text-[var(--deck-text-3)]">
-                      {formatDateTime(mission.requested_departure)}
+                      <LocalTime value={mission.requested_departure} />
                     </p>
                   </Link>
                 ))}

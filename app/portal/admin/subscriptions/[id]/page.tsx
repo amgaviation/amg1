@@ -7,6 +7,7 @@ import { DataTable } from "@/components/portal/ui/data-table";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { ClientPickerField } from "@/components/portal/ui/combobox";
 import { DetailRow, Notice, PageHeader, SectionCard, StatCard, Timeline } from "@/components/portal/ui/primitives";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { getEntityTimeline, getSubscriptionDetail, listAllMissions, listClients } from "@/lib/portal/queries";
@@ -125,8 +126,8 @@ export default async function AdminSubscriptionDetailPage({
               <DetailRow label="Plan">{subscription.plan?.name ?? "-"}</DetailRow>
               <DetailRow label="Tier">{subscription.tier?.name ?? "-"}</DetailRow>
               <DetailRow label="Cadence">{subscription.billing_cadence}</DetailRow>
-              <DetailRow label="Start">{formatDate(subscription.start_date)}</DetailRow>
-              <DetailRow label="Renewal">{formatDate(subscription.renewal_date)}</DetailRow>
+              <DetailRow label="Start"><LocalTime value={subscription.start_date} mode="date" /></DetailRow>
+              <DetailRow label="Renewal"><LocalTime value={subscription.renewal_date} mode="date" /></DetailRow>
               <DetailRow label="Current Period">{[formatDate(subscription.current_period_start), formatDate(subscription.current_period_end)].join(" - ")}</DetailRow>
               <DetailRow label="Cancel At Period End">{subscription.cancel_at_period_end ? "Yes" : "No"}</DetailRow>
               <DetailRow label="Monthly">{formatMoney(subscription.custom_price ?? subscription.monthly_price)}</DetailRow>
@@ -139,7 +140,7 @@ export default async function AdminSubscriptionDetailPage({
               <DetailRow label="Payment Status">{subscription.stripe_payment_status ?? "-"}</DetailRow>
               <DetailRow label="Source">{subscription.source ?? "manual"}</DetailRow>
               <DetailRow label="Last Event">{subscription.stripe_last_event_type ?? "-"}</DetailRow>
-              <DetailRow label="Last Synced">{formatDateTime(subscription.stripe_last_synced_at)}</DetailRow>
+              <DetailRow label="Last Synced"><LocalTime value={subscription.stripe_last_synced_at} /></DetailRow>
               <DetailRow label="Allowances">{`${subscription.included_flights} flights / ${subscription.included_mx_repositions} MX repositions / ${subscription.included_admin_hours} admin hrs`}</DetailRow>
               <DetailRow label="Notes">{subscription.notes ?? "-"}</DetailRow>
             </dl>
@@ -151,7 +152,7 @@ export default async function AdminSubscriptionDetailPage({
               getKey={(row) => row.id}
               emptyLabel="No subscription usage recorded."
               columns={[
-                { header: "Date", cell: (row) => formatDateTime(row.created_at) },
+                { header: "Date", cell: (row) => <LocalTime value={row.created_at} /> },
                 { header: "Type", cell: (row) => SUBSCRIPTION_USAGE_TYPE_LABEL[row.usage_type] ?? row.usage_type },
                 { header: "Mission", cell: (row) => row.mission ? <Link href={`/portal/admin/trips/${row.mission.id}`} className="text-[var(--deck-accent-ink)] hover:underline">{row.mission.ref}</Link> : "-" },
                 { header: "Qty", cell: (row) => `${row.quantity} ${row.unit ?? ""}`.trim(), align: "right" },
@@ -167,10 +168,10 @@ export default async function AdminSubscriptionDetailPage({
               getKey={(row) => row.id}
               emptyLabel="No subscription credits recorded."
               columns={[
-                { header: "Date", cell: (row) => formatDateTime(row.created_at) },
+                { header: "Date", cell: (row) => <LocalTime value={row.created_at} /> },
                 { header: "Source", cell: (row) => row.source_type.replace(/_/g, " ") },
                 { header: "Description", cell: (row) => row.description ?? "-" },
-                { header: "Expires", cell: (row) => formatDate(row.expires_at) },
+                { header: "Expires", cell: (row) => <LocalTime value={row.expires_at} mode="date" /> },
                 { header: "Amount", cell: (row) => formatMoney(row.amount), align: "right" },
               ]}
             />
@@ -200,8 +201,8 @@ export default async function AdminSubscriptionDetailPage({
               emptyLabel="No Stripe events linked to this subscription."
               columns={[
                 { header: "Event", cell: (row) => row.event_type ?? row.type },
-                { header: "Received", cell: (row) => formatDateTime(row.received_at ?? row.created_at) },
-                { header: "Processed", cell: (row) => formatDateTime(row.processed_at) },
+                { header: "Received", cell: (row) => <LocalTime value={row.received_at ?? row.created_at} /> },
+                { header: "Processed", cell: (row) => <LocalTime value={row.processed_at} /> },
                 { header: "Status", cell: (row) => row.status },
                 { header: "Error", cell: (row) => row.error ?? "-" },
               ]}

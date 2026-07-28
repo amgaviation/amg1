@@ -8,6 +8,7 @@ import {
   SectionCard,
   StatCard,
 } from "@/components/portal/ui/primitives";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import {
@@ -18,7 +19,7 @@ import {
 import { getBillingSettings } from "@/lib/portal/billing-config";
 import { AR_BUCKETS, getArSummary, type ArInvoice } from "@/lib/portal/receivables";
 import { INVOICE_STATUS_LABEL, INVOICE_STATUS_TONE, toneFor } from "@/lib/portal/constants";
-import { formatDate, formatMoney } from "@/lib/portal/format";
+import { formatMoney } from "@/lib/portal/format";
 
 export const metadata = { title: "Receivables - AMG Operations" };
 export const dynamic = "force-dynamic";
@@ -34,7 +35,7 @@ function DunningCell({ row }: { row: ArInvoice }) {
   const dunning = row.dunning;
   const lastSent = dunning.lastSentAt ? (
     <span className="block text-[0.66rem] text-[var(--deck-text-3)]">
-      {dunning.lastStageLabel} sent {formatDate(dunning.lastSentAt)}
+      {dunning.lastStageLabel} sent <LocalTime value={dunning.lastSentAt} mode="date" />
     </span>
   ) : null;
 
@@ -192,7 +193,7 @@ export default async function ReceivablesPage({
                     "—"
                   ),
               },
-              { header: "Due", cell: (row) => formatDate(row.due_date) },
+              { header: "Due", cell: (row) => <LocalTime value={row.due_date} mode="date" /> },
               {
                 header: "Age",
                 cell: (row) => (
@@ -229,7 +230,7 @@ export default async function ReceivablesPage({
                   <div data-portal-action-bar className="flex flex-wrap items-center justify-end gap-2">
                     {row.lastRemindedAt ? (
                       <span className="text-[0.66rem] text-[var(--deck-text-3)]">
-                        Reminded {formatDate(row.lastRemindedAt)}
+                        Reminded <LocalTime value={row.lastRemindedAt} mode="date" />
                       </span>
                     ) : null}
                     <form action={sendInvoiceReminder}>

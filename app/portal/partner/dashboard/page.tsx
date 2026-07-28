@@ -8,6 +8,7 @@ import {
   RecordRow,
   SectionCard,
 } from "@/components/portal/ui/primitives";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +18,7 @@ import {
   listPartnerAssignments,
 } from "@/lib/portal/queries";
 import { PARTNER_STATUS_LABEL, PARTNER_STATUS_TONE, toneFor } from "@/lib/portal/constants";
-import { formatDateTime, formatMoney } from "@/lib/portal/format";
+import { formatMoney } from "@/lib/portal/format";
 
 export const metadata = { title: "Dashboard - Partner Portal" };
 
@@ -73,7 +74,7 @@ export default async function PartnerDashboardPage() {
                 meta={
                   <>
                     {item.location ?? "Location TBD"} · Required{" "}
-                    {formatDateTime(item.required_datetime)}
+                    <LocalTime value={item.required_datetime} />
                   </>
                 }
                 tone="warn"
@@ -117,7 +118,7 @@ export default async function PartnerDashboardPage() {
                 title={`${item.service_type} — ${item.mission?.ref ?? "Mission TBD"}`}
                 meta={
                   <>
-                    {item.location ?? "Location TBD"} · {formatDateTime(item.created_at)}
+                    {item.location ?? "Location TBD"} · <LocalTime value={item.created_at} />
                     {item.quote_amount ? <> · Quote {formatMoney(item.quote_amount)}</> : null}
                   </>
                 }
@@ -146,7 +147,7 @@ export default async function PartnerDashboardPage() {
                 href={`/portal/partner/requests/${item.id}`}
                 refLabel={item.ref}
                 title={item.service_type}
-                meta={<>{item.location ?? "Location TBD"} · Required {formatDateTime(item.required_datetime)}</>}
+                meta={<>{item.location ?? "Location TBD"} · Required <LocalTime value={item.required_datetime} /></>}
                 tone="warn"
                 trailing={
                   <StatusBadge

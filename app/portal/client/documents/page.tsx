@@ -4,10 +4,10 @@ import { PageHeader, SectionCard, EmptyState, Notice, RecordRow } from "@/compon
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { SelectField, TextField } from "@/components/portal/ui/fields";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { uploadDocument } from "@/app/portal/actions/documents";
 import { listDocumentsForUser } from "@/lib/portal/queries";
 import { DOCUMENT_STATUS_LABEL, DOCUMENT_STATUS_TONE, DOCUMENT_TYPES, toneFor } from "@/lib/portal/constants";
-import { formatDate } from "@/lib/portal/format";
 import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 
 export const metadata = { title: "Documents — Client Portal" };
@@ -87,8 +87,8 @@ export default async function ClientDocumentsPage({
                 title={doc.name}
                 meta={
                   <>
-                    {doc.doc_type} · Uploaded {formatDate(doc.created_at)}
-                    {doc.expiration_date ? <> · Expires {formatDate(doc.expiration_date)}</> : null}
+                    {doc.doc_type} · Uploaded <LocalTime value={doc.created_at} mode="date" />
+                    {doc.expiration_date ? <> · Expires <LocalTime value={doc.expiration_date} mode="date" /></> : null}
                     {doc.review_notes ? (
                       <span className="mt-1 block text-[var(--deck-warn)]">{doc.review_notes}</span>
                     ) : null}

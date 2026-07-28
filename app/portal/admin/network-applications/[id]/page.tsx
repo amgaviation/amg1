@@ -13,7 +13,8 @@ import {
   NETWORK_STATUS_TONES,
   type NetworkApplicationFile,
 } from "@/lib/portal/network-applications";
-import { formatDate, formatDateTime } from "@/lib/portal/format";
+import { formatDateTime } from "@/lib/portal/format";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import {
   NETWORK_DECISION_STATUSES,
   getEmailTemplateCopies,
@@ -99,7 +100,7 @@ export default async function NetworkApplicationDetailPage({
             <DetailRow label="Name">{application.full_name}</DetailRow>
             <DetailRow label="Email">{application.email}</DetailRow>
             <DetailRow label="Phone">{application.phone}</DetailRow>
-            <DetailRow label="Submitted">{formatDateTime(application.submitted_at)}</DetailRow>
+            <DetailRow label="Submitted"><LocalTime value={application.submitted_at} /></DetailRow>
             <DetailRow label="Source">{NETWORK_SOURCE_LABELS[application.source] ?? application.source}</DetailRow>
             {application.position_applied ? <DetailRow label="Position">{application.position_applied}</DetailRow> : null}
             <DetailRow label="Status"><StatusBadge label={NETWORK_STATUS_LABELS[application.status]} tone={NETWORK_STATUS_TONES[application.status]} /></DetailRow>
@@ -133,7 +134,7 @@ export default async function NetworkApplicationDetailPage({
               <DetailRow label="Ratings">{value(application.ratings_held)}</DetailRow>
               <DetailRow label="Type ratings">{value(application.type_ratings)}</DetailRow>
               <DetailRow label="Medical">{application.medical_certificate}</DetailRow>
-              <DetailRow label="Medical exp.">{application.medical_expiration_date ? formatDate(application.medical_expiration_date) : "-"}</DetailRow>
+              <DetailRow label="Medical exp.">{application.medical_expiration_date ? <LocalTime value={application.medical_expiration_date} mode="date" /> : "-"}</DetailRow>
             </SectionCard>
             <SectionCard title="Work Authorization / Travel" icon="shield">
               <DetailRow label="Authorization">{application.work_authorization_status}</DetailRow>
@@ -226,7 +227,7 @@ export default async function NetworkApplicationDetailPage({
                 <Link href={`/portal/admin/crew/${application.crew_profile_id}`} className="text-[var(--deck-accent-ink)] hover:underline">Open crew profile</Link>
               </DetailRow>
               <DetailRow label="Completion">{application.crewProfile?.profile_completion_percent ?? 0}%</DetailRow>
-              <DetailRow label="Updated">{application.crewProfile?.updated_at ? formatDateTime(application.crewProfile.updated_at) : "-"}</DetailRow>
+              <DetailRow label="Updated">{application.crewProfile?.updated_at ? <LocalTime value={application.crewProfile.updated_at} /> : "-"}</DetailRow>
               <DetailRow label="Missing docs">
                 {application.crewProfile?.medical_certificate ? "Review uploaded credentials" : "Medical certificate status missing"}
               </DetailRow>

@@ -12,7 +12,8 @@ import {
   URGENCY_LABEL,
   toneFor,
 } from "@/lib/portal/constants";
-import { formatDateTime, formatRoute } from "@/lib/portal/format";
+import { formatRoute } from "@/lib/portal/format";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Mission Control - AMG Operations" };
@@ -155,7 +156,7 @@ export default async function AdminMissionControlPage({
                       {formatRoute(mission.departure_airport, mission.arrival_airport)}
                     </p>
                     <p className="mt-1 text-xs text-[var(--deck-text-3)]">
-                      {formatDateTime(mission.requested_departure)}
+                      <LocalTime value={mission.requested_departure} />
                       {mission.urgency !== "standard" ? (
                         <span
                           className={

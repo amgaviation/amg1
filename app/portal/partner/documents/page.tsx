@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { EmptyState, Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { SelectField, TextField } from "@/components/portal/ui/fields";
 import { uploadDocument } from "@/app/portal/actions/documents";
 import { listDocumentsForUser } from "@/lib/portal/queries";
 import { DOCUMENT_STATUS_LABEL, DOCUMENT_STATUS_TONE, DOCUMENT_TYPES, toneFor } from "@/lib/portal/constants";
-import { formatDate } from "@/lib/portal/format";
 import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 
 export const metadata = { title: "Documents - Partner Portal" };
@@ -56,7 +56,7 @@ export default async function PartnerDocumentsPage({
         {docs.length === 0 ? <EmptyState icon="fileText" title="No documents uploaded" description="Upload partner compliance and service documents above." /> : (
           <div className="space-y-3">{docs.map((doc) => (
             <div key={doc.id} className="deck-inset grid gap-3 p-4 sm:grid-cols-[1fr_auto_auto]">
-              <div><p className="text-sm font-semibold">{doc.name}</p><p className="mt-1 text-xs text-[var(--deck-text-2)]">{doc.doc_type} | Uploaded {formatDate(doc.created_at)}</p></div>
+              <div><p className="text-sm font-semibold">{doc.name}</p><p className="mt-1 text-xs text-[var(--deck-text-2)]">{doc.doc_type} | Uploaded <LocalTime value={doc.created_at} mode="date" /></p></div>
               <StatusBadge label={DOCUMENT_STATUS_LABEL[doc.status] ?? doc.status} tone={toneFor(DOCUMENT_STATUS_TONE, doc.status)} />
               <Link href={`/portal/documents/${doc.id}/view`} className="text-sm text-[var(--deck-accent-ink)] hover:underline">View</Link>
             </div>

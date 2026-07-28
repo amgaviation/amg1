@@ -10,6 +10,7 @@ import {
   SectionCard,
 } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { Button } from "@/components/ui/button";
 import {
   getCrewProfile,
@@ -25,7 +26,7 @@ import {
   MISSION_STATUS_TONE,
   toneFor,
 } from "@/lib/portal/constants";
-import { daysUntil, formatDateTime, formatRoute } from "@/lib/portal/format";
+import { daysUntil, formatRoute } from "@/lib/portal/format";
 import { getCrewPresenceState, resolveAirports } from "@/lib/portal/crew-map";
 import { GoActiveControl } from "@/components/portal/crew-map/go-active-control";
 
@@ -97,7 +98,7 @@ export default async function CrewDashboardPage() {
                 title={formatRoute(m.departure_airport, m.arrival_airport)}
                 meta={
                   <>
-                    {m.tail_number ?? "—"} · {formatDateTime(m.requested_departure)}
+                    {m.tail_number ?? "—"} · <LocalTime value={m.requested_departure} />
                   </>
                 }
                 tone="warn"
@@ -129,7 +130,7 @@ export default async function CrewDashboardPage() {
               </p>
               <p className="mt-2 text-sm text-[var(--deck-chrome-muted)]">
                 {nextAssignment.tail_number ?? "Aircraft TBD"} ·{" "}
-                {formatDateTime(nextAssignment.requested_departure)} · Open the brief for duty
+                <LocalTime value={nextAssignment.requested_departure} /> · Open the brief for duty
                 notes and the manifest
               </p>
             </div>
@@ -203,7 +204,7 @@ export default async function CrewDashboardPage() {
                 title={formatRoute(m.departure_airport, m.arrival_airport)}
                 meta={
                   <>
-                    {m.tail_number ?? "—"} · {formatDateTime(m.requested_departure)}
+                    {m.tail_number ?? "—"} · <LocalTime value={m.requested_departure} />
                   </>
                 }
                 trailing={

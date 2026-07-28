@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { EmptyState, Notice, PageHeader, RecordRow, SectionCard } from "@/components/portal/ui/primitives";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { MessageUnreadBadge } from "@/components/portal/ui/message-unread-badge";
 import { Button } from "@/components/ui/button";
 import { listThreadsForUser } from "@/lib/portal/queries";
-import { formatDateTime } from "@/lib/portal/format";
 import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 
 export const metadata = { title: "Portal Messages - Admin Portal" };
@@ -77,7 +77,7 @@ export default async function AdminPortalMessagesPage({
                 }
                 trailing={
                   <>
-                    <span className="deck-mono text-[var(--deck-text-3)]">{formatDateTime(t.last_message_at)}</span>
+                    <span className="deck-mono text-[var(--deck-text-3)]"><LocalTime value={t.last_message_at} /></span>
                     <MessageUnreadBadge count={t.unread_count} />
                   </>
                 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DataTable } from "@/components/portal/ui/data-table";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { EmptyState, Notice } from "@/components/portal/ui/primitives";
 import { RecordListShell } from "@/components/portal/ui/record-list-shell";
 import { FormModal } from "@/components/portal/ui/record-modal";
@@ -7,7 +8,7 @@ import { DeckSelect, Field, TextField } from "@/components/portal/ui/fields";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { Button } from "@/components/ui/button";
 import { uploadVendorReceipt } from "@/app/portal/actions/vendor-invoices";
-import { formatDate, formatMoney } from "@/lib/portal/format";
+import { formatMoney } from "@/lib/portal/format";
 import {
   listMissionOptionsForContractor,
   listVendorInvoicesForSubmitter,
@@ -157,7 +158,7 @@ export async function VendorReceiptsList({
                     <span className="text-xs text-[var(--deck-text-3)]">Standalone</span>
                   ),
               },
-              { header: "Uploaded", hideOnMobile: true, cell: (row) => formatDate(row.created_at) },
+              { header: "Uploaded", hideOnMobile: true, cell: (row) => <LocalTime value={row.created_at} mode="date" /> },
             ]}
           />
         )

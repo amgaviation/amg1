@@ -11,6 +11,7 @@ import {
 } from "@/components/portal/ui/primitives";
 import { RecordListShell } from "@/components/portal/ui/record-list-shell";
 import { RecordModal } from "@/components/portal/ui/record-modal";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { DeckSelect, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
@@ -24,7 +25,7 @@ import {
   EXPENSE_STATUS_TONE,
   toneFor,
 } from "@/lib/portal/constants";
-import { formatDate, formatDateTime, formatMoney } from "@/lib/portal/format";
+import { formatDate, formatMoney } from "@/lib/portal/format";
 
 export const metadata = { title: "Expenses - Admin Portal" };
 
@@ -262,7 +263,7 @@ export default async function AdminExpensesPage({
                 hideOnMobile: true,
                 cell: (row) => (
                   <span className="deck-mono whitespace-nowrap text-[var(--deck-text-2)]">
-                    {formatDate(row.expense_date)}
+                    <LocalTime value={row.expense_date} mode="date" />
                   </span>
                 ),
               },
@@ -321,7 +322,7 @@ export default async function AdminExpensesPage({
               {EXPENSE_CATEGORY_LABEL[record.category] ?? record.category}
             </DetailRow>
             <DetailRow label="Merchant">{record.merchant ?? "No merchant"}</DetailRow>
-            <DetailRow label="Expense Date">{formatDate(record.expense_date)}</DetailRow>
+            <DetailRow label="Expense Date"><LocalTime value={record.expense_date} mode="date" /></DetailRow>
             <DetailRow label="Amount">
               <span className="deck-num">{formatMoney(record.amount)}</span>
             </DetailRow>
@@ -334,7 +335,7 @@ export default async function AdminExpensesPage({
             </DetailRow>
             <DetailRow label="Crew Notes">{record.notes ?? "—"}</DetailRow>
             <DetailRow label="Review Notes">{record.review_notes ?? "—"}</DetailRow>
-            <DetailRow label="Submitted">{formatDateTime(record.created_at)}</DetailRow>
+            <DetailRow label="Submitted"><LocalTime value={record.created_at} /></DetailRow>
           </dl>
 
           <div className="mt-6 grid gap-6 lg:grid-cols-2">

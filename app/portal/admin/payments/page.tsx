@@ -10,6 +10,7 @@ import { DeckSelect } from "@/components/portal/ui/fields";
 import { listAllPayments } from "@/lib/portal/queries";
 import { PAYMENT_METHODS } from "@/lib/portal/constants";
 import { formatDateTime, formatMoney, titleCase } from "@/lib/portal/format";
+import { LocalTime } from "@/components/portal/ui/local-time";
 
 export const metadata = { title: "Payments - Admin Portal" };
 
@@ -359,8 +360,8 @@ export default async function AdminPaymentsPage({
             </DetailRow>
             <DetailRow label="Timeline">
               <span className="grid gap-0.5 text-sm">
-                <span>Paid {formatDateTime(record.paid_at)}</span>
-                <span>Recorded {formatDateTime(record.created_at)}</span>
+                <span>Paid <LocalTime value={record.paid_at} /></span>
+                <span>Recorded <LocalTime value={record.created_at} /></span>
               </span>
             </DetailRow>
             {record.notes ? <DetailRow label="Notes">{record.notes}</DetailRow> : null}

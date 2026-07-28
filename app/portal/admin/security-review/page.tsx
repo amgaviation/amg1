@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { DataTable } from "@/components/portal/ui/data-table";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { listAllUsers } from "@/lib/portal/queries";
 import { PROFILE_STATUS_LABEL, PROFILE_STATUS_TONE, toneFor } from "@/lib/portal/constants";
-import { formatDateTime } from "@/lib/portal/format";
 import { completeAdminSecurityReview } from "@/app/portal/actions/compliance";
 
 export const metadata = { title: "Security Review - Admin Portal" };
@@ -130,7 +130,7 @@ export default async function AdminSecurityReviewPage({
             { header: "MFA", cell: () => <div><p>MFA status unavailable</p><p className="text-xs text-[var(--deck-text-2)]">Auth provider does not expose MFA state to this profile record.</p></div> },
             { header: "Sensitive Access", cell: (row) => sensitiveAccess(row.role) ? <StatusBadge label="Review required" tone="warn" /> : "Standard portal access" },
             { header: "Email Quality", cell: (row) => isInvalidImportEmail(row.email) ? <StatusBadge label="Invalid import placeholder" tone="danger" /> : "Verified format" },
-            { header: "Created", cell: (row) => formatDateTime(row.created_at) },
+            { header: "Created", cell: (row) => <LocalTime value={row.created_at} /> },
           ]}
         />
       </SectionCard>

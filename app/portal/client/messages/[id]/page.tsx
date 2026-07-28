@@ -3,9 +3,10 @@ import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { isThreadMember, markThreadRead } from "@/lib/portal/queries";
 import { postMessage } from "@/app/portal/actions/messages";
-import { formatDateTime, initials } from "@/lib/portal/format";
+import { initials } from "@/lib/portal/format";
 import {
   getThreadWithMessagesForDisplay,
   messageSenderInitialsSource,
@@ -42,7 +43,7 @@ export default async function ClientThreadPage({ params }: { params: Promise<{ i
                 <div className={`max-w-[75%] rounded-md px-4 py-3 ${isMe ? "bg-[var(--deck-accent-tint)] border border-[var(--deck-accent-line)]" : "bg-[var(--deck-panel)] border border-[var(--deck-line)]"}`}>
                   <p className="text-xs font-semibold mb-1 text-[var(--deck-text-2)]">{senderLabel}</p>
                   <p className="text-sm leading-6">{message.body}</p>
-                  <p className="mt-1 text-[0.65rem] text-[var(--deck-text-2)]">{formatDateTime(message.created_at)}</p>
+                  <p className="mt-1 text-[0.65rem] text-[var(--deck-text-2)]"><LocalTime value={message.created_at} /></p>
                 </div>
               </div>
             );

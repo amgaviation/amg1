@@ -10,6 +10,7 @@ import {
 } from "@/components/portal/ui/primitives";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { ClientPickerField } from "@/components/portal/ui/combobox";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { Button } from "@/components/ui/button";
@@ -286,8 +287,8 @@ export default async function LeadDetailPage({
               <DetailRow label="Source">{titleCase(lead.source)}</DetailRow>
               <DetailRow label="Owner">{lead.owner?.full_name ?? lead.owner?.email ?? "—"}</DetailRow>
               <DetailRow label="Value">{lead.estimated_value ? formatMoney(lead.estimated_value) : "—"}</DetailRow>
-              <DetailRow label="Created">{formatDateTime(lead.created_at)}</DetailRow>
-              <DetailRow label="Updated">{formatDateTime(lead.updated_at)}</DetailRow>
+              <DetailRow label="Created"><LocalTime value={lead.created_at} /></DetailRow>
+              <DetailRow label="Updated"><LocalTime value={lead.updated_at} /></DetailRow>
               {lead.form_submission_id ? (
                 <DetailRow label="Origin">
                   <Link

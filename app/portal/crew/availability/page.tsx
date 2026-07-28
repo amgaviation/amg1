@@ -3,10 +3,10 @@ import { PageHeader, SectionCard, EmptyState, Notice } from "@/components/portal
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { getCrewProfile, listAvailability } from "@/lib/portal/queries";
 import { addAvailabilityWindow, removeAvailabilityWindow, setAvailabilityStatus } from "@/app/portal/actions/crew";
 import { AVAILABILITY_STATUS, AVAILABILITY_STATUS_LABEL, AVAILABILITY_STATUS_TONE, toneFor } from "@/lib/portal/constants";
-import { formatDate } from "@/lib/portal/format";
 import { getUserFacingErrorMessage } from "@/lib/errors/user-facing-errors";
 
 export const metadata = { title: "Availability - Crew Portal" };
@@ -71,7 +71,7 @@ export default async function CrewAvailabilityPage({
             {windows.map((item) => (
               <div key={item.id} className="deck-inset grid gap-3 p-4 sm:grid-cols-[1fr_auto_auto] sm:items-center">
                 <div>
-                  <p className="text-sm font-semibold">{formatDate(item.start_date)} - {formatDate(item.end_date)}</p>
+                  <p className="text-sm font-semibold"><LocalTime value={item.start_date} mode="date" /> - <LocalTime value={item.end_date} mode="date" /></p>
                   {item.notes ? <p className="mt-1 text-xs text-[var(--deck-text-2)]">{item.notes}</p> : null}
                 </div>
                 <StatusBadge label={AVAILABILITY_STATUS_LABEL[item.availability_type] ?? item.availability_type} tone={toneFor(AVAILABILITY_STATUS_TONE, item.availability_type)} />

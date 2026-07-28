@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useTransition } from "react";
 import { markNotificationRead } from "@/app/portal/actions/notifications";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { EmptyState } from "@/components/portal/ui/primitives";
-import { formatDateTime } from "@/lib/portal/format";
 import { notificationHref } from "@/lib/portal/notification-links";
 import type { NotificationRow } from "@/lib/portal/queries";
 import { cn } from "@/lib/utils";
@@ -62,7 +62,7 @@ function NotificationItem({
           <p className="mt-1 text-sm leading-5 text-[var(--deck-text-2)]">{n.body}</p>
         ) : null}
         <p className="deck-mono mt-1.5 text-[var(--deck-text-3)]">
-          {formatDateTime(n.created_at)}
+          <LocalTime value={n.created_at} />
         </p>
       </div>
     </>

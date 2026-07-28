@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { DataTable } from "@/components/portal/ui/data-table";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { DetailRow, Notice, SectionCard, Timeline } from "@/components/portal/ui/primitives";
 import { DescriptionList } from "@/components/portal/ui/description-list";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
@@ -185,7 +186,7 @@ export default async function AdminInvoiceDetailPage({
               getKey={(row) => row.id}
               emptyLabel="No payments recorded."
               columns={[
-                { header: "Date", cell: (row) => formatDateTime(row.paid_at) },
+                { header: "Date", cell: (row) => <LocalTime value={row.paid_at} /> },
                 { header: "Method", cell: (row) => row.payment_method ?? "-" },
                 { header: "Reference", cell: (row) => (row as any).payment_reference ?? "-" },
                 { header: "Amount", cell: (row) => formatMoney(row.amount), align: "right" },

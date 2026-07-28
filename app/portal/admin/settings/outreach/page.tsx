@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { Notice, PageHeader, SectionCard } from "@/components/portal/ui/primitives";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { TextField } from "@/components/portal/ui/fields";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
@@ -12,7 +13,6 @@ import {
 } from "@/app/portal/actions/outreach";
 import { getOutreachSettings, outreachSentLast24h } from "@/lib/portal/outreach-settings";
 import { describeSendWindow } from "@/lib/portal/outreach-window";
-import { formatDateTime } from "@/lib/portal/format";
 import { createServiceClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Lead Outreach — AMG Operations" };
@@ -129,7 +129,7 @@ export default async function OutreachSettingsPage({
           />
           {settings.templatesApprovedAt ? (
             <span className="text-sm text-[var(--deck-text-3)]">
-              {formatDateTime(settings.templatesApprovedAt)}
+              <LocalTime value={settings.templatesApprovedAt} />
             </span>
           ) : null}
           <Button asChild variant="outline" size="sm">

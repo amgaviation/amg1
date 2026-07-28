@@ -1,10 +1,11 @@
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { DataTable } from "@/components/portal/ui/data-table";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { PageHeader, SectionCard } from "@/components/portal/ui/primitives";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { listPartnerAssignments } from "@/lib/portal/queries";
 import { PARTNER_STATUS_LABEL, PARTNER_STATUS_TONE, toneFor } from "@/lib/portal/constants";
-import { formatDateTime, formatMoney } from "@/lib/portal/format";
+import { formatMoney } from "@/lib/portal/format";
 
 export const metadata = { title: "Service Requests - Partner Portal" };
 
@@ -29,7 +30,7 @@ export default async function PartnerRequestsPage() {
             { header: "Location", hideOnMobile: true, cell: (row) => row.location ?? "-" },
             { header: "Quote", cell: (row) => formatMoney(row.quote_amount), align: "right" },
             { header: "Status", cell: (row) => <StatusBadge label={PARTNER_STATUS_LABEL[row.status] ?? row.status} tone={toneFor(PARTNER_STATUS_TONE, row.status)} /> },
-            { header: "Created", cell: (row) => formatDateTime(row.created_at) },
+            { header: "Created", cell: (row) => <LocalTime value={row.created_at} /> },
           ]}
         />
       </SectionCard>

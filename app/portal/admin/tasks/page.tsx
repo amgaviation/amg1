@@ -11,10 +11,11 @@ import {
 import { SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
+import { LocalTime } from "@/components/portal/ui/local-time";
 import { createTask, setTaskStatus } from "@/app/portal/actions/tasks";
 import { TASK_PRIORITIES, listTasks, type OpsTask } from "@/lib/portal/tasks";
 import { listAllUsers } from "@/lib/portal/queries";
-import { formatDateTime, titleCase } from "@/lib/portal/format";
+import { titleCase } from "@/lib/portal/format";
 
 export const metadata = { title: "Tasks - AMG Operations" };
 export const dynamic = "force-dynamic";
@@ -33,7 +34,7 @@ function taskMeta(task: OpsTask) {
       {task.assignee ? <>Assigned to {task.assignee.full_name ?? task.assignee.email} · </> : null}
       {task.due_at ? (
         <span className={overdue ? "font-semibold text-[var(--deck-danger)]" : undefined}>
-          Due {formatDateTime(task.due_at)}
+          Due <LocalTime value={task.due_at} />
         </span>
       ) : (
         "No due date"
