@@ -1,6 +1,6 @@
 import "server-only";
 
-import { AMG_EMAIL_BRAND, SITE_URL, replyToAddress } from "@/lib/email/config";
+import { AMG_EMAIL_BRAND, EMAIL_POSTAL_ADDRESS, SITE_URL, replyToAddress } from "@/lib/email/config";
 import { getEmailProvider, emailProviderStatus } from "@/lib/email/provider";
 import { operationalEmailHtml, operationalEmailText } from "@/lib/email/templates";
 import { isValidEmailAddress } from "@/lib/email/threading";
@@ -20,7 +20,6 @@ import {
 } from "@/lib/portal/lead-email-templates";
 import { isSuppressed, unsubscribeUrl } from "@/lib/portal/lead-suppression";
 import type { SessionUser } from "@/lib/portal/session";
-import { SITE } from "@/lib/site-config";
 import { createServiceClient } from "@/lib/supabase/server";
 
 /** Outreach email to a sales-pipeline lead: send, log to the lead's activity
@@ -67,9 +66,11 @@ export const OUTREACH_AUTOMATION_ACTOR: AutomationActor = {
 
 /**
  * The CAN-SPAM footer every outreach email carries: who we are, where we are,
- * and how to make it stop. SITE.streetAddress is a real street address, which
- * the statute requires — a PO box only qualifies if it is registered to the
- * sender.
+ * and how to make it stop. EMAIL_POSTAL_ADDRESS is a real physical address,
+ * which the statute requires — a PO box only qualifies if it is registered to
+ * the sender. Set the EMAIL_POSTAL_ADDRESS env var to mail from a PO box or
+ * CMRA mailbox instead of the operating address; it falls back to the site
+ * address, so the footer is never blank.
  */
 function leadEmailFooter(recipientEmail: string) {
   const url = unsubscribeUrl(recipientEmail);
@@ -77,7 +78,7 @@ function leadEmailFooter(recipientEmail: string) {
     unsubscribeUrl: url,
     text: [
       "—",
-      `${AMG_EMAIL_BRAND.companyName} · ${SITE.streetAddress}`,
+      `${AMG_EMAIL_BRAND.companyName} · ${EMAIL_POSTAL_ADDRESS}`,
       `You received this because we believe AMG's aircraft support services are relevant to your operation.`,
       `Not interested? Unsubscribe and we won't contact you again: ${url}`,
     ].join("\n"),

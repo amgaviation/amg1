@@ -1,3 +1,5 @@
+import { SITE } from "@/lib/site-config";
+
 export const AMG_EMAIL_BRAND = {
   companyName: "AMG Aviation Group",
   operationsName: "AMG Operations",
@@ -60,6 +62,21 @@ export const AMG_OPERATIONS_FROM = normalizeSender(
   DEFAULT_OPERATIONS_EMAIL,
 );
 export const AMG_REPLY_TO = cleanEnv(process.env.AMG_REPLY_TO ?? process.env.EMAIL_REPLY_TO) ?? DEFAULT_REPLY_TO;
+
+/**
+ * The physical postal address printed in commercial-email footers.
+ *
+ * CAN-SPAM (15 U.S.C. §7704(a)(5)) requires a valid physical postal address in
+ * every commercial message, so this can never be blank — but it does NOT have
+ * to be the operating address. A USPS-registered PO box or a CMRA mailbox both
+ * satisfy the statute, so EMAIL_POSTAL_ADDRESS exists to swap a mailing address
+ * in without a code change: cold outreach goes to hundreds of strangers, and a
+ * residential address should not be what they receive.
+ *
+ * Falls back to SITE.streetAddress so the footer is never empty — an unset env
+ * var degrades to "still compliant", never to "silently illegal".
+ */
+export const EMAIL_POSTAL_ADDRESS = cleanEnv(process.env.EMAIL_POSTAL_ADDRESS) || SITE.streetAddress;
 
 export const OPERATIONAL_EMAIL_DISCLAIMER =
   "AMG support requests remain subject to aircraft status, crew availability, owner/operator approval, operating conditions, support-scope review, and final acceptance. AMG Aviation Group does not present a request as accepted until the applicable review is complete.";

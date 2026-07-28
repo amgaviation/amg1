@@ -5,10 +5,11 @@ import { redirect } from "next/navigation";
 import { start } from "workflow/api";
 import { leadOutreach } from "@/workflows/lead-outreach";
 import { logAuditEvent } from "@/lib/portal/audit";
-import { suppressEmail } from "@/lib/portal/lead-suppression";
+import { isSuppressed, suppressEmail } from "@/lib/portal/lead-suppression";
 import { isLeadBusinessType } from "@/lib/portal/lead-email-templates";
 import { runProspecting } from "@/lib/portal/prospecting";
 import { importFaaProspects } from "@/lib/portal/faa-import";
+import { importSoutheastMroLeads } from "@/lib/portal/mro-lead-import";
 import { getOutreachSettings } from "@/lib/portal/outreach-settings";
 import { SITE } from "@/lib/site-config";
 import { createServiceClient } from "@/lib/supabase/server";
@@ -190,6 +191,161 @@ export async function startLeadOutreach(formData: FormData) {
 
   revalidatePath(backTo);
   redirect(withStatus(backTo, "success", "outreach-started"));
+}
+
+/**
+ * Import the bundled Southeast MRO list (FAA Part 145 repair stations) as leads.
+ *
+ * Every row carries a real published contact email, so unlike the FAA registry
+ * import these are emailable on arrival. Creates leads only — it enrols nobody
+ * in outreach, so a bad run costs some CRM rows to delete and cannot send mail.
+ */
+export async function importMroLeads(formData: FormData) {
+  const admin = await actor(["admin"], "crm.add");
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/crm/prospecting");
+
+  const result = await importSoutheastMroLeads({ actorId: admin.id, actorEmail: admin.email });
+
+  await logAuditEvent({
+    actor: admin,
+    action: "mro_directory_import",
+    detail: result.ok
+      ? `MRO directory import created ${result.created} lead(s); ${result.skippedExisting} already present, ${result.skippedSuppressed} suppressed, ${result.failed} failed.`
+      : `MRO directory import failed: ${result.error}`,
+  });
+
+  if (!result.ok) {
+    redirect(withStatus(withStatus(backTo, "error", "mro"), "detail", (result.error ?? "").slice(0, 200)));
+  }
+
+  revalidatePath("/portal/admin/crm");
+  redirect(
+    withStatus(
+      withStatus(backTo, "success", "mro"),
+      "detail",
+      `${result.created}|${result.skippedExisting}|${result.skippedSuppressed}`,
+    ),
+  );
+}
+
+/** Outreach states that mean a sequence is already running for this lead. */
+const ACTIVE_OUTREACH_STATES = ["queued", "intro_sent", "followup_1_sent", "followup_2_sent"];
+
+/**
+ * Enrol many leads in the automated sequence in one action.
+ *
+ * The single-lead version assumes a human looking at one record, so putting a
+ * few hundred leads through it means a few hundred clicks — which is not a
+ * thing anyone finishes, so in practice the list never gets worked at all.
+ *
+ * Every refusal the single version makes is repeated here rather than skipped
+ * for speed: no email, opted out, on the suppression list, already mid-sequence,
+ * or sitting in a stage a person has taken over. A bulk path that relaxes the
+ * guardrails is precisely how an outreach system ends up emailing somebody who
+ * asked it not to, several hundred times, unattended.
+ *
+ * Enrolling is not sending. Each lead still passes the send-time gate — kill
+ * switch, template approval, daily cap, send window, and a fresh suppression
+ * check — before a single message leaves, so enrolling more leads than a day
+ * can send is safe: the surplus wait in the window loop rather than flooding.
+ */
+export async function startBulkLeadOutreach(formData: FormData) {
+  const admin = await actor(["admin"], "crm.edit");
+  const backTo = safeRedirectPath(str(formData, "back_to"), "/portal/admin/crm");
+
+  const types = formData
+    .getAll("business_types")
+    .map((value) => String(value))
+    .filter(isLeadBusinessType);
+  if (!types.length) redirect(withStatus(backTo, "error", "types"));
+
+  // Hard ceiling independent of the form: this starts a durable workflow per
+  // lead, and an unbounded batch would be both a long-running request and a
+  // very large number of runs created by one click.
+  const requested = num(formData, "limit");
+  const limit = Math.min(500, Math.max(1, Math.round(requested ?? 150)));
+
+  const db = (await createServiceClient()) as any;
+  const { data: candidates } = await db
+    .from("crm_leads")
+    .select("id, email, business_type, stage, do_not_contact, outreach_state")
+    .in("business_type", types)
+    .not("email", "is", null)
+    .eq("do_not_contact", false)
+    .order("created_at", { ascending: true })
+    .limit(limit * 3); // over-fetch: many rows fall out on the checks below
+
+  const skipped = { no_email: 0, opted_out: 0, already_running: 0, human_owned: 0, suppressed: 0 };
+  const eligible: { id: string; email: string; businessType: string }[] = [];
+
+  for (const lead of candidates ?? []) {
+    if (eligible.length >= limit) break;
+    if (!lead.email) { skipped.no_email += 1; continue; }
+    if (lead.do_not_contact) { skipped.opted_out += 1; continue; }
+    if (ACTIVE_OUTREACH_STATES.includes(lead.outreach_state ?? "")) { skipped.already_running += 1; continue; }
+    if (["qualified", "proposal", "won", "lost"].includes(lead.stage)) { skipped.human_owned += 1; continue; }
+    if (await isSuppressed(lead.email)) { skipped.suppressed += 1; continue; }
+    eligible.push({
+      id: lead.id,
+      email: lead.email,
+      businessType: isLeadBusinessType(lead.business_type) ? lead.business_type : "general",
+    });
+  }
+
+  // Start in small concurrent chunks: one at a time is too slow for a few
+  // hundred, all at once floods the workflow engine from a single request.
+  let started = 0;
+  let failed = 0;
+  const CHUNK = 10;
+  for (let i = 0; i < eligible.length; i += CHUNK) {
+    const chunk = eligible.slice(i, i + CHUNK);
+    await Promise.all(
+      chunk.map(async (lead) => {
+        try {
+          const run = await start(leadOutreach, [lead.id, lead.businessType]);
+          await db
+            .from("crm_leads")
+            .update({
+              outreach_state: "queued",
+              outreach_started_at: new Date().toISOString(),
+              outreach_run_id: (run as { runId?: string })?.runId ?? null,
+            })
+            .eq("id", lead.id);
+          await db.from("crm_activities").insert({
+            lead_id: lead.id,
+            activity_type: "outreach_started",
+            body: `Automated outreach sequence started (${lead.businessType}) via bulk enrolment.`,
+            created_by: admin.id,
+            created_by_email: admin.email,
+          });
+          started += 1;
+        } catch {
+          // One lead failing to enrol must not abort the batch; it stays
+          // un-enrolled and can be picked up by the next run.
+          failed += 1;
+        }
+      }),
+    );
+  }
+
+  await logAuditEvent({
+    actor: admin,
+    action: "outreach_bulk_started",
+    detail:
+      `Bulk outreach enrolled ${started} lead(s) of type ${types.join("/")} ` +
+      `(${failed} failed; skipped ${skipped.already_running} already running, ` +
+      `${skipped.suppressed} suppressed, ${skipped.opted_out} opted out, ` +
+      `${skipped.human_owned} human-owned).`,
+  });
+
+  revalidatePath("/portal/admin/crm");
+  redirect(
+    withStatus(
+      withStatus(backTo, "success", "bulk-outreach"),
+      "detail",
+      `${started}|${failed}|${skipped.already_running + skipped.suppressed + skipped.opted_out + skipped.human_owned}`,
+    ),
+  );
 }
 
 /** Add an address to the suppression list by hand. */

@@ -314,6 +314,34 @@ export function mergeLeadEmailText(
   });
 }
 
+/** Tokens that mark a string as a company name rather than a person's. */
+const COMPANY_NAME_TOKENS =
+  /\b(LLC|L\.L\.C|INC|CORP|CORPORATION|LTD|COMPANY|GROUP|HOLDINGS|SERVICES?|AVIATION|AEROSPACE|AIRWAYS|AIRLINES|INTERNATIONAL|TECHNOLOGIES|SYSTEMS|INDUSTRIES|ENTERPRISES|CENTER|REPAIR|AVIONICS)\b/i;
+
+/**
+ * The name to greet a lead by.
+ *
+ * Leads sourced from business directories carry a COMPANY name in the name
+ * field, because that is all the directory publishes. Splitting on whitespace
+ * then greets them "Hi EPPS," (from "EPPS AIR SERVICE, LLC") or "Hi 630,",
+ * which reads as a broken mail merge — worse than not personalising at all,
+ * and on cold outreach it is the first thing a stranger sees.
+ *
+ * When the name is clearly a company, fall back to "there": a plain, correct
+ * greeting beats a confidently wrong one.
+ */
+function greetingFirstName(fullName: string, company?: string | null): string {
+  const trimmed = fullName.trim();
+  if (!trimmed) return "there";
+  if (company && trimmed.toLowerCase() === company.trim().toLowerCase()) return "there";
+  if (COMPANY_NAME_TOKENS.test(trimmed)) return "there";
+  const first = trimmed.split(/\s+/)[0]?.replace(/[.,]$/, "") ?? "";
+  // Initials, punctuation, digits, or an all-caps fragment are company debris.
+  if (!first || first.length < 2 || /[^A-Za-z'’-]/.test(first)) return "there";
+  if (first === first.toUpperCase() && first.length > 3) return "there";
+  return first;
+}
+
 export function buildLeadEmailVariables(input: {
   lead: { fullName: string; company?: string | null };
   senderName: string;
@@ -323,7 +351,7 @@ export function buildLeadEmailVariables(input: {
   const fullName = input.lead.fullName.trim();
   const site = input.siteUrl.replace(/\/+$/, "");
   return {
-    first_name: fullName.split(/\s+/)[0] || fullName,
+    first_name: greetingFirstName(fullName, input.lead.company),
     full_name: fullName,
     company: input.lead.company?.trim() || "your operation",
     sender_name: input.senderName,

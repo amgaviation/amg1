@@ -5,7 +5,7 @@ import { TextField } from "@/components/portal/ui/fields";
 import { StatusBadge } from "@/components/portal/ui/status-badge";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import { Button } from "@/components/ui/button";
-import { runFaaImport, runProspectingPass } from "@/app/portal/actions/outreach";
+import { importMroLeads, runFaaImport, runProspectingPass, startBulkLeadOutreach } from "@/app/portal/actions/outreach";
 import { LEAD_BUSINESS_TYPES } from "@/lib/portal/lead-email-templates";
 import { prospectingConfigured } from "@/lib/portal/prospecting";
 import { getOutreachSettings } from "@/lib/portal/outreach-settings";
@@ -49,6 +49,30 @@ export default async function ProspectingPage({
             : ""}
           .
         </Notice>
+      ) : null}
+      {params.success === "mro" ? (
+        <Notice tone="success">
+          MRO directory import finished. {(params.detail ?? "").split("|")[0] ?? "0"} lead(s) added
+          {(params.detail ?? "").split("|")[1] && (params.detail ?? "").split("|")[1] !== "0"
+            ? `, ${(params.detail ?? "").split("|")[1]} already in the pipeline`
+            : ""}
+          {(params.detail ?? "").split("|")[2] && (params.detail ?? "").split("|")[2] !== "0"
+            ? `, ${(params.detail ?? "").split("|")[2]} skipped as unsubscribed`
+            : ""}
+          .
+        </Notice>
+      ) : null}
+      {params.success === "bulk-outreach" ? (
+        <Notice tone="success">
+          Bulk outreach enrolled {(params.detail ?? "").split("|")[0] ?? "0"} lead(s)
+          {(params.detail ?? "").split("|")[2] && (params.detail ?? "").split("|")[2] !== "0"
+            ? `, ${(params.detail ?? "").split("|")[2]} skipped (already running, unsubscribed, or taken over)`
+            : ""}
+          . Nothing sends until outreach is switched on, the templates are approved, and the send window opens.
+        </Notice>
+      ) : null}
+      {params.error === "mro" ? (
+        <Notice tone="danger">MRO directory import failed. {params.detail ?? ""}</Notice>
       ) : null}
       {params.error === "states" ? <Notice tone="danger">Enter at least one two-letter state code.</Notice> : null}
       {params.error === "classes" ? <Notice tone="danger">Pick at least one aircraft class.</Notice> : null}
@@ -149,6 +173,63 @@ export default async function ProspectingPage({
             <SubmitButton pendingText="Downloading and scanning the registry…">
               Import owners
             </SubmitButton>
+          </div>
+        </form>
+      </SectionCard>
+
+      <SectionCard title="Southeast MRO directory (ready to email)" icon="database">
+        <p className="text-sm leading-6 text-[var(--deck-text-3)]">
+          204 FAA Part 145 repair stations across FL, GA, NC, SC, TN and AL — each with a
+          contact email published on its own directory listing. Unlike the registry import
+          above, these arrive emailable. Re-running tops the list up; it never duplicates a
+          lead or re-adds anyone who has unsubscribed.
+        </p>
+        <form action={importMroLeads} className="mt-5">
+          <input type="hidden" name="back_to" value={PATH} />
+          <SubmitButton pendingText="Importing the directory…">Import MRO leads</SubmitButton>
+        </form>
+      </SectionCard>
+
+      <SectionCard title="Start outreach in bulk" icon="send">
+        <p className="text-sm leading-6 text-[var(--deck-text-3)]">
+          Enrols every eligible lead of the chosen profiles into the three-touch sequence in
+          one action, instead of one lead at a time. Leads without an email, opted out, on
+          the suppression list, already mid-sequence, or in a stage a person has taken over
+          are skipped automatically.
+        </p>
+        <Notice tone="warn">
+          Enrolling is not sending. Each lead still passes the kill switch, template
+          approval, daily cap and send window before anything leaves — so outreach must be
+          switched on and the templates approved for these to actually go out.
+        </Notice>
+        <form action={startBulkLeadOutreach} className="mt-5 grid gap-5">
+          <input type="hidden" name="back_to" value={PATH} />
+          <fieldset className="grid gap-2">
+            <legend className="deck-eyebrow mb-1 !text-[var(--deck-text-2)]">Target profiles</legend>
+            <div className="flex flex-wrap gap-3">
+              {LEAD_BUSINESS_TYPES.map((type) => (
+                <label key={type.value} className="flex items-center gap-2 text-sm text-[var(--deck-text-2)]">
+                  <input
+                    type="checkbox"
+                    name="business_types"
+                    value={type.value}
+                    defaultChecked={type.value === "mro" || type.value === "broker"}
+                    className="h-4 w-4"
+                  />
+                  {type.label}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <TextField
+            label="How many leads to enrol"
+            name="limit"
+            type="number"
+            defaultValue="200"
+            hint={`The sequence will still only send ${settings.dailySendCap} email(s) per rolling 24 hours; the rest wait their turn.`}
+          />
+          <div>
+            <SubmitButton pendingText="Enrolling leads…">Start bulk outreach</SubmitButton>
           </div>
         </form>
       </SectionCard>
