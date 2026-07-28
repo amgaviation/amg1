@@ -65,15 +65,39 @@ export function unsubscribeUrl(email: string): string {
   return `${SITE_URL}/unsubscribe/${unsubscribeToken(email)}`;
 }
 
+/**
+ * The URL for the List-Unsubscribe header.
+ *
+ * RFC 8058 one-click means the mailbox provider sends a bare POST to whatever
+ * this header names, with no human involved. That cannot be the human-facing
+ * page: a Next.js segment cannot hold both a page and a route handler, and the
+ * page has no POST. Pointing the header at its own endpoint means Gmail's and
+ * Outlook's native Unsubscribe buttons actually suppress the address instead of
+ * silently doing nothing — and a button that appears to work but doesn't is how
+ * a recipient escalates to "mark as spam".
+ */
+export function oneClickUnsubscribeUrl(email: string): string {
+  return `${SITE_URL}/api/unsubscribe/${unsubscribeToken(email)}`;
+}
+
 /** True when this address must not be emailed. */
 export async function isSuppressed(email: string): Promise<boolean> {
   if (!email) return true;
   const db = (await createServiceClient()) as any;
-  const { data } = await db
+  // eq, not ilike: LIKE treats `_` as a single-character wildcard and `_` is an
+  // ordinary character in email addresses, so a pattern match could hit the
+  // wrong row — or several, which makes maybeSingle() error. The column is
+  // stored normalized and has a unique index on lower(email), so equality is
+  // both correct and the index's intended use.
+  const { data, error } = await db
     .from("lead_suppressions")
     .select("id")
-    .ilike("email", normalize(email))
+    .eq("email", normalize(email))
     .maybeSingle();
+  // Fail CLOSED. This function's answer decides whether someone who asked not
+  // to be contacted gets contacted; on an unreadable suppression list the only
+  // safe answer is "assume suppressed".
+  if (error) return true;
   return Boolean(data);
 }
 

@@ -20,6 +20,17 @@ export type SendEmailInput = {
   html?: string | null;
   headers?: Record<string, string>;
   attachments?: EmailAttachmentInput[];
+  /**
+   * Tolerate provider rate limiting by retrying with backoff.
+   *
+   * Set by bulk senders only. A campaign wakes hundreds of durable workflows at
+   * the same instant and each one calls the provider immediately, which is far
+   * above any per-account request limit — without this every call past the
+   * limit returns 429 and is discarded as a permanent failure. Interactive mail
+   * (password resets, notifications) leaves it off: a user waiting on a screen
+   * should get an error quickly, not a minute of silent retries.
+   */
+  retryOnRateLimit?: boolean;
 };
 
 export type SendEmailResult =

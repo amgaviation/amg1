@@ -18,7 +18,7 @@ import {
   type LeadEmailVariables,
   type TemplateCopy,
 } from "@/lib/portal/lead-email-templates";
-import { isSuppressed, unsubscribeUrl } from "@/lib/portal/lead-suppression";
+import { isSuppressed, oneClickUnsubscribeUrl, unsubscribeUrl } from "@/lib/portal/lead-suppression";
 import type { SessionUser } from "@/lib/portal/session";
 import { createServiceClient } from "@/lib/supabase/server";
 
@@ -195,12 +195,24 @@ export async function sendLeadEmail(
       subject,
       text,
       html,
-      replyTo: replyToAddress(),
+      // Replies must land where the automation can see them. The default
+      // reply-to is the apex address, whose MX is a human Google Workspace
+      // mailbox — a reply there never reaches the inbound webhook, so no
+      // 'reply' activity is written, hasHumanActivity() stays false, and the
+      // sequence keeps sending follow-ups over the top of a live conversation.
+      // Routing to the inbound domain puts the reply in the portal and stops
+      // the sequence, which is the whole point of tracking replies at all.
+      replyTo: process.env.EMAIL_INBOUND_DOMAIN
+        ? `reply@${process.env.EMAIL_INBOUND_DOMAIN}`
+        : replyToAddress(),
+      // A campaign wakes every enrolled lead at once; without this the sends
+      // past the provider's rate limit are dropped as permanent failures.
+      retryOnRateLimit: true,
       headers: {
         "X-AMG-Recipient-Type": "lead",
         // RFC 8058: gives Gmail/Outlook a native unsubscribe control, which
         // measurably reduces spam complaints on cold B2B mail.
-        "List-Unsubscribe": `<${footer.unsubscribeUrl}>`,
+        "List-Unsubscribe": `<${oneClickUnsubscribeUrl(recipientEmail)}>`,
         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
       },
     });
