@@ -15,6 +15,7 @@ import {
   updateCommunicationThreadAction,
 } from "@/app/portal/actions/communications";
 import { DeckSelect } from "@/components/portal/ui/fields";
+import { ThreadLiveRefresh } from "@/components/portal/admin/thread-live-refresh";
 import {
   emailProviderStatus,
   getCommunicationThreadDetail,
@@ -195,21 +196,54 @@ function TemplatePreview({ templates }: { templates: CommunicationTemplate[] }) 
   );
 }
 
+/**
+ * Who a reply should go to, so the admin never has to retype an address to
+ * answer inside the portal. The most recent inbound message names whoever wrote
+ * in; before any inbound reply exists, we continue the last outbound to the same
+ * recipients. Our own thread+<id>@ inbound address is filtered so a reply never
+ * loops back to the portal.
+ */
+function deriveReplyRecipients(messages: CommunicationMessage[]): { to: string } {
+  const inboundDomain = process.env.EMAIL_INBOUND_DOMAIN?.toLowerCase();
+  const isOurThreadAddress = (email: string) => {
+    const lower = email.toLowerCase();
+    return lower.startsWith("thread+") && (!inboundDomain || lower.endsWith(`@${inboundDomain}`));
+  };
+
+  const lastInbound = [...messages].reverse().find((m) => m.direction === "inbound" && m.from_email);
+  if (lastInbound?.from_email && !isOurThreadAddress(lastInbound.from_email)) {
+    return { to: lastInbound.from_email };
+  }
+
+  const lastOutbound = [...messages].reverse().find((m) => m.direction === "outbound" && m.to_emails.length);
+  if (lastOutbound) {
+    return { to: lastOutbound.to_emails.filter((email) => !isOurThreadAddress(email)).join(", ") };
+  }
+
+  return { to: "" };
+}
+
 function ComposeForm({
   templates,
   records,
   providerConfigured,
   thread,
+  defaultTo,
 }: {
   templates: CommunicationTemplate[];
   records: CommunicationRecordOptions;
   providerConfigured: boolean;
   thread?: CommunicationThread | null;
+  defaultTo?: string;
 }) {
+  const replyMode = Boolean(thread);
   return (
     <form action={sendCommunicationEmailAction} className="deck-inset grid gap-4 p-4">
       <input type="hidden" name="back_to" value={thread ? `/portal/admin/messages?thread=${thread.id}` : "/portal/admin/messages"} />
       {thread ? <input type="hidden" name="thread_id" value={thread.id} /> : null}
+      {replyMode ? (
+        <p className="deck-eyebrow !text-[var(--deck-accent-ink)]">Reply in this thread</p>
+      ) : null}
       {!thread ? (
         <label className="flex items-center gap-2 text-sm text-[var(--deck-text-2)]">
           <input type="checkbox" name="general_thread" className="h-4 w-4" />
@@ -229,7 +263,7 @@ function ComposeForm({
       </div>
       <label className="deck-eyebrow grid gap-1 !text-[var(--deck-text-2)]">
         To
-        <input name="to" type="text" required placeholder="name@example.com, ops@example.com" className="deck-input font-normal normal-case [letter-spacing:normal]" />
+        <input name="to" type="text" required defaultValue={defaultTo ?? ""} placeholder="name@example.com, ops@example.com" className="deck-input font-normal normal-case [letter-spacing:normal]" />
       </label>
       <div className="grid gap-3 md:grid-cols-2">
         <label className="deck-eyebrow grid gap-1 !text-[var(--deck-text-2)]">
@@ -249,24 +283,47 @@ function ComposeForm({
         Body
         <textarea name="body" rows={7} placeholder="Leave blank to use selected template body" className="deck-input font-normal normal-case leading-6 [letter-spacing:normal]" />
       </label>
-      <div className="grid gap-3 md:grid-cols-2">
-        <Select name="related_client_id" label="Client" defaultValue={thread?.related_client_id} options={records.clients} />
-        <Select name="related_aircraft_id" label="Aircraft" defaultValue={thread?.related_aircraft_id} options={records.aircraft} />
-        <Select name="related_request_id" label="Support Request" defaultValue={thread?.related_request_id} options={records.requests} />
-        <Select name="related_quote_id" label="Quote" defaultValue={thread?.related_quote_id} options={records.quotes} />
-        <Select name="related_invoice_id" label="Invoice" defaultValue={thread?.related_invoice_id} options={records.invoices} />
-      </div>
-      <label className="deck-eyebrow grid gap-1 !text-[var(--deck-text-2)]">
-        Attachments
-        <input name="attachments" type="file" multiple className="deck-input font-normal normal-case [letter-spacing:normal]" />
-      </label>
+      {replyMode ? (
+        // The thread is already linked, so its record selectors stay tucked away
+        // for a reply — resubmitting keeps the existing links unchanged.
+        <details className="deck-inset p-3">
+          <summary className="deck-eyebrow cursor-pointer !text-[var(--deck-text-2)]">Linked records &amp; attachments</summary>
+          <div className="mt-3 grid gap-3">
+            <div className="grid gap-3 md:grid-cols-2">
+              <Select name="related_client_id" label="Client" defaultValue={thread?.related_client_id} options={records.clients} />
+              <Select name="related_aircraft_id" label="Aircraft" defaultValue={thread?.related_aircraft_id} options={records.aircraft} />
+              <Select name="related_request_id" label="Support Request" defaultValue={thread?.related_request_id} options={records.requests} />
+              <Select name="related_quote_id" label="Quote" defaultValue={thread?.related_quote_id} options={records.quotes} />
+              <Select name="related_invoice_id" label="Invoice" defaultValue={thread?.related_invoice_id} options={records.invoices} />
+            </div>
+            <label className="deck-eyebrow grid gap-1 !text-[var(--deck-text-2)]">
+              Attachments
+              <input name="attachments" type="file" multiple className="deck-input font-normal normal-case [letter-spacing:normal]" />
+            </label>
+          </div>
+        </details>
+      ) : (
+        <>
+          <div className="grid gap-3 md:grid-cols-2">
+            <Select name="related_client_id" label="Client" defaultValue={thread?.related_client_id} options={records.clients} />
+            <Select name="related_aircraft_id" label="Aircraft" defaultValue={thread?.related_aircraft_id} options={records.aircraft} />
+            <Select name="related_request_id" label="Support Request" defaultValue={thread?.related_request_id} options={records.requests} />
+            <Select name="related_quote_id" label="Quote" defaultValue={thread?.related_quote_id} options={records.quotes} />
+            <Select name="related_invoice_id" label="Invoice" defaultValue={thread?.related_invoice_id} options={records.invoices} />
+          </div>
+          <label className="deck-eyebrow grid gap-1 !text-[var(--deck-text-2)]">
+            Attachments
+            <input name="attachments" type="file" multiple className="deck-input font-normal normal-case [letter-spacing:normal]" />
+          </label>
+        </>
+      )}
       <TemplatePreview templates={templates} />
       {!providerConfigured ? (
         <Notice tone="warn">Email sending is disabled until a verified sender and email provider key are configured. Messages will not be marked sent without a real provider or the explicit local mock flag.</Notice>
       ) : null}
       <div className="flex justify-end">
         <SubmitButton disabled={!providerConfigured} pendingText="Sending...">
-          Send email
+          {replyMode ? "Send reply" : "Send email"}
         </SubmitButton>
       </div>
     </form>
@@ -355,8 +412,11 @@ function ThreadDetail({
     );
   }
 
+  const replyRecipients = deriveReplyRecipients(detail.messages);
+
   return (
     <div className="space-y-5">
+      <ThreadLiveRefresh />
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="deck-mono text-[var(--deck-accent-ink)]">{detail.thread.public_id}</p>
@@ -404,7 +464,7 @@ function ThreadDetail({
             <SubmitButton pendingText="Adding...">Add Internal Note</SubmitButton>
           </div>
         </form>
-        <ComposeForm templates={templates} records={records} providerConfigured={providerConfigured} thread={detail.thread} />
+        <ComposeForm templates={templates} records={records} providerConfigured={providerConfigured} thread={detail.thread} defaultTo={replyRecipients.to} />
       </div>
     </div>
   );
