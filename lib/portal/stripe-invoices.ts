@@ -10,6 +10,7 @@ import {
   extractStripeEventLinks,
   handleStripeSubscriptionEvent,
 } from "@/lib/portal/stripe-subscriptions";
+import { recordExternalStripePayment } from "@/lib/portal/stripe-external-payments";
 import {
   buildInvoiceCheckoutSummary,
   canInvoiceReceiveStripePayment,
@@ -331,7 +332,16 @@ async function markInvoiceStripePaymentIntent(
   status: "succeeded" | "failed" | "canceled",
 ): Promise<WebhookResult> {
   const invoiceId = intent.metadata?.invoice_id;
-  if (!invoiceId) return { ok: true, ignored: true };
+  if (!invoiceId) {
+    // A real payment with no portal invoice — collected by a connected app
+    // (e.g. Hurdlr) or directly in the Stripe dashboard. Capture it in the
+    // reconciliation ledger instead of dropping it on the floor.
+    if (status === "succeeded") {
+      const captured = await recordExternalStripePayment(intent);
+      return captured.recorded ? { ok: true } : { ok: true, ignored: true };
+    }
+    return { ok: true, ignored: true };
+  }
   const db = (await createServiceClient()) as any;
   await db
     .from("invoices")

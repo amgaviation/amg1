@@ -230,6 +230,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
         { label: "Analytics", href: "/portal/admin/financial/analytics", icon: "barChart" },
         { label: "Form Submissions", href: "/portal/admin/form-submissions", icon: "inbox", secondary: true },
         { label: "Payments", href: "/portal/admin/payments", icon: "dollar", secondary: true },
+        { label: "Stripe Payments", href: "/portal/admin/payments/stripe", icon: "creditCard", secondary: true },
         { label: "Vendor Invoices", href: "/portal/admin/vendor-invoices", icon: "receipt", secondary: true },
         { label: "Receipts", href: "/portal/admin/receipts", icon: "fileText", secondary: true },
         { label: "Quote Templates", href: "/portal/admin/quotes/templates", icon: "clipboard", secondary: true },
