@@ -25,12 +25,9 @@ const [
   request,
   form,
   proxy,
-  maintenance,
   crm,
   siteConfig,
   howItWorks,
-  nav,
-  footer,
   ticker,
   forShops,
   pilots,
@@ -48,12 +45,9 @@ const [
   read("app/(public)/request/page.tsx"),
   read("app/(public)/request/quote-request-form.tsx"),
   read("proxy.ts"),
-  read("app/(public)/portal-maintenance/page.tsx"),
   read("lib/portal/crm.ts"),
   read("lib/site-config.ts"),
   read("app/(public)/how-it-works/page.tsx"),
-  read("components/site/site-nav.tsx"),
-  read("components/site/site-footer.tsx"),
   read("components/flightdeck/ticker.tsx"),
   read("app/(public)/for-shops/page.tsx"),
   read("app/(public)/pilots/page.tsx"),
@@ -197,20 +191,24 @@ assert.doesNotMatch(
 );
 
 // ---------------------------------------------------------------------------
-// Portal stays closed; intake stays honest.
+// The portal is open; intake stays honest.
+//
+// The client, crew, and partner areas were closed during the manual revenue
+// sprint (proxy.ts redirected them to /portal-maintenance, and this script
+// held that door shut). Reopening them was a deliberate decision, so the guard
+// now points the other way: the redirect must not quietly come back.
 // ---------------------------------------------------------------------------
-assert.doesNotMatch(howItWorks, /AMG Connect/i);
-assert.doesNotMatch(nav, /\/connect|AMG Connect/);
-assert.doesNotMatch(footer, /\/connect|AMG Connect/);
+assert.doesNotMatch(
+  proxy,
+  /portal-maintenance/,
+  "proxy: the client/crew/partner portal was deliberately reopened",
+);
 assert.match(siteConfig, /Temporary contract pilot coverage/);
 assert.match(siteConfig, /Insurance \/ mentor \/ second-pilot need/);
 assert.match(
   form,
   /not confirmed service, a crew assignment, aircraft movement, or an operational commitment/i,
 );
-assert.match(proxy, /portal\\\/\(client\|crew\|partner\)/);
-assert.match(proxy, /portal-maintenance/);
-assert.match(maintenance, /External portal access is temporarily unavailable/);
 assert.match(crm, /"proposal"/);
 assert.match(crm, /"won"/);
 assert.match(crm, /next_action_at/);
