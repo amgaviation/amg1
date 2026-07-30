@@ -7,7 +7,12 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/portal/", "/api/", "/ops/"],
+        // /studio is 3 Green Studios — a separate brand that happens to be
+        // served from this deployment until it gets its own domain. Keeping it
+        // out of the index avoids two identities competing under one hostname.
+        // Remove this entry (and the `robots` block in app/studio/layout.tsx)
+        // when the site moves to 3greenstudios.com.
+        disallow: ["/portal/", "/api/", "/ops/", "/studio"],
       },
     ],
     sitemap: `${base}/sitemap.xml`,
