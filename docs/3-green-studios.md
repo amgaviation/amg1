@@ -225,14 +225,35 @@ What was changed for performance, and what it bought:
 
 **Checked by eye** at 1440×900 and 390×844 across all ten sections.
 
-**Also checked:** the AMG home page still serves its cookie-consent banner after the
-root-layout change, so route-gating the consent UI off `/studio` did not regress it.
+**Also checked locally:** the AMG home page still serves its cookie-consent banner after
+the root-layout change, so route-gating the consent UI off `/studio` did not regress it.
 
-**Not verified:** deployment to Vercel (no deploy was run from this session, so the
-preview URL is unconfirmed and the Lighthouse numbers above are from a local production
-build on a shared-CPU container), the `amgaviationgroup.com` link was taken as a
-verified 200 from the brief rather than re-fetched here, and rendering on real
-iOS/Android hardware.
+### On the deployed Vercel preview
+
+The PR's preview deployment came up Ready, and these were checked against it over HTTP:
+
+- `/studio` returns 200 with the correct `<title>` (no `| AMG Aviation Group` suffix
+  from the root layout's title template) and `<meta name="robots" content="noindex,
+  nofollow">`.
+- The gear panel, both demos ("Interactive demo" labels), and the case study are all in
+  the served HTML — i.e. server-rendered, not JS-only.
+- The AMG link is present with `target="_blank" rel="noopener noreferrer"`.
+- **Zero `cookie-policy` references on `/studio`** — the AMG consent banner is correctly
+  gated off — while the AMG home page on the *same deployment* still has it.
+- Every `_next/static` CSS, JS, and font chunk referenced by the page returns 200, and
+  `/studio/favicon.svg` serves as `image/svg+xml`.
+- The app's CSP, HSTS, `X-Content-Type-Options`, `X-Frame-Options`, and `Referrer-Policy`
+  headers all apply to the route.
+- `robots.txt` lists `Disallow: /studio`.
+
+**Not verified:** the interactive behaviour and Lighthouse scores could not be re-measured
+against the preview. Chromium has no outbound network in this sandbox — it resets on
+every external host including `example.com`, and the egress proxy logs no CONNECT
+attempt — so Playwright and Lighthouse can only drive `localhost`. **Re-run
+`npm run studio:verify` and a Lighthouse pass against the preview URL from a machine
+with normal network access before signing this off.** Also unverified: the
+`amgaviationgroup.com` link was taken as a verified 200 from the brief rather than
+re-fetched, and nothing was tested on real iOS/Android hardware.
 
 ## Open decisions for Tony
 

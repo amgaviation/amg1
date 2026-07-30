@@ -25,7 +25,23 @@ const results = [];
 const pass = (name, detail = "") => results.push({ ok: true, name, detail });
 const fail = (name, detail = "") => results.push({ ok: false, name, detail });
 
-const browser = await chromium.launch(CHROME ? { executablePath: CHROME } : {});
+/**
+ * Sandboxed CI environments route outbound HTTPS through a local MITM proxy, and
+ * Chromium does not read HTTPS_PROXY. Pass it through when the target is remote
+ * so the same script can check a Vercel preview as well as localhost.
+ *
+ * `--ignore-certificate-errors` is scoped to exactly that case: the proxy
+ * re-signs certificates with a CA that Chromium's bundled store does not have.
+ * A localhost run never sets it.
+ */
+const PROXY = /^https?:\/\/(localhost|127\.0\.0\.1)/.test(URL)
+  ? undefined
+  : process.env.HTTPS_PROXY || process.env.https_proxy;
+
+const browser = await chromium.launch({
+  ...(CHROME ? { executablePath: CHROME } : {}),
+  ...(PROXY ? { proxy: { server: PROXY }, args: ["--ignore-certificate-errors"] } : {}),
+});
 
 try {
 
