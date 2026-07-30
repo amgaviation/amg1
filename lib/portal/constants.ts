@@ -3,7 +3,7 @@
  * and the status/label/tone maps shared across every portal surface.
  */
 
-export type PortalRole = "client" | "crew" | "admin" | "partner" | "super_admin";
+export type PortalRole = "client" | "crew" | "admin" | "partner" | "super_admin" | "demo";
 
 export type Tone =
   | "neutral"
@@ -13,7 +13,7 @@ export type Tone =
   | "danger"
   | "accent";
 
-export const PORTAL_ROLES: PortalRole[] = ["client", "crew", "admin", "partner"];
+export const PORTAL_ROLES: PortalRole[] = ["client", "crew", "admin", "partner", "demo"];
 export const SUPER_ADMIN_ROLE: PortalRole = "super_admin";
 
 export function isPortalRole(value: unknown): value is PortalRole {
@@ -22,8 +22,19 @@ export function isPortalRole(value: unknown): value is PortalRole {
     value === "crew" ||
     value === "admin" ||
     value === "partner" ||
-    value === "super_admin"
+    value === "super_admin" ||
+    value === "demo"
   );
+}
+
+/**
+ * The sandbox showcase role: demo users only ever see /portal/demo, which is
+ * rendered entirely from simulated sample data (lib/demo). The role has no
+ * module permissions and no RLS grants, so a demo account can never read or
+ * write operational records.
+ */
+export function isDemoRole(value: unknown): value is "demo" {
+  return value === "demo";
 }
 
 export function isAdminRole(value: unknown): value is "admin" | "super_admin" {
@@ -36,6 +47,7 @@ export const ROLE_LABELS: Record<PortalRole, string> = {
   admin: "Operations Command",
   partner: "Partner Portal",
   super_admin: "Super Admin Console",
+  demo: "Demo Portal",
 };
 
 export const ROLE_SHORT: Record<PortalRole, string> = {
@@ -44,6 +56,7 @@ export const ROLE_SHORT: Record<PortalRole, string> = {
   admin: "AMG Operations",
   partner: "Service Partner",
   super_admin: "AMG Operations",
+  demo: "Demo Sandbox",
 };
 
 export const ROLE_HOME: Record<PortalRole, string> = {
@@ -52,6 +65,7 @@ export const ROLE_HOME: Record<PortalRole, string> = {
   admin: "/portal/admin/dashboard",
   partner: "/portal/partner/dashboard",
   super_admin: "/portal/admin/dashboard",
+  demo: "/portal/demo/dashboard",
 };
 
 export type NavItem = {
@@ -311,6 +325,51 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
       href: "/portal/partner/profile",
       icon: "building",
       items: [{ label: "Company Profile", href: "/portal/partner/profile", icon: "building" }],
+    },
+  ],
+  demo: [
+    {
+      label: "Home",
+      href: "/portal/demo/dashboard",
+      icon: "gauge",
+      items: [{ label: "Home", href: "/portal/demo/dashboard", icon: "gauge" }],
+    },
+    {
+      label: "Operations",
+      href: "/portal/demo/missions",
+      icon: "radar",
+      items: [
+        { label: "Missions", href: "/portal/demo/missions", icon: "plane" },
+      ],
+    },
+    {
+      label: "Network",
+      href: "/portal/demo/clients",
+      icon: "users",
+      items: [
+        { label: "Clients", href: "/portal/demo/clients", icon: "building" },
+        { label: "Crew", href: "/portal/demo/crew", icon: "users" },
+        { label: "Aircraft", href: "/portal/demo/aircraft", icon: "planeTakeoff" },
+      ],
+    },
+    {
+      label: "Business",
+      href: "/portal/demo/quotes",
+      icon: "trendingUp",
+      items: [
+        { label: "Quotes", href: "/portal/demo/quotes", icon: "receipt" },
+        { label: "Invoices", href: "/portal/demo/invoices", icon: "wallet" },
+        { label: "Analytics", href: "/portal/demo/analytics", icon: "barChart" },
+      ],
+    },
+    {
+      label: "Messages",
+      href: "/portal/demo/messages",
+      icon: "messageSquare",
+      items: [
+        { label: "Messages", href: "/portal/demo/messages", icon: "messageSquare" },
+        { label: "Notifications", href: "/portal/demo/notifications", icon: "bell", secondary: true },
+      ],
     },
   ],
   super_admin: [], // resolved to admin groups + Website group in the shell
@@ -744,6 +803,7 @@ export const ASSIGNABLE_PORTAL_ROLES: { value: PortalRole; label: string }[] = [
   { value: "crew", label: "Crew" },
   { value: "partner", label: "Partner (Broker / Vendor)" },
   { value: "admin", label: "AMG Operations" },
+  { value: "demo", label: "Demo (sandbox — sample data only)" },
 ];
 
 export const PORTAL_PERMISSIONS = [

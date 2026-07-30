@@ -381,7 +381,7 @@ function startOfQuarter(date: Date) {
   return new Date(date.getFullYear(), Math.floor(date.getMonth() / 3) * 3, 1);
 }
 
-function resolveDateRange(filters: FinancialAnalyticsFilters = {}) {
+export function resolveDateRange(filters: FinancialAnalyticsFilters = {}) {
   const now = new Date();
   const key = filters.range ?? "month_to_date";
   let from: Date;

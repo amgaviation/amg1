@@ -170,7 +170,15 @@ function download(filename: string, content: string, type = "text/csv;charset=ut
   URL.revokeObjectURL(url);
 }
 
-export function FinancialAnalyticsDashboard({ initialData }: { initialData: FinancialAnalyticsData }) {
+export function FinancialAnalyticsDashboard({
+  initialData,
+  // The demo portal points this at its simulated-data route; every other
+  // mount keeps the real admin analytics API.
+  endpoint = "/api/portal/admin/financial/analytics",
+}: {
+  initialData: FinancialAnalyticsData;
+  endpoint?: string;
+}) {
   const [data, setData] = useState(initialData);
   const [activeTab, setActiveTab] = useState<Tab>("Overview");
   const [range, setRange] = useState<AnalyticsRangeKey>(initialData.dateRange.key);
@@ -188,7 +196,7 @@ export function FinancialAnalyticsDashboard({ initialData }: { initialData: Fina
         params.set("from", from);
         params.set("to", to);
       }
-      const response = await fetch(`/api/portal/admin/financial/analytics?${params.toString()}`, { cache: "no-store" });
+      const response = await fetch(`${endpoint}?${params.toString()}`, { cache: "no-store" });
       if (!response.ok) {
         setError("Financial analytics could not be refreshed.");
         return;
