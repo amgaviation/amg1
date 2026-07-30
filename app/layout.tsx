@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { CookieConsentBanner } from "@/components/compliance/cookie-consent";
-import { ConsentScriptLoader } from "@/components/compliance/consent-script-loader";
+import { SiteConsent } from "@/components/compliance/site-consent";
 import { SITE } from "@/lib/site-config";
 import "./globals.css";
 
@@ -73,8 +72,9 @@ export default function RootLayout({
         }
       >
         {children}
-        <CookieConsentBanner />
-        <ConsentScriptLoader />
+        {/* Route-gated: skipped on /studio, which is a separate brand and loads
+            no third-party scripts. Unchanged everywhere else. */}
+        <SiteConsent />
       </body>
     </html>
   );
