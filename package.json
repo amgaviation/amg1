@@ -27,6 +27,7 @@
     "pricing:verify": "tsx scripts/verify-pricing-catalog.ts",
     "schema:manifest": "node scripts/generate-schema-manifest.mjs",
     "studio:verify": "node scripts/verify-studio-page.mjs",
+    "pilot-health:verify": "tsx scripts/verify-pilot-health.ts",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "npm run typecheck && npm run revenue-sprint:verify && npm run launch-kit:verify"

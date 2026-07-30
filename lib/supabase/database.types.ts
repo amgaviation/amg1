@@ -2384,18 +2384,26 @@ export type Database = {
       }
       crm_leads: {
         Row: {
+          business_type: string
           company: string | null
+          contact_first_name: string | null
+          contact_title: string | null
           converted_profile_id: string | null
           created_at: string
           created_by: string | null
+          do_not_contact: boolean
           email: string | null
           estimated_value: number | null
           form_submission_id: string | null
           full_name: string
           id: string
+          last_outreach_at: string | null
           lost_reason: string | null
           next_action_at: string | null
           notes: string | null
+          outreach_run_id: string | null
+          outreach_started_at: string | null
+          outreach_state: string | null
           owner_id: string | null
           phone: string | null
           source: string
@@ -2403,18 +2411,26 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          business_type?: string
           company?: string | null
+          contact_first_name?: string | null
+          contact_title?: string | null
           converted_profile_id?: string | null
           created_at?: string
           created_by?: string | null
+          do_not_contact?: boolean
           email?: string | null
           estimated_value?: number | null
           form_submission_id?: string | null
           full_name: string
           id?: string
+          last_outreach_at?: string | null
           lost_reason?: string | null
           next_action_at?: string | null
           notes?: string | null
+          outreach_run_id?: string | null
+          outreach_started_at?: string | null
+          outreach_state?: string | null
           owner_id?: string | null
           phone?: string | null
           source?: string
@@ -2422,18 +2438,26 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          business_type?: string
           company?: string | null
+          contact_first_name?: string | null
+          contact_title?: string | null
           converted_profile_id?: string | null
           created_at?: string
           created_by?: string | null
+          do_not_contact?: boolean
           email?: string | null
           estimated_value?: number | null
           form_submission_id?: string | null
           full_name?: string
           id?: string
+          last_outreach_at?: string | null
           lost_reason?: string | null
           next_action_at?: string | null
           notes?: string | null
+          outreach_run_id?: string | null
+          outreach_started_at?: string | null
+          outreach_state?: string | null
           owner_id?: string | null
           phone?: string | null
           source?: string
@@ -2684,6 +2708,113 @@ export type Database = {
           {
             foreignKeyName: "expenses_reviewed_by_fkey"
             columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flightwall_remote: {
+        Row: {
+          id: boolean
+          state: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: boolean
+          state?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: boolean
+          state?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      flightwall_settings: {
+        Row: {
+          custom_airports: Json
+          flights_poll_seconds: number
+          home_lat: number
+          home_lon: number
+          id: boolean
+          layout: Json | null
+          map_center_lat: number
+          map_center_lon: number
+          map_region: string
+          map_style: string
+          map_zoom: number
+          metar_station: string
+          ops_poll_seconds: number
+          panel_order: string[]
+          range_nm: number
+          show_map: boolean
+          show_metar: boolean
+          show_missions: boolean
+          show_requests: boolean
+          show_revenue: boolean
+          updated_at: string
+          updated_by: string | null
+          watchlist_tails: string[]
+        }
+        Insert: {
+          custom_airports?: Json
+          flights_poll_seconds?: number
+          home_lat?: number
+          home_lon?: number
+          id?: boolean
+          layout?: Json | null
+          map_center_lat?: number
+          map_center_lon?: number
+          map_region?: string
+          map_style?: string
+          map_zoom?: number
+          metar_station?: string
+          ops_poll_seconds?: number
+          panel_order?: string[]
+          range_nm?: number
+          show_map?: boolean
+          show_metar?: boolean
+          show_missions?: boolean
+          show_requests?: boolean
+          show_revenue?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          watchlist_tails?: string[]
+        }
+        Update: {
+          custom_airports?: Json
+          flights_poll_seconds?: number
+          home_lat?: number
+          home_lon?: number
+          id?: boolean
+          layout?: Json | null
+          map_center_lat?: number
+          map_center_lon?: number
+          map_region?: string
+          map_style?: string
+          map_zoom?: number
+          metar_station?: string
+          ops_poll_seconds?: number
+          panel_order?: string[]
+          range_nm?: number
+          show_map?: boolean
+          show_metar?: boolean
+          show_missions?: boolean
+          show_requests?: boolean
+          show_revenue?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          watchlist_tails?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flightwall_settings_updated_by_fkey"
+            columns: ["updated_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -3075,6 +3206,549 @@ export type Database = {
             columns: ["superseded_by_invoice_id"]
             isOneToOne: false
             referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_suppressions: {
+        Row: {
+          created_at: string
+          detail: string | null
+          email: string
+          id: string
+          reason: string
+        }
+        Insert: {
+          created_at?: string
+          detail?: string | null
+          email: string
+          id?: string
+          reason?: string
+        }
+        Update: {
+          created_at?: string
+          detail?: string | null
+          email?: string
+          id?: string
+          reason?: string
+        }
+        Relationships: []
+      }
+      logbook_aircraft_mappings: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          make_model: string | null
+          modified_by: string
+          normalized_identifier: string
+          owner_id: string
+          portal_aircraft_id: string | null
+          source_aircraft_identifier: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          make_model?: string | null
+          modified_by: string
+          normalized_identifier: string
+          owner_id: string
+          portal_aircraft_id?: string | null
+          source_aircraft_identifier: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          make_model?: string | null
+          modified_by?: string
+          normalized_identifier?: string
+          owner_id?: string
+          portal_aircraft_id?: string | null
+          source_aircraft_identifier?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logbook_aircraft_mappings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logbook_aircraft_mappings_modified_by_fkey"
+            columns: ["modified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logbook_aircraft_mappings_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logbook_aircraft_mappings_portal_aircraft_id_fkey"
+            columns: ["portal_aircraft_id"]
+            isOneToOne: false
+            referencedRelation: "aircraft"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      logbook_audit_findings: {
+        Row: {
+          created_at: string
+          created_by: string
+          entry_id: string | null
+          evidence: Json
+          explanation: string
+          id: string
+          import_batch_id: string | null
+          modified_by: string
+          owner_id: string
+          recommended_correction: string
+          rule_code: string
+          severity: string
+          source_row_number: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          entry_id?: string | null
+          evidence?: Json
+          explanation: string
+          id?: string
+          import_batch_id?: string | null
+          modified_by: string
+          owner_id: string
+          recommended_correction: string
+          rule_code: string
+          severity: string
+          source_row_number?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          entry_id?: string | null
+          evidence?: Json
+          explanation?: string
+          id?: string
+          import_batch_id?: string | null
+          modified_by?: string
+          owner_id?: string
+          recommended_correction?: string
+          rule_code?: string
+          severity?: string
+          source_row_number?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logbook_audit_findings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logbook_audit_findings_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "logbook_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logbook_audit_findings_import_batch_id_fkey"
+            columns: ["import_batch_id"]
+            isOneToOne: false
+            referencedRelation: "logbook_import_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logbook_audit_findings_modified_by_fkey"
+            columns: ["modified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logbook_audit_findings_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      logbook_currency_snapshots: {
+        Row: {
+          calculated_at: string
+          calculation_version: string
+          created_at: string
+          created_by: string
+          currency_type: string
+          estimated_through: string | null
+          evidence: Json
+          id: string
+          limitations: string
+          modified_by: string
+          owner_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          calculated_at?: string
+          calculation_version: string
+          created_at?: string
+          created_by: string
+          currency_type: string
+          estimated_through?: string | null
+          evidence?: Json
+          id?: string
+          limitations: string
+          modified_by: string
+          owner_id: string
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          calculated_at?: string
+          calculation_version?: string
+          created_at?: string
+          created_by?: string
+          currency_type?: string
+          estimated_through?: string | null
+          evidence?: Json
+          id?: string
+          limitations?: string
+          modified_by?: string
+          owner_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logbook_currency_snapshots_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logbook_currency_snapshots_modified_by_fkey"
+            columns: ["modified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logbook_currency_snapshots_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      logbook_entries: {
+        Row: {
+          actual_instrument_time: number | null
+          aircraft_identifier: string | null
+          aircraft_type: string | null
+          approaches_count: number | null
+          created_at: string
+          created_by: string
+          cross_country_time: number | null
+          day_landings: number | null
+          dual_received_time: number | null
+          flight_date: string | null
+          from_airport: string | null
+          holds_count: number | null
+          id: string
+          import_batch_id: string
+          modified_by: string
+          night_landings: number | null
+          night_time: number | null
+          owner_id: string
+          pic_time: number | null
+          remarks: string | null
+          route: string | null
+          row_fingerprint: string
+          sic_time: number | null
+          simulated_instrument_time: number | null
+          solo_time: number | null
+          source_file_id: string
+          source_row: Json
+          source_row_number: number
+          to_airport: string | null
+          total_time: number | null
+          updated_at: string
+        }
+        Insert: {
+          actual_instrument_time?: number | null
+          aircraft_identifier?: string | null
+          aircraft_type?: string | null
+          approaches_count?: number | null
+          created_at?: string
+          created_by: string
+          cross_country_time?: number | null
+          day_landings?: number | null
+          dual_received_time?: number | null
+          flight_date?: string | null
+          from_airport?: string | null
+          holds_count?: number | null
+          id?: string
+          import_batch_id: string
+          modified_by: string
+          night_landings?: number | null
+          night_time?: number | null
+          owner_id: string
+          pic_time?: number | null
+          remarks?: string | null
+          route?: string | null
+          row_fingerprint: string
+          sic_time?: number | null
+          simulated_instrument_time?: number | null
+          solo_time?: number | null
+          source_file_id: string
+          source_row: Json
+          source_row_number: number
+          to_airport?: string | null
+          total_time?: number | null
+          updated_at?: string
+        }
+        Update: {
+          actual_instrument_time?: number | null
+          aircraft_identifier?: string | null
+          aircraft_type?: string | null
+          approaches_count?: number | null
+          created_at?: string
+          created_by?: string
+          cross_country_time?: number | null
+          day_landings?: number | null
+          dual_received_time?: number | null
+          flight_date?: string | null
+          from_airport?: string | null
+          holds_count?: number | null
+          id?: string
+          import_batch_id?: string
+          modified_by?: string
+          night_landings?: number | null
+          night_time?: number | null
+          owner_id?: string
+          pic_time?: number | null
+          remarks?: string | null
+          route?: string | null
+          row_fingerprint?: string
+          sic_time?: number | null
+          simulated_instrument_time?: number | null
+          solo_time?: number | null
+          source_file_id?: string
+          source_row?: Json
+          source_row_number?: number
+          to_airport?: string | null
+          total_time?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logbook_entries_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logbook_entries_import_batch_id_fkey"
+            columns: ["import_batch_id"]
+            isOneToOne: false
+            referencedRelation: "logbook_import_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logbook_entries_modified_by_fkey"
+            columns: ["modified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logbook_entries_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logbook_entries_source_file_id_fkey"
+            columns: ["source_file_id"]
+            isOneToOne: false
+            referencedRelation: "logbook_source_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      logbook_import_batches: {
+        Row: {
+          accepted_rows: number
+          created_at: string
+          created_by: string
+          duplicate_rows: number
+          error_summary: Json
+          id: string
+          imported_at: string | null
+          modified_by: string
+          owner_id: string
+          parser_version: string
+          rejected_rows: number
+          source_file_id: string
+          source_kind: string
+          status: string
+          total_rows: number
+          updated_at: string
+        }
+        Insert: {
+          accepted_rows?: number
+          created_at?: string
+          created_by: string
+          duplicate_rows?: number
+          error_summary?: Json
+          id?: string
+          imported_at?: string | null
+          modified_by: string
+          owner_id: string
+          parser_version: string
+          rejected_rows?: number
+          source_file_id: string
+          source_kind: string
+          status: string
+          total_rows?: number
+          updated_at?: string
+        }
+        Update: {
+          accepted_rows?: number
+          created_at?: string
+          created_by?: string
+          duplicate_rows?: number
+          error_summary?: Json
+          id?: string
+          imported_at?: string | null
+          modified_by?: string
+          owner_id?: string
+          parser_version?: string
+          rejected_rows?: number
+          source_file_id?: string
+          source_kind?: string
+          status?: string
+          total_rows?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logbook_import_batches_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logbook_import_batches_modified_by_fkey"
+            columns: ["modified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logbook_import_batches_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logbook_import_batches_source_file_id_fkey"
+            columns: ["source_file_id"]
+            isOneToOne: false
+            referencedRelation: "logbook_source_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      logbook_source_files: {
+        Row: {
+          byte_size: number
+          created_at: string
+          created_by: string
+          id: string
+          mime_type: string
+          modified_by: string
+          original_file_name: string
+          owner_id: string
+          sha256: string
+          storage_bucket: string
+          storage_path: string
+          updated_at: string
+        }
+        Insert: {
+          byte_size: number
+          created_at?: string
+          created_by: string
+          id?: string
+          mime_type: string
+          modified_by: string
+          original_file_name: string
+          owner_id: string
+          sha256: string
+          storage_bucket?: string
+          storage_path: string
+          updated_at?: string
+        }
+        Update: {
+          byte_size?: number
+          created_at?: string
+          created_by?: string
+          id?: string
+          mime_type?: string
+          modified_by?: string
+          original_file_name?: string
+          owner_id?: string
+          sha256?: string
+          storage_bucket?: string
+          storage_path?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logbook_source_files_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logbook_source_files_modified_by_fkey"
+            columns: ["modified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logbook_source_files_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -4109,6 +4783,72 @@ export type Database = {
         }
         Relationships: []
       }
+      outreach_settings: {
+        Row: {
+          daily_send_cap: number
+          enabled: boolean
+          followup_1_delay_days: number
+          followup_2_delay_days: number
+          id: boolean
+          prospecting_batch_size: number
+          send_days: number[]
+          send_timezone: string
+          send_window_end_hour: number
+          send_window_start_hour: number
+          templates_approved_at: string | null
+          templates_approved_by: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          daily_send_cap?: number
+          enabled?: boolean
+          followup_1_delay_days?: number
+          followup_2_delay_days?: number
+          id?: boolean
+          prospecting_batch_size?: number
+          send_days?: number[]
+          send_timezone?: string
+          send_window_end_hour?: number
+          send_window_start_hour?: number
+          templates_approved_at?: string | null
+          templates_approved_by?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          daily_send_cap?: number
+          enabled?: boolean
+          followup_1_delay_days?: number
+          followup_2_delay_days?: number
+          id?: boolean
+          prospecting_batch_size?: number
+          send_days?: number[]
+          send_timezone?: string
+          send_window_end_hour?: number
+          send_window_start_hour?: number
+          templates_approved_at?: string | null
+          templates_approved_by?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outreach_settings_templates_approved_by_fkey"
+            columns: ["templates_approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outreach_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partner_profiles: {
         Row: {
           after_hours_support: boolean | null
@@ -4306,6 +5046,115 @@ export type Database = {
           {
             foreignKeyName: "payments_recorded_by_fkey"
             columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pilot_health_connections: {
+        Row: {
+          access_token_enc: string
+          access_token_expires_at: string | null
+          connected_at: string
+          created_at: string
+          last_sync_status: string | null
+          last_synced_at: string | null
+          profile_id: string
+          provider: string
+          refresh_token_enc: string | null
+          scopes: string[]
+          token_type: string
+          updated_at: string
+        }
+        Insert: {
+          access_token_enc: string
+          access_token_expires_at?: string | null
+          connected_at?: string
+          created_at?: string
+          last_sync_status?: string | null
+          last_synced_at?: string | null
+          profile_id: string
+          provider?: string
+          refresh_token_enc?: string | null
+          scopes?: string[]
+          token_type?: string
+          updated_at?: string
+        }
+        Update: {
+          access_token_enc?: string
+          access_token_expires_at?: string | null
+          connected_at?: string
+          created_at?: string
+          last_sync_status?: string | null
+          last_synced_at?: string | null
+          profile_id?: string
+          provider?: string
+          refresh_token_enc?: string | null
+          scopes?: string[]
+          token_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pilot_health_connections_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pilot_health_daily: {
+        Row: {
+          activity_score: number | null
+          average_hrv: number | null
+          created_at: string
+          day: string
+          hrv_balance: number | null
+          profile_id: string
+          readiness_score: number | null
+          resting_heart_rate: number | null
+          sleep_score: number | null
+          steps: number | null
+          synced_at: string
+          total_sleep_seconds: number | null
+          updated_at: string
+        }
+        Insert: {
+          activity_score?: number | null
+          average_hrv?: number | null
+          created_at?: string
+          day: string
+          hrv_balance?: number | null
+          profile_id: string
+          readiness_score?: number | null
+          resting_heart_rate?: number | null
+          sleep_score?: number | null
+          steps?: number | null
+          synced_at?: string
+          total_sleep_seconds?: number | null
+          updated_at?: string
+        }
+        Update: {
+          activity_score?: number | null
+          average_hrv?: number | null
+          created_at?: string
+          day?: string
+          hrv_balance?: number | null
+          profile_id?: string
+          readiness_score?: number | null
+          resting_heart_rate?: number | null
+          sleep_score?: number | null
+          steps?: number | null
+          synced_at?: string
+          total_sleep_seconds?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pilot_health_daily_profile_id_fkey"
+            columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -5668,6 +6517,103 @@ export type Database = {
             columns: ["linked_plan_tier_id"]
             isOneToOne: false
             referencedRelation: "subscription_plan_tiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stripe_external_payments: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          description: string | null
+          external_reference: string | null
+          id: string
+          matched_invoice_id: string | null
+          matched_payment_id: string | null
+          metadata: Json | null
+          paid_at: string
+          payer_email: string | null
+          payer_name: string | null
+          resolution_note: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          source: string
+          status: string
+          stripe_charge_id: string | null
+          stripe_customer_id: string | null
+          stripe_payment_intent_id: string
+          stripe_receipt_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          external_reference?: string | null
+          id?: string
+          matched_invoice_id?: string | null
+          matched_payment_id?: string | null
+          metadata?: Json | null
+          paid_at: string
+          payer_email?: string | null
+          payer_name?: string | null
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          source?: string
+          status?: string
+          stripe_charge_id?: string | null
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id: string
+          stripe_receipt_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          external_reference?: string | null
+          id?: string
+          matched_invoice_id?: string | null
+          matched_payment_id?: string | null
+          metadata?: Json | null
+          paid_at?: string
+          payer_email?: string | null
+          payer_name?: string | null
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          source?: string
+          status?: string
+          stripe_charge_id?: string | null
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string
+          stripe_receipt_url?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_external_payments_matched_invoice_id_fkey"
+            columns: ["matched_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stripe_external_payments_matched_payment_id_fkey"
+            columns: ["matched_payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stripe_external_payments_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
