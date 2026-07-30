@@ -375,6 +375,19 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
   super_admin: [], // resolved to admin groups + Website group in the shell
 };
 
+/**
+ * Private single-owner workspace: personal Oura wellness signals. The shell
+ * shows it only to the Pilot Health owner account (lib/pilot-health/access);
+ * the page and its API routes re-check ownership server-side — hiding this
+ * group is chrome, never the security boundary.
+ */
+export const PILOT_HEALTH_NAV_GROUP: NavGroup = {
+  label: "Health",
+  href: "/portal/admin/pilot-health",
+  icon: "heart",
+  items: [{ label: "Pilot Health", href: "/portal/admin/pilot-health", icon: "heart" }],
+};
+
 /** Extra sidebar workspace shown only to the super_admin role. */
 export const SUPER_ADMIN_NAV_GROUP: NavGroup = {
   label: "Website",

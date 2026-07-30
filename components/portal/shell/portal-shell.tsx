@@ -14,6 +14,7 @@ import { initials } from "@/lib/portal/format";
 import { clearPortalIntroBrowserState } from "@/lib/portal/intro";
 import {
   DECK_NAV,
+  PILOT_HEALTH_NAV_GROUP,
   PRIMARY_ACTION,
   ROLE_HOME,
   ROLE_LABELS,
@@ -24,6 +25,7 @@ import {
   type NavItem,
   type PortalRole,
 } from "@/lib/portal/constants";
+import { canAccessPilotHealth } from "@/lib/pilot-health/access";
 import { navModuleForHref } from "@/lib/portal/permissions-catalog";
 
 /**
@@ -45,6 +47,8 @@ type ShellUser = {
   name: string;
   email: string;
   role: PortalRole;
+  /** Profile status; the layout passes it so owner-scoped chrome can key off it. */
+  status?: string;
   companyName: string | null;
   avatarPath?: string | null;
 };
@@ -94,15 +98,24 @@ const PROFILE_HREF: Record<PortalRole, string> = {
 
 function resolveNavGroups(role: PortalRole, user: ShellUser): NavGroup[] {
   const base = role === "super_admin" ? DECK_NAV.admin : DECK_NAV[role];
+  const extras: NavGroup[] = [];
+  // Pilot Health rides along on the admin console for exactly one owner
+  // account. Chrome only — the page and API routes re-check ownership.
+  if (
+    (role === "admin" || role === "super_admin") &&
+    canAccessPilotHealth({ email: user.email, role: user.role, status: user.status ?? "" })
+  ) {
+    extras.push(PILOT_HEALTH_NAV_GROUP);
+  }
   // Website governance is a super_admin-only workspace; it also rides along
   // when a super admin works the admin console.
   if (
     (user.role === "super_admin" && role === "admin") ||
     (user.role === "super_admin" && role === "super_admin")
   ) {
-    return [...base, SUPER_ADMIN_NAV_GROUP];
+    extras.push(SUPER_ADMIN_NAV_GROUP);
   }
-  return base;
+  return extras.length ? [...base, ...extras] : base;
 }
 
 /**
