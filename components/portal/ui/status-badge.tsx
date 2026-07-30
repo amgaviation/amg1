@@ -29,6 +29,7 @@ export function RoleBadge({ role, className }: { role: string; className?: strin
     admin: "AMG Operations",
     partner: "Partner Network",
     super_admin: "Super Admin",
+    demo: "Demo Sandbox",
   };
   const tones: Record<string, Tone> = {
     client: "info",
@@ -36,6 +37,7 @@ export function RoleBadge({ role, className }: { role: string; className?: strin
     admin: "accent",
     partner: "warn",
     super_admin: "danger",
+    demo: "neutral",
   };
   return (
     <StatusBadge

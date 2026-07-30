@@ -71,6 +71,7 @@ const NOTIFICATIONS_HREF: Record<PortalRole, string> = {
   admin: "/portal/admin/notifications",
   partner: "/portal/partner/notifications",
   super_admin: "/portal/admin/notifications",
+  demo: "/portal/demo/notifications",
 };
 
 const SETTINGS_HREF: Record<PortalRole, string> = {
@@ -79,6 +80,7 @@ const SETTINGS_HREF: Record<PortalRole, string> = {
   admin: "/portal/admin/settings",
   partner: "/portal/partner/settings",
   super_admin: "/portal/admin/settings",
+  demo: "/portal/demo/settings",
 };
 
 const PROFILE_HREF: Record<PortalRole, string> = {
@@ -87,6 +89,7 @@ const PROFILE_HREF: Record<PortalRole, string> = {
   admin: "/portal/admin/settings",
   partner: "/portal/partner/profile",
   super_admin: "/portal/admin/settings",
+  demo: "/portal/demo/settings",
 };
 
 function resolveNavGroups(role: PortalRole, user: ShellUser): NavGroup[] {
@@ -481,6 +484,7 @@ function UserMenu({ role, user }: { role: PortalRole; user: ShellUser }) {
     { role: "client", label: "Client layout" },
     { role: "crew", label: "Crew layout" },
     { role: "partner", label: "Partner layout" },
+    { role: "demo", label: "Demo portal" },
   ];
   return (
     <div className="relative">
@@ -659,6 +663,7 @@ function MenuSheet({
                 { role: "client", label: "Client" },
                 { role: "crew", label: "Crew" },
                 { role: "partner", label: "Partner" },
+                { role: "demo", label: "Demo" },
               ] as { role: PortalRole; label: string }[]
             ).map((target) => (
               <Link

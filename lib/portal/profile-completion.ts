@@ -31,6 +31,7 @@ const SETTINGS_HREF: Record<PortalRole, string> = {
   admin: "/portal/admin/settings",
   partner: "/portal/partner/profile",
   super_admin: "/portal/admin/settings",
+  demo: "/portal/demo/settings",
 };
 
 function has(value: unknown): boolean {
@@ -41,6 +42,16 @@ export async function getProfileCompletion(
   userId: string,
   role: PortalRole
 ): Promise<ProfileCompletion> {
+  // Demo accounts are sandboxes with nothing real to fill in — never nag them.
+  if (role === "demo") {
+    return {
+      complete: true,
+      missing: [],
+      settingsHref: SETTINGS_HREF.demo,
+      settingsLabel: "Open Settings",
+    };
+  }
+
   const db = (await createServiceClient()) as any;
   const missing: string[] = [];
 
