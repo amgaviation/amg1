@@ -12,6 +12,7 @@ import { sweepInvoiceDunning } from "@/lib/portal/sweeps/dunning";
 import { sweepPayoutReminders } from "@/lib/portal/sweeps/payout-reminders";
 import { sweepSchemaDrift } from "@/lib/portal/sweeps/schema-drift";
 import { sweepSlaBreaches } from "@/lib/portal/sweeps/sla-sweep";
+import { sweepTfrs } from "@/lib/portal/sweeps/tfr-sweep";
 import { createServiceClient } from "@/lib/supabase/server";
 
 // Nightly operational sweep, invoked by Vercel Cron (see vercel.json).
@@ -570,6 +571,9 @@ export async function GET(request: Request) {
     slaBreached: 0,
     slaCredited: 0,
     schemaDriftMissing: 0,
+    tfrsFetched: 0,
+    tfrConflictsOpened: 0,
+    tfrAlertsSent: 0,
   };
   const errors: Record<string, string> = {};
   const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
@@ -656,6 +660,19 @@ export async function GET(request: Request) {
   } catch (error) {
     errors.schemaDrift = message(error);
     console.error("[cron/nightly] schema drift sweep failed", error);
+  }
+
+  // Also runs on its own 30-minute schedule (/api/cron/tfr-sync); repeating it
+  // here keeps the snapshot current if that cron is ever paused. The sweep is
+  // idempotent, so the overlap costs one API call.
+  try {
+    const tfrs = await sweepTfrs(db, now);
+    counts.tfrsFetched = tfrs.tfrsFetched;
+    counts.tfrConflictsOpened = tfrs.conflictsOpened;
+    counts.tfrAlertsSent = tfrs.alertsSent;
+  } catch (error) {
+    errors.tfrSync = message(error);
+    console.error("[cron/nightly] TFR sweep failed", error);
   }
 
   await insertAuditRows(db, [

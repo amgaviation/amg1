@@ -15,6 +15,7 @@ import { getEntityTimeline, getMissionDetail, listAllCrew, listAllPartners } fro
 import { MIN_GATE_OVERRIDE_REASON_LENGTH, getCrewComplianceIssues, getMissionReadiness } from "@/lib/portal/mission-lifecycle";
 import { countQualifiedCrew, describePoolRequirements, listCrewRequestsForMission, parsePoolRequirements } from "@/lib/portal/pool";
 import { getPublicSupportRequestForMission, publicSupportLabel } from "@/lib/portal/public-support-requests";
+import { formatAltitudeBand, listMissionTfrConflicts } from "@/lib/portal/foreflight/queries";
 import { MissionStatusPanel } from "@/components/portal/ui/status-advance";
 import { CREW_ROLE, MISSION_STATUS, MISSION_STATUS_LABEL, MISSION_STATUS_TONE, PARTNER_TYPES, QUOTE_CATEGORIES, URGENCY_LABEL, URGENCY_TONE, toneFor } from "@/lib/portal/constants";
 import { formatDateTime, formatMoney, formatRoute } from "@/lib/portal/format";
@@ -37,14 +38,18 @@ export default async function AdminTripDetailPage({
   await requireRolePermission("admin", "missions");
   const { id } = await params;
   const flash = await searchParams;
-  const [mission, crew, partners, publicRequest, poolRequests, timeline] = await Promise.all([
-    getMissionDetail(id),
-    listAllCrew(),
-    listAllPartners(),
-    getPublicSupportRequestForMission(id),
-    listCrewRequestsForMission(id),
-    getEntityTimeline("mission", id),
-  ]);
+  const [mission, crew, partners, publicRequest, poolRequests, timeline, tfrConflicts] =
+    await Promise.all([
+      getMissionDetail(id),
+      listAllCrew(),
+      listAllPartners(),
+      getPublicSupportRequestForMission(id),
+      listCrewRequestsForMission(id),
+      getEntityTimeline("mission", id),
+      // Airspace intel is advisory chrome on this page — a failure here must
+      // never block the mission record itself from rendering.
+      listMissionTfrConflicts(id).catch(() => []),
+    ]);
   if (!mission) notFound();
 
   const activityItems = timeline
@@ -171,6 +176,75 @@ export default async function AdminTripDetailPage({
           </Link>
         </div>
       </div>
+
+      {/* Airspace conflicts sit above the record: a TFR over the route changes
+          whether this trip can be flown as filed, so it should be read before
+          crew or scheduling decisions, not found further down the page. */}
+      {tfrConflicts.length > 0 ? (
+        <SectionCard
+          title="Airspace Restrictions"
+          icon="shield"
+          description="Active TFRs intersecting this route, from the ForeFlight feed."
+        >
+          <div className="space-y-3">
+            {tfrConflicts.map((conflict) => (
+              <div
+                key={conflict.id}
+                className={`rounded-[calc(var(--radius)-2px)] border-l-[3px] border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4 ${
+                  conflict.severity === "critical"
+                    ? "!border-l-[var(--deck-danger)]"
+                    : conflict.severity === "warning"
+                      ? "!border-l-[var(--deck-warn)]"
+                      : "!border-l-[var(--deck-line-strong)]"
+                }`}
+              >
+                <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+                  <div className="min-w-0">
+                    <Link
+                      href={`/portal/admin/flight-intel/${encodeURIComponent(conflict.tfrIdent)}`}
+                      className="deck-mono text-[var(--deck-accent-ink)] hover:underline"
+                    >
+                      {conflict.tfrIdent}
+                    </Link>
+                    <p className="mt-1 text-sm font-semibold text-[var(--deck-text)]">
+                      {conflict.tfr?.label ?? conflict.tfr?.tfrType ?? "Temporary flight restriction"}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <StatusBadge
+                      label={conflict.severity}
+                      tone={
+                        conflict.severity === "critical"
+                          ? "danger"
+                          : conflict.severity === "warning"
+                            ? "warn"
+                            : "neutral"
+                      }
+                    />
+                    <StatusBadge
+                      label={conflict.conflictType === "terminal" ? "Terminal" : "Enroute"}
+                      tone="neutral"
+                    />
+                    {conflict.timeOverlap !== "active" ? (
+                      <StatusBadge label={conflict.timeOverlap} tone="info" />
+                    ) : null}
+                  </div>
+                </div>
+                {conflict.detail ? (
+                  <p className="mt-2 text-sm leading-6 text-[var(--deck-text-2)]">{conflict.detail}</p>
+                ) : null}
+                {conflict.tfr ? (
+                  <p className="deck-mono mt-2 text-[var(--deck-text-3)]">
+                    {formatAltitudeBand(conflict.tfr)}
+                    {conflict.tfr.artccIdent ? ` · ${conflict.tfr.artccIdent}` : ""}
+                    {conflict.tfr.contactInformation ? ` · ${conflict.tfr.contactInformation}` : ""}
+                  </p>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+      ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[1fr_24rem]">
         <div className="space-y-6">

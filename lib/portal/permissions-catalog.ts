@@ -45,6 +45,7 @@ export type PermissionModule =
   | "compliance"
   | "audit_log"
   | "financial_analytics"
+  | "flight_intel"
   | "settings";
 
 export type PermissionKey = `${PermissionModule}.${PermissionAction}`;
@@ -89,6 +90,7 @@ export const PERMISSION_MODULES: PermissionModuleInfo[] = [
   { key: "compliance", label: "Compliance & Legal", description: "Consent events, privacy requests, controls." },
   { key: "audit_log", label: "Audit Log", description: "Immutable audit trail (view only by design)." },
   { key: "financial_analytics", label: "Financial Analytics", description: "Revenue and margin reporting." },
+  { key: "flight_intel", label: "Flight Intelligence", description: "TFRs, airspace, and aerodrome data from ForeFlight." },
   { key: "settings", label: "Portal Settings", description: "Billing settings, email templates, permissions." },
 ];
 
@@ -139,6 +141,7 @@ export const DEFAULT_PERMISSIONS: Record<MatrixRole, Record<PermissionModule, Ac
     compliance: NONE,
     audit_log: NONE,
     financial_analytics: NONE,
+    flight_intel: NONE,
     settings: NONE,
   },
   crew: {
@@ -168,6 +171,7 @@ export const DEFAULT_PERMISSIONS: Record<MatrixRole, Record<PermissionModule, Ac
     compliance: NONE,
     audit_log: NONE,
     financial_analytics: NONE,
+    flight_intel: NONE,
     settings: NONE,
   },
   partner: {
@@ -195,6 +199,7 @@ export const DEFAULT_PERMISSIONS: Record<MatrixRole, Record<PermissionModule, Ac
     compliance: NONE,
     audit_log: NONE,
     financial_analytics: NONE,
+    flight_intel: NONE,
     settings: NONE,
   },
   admin: {
@@ -222,6 +227,7 @@ export const DEFAULT_PERMISSIONS: Record<MatrixRole, Record<PermissionModule, Ac
     compliance: FULL,
     audit_log: V,
     financial_analytics: V,
+    flight_intel: FULL,
     settings: FULL,
   },
 };
@@ -281,6 +287,7 @@ export const NAV_MODULE_PREFIXES: [string, PermissionModule][] = [
   ["/portal/admin/compliance", "compliance"],
   ["/portal/admin/security-review", "compliance"],
   ["/portal/admin/audit-log", "audit_log"],
+  ["/portal/admin/flight-intel", "flight_intel"],
   ["/portal/admin/system-health", "settings"],
   ["/portal/admin/settings", "settings"],
   ["/portal/client/trips", "missions"],

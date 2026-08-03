@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/nightly",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/tfr-sync",
+      "schedule": "*/30 * * * *"
     }
   ]
 }
