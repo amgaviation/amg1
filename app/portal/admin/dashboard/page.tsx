@@ -14,6 +14,7 @@ import {
   type MissionListItem,
 } from "@/lib/portal/queries";
 import { createServiceClient } from "@/lib/supabase/server";
+import { listOpenTfrConflicts } from "@/lib/portal/foreflight/queries";
 import { listMyOpenTasks } from "@/lib/portal/tasks";
 import { getPayoutSummary } from "@/lib/portal/payouts";
 import { slaChipState, type MissionSlaFields } from "@/lib/portal/sla";
@@ -87,7 +88,7 @@ export default async function AdminDashboardPage() {
       .in("status", ["submitted", "under_review"]);
     return count ?? 0;
   };
-  const [metrics, missions, myTasks, vendorInvoicesOpen, payouts, recentEvents] =
+  const [metrics, missions, myTasks, vendorInvoicesOpen, payouts, recentEvents, tfrConflicts] =
     await Promise.all([
       getAdminMetrics(),
       perms.missions.view ? listAllMissions() : [],
@@ -95,6 +96,7 @@ export default async function AdminDashboardPage() {
       countVendorInvoices(),
       perms.contractor_billing.view ? getPayoutSummary().catch(() => null) : null,
       perms.audit_log.view ? listAuditEvents(10).catch(() => []) : [],
+      perms.flight_intel.view ? listOpenTfrConflicts(10).catch(() => []) : [],
     ]);
 
   const now = new Date();
@@ -150,6 +152,31 @@ export default async function AdminDashboardPage() {
         meta: missionClientLabel(mission),
       });
     }
+  }
+
+  // Airspace conflicts. A TFR sitting over a departure or arrival field ranks
+  // with AOG: the trip cannot legally proceed as filed, and the fix (reroute,
+  // reschedule, or obtain a waiver) has a lead time of its own.
+  for (const conflict of tfrConflicts) {
+    const departsAt = conflict.requestedDeparture
+      ? new Date(conflict.requestedDeparture).getTime()
+      : null;
+    const imminent = departsAt !== null && departsAt - nowMs <= 48 * 3600_000;
+    const critical = conflict.severity === "critical";
+    queue.push({
+      rank: critical ? (imminent ? 0 : 1) : imminent ? 2 : 3,
+      href: `/portal/admin/trips/${conflict.missionId}`,
+      refLabel: conflict.missionRef,
+      title: formatRoute(conflict.departureAirport, conflict.arrivalAirport),
+      action: critical
+        ? `TFR over ${conflict.conflictType === "terminal" ? "the field" : "the route"} — verify routing`
+        : "TFR affects route — review before dispatch",
+      due: conflict.requestedDeparture
+        ? `Dep ${formatDateTime(conflict.requestedDeparture)}`
+        : null,
+      tone: critical ? "danger" : "warn",
+      meta: conflict.tfr?.label ?? conflict.tfrIdent,
+    });
   }
 
   // Aggregate review queues — one row per queue, not per record.

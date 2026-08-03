@@ -70,6 +70,7 @@ export default async function AdminSystemHealthPage() {
             <DetailRow label="Supabase service key">{configured(process.env.SUPABASE_SERVICE_ROLE_KEY)}</DetailRow>
             <DetailRow label="Resend">{configured(process.env.RESEND_API_KEY)}</DetailRow>
             <DetailRow label="Twilio">{configured(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN)}</DetailRow>
+            <DetailRow label="ForeFlight (TFR intel)">{configured(process.env.FOREFLIGHT_API_KEY)}</DetailRow>
           </dl>
         </SectionCard>
 

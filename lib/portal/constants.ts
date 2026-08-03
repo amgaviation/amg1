@@ -213,6 +213,7 @@ export const DECK_NAV: Record<PortalRole, NavGroup[]> = {
         { label: "Calendar", href: "/portal/admin/calendar", icon: "calendar" },
         { label: "Tasks", href: "/portal/admin/tasks", icon: "check" },
         { label: "Crew Map", href: "/portal/admin/live-map", icon: "mapPin" },
+        { label: "Flight Intel", href: "/portal/admin/flight-intel", icon: "shield" },
       ],
     },
     {
