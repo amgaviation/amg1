@@ -841,6 +841,9 @@ export const dashboardHtml = `<!doctype html>
       }
     }
 
+    // Restrictions sit above the basemap but below traffic and labels.
+    drawTfrs(wCss, hCss);
+
     const skyBlue = styleColor("--sky-blue");
     const gold = styleColor("--aviation-gold");
     const dim = styleColor("--text-dim");
@@ -1027,6 +1030,64 @@ export const dashboardHtml = `<!doctype html>
   window.addEventListener("resize", () => { sizeCanvas(); scheduleDraw(); });
   mq.addEventListener("change", scheduleDraw); // auto basemap style follows OS theme
   drawRadar();
+
+  // ---- TFR overlay ----------------------------------------------------
+  // Active restrictions drawn under the traffic layer. Sourced from the
+  // portal's stored TFR snapshot (refreshed by the tfr-sync cron), not from
+  // ForeFlight directly, so the wall and the portal always agree.
+  // Off unless FW_CFG.showTfrs is explicitly enabled.
+  var tfrPolys = [];
+  var TFR_REFRESH_MS = 5 * 60 * 1000;
+
+  function loadTfrs() {
+    if (FW_CFG.showTfrs !== true) return;
+    fetch("/api/flightwall/tfrs", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : { tfrs: [] }; })
+      .then(function (data) {
+        tfrPolys = Array.isArray(data && data.tfrs) ? data.tfrs : [];
+        scheduleDraw();
+      })
+      .catch(function () { /* wall keeps running without the overlay */ });
+  }
+
+  loadTfrs();
+  setInterval(loadTfrs, TFR_REFRESH_MS);
+
+  // Draw every TFR ring whose projected extent lands on screen. Called from
+  // draw() after the basemap tiles and before the aircraft, so restrictions
+  // sit under the traffic they inform.
+  function drawTfrs(wCss, hCss) {
+    if (FW_CFG.showTfrs !== true || !tfrPolys.length) return;
+    ctx.save();
+    for (var i = 0; i < tfrPolys.length; i++) {
+      var poly = tfrPolys[i];
+      var rings = poly.rings || [];
+      // Stadium TFRs are small, low, and recurring — drawn fainter so they
+      // don't compete with the restrictions that actually change a plan.
+      var alpha = poly.stadium ? 0.10 : 0.20;
+      for (var r = 0; r < rings.length; r++) {
+        var ring = rings[r];
+        if (!ring || ring.length < 3) continue;
+        ctx.beginPath();
+        var onScreen = false;
+        for (var p = 0; p < ring.length; p++) {
+          var lon = ring[p][0], lat = ring[p][1];
+          if (typeof lat !== "number" || typeof lon !== "number") continue;
+          var pt = project(lat, lon, wCss, hCss);
+          if (pt.x > -w && pt.x < w * 2 && pt.y > -h && pt.y < h * 2) onScreen = true;
+          if (p === 0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y);
+        }
+        if (!onScreen) continue;
+        ctx.closePath();
+        ctx.fillStyle = "rgba(220, 38, 38, " + alpha + ")";
+        ctx.fill();
+        ctx.strokeStyle = "rgba(220, 38, 38, 0.75)";
+        ctx.lineWidth = 1.5 * dpr;
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
 
   // ---- render flight list ----
   function renderFlights(contacts) {

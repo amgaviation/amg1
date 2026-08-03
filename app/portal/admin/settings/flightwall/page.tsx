@@ -123,6 +123,23 @@ export default async function AdminFlightwallSettingsPage({
             <TextField label="Custom Center Latitude" name="map_center_lat" type="number" step="0.0001" min="-90" max="90" defaultValue={String(settings.mapCenterLat)} />
             <TextField label="Custom Center Longitude" name="map_center_lon" type="number" step="0.0001" min="-180" max="180" defaultValue={String(settings.mapCenterLon)} />
             <TextField label="Custom Zoom (3 continent – 12 city)" name="map_zoom" type="number" min="3" max="12" defaultValue={String(settings.mapZoom)} />
+            <label className="flex items-start gap-2.5 text-xs text-[var(--deck-text-3)] sm:col-span-2">
+              <input
+                type="checkbox"
+                name="show_tfrs"
+                value="true"
+                defaultChecked={settings.showTfrs}
+                className="mt-0.5 h-4 w-4 accent-[var(--deck-accent)]"
+              />
+              <span>
+                <span className="font-semibold text-[var(--deck-text-2)]">Overlay active TFRs</span>
+                <span className="mt-0.5 block">
+                  Draws current temporary flight restrictions over the map, from the same feed
+                  the Flight Intel board uses. Off by default so a busy TFR day doesn&apos;t
+                  change the wall unannounced.
+                </span>
+              </span>
+            </label>
           </div>
           <p className="mt-3 text-xs text-[var(--deck-text-3)]">
             Picking a named region overrides the custom fields; choose Custom to use them. The custom fields always show
