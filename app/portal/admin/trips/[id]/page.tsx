@@ -16,6 +16,12 @@ import { MIN_GATE_OVERRIDE_REASON_LENGTH, getCrewComplianceIssues, getMissionRea
 import { countQualifiedCrew, describePoolRequirements, listCrewRequestsForMission, parsePoolRequirements } from "@/lib/portal/pool";
 import { getPublicSupportRequestForMission, publicSupportLabel } from "@/lib/portal/public-support-requests";
 import { formatAltitudeBand, listMissionTfrConflicts } from "@/lib/portal/foreflight/queries";
+import { getMissionSuitability } from "@/lib/portal/foreflight/suitability-queries";
+import {
+  SUITABILITY_DISCLAIMER,
+  SUITABILITY_LABEL,
+  SUITABILITY_TONE,
+} from "@/lib/portal/foreflight/runway-suitability";
 import { MissionStatusPanel } from "@/components/portal/ui/status-advance";
 import { CREW_ROLE, MISSION_STATUS, MISSION_STATUS_LABEL, MISSION_STATUS_TONE, PARTNER_TYPES, QUOTE_CATEGORIES, URGENCY_LABEL, URGENCY_TONE, toneFor } from "@/lib/portal/constants";
 import { formatDateTime, formatMoney, formatRoute } from "@/lib/portal/format";
@@ -51,6 +57,24 @@ export default async function AdminTripDetailPage({
       listMissionTfrConflicts(id).catch(() => []),
     ]);
   if (!mission) notFound();
+
+  // Advisory only, and evaluated after the mission loads because it needs the
+  // joined aircraft. Returns nothing when the type can't be matched, rather
+  // than guessing.
+  const suitability = await getMissionSuitability({
+    departure_airport: mission.departure_airport,
+    arrival_airport: mission.arrival_airport,
+    alternate_airport: mission.alternate_airport,
+    aircraft: mission.aircraft
+      ? {
+          make: mission.aircraft.make,
+          model: mission.aircraft.model,
+          min_runway_ft_override: (mission.aircraft as { min_runway_ft_override?: number | null })
+            .min_runway_ft_override,
+        }
+      : null,
+  }).catch(() => []);
+  const notableSuitability = suitability.filter((entry) => entry.result.verdict !== "suitable");
 
   const activityItems = timeline
     .map((event) => ({
@@ -240,6 +264,53 @@ export default async function AdminTripDetailPage({
                     {conflict.tfr.contactInformation ? ` · ${conflict.tfr.contactInformation}` : ""}
                   </p>
                 ) : null}
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+      ) : null}
+
+      {/* Runway suitability. Only surfaced when something is off — a green
+          "suitable" on every leg is noise, and this sits in the same
+          pre-dispatch reading position as the TFR panel above. */}
+      {notableSuitability.length > 0 ? (
+        <SectionCard
+          title="Runway Suitability"
+          icon="planeTakeoff"
+          description={SUITABILITY_DISCLAIMER}
+        >
+          <div className="space-y-3">
+            {notableSuitability.map((entry) => (
+              <div
+                key={`${entry.role}-${entry.airportCode}`}
+                className={`rounded-[calc(var(--radius)-2px)] border border-[var(--deck-line)] bg-[var(--deck-panel)] p-4 ${
+                  entry.result.verdict === "unsuitable"
+                    ? "border-l-[3px] !border-l-[var(--deck-danger)]"
+                    : entry.result.verdict === "marginal"
+                      ? "border-l-[3px] !border-l-[var(--deck-warn)]"
+                      : ""
+                }`}
+              >
+                <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+                  <div className="min-w-0">
+                    <Link
+                      href={`/portal/admin/flight-intel/airports/${encodeURIComponent(entry.airportCode)}`}
+                      className="deck-mono text-[var(--deck-accent-ink)] hover:underline"
+                    >
+                      {entry.airportCode}
+                    </Link>
+                    <span className="ml-2 text-xs uppercase tracking-wide text-[var(--deck-text-3)]">
+                      {entry.role}
+                    </span>
+                  </div>
+                  <StatusBadge
+                    label={SUITABILITY_LABEL[entry.result.verdict]}
+                    tone={SUITABILITY_TONE[entry.result.verdict]}
+                  />
+                </div>
+                <p className="mt-2 text-sm leading-6 text-[var(--deck-text-2)]">
+                  {entry.result.summary}
+                </p>
               </div>
             ))}
           </div>

@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/tfr-sync",
       "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/aerodrome-sync",
+      "schedule": "0 4 * * 1"
     }
   ]
 }

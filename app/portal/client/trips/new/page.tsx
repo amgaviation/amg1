@@ -1,6 +1,7 @@
 import { requireRolePermission } from "@/lib/portal/permissions";
 import { PageHeader, SectionCard, Notice } from "@/components/portal/ui/primitives";
-import { AirportField, CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
+import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/portal/ui/fields";
+import { AirportPickerField } from "@/components/portal/ui/airport-picker";
 import { SubmitButton } from "@/components/portal/ui/submit-button";
 import Link from "next/link";
 import { createMission } from "@/app/portal/actions/missions";
@@ -81,9 +82,9 @@ export default async function NewTripPage({
 
           <SectionCard title="Routing" icon="plane">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <AirportField label="Departure Airport" name="departure_airport" required />
-              <AirportField label="Arrival Airport" name="arrival_airport" required />
-              <AirportField label="Alternate Airport" name="alternate_airport" />
+              <AirportPickerField label="Departure Airport" name="departure_airport" required />
+              <AirportPickerField label="Arrival Airport" name="arrival_airport" required />
+              <AirportPickerField label="Alternate Airport" name="alternate_airport" />
             </div>
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <TextField label="Requested Departure" name="requested_departure" type="datetime-local" required />
