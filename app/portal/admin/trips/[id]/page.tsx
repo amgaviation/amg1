@@ -17,6 +17,8 @@ import { countQualifiedCrew, describePoolRequirements, listCrewRequestsForMissio
 import { getPublicSupportRequestForMission, publicSupportLabel } from "@/lib/portal/public-support-requests";
 import { formatAltitudeBand, listMissionTfrConflicts } from "@/lib/portal/foreflight/queries";
 import { getMissionSuitability } from "@/lib/portal/foreflight/suitability-queries";
+import { listMissionBriefings } from "@/lib/portal/mission-briefings";
+import { emailBriefingToCrew, generateBriefing } from "@/app/portal/actions/briefings";
 import {
   SUITABILITY_DISCLAIMER,
   SUITABILITY_LABEL,
@@ -44,7 +46,7 @@ export default async function AdminTripDetailPage({
   await requireRolePermission("admin", "missions");
   const { id } = await params;
   const flash = await searchParams;
-  const [mission, crew, partners, publicRequest, poolRequests, timeline, tfrConflicts] =
+  const [mission, crew, partners, publicRequest, poolRequests, timeline, tfrConflicts, briefings] =
     await Promise.all([
       getMissionDetail(id),
       listAllCrew(),
@@ -55,6 +57,7 @@ export default async function AdminTripDetailPage({
       // Airspace intel is advisory chrome on this page — a failure here must
       // never block the mission record itself from rendering.
       listMissionTfrConflicts(id).catch(() => []),
+      listMissionBriefings(id).catch(() => []),
     ]);
   if (!mission) notFound();
 
@@ -269,6 +272,58 @@ export default async function AdminTripDetailPage({
           </div>
         </SectionCard>
       ) : null}
+
+      {/* Route briefing: one document combining the restrictions, runway, and
+          airspace picture for this trip. Generation is a plain server-action
+          form, matching the quote/invoice PDF controls. */}
+      <SectionCard
+        title="Route Briefing"
+        icon="fileText"
+        description="TFRs, runway suitability, airspace, and obstacles for this route in one PDF."
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <form action={generateBriefing}>
+              <input type="hidden" name="mission_id" value={mission.id} />
+              <SubmitButton pendingText="Building...">Generate PDF</SubmitButton>
+            </form>
+            <form action={emailBriefingToCrew}>
+              <input type="hidden" name="mission_id" value={mission.id} />
+              <SubmitButton pendingText="Sending..." variant="outline">
+                Email to crew
+              </SubmitButton>
+            </form>
+          </div>
+        }
+      >
+        {briefings.length === 0 ? (
+          <p className="text-sm text-[var(--deck-text-3)]">
+            No briefing generated yet. Building one is a planning aid, not a dispatch release.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {briefings.slice(0, 5).map((briefing) => (
+              <div
+                key={briefing.id}
+                className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-[var(--deck-line)] pb-2 last:border-0 last:pb-0"
+              >
+                <Link
+                  href={`/api/portal/briefings/${briefing.id}/content`}
+                  className="deck-mono text-[var(--deck-accent-ink)] hover:underline"
+                >
+                  {briefing.file_name}
+                </Link>
+                <span className="text-xs text-[var(--deck-text-3)]">
+                  <LocalTime value={briefing.created_at} />
+                  {briefing.emailed_at ? " · emailed" : ""}
+                  {briefing.data_gaps.length
+                    ? ` · ${briefing.data_gaps.length} data gap${briefing.data_gaps.length === 1 ? "" : "s"}`
+                    : ""}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </SectionCard>
 
       {/* Runway suitability. Only surfaced when something is off — a green
           "suitable" on every leg is noise, and this sits in the same

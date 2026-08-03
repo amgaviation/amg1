@@ -13,6 +13,13 @@
 import assert from "node:assert/strict";
 
 import {
+  evaluateSuitability,
+  matchAircraftMinimums,
+  normalizeTypeToken,
+  type AircraftMinimums,
+} from "../lib/portal/foreflight/runway-suitability";
+import { runwayLengthFt } from "../lib/portal/foreflight/runway-geometry";
+import {
   classifyTimeOverlap,
   detectConflicts,
   evaluateConflict,
@@ -267,6 +274,164 @@ check("a mission with no resolvable endpoints yields nothing", () => {
     tfr({ ident: "T11", geometry: squareAround(KTEB.latitude, KTEB.longitude, 1) })
   );
   assert.equal(conflict, null);
+});
+
+
+// ── runway length derivation ────────────────────────────────────────
+
+console.log("\nRunway length derivation");
+
+check("a LineString centerline measures end-to-end", () => {
+  // KTEB 06/24 is ~7,000 ft. One degree of latitude is ~364,000 ft, so a
+  // 0.0192-degree run north is ~7,000 ft.
+  const length = runwayLengthFt({
+    type: "LineString",
+    coordinates: [
+      [-74.06, 40.85],
+      [-74.06, 40.8692],
+    ],
+  });
+  assert.ok(length !== null, "expected a measurable length");
+  assert.ok(Math.abs(length! - 7000) < 200, `expected ~7000 ft, got ${length}`);
+});
+
+check("a Point geometry has no measurable extent", () => {
+  assert.equal(runwayLengthFt({ type: "Point", coordinates: [-74.06, 40.85] }), null);
+});
+
+check("null geometry returns null, not zero", () => {
+  // Zero would be indistinguishable from "very short runway" downstream.
+  assert.equal(runwayLengthFt(null), null);
+  assert.equal(runwayLengthFt(undefined), null);
+});
+
+check("a Polygon outline measures its longest diagonal", () => {
+  const length = runwayLengthFt({
+    type: "Polygon",
+    coordinates: [
+      [
+        [-74.06, 40.85],
+        [-74.06, 40.8692],
+        [-74.0595, 40.8692],
+        [-74.0595, 40.85],
+        [-74.06, 40.85],
+      ],
+    ],
+  });
+  assert.ok(length !== null && length > 6900, `expected the long axis, got ${length}`);
+});
+
+// ── aircraft type matching ──────────────────────────────────────────
+
+const CATALOG: AircraftMinimums[] = [
+  {
+    typeCode: "CL35",
+    displayName: "Challenger 350",
+    aliases: ["challenger350", "cl350", "bd100"],
+    minRunwayFt: 5000,
+    minWidthFt: 75,
+    unsuitableSurfaces: ["turf", "grass", "gravel"],
+  },
+  {
+    typeCode: "PC12",
+    displayName: "Pilatus PC-12 NGX",
+    aliases: ["pc12", "pilatus"],
+    minRunwayFt: 2500,
+    minWidthFt: 50,
+    unsuitableSurfaces: ["water"],
+  },
+];
+
+console.log("\nAircraft type matching");
+
+check("normalizeTypeToken strips case and punctuation", () => {
+  assert.equal(normalizeTypeToken("Challenger 350"), "challenger350");
+  assert.equal(normalizeTypeToken("G-550"), "g550");
+  assert.equal(normalizeTypeToken(null), "");
+});
+
+check("matches messy free-text make/model", () => {
+  // These are the shapes real rows actually hold.
+  assert.equal(matchAircraftMinimums("Bombardier", "Challenger 350", CATALOG)?.typeCode, "CL35");
+  assert.equal(matchAircraftMinimums("BOMBARDIER", "CL-350", CATALOG)?.typeCode, "CL35");
+  assert.equal(matchAircraftMinimums(null, "PC-12 NGX", CATALOG)?.typeCode, "PC12");
+});
+
+check("an unknown type returns null rather than guessing", () => {
+  // Guessing would produce a confidently wrong runway warning.
+  assert.equal(matchAircraftMinimums("Boeing", "737 MAX", CATALOG), null);
+  assert.equal(matchAircraftMinimums(null, null, CATALOG), null);
+});
+
+// ── suitability classification ──────────────────────────────────────
+
+console.log("\nRunway suitability");
+
+const CL35 = CATALOG[0];
+
+check("ample runway is suitable", () => {
+  const result = evaluateSuitability(
+    { longestRunwayFt: 7000, widestRunwayFt: 150, surfaceType: "Asphalt" },
+    CL35
+  );
+  assert.equal(result.verdict, "suitable");
+});
+
+check("runway below the minimum is unsuitable", () => {
+  const result = evaluateSuitability(
+    { longestRunwayFt: 3200, widestRunwayFt: 75, surfaceType: "Asphalt" },
+    CL35
+  );
+  assert.equal(result.verdict, "unsuitable");
+  assert.match(result.summary, /below the/i);
+});
+
+check("a runway just over the minimum is marginal, not suitable", () => {
+  const result = evaluateSuitability(
+    { longestRunwayFt: 5200, widestRunwayFt: 75, surfaceType: "Asphalt" },
+    CL35
+  );
+  assert.equal(result.verdict, "marginal");
+});
+
+check("a soft surface is unsuitable regardless of length", () => {
+  const result = evaluateSuitability(
+    { longestRunwayFt: 9000, widestRunwayFt: 150, surfaceType: "Turf" },
+    CL35
+  );
+  assert.equal(result.verdict, "unsuitable");
+});
+
+check("turboprops cleared for unpaved surfaces are not flagged", () => {
+  const result = evaluateSuitability(
+    { longestRunwayFt: 4000, widestRunwayFt: 60, surfaceType: "Turf" },
+    CATALOG[1]
+  );
+  assert.equal(result.verdict, "suitable");
+});
+
+check("a narrow runway downgrades to marginal", () => {
+  const result = evaluateSuitability(
+    { longestRunwayFt: 9000, widestRunwayFt: 50, surfaceType: "Asphalt" },
+    CL35
+  );
+  assert.equal(result.verdict, "marginal");
+});
+
+check("an unmatched aircraft type is 'unknown', never a pass", () => {
+  const result = evaluateSuitability(
+    { longestRunwayFt: 9000, widestRunwayFt: 150, surfaceType: "Asphalt" },
+    null
+  );
+  assert.equal(result.verdict, "unknown", "a missing check must never read as suitable");
+});
+
+check("missing runway data is 'unknown', never a pass", () => {
+  const result = evaluateSuitability(
+    { longestRunwayFt: null, widestRunwayFt: null, surfaceType: null },
+    CL35
+  );
+  assert.equal(result.verdict, "unknown");
 });
 
 // ── live API smoke test (optional) ──────────────────────────────────
