@@ -21,6 +21,8 @@ export type FlightwallSettings = {
   showMissions: boolean;
   showRevenue: boolean;
   showMetar: boolean;
+  /** Draw active TFR polygons over the map. Off by default. */
+  showTfrs: boolean;
   flightsPollSeconds: number;
   opsPollSeconds: number;
   metarStation: string;
@@ -104,6 +106,7 @@ export const DEFAULT_FLIGHTWALL_SETTINGS: FlightwallSettings = {
   showMissions: true,
   showRevenue: true,
   showMetar: true,
+  showTfrs: false,
   flightsPollSeconds: 30,
   opsPollSeconds: 30,
   metarStation: "KTEB",
@@ -129,6 +132,7 @@ type Row = {
   show_missions: boolean;
   show_revenue: boolean;
   show_metar: boolean;
+  show_tfrs?: boolean | null;
   flights_poll_seconds: number;
   ops_poll_seconds: number;
   metar_station: string;
@@ -163,6 +167,9 @@ function fromRow(row: Row): FlightwallSettings {
     showMissions: row.show_missions,
     showRevenue: row.show_revenue,
     showMetar: row.show_metar,
+    // Newer than the table; null-coalesce so an un-migrated database still
+    // renders (with the overlay off) rather than breaking.
+    showTfrs: row.show_tfrs ?? d.showTfrs,
     flightsPollSeconds: row.flights_poll_seconds,
     opsPollSeconds: row.ops_poll_seconds,
     metarStation: row.metar_station,

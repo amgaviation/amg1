@@ -42,6 +42,73 @@ type ThemeColors = {
   accent: string;
 };
 
+/** Optional planning overlays sourced from the Flight Intel feed. */
+export type IntelLayer = "tfrs" | "airspaces" | "obstacles";
+const INTEL_LAYERS: IntelLayer[] = ["tfrs", "airspaces", "obstacles"];
+
+const INTEL_LAYER_LABEL: Record<IntelLayer, string> = {
+  tfrs: "TFRs",
+  airspaces: "Airspace",
+  obstacles: "Obstacles",
+};
+
+/**
+ * Layer ids per overlay. Fills and outlines are separate maplibre layers, so
+ * visibility toggling has to touch each one.
+ */
+const LAYER_IDS: Record<IntelLayer, string[]> = {
+  tfrs: ["intel-tfrs-fill", "intel-tfrs-line"],
+  airspaces: ["intel-airspaces-fill", "intel-airspaces-line"],
+  obstacles: ["intel-obstacles-point"],
+};
+
+/** Fixed hues: these read as hazard/advisory signals, not theme accents. */
+const TFR_COLOR = "#DC2626";
+const AIRSPACE_COLOR = "#2563EB";
+const OBSTACLE_COLOR = "#B45309";
+
+/**
+ * Add the maplibre layers for one overlay. Called once per source; visibility
+ * is toggled afterwards rather than adding and removing layers, which would
+ * thrash the style on every checkbox press.
+ */
+function addLayersFor(map: maplibregl.Map, layer: IntelLayer, colors: ThemeColors): void {
+  const source = `intel-${layer}`;
+  if (layer === "obstacles") {
+    map.addLayer({
+      id: "intel-obstacles-point",
+      type: "circle",
+      source,
+      paint: {
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 1.5, 10, 4],
+        "circle-color": OBSTACLE_COLOR,
+        "circle-opacity": 0.8,
+        "circle-stroke-width": 0.5,
+        "circle-stroke-color": colors.panel,
+      },
+    });
+    return;
+  }
+
+  const color = layer === "tfrs" ? TFR_COLOR : AIRSPACE_COLOR;
+  map.addLayer({
+    id: `intel-${layer}-fill`,
+    type: "fill",
+    source,
+    paint: { "fill-color": color, "fill-opacity": layer === "tfrs" ? 0.18 : 0.08 },
+  });
+  map.addLayer({
+    id: `intel-${layer}-line`,
+    type: "line",
+    source,
+    paint: {
+      "line-color": color,
+      "line-width": layer === "tfrs" ? 1.4 : 0.8,
+      "line-opacity": 0.75,
+    },
+  });
+}
+
 function readThemeColors(root: HTMLElement | null): ThemeColors {
   const fallback: ThemeColors = { canvas: "#FFFFFF", panel: "#FFFFFF", line: "#E5E7EB", lineStrong: "#C9D1DC", accent: "#1D4ED8" };
   if (!root) return fallback;
@@ -82,6 +149,20 @@ export function CrewMap({
   const [, setMoveTick] = useState(0);
   const [fit, setFit] = useState<"usa" | "active">("usa");
   const [hovered, setHovered] = useState<MapBlip | null>(null);
+  /**
+   * Airspace / obstacle / TFR overlays. Off by default: they are planning
+   * context, and this map's primary job is crew presence.
+   */
+  const [layers, setLayers] = useState<Record<IntelLayer, boolean>>({
+    tfrs: false,
+    airspaces: false,
+    obstacles: false,
+  });
+  const [layerNote, setLayerNote] = useState<string | null>(null);
+  /** Bumped on moveend so the layer effect refetches for the new viewport. */
+  const [viewportTick, setViewportTick] = useState(0);
+  /** Monotonic per-layer request ids — a slow response must not overwrite a newer one. */
+  const layerSeq = useRef<Record<string, number>>({});
 
   const [admin, setAdmin] = useState<AdminPin[]>(initialAdmin ?? []);
   const [crew, setCrew] = useState<CrewAirportRollup[]>(initialCrew ?? []);
@@ -121,6 +202,15 @@ export function CrewMap({
 
     const onMove = () => setMoveTick((t) => (t + 1) % 100000);
     map.on("move", onMove);
+
+    // Separate from `move`: that fires continuously and only re-projects the
+    // hover card. Layer fetches key off the settled viewport instead.
+    let moveEndTimer: number | undefined;
+    const onMoveEnd = () => {
+      window.clearTimeout(moveEndTimer);
+      moveEndTimer = window.setTimeout(() => setViewportTick((t) => (t + 1) % 100000), 350);
+    };
+    map.on("moveend", onMoveEnd);
 
     map.on("load", async () => {
       try {
@@ -169,17 +259,96 @@ export function CrewMap({
       if (map.getLayer("states-line")) map.setPaintProperty("states-line", "line-color", c.lineStrong);
       if (map.getLayer("states-active")) map.setPaintProperty("states-active", "fill-color", c.accent);
       if (map.getLayer("states-active-line")) map.setPaintProperty("states-active-line", "line-color", c.accent);
+      // Intel overlays use fixed hazard hues, but the obstacle halo is drawn
+      // against the panel colour and would desync on a theme switch.
+      if (map.getLayer("intel-obstacles-point")) {
+        map.setPaintProperty("intel-obstacles-point", "circle-stroke-color", c.panel);
+      }
     });
     if (root) obs.observe(root, { attributes: true, attributeFilter: ["data-portal-theme"] });
 
     return () => {
       obs.disconnect();
+      window.clearTimeout(moveEndTimer);
       map.remove();
       mapRef.current = null;
       setReady(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // ── Flight-intel overlays ───────────────────────────────────────────────
+  // Deliberately NOT added inside the `load` handler above: that handler calls
+  // setReady(true) from its catch as well, so `ready` does not imply its
+  // sources exist. Adding them here keeps a us-states.geojson failure from
+  // silently taking these layers down with it. Every call is guarded, because
+  // the map can be torn down mid-flight.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+
+    let cancelled = false;
+    const root = mapEl.current?.closest(".amg-portal") as HTMLElement | null;
+
+    async function syncLayer(layer: IntelLayer) {
+      const m = mapRef.current;
+      if (!m) return;
+      const sourceId = `intel-${layer}`;
+
+      if (!layers[layer]) {
+        for (const id of LAYER_IDS[layer]) {
+          if (m.getLayer(id)) m.setLayoutProperty(id, "visibility", "none");
+        }
+        return;
+      }
+
+      const bounds = m.getBounds();
+      const bbox = [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()]
+        .map((v) => v.toFixed(4))
+        .join(",");
+
+      const id = (layerSeq.current[layer] ?? 0) + 1;
+      layerSeq.current[layer] = id;
+
+      let collection: { features: unknown[]; zoomIn?: boolean; message?: string } | null = null;
+      try {
+        const res = await fetch(
+          `/api/portal/flight-intel/geo?layer=${layer}&bbox=${encodeURIComponent(bbox)}`,
+          { cache: "no-store" }
+        );
+        if (!res.ok) return;
+        collection = await res.json();
+      } catch {
+        return;
+      }
+      // A newer request for this layer landed first — discard this one.
+      if (cancelled || layerSeq.current[layer] !== id || !collection) return;
+
+      const liveMap = mapRef.current;
+      if (!liveMap) return;
+
+      if (collection.zoomIn) setLayerNote(collection.message ?? "Zoom in to load this layer.");
+      else setLayerNote(null);
+
+      const data = { type: "FeatureCollection" as const, features: collection.features ?? [] };
+      const existing = liveMap.getSource(sourceId) as maplibregl.GeoJSONSource | undefined;
+      if (existing) {
+        existing.setData(data as never);
+      } else {
+        liveMap.addSource(sourceId, { type: "geojson", data: data as never });
+        addLayersFor(liveMap, layer, readThemeColors(root));
+      }
+      for (const layerId of LAYER_IDS[layer]) {
+        if (liveMap.getLayer(layerId)) liveMap.setLayoutProperty(layerId, "visibility", "visible");
+      }
+    }
+
+    for (const layer of INTEL_LAYERS) void syncLayer(layer);
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, layers, viewportTick]);
 
   // ── Refetch this tier's data (keeps existing data on error) ─────────────
   async function refetch() {
@@ -360,10 +529,43 @@ export function CrewMap({
             Active states
           </button>
         </div>
+
+        {/* Flight-intel overlays. Same shell as the fit toggle above — this
+            container was already a column flex with clearance for a second
+            control. */}
+        <div className="inline-flex overflow-hidden rounded-lg border border-[var(--deck-line)] bg-[var(--deck-panel)]/90 text-xs shadow-[var(--deck-shadow-card)] backdrop-blur">
+          {INTEL_LAYERS.map((layer) => (
+            <button
+              key={layer}
+              type="button"
+              aria-pressed={layers[layer]}
+              onClick={() => setLayers((prev) => ({ ...prev, [layer]: !prev[layer] }))}
+              className={cn(
+                "px-2.5 py-1 font-semibold transition-colors",
+                layers[layer]
+                  ? "bg-[var(--deck-accent)] text-[var(--deck-on-accent)]"
+                  : "text-[var(--deck-text-2)] hover:text-[var(--deck-text)]"
+              )}
+            >
+              {INTEL_LAYER_LABEL[layer]}
+            </button>
+          ))}
+        </div>
+
+        {layerNote ? (
+          <span className="rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)]/90 px-2.5 py-1 text-[0.7rem] text-[var(--deck-text-3)] shadow-[var(--deck-shadow-card)] backdrop-blur">
+            {layerNote}
+          </span>
+        ) : null}
       </div>
 
       <div className="pointer-events-none absolute bottom-3 left-3 rounded-md border border-[var(--deck-line)] bg-[var(--deck-panel)]/90 px-3 py-1.5 shadow-[var(--deck-shadow-card)] backdrop-blur">
-        <MapLegend />
+        <MapLegend
+          extra={INTEL_LAYERS.filter((layer) => layers[layer]).map((layer) => ({
+            label: INTEL_LAYER_LABEL[layer],
+            color: layer === "tfrs" ? TFR_COLOR : layer === "airspaces" ? AIRSPACE_COLOR : OBSTACLE_COLOR,
+          }))}
+        />
       </div>
 
       {/* hover / tap card */}

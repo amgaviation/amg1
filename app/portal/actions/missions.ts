@@ -18,6 +18,7 @@ import {
 import { ACKNOWLEDGMENT_TEXT, COMPLIANCE_POLICY_VERSION, POLICY_KEYS } from "@/lib/compliance/config";
 import { recordComplianceEvidence, recordSupportRequestDisclaimerAcknowledgment } from "@/lib/compliance/evidence";
 import { detectProhibitedPaymentData } from "@/lib/compliance/payment-data-guard";
+import { unresolvedAirportCodes } from "@/lib/portal/airports";
 import { ensureClientAccountForMission } from "@/lib/portal/client-account-provisioning";
 import { notifyMissionContactByEmail } from "@/lib/portal/mission-client-notifications";
 import { stampSlaDueAtOnIntake } from "@/lib/portal/sla";
@@ -260,6 +261,20 @@ export async function createMission(formData: FormData) {
     redirect("/portal/client/trips/new?error=missing");
   }
 
+  // Airport codes were only ever validated in the browser (a `pattern` attr on
+  // the old free-text field), so a typo or a paste landed in the record
+  // unchallenged and every downstream consumer — TFR conflict detection,
+  // runway suitability, the crew map — silently skipped that mission.
+  //
+  // This records what could not be resolved rather than refusing the write:
+  // the table does not cover every field on earth, and blocking a legitimate
+  // request over an unlisted strip would be worse than flagging it for ops.
+  const unresolvedAirports = await unresolvedAirportCodes([
+    departure,
+    arrival,
+    str(formData, "alternate_airport"),
+  ]).catch(() => [] as string[]);
+
   const aircraftId = str(formData, "aircraft_id") || null;
   let tail: string | null = null;
   let clientId = user.id;
@@ -357,6 +372,19 @@ export async function createMission(formData: FormData) {
     entityType: "mission",
     entityId: mission.id,
   });
+
+  // Audit-only, non-blocking: an unrecognized code still creates the mission,
+  // but ops needs to know the record won't be covered by TFR conflict
+  // detection or runway suitability until the code is corrected.
+  if (unresolvedAirports.length) {
+    await logAuditEvent({
+      actor: user,
+      action: "mission_airport_unresolved",
+      detail: `${mission.ref}: ${unresolvedAirports.join(", ")} not found in the airport directory — airspace and runway checks will skip this route until corrected.`,
+      entityType: "mission",
+      entityId: mission.id,
+    }).catch(() => {});
+  }
   await recordSupportRequestDisclaimerAcknowledgment({
     actor: user,
     audience: user.role,

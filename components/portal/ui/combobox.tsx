@@ -26,21 +26,38 @@ export function Combobox({
   name,
   options,
   defaultValue = "",
+  defaultLabel,
   placeholder = "Search…",
   emptyText = "No matches found.",
   required,
   disabled,
   onValueChange,
+  onSearch,
+  minChars = 2,
   className,
 }: {
   name: string;
   options: ComboboxOption[];
   defaultValue?: string;
+  /**
+   * Display label for `defaultValue` when the option isn't in `options` —
+   * needed with `onSearch`, where the selected value's row hasn't been
+   * fetched yet on first paint.
+   */
+  defaultLabel?: string;
   placeholder?: string;
   emptyText?: string;
   required?: boolean;
   disabled?: boolean;
   onValueChange?: (value: string) => void;
+  /**
+   * Server-backed search. When provided, `options` becomes the initial
+   * suggestion set and every keystroke past `minChars` queries instead of
+   * filtering locally — for sources too large to ship as props.
+   */
+  onSearch?: (query: string) => Promise<ComboboxOption[]>;
+  /** Minimum characters before `onSearch` fires. Ignored without `onSearch`. */
+  minChars?: number;
   className?: string;
 }) {
   const listboxId = useId();
@@ -48,25 +65,57 @@ export function Combobox({
   const [query, setQuery] = useState<string>("");
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
+  const [remote, setRemote] = useState<ComboboxOption[]>([]);
+  const [loading, setLoading] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  /** Monotonic request id: a slow response must never overwrite a newer one. */
+  const seq = useRef(0);
+  /** Label for a preselected value whose row we haven't loaded. */
+  const [fallbackLabel, setFallbackLabel] = useState(defaultLabel ?? "");
+
+  const pool = onSearch ? (query.trim() ? remote : remote.length ? remote : options) : options;
 
   const selectedOption = useMemo(
-    () => options.find((o) => o.value === selected) ?? null,
-    [options, selected]
+    () => [...pool, ...options].find((o) => o.value === selected) ?? null,
+    [pool, options, selected]
   );
 
   const filtered = useMemo(() => {
+    // Server-backed: the source already ranked and filtered; re-filtering here
+    // would drop matches on fields the label doesn't contain.
+    if (onSearch) return pool;
     const q = query.trim().toLowerCase();
     if (!q) return options;
     return options.filter((o) =>
       `${o.label} ${o.keywords ?? ""}`.toLowerCase().includes(q)
     );
-  }, [options, query]);
+  }, [onSearch, pool, options, query]);
 
   useEffect(() => {
     setActive(0);
   }, [query, open]);
+
+  // Debounced remote search with a stale-response guard, mirroring the proven
+  // pattern in components/portal/crew-map/go-active-control.tsx.
+  useEffect(() => {
+    if (!onSearch) return;
+    const term = query.trim();
+    if (term && term.length < minChars) return;
+    const id = ++seq.current;
+    const timer = window.setTimeout(async () => {
+      setLoading(true);
+      try {
+        const results = await onSearch(term);
+        if (seq.current === id) setRemote(results);
+      } catch {
+        if (seq.current === id) setRemote([]);
+      } finally {
+        if (seq.current === id) setLoading(false);
+      }
+    }, 220);
+    return () => window.clearTimeout(timer);
+  }, [onSearch, query, minChars]);
 
   // Close on any pointer press outside the component.
   useEffect(() => {
@@ -83,6 +132,7 @@ export function Combobox({
 
   function choose(option: ComboboxOption) {
     setSelected(option.value);
+    setFallbackLabel(option.label);
     setQuery("");
     setOpen(false);
     onValueChange?.(option.value);
@@ -90,6 +140,7 @@ export function Combobox({
 
   function clear() {
     setSelected("");
+    setFallbackLabel("");
     setQuery("");
     onValueChange?.("");
     inputRef.current?.focus();
@@ -121,7 +172,8 @@ export function Combobox({
     }
   }
 
-  const displayValue = open || query ? query : selectedOption?.label ?? "";
+  const resolvedLabel = selectedOption?.label ?? (selected ? fallbackLabel : "");
+  const displayValue = open || query ? query : resolvedLabel;
 
   return (
     <div ref={rootRef} className={cn("relative", className)}>
@@ -138,7 +190,7 @@ export function Combobox({
           aria-required={required || undefined}
           disabled={disabled}
           className="deck-input pr-14"
-          placeholder={selectedOption && !open ? selectedOption.label : placeholder}
+          placeholder={resolvedLabel && !open ? resolvedLabel : placeholder}
           value={displayValue}
           onChange={(event) => {
             setQuery(event.target.value);
@@ -174,7 +226,11 @@ export function Combobox({
         >
           {filtered.length === 0 ? (
             <li className="px-3 py-2 text-sm text-[var(--deck-text-3)]" role="presentation">
-              {emptyText}
+              {loading
+                ? "Searching…"
+                : onSearch && query.trim().length > 0 && query.trim().length < minChars
+                  ? `Type ${minChars} or more characters…`
+                  : emptyText}
             </li>
           ) : (
             filtered.map((option, index) => (

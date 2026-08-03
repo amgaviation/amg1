@@ -140,6 +140,9 @@ export async function saveFlightwallSettings(formData: FormData) {
       show_missions: layout ? layout.left.concat(layout.right).includes("missions") : bool(formData, "show_missions"),
       show_revenue: layout ? layout.left.concat(layout.right).includes("revenue") : bool(formData, "show_revenue"),
       show_metar: layout ? layout.left.concat(layout.right).includes("metar") : bool(formData, "show_metar"),
+      // Not a panel — a map overlay — so it stays a plain checkbox rather than
+      // following the layout editor's panel membership.
+      show_tfrs: bool(formData, "show_tfrs"),
       layout: layout,
       custom_airports: customAirports,
       flights_poll_seconds: flightsPollSeconds,

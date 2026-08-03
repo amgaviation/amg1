@@ -26,6 +26,7 @@
     "portal:supabase-edit:verify": "node scripts/verify-portal-supabase-edit-contract.mjs",
     "pricing:verify": "tsx scripts/verify-pricing-catalog.ts",
     "foreflight:verify": "tsx scripts/verify-foreflight.ts",
+    "airports:audit": "tsx scripts/audit-airport-codes.ts",
     "schema:manifest": "node scripts/generate-schema-manifest.mjs",
     "studio:verify": "node scripts/verify-studio-page.mjs",
     "lint": "tsc --noEmit",

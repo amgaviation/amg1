@@ -143,20 +143,36 @@ export function ChipRow({ items, empty = "—" }: { items: string[]; empty?: str
   );
 }
 
-/** The status legend + LIVE pill shown above the map. */
-export function MapLegend({ className }: { className?: string }) {
+export type LegendItem = { label: string; color: string };
+
+/** Crew-presence statuses, always shown. */
+const CREW_LEGEND: LegendItem[] = [
+  { label: "Available", color: "var(--deck-accent)" },
+  { label: "Expiring", color: "var(--deck-warn)" },
+  { label: "Ending soon", color: "var(--deck-danger)" },
+];
+
+/**
+ * The status legend shown over the map.
+ *
+ * `extra` appends entries for whichever optional overlays are switched on, so
+ * the legend describes what is actually drawn rather than a fixed list.
+ */
+export function MapLegend({
+  className,
+  extra = [],
+}: {
+  className?: string;
+  extra?: LegendItem[];
+}) {
   const dot = "inline-block h-2 w-2 rounded-full";
   return (
-    <div className={cn("flex items-center gap-3 text-xs text-[var(--deck-text-3)]", className)}>
-      <span className="flex items-center gap-1.5">
-        <span className={dot} style={{ background: "var(--deck-accent)" }} /> Available
-      </span>
-      <span className="flex items-center gap-1.5">
-        <span className={dot} style={{ background: "var(--deck-warn)" }} /> Expiring
-      </span>
-      <span className="flex items-center gap-1.5">
-        <span className={dot} style={{ background: "var(--deck-danger)" }} /> Ending soon
-      </span>
+    <div className={cn("flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--deck-text-3)]", className)}>
+      {[...CREW_LEGEND, ...extra].map((item) => (
+        <span key={item.label} className="flex items-center gap-1.5">
+          <span className={dot} style={{ background: item.color }} /> {item.label}
+        </span>
+      ))}
     </div>
   );
 }

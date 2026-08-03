@@ -43,6 +43,7 @@ export async function GET(request: Request) {
     showMissions: settings.showMissions,
     showRevenue: settings.showRevenue,
     showMetar: settings.showMetar,
+    showTfrs: settings.showTfrs,
     flightsPollSeconds: settings.flightsPollSeconds,
     opsPollSeconds: settings.opsPollSeconds,
     metarStation: settings.metarStation,
